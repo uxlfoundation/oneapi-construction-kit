@@ -320,7 +320,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidHandle) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   cl_mutable_command_khr new_command_handle;
@@ -374,7 +374,7 @@ TEST_F(CommandBufferUpdateNDKernel, UnsupportedPropertyBit) {
     GTEST_SKIP();
   }
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR, all_mutable_capabilities, 0};
   ASSERT_EQ_ERRCODE(
       CL_INVALID_OPERATION,
@@ -386,7 +386,7 @@ TEST_F(CommandBufferUpdateNDKernel, UnsupportedPropertyBit) {
 // Return CL_INVALID_VALUE if a property is set that isn't defined
 TEST_F(CommandBufferUpdateNDKernel, InvalidPropertyBit) {
   // CL_MUTABLE_DISPATCH_EXEC_INFO_KHR  is max representatble value
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_EXEC_INFO_KHR << 1, 0};
   ASSERT_EQ_ERRCODE(
@@ -399,7 +399,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidPropertyBit) {
 // Return CL_INVALID_VALUE if cl_mutable_dispatch_config_khr type is not
 // CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR
 TEST_F(CommandBufferUpdateNDKernel, InvalidDispatchConfigStuctType) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -431,7 +431,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidDispatchConfigStuctType) {
 
 // Return CL_INVALID_VALUE if a bad property was set
 TEST_F(CommandBufferUpdateNDKernel, InvalidCommandProperty) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       1 /* Invalid property */, CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
@@ -443,7 +443,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidCommandProperty) {
 // Return CL_INVALID_OPERATION if the CL_MUTABLE_DISPATCH_ARGUMENTS_KHR
 // property was not set on command recording and num_args is non-zero.
 TEST_F(CommandBufferUpdateNDKernel, ImmutablePropertyBit) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       0 /* should have CL_MUTABLE_DISPATCH_ARGUMENTS_KHR*/, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -476,7 +476,7 @@ TEST_F(CommandBufferUpdateNDKernel, ImmutablePropertyBit) {
 // Return CL_INVALID_VALUE if arg_list is NULL and num_args > 0,
 // or arg_list is not NULL and num_args is 0.
 TEST_F(CommandBufferUpdateNDKernel, InvalidArgList) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -527,7 +527,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgList) {
 // Test clSetKernelArg error code for CL_INVALID_ARG_INDEX if arg_index is not
 // a valid argument index.
 TEST_F(CommandBufferUpdateNDKernel, InvalidArgIndex) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -594,7 +594,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgValue) {
                                data.data(), &err);
   EXPECT_SUCCESS(err);
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -630,7 +630,7 @@ TEST_F(CommandBufferUpdateNDKernel, InvalidArgValue) {
 // Test clSetKernelArg error code for CL_INVALID_ARG_SIZE if arg_size does not
 // match the size of the data type for an argument
 TEST_F(CommandBufferUpdateNDKernel, InvalidArgSize) {
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -684,7 +684,7 @@ TEST_F(CommandBufferUpdateNDKernel, IterativeArgumentUpdate) {
 
   // Record a mutable dispatch to the command buffer we'll change the arguments
   // to
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -771,7 +771,7 @@ TEST_F(CommandBufferUpdateNDKernel, OverwriteArgumentUpdate) {
                                      nullptr, nullptr));
 
   // Record a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(

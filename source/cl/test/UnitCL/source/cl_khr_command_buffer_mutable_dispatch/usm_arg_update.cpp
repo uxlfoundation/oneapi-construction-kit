@@ -129,7 +129,7 @@ void kernel usm_copy(__global int* in,
 TEST_F(MutableDispatchUSMTest, InvalidArgList) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrs[0]));
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -182,7 +182,7 @@ TEST_F(MutableDispatchUSMTest, InvalidArgList) {
 TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrs[0]));
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -216,7 +216,7 @@ TEST_F(MutableDispatchUSMTest, InvalidArgIndex) {
 TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptrs[0]));
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -298,7 +298,7 @@ TEST_P(MutableDispatchUpdateUSMArgs, NoOffset) {
   ASSERT_SUCCESS(error);
 
   // Record a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -388,7 +388,7 @@ TEST_P(MutableDispatchUpdateUSMArgs, Offset) {
   ASSERT_SUCCESS(error);
 
   // Record a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -467,7 +467,7 @@ TEST_F(MutableDispatchUSMTest, DISABLED_BlockingFree) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, usm_ptr));
 
   // Record a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -513,7 +513,7 @@ TEST_F(MutableDispatchUSMTest, DISABLED_UpdateBlockingFree) {
   ASSERT_SUCCESS(error);
 
   // Record a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(

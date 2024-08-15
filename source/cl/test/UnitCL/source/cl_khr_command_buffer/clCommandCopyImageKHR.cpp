@@ -99,30 +99,30 @@ TEST_F(CommandBufferCopyImageTest, Sync) {
       std::numeric_limits<cl_sync_point_khr>::max(),
       std::numeric_limits<cl_sync_point_khr>::max()};
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 0,
-                                       nullptr, &sync_points[0], nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(
+      command_buffer, nullptr, nullptr, src_image, dst_image, origin, origin,
+      region, 0, nullptr, &sync_points[0], nullptr));
 
   ASSERT_NE(sync_points[0], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 0,
-                                       nullptr, &sync_points[1], nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(
+      command_buffer, nullptr, nullptr, src_image, dst_image, origin, origin,
+      region, 0, nullptr, &sync_points[1], nullptr));
 
   ASSERT_NE(sync_points[1], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 2,
-                                       sync_points, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(
+      command_buffer, nullptr, nullptr, src_image, dst_image, origin, origin,
+      region, 2, sync_points, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyImageTest, CopyFull) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {dimension_length, 1, 1};
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 0,
-                                       nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, nullptr,
+                                       src_image, dst_image, origin, origin,
+                                       region, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -138,9 +138,9 @@ TEST_F(CommandBufferCopyImageTest, CopyStart) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {half_dimension, 1, 1};
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 0,
-                                       nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, nullptr,
+                                       src_image, dst_image, origin, origin,
+                                       region, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -162,9 +162,9 @@ TEST_F(CommandBufferCopyImageTest, CopyEnd) {
   const size_t origin[] = {half_dimension, 0, 0};
   const size_t region[] = {half_dimension, 1, 1};
 
-  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                       dst_image, origin, origin, region, 0,
-                                       nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyImageKHR(command_buffer, nullptr, nullptr,
+                                       src_image, dst_image, origin, origin,
+                                       region, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -187,30 +187,30 @@ TEST_F(CommandBufferCopyImageTest, InvalidCommandBuffer) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_BUFFER_KHR,
-      clCommandCopyImageKHR(nullptr, nullptr, src_image, dst_image, origin,
-                            origin, region, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
+                    clCommandCopyImageKHR(nullptr, nullptr, nullptr, src_image,
+                                          dst_image, origin, origin, region, 0,
+                                          nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          dst_image, origin, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, src_image, dst_image,
+                        origin, origin, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyImageTest, InvalidMemObject) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, dst_image, origin,
-                            origin, region, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, nullptr, dst_image,
+                        origin, origin, region, 0, nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clCommandCopyImageKHR(command_buffer, nullptr, src_image, nullptr, origin,
-                            origin, region, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, src_image, nullptr,
+                        origin, origin, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyImageTest, ImageFormatMismatch) {
@@ -226,15 +226,17 @@ TEST_F(CommandBufferCopyImageTest, ImageFormatMismatch) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
 
-  ASSERT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clCommandCopyImageKHR(command_buffer, nullptr, other_image,
-                                          dst_image, origin, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, other_image,
+                            dst_image, origin, origin, region, 0, nullptr,
+                            nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          other_image, origin, origin, region,
-                                          0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            other_image, origin, origin, region, 0, nullptr,
+                            nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(other_image));
 }
@@ -245,14 +247,15 @@ TEST_F(CommandBufferCopyImageTest, InvalidSrcOrigin) {
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandCopyImageKHR(command_buffer, nullptr, src_image, dst_image,
-                            src_origin, dst_origin, region, 0, nullptr, nullptr,
-                            nullptr));
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            dst_image, src_origin, dst_origin, region, 0,
+                            nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyImageKHR(
-                        command_buffer, nullptr, src_image, dst_image, nullptr,
-                        dst_origin, region, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            dst_image, nullptr, dst_origin, region, 0, nullptr,
+                            nullptr, nullptr));
 }
 TEST_F(CommandBufferCopyImageTest, InvalidDstOrigin) {
   size_t src_origin[3] = {0, 0, 0};
@@ -261,15 +264,15 @@ TEST_F(CommandBufferCopyImageTest, InvalidDstOrigin) {
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandCopyImageKHR(command_buffer, nullptr, src_image, dst_image,
-                            src_origin, dst_origin, region, 0, nullptr, nullptr,
-                            nullptr));
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            dst_image, src_origin, dst_origin, region, 0,
+                            nullptr, nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandCopyImageKHR(command_buffer, nullptr, src_image, dst_image,
-                            src_origin, nullptr, region, 0, nullptr, nullptr,
-                            nullptr));
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            dst_image, src_origin, nullptr, region, 0, nullptr,
+                            nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyImageTest, InvalidRegion) {
@@ -277,14 +280,14 @@ TEST_F(CommandBufferCopyImageTest, InvalidRegion) {
   size_t region[3] = {dimension_length + 1, 1, 1};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          dst_image, origin, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, src_image, dst_image,
+                        origin, origin, region, 0, nullptr, nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          dst_image, origin, origin, nullptr, 0,
-                                          nullptr, nullptr, nullptr));
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, src_image, dst_image,
+                        origin, origin, nullptr, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyImageTest, InvalidSyncPoints) {
@@ -292,13 +295,14 @@ TEST_F(CommandBufferCopyImageTest, InvalidSyncPoints) {
   size_t region[3] = {dimension_length, 1, 1};
 
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          dst_image, origin, origin, region, 1,
-                                          nullptr, nullptr, nullptr));
+                    clCommandCopyImageKHR(
+                        command_buffer, nullptr, nullptr, src_image, dst_image,
+                        origin, origin, region, 1, nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandCopyImageKHR(command_buffer, nullptr, src_image,
-                                          dst_image, origin, origin, region, 0,
-                                          &sync_point, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandCopyImageKHR(command_buffer, nullptr, nullptr, src_image,
+                            dst_image, origin, origin, region, 0, &sync_point,
+                            nullptr, nullptr));
 }

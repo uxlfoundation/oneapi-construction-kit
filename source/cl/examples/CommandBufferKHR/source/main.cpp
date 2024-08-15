@@ -141,20 +141,20 @@ int main(const int argc, const char **argv) {
   CL_CHECK(error);
 
   for (size_t tile_index = 0; tile_index < tile_count; tile_index++) {
-    CL_CHECK(clCommandCopyBufferKHR(command_buffer, nullptr, buffer_src1,
-                                    buffer_tile1, tile_index * tile_size, 0,
-                                    tile_size, 0, nullptr, nullptr, nullptr));
-    CL_CHECK(clCommandCopyBufferKHR(command_buffer, nullptr, buffer_src2,
-                                    buffer_tile2, tile_index * tile_size, 0,
-                                    tile_size, 0, nullptr, nullptr, nullptr));
+    CL_CHECK(clCommandCopyBufferKHR(
+        command_buffer, nullptr, nullptr, buffer_src1, buffer_tile1,
+        tile_index * tile_size, 0, tile_size, 0, nullptr, nullptr, nullptr));
+    CL_CHECK(clCommandCopyBufferKHR(
+        command_buffer, nullptr, nullptr, buffer_src2, buffer_tile2,
+        tile_index * tile_size, 0, tile_size, 0, nullptr, nullptr, nullptr));
 
     CL_CHECK(clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr, kernel,
                                        1, nullptr, &tile_elements, nullptr, 0,
                                        nullptr, nullptr, nullptr));
 
-    CL_CHECK(clCommandCopyBufferKHR(command_buffer, nullptr, buffer_res,
-                                    buffer_dst, 0, tile_index * tile_size,
-                                    tile_size, 0, nullptr, nullptr, nullptr));
+    CL_CHECK(clCommandCopyBufferKHR(
+        command_buffer, nullptr, nullptr, buffer_res, buffer_dst, 0,
+        tile_index * tile_size, tile_size, 0, nullptr, nullptr, nullptr));
   }
 
   CL_CHECK(clFinalizeCommandBufferKHR(command_buffer));

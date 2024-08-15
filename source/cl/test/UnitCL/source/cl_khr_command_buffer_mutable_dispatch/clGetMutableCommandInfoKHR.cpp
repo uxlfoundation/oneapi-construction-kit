@@ -67,7 +67,7 @@ struct MutableCommandInfoTest : MutableDispatchTest {
   cl_program program = nullptr;
   cl_kernel kernel = nullptr;
 
-  std::array<cl_ndrange_kernel_command_properties_khr, 3> mutable_properties;
+  std::array<cl_command_properties_khr, 3> mutable_properties;
   constexpr static size_t global_size = 8;
 };
 
@@ -121,10 +121,10 @@ TEST_F(MutableCommandInfoTest, PropertiesSet) {
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       command_handle, CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR, 0, nullptr,
       &size));
-  ASSERT_EQ(size, sizeof(cl_ndrange_kernel_command_properties_khr) *
-                      mutable_properties.size());
+  ASSERT_EQ(size,
+            sizeof(cl_command_properties_khr) * mutable_properties.size());
 
-  std::array<cl_ndrange_kernel_command_properties_khr, 3> queried_properties;
+  std::array<cl_command_properties_khr, 3> queried_properties;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       command_handle, CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR, size,
       queried_properties.data(), nullptr));

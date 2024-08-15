@@ -110,9 +110,9 @@ TEST_P(CommandFillBufferKHRParamTest, FillBufferWithRandomPattern) {
                                       nullptr, nullptr));
 
   // Add the fill command to the buffer and finalize it.
-  EXPECT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        pattern.data(), pattern_size, offset,
-                                        size, 0, nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, pattern.data(), pattern_size,
+      offset, size, 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer.
@@ -159,21 +159,21 @@ TEST_F(CommandFillBufferKHRTest, Sync) {
       std::numeric_limits<cl_sync_point_khr>::max(),
       std::numeric_limits<cl_sync_point_khr>::max()};
 
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern, pattern_size, offset, size, 0,
-                                        nullptr, &sync_points[0], nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern, pattern_size, offset,
+      size, 0, nullptr, &sync_points[0], nullptr));
 
   ASSERT_NE(sync_points[0], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern, pattern_size, offset, size, 0,
-                                        nullptr, &sync_points[1], nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern, pattern_size, offset,
+      size, 0, nullptr, &sync_points[1], nullptr));
 
   ASSERT_NE(sync_points[1], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern, pattern_size, offset, size, 2,
-                                        sync_points, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern, pattern_size, offset,
+      size, 2, sync_points, nullptr, nullptr));
 }
 
 // Tests we can reuse the pattern memory after putting the command in the
@@ -197,9 +197,9 @@ TEST_F(CommandFillBufferKHRTest, ReusePatternMemory) {
   fillBuffer(initial_value, pattern, pattern_size, size, offset);
 
   // Add the fill command to the buffer.
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern, pattern_size, offset, size, 0,
-                                        nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
+                                        buffer, &pattern, pattern_size, offset,
+                                        size, 0, nullptr, nullptr, nullptr));
 
   // Finalize the buffer.
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
@@ -250,14 +250,14 @@ TEST_F(CommandFillBufferKHRTest, FillThenCopy) {
   const size_t offset = 4;
 
   // Add the fill command to the buffer.
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern, pattern_size, offset, size, 0,
-                                        nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
+                                        buffer, &pattern, pattern_size, offset,
+                                        size, 0, nullptr, nullptr, nullptr));
 
   // Add the copy command to copy to the output buffer.
-  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, buffer,
-                                        other_buffer, 0, 0, buffer_size, 0,
-                                        nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, nullptr,
+                                        buffer, other_buffer, 0, 0, buffer_size,
+                                        0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer.
@@ -300,12 +300,12 @@ TEST_F(CommandFillBufferKHRTest, MultipleFillSameBuffer) {
   const size_t offset_b = 128;
 
   // Add the fill commands to the buffer.
-  EXPECT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern_a, pattern_a_size, offset_a,
-                                        size_a, 0, nullptr, nullptr, nullptr));
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern_b, pattern_b_size, offset_b,
-                                        size_b, 0, nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern_a, pattern_a_size,
+      offset_a, size_a, 0, nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern_b, pattern_b_size,
+      offset_b, size_b, 0, nullptr, nullptr, nullptr));
 
   // Finalize the buffer.
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
@@ -352,12 +352,12 @@ TEST_F(CommandFillBufferKHRTest, MultipleFillSameBufferOverlapping) {
   const size_t offset_b = 18;
 
   // Add the fill commands to the buffer.
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern_a, pattern_a_size, offset_a,
-                                        size_a, 0, nullptr, nullptr, nullptr));
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern_b, pattern_b_size, offset_b,
-                                        size_b, 0, nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern_a, pattern_a_size,
+      offset_a, size_a, 0, nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern_b, pattern_b_size,
+      offset_b, size_b, 0, nullptr, nullptr, nullptr));
 
   // Finalize the buffer.
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
@@ -409,12 +409,12 @@ TEST_F(CommandFillBufferKHRTest, MultipleFillDifferentBuffers) {
   const size_t offset_b = 18;
 
   // Add the fill commands to the buffers.
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                        &pattern_a, pattern_a_size, offset_a,
-                                        size_a, 0, nullptr, nullptr, nullptr));
-  ASSERT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, other_buffer,
-                                        &pattern_b, pattern_b_size, offset_b,
-                                        size_b, 0, nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, buffer, &pattern_a, pattern_a_size,
+      offset_a, size_a, 0, nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, other_buffer, &pattern_b,
+      pattern_b_size, offset_b, size_b, 0, nullptr, nullptr, nullptr));
 
   // Finalize the buffer.
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
@@ -449,16 +449,17 @@ TEST_F(CommandFillBufferKHRTest, InvalidCommandBuffer) {
   const size_t size = 16;
   const size_t offset = 0;
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_BUFFER_KHR,
-      clCommandFillBufferKHR(nullptr, nullptr, buffer, &pattern, pattern_size,
-                             offset, size, 0, nullptr, nullptr, nullptr));
-
-  ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
+                    clCommandFillBufferKHR(nullptr, nullptr, nullptr, buffer,
                                            &pattern, pattern_size, offset, size,
                                            0, nullptr, nullptr, nullptr));
+
+  ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
+                             pattern_size, offset, size, 0, nullptr, nullptr,
+                             nullptr));
 }
 
 TEST_F(CommandFillBufferKHRTest, InvalidMemObject) {
@@ -467,10 +468,11 @@ TEST_F(CommandFillBufferKHRTest, InvalidMemObject) {
   const size_t size = 16;
   const size_t offset = 0;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
-                    clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
-                                           &pattern, pattern_size, offset, size,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_MEM_OBJECT,
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, nullptr,
+                             &pattern, pattern_size, offset, size, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandFillBufferKHRTest, InvalidContext) {
@@ -492,9 +494,9 @@ TEST_F(CommandFillBufferKHRTest, InvalidContext) {
 
   EXPECT_EQ_ERRCODE(
       CL_INVALID_CONTEXT,
-      clCommandFillBufferKHR(command_buffer, nullptr, other_buffer, &pattern,
-                             pattern_size, offset, size, 0, nullptr, nullptr,
-                             nullptr));
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, other_buffer,
+                             &pattern, pattern_size, offset, size, 0, nullptr,
+                             nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(other_buffer));
   EXPECT_SUCCESS(clReleaseContext(other_context));
@@ -505,15 +507,16 @@ TEST_F(CommandFillBufferKHRTest, InvalidOffset) {
   const size_t pattern_size = sizeof(pattern);
   const size_t size = 16;
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, pattern_size, size + 1,
-                                           size, 0, nullptr, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
+                             pattern_size, size + 1, size, 0, nullptr, nullptr,
+                             nullptr));
 
   const size_t half_size = size / 2;
   EXPECT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern,
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
                              pattern_size, half_size + 1, half_size, 0, nullptr,
                              nullptr, nullptr));
 }
@@ -524,23 +527,23 @@ TEST_F(CommandFillBufferKHRTest, InvalidPattern) {
   const size_t size = 16;
 
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           nullptr, pattern_size, size, size, 0,
-                                           nullptr, nullptr, nullptr));
+                    clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
+                                           buffer, nullptr, pattern_size, size,
+                                           size, 0, nullptr, nullptr, nullptr));
 
   EXPECT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern, 0, 0,
-                             size, 0, nullptr, nullptr, nullptr));
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
+                             0, 0, size, 0, nullptr, nullptr, nullptr));
 
   EXPECT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern, 3, 0,
-                             size, 0, nullptr, nullptr, nullptr));
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
+                             3, 0, size, 0, nullptr, nullptr, nullptr));
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, pattern_size, 6, size, 0,
-                                           nullptr, nullptr, nullptr));
+                    clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
+                                           buffer, &pattern, pattern_size, 6,
+                                           size, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandFillBufferKHRTest, InvalidSyncPoints) {
@@ -549,13 +552,14 @@ TEST_F(CommandFillBufferKHRTest, InvalidSyncPoints) {
   const size_t size = 16;
 
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, pattern_size, 0, size, 1,
-                                           nullptr, nullptr, nullptr));
+                    clCommandFillBufferKHR(command_buffer, nullptr, nullptr,
+                                           buffer, &pattern, pattern_size, 0,
+                                           size, 1, nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, pattern_size, 0, size, 0,
-                                           &sync_point, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandFillBufferKHR(command_buffer, nullptr, nullptr, buffer, &pattern,
+                             pattern_size, 0, size, 0, &sync_point, nullptr,
+                             nullptr));
 }

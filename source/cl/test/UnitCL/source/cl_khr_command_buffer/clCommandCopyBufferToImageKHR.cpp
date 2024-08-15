@@ -97,9 +97,9 @@ TEST_F(CommandBufferCopyBufferToImageTest, Default) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {image_width, image_height, 1};
 
-  ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(command_buffer, nullptr, buffer,
-                                               image, 0, origin, region, 0,
-                                               nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(command_buffer, nullptr, nullptr,
+                                               buffer, image, 0, origin, region,
+                                               0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -125,36 +125,36 @@ TEST_F(CommandBufferCopyBufferToImageTest, Sync) {
       std::numeric_limits<cl_sync_point_khr>::max()};
 
   ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(
-      command_buffer, nullptr, buffer, image, 0, origin, region, 0, nullptr,
-      &sync_points[0], nullptr));
+      command_buffer, nullptr, nullptr, buffer, image, 0, origin, region, 0,
+      nullptr, &sync_points[0], nullptr));
 
   ASSERT_NE(sync_points[0], std::numeric_limits<cl_sync_point_khr>::max());
 
   ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(
-      command_buffer, nullptr, buffer, image, 0, origin, region, 0, nullptr,
-      &sync_points[1], nullptr));
+      command_buffer, nullptr, nullptr, buffer, image, 0, origin, region, 0,
+      nullptr, &sync_points[1], nullptr));
 
   ASSERT_NE(sync_points[1], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(command_buffer, nullptr, buffer,
-                                               image, 0, origin, region, 2,
-                                               sync_points, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferToImageKHR(
+      command_buffer, nullptr, nullptr, buffer, image, 0, origin, region, 2,
+      sync_points, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidCommandBuffer) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {image_width, image_height, 1};
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_BUFFER_KHR,
-      clCommandCopyBufferToImageKHR(nullptr, nullptr, buffer, image, 0, origin,
-                                    region, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
+                    clCommandCopyBufferToImageKHR(
+                        nullptr, nullptr, nullptr, buffer, image, 0, origin,
+                        region, 0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidContext) {
@@ -174,8 +174,8 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidContext) {
   const size_t region[] = {image_width, image_height, 1};
   EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, other_buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, other_buffer, image,
+                        0, origin, region, 0, nullptr, nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(other_buffer));
   EXPECT_SUCCESS(clReleaseContext(other_context));
@@ -186,12 +186,12 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidMemObject) {
   const size_t region[] = {image_width, image_height, 1};
   ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, nullptr, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, nullptr, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, nullptr, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, nullptr, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidSrcOffset) {
@@ -199,14 +199,15 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidSrcOffset) {
   const size_t region[] = {image_width, image_height, 1};
 
   const size_t buffer_size = image_elements * sizeof(cl_float4);
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandCopyBufferToImageKHR(command_buffer, nullptr, nullptr, buffer,
+                                    image, buffer_size + 1, origin, region, 0,
+                                    nullptr, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, buffer_size + 1,
+                        command_buffer, nullptr, nullptr, buffer, image, 1,
                         origin, region, 0, nullptr, nullptr, nullptr));
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 1, origin,
-                        region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidDstOrigin) {
@@ -214,19 +215,19 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidDstOrigin) {
   const size_t region[] = {image_width, image_height, 1};
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
 
   origin[0] = 0;
   origin[1] = 1;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, nullptr,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        nullptr, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidDstRegion) {
@@ -234,25 +235,25 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidDstRegion) {
   size_t region[] = {image_width + 1, image_height, 1};
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
   region[0] = image_width;
   region[1] = image_height + 1;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
   region[1] = image_height;
   region[2] = 2;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, nullptr, nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        nullptr, 0, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, nullptr, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferToImageTest, InvalidSyncPoints) {
@@ -261,12 +262,12 @@ TEST_F(CommandBufferCopyBufferToImageTest, InvalidSyncPoints) {
 
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 1, nullptr, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 1, nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
                     clCommandCopyBufferToImageKHR(
-                        command_buffer, nullptr, buffer, image, 0, origin,
-                        region, 0, &sync_point, nullptr, nullptr));
+                        command_buffer, nullptr, nullptr, buffer, image, 0,
+                        origin, region, 0, &sync_point, nullptr, nullptr));
 }

@@ -43,9 +43,9 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueSingleEventTest) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, sizeof(cl_int), 0,
-                                        nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue a non-blocking write and have the command buffer enqueue wait on
@@ -100,9 +100,9 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueMultipleEventTest) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, 2 * sizeof(cl_int),
-                                        0, nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      2 * sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue two non-blocking writes and have the command buffer enqueue wait on
@@ -168,9 +168,9 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueSingleCommandBufferEventTest) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, sizeof(cl_int), 0,
-                                        nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer which contains the copy and get its signal
@@ -226,7 +226,7 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueMultipleCommandBufferEventTest) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, output_buffer, 0, 0,
+      first_command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
       sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
@@ -235,10 +235,10 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueMultipleCommandBufferEventTest) {
   cl_command_buffer_khr second_command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(
-      clCommandCopyBufferKHR(second_command_buffer, nullptr, input_buffer,
-                             output_buffer, sizeof(cl_int), sizeof(cl_int),
-                             sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      second_command_buffer, nullptr, nullptr, input_buffer, output_buffer,
+      sizeof(cl_int), sizeof(cl_int), sizeof(cl_int), 0, nullptr, nullptr,
+      nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Enqueue the command buffer which contains the copy and get its signal
@@ -308,8 +308,8 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueInterCommandBufferEventTest) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, intermediate_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      first_command_buffer, nullptr, nullptr, input_buffer, intermediate_buffer,
+      0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
   // Create a command buffer and have it copy between the second two data
@@ -318,8 +318,8 @@ TEST_F(cl_khr_command_buffer_Test, SameQueueInterCommandBufferEventTest) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      second_command_buffer, nullptr, intermediate_buffer, output_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      second_command_buffer, nullptr, nullptr, intermediate_buffer,
+      output_buffer, 0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Enqueue the first command buffer and get its signal event.
@@ -383,8 +383,8 @@ TEST_F(cl_khr_command_buffer_Test,
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, intermediate_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      first_command_buffer, nullptr, nullptr, input_buffer, intermediate_buffer,
+      0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
   // Create a command buffer and have it copy the second cl_int between the
@@ -393,9 +393,9 @@ TEST_F(cl_khr_command_buffer_Test,
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      second_command_buffer, nullptr, input_buffer, intermediate_buffer,
-      sizeof(cl_int), sizeof(cl_int), sizeof(cl_int), 0, nullptr, nullptr,
-      nullptr));
+      second_command_buffer, nullptr, nullptr, input_buffer,
+      intermediate_buffer, sizeof(cl_int), sizeof(cl_int), sizeof(cl_int), 0,
+      nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Create a command buffer and have it copy both cl_ints between the last two
@@ -404,8 +404,8 @@ TEST_F(cl_khr_command_buffer_Test,
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      third_command_buffer, nullptr, intermediate_buffer, output_buffer, 0, 0,
-      2 * sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      third_command_buffer, nullptr, nullptr, intermediate_buffer,
+      output_buffer, 0, 0, 2 * sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(third_command_buffer));
 
   // Enqueue the first two command buffers and get their
@@ -471,9 +471,9 @@ TEST_F(cl_khr_command_buffer_Test, SingleUserEventTest) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, sizeof(cl_int), 0,
-                                        nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer and have it wait on a user event that we then
@@ -524,9 +524,9 @@ TEST_F(cl_khr_command_buffer_Test, MultipleUserEventTest) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, sizeof(cl_int), 0,
-                                        nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer and have it wait on a user event that we then
@@ -595,16 +595,16 @@ TEST_F(cl_khr_command_buffer_Test, BlockQueueOnUserEventWithCommandEvent) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, intermediate_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      first_command_buffer, nullptr, nullptr, input_buffer, intermediate_buffer,
+      0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
   cl_command_buffer_khr second_command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      second_command_buffer, nullptr, intermediate_buffer, output_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      second_command_buffer, nullptr, nullptr, intermediate_buffer,
+      output_buffer, 0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Create a user event which the second copy will wait on.
@@ -671,9 +671,9 @@ TEST_F(cl_khr_command_buffer_Test, BlockQueueOnUserEvent) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, input_buffer,
-                                        output_buffer, 0, 0, sizeof(cl_int), 0,
-                                        nullptr, nullptr, nullptr));
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, input_buffer, output_buffer, 0, 0,
+      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Create a user event which the second copy will wait on.
@@ -742,16 +742,16 @@ TEST_F(cl_khr_command_buffer_Test, BlockQueueOnTwoUserEvents) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, intermediate_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      first_command_buffer, nullptr, nullptr, input_buffer, intermediate_buffer,
+      0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
   cl_command_buffer_khr second_command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      second_command_buffer, nullptr, intermediate_buffer, output_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      second_command_buffer, nullptr, nullptr, intermediate_buffer,
+      output_buffer, 0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Create users events which the copies will wait on.
@@ -823,16 +823,16 @@ TEST_F(cl_khr_command_buffer_Test, BlockQueueOnTwoUserEventsReversed) {
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      first_command_buffer, nullptr, input_buffer, intermediate_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      first_command_buffer, nullptr, nullptr, input_buffer, intermediate_buffer,
+      0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(first_command_buffer));
 
   cl_command_buffer_khr second_command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
   EXPECT_SUCCESS(clCommandCopyBufferKHR(
-      second_command_buffer, nullptr, intermediate_buffer, output_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      second_command_buffer, nullptr, nullptr, intermediate_buffer,
+      output_buffer, 0, 0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(second_command_buffer));
 
   // Create users events which the copies will wait on.

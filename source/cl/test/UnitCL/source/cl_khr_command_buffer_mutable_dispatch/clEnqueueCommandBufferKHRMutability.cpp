@@ -109,7 +109,7 @@ class CommandBufferMutableBufferArgTest : public MutableDispatchTest {
 
 TEST_F(CommandBufferMutableBufferArgTest, UpdateOutputBufferOnce) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -173,7 +173,7 @@ TEST_F(CommandBufferMutableBufferArgTest, UpdateOutputBufferOnce) {
 
 TEST_F(CommandBufferMutableBufferArgTest, UpdateOutputBufferTwice) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -281,7 +281,7 @@ TEST_F(CommandBufferMutableBufferArgTest, UpdateOutputBufferTwice) {
 
 TEST_F(CommandBufferMutableBufferArgTest, UpdateInputBufferOnce) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -351,7 +351,7 @@ TEST_F(CommandBufferMutableBufferArgTest, UpdateInputBufferOnce) {
 
 TEST_F(CommandBufferMutableBufferArgTest, UpdateInputBufferTwice) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -473,7 +473,7 @@ TEST_F(CommandBufferMutableBufferArgTest, UpdateInputBufferTwice) {
 TEST_F(CommandBufferMutableBufferArgTest,
        UpdateInputAndOutputBuffersSameMutableDispatchConfig) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -555,7 +555,7 @@ TEST_F(CommandBufferMutableBufferArgTest,
 TEST_F(CommandBufferMutableBufferArgTest,
        UpdateInputAndOutputBuffersDifferentMutableDispatchConfigs) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -651,7 +651,7 @@ TEST_F(CommandBufferMutableBufferArgTest,
 
 TEST_F(CommandBufferMutableBufferArgTest, UpdateToBiggerBufferSize) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -731,7 +731,7 @@ TEST_F(CommandBufferMutableBufferArgTest, UpdateToBiggerBufferSize) {
 
 TEST_F(CommandBufferMutableBufferArgTest, CheckUpdatePersists) {
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -827,11 +827,11 @@ TEST_F(CommandBufferMutableBufferArgTest, FillThenNDRange) {
   // mutable dispatch.
   const cl_int zero = 0x0;
   EXPECT_SUCCESS(clCommandFillBufferKHR(
-      command_buffer, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
+      command_buffer, nullptr, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
       data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   // Now enqueue the mutable dispatch.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -895,7 +895,7 @@ TEST_F(CommandBufferMutableBufferArgTest, FillThenNDRange) {
 
 TEST_F(CommandBufferMutableBufferArgTest, NDRangeThenFill) {
   // Enqueue the mutable dispatch.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -913,7 +913,7 @@ TEST_F(CommandBufferMutableBufferArgTest, NDRangeThenFill) {
   // mutable dispatch.
   const cl_int zero = 0x0;
   EXPECT_SUCCESS(clCommandFillBufferKHR(
-      command_buffer, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
+      command_buffer, nullptr, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
       data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   // Finalize the command buffer.
@@ -983,14 +983,14 @@ TEST_F(CommandBufferMutableBufferArgTest, FillTwiceThenNDRange) {
   // mutable dispatch.
   const cl_int zero = 0x0;
   EXPECT_SUCCESS(clCommandFillBufferKHR(
-      command_buffer, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
+      command_buffer, nullptr, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
       data_size_in_bytes, 0, nullptr, nullptr, nullptr));
   EXPECT_SUCCESS(clCommandFillBufferKHR(
-      command_buffer, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
+      command_buffer, nullptr, nullptr, extra_buffer, &zero, sizeof(cl_int), 0,
       data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   // Now enqueue the mutable dispatch.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1065,12 +1065,12 @@ TEST_F(CommandBufferMutableBufferArgTest, CopyBufferThenNDRange) {
   // is to test we can have other commands in the command buffer with the
   // mutable dispatch.
   ASSERT_SUCCESS(clCommandCopyBufferKHR(
-      command_buffer, nullptr, first_extra_buffer, second_extra_buffer, 0, 0,
-      data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+      command_buffer, nullptr, nullptr, first_extra_buffer, second_extra_buffer,
+      0, 0, data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   // Now enqueue the mutable dispatch.
 
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1148,11 +1148,11 @@ TEST_F(CommandBufferMutableBufferArgTest, CopyBufferRectThenNDRange) {
   const size_t origin[]{0, 0, 0};
   const size_t region[]{data_size_in_bytes, 1, 1};
   ASSERT_SUCCESS(clCommandCopyBufferRectKHR(
-      command_buffer, nullptr, first_extra_buffer, second_extra_buffer, origin,
-      origin, region, 0, 0, 0, 0, 0, nullptr, nullptr, nullptr));
+      command_buffer, nullptr, nullptr, first_extra_buffer, second_extra_buffer,
+      origin, origin, region, 0, 0, 0, 0, 0, nullptr, nullptr, nullptr));
 
   // Now enqueue the mutable dispatch.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1241,7 +1241,7 @@ TEST_F(CommandBufferMutableBufferArgTest, RegularNDRangeThenMutableNDRange) {
       &global_size, nullptr, 0, nullptr, nullptr, nullptr));
 
   // Now enqueue the mutable dispatch.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1319,7 +1319,7 @@ class CommandBufferMultiMutableBufferArgTest
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandBufferMutableBufferArgTest::SetUp());
     // Enqueue the first mutable dispatch.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1630,7 +1630,7 @@ TEST_F(MutableDispatchTest, UpdateConstantBuffer) {
   EXPECT_SUCCESS(error);
 
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   cl_mutable_command_khr command_handle;
@@ -1742,7 +1742,7 @@ class CommandBufferMutableLocalBufferArgTest : public MutableDispatchTest {
     EXPECT_SUCCESS(clSetKernelArg(kernel, 0, 64, nullptr));
 
     // Enqueue a mutable dispatch to the command buffer.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -1962,7 +1962,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest,
       clSetKernelArg(null_test_kernel, 1, sizeof(dst_buffer), &dst_buffer));
 
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2026,7 +2026,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest,
 
   // Enqueue a mutable dispatch to the command buffer.
   cl_mutable_command_khr command_handle;
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2090,7 +2090,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest,
 
   // Enqueue a mutable dispatch to the command buffer.
   cl_mutable_command_khr command_handle;
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2154,7 +2154,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest,
 
   // Enqueue a mutable dispatch to the command buffer.
   cl_mutable_command_khr command_handle;
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2215,7 +2215,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest, CheckUpdatePersists) {
       clSetKernelArg(null_test_kernel, 1, sizeof(dst_buffer), &dst_buffer));
 
   // Enqueue a mutable dispatch to the command buffer.
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2304,7 +2304,7 @@ class DISABLED_CommandBufferMultiMutableNullArgTest
         clSetKernelArg(null_test_kernel, 1, sizeof(dst_buffer), &dst_buffer));
 
     // Enqueue a mutable dispatch to the command buffer.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2545,7 +2545,7 @@ class CommandBufferMutablePODArgTest : public MutableDispatchTest {
     EXPECT_SUCCESS(error);
 
     // Enqueue a mutable dispatch to the command buffer.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -2868,7 +2868,7 @@ class CommandBufferMultiMutablePODArgTest
                                   &second_dst_buffer));
 
     // Enqueue a mutable dispatch to the command buffer.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -3115,7 +3115,7 @@ class CommandBufferMutablePODMultiArgTest : public MutableDispatchTest {
     EXPECT_SUCCESS(error);
 
     // Enqueue a mutable dispatch to the command buffer.
-    cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+    cl_command_properties_khr mutable_properties[3] = {
         CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
         CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
     EXPECT_SUCCESS(clCommandNDRangeKernelKHR(
@@ -3349,7 +3349,7 @@ TEST_F(CommandBufferMutableStructArgTest, UpdateInputOnce) {
 
   // Enqueue a mutable dispatch to the command buffer.
   cl_mutable_command_khr command_handle;
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   const size_t one = 1;

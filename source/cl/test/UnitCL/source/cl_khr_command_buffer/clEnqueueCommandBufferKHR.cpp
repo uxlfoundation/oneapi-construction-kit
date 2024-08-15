@@ -343,9 +343,9 @@ TEST_F(CommandBufferEnqueueTest, MixedCommands) {
     ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
         command_buffer, nullptr, nullptr, kernel, 1, nullptr, &global_size,
         nullptr, 0, nullptr, nullptr, nullptr));
-    ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                          dst_buffer, 0, 0, data_size_in_bytes,
-                                          0, nullptr, nullptr, nullptr));
+    ASSERT_SUCCESS(clCommandCopyBufferKHR(
+        command_buffer, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+        data_size_in_bytes, 0, nullptr, nullptr, nullptr));
   }
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   for (unsigned i = 0; i < 4; ++i) {
@@ -599,8 +599,8 @@ TEST_F(CommandBufferEnqueueTest, CommandBufferAfterReversedUserEvents) {
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   ASSERT_SUCCESS(clCommandCopyBufferKHR(
-      command_buffer, nullptr, intermediate_buffer_b, final_buffer, 0, 0,
-      sizeof(cl_int), 0, nullptr, nullptr, nullptr));
+      command_buffer, nullptr, nullptr, intermediate_buffer_b, final_buffer, 0,
+      0, sizeof(cl_int), 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Now we enqueue the copies but have them wait on user events.

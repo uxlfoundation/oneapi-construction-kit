@@ -295,13 +295,12 @@ TEST_F(ParallelCopyCommandBuffer, InvalidProperties) {
     GTEST_SKIP();
   }
 
-  cl_ndrange_kernel_command_properties_khr valid_properties[1] = {0};
+  cl_command_properties_khr valid_properties[1] = {0};
   ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
       command_buffer, nullptr, valid_properties, kernel, 1, nullptr,
       &global_size, nullptr, 0, nullptr, nullptr, nullptr));
 
-  cl_ndrange_kernel_command_properties_khr invalid_properties[3] = {0xDEAD,
-                                                                    0xBEEF, 0};
+  cl_command_properties_khr invalid_properties[3] = {0xDEAD, 0xBEEF, 0};
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clCommandNDRangeKernelKHR(command_buffer, nullptr, invalid_properties,

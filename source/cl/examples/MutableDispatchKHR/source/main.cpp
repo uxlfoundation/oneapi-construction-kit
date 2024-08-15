@@ -155,7 +155,7 @@ int main(const int argc, const char **argv) {
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), &output_buffers[0]));
 
   // Instruct the nd-range command to allow for mutable kernel arguments
-  cl_ndrange_kernel_command_properties_khr mutable_properties[] = {
+  cl_command_properties_khr mutable_properties[] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
 

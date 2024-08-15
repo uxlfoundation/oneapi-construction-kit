@@ -92,7 +92,7 @@ TEST_F(MutableDispatchThreadSafetyTest, UpdateInParallel) {
   // Enqueue the ND range to the kernel getting a handle so we can update it
   // later.
   cl_mutable_command_khr command_handle;
-  cl_ndrange_kernel_command_properties_khr mutable_properties[3] = {
+  cl_command_properties_khr mutable_properties[3] = {
       CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR,
       CL_MUTABLE_DISPATCH_ARGUMENTS_KHR, 0};
   EXPECT_SUCCESS(clCommandNDRangeKernelKHR(

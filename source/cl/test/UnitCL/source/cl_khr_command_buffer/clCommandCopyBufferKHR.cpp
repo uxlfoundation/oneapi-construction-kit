@@ -63,9 +63,9 @@ TEST_F(CommandBufferCopyBufferTest, Default) {
                                       data_size_in_bytes, input_data.data(), 0,
                                       nullptr, nullptr));
 
-  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                        dst_buffer, 0, 0, data_size_in_bytes, 0,
-                                        nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+      data_size_in_bytes, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -84,45 +84,48 @@ TEST_F(CommandBufferCopyBufferTest, Sync) {
       std::numeric_limits<cl_sync_point_khr>::max(),
       std::numeric_limits<cl_sync_point_khr>::max()};
 
-  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                        dst_buffer, 0, 0, data_size_in_bytes, 0,
-                                        nullptr, &sync_points[0], nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+      data_size_in_bytes, 0, nullptr, &sync_points[0], nullptr));
   ASSERT_NE(sync_points[0], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                        dst_buffer, 0, 0, data_size_in_bytes, 0,
-                                        nullptr, &sync_points[1], nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+      data_size_in_bytes, 0, nullptr, &sync_points[1], nullptr));
   ASSERT_NE(sync_points[1], std::numeric_limits<cl_sync_point_khr>::max());
 
-  ASSERT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                        dst_buffer, 0, 0, data_size_in_bytes, 2,
-                                        sync_points, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandCopyBufferKHR(
+      command_buffer, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+      data_size_in_bytes, 2, sync_points, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidCommandBuffer) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_BUFFER_KHR,
-      clCommandCopyBufferKHR(nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
+                    clCommandCopyBufferKHR(
+                        nullptr, nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
+                        data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           dst_buffer, 0, 0, data_size_in_bytes,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidMemObjects) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_MEM_OBJECT,
-      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, dst_buffer, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, nullptr,
+                             dst_buffer, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_MEM_OBJECT,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, nullptr, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             nullptr, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidContext) {
@@ -137,14 +140,16 @@ TEST_F(CommandBufferCopyBufferTest, InvalidContext) {
   EXPECT_TRUE(other_buffer);
   EXPECT_SUCCESS(error);
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clCommandCopyBufferKHR(
-                        command_buffer, nullptr, src_buffer, other_buffer, 0, 0,
-                        data_size_in_bytes, 0, nullptr, nullptr, nullptr));
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clCommandCopyBufferKHR(
-                        command_buffer, nullptr, other_buffer, other_buffer, 0,
-                        0, data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             other_buffer, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, other_buffer,
+                             other_buffer, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(other_buffer));
   EXPECT_SUCCESS(clReleaseContext(other_context));
@@ -152,62 +157,69 @@ TEST_F(CommandBufferCopyBufferTest, InvalidContext) {
 
 TEST_F(CommandBufferCopyBufferTest, CopyOverlap) {
   const auto half_size = data_size_in_bytes / 2;
-  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           src_buffer, 0, 0, data_size_in_bytes,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_MEM_COPY_OVERLAP,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             src_buffer, 0, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           src_buffer, half_size, 1, half_size,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_MEM_COPY_OVERLAP,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             src_buffer, half_size, 1, half_size, 0, nullptr,
+                             nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           src_buffer, half_size, 1, half_size,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_MEM_COPY_OVERLAP,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             src_buffer, half_size, 1, half_size, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidOffset) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, dst_buffer,
-                             data_size_in_bytes + 1, 0, data_size_in_bytes, 0,
-                             nullptr, nullptr, nullptr));
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, data_size_in_bytes + 1, 0,
+                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, dst_buffer, 0,
-                             data_size_in_bytes + 1, data_size_in_bytes, 0,
-                             nullptr, nullptr, nullptr));
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 0, data_size_in_bytes + 1,
+                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           dst_buffer, 0, 1, data_size_in_bytes,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 0, 1, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           dst_buffer, 1, 0, data_size_in_bytes,
-                                           0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 1, 0, data_size_in_bytes, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidSize) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, dst_buffer, 0,
-                             0, 0, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clCommandCopyBufferKHR(command_buffer, nullptr, nullptr,
+                                           src_buffer, dst_buffer, 0, 0, 0, 0,
+                                           nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidSyncPoints) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
 
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           dst_buffer, 0, 0, data_size_in_bytes,
-                                           1, nullptr, nullptr, nullptr));
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 0, 0, data_size_in_bytes, 1, nullptr,
+                             nullptr, nullptr));
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                           dst_buffer, 0, 0, data_size_in_bytes,
-                                           0, &sync_point, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, src_buffer,
+                             dst_buffer, 0, 0, data_size_in_bytes, 0,
+                             &sync_point, nullptr, nullptr));
 }

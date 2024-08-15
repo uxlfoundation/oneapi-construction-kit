@@ -1285,6 +1285,7 @@ CL_API_ENTRY cl_int CL_API_CALL clEnqueueCommandBufferKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandBarrierWithWaitListKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
+    const cl_command_properties_khr *properties,
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
@@ -1300,6 +1301,11 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandBarrierWithWaitListKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
+
   cargo::array_view<const cl_sync_point_khr> wait_list(
       sync_point_wait_list, num_sync_points_in_wait_list);
 
@@ -1311,8 +1317,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandBarrierWithWaitListKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem src_buffer, cl_mem dst_buffer, size_t src_offset, size_t dst_offset,
-    size_t size, cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem src_buffer,
+    cl_mem dst_buffer, size_t src_offset, size_t dst_offset, size_t size,
+    cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyBufferKHR");
@@ -1325,6 +1332,11 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error = cl::validate::CopyBufferArguments(
       command_buffer->command_queue, src_buffer, dst_buffer, src_offset,
@@ -1344,9 +1356,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferRectKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem src_buffer, cl_mem dst_buffer, const size_t *src_origin,
-    const size_t *dst_origin, const size_t *region, size_t src_row_pitch,
-    size_t src_slice_pitch, size_t dst_row_pitch, size_t dst_slice_pitch,
+    const cl_command_properties_khr *properties, cl_mem src_buffer,
+    cl_mem dst_buffer, const size_t *src_origin, const size_t *dst_origin,
+    const size_t *region, size_t src_row_pitch, size_t src_slice_pitch,
+    size_t dst_row_pitch, size_t dst_slice_pitch,
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
@@ -1360,6 +1373,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferRectKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   // The OpenCL spec has the following special cases for the pitches.
   if (src_row_pitch == 0) {
@@ -1394,9 +1411,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferRectKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferToImageKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem src_buffer, cl_mem dst_image, size_t src_offset,
-    const size_t *dst_origin, const size_t *region,
-    cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem src_buffer,
+    cl_mem dst_image, size_t src_offset, const size_t *dst_origin,
+    const size_t *region, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard(
@@ -1410,6 +1427,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferToImageKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error = cl::validate::CopyBufferToImageArguments(
       command_buffer->command_queue, src_buffer, dst_image, src_offset,
@@ -1429,9 +1450,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyBufferToImageKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem src_image, cl_mem dst_image, const size_t *src_origin,
-    const size_t *dst_origin, const size_t *region,
-    cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem src_image,
+    cl_mem dst_image, const size_t *src_origin, const size_t *dst_origin,
+    const size_t *region, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clCommandCopyImageKHR");
@@ -1444,6 +1465,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error = cl::validate::CopyImageArguments(
       command_buffer->command_queue, src_image, dst_image, src_origin,
@@ -1463,9 +1488,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageToBufferKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem src_image, cl_mem dst_buffer, const size_t *src_origin,
-    const size_t *region, size_t dst_offset,
-    cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem src_image,
+    cl_mem dst_buffer, const size_t *src_origin, const size_t *region,
+    size_t dst_offset, cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard(
@@ -1479,6 +1504,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageToBufferKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error = cl::validate::CopyImageToBufferArguments(
       command_buffer->command_queue, src_image, dst_buffer, src_origin, region,
@@ -1498,8 +1527,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandCopyImageToBufferKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandFillBufferKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem buffer, const void *pattern, size_t pattern_size, size_t offset,
-    size_t size, cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem buffer,
+    const void *pattern, size_t pattern_size, size_t offset, size_t size,
+    cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillBufferKHR");
@@ -1512,6 +1542,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillBufferKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error =
       cl::validate::FillBufferArguments(command_buffer->command_queue, buffer,
@@ -1530,8 +1564,9 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillBufferKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandFillImageKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    cl_mem image, const void *fill_color, const size_t *origin,
-    const size_t *region, cl_uint num_sync_points_in_wait_list,
+    const cl_command_properties_khr *properties, cl_mem image,
+    const void *fill_color, const size_t *origin, const size_t *region,
+    cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
     cl_sync_point_khr *sync_point, cl_mutable_command_khr *mutable_handle) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clCommandFillImageKHR");
@@ -1544,6 +1579,10 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillImageKHR(
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
+  // No properties defined for entry-point
+  if (properties && properties[0] != 0) {
+    return CL_INVALID_VALUE;
+  }
 
   const cl_int error = cl::validate::FillImageArguments(
       command_buffer->command_queue, image, fill_color, origin, region);
@@ -1561,8 +1600,8 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandFillImageKHR(
 
 CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
     cl_command_buffer_khr command_buffer, cl_command_queue command_queue,
-    const cl_ndrange_kernel_command_properties_khr *properties,
-    cl_kernel kernel, cl_uint work_dim, const size_t *global_work_offset,
+    const cl_command_properties_khr *properties, cl_kernel kernel,
+    cl_uint work_dim, const size_t *global_work_offset,
     const size_t *global_work_size, const size_t *local_work_size,
     cl_uint num_sync_points_in_wait_list,
     const cl_sync_point_khr *sync_point_wait_list,
@@ -1580,8 +1619,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
   OCL_CHECK(!sync_point_wait_list && num_sync_points_in_wait_list,
             return CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
 
-  cargo::small_vector<cl_ndrange_kernel_command_properties_khr, 3>
-      properties_list;
+  cargo::small_vector<cl_command_properties_khr, 3> properties_list;
 
   // CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR defaults to values supported by
   // the device in CL_DEVICE_MUTABLE_DISPATCH_CAPABILITIES_KHR
@@ -1595,7 +1633,7 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
     return CL_INVALID_VALUE;
 #endif
 
-    cl_ndrange_kernel_command_properties_khr seen = 0;
+    cl_command_properties_khr seen = 0;
     auto current = properties;
     do {
       const cl_command_buffer_properties_khr property = current[0];

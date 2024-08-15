@@ -73,8 +73,8 @@ TEST_F(CommandBufferThreadSafetyTest, FillInParallel) {
   auto enqueue_fill_command = [&](cl_int &error, size_t id) {
     const cl_char pattern = id;
     error = clCommandFillBufferKHR(
-        command_buffer, nullptr, buffers_to_fill[id], &pattern, sizeof(pattern),
-        0, buffer_size_in_bytes, 0, nullptr, nullptr, nullptr);
+        command_buffer, nullptr, nullptr, buffers_to_fill[id], &pattern,
+        sizeof(pattern), 0, buffer_size_in_bytes, 0, nullptr, nullptr, nullptr);
   };
 
   std::vector<std::thread> threads;
@@ -166,9 +166,9 @@ TEST_F(CommandBufferThreadSafetyTest, CopyInParallel) {
   // command buffer.
   auto command_queue = this->command_queue;
   auto enqueue_copy_command = [&](cl_int &error, size_t id) {
-    error = clCommandCopyBufferKHR(command_buffer, nullptr, src_buffers[id],
-                                   dst_buffers[id], 0, 0, buffer_size_in_bytes,
-                                   0, nullptr, nullptr, nullptr);
+    error = clCommandCopyBufferKHR(
+        command_buffer, nullptr, nullptr, src_buffers[id], dst_buffers[id], 0,
+        0, buffer_size_in_bytes, 0, nullptr, nullptr, nullptr);
   };
 
   std::vector<std::thread> threads;
@@ -264,8 +264,8 @@ TEST_F(CommandBufferThreadSafetyTest, CopyRectInParallel) {
     const size_t origin[]{0, 0, 0};
     const size_t region[]{buffer_size_in_bytes, 1, 1};
     error = clCommandCopyBufferRectKHR(
-        command_buffer, nullptr, src_buffers[id], dst_buffers[id], origin,
-        origin, region, 0, 0, 0, 0, 0, nullptr, nullptr, nullptr);
+        command_buffer, nullptr, nullptr, src_buffers[id], dst_buffers[id],
+        origin, origin, region, 0, 0, 0, 0, 0, nullptr, nullptr, nullptr);
   };
 
   std::vector<std::thread> threads;

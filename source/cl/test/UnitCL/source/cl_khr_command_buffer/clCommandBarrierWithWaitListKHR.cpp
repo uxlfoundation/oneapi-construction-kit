@@ -36,47 +36,49 @@ class clCommandBarrierWithWaitListTest : public cl_khr_command_buffer_Test {
 };
 
 TEST_F(clCommandBarrierWithWaitListTest, InvalidCommandBuffer) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
-                    clCommandBarrierWithWaitListKHR(nullptr, nullptr, 0,
-                                                    nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_BUFFER_KHR,
+      clCommandBarrierWithWaitListKHR(nullptr, nullptr, nullptr, 0, nullptr,
+                                      nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, InvalidCommandQueue) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_COMMAND_QUEUE,
-      clCommandBarrierWithWaitListKHR(command_buffer, command_queue, 0, nullptr,
-                                      nullptr, nullptr));
+      clCommandBarrierWithWaitListKHR(command_buffer, command_queue, nullptr, 0,
+                                      nullptr, nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, FinalizedCommandBuffer) {
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0,
-                                                    nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION, clCommandBarrierWithWaitListKHR(
+                                              command_buffer, nullptr, nullptr,
+                                              0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, InvalidMutableHandle) {
   cl_mutable_command_khr handle;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0,
-                                                    nullptr, nullptr, &handle));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clCommandBarrierWithWaitListKHR(
+                                          command_buffer, nullptr, nullptr, 0,
+                                          nullptr, nullptr, &handle));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, InvalidSyncPoints) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 1,
-                                                    nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandBarrierWithWaitListKHR(command_buffer, nullptr, nullptr, 1,
+                                      nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-      clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0, &sync_point,
-                                      nullptr, nullptr));
+      clCommandBarrierWithWaitListKHR(command_buffer, nullptr, nullptr, 0,
+                                      &sync_point, nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, Default) {
-  ASSERT_SUCCESS(clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0,
-                                                 nullptr, nullptr, nullptr));
+  ASSERT_SUCCESS(clCommandBarrierWithWaitListKHR(
+      command_buffer, nullptr, nullptr, 0, nullptr, nullptr, nullptr));
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
                                            nullptr, nullptr));
@@ -89,15 +91,15 @@ TEST_F(clCommandBarrierWithWaitListTest, Sync) {
       std::numeric_limits<cl_sync_point_khr>::max()};
 
   ASSERT_SUCCESS(clCommandBarrierWithWaitListKHR(
-      command_buffer, nullptr, 0, nullptr, &sync_points[0], nullptr));
+      command_buffer, nullptr, nullptr, 0, nullptr, &sync_points[0], nullptr));
   ASSERT_NE(sync_points[0], std::numeric_limits<cl_sync_point_khr>::max());
 
   ASSERT_SUCCESS(clCommandBarrierWithWaitListKHR(
-      command_buffer, nullptr, 0, nullptr, &sync_points[1], nullptr));
+      command_buffer, nullptr, nullptr, 0, nullptr, &sync_points[1], nullptr));
   ASSERT_NE(sync_points[1], std::numeric_limits<cl_sync_point_khr>::max());
 
   ASSERT_SUCCESS(clCommandBarrierWithWaitListKHR(
-      command_buffer, nullptr, 2, sync_points, nullptr, nullptr));
+      command_buffer, nullptr, nullptr, 2, sync_points, nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, FillAndCopy) {
@@ -114,16 +116,16 @@ TEST_F(clCommandBarrierWithWaitListTest, FillAndCopy) {
 
   // Add the fill command to the buffer and finalize it.
   cl_uint pattern = 42;
-  EXPECT_SUCCESS(clCommandFillBufferKHR(command_buffer, nullptr, src_buffer,
-                                        &pattern, sizeof(pattern), 0, data_size,
+  EXPECT_SUCCESS(clCommandFillBufferKHR(
+      command_buffer, nullptr, nullptr, src_buffer, &pattern, sizeof(pattern),
+      0, data_size, 0, nullptr, nullptr, nullptr));
+
+  EXPECT_SUCCESS(clCommandBarrierWithWaitListKHR(
+      command_buffer, nullptr, nullptr, 0, nullptr, nullptr, nullptr));
+
+  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, nullptr,
+                                        src_buffer, dst_buffer, 0, 0, data_size,
                                         0, nullptr, nullptr, nullptr));
-
-  EXPECT_SUCCESS(clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0,
-                                                 nullptr, nullptr, nullptr));
-
-  EXPECT_SUCCESS(clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
-                                        dst_buffer, 0, 0, data_size, 0, nullptr,
-                                        nullptr, nullptr));
 
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 

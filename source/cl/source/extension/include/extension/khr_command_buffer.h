@@ -116,8 +116,7 @@ struct _cl_mutable_command_khr final {
   /// @brief Command-buffer used to create mutable command
   cl_command_buffer_khr command_buffer;
   /// @brief List of properties passed on creation
-  cargo::small_vector<cl_ndrange_kernel_command_properties_khr, 3>
-      properties_list;
+  cargo::small_vector<cl_command_properties_khr, 3> properties_list;
   /// @brief Fields of mutable kernel command that can be modified
   cl_mutable_dispatch_fields_khr updatable_fields = 0;
   /// @brief Work dimensions used on mutable-dispatch creation
