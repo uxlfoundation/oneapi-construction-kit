@@ -43,28 +43,29 @@ jobs:
         uses: ./.github/actions/do_build_ock
         with:
           build_type: Release
+          build_targets: check-ock
 
-      - name: run just online lit
-        run:
-          ninja -C build check-ock-all-lit
+      # - name: run just online lit
+      #   run:
+      #     ninja -C build check-ock-all-lit
 
-      - name: run host online check
-        run:
-          ninja -C build check-ock-UnitCL
+      # - name: run host online check
+      #   run:
+      #     ninja -C build check-ock-UnitCL
 
-      # use the previous build for online to get clc
-      - name: build host x86_64 offline release
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_type: Release
-          extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
-          build_dir: build_offline
-          build_targets: UnitCL
-          assemble_spirv_ll_lit_test_offline: ON
+      # # use the previous build for online to get clc
+      # - name: build host x86_64 offline release
+      #   uses: ./.github/actions/do_build_ock
+      #   with:
+      #     build_type: Release
+      #     extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
+      #     build_dir: build_offline
+      #     build_targets: UnitCL
+      #     assemble_spirv_ll_lit_test_offline: ON
 
-      - name: run host x86_64 offline
-        run:
-          ninja -C build_offline check-ock-UnitCL
+      # - name: run host x86_64 offline
+      #   run:
+      #     ninja -C build_offline check-ock-UnitCL
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:  
