@@ -43,7 +43,7 @@ extension::khr_command_buffer::khr_command_buffer()
 #else
           usage_category::DISABLED
 #endif
-              CA_CL_EXT_VERSION(0, 1, 0)) {
+              CA_CL_EXT_VERSION(0, 9, 5)) {
 }
 
 void *extension::khr_command_buffer::GetExtensionFunctionAddressForPlatform(

@@ -27,7 +27,7 @@ extension::khr_command_buffer_mutable_dispatch::
 #else
                 usage_category::DISABLED
 #endif
-                    CA_CL_EXT_VERSION(0, 1, 0)) {
+                    CA_CL_EXT_VERSION(0, 9, 3)) {
 }
 
 void *extension::khr_command_buffer_mutable_dispatch::
@@ -171,7 +171,7 @@ CL_API_ENTRY cl_int CL_API_CALL clGetMutableCommandInfoKHR(
     MUTABLE_COMMAND_ARRAY_INFO_CASE(CL_MUTABLE_DISPATCH_LOCAL_WORK_SIZE_KHR,
                                     command->local_size);
 
-    case CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR: {
+    case CL_MUTABLE_COMMAND_PROPERTIES_ARRAY_KHR: {
       const auto &properties_list = command->properties_list;
       OCL_SET_IF_NOT_NULL(
           param_value_size_ret,

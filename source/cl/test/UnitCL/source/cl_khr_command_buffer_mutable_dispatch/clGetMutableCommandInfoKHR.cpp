@@ -119,14 +119,14 @@ TEST_F(MutableCommandInfoTest, MutableCommandCommandBuffer) {
 TEST_F(MutableCommandInfoTest, PropertiesSet) {
   size_t size;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
-      command_handle, CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR, 0, nullptr,
+      command_handle, CL_MUTABLE_COMMAND_PROPERTIES_ARRAY_KHR, 0, nullptr,
       &size));
   ASSERT_EQ(size,
             sizeof(cl_command_properties_khr) * mutable_properties.size());
 
   std::array<cl_command_properties_khr, 3> queried_properties;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
-      command_handle, CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR, size,
+      command_handle, CL_MUTABLE_COMMAND_PROPERTIES_ARRAY_KHR, size,
       queried_properties.data(), nullptr));
   ASSERT_EQ(mutable_properties, queried_properties);
 }
@@ -139,7 +139,7 @@ TEST_F(MutableCommandInfoTest, NoPropertiesSet) {
 
   size_t size;
   EXPECT_SUCCESS(clGetMutableCommandInfoKHR(
-      no_properties_command_handle, CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR, 0,
+      no_properties_command_handle, CL_MUTABLE_COMMAND_PROPERTIES_ARRAY_KHR, 0,
       nullptr, &size));
   EXPECT_EQ(size, 0);
 }
