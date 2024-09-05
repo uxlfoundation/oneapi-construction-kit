@@ -25,8 +25,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # them available here rather here rather than in source/cl/external.
 FetchContent_Declare(
   OpenCLHeaders
-  GIT_REPOSITORY git@github.com:EwanC/OpenCL-Headers.git
-  GIT_TAG        array_update
+  GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-Headers.git
+  GIT_TAG        7258b9e0137474c988142fd35777b59dcdff167e
 )
 FetchContent_MakeAvailable(OpenCLHeaders)
 

@@ -27,7 +27,7 @@ extension::khr_command_buffer_mutable_dispatch::
 #else
                 usage_category::DISABLED
 #endif
-                    CA_CL_EXT_VERSION(0, 1, 0)) {
+                    CA_CL_EXT_VERSION(0, 9, 2)) {
 }
 
 void *extension::khr_command_buffer_mutable_dispatch::
