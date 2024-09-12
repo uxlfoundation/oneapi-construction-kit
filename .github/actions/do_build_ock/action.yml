@@ -82,9 +82,7 @@ runs:
       shell: bash
       run:
         cmake -GNinja
-              -B${{ inputs.build_dir }}
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache                
+              -B${{ inputs.build_dir }}         
               -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }}
               -DCA_ENABLE_API=${{ inputs.enable_api }}
               -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }}
@@ -110,6 +108,12 @@ runs:
               -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
                ${{ inputs.extra_flags }}
               .      
+
+# Removed for aarch64
+#              -DCMAKE_C_COMPILER_LAUNCHER=sccache
+#              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+
+
     - name: build_ock
       shell: bash
       run:

@@ -39,11 +39,12 @@ runs:
         fail-on-cache-miss: true
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
-    - name: Setup sccache
-      uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        max-size: 200M
-        key: sccache-build
-        variant: sccache
-        save: ${{ inputs.save }}
+    # - name: Setup sccache
+    #   if: ${{ inputs.arch}} == 'x86_64'
+    #   uses: hendrikmuhs/ccache-action@v1.2
+    #   with:
+    #     max-size: 200M
+    #     key: sccache-build
+    #     variant: sccache
+    #     save: ${{ inputs.save }}
  

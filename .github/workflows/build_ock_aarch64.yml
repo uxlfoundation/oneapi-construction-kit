@@ -1,0 +1,54 @@
+# Simple workflow for testing aarch64 ock
+name: Run aarch64 ock tests for PR testing
+on:
+  # For testing purposes do on a pull request if this file changes
+  pull_request:
+    paths:
+      - '.github/workflows/build_ock_aarch64.yml'
+      - '.github/actions/setup_ubuntu_build/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run host aarch64, execute UnitCL and lit tests and build and run offline
+  run_host_aarch64:
+    runs-on: cp-graviton
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: add to path
+        run:
+          echo "PATH=$PATH:/home/ubuntu/.local/bin" >> $GITHUB_ENV
+
+      - name: echo PATH
+        run:
+          echo PATH=$PATH
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 18
+          llvm_build_type: RelAssert
+          arch: aarch64
+  
+      # These need to match the configurations of build_pr_cache to use the cache effectively
+      - name: build host x86_64 online release
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: ReleaseAssert
+
+      - name: run just online lit
+        run:
+          ninja -C build check-ock-all-lit
+
+      - name: run host online check
+        run:
+          ninja -C build check-ock-UnitCL
+
+    
