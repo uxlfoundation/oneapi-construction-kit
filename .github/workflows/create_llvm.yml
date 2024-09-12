@@ -36,11 +36,7 @@ jobs:
           - build_type_flags: -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON
             build_type: RelAssert
           - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/aarch64-toolchain.cmake"
-                        -DLLVM_TARGET_ARCH=AArch64
                         -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
-                        -DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-unknown-linux-gnu
-                        -DLLVM_TABLEGEN="$GITHUB_WORKSPACE/build_native/bin/llvm-tblgen"
-                        -DCLANG_TABLEGEN="$GITHUB_WORKSPACE/build_native/bin/clang-tblgen"
             arch: aarch64
           - build_type: Release
             build_type_flags: -DCMAKE_BUILD_TYPE=Release
@@ -55,10 +51,6 @@ jobs:
             llvm_install/**
           key: llvm-${{ matrix.os }}-${{ matrix.arch }}-v${{ matrix.version }}-${{ matrix.build_type }}
 
-      - name: show arch flags
-        if: steps.cache.outputs.cache-hit != 'true'      
-        run:
-          echo ${{ matrix.arch_flags }}
 
       - name: Checkout repo llvm
         if: steps.cache.outputs.cache-hit != 'true'
@@ -82,32 +74,12 @@ jobs:
       - name: install aarch64 build tools
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'aarch64' }}
         run:
-          sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
+          sudo apt-get install --yes g++-11-aarch64-linux-gnu
 
       - name: Flags checker
         if: steps.cache.outputs.cache-hit != 'true'
         run:
-          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" aarch "${{ matrix.arch }}"extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
-
-      - name: cmake native for cross
-        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch != 'x86_64' }}
-        run:
-          cmake llvm
-              -DLLVM_ENABLE_DIA_SDK=OFF
-              -DLLVM_ENABLE_ZLIB=FALSE
-              -DLLVM_ENABLE_ZSTD=FALSE
-              -DLLVM_ENABLE_Z3_SOLVER=FALSE
-              -DLLVM_ENABLE_PROJECTS="clang;lld"
-              -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV"
-              -Bbuild_native
-              -GNinja
-              ${{ matrix.build_type_flags }}
-              ${{ matrix.os_flags}}
-
-      - name: build native for cross
-        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch != 'x86_64' }}
-        run:
-          ninja -C build_native llvm-tblgen clang-tblgen llvm-config
+          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" arch "${{ matrix.arch }}"extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
 
       - name: Run cmake
         if: steps.cache.outputs.cache-hit != 'true'
