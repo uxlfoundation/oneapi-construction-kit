@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - '.github/workflows/create_llvm.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/create_llvm.yml'         
   workflow_dispatch:
 
 jobs:
@@ -15,18 +18,29 @@ jobs:
         version: [17, 18]
         os: [ubuntu-22.04]
         build_type: [Release, RelAssert]
+        arch : [x86_64, aarch64]
+        exclude:
+          # For now just do latest llvm with aarch to reduce cache usage.
+          - arch: aarch64
+            version: 17
+          - arch: aarch64
+            build_type: Release
         include:
           # We want to set flags related to particular matrix dimensions. To do this
           # we need to create default values first, and then against particular matrix
           # dimensions.
           # Note that we need to use RelAssert as the cache key matching can match Release against ReleaseAssert
           - os_flags:
+          - arch_flags:
           - build_type_flags:
-          - build_type: RelAssert
-            build_type_flags: -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON
+          - build_type_flags: -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON
+            build_type: RelAssert
+          - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/aarch64-toolchain.cmake"
+                        -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
+            arch: aarch64
           - build_type: Release
             build_type_flags: -DCMAKE_BUILD_TYPE=Release
-    
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Cache llvm
@@ -35,23 +49,37 @@ jobs:
         with:
           path:
             llvm_install/**
-          key: llvm-${{ matrix.os }}-v${{ matrix.version }}-${{ matrix.build_type }}
+          key: llvm-${{ matrix.os }}-${{ matrix.arch }}-v${{ matrix.version }}-${{ matrix.build_type }}
 
-      - name: Checkout repo
+
+      - name: Checkout repo llvm
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
         with:
           repository: llvm/llvm-project
           ref: release/${{matrix.version}}.x
 
+      - name: Checkout repo ock platform
+        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch != 'x86_64' }}
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            platform
+          path: ock          
+
       - name: Install Ninja
         if: steps.cache.outputs.cache-hit != 'true'
         uses: llvm/actions/install-ninja@main
 
+      - name: install aarch64 build tools
+        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'aarch64' }}
+        run:
+          sudo apt-get install --yes g++-11-aarch64-linux-gnu
+
       - name: Flags checker
         if: steps.cache.outputs.cache-hit != 'true'
         run:
-          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
+          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" arch "${{ matrix.arch }}"extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
 
       - name: Run cmake
         if: steps.cache.outputs.cache-hit != 'true'
@@ -68,6 +96,7 @@ jobs:
               -GNinja
               ${{ matrix.build_type_flags }}
               ${{ matrix.os_flags}}
+              ${{ matrix.arch_flags}}
 
       - name: Run build on llvm
         if: steps.cache.outputs.cache-hit != 'true'
