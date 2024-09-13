@@ -2365,7 +2365,7 @@ class WeakGlobalSingle : public C11AtomicTestBase {
       return desired_values[index];
     };
     kts::Reference1D<cl_int> bool_output_reference =
-        [success_index, weak_exchange_failed](size_t index) {
+        [success_index, &weak_exchange_failed](size_t index) {
           return index == success_index && !weak_exchange_failed;
         };
 
