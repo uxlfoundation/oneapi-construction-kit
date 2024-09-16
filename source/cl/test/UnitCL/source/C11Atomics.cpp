@@ -2121,10 +2121,20 @@ class Weak : public C11AtomicTestBase {
   template <typename T>
   void doTest(bool local = false, bool local_local = false) {
     // Generate the random input.
+    // We need unique values in order to reliably determine whether a compare
+    // and exchange failed spuriously.
     std::vector<T> input_data(kts::N, T{});
-    ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
     std::vector<T> desired_data(kts::N, T{});
-    ucl::Environment::instance->GetInputGenerator().GenerateData(desired_data);
+
+    {
+      std::vector<T> all_values(input_data.size() + desired_data.size(), T{});
+      ucl::Environment::instance->GetInputGenerator().GenerateUniqueIntData<T>(
+          all_values);
+      input_data.assign(std::begin(all_values),
+                        std::next(std::begin(all_values), kts::N));
+      desired_data.assign(std::next(std::begin(all_values), kts::N),
+                          std::end(all_values));
+    }
 
     // Set up references.
     kts::Reference1D<T> random_reference = [input_data](size_t index) {
