@@ -20,8 +20,6 @@ target triple = "riscv64-unknown-unknown-elf"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: define linkonce dso_local spir_func noundef ptr @memmove(
-; CHECK-NOT: tail call void @llvm.memcpy
-
 
 define void @memmove_kernel_32_p0(ptr %out, ptr %in, i32 %size) {
 entry:

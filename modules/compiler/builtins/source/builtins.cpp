@@ -658,17 +658,12 @@ void *memcpy(void *__restrict dst, const void *__restrict src, size_t num) {
   return dst;
 }
 
-// We don't want an llvm.memcpy intrinsic here as that complicates the handling
-// in the link-builtins pass
 void *memmove(void *dst, const void *src, size_t num) {
   if (reinterpret_cast<uintptr_t>(static_cast<char *>(dst) + num) <=
           reinterpret_cast<uintptr_t>(src) ||
       reinterpret_cast<uintptr_t>(static_cast<const char *>(src) + num) <=
           reinterpret_cast<uintptr_t>(dst)) {
-    return [&]() __attribute__((always_inline, no_builtin)) {
-      return memcpy(dst, src, num);
-    }
-    ();
+    return memcpy(dst, src, num);
   }
   if (reinterpret_cast<uintptr_t>(dst) < reinterpret_cast<uintptr_t>(src)) {
     auto *d = static_cast<unsigned char *>(dst);
