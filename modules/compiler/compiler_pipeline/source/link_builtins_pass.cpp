@@ -242,30 +242,20 @@ PreservedAnalyses compiler::utils::LinkBuiltinsPass::run(
   // For other targets, the host version will be provided later.
   const bool IncludeIntrinsicLibcalls =
       llvm::Triple(M.getTargetTriple()).isRISCV();
+  if (IncludeIntrinsicLibcalls) {
+    const llvm::StringRef IntrinsicFunctions[] = {"memcpy", "memmove",
+                                                  "memset"};
+    for (auto IntrinsicFunction : IntrinsicFunctions) {
+      BuiltinFnDecls.push_back(
+          {BuiltinsModule->getFunction(IntrinsicFunction), true});
+    }
+  }
 
   for (auto &F : M.functions()) {
-    auto Name = F.getName();
     if (F.isIntrinsic()) {
-      if (!IncludeIntrinsicLibcalls) {
-        continue;
-      }
-      switch (F.getIntrinsicID()) {
-        case Intrinsic::memcpy:
-          Name = "memcpy";
-          break;
-        case Intrinsic::memmove:
-          Name = "memmove";
-          break;
-        case Intrinsic::memset:
-          Name = "memset";
-          break;
-        default:
-          // Ignore other intrinsics.
-          continue;
-      }
+      continue;
     }
-
-    auto BuiltinF = BuiltinsModule->getFunction(Name);
+    auto BuiltinF = BuiltinsModule->getFunction(F.getName());
     if (F.isDeclaration() && nullptr != BuiltinF) {
       BuiltinFnDecls.push_back({BuiltinF, F.isIntrinsic()});
     }
