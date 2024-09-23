@@ -86,7 +86,7 @@ CL_API_ENTRY cl_int CL_API_CALL clUpdateMutableCommandsKHR(
     cl_command_buffer_khr command_buffer, cl_uint num_configs,
     const cl_command_buffer_update_type_khr *config_types,
     const void **configs) {
-  tracer::TraceGuard<tracer::OpenCL> guard("clUpdateMutableCommandsKHR");
+  const tracer::TraceGuard<tracer::OpenCL> guard("clUpdateMutableCommandsKHR");
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
   OCL_CHECK(!command_buffer->is_finalized, return CL_INVALID_OPERATION);
 
