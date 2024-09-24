@@ -215,8 +215,8 @@ int main(const int argc, const char **argv) {
                                               &input_B_buffer};
       const cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem),
                                               &output_buffer};
-      cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
-      cl_mutable_dispatch_config_khr dispatch_config{
+      const cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
+      const cl_mutable_dispatch_config_khr dispatch_config{
           command_handle,
           3 /* num_args */,
           0 /* num_svm_arg */,
@@ -231,7 +231,7 @@ int main(const int argc, const char **argv) {
 
       // Update the command buffer with the mutable configuration
       const cl_uint num_configs = 1;
-      cl_command_buffer_update_type_khr config_types[1] = {
+      const cl_command_buffer_update_type_khr config_types[1] = {
           CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR};
       const void *configs[1] = {&dispatch_config};
       error = clUpdateMutableCommandsKHR(command_buffer, num_configs,

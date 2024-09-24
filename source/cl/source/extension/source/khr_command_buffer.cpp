@@ -1078,9 +1078,9 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
   const cl_device_id device = command_queue->device;
 
   // Verify struct configures kernel arguments and return error if malformed
-  for (const auto config_ptr : mutable_dispatch_configs) {
+  for (const auto &config_ptr : mutable_dispatch_configs) {
     OCL_CHECK(config_ptr == nullptr, return CL_INVALID_VALUE);
-    const cl_mutable_dispatch_config_khr config = *config_ptr;
+    const cl_mutable_dispatch_config_khr &config = *config_ptr;
     OCL_CHECK(!config.command, return CL_INVALID_MUTABLE_COMMAND_KHR);
     OCL_CHECK(config.command->command_buffer != this,
               return CL_INVALID_MUTABLE_COMMAND_KHR);
