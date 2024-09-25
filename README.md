@@ -1,4 +1,5 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/codeplaysoftware/Template-Repo/badge)](https://scorecard.dev/viewer/?uri=github.com/codeplaysoftware/Template-Repo)
 
 # oneAPI Construction Kit
 
@@ -43,7 +44,7 @@ To install the recommended packages, run:
    $ sudo pip3 install lit virtualenv cmakelint clang-format==17.0.6
 ```
 
-### Compiling oneAPI Construction Kit 
+### Compiling oneAPI Construction Kit
 To compile the oneAPI Construction Kit, LLVM needs to be installed and linked against. The build process requires the use of tools from LLVM when the runtime compiler is enabled. The user can either follow the [LLVM guide](doc/developer-guide.md#compiling-llvm) to build a suitable install or follow the [without LLVM guide](doc/developer-guide.md#compiling-the-oneapi-construction-kit-without-llvm) to compile the oneAPI Construction Kit with the runtime compiler disabled.
 
 Examples are provided to get started, but for more control over the compilation process, the user can consult the list of CMake options.
