@@ -1,0 +1,4 @@
+@codeplaysoftware/ock-reviewers
+
+# limit the workflow to a subset of the overall reviewers for security reasons.
+.github @codeplaysoftware/ock-workflow-reviewers
