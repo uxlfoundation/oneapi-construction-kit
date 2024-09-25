@@ -188,8 +188,13 @@ if(CA_HOST_CROSS_COMPILERS)
     target_compile_definitions(compiler-host PRIVATE
     CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU="${CA_HOST_TARGET_${HOST_ARCH_UPPER}_CPU}")
   endif()
+  set(CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES_DESC
+    "Feature list that host ${HOST_ARCH_UPPER} should enable or disable as a comma separated + or - list")
+  if(HOST_ARCH_UPPER STREQUAL RISCV32 OR HOST_ARCH_UPPER STREQUAL RISCV64)
+    string(APPEND CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES_DESC " e.g. '+v,+zfh'")
+  endif()
   ca_option(CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES STRING
-    "Feature list that host ${HOST_ARCH_UPPER} should enable or disable as a comma separated + or - list e.g. '+v,+zfh'" "")
+    "${CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES_DESC}" "")
   if(CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES)
     message(STATUS "Features ${HOST_ARCH_UPPER} name ${CA_HOST_TARGET_${HOST_ARCH_UPPER}_FEATURES}")
     target_compile_definitions(compiler-host PRIVATE
@@ -236,8 +241,13 @@ if(CA_HOST_CROSS_COMPILERS)
           target_compile_definitions(compiler-host PRIVATE
           CA_HOST_TARGET_${CROSS_COMPILER}_CPU="${CA_HOST_TARGET_${CROSS_COMPILER}_CPU}")
         endif()
+        set(CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES_DESC
+          "Feature list that host ${CROSS_COMPILER} should enable or disable as a comma separated + or - list")
+        if(CROSS_COMPILER STREQUAL "RISCV32" OR CROSS_COMPILER STREQUAL "RISCV64")
+          string(APPEND CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES_DESC " e.g. '+v,+zfh'")
+        endif()
         ca_option(CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES STRING
-          "Feature list that host ${HOST_ARCH_UPPER} should enable or disable as a comma separated + or - list e.g. '+v,+zfh'" "")
+          "${CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES_DESC}" "")
         if(CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES)
           message(STATUS "Features ${CROSS_COMPILER} name ${CA_HOST_TARGET_${CROSS_COMPILER}_FEATURES}")
           target_compile_definitions(compiler-host PRIVATE
