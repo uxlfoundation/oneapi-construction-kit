@@ -23,7 +23,7 @@ runs:
   using: "composite"
   steps:
     - name: Install prerequisites
-      shell: bash    
+      shell: bash
       run: |
         sudo apt-get install -y spirv-tools
         pip install lit
@@ -32,7 +32,7 @@ runs:
       uses: llvm/actions/install-ninja@main
 
     - name: load llvm
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: llvm_install/**
         key: llvm-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.arch }}-v${{ inputs.llvm_version}}-${{ inputs.llvm_build_type }}
@@ -40,10 +40,9 @@ runs:
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
     - name: Setup sccache
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: hendrikmuhs/ccache-action@ed74d11c0b343532753ecead8a951bb09bb34bc9 # v1.2.14
       with:
         max-size: 200M
         key: sccache-build
         variant: sccache
         save: ${{ inputs.save }}
- 

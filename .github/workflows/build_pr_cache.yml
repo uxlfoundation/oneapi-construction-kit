@@ -7,7 +7,7 @@ on:
   # pull_request:
   #   paths:
   #     - '.github/workflows/build_pr_cache.yml'
-  #     - '.github/do_build_ock/**'  
+  #     - '.github/do_build_ock/**'
   push:
     branches:
       - main
@@ -15,7 +15,7 @@ on:
       - '.github/workflows/build_pr_cache.yml'
       - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_ubuntu_build/**'
-  
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -28,8 +28,8 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
       # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
@@ -52,10 +52,10 @@ jobs:
           build_dir: build_offline
           assemble_spirv_ll_lit_test_offline: ON
           build_targets:
-   
+
       - name: clean_build
         run:
           rm -rf ${{ github.workspace }}/build*
 
       - name: build riscv m1
-        uses: ./.github/actions/do_build_ock/do_build_m1  
+        uses: ./.github/actions/do_build_ock/do_build_m1

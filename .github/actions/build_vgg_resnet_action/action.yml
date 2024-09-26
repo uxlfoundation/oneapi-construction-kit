@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
       with:
         python-version: '3.8'
 
@@ -88,7 +88,7 @@ runs:
         tar -cvzf network_artifacts.tar.gz vgg_data resnet_data Labrador_Retriever_Molly.jpg Labrador_Retriever_Molly.jpg.bin
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
       with:
         name: network_build
         path: network_artifacts.tar.gz
