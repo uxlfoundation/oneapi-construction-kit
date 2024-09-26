@@ -1,0 +1,60 @@
+# Simple workflow for running non-documentation PR testing
+name: Run ock tests for PR testing
+on:
+  pull_request:
+    paths:
+      - 'source/**'
+      - 'clik/**'
+      - 'modules/**'
+      - 'examples/**'
+      - 'cmake/**'
+      - 'hal/**'
+      - '.github/actions/do_build_ock/**'
+      - '.github/actions/setup_ubuntu_build/**'
+      - '.github/workflows/run_windows_pr_tests.yml'
+      - 'CMakeLists.txt'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # build and run host x86_64, execute UnitCL and lit tests and build and run offline
+  run_host_x86_64:
+    runs-on: windows-2019
+
+    steps:
+      - name: Setup Windows llvm base
+        if: startsWith(runner.os, 'Windows')
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-windows
+        uses:  ./.github/actions/setup_windows_build
+        with:
+          llvm_version: 18
+          llvm_build_type: RelAssert        
+  
+      # These need to match the configurations of build_pr_cache to use the cache effectively
+      - name: build host x86_64 online release
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: Release
+          shell_to_use: pwsh
+
+      - name: run just online lit
+        run:
+          ninja -C build check-ock-all-lit
+
+      - name: run host online check
+        run:
+          ninja -C build check-ock-UnitCL

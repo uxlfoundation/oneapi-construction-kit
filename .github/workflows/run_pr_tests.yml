@@ -9,9 +9,11 @@ on:
       - 'examples/**'
       - 'cmake/**'
       - 'hal/**'
-      - '.github/actions/do_build_ock/**'
+      # Just for testing purposes - change back
+      # - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_ubuntu_build/**'
-      - '.github/workflows/run_pr_tests.yml'
+      # Just for testing purposes - change back
+      # - '.github/workflows/run_pr_tests.yml'
       - 'CMakeLists.txt'
 
   # Allows you to run this workflow manually from the Actions tab

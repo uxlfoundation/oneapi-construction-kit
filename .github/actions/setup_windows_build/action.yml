@@ -1,0 +1,56 @@
+name: setup-windows-build
+description: Setup ubuntu ready for building. Includes installs, ninja, build cache setup and loading llvm cache
+
+inputs:
+  llvm_build_type:
+    description: 'llvm Build type (Release, RelAssert) - note we need to use RelAssert for the cache pattern matching'
+    default: RelAssert
+  llvm_version:
+    description: 'Major llvm version to use for fetching llvm cache e.g. 17'
+    default: 17
+  windows_version:
+    description: 'Version of windows used for cache retrieval'
+    default: 2019
+  save:
+    description: 'Save the build cache at the end - not for PR testing'
+    default: false
+  arch:
+    description: 'Architecture'
+    default: x86_64
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: Install prerequisites
+      shell: pwsh    
+      run: |
+        Invoke-WebRequest  https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanSDK-1.3.283.0-Installer.exe -OutFile Installer.exe
+        .\Installer.exe --accept-licenses --default-answer --confirm-command install
+        rm Installer.exe
+        pip install lit
+
+    - name: add to path
+      shell: 
+      run:
+        echo "PATH=C:\VulkanSDK\1.3.283.0\Bin;$env:PATH" >> $env:GITHUB_ENV
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: load llvm
+      uses: actions/cache/restore@v3
+      with:
+        path: llvm_install/**
+        key: llvm-windows-${{ inputs.windows_version }}-${{ inputs.arch }}-v${{ inputs.llvm_version}}-${{ inputs.llvm_build_type }}
+        fail-on-cache-miss: true
+
+      # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
+    - name: Setup sccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        max-size: 200M
+        key: sccache-build
+        variant: sccache
+        save: ${{ inputs.save }}
+ 

@@ -73,13 +73,24 @@ inputs:
   install_dir:
     description: "Install directory for OCK"
     default: install
+  shell_to_use:
+    description: "which shell to use (default bash)"
+    default: bash
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
+        # echo $env:path
+
   using: "composite"
   steps:
+    - name: set ICD registry
+      if: startsWith(runner.os, 'Windows')
+      shell: ${{ inputs.shell_to_use }}
+      run:
+        $PWD = Convert-Path .; source/cl/tools/icd-register.ps1 "$PWD/${{ inputs.build_dir }}/bin/CL.dll"
+
     - name: cmake_ock
-      shell: bash
+      shell: ${{ inputs.shell_to_use }}
       run:
         cmake -GNinja
               -B${{ inputs.build_dir }}
@@ -111,6 +122,6 @@ runs:
                ${{ inputs.extra_flags }}
               .      
     - name: build_ock
-      shell: bash
+      shell: ${{ inputs.shell_to_use }}
       run:
         ninja -C ${{ inputs.build_dir }} ${{ inputs.build_targets }}
