@@ -16,15 +16,22 @@ jobs:
     strategy:
       matrix:
         version: [17, 18]
-        os: [ubuntu-22.04]
+        os: [ubuntu-22.04, windows-2019]
         build_type: [Release, RelAssert]
         arch : [x86_64, aarch64]
         exclude:
-          # For now just do latest llvm with aarch to reduce cache usage.
+          # Reduce the versions of llvm for aarch64 architecture, as
+          # well as any windows os variants to reduce cache usage.
           - arch: aarch64
             version: 17
           - arch: aarch64
             build_type: Release
+          - os: windows-2019
+            version: 17
+          - os: windows-2019
+            build_type: Release
+          - os: windows-2019
+            arch: aarch64
         include:
           # We want to set flags related to particular matrix dimensions. To do this
           # we need to create default values first, and then against particular matrix
@@ -51,6 +58,11 @@ jobs:
             llvm_install/**
           key: llvm-${{ matrix.os }}-${{ matrix.arch }}-v${{ matrix.version }}-${{ matrix.build_type }}
 
+      - name: Setup Windows
+        if: startsWith(runner.os, 'Windows') && steps.cache.outputs.cache-hit != 'true'
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
 
       - name: Checkout repo llvm
         if: steps.cache.outputs.cache-hit != 'true'
