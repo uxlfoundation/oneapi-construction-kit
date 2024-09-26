@@ -36,14 +36,15 @@ runs:
       with:
         path: llvm_install/**
         key: llvm-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.arch }}-v${{ inputs.llvm_version}}-${{ inputs.llvm_build_type }}
+        enableCrossOsArchive: true
         fail-on-cache-miss: true
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
-    - name: Setup sccache
-      uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        max-size: 200M
-        key: sccache-build
-        variant: sccache
-        save: ${{ inputs.save }}
+    # - name: Setup sccache
+    #   uses: hendrikmuhs/ccache-action@v1.2
+    #   with:
+    #     max-size: 200M
+    #     key: sccache-build
+    #     variant: sccache
+    #     save: ${{ inputs.save }}
  
