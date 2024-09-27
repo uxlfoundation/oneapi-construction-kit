@@ -1072,13 +1072,15 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
 }  // anonymous namespace
 
 [[nodiscard]] cl_int _cl_command_buffer_khr::updateCommandBuffer(
-    cargo::array_view<const cl_mutable_dispatch_config_khr *>
-        &mutable_dispatch_configs) {
+    const cargo::array_view<const void *> &mutable_configs) {
   const std::lock_guard<std::mutex> guard(mutex);
   const cl_device_id device = command_queue->device;
 
   // Verify struct configures kernel arguments and return error if malformed
-  for (const auto &config_ptr : mutable_dispatch_configs) {
+  for (const auto &mutable_config : mutable_configs) {
+    auto config_ptr =
+        static_cast<const cl_mutable_dispatch_config_khr *>(mutable_config);
+
     OCL_CHECK(config_ptr == nullptr, return CL_INVALID_VALUE);
     const cl_mutable_dispatch_config_khr &config = *config_ptr;
     OCL_CHECK(!config.command, return CL_INVALID_MUTABLE_COMMAND_KHR);
@@ -1094,7 +1096,10 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
         return CL_INVALID_OPERATION);
   }
 
-  for (auto config : mutable_dispatch_configs) {
+  for (const auto &mutable_config : mutable_configs) {
+    auto config =
+        static_cast<const cl_mutable_dispatch_config_khr *>(mutable_config);
+
     unsigned update_index = 0;
     const unsigned num_args = config->num_args + config->num_svm_args;
     UpdateInfo update_info;

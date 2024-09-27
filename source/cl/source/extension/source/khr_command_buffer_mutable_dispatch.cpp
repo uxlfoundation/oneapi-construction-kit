@@ -115,12 +115,8 @@ CL_API_ENTRY cl_int CL_API_CALL clUpdateMutableCommandsKHR(
     }
   }
 
-  const cl_mutable_dispatch_config_khr **casted_configs =
-      reinterpret_cast<const cl_mutable_dispatch_config_khr **>(configs);
-  cargo::array_view<const cl_mutable_dispatch_config_khr *>
-      mutable_dispatch_configs(casted_configs, num_configs);
-
-  return command_buffer->updateCommandBuffer(mutable_dispatch_configs);
+  const cargo::array_view<const void *> config_array(configs, num_configs);
+  return command_buffer->updateCommandBuffer(config_array);
 }
 
 CL_API_ENTRY cl_int CL_API_CALL clGetMutableCommandInfoKHR(

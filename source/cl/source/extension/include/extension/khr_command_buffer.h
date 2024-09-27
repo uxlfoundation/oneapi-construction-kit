@@ -460,12 +460,13 @@ struct _cl_command_buffer_khr final : public cl::base<_cl_command_buffer_khr> {
 
   /// @brief Modify commands in command-buffer
   ///
-  /// @param[in] mutable_config New configuration for one or more commands
+  /// @param[in] mutable_configs List of new configuration for one or more
+  /// commands. It is only valid to pass pointers to
+  /// cl_mutable_dispatch_config_khr structs in this list.
   ///
   /// @return CL_SUCCESS or appropriate OpenCL error code.
   cl_int updateCommandBuffer(
-      cargo::array_view<const cl_mutable_dispatch_config_khr *>
-          &mutable_configs);
+      const cargo::array_view<const void *> &mutable_configs);
 
   /// @brief Verifies whether a queue is compatible with the command-buffer.
   ///
