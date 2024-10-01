@@ -11,6 +11,8 @@ on:
       - '.github/workflows/create_llvm.yml'         
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   create_llvm_cache:
     strategy:
