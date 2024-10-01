@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Create OCK pre-release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
