@@ -19,6 +19,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
 
   build_pr_ock:
