@@ -36,6 +36,8 @@ jobs:
             build_type: Release
           - os: windows-2019
             arch: aarch64
+          - os: windows-2019
+            arch: x86
         include:
           # We want to set flags related to particular matrix dimensions. To do this
           # we need to create default values first, and then against particular matrix
