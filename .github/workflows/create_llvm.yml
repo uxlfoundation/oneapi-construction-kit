@@ -52,6 +52,7 @@ jobs:
                         -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
             arch: aarch64
           - arch_flags: -DLLVM_BUILD_32_BITS=ON -DLIBXML2_LIBRARIES=IGNORE -DLLVM_ENABLE_TERMINFO=OFF
+                        -DLLVM_HOST_TRIPLE=i686-unknown-linux-gnu
             arch: x86
           - build_type: Release
             build_type_flags: -DCMAKE_BUILD_TYPE=Release
