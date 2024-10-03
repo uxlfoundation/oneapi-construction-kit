@@ -105,7 +105,7 @@ inputs:
     default: OFF
   gtest_launcher:
     description: "Googletest suite launcher command"
-    default: "/usr/bin/python;-u;${{ github.workspace }}/code/scripts/gtest-terse-runner.py"
+    default: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
