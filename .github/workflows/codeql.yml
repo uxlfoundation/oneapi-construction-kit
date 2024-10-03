@@ -1,0 +1,99 @@
+name: CodeQL
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '19 9 * * 3'
+
+permissions: {}
+
+jobs:
+  analyze-host-x86_64-release:
+    name: Analyze host x86_64 release
+    permissions:
+      # required for all workflows
+      security-events: write
+      # required to fetch internal or private CodeQL packs
+      packages: read
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          save: true
+          llvm_version: 18
+          llvm_build_type: RelAssert
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL (${{ matrix.name }})
+        uses: github/codeql-action/init@v3
+        with:
+          languages: c-cpp
+          build-mode: manual
+
+      - name: build host x86_64 release
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: Release
+          build_targets:
+
+      - name: build host x86_64 offline
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: Release
+          extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
+          build_dir: build_offline
+          assemble_spirv_ll_lit_test_offline: ON
+          build_targets:
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:c-cpp"
+
+  analyze-riscv-m1:
+    name: Analyze riscv m1
+    permissions:
+      # required for all workflows
+      security-events: write
+      # required to fetch internal or private CodeQL packs
+      packages: read
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          save: true
+          llvm_version: 18
+          llvm_build_type: RelAssert
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL (${{ matrix.name }})
+        uses: github/codeql-action/init@v3
+        with:
+          languages: c-cpp
+          build-mode: manual
+
+      - name: build riscv m1
+        uses: ./.github/actions/do_build_ock/do_build_m1
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:c-cpp"
+
