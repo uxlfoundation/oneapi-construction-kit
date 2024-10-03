@@ -20,7 +20,7 @@ jobs:
         build_type: [Release, RelAssert]
         arch : [x86, x86_64, aarch64]
         exclude:
-          # Reduce the versions of llvm for aarch64 & x86 architectures, as
+          # Reduce the versions of llvm for aarch64 & x86 architectures and windows, as
           # well as any windows os variants to reduce cache usage.
           - arch: aarch64
             version: 17
