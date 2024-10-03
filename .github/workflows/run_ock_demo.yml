@@ -208,7 +208,7 @@ jobs:
           tar -rf ock_demo_components.tar.gz portDNN_build.tar.gz portBLAS_build.tar.gz
 
       - name: Create OCK demo release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:

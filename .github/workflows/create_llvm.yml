@@ -8,7 +8,7 @@ on:
       - '.github/workflows/create_llvm.yml'
   pull_request:
     paths:
-      - '.github/workflows/create_llvm.yml'         
+      - '.github/workflows/create_llvm.yml'
   workflow_dispatch:
 
 permissions: {}
@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Cache llvm
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path:
             llvm_install/**
@@ -79,7 +79,7 @@ jobs:
         with:
           sparse-checkout: |
             platform
-          path: ock          
+          path: ock
 
       - name: Install Ninja
         if: steps.cache.outputs.cache-hit != 'true'
