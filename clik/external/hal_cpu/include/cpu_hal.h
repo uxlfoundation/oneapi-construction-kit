@@ -48,8 +48,8 @@ class cpu_hal final : public hal::hal_device_t {
   ~cpu_hal();
 #endif
 
-  // Set up the hal device info - this is done as a static so that other classes such
-  // as hal_client can set up the desired information directly
+  // Set up the hal device info - this is done as a static so that other classes
+  // such as hal_client can set up the desired information directly
   static hal::hal_device_info_t &setup_cpu_hal_device_info();
 
   size_t get_word_size() const { return sizeof(uintptr_t); }
@@ -112,6 +112,9 @@ class cpu_hal final : public hal::hal_device_t {
   cpu_barrier barrier;
 #endif
   std::map<hal::hal_program_t, std::string> binary_files;
+
+  // Default number of threads for wg mode
+  unsigned int wg_num_threads;
 };
 
 #endif

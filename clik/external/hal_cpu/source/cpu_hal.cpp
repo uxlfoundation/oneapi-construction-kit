@@ -25,6 +25,7 @@
 #include <unistd.h>
 #endif
 
+#include <hal_riscv.h>
 #include <stdlib.h>
 
 #include <cstring>
@@ -32,8 +33,6 @@
 #include <sstream>
 #include <string>
 #include <thread>
-
-#include <hal_riscv.h>
 
 #include "device/device_if.h"
 
@@ -69,7 +68,8 @@ hal::hal_device_info_t &cpu_hal::setup_cpu_hal_device_info() {
   // and should be more programmatical.
   hal_device_info.vlen = 0;
   hal_device_info.extensions = riscv::rv_extension_G;
-  hal_device_info.abi = hal_device_info.word_size == 64 ? riscv::rv_abi_LP64D : riscv::rv_abi_ILP32D;
+  hal_device_info.abi = hal_device_info.word_size == 64 ? riscv::rv_abi_LP64D
+                                                        : riscv::rv_abi_ILP32D;
   return hal_device_info;
 }
 
@@ -86,6 +86,16 @@ cpu_hal::cpu_hal(hal::hal_device_info_t *info, std::mutex &hal_lock)
       debug = true;
     }
   }
+#if HAL_CPU_MODE == HAL_CPU_WG_MODE
+  wg_num_threads = std::thread::hardware_concurrency();
+  const char *env = std::getenv("CA_CPU_HAL_NUM_THREADS");
+  // Allow overriding by no more than the hardware_concurrency() value
+  if (nullptr != env) {
+    if (const unsigned int t = std::atoi(env)) {
+      wg_num_threads = std::min(t, wg_num_threads);
+    }
+  }
+#endif
 }
 
 #if HAL_CPU_MODE == HAL_CPU_WI_MODE
@@ -299,7 +309,7 @@ bool cpu_hal::kernel_exec(hal::hal_program_t program, hal::hal_kernel_t kernel,
 
   // Specialize the execution state struct for each thread.
 #if HAL_CPU_MODE == HAL_CPU_WG_MODE
-  size_t num_threads = std::thread::hardware_concurrency();
+  size_t num_threads = wg_num_threads;
 #elif HAL_CPU_MODE == HAL_CPU_WI_MODE
   size_t num_threads = work_group_size;
 #else
