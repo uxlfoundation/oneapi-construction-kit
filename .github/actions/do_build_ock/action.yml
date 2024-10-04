@@ -52,18 +52,9 @@ inputs:
   hal_description:
     description: 'Description to be used for HAL, typically risc-v ISA (default "")'
     default: ""
-  refsi_tutorial_hal_dir:
-    description: 'External Refsi tutorial HAL dir, default ""'
-    default: ""
-  refsi_tutorial_enabled:
-    description: 'Enable Refsi tutorial, default OFF'
-    default: OFF
   hal_refsi_soc:
     description: 'HAL Refsi SOC e.g. M1 or G1, default M1'
     default: M1
-  oneapi_con_kit_dir:
-    description: 'Oneapi Construction Kit dir, default "$GITHUB_WORKSPACE"'
-    default: "$GITHUB_WORKSPACE"
   hal_refsi_thread_mode:
     description: 'HAL Refsi Thread Mode e.g. WI or WG, default ""'
     default: ""
@@ -128,7 +119,6 @@ runs:
               -B${{ inputs.build_dir }} \
               -DCMAKE_C_COMPILER_LAUNCHER=sccache \
               -DCMAKE_CXX_COMPILER_LAUNCHER=sccache                 \
-              -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ inputs.oneapi_con_kit_dir }} \
               -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }} \
               -DCA_ENABLE_API=${{ inputs.enable_api }} \
               -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }} \
@@ -147,8 +137,6 @@ runs:
               -DCA_EXTERNAL_MUX_COMPILER_DIRS=${{ inputs.external_compiler_dirs }} \
               -DCA_CL_ENABLE_ICD_LOADER=ON \
               -DHAL_DESCRIPTION=${{ inputs.hal_description }} \
-              -DCA_REFSI_TUTORIAL_ENABLED=${{ inputs.refsi_tutorial_enabled }} \
-              -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=${{ inputs.refsi_tutorial_hal_dir }} \
               -DHAL_REFSI_SOC=${{ inputs.hal_refsi_soc }} \
               -DHAL_REFSI_THREAD_MODE=${{ inputs.hal_refsi_thread_mode }} \
               -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }} \
