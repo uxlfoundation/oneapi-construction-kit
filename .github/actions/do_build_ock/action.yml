@@ -28,6 +28,9 @@ inputs:
   offline_kernel_tests:
     description: 'Enable offline kernel testing (default ON)'
     default: ON
+  builtin_kernel:
+    description: 'Enable builtin kernel (default OFF)'
+    default: OFF
   llvm_install_dir:
     description: 'Directory for llvm install'
     default: ${{ github.workspace }}/llvm_install
@@ -132,7 +135,7 @@ runs:
               -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }} \
               -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
               -DCA_ENABLE_HOST_IMAGE_SUPPORT=${{ inputs.host_image }} \
-              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.debug_support }} \
+              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.builtin_kernel }} \
               -DCA_HOST_ENABLE_BUILTINS_EXTENSION=${{ inputs.host_enable_builtins}} \
               -DCA_HOST_ENABLE_FP16=${{ inputs.host_fp16 }} \
               -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=${{ inputs.offline_kernel_tests }} \
