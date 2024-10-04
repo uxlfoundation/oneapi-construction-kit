@@ -1,0 +1,73 @@
+name: ComputeAorta/ci-github-mrexport
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - source/**
+    - clik/**
+    - modules/**
+    - examples/**
+    - cmake/**
+    - hal/**
+    - .github/actions/do_build_ock/**
+    - .github/actions/setup_ubuntu_build/**
+    - .github/workflows/run_pr_tests.yml
+    - CMakeLists.txt
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+
+############### JOB   mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0-unitcl_vecz:
+
+  mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0-unitcl_vecz:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      EXTERNAL_MUX_COMPILER_DIRS: ${{ github.workspace }}/code/examples/refsi/refsi_m1/compiler/refsi_m1
+      MUX_COMPILERS_TO_ENABLE: riscv
+      HAL_DESCRIPTION: RV64GCV_Zfh
+      HAL_REFSI_SOC: G1
+      HAL_REFSI_THREAD_MODE: WG
+      TARGET: check-ock-UnitCL-group-vecz
+      DISABLE_VECZ_CHECKS: OFF
+      Compiler: gcc
+      CXXCompiler: g++
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+      with:
+        path: code
+    - run: cp -R code/.github .github
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_ubuntu_build
+      with:
+        llvm_version: '18'
+        llvm_build_type: RelAssert
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        path: $GITHUB_WORKSPACE/code
+        install_dir: $GITHUB_WORKSPACE/install
+        llvm_install_dir: $GITHUB_WORKSPACE/llvm_install
+        build_type: ReleaseAssert
+        build_targets: $TARGET
+        host_image: OFF
+        enable_api: cl
+        mux_targets_enable: riscv
+        external_compiler_dirs: $EXTERNAL_MUX_COMPILER_DIRS
+        mux_compilers_enable: $MUX_COMPILERS_TO_ENABLE
+        riscv_enabled: ON
+        disable_unitcl_vecz_checks: $DISABLE_VECZ_CHECKS
+        enable_rvv_scalable_vecz_check: ON
+        enable_rvv_scalable_vp_vecz_check: ON
+        command_buffer: ON
+        use_linker: gold
+        hal_description: $HAL_DESCRIPTION
+        hal_refsi_soc: $HAL_REFSI_SOC
+        hal_refsi_thread_mode: $HAL_REFSI_THREAD_MODE
+        build_dir: $GITHUB_WORKSPACE/build
+        debug_support: ON
+        gtest_launcher: "/usr/bin/python;-u;${{ github.workspace }}/code/scripts/gtest-terse-runner.py"
+        extra_flags: -DCMAKE_C_COMPILER=$Compiler -DCMAKE_CXX_COMPILER=$CXXCompiler
