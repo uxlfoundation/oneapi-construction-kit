@@ -76,7 +76,7 @@ inputs:
   enable_rvv_scalable_vecz_check:
     description: "Enable RVV scalable vecz check (default OFF)"
     default: OFF
-  enable_rvv_scalable_VP_vecz_check:
+  enable_rvv_scalable_vp_vecz_check:
     description: "Enable RVV scalable vecz VP check (default OFF)"
     default: OFF
   install_dir:
