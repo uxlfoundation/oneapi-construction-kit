@@ -260,23 +260,32 @@ struct erfc_helper<T, abacus_double> {
     const T s4 =
         abacus::internal::horner_polynomial((T)9.0 - xAbs, polynomial4);
 
-    const abacus_double polynomial5[16] = {
-        0.11070463773286169990372436653511241845044712161429e0,
-        0.21332789764918014983909802082047138329268827765885e-1,
-        0.40406889155977461772988376159415397296440148973122e-2,
-        0.75289681329516234268578523486963895653952058904406e-3,
-        0.13810238588175738589710088734001335448824482725804e-3,
-        0.24953881304742170109859300308574839972526234753948e-4,
-        0.44444041661973769601354026252065956015993766811811e-5,
-        0.78063899223184462500750715405536321985984924668052e-6,
-        0.13522568513724882161932547902505233332689433323226e-6,
-        0.23139264626715452923838613250310360877881259686444e-7,
-        0.39468651950006128363940148642967408747660811317076e-8,
-        0.65772668877031875276218754307071510803213337349400e-9,
-        0.97560690416780322683931461761432410626330435434239e-10,
-        0.16123134233870904955480002695710261854618012594367e-10,
-        0.42935234747721987279511521489017102306945787381872e-11,
-        0.67103905111008702565383310413536484200906759877260e-12};
+    // sollya:
+    // d = [-2, 2]; n = 19;
+    // f = erfc(5-x)*exp((5-x)^2);
+    // f_ = fpminimax(f, n, [|double...|], d);
+    // f_;
+    const abacus_double polynomial5[20] = {
+        0.110704637733068503302469309801381314173340797424316,
+        2.1332789764826401435193758970854105427861213684082e-2,
+        4.0406889089432893036324401236925041303038597106934e-3,
+        7.5289681342656641568900077743364818161353468894958e-4,
+        1.38102420848862540844401158857124300993746146559715e-4,
+        2.4953883569894343196025193742926262530090752989054e-5,
+        4.4443345143486408816021170087307012863675481639802e-6,
+        7.806319591289697479869077144376543486714581376873e-7,
+        1.35293384028109750406114182401384748999362273025326e-7,
+        2.31474637318660206974552562449176651426796524901874e-8,
+        3.9114899524337780386706484806597083903056955023203e-9,
+        6.5298589737737007236518893229420060220213883894758e-10,
+        1.07602293522793857946046153298009628168641071965794e-10,
+        1.75605982000002858444510270792535459004335418597975e-11,
+        2.8841008981886549133888305999803532489456081577828e-12,
+        4.5904466203167743503158824753102109663110280690645e-13,
+        6.1761221518299229596209917460236382081499410812153e-14,
+        9.8387442230982964031911708599291460160707768062283e-15,
+        2.7931985299100619455054534074661716321936891574418e-15,
+        4.187004556466219836928050509945646514543772433864e-16};
 
     const T s5 =
         abacus::internal::horner_polynomial((T)5.0 - xAbs, polynomial5);
@@ -317,7 +326,7 @@ struct erfc_helper<T, abacus_double> {
         -0.769303783427077728603115605154e-11,
         0.649208507303079943817283734212e-12};
 
-    const T s6 = x * abacus::internal::horner_polynomial(x - 2.0, polynomial6);
+    const T s6 = abacus::internal::horner_polynomial(xAbs - 2.0, polynomial6);
 
     const abacus_double polynomial7[18] = {
         -0.184960550993324824857621355148e1,
@@ -339,7 +348,7 @@ struct erfc_helper<T, abacus_double> {
         0.719978845989106022397954580379e-10,
         -0.112483613328048316890929995550e-10};
 
-    const T s7 = x * abacus::internal::horner_polynomial(x - 1.0, polynomial7);
+    const T s7 = abacus::internal::horner_polynomial(xAbs - 1.0, polynomial7);
 
     const abacus_double polynomial8[18] = {-0.112837916709551257387779218929e1,
                                            -0.636619772367581355079779256278e0,
@@ -360,20 +369,26 @@ struct erfc_helper<T, abacus_double> {
                                            -0.130665471764135727617959508462e-7,
                                            0.147819914464175590200096454488e-8};
 
-    const T s8 = x * abacus::internal::horner_polynomial(x, polynomial8);
+    const T s8 = abacus::internal::horner_polynomial(xAbs, polynomial8);
 
     result = __abacus_select(result, s6, (SignedType)(xAbs <= 3.0));
     result = __abacus_select(result, s7, (SignedType)(xAbs <= 2.0));
     result = __abacus_select(result, s8, (SignedType)(xAbs <= 1.0));
 
-    result = __abacus_select(result, abacus::internal::exp_unsafe(result),
+    T mul_lo;
+    const T mul_hi =
+        abacus::internal::multiply_exact_unsafe(xAbs, result, &mul_lo);
+
+    result = __abacus_select(result,
+                             abacus::internal::exp_unsafe(mul_hi) *
+                                 abacus::internal::exp_unsafe(mul_lo),
                              (SignedType)(xAbs <= 3.0));
 
     result = __abacus_select(result, (T)2.0 - result,
-                             (SignedType)__abacus_signbit(result));
+                             (SignedType)__abacus_signbit(x));
 
     result = __abacus_select(result, (T)2.0, (SignedType)(x < -5.8));
-    result = __abacus_select(result, (T)0.0, (SignedType)(x > 27.0));
+    result = __abacus_select(result, (T)0.0, (SignedType)(x > 27.3));
     result =
         __abacus_select(result, (T)ABACUS_NAN, (SignedType)__abacus_isnan(x));
 
