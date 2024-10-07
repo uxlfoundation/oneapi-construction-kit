@@ -246,7 +246,7 @@ TEST_F(Execution, Task_07_12_Scalar_Masked_Load) {
   }
 }
 
-void TestScalarMaskedStore(Execution *e) {
+static void TestScalarMaskedStore(Execution *e) {
   // Test with the first constant that exercises one path.
   const unsigned C1 = 1;
   const unsigned N1 = (unsigned)kts::N;
@@ -334,7 +334,7 @@ TEST_F(Execution, Task_07_17_If_In_Loop) {
   if (clspvSupported_) {
     kts::Reference1D<cl_int> refOut = [](size_t x) {
       cl_int sum = 0;
-      for (size_t i = 0; i <= (size_t)x; i++) {
+      for (size_t i = 0; i <= x; i++) {
         cl_int val;
         if (i & 1) {
           val = kts::Ref_B(x) * 2;
@@ -431,7 +431,7 @@ TEST_F(Execution, Task_07_20_Sibling_Loops) {
   }
 }
 
-void TestHalfToFloat(Execution *e) {
+static void TestHalfToFloat(Execution *e) {
   const size_t numSamples = 32;
   const cl_ushort inputs[numSamples] = {
       // Values required to reproduce #7163.
@@ -463,7 +463,7 @@ void TestHalfToFloat(Execution *e) {
       0x7f800000, 0xff800000, 0x7f802000, 0xff802000};
 
   kts::Reference1D<cl_ushort> refIn = [=, &inputs](size_t x) {
-    return ((size_t)x < numSamples) ? inputs[x] : 0;
+    return x < numSamples ? inputs[x] : 0;
   };
   kts::Reference1D<cl_uint> refOut = [&outputs](size_t x, cl_uint r) {
     float result;

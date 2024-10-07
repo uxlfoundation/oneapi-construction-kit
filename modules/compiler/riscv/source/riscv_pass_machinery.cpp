@@ -142,8 +142,9 @@ RiscvPassMachinery::processOptimizationOptions(
   return env_var_opts;
 }
 
-bool riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &AM,
-                       llvm::SmallVectorImpl<vecz::VeczPassOptions> &PassOpts) {
+static bool riscvVeczPassOpts(
+    llvm::Function &F, llvm::ModuleAnalysisManager &AM,
+    llvm::SmallVectorImpl<vecz::VeczPassOptions> &PassOpts) {
   auto vecz_mode = compiler::getVectorizationMode(F);
   if (!compiler::utils::isKernelEntryPt(F) ||
       F.hasFnAttribute(llvm::Attribute::OptimizeNone) ||

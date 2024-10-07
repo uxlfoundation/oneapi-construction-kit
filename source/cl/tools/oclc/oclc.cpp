@@ -402,9 +402,7 @@ bool oclc::Driver::ParseSizeInfo(const std::string &argName,
                    argName.c_str());
 
     const cl_uint current_work_dim = (cl_uint)repeatVec[count].size();
-    if (current_work_dim > work_dim_) {
-      work_dim_ = current_work_dim;
-    }
+    work_dim_ = std::max(current_work_dim, work_dim_);
 
     if (argName == "global") {
       global_work_size_.resize(repeatCount);
@@ -657,7 +655,7 @@ template <typename T>
 T oclc::Driver::NextUniform(T min, T max) {
   const double dScale =
       (1 + max - min) / (double)(engine_.max() - engine_.min());
-  return (engine_() - engine_.min()) * dScale + min;
+  return ((engine_() - engine_.min()) * dScale) + min;
 }
 
 bool oclc::Driver::ExpandRandVec(std::vector<std::string> &vec) {
@@ -701,7 +699,7 @@ std::vector<std::string> oclc::Driver::CreateRange(T a, T b, T stride) {
   // not reliable. The loops therefore run until (`i` - half of the stride),
   // reaches `b`, as this value will be well past `b`, and the small floating
   // point inaccuracies won't matter.
-  T error = std::is_same<T, double>::value ? 0.5 * stride : 0;
+  T error = std::is_same_v<T, double> ? 0.5 * stride : 0;
   if (b > a && stride > 0.0) {
     for (T i = a; i - error <= b; i += stride) {
       vec.push_back(std::to_string(i));
@@ -817,7 +815,7 @@ const char *oclc::Driver::VerifyRepeat(const char *arg,
 
   for (size_t itr = 0; itr < count; ++itr) {
     for (size_t sublist_itr = 0; sublist_itr < stride; ++sublist_itr) {
-      vec[itr * stride + sublist_itr] = subList[sublist_itr];
+      vec[(itr * stride) + sublist_itr] = subList[sublist_itr];
     }
   }
 
@@ -1165,8 +1163,8 @@ bool oclc::Driver::BuildProgram() {
 
   // Detect the source file type.
   SourceFileType source_file_type = SourceFileType::OpenCL_C;
-  const static char spir_magic[] = {'B', 'C', (char)0xC0, (char)0xDE};
-  const static char spirv_magic[] = {(char)0x03, (char)0x02, (char)0x23,
+  static const char spir_magic[] = {'B', 'C', (char)0xC0, (char)0xDE};
+  static const char spirv_magic[] = {(char)0x03, (char)0x02, (char)0x23,
                                      (char)0x07};
   if (source_.size() > 4) {
     if (0 == memcmp(source_.data(), spir_magic, sizeof(spir_magic))) {
@@ -1289,7 +1287,7 @@ bool oclc::Driver::GetProgramBinary() {
   OCLC_CHECK_CL(err, "Getting the number of binaries failed");
   binaries.resize(num_binaries / sizeof(const char *));
   err = clGetProgramInfo(program_, CL_PROGRAM_BINARIES, num_binaries,
-                         binary_refs.data(), nullptr);
+                         static_cast<void *>(binary_refs.data()), nullptr);
   OCLC_CHECK_CL(err, "Getting the binaries failed");
   binary_ = binaries[0];
   return oclc::success;
@@ -1314,8 +1312,7 @@ std::string oclc::Driver::BufferToString(const unsigned char *buffer, size_t n,
       stringVal += (std::to_string(static_cast<short>(charBuffer[i])) + ",");
     }
   } else if (dataType == "uchar") {
-    const unsigned char *ucharBuffer =
-        reinterpret_cast<const unsigned char *>(buffer);
+    const unsigned char *ucharBuffer = buffer;
     for (size_t i = 0; i < n; ++i) {
       stringVal +=
           (std::to_string(static_cast<unsigned short>(ucharBuffer[i])) + ",");
@@ -1821,7 +1818,8 @@ bool oclc::Driver::EnqueueKernel() {
         buffer_map.emplace(arg_name,
                            std::pair<cl_mem, std::string>(buffer, type_name));
 
-        err = clSetKernelArg(kernel, i, sizeof(cl_mem), &buffer);
+        err = clSetKernelArg(kernel, i, sizeof(cl_mem),
+                             static_cast<void *>(&buffer));
       }
     } else if (is_image1d || is_image2d || is_image3d) {
       cl_mem image;
@@ -1880,7 +1878,8 @@ bool oclc::Driver::EnqueueKernel() {
             std::pair<std::string, std::pair<cl_mem, std::string>>(
                 arg_name, std::pair<cl_mem, std::string>(image, typeName)));
       }
-      err = clSetKernelArg(kernel, i, sizeof(cl_mem), &image);
+      err = clSetKernelArg(kernel, i, sizeof(cl_mem),
+                           static_cast<void *>(&image));
     } else if (is_sampler) {
       cl_sampler sampler;
       if (input != kernel_arg_map_.end()) {
@@ -1909,7 +1908,8 @@ bool oclc::Driver::EnqueueKernel() {
                                   CL_FILTER_NEAREST, &err);
       }
       OCLC_CHECK_CL(err, "Creating sampler failed");
-      err = clSetKernelArg(kernel, i, sizeof(cl_sampler), &sampler);
+      err = clSetKernelArg(kernel, i, sizeof(cl_sampler),
+                           static_cast<void *>(&sampler));
       if (CL_SUCCESS == err) {
         samplers.push_back(sampler);
       }

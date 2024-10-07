@@ -93,8 +93,9 @@ class dynamic_array final {
     if (nullptr == Begin) {
       return cargo::bad_alloc;
     }
-    std::for_each(Begin, End,
-                  [&](reference item) { new (&item) value_type(); });
+    std::for_each(Begin, End, [&](reference item) {
+      new (static_cast<void *>(std::addressof(item))) value_type();
+    });
     return cargo::success;
   }
 

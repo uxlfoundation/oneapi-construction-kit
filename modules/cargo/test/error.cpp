@@ -94,7 +94,7 @@ TEST(error_or, construct_copy_ref) {
   cargo::error_or<copyable_t> eo(42);
   ASSERT_TRUE(bool(eo));
   ASSERT_EQ(42, eo->get());
-  cargo::error_or<copyable_t> c(eo);
+  const cargo::error_or<copyable_t> &c(eo);
   ASSERT_TRUE(bool(c));
   ASSERT_EQ(42, c->get());
 }
@@ -104,7 +104,7 @@ TEST(error_or, construct_copy_const_ref) {
   ASSERT_TRUE(bool(eo));
   ASSERT_EQ(42, eo->get());
   const cargo::error_or<copyable_t> &ref = eo;
-  cargo::error_or<copyable_t> c(ref);
+  const cargo::error_or<copyable_t> &c(ref);
   ASSERT_TRUE(bool(c));
   ASSERT_EQ(42, c->get());
 }

@@ -971,8 +971,8 @@ class GetEventInfoTest : public CommandBufferEventTest {};
 TEST_F(GetEventInfoTest, EventCommandQueue) {
   cl_command_queue command_queue = nullptr;
   EXPECT_SUCCESS(clGetEventInfo(event, CL_EVENT_COMMAND_QUEUE,
-                                sizeof(cl_command_queue), &command_queue,
-                                nullptr));
+                                sizeof(cl_command_queue),
+                                static_cast<void *>(&command_queue), nullptr));
   EXPECT_EQ(command_queue, this->command_queue);
 }
 
@@ -980,7 +980,7 @@ TEST_F(GetEventInfoTest, EventCommandQueue) {
 TEST_F(GetEventInfoTest, EventContext) {
   cl_context context = nullptr;
   EXPECT_SUCCESS(clGetEventInfo(event, CL_EVENT_CONTEXT, sizeof(cl_context),
-                                &context, nullptr));
+                                static_cast<void *>(&context), nullptr));
   EXPECT_EQ(context, this->context);
 }
 
@@ -1256,7 +1256,8 @@ TEST_F(CommandBufferEnqueueEventTest, IncrementKernelTwiceWithUserEvent) {
                                      sizeof(cl_int), 0, sizeof(cl_int), 0,
                                      nullptr, nullptr));
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &counter_buffer));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&counter_buffer)));
 
   // Set up the command buffer and run the command buffer.
   cl_command_buffer_properties_khr properties[3] = {

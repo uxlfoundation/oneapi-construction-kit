@@ -22,6 +22,9 @@
 namespace abacus {
 namespace internal {
 template <typename T>
+void inplace_sqrt(T &);
+
+template <typename T>
 T sqrt(T);
 }  // namespace internal
 }  // namespace abacus

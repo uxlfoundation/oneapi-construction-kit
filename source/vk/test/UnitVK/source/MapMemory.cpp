@@ -41,7 +41,7 @@ TEST_F(MapMemory, Default) {
   // un-map and re-map
   DeviceMemoryTest::unmapMemory();
   DeviceMemoryTest::mapMemory(0, dataList.size() * sizeof(uint32_t),
-                              (void **)&mappedMemory);
+                              &mappedMemory);
 
   // check the data
   for (int dataIndex = 0, dataEnd = dataList.size(); dataIndex < dataEnd;

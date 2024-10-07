@@ -96,7 +96,7 @@ TEST_P(Execution, Task_02_09_Printf_Add) {
 
 TEST_P(Execution, Task_02_10_Modf_Builtin) {
   kts::Reference1D<cl_float> refIn = [](size_t x) {
-    return static_cast<cl_float>(x + (x % 2) * 0.5f);
+    return static_cast<cl_float>(x + ((x % 2) * 0.5f));
   };
   kts::Reference1D<cl_float> refFrac = [](size_t x) {
     return static_cast<cl_float>((x % 2) * 0.5f);

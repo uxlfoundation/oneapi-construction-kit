@@ -82,7 +82,7 @@ TEST_F(CommandNDRangeKernelTest, EmptyKernel) {
 class CommandBufferParallelCopyBase : public CommandNDRangeKernelTest {
  protected:
   CommandBufferParallelCopyBase()
-      : input_data(global_size, 42), output_data(global_size, 0){};
+      : input_data(global_size, 42), output_data(global_size, 0) {};
 
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandNDRangeKernelTest::SetUp());
@@ -140,8 +140,10 @@ class CommandBufferParallelCopyBase : public CommandNDRangeKernelTest {
     kernel = clCreateKernel(program, "parallel_copy", &error);
     EXPECT_SUCCESS(error);
 
-    EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &src_buffer));
-    EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &dst_buffer));
+    EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                  static_cast<void *>(&src_buffer)));
+    EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                  static_cast<void *>(&dst_buffer)));
   }
 
   void TearDown() override {
@@ -176,8 +178,8 @@ class CommandBufferParallelCopyBase : public CommandNDRangeKernelTest {
   std::vector<cl_int> input_data;
   std::vector<cl_int> output_data;
 
-  constexpr static size_t global_size = 256;
-  constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);
+  static constexpr size_t global_size = 256;
+  static constexpr size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
 class ParallelCopyCommandBuffer : public CommandBufferParallelCopyBase {
@@ -534,7 +536,8 @@ TEST_F(CommandNDRangeKernelTest, PODargument) {
   EXPECT_SUCCESS(error);
 
   cl_int data = 42;
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&buffer)));
   EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_int), &data));
 
   // Set up the command buffer and run the command buffer.

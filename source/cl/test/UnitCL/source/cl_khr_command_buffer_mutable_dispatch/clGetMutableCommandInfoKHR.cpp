@@ -68,7 +68,7 @@ struct MutableCommandInfoTest : MutableDispatchTest {
   cl_kernel kernel = nullptr;
 
   std::array<cl_ndrange_kernel_command_properties_khr, 3> mutable_properties;
-  constexpr static size_t global_size = 8;
+  static constexpr size_t global_size = 8;
 };
 
 TEST_F(MutableCommandInfoTest, InvalidCommandBuffer) {
@@ -99,7 +99,7 @@ TEST_F(MutableCommandInfoTest, MutableCommandCommandQueue) {
   cl_command_queue command_handle_queue = nullptr;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       command_handle, CL_MUTABLE_COMMAND_COMMAND_QUEUE_KHR, size,
-      &command_handle_queue, nullptr));
+      static_cast<void *>(&command_handle_queue), nullptr));
   ASSERT_EQ(command_queue, command_handle_queue);
 }
 
@@ -112,7 +112,7 @@ TEST_F(MutableCommandInfoTest, MutableCommandCommandBuffer) {
   cl_command_buffer_khr command_handle_buffer = nullptr;
   ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
       command_handle, CL_MUTABLE_COMMAND_COMMAND_BUFFER_KHR, size,
-      &command_handle_buffer, nullptr));
+      static_cast<void *>(&command_handle_buffer), nullptr));
   ASSERT_EQ(command_buffer, command_handle_buffer);
 }
 
@@ -150,9 +150,9 @@ TEST_F(MutableCommandInfoTest, MutableDispatchKernel) {
       command_handle, CL_MUTABLE_DISPATCH_KERNEL_KHR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_kernel), size);
   cl_kernel command_handle_kernel = nullptr;
-  ASSERT_SUCCESS(
-      clGetMutableCommandInfoKHR(command_handle, CL_MUTABLE_DISPATCH_KERNEL_KHR,
-                                 size, &command_handle_kernel, nullptr));
+  ASSERT_SUCCESS(clGetMutableCommandInfoKHR(
+      command_handle, CL_MUTABLE_DISPATCH_KERNEL_KHR, size,
+      static_cast<void *>(&command_handle_kernel), nullptr));
   ASSERT_EQ(kernel, command_handle_kernel);
 }
 

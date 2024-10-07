@@ -159,7 +159,7 @@ mux_result_t kernel_s::getLocalSizeForSubGroupCount(size_t sub_group_count,
   // work-group size we've reported, we'd receive a kernel variant with the
   // same sub-group size as we've assumed for the calculations.
   mux::hal::kernel_variant_s variant;
-  mux_result_t res = getKernelVariantForWGSize(
+  const mux_result_t res = getKernelVariantForWGSize(
       *out_local_size_x, *out_local_size_y, *out_local_size_z, &variant);
   if (res != mux_success || variant.sub_group_size != max_sub_group_size) {
     return mux_error_internal;

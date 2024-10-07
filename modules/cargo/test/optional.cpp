@@ -92,7 +92,7 @@ TEST(optional, bases_triviality) {
   {
     struct T {
       T(const T &) {}
-      T(T &&){};
+      T(T &&) {};
       T &operator=(const T &) { return *this; }
       T &operator=(T &&) { return *this; };
       ~T() {}
@@ -238,8 +238,8 @@ TEST(optional, constructors) {
   ASSERT_EQ(*o10, 42);
 }
 
-constexpr int get_int(int) { return 42; }
-constexpr cargo::optional<int> get_opt_int(int) { return 42; }
+static constexpr int get_int(int) { return 42; }
+static constexpr cargo::optional<int> get_opt_int(int) { return 42; }
 
 TEST(optional, map) {
   // lhs is empty

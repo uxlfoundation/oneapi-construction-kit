@@ -44,7 +44,7 @@ TEST_P(Execution, Builtins_02_Fmax_Vector_Scalar_NaN) {
 
 TEST_P(Execution, Builtins_03_Mad_Conversions) {
   kts::Reference1D<cl_float> refOut = [](size_t) {
-    return static_cast<cl_float>(10.0f * 1.2f + 20.0f);
+    return static_cast<cl_float>((10.0f * 1.2f) + 20.0f);
   };
   AddPrimitive(static_cast<cl_char>(10));
   AddPrimitive(20);
@@ -56,7 +56,7 @@ TEST_P(Execution, Builtins_03_Mad_Conversions) {
 
 TEST_P(Execution, Builtins_04_Mad24_Conversions) {
   kts::Reference1D<cl_float> refOut = [](size_t) {
-    return static_cast<cl_float>(10 * 1 + 20);
+    return static_cast<cl_float>((10 * 1) + 20);
   };
   AddPrimitive(static_cast<cl_char>(10));
   AddPrimitive(20);

@@ -314,7 +314,7 @@ class string_view {
     auto comp = traits_type::compare(begin(), view.begin(),
                                      std::min(size(), view.size()));
     if (0 == comp) {
-      comp = size() == view.size() ? 0 : size() < view.size() ? -1 : 1;
+      comp = (size() > view.size()) - (size() < view.size());
     }
     return comp;
   }
@@ -953,7 +953,7 @@ inline std::ostream &operator<<(std::ostream &stream,
 namespace std {
 template <>
 struct hash<cargo::string_view> {
-  inline size_t operator()(const cargo::string_view &sv) const {
+  size_t operator()(const cargo::string_view &sv) const {
     // FNV-1a hash
     if (sizeof(size_t) == 8) {
       const uint64_t basis{14695981039346656037ULL};

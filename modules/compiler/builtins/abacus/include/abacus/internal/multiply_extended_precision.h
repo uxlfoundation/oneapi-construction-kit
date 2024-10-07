@@ -58,7 +58,7 @@ inline T multiply_extended_precision(
       abacus::internal::add_exact<>(term1_hi, term1_lo, &more_sum_lo);
 
   const T half_sum = (more_sum_lo + term2_lo) +
-                     abacus::detail::cast::convert<T>(n) * high_sum_lo;
+                     (abacus::detail::cast::convert<T>(n) * high_sum_lo);
 
   T final_sum_lo;
   const T final_sum_hi =

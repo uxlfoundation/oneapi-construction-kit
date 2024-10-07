@@ -166,7 +166,7 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   }
 
   cl_platform_id selected_platform_id = platforms[selected_platform];
-  free(platforms);
+  free((void *)platforms);
   return selected_platform_id;
 }
 
@@ -268,7 +268,7 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
     exit(0);
   }
 
-  free(devices);
+  free((void *)devices);
   return selected_device_id;
 }
 #endif  // CL_COMMON_EXAMPLES_H_INCLUDED

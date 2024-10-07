@@ -27,7 +27,7 @@ T mad_sat(const T x, const T y, const T z) {
   const LargerType bX = abacus::detail::cast::convert<LargerType>(x);
   const LargerType bY = abacus::detail::cast::convert<LargerType>(y);
   const LargerType bZ = abacus::detail::cast::convert<LargerType>(z);
-  const LargerType bR = bX * bY + bZ;
+  const LargerType bR = (bX * bY) + bZ;
   return abacus::detail::cast::convert<T>(
       __abacus_clamp(bR,
                      abacus::detail::cast::convert<LargerElementType>(

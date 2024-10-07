@@ -43,11 +43,9 @@ namespace detail {
 
 // Trait for checking if a type is a cargo::expected
 template <class T>
-struct is_expected_impl : std::false_type {};
+static constexpr bool is_expected_v = false;
 template <class T, class E>
-struct is_expected_impl<expected<T, E>> : std::true_type {};
-template <class T>
-using is_expected = is_expected_impl<std::decay_t<T>>;
+static constexpr bool is_expected_v<expected<T, E>> = true;
 
 template <class T, class E, class U>
 using expected_enable_forward_value =
@@ -69,16 +67,13 @@ using expected_enable_from_other =
                      !std::is_convertible_v<const expected<U, G> &, T> &&
                      !std::is_convertible_v<const expected<U, G> &&, T>>;
 
-template <class T, class U>
-using is_void_or = std::conditional_t<std::is_void_v<T>, std::true_type, U>;
+template <class T>
+static constexpr bool is_copy_constructible_or_void_v =
+    std::is_void_v<T> || std::is_copy_constructible_v<T>;
 
 template <class T>
-using is_copy_constructible_or_void =
-    is_void_or<T, std::is_copy_constructible<T>>;
-
-template <class T>
-using is_move_constructible_or_void =
-    is_void_or<T, std::is_move_constructible<T>>;
+static constexpr bool is_move_constructible_or_void_v =
+    std::is_void_v<T> || std::is_move_constructible_v<T>;
 
 struct no_init_t {};
 static constexpr no_init_t no_init{};
@@ -95,9 +90,11 @@ struct expected_storage_base {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
+  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -143,9 +140,11 @@ struct expected_storage_base<T, E, true, true> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
+  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -184,9 +183,11 @@ struct expected_storage_base<T, E, true, false> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
+  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -230,9 +231,11 @@ struct expected_storage_base<T, E, false, true> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
+  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -342,19 +345,21 @@ struct expected_operations_base : expected_storage_base<T, E> {
 
   template <class... Args>
   void construct(Args &&...args) noexcept {
-    new (std::addressof(this->m_val)) T(std::forward<Args>(args)...);
+    new (static_cast<void *>(std::addressof(this->m_val)))
+        T(std::forward<Args>(args)...);
     this->m_has_val = true;
   }
 
   template <class Rhs>
   void construct_with(Rhs &&rhs) noexcept {
-    new (std::addressof(this->m_val)) T(std::forward<Rhs>(rhs).get());
+    new (static_cast<void *>(std::addressof(this->m_val)))
+        T(std::forward<Rhs>(rhs).get());
     this->m_has_val = true;
   }
 
   template <class... Args>
   void construct_error(Args &&...args) noexcept {
-    new (std::addressof(this->m_unexpect))
+    new (static_cast<void *>(std::addressof(this->m_unexpect)))
         unexpected<E>(std::forward<Args>(args)...);
     this->m_has_val = false;
   }
@@ -429,7 +434,7 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 
   template <class... Args>
   void construct_error(Args &&...args) noexcept {
-    new (std::addressof(this->m_unexpect))
+    new (static_cast<void *>(std::addressof(this->m_unexpect)))
         unexpected<E>(std::forward<Args>(args)...);
     this->m_has_val = false;
   }
@@ -463,9 +468,9 @@ struct expected_operations_base<void, E> : expected_storage_base<void, E> {
 // This class manages conditionally having a trivial copy constructor
 // This specialization is for when T and E are trivially copy constructible
 template <class T, class E,
-          bool =
-              is_void_or<T, std::is_trivially_copy_constructible<T>>::value &&
-              std::is_trivially_copy_constructible_v<E>>
+          bool = (std::is_void_v<T> ||
+                  std::is_trivially_copy_constructible_v<T>) &&
+                 std::is_trivially_copy_constructible_v<E>>
 struct expected_copy_base : expected_operations_base<T, E> {
   using expected_operations_base<T, E>::expected_operations_base;
 };
@@ -492,9 +497,9 @@ struct expected_copy_base<T, E, false> : expected_operations_base<T, E> {
 
 // This class manages conditionally having a trivial move constructor
 template <class T, class E,
-          bool =
-              is_void_or<T, std::is_trivially_move_constructible<T>>::value &&
-              std::is_trivially_move_constructible_v<E>>
+          bool = (std::is_void_v<T> ||
+                  std::is_trivially_move_constructible_v<T>) &&
+                 std::is_trivially_move_constructible_v<E>>
 struct expected_move_base : expected_copy_base<T, E> {
   using expected_copy_base<T, E>::expected_copy_base;
 };
@@ -519,15 +524,14 @@ struct expected_move_base<T, E, false> : expected_copy_base<T, E> {
 };
 
 // This class manages conditionally having a trivial copy assignment operator
-template <
-    class T, class E,
-    bool =
-        is_void_or<T, conjunction<std::is_trivially_copy_assignable<T>,
-                                  std::is_trivially_copy_constructible<T>,
-                                  std::is_trivially_destructible<T>>>::value &&
-        std::is_trivially_copy_assignable_v<E> &&
-        std::is_trivially_copy_constructible_v<E> &&
-        std::is_trivially_destructible_v<E>>
+template <class T, class E,
+          bool = (std::is_void_v<T> ||
+                  (std::is_trivially_copy_assignable_v<T> &&
+                   std::is_trivially_copy_constructible_v<T> &&
+                   std::is_trivially_destructible_v<T>)) &&
+                 std::is_trivially_copy_assignable_v<E> &&
+                 std::is_trivially_copy_constructible_v<E> &&
+                 std::is_trivially_destructible_v<E>>
 struct expected_copy_assign_base : expected_move_base<T, E> {
   using expected_move_base<T, E>::expected_move_base;
 };
@@ -549,15 +553,14 @@ struct expected_copy_assign_base<T, E, false> : expected_move_base<T, E> {
 };
 
 // This class manages conditionally having a trivial move assignment operator
-template <
-    class T, class E,
-    bool = is_void_or<
-               T, conjunction<std::is_trivially_destructible<T>,
-                              std::is_trivially_move_constructible<T>,
-                              std::is_trivially_move_assignable<T>>>::value &&
-           std::is_trivially_destructible_v<E> &&
-           std::is_trivially_move_constructible_v<E> &&
-           std::is_trivially_move_assignable_v<E>>
+template <class T, class E,
+          bool = (std::is_void_v<T> ||
+                  (std::is_trivially_destructible_v<T> &&
+                   std::is_trivially_move_constructible_v<T> &&
+                   std::is_trivially_move_assignable_v<T>)) &&
+                 std::is_trivially_destructible_v<E> &&
+                 std::is_trivially_move_constructible_v<E> &&
+                 std::is_trivially_move_assignable_v<E>>
 struct expected_move_assign_base : expected_copy_assign_base<T, E> {
   using expected_copy_assign_base<T, E>::expected_copy_assign_base;
 };

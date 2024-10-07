@@ -59,7 +59,7 @@
 #include <emcos/emcos_device_info.h>
 #endif
 
-uint32_t os_cpu_frequency() {
+static uint32_t os_cpu_frequency() {
 #if defined(__APPLE__)
 
   int mib[] = {CTL_HW, HW_CPU_FREQ};
@@ -114,8 +114,8 @@ uint32_t os_cpu_frequency() {
     if (cargo::string_view(buffer, wanted.size()) == wanted) {
       uint32_t i = wanted.size();
 
-      while ((i < size) && (':' != buffer[i++])) {
-        ;
+      while (i < size) {
+        if (buffer[i++] == ':') break;
       }
 
       (void)fclose(file);
@@ -139,7 +139,7 @@ uint32_t os_cpu_frequency() {
 /// greater than 4GB, even on 32-bit systems.  If you want to report the total
 /// memory size that will still fit inside a pointer use
 /// @p os_memory_bounded_size.
-uint64_t os_memory_total_size() {
+static uint64_t os_memory_total_size() {
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
   MEMORYSTATUSEX status;
   status.dwLength = sizeof(status);
@@ -172,7 +172,7 @@ uint64_t os_memory_total_size() {
 #endif
 }
 
-uint64_t os_cache_size() {
+static uint64_t os_cache_size() {
 // we query the L1 cache on all platforms, arbitrarily chosen
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
   DWORD length = 0;
@@ -242,7 +242,7 @@ uint64_t os_cache_size() {
 #endif
 }
 
-uint64_t os_cacheline_size() {
+static uint64_t os_cacheline_size() {
 // we query the L1 cacheline on all platforms, arbitrarily chosen
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
   DWORD length = 0;
@@ -316,7 +316,7 @@ uint64_t os_cacheline_size() {
 ///
 /// The function is like @p os_memory_total_size, but it will bound the
 /// reported memory by what can be addressed by a pointer.
-uint64_t os_memory_bounded_size() {
+static uint64_t os_memory_bounded_size() {
   const uint64_t size = os_memory_total_size();
   // Limit the memory size to what fits in a size_t, this is necessary when
   // compiling for 32 bits on a 64 bits host
@@ -325,7 +325,7 @@ uint64_t os_memory_bounded_size() {
              : std::numeric_limits<size_t>::max();
 }
 
-uint32_t os_num_cpus() {
+static uint32_t os_num_cpus() {
 #if defined(__linux__) || defined(__APPLE__)
   return static_cast<uint32_t>(std::max(1L, sysconf(_SC_NPROCESSORS_ONLN)));
 #elif defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
@@ -438,7 +438,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   // TODO Reported memory size is quartered (rounded up) in order to pass the
   // OpenCL CTS however this probably should be an OCL specific fix and not in
   // the host target.
-  this->memory_size = native ? (os_memory_bounded_size() - 1) / 4 + 1 : 0;
+  this->memory_size = native ? ((os_memory_bounded_size() - 1) / 4) + 1 : 0;
   // All memory could be allocated at once.
   this->allocation_size = this->memory_size;
   this->cache_size = native ? os_cache_size() : 0;

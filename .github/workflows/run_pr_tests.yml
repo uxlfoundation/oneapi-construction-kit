@@ -106,7 +106,7 @@ jobs:
 
       - name: setup-ubuntu-clang-format
         run:
-          pip install clang-format==17.0.6
+          pip install clang-format==19.1.0
 
       - name: run clang-format
         run: |

@@ -82,14 +82,16 @@ class clEnqueueTaskTest : public ucl::CommandQueueTest, TestWithEventWaitList {
     ASSERT_SUCCESS(status);
 
     EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                      clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_mem));
+                      clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                     static_cast<void *>(&input_mem)));
     cl_mem output_mem = clCreateBuffer(context, CL_MEM_WRITE_ONLY, buffer_size,
                                        nullptr, &status);
     EXPECT_TRUE(output_mem);
     ASSERT_SUCCESS(status);
 
     EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                      clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_mem));
+                      clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                     static_cast<void *>(&output_mem)));
     ASSERT_EQ_ERRCODE(
         err, clEnqueueTask(command_queue, kernel, num_events, events, event));
 
@@ -134,14 +136,16 @@ TEST_F(clEnqueueTaskTest, DefaultNoEventWaitList) {
   ASSERT_SUCCESS(status);
 
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_mem));
+                    clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                   static_cast<void *>(&input_mem)));
   cl_mem output_mem =
       clCreateBuffer(context, CL_MEM_WRITE_ONLY, buffer_size, nullptr, &status);
   EXPECT_TRUE(output_mem);
   ASSERT_SUCCESS(status);
 
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_mem));
+                    clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                   static_cast<void *>(&output_mem)));
   cl_event event;
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
                     clEnqueueTask(command_queue, kernel, 0, nullptr, &event));
@@ -164,14 +168,16 @@ TEST_F(clEnqueueTaskTest, DefaultWithEventWaitList) {
   ASSERT_SUCCESS(status);
 
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_mem));
+                    clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                   static_cast<void *>(&input_mem)));
   cl_mem output_mem =
       clCreateBuffer(context, CL_MEM_WRITE_ONLY, buffer_size, nullptr, &status);
   EXPECT_TRUE(output_mem);
   ASSERT_SUCCESS(status);
 
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_mem));
+                    clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                   static_cast<void *>(&output_mem)));
   cl_int pattern = 0;
   cl_event fill_event;
   EXPECT_EQ_ERRCODE(
@@ -206,8 +212,8 @@ TEST_F(clEnqueueTaskTest, TaskExecutesExactlyOnce) {
   EXPECT_TRUE(buffer);
   ASSERT_SUCCESS(status);
 
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer));
+  EXPECT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                               static_cast<void *>(&buffer)));
 
   EXPECT_EQ_ERRCODE(
       CL_SUCCESS,

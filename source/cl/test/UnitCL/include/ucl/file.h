@@ -39,9 +39,12 @@ struct File {
     Container content;
     using value_type = typename Container::value_type;
     std::array<value_type, 256> buffer;
-    while (const size_t objects = std::fread(buffer.data(), sizeof(value_type),
-                                             buffer.size(), file)) {
+    constexpr size_t buffer_size = buffer.size();
+    for (;;) {
+      const size_t objects =
+          std::fread(buffer.data(), sizeof(value_type), buffer_size, file);
       content.insert(content.end(), buffer.data(), buffer.data() + objects);
+      if (objects < buffer_size) break;
     }
     return content;
   }

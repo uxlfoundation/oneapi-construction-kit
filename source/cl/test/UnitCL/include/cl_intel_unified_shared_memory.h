@@ -135,7 +135,7 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
     return to_return;
   }
 
-  constexpr static size_t MAX_NUM_POINTERS = 3;
+  static constexpr size_t MAX_NUM_POINTERS = 3;
   void *host_ptr = nullptr;
   void *shared_ptr = nullptr;
   void *host_shared_ptr = nullptr;

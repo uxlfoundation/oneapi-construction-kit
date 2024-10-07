@@ -112,7 +112,7 @@ struct SpecializationInfo {
   /// mismatch, then an error is reported.
   template <class Number>
   cargo::expected<Number, Error> getValue(spv::Id id) const {
-    static_assert(std::is_arithmetic<Number>::value,
+    static_assert(std::is_arithmetic_v<Number>,
                   "Number must be an arithmetic type");
     SPIRV_LL_ASSERT(isSpecialized(id),
                     ("no specialization for " + std::to_string(id)).c_str());

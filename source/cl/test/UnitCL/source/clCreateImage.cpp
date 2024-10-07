@@ -106,9 +106,9 @@ TEST_F(clCreateImageTest, InvalidImageDesc) {
   ASSERT_EQ_ERRCODE(CL_INVALID_IMAGE_DESCRIPTOR, errorcode);
 }
 
-cl_mem imageSizeTest(cl_context context, cl_mem_object_type type, size_t width,
-                     size_t height, size_t depth, size_t arraySize,
-                     cl_mem buffer, cl_int *error) {
+static cl_mem imageSizeTest(cl_context context, cl_mem_object_type type,
+                            size_t width, size_t height, size_t depth,
+                            size_t arraySize, cl_mem buffer, cl_int *error) {
   cl_image_format format;
   format.image_channel_data_type = CL_FLOAT;
   format.image_channel_order = CL_RGBA;

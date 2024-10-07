@@ -42,7 +42,7 @@ struct clEnqueueReadImageTestBase : ucl::CommandQueueTest,
     for (size_t x = 0; x < width; ++x) {
       for (size_t y = 0; y < height; ++y) {
         for (size_t z = 0; z < depth; ++z) {
-          const size_t i = x + width * y + width * height * z;
+          const size_t i = x + (width * y) + (width * height * z);
           image_data[i].s[0] = static_cast<cl_uchar>(x);
           image_data[i].s[1] = static_cast<cl_uchar>(y);
           image_data[i].s[2] = static_cast<cl_uchar>(z);
@@ -106,10 +106,11 @@ TEST_F(clEnqueueReadImage2DTest, DefaultWriteRegionReadWholeImage) {
   // Verify
   for (size_t h = 0; h < height; ++h) {
     for (size_t w = 0; w < width; ++w) {
-      printf("{%u, %u, %u, %u}\t",
-             // w + width * h,
-             result_data[w + width * h].s[0], result_data[w + width * h].s[1],
-             result_data[w + width * h].s[2], result_data[w + width * h].s[3]);
+      printf(
+          "{%u, %u, %u, %u}\t",
+          // w + width * h,
+          result_data[w + (width * h)].s[0], result_data[w + (width * h)].s[1],
+          result_data[w + (width * h)].s[2], result_data[w + (width * h)].s[3]);
     }
     printf("\n");
   }
@@ -140,10 +141,10 @@ TEST_F(clEnqueueReadImage2DTest, DefaultReadRegion) {
     for (size_t w = 0; w < read_region[1]; ++w) {
       printf("{%u, %u, %u, %u}\t",
              // w + read_region[0] * h,
-             result_data[w + read_region[0] * h].s[0],
-             result_data[w + read_region[0] * h].s[1],
-             result_data[w + read_region[0] * h].s[2],
-             result_data[w + read_region[0] * h].s[3]);
+             result_data[w + (read_region[0] * h)].s[0],
+             result_data[w + (read_region[0] * h)].s[1],
+             result_data[w + (read_region[0] * h)].s[2],
+             result_data[w + (read_region[0] * h)].s[3]);
     }
     printf("\n");
   }
@@ -164,7 +165,7 @@ TEST_F(clEnqueueReadImage3DTest, DefaultReadWholeImage) {
   for (size_t x = 0; x < width; ++x) {
     for (size_t y = 0; y < height; ++y) {
       for (size_t z = 0; z < depth; ++z) {
-        const size_t i = x + width * y + width * height * z;
+        const size_t i = x + (width * y) + (width * height * z);
         for (int j = 0; j < 4; ++j) {
           ASSERT_EQ(image_data[i].s[j], result_data[i].s[j])
               << "image_data and result_data differ at: "

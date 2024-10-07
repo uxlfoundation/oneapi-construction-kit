@@ -79,8 +79,8 @@ struct ArraySizeAndTypeParam final {
       : arraySize(size), varType(type) {}
 };
 
-std::ostream &operator<<(std::ostream &out,
-                         const ArraySizeAndTypeParam &param) {
+static std::ostream &operator<<(std::ostream &out,
+                                const ArraySizeAndTypeParam &param) {
   out << "ArraySizeAndTypeParam{.arraySize{" << param.arraySize
       << ", .varType{\"" << param.varType << "\"}}";
   return out;
@@ -815,7 +815,7 @@ TEST_P(Execution, Regression_45_Mad_Sat_Short3_Codegen) {
   };
   kts::Reference1D<cl_short> refOut = [&refIn](size_t x) {
     const cl_long y = static_cast<cl_long>(refIn(x));
-    const cl_long mad = y * y + y;  // mad_sat == a*b+c
+    const cl_long mad = (y * y) + y;  // mad_sat == a*b+c
     const cl_long mad_sat =
         std::min<cl_long>(32767, std::max<cl_long>(-32768, mad));
     return static_cast<cl_short>(mad_sat);
@@ -833,7 +833,7 @@ TEST_P(Execution, Regression_45_Mad_Sat_Ushort3_Codegen) {
   };
   kts::Reference1D<cl_ushort> refOut = [&refIn](size_t x) {
     const cl_ulong y = static_cast<cl_ulong>(refIn(x));
-    const cl_ulong mad = y * y + y;  // mad_sat == a*b+c
+    const cl_ulong mad = (y * y) + y;  // mad_sat == a*b+c
     const cl_ulong mad_sat = std::min<cl_ulong>(65535, mad);
     return static_cast<cl_ushort>(mad_sat);
   };
@@ -889,19 +889,19 @@ const cl_image_desc desc = []() {
   image_desc.buffer = nullptr;
   return image_desc;
 }();
-cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
-cl_bool normalized_coords = CL_TRUE;
-cl_addressing_mode addressing_mode_repeat = CL_ADDRESS_REPEAT;
-cl_addressing_mode addressing_mode_clamp = CL_ADDRESS_CLAMP_TO_EDGE;
-cl_filter_mode filter_mode = CL_FILTER_NEAREST;
+static cl_image_format format = {CL_RGBA, CL_UNSIGNED_INT8};
+static cl_bool normalized_coords = CL_TRUE;
+static cl_addressing_mode addressing_mode_repeat = CL_ADDRESS_REPEAT;
+static cl_addressing_mode addressing_mode_clamp = CL_ADDRESS_CLAMP_TO_EDGE;
+static cl_filter_mode filter_mode = CL_FILTER_NEAREST;
 
-kts::Reference1D<cl_char4> refIn = [](size_t x) {
+static kts::Reference1D<cl_char4> refIn = [](size_t x) {
   cl_char c = static_cast<cl_char>(x);
   cl_char4 a4 = {{c, c, c, c}};
   return a4;
 };
 
-kts::Reference1D<cl_uint> refOut = [](size_t x) {
+static kts::Reference1D<cl_uint> refOut = [](size_t x) {
   const size_t index = x >> 1;
 
   float normf = (static_cast<float>(index) + 0.05f) /

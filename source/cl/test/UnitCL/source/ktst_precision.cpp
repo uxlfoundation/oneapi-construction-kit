@@ -1278,7 +1278,7 @@ TEST_P(HalfMathBuiltins, Precision_53_Half_mix) {
       sub = std::copysign(0.0f, sub);
     }
 
-    return x + sub * a;
+    return x + (sub * a);
   };
 
   const std::function<bool(cl_float, cl_float, cl_float)> undef_check(
@@ -1304,7 +1304,7 @@ TEST_P(HalfMathBuiltins, Precision_53_Half_mix_scalar) {
       sub = std::copysign(0.0f, sub);
     }
 
-    return x + sub * a;
+    return x + (sub * a);
   };
 
   const std::function<bool(cl_float, cl_float, cl_float)> undef_check(

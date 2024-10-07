@@ -85,9 +85,9 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
     }
   }
 
-  LLVM_DEBUG(dbgs() << "Leaf functions requiring scheduling parameters:\n";
-             for (auto *F
-                  : Visited) { dbgs() << "  " << F->getName() << "\n"; });
+  LLVM_DEBUG(
+      dbgs() << "Leaf functions requiring scheduling parameters:\n";
+      for (auto *F : Visited) { dbgs() << "  " << F->getName() << "\n"; });
 
   if (Visited.empty()) {
     return PreservedAnalyses::all();
@@ -152,7 +152,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
 
     // Scrub any old subprogram - CloneFunctionInto will create a new one for
     // us
-    if (auto *const SP = OldF->getSubprogram()) {
+    if (OldF->getSubprogram()) {
       NewF->setSubprogram(nullptr);
     }
 

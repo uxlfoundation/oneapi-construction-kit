@@ -75,7 +75,7 @@ struct exp_unsafe_helper<T, abacus_float> {
 
     // 0.5f is just to force k into the range [-0.5f, 0.5f]
     const typename TypeTraits<T>::SignedType k =
-        abacus::internal::floor_unsafe(x * ln2rcp + 0.5f);
+        abacus::internal::floor_unsafe((x * ln2rcp) + 0.5f);
     const T kf = abacus::detail::cast::convert<T>(k);
     const T r = (x - (codyWaite1 * kf)) - (codyWaite2 * kf);
 
@@ -108,7 +108,7 @@ struct exp_unsafe_helper<T, abacus_double> {
     const typename TypeTraits<T>::SignedType k =
         abacus::internal::floor_unsafe(x * ln2rcp);
     const T kf = abacus::detail::cast::convert<T>(k);
-    const T r = ((x - kf * codyWaite1) - kf * codyWaite2) - kf * codyWaite3;
+    const T r = ((x - kf * codyWaite1) - kf * codyWaite2) - (kf * codyWaite3);
 
     const abacus_double polynomial[15] = {0.100000000000000000004072260342e1,
                                           0.999999999999999979186940414675e0,

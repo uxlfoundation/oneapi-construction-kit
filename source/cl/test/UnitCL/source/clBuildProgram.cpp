@@ -447,7 +447,8 @@ TEST_F(clBuildProgramMacroTest, NotDefined) {
   cl_int status;
   kernel = clCreateKernel(program, "foo", &status);
   ASSERT_SUCCESS(status);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macro_value));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macro_value)));
   cl_event taskEvent;
   ASSERT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -467,7 +468,8 @@ TEST_F(clBuildProgramMacroTest, DefaultDefined) {
   cl_int status;
   kernel = clCreateKernel(program, "foo", &status);
   ASSERT_SUCCESS(status);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macro_value));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macro_value)));
   cl_event taskEvent;
   ASSERT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -484,7 +486,8 @@ TEST_F(clBuildProgramMacroTest, ValueDefined) {
   cl_int status;
   kernel = clCreateKernel(program, "foo", &status);
   ASSERT_SUCCESS(status);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macro_value));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macro_value)));
   cl_event taskEvent;
   ASSERT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -501,7 +504,8 @@ TEST_F(clBuildProgramMacroTest, ValueDefinedThenSpace) {
   cl_int status;
   kernel = clCreateKernel(program, "foo", &status);
   ASSERT_SUCCESS(status);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macro_value));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macro_value)));
   cl_event taskEvent;
   ASSERT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -550,7 +554,8 @@ class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
     cl_int status;
     kernel = clCreateKernel(program, "foo", &status);
     ASSERT_SUCCESS(status);
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macro_value));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                  static_cast<void *>(&macro_value)));
     cl_event taskEvent;
     ASSERT_SUCCESS(
         clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));

@@ -21,7 +21,7 @@
 mux_result_t riscvCreateSemaphore(mux_device_t device,
                                   mux_allocator_info_t allocator_info,
                                   mux_semaphore_t *out_semaphore) {
-  mux::allocator allocator(allocator_info);
+  const mux::allocator allocator(allocator_info);
   auto semaphore =
       riscv::semaphore_s::create<riscv::semaphore_s>(device, allocator);
   if (!semaphore) {
@@ -33,7 +33,7 @@ mux_result_t riscvCreateSemaphore(mux_device_t device,
 
 void riscvDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
                            mux_allocator_info_t allocator_info) {
-  mux::allocator allocator(allocator_info);
+  const mux::allocator allocator(allocator_info);
   riscv::semaphore_s::destroy(
       device, static_cast<riscv::semaphore_s *>(semaphore), allocator);
 }

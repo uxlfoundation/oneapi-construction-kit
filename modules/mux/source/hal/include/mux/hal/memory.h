@@ -61,7 +61,7 @@ struct memory : mux_memory_s {
     // Align all allocations to at least 128 bytes to match the size of the
     // largest 16-wide OpenCL-C vector types.
     const uint32_t align = std::max<uint32_t>(alignment, 128u);
-    ::hal::hal_addr_t target_ptr = device->mem_alloc(size, align);
+    const ::hal::hal_addr_t target_ptr = device->mem_alloc(size, align);
     if (::hal::hal_nullptr == target_ptr) {
       return cargo::make_unexpected(mux_error_out_of_memory);
     }

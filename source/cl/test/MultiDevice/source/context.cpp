@@ -20,7 +20,7 @@ TEST_F(MultiDeviceContext, CreateBuffer) {
   cl_context bufferContext;
   EXPECT_EQ(CL_SUCCESS,
             clGetMemObjectInfo(buffer, CL_MEM_CONTEXT, sizeof(cl_context),
-                               &bufferContext, nullptr));
+                               static_cast<void *>(&bufferContext), nullptr));
   EXPECT_EQ(context, bufferContext);
   ASSERT_EQ(CL_SUCCESS, clReleaseMemObject(buffer));
 }
@@ -49,7 +49,7 @@ TEST_F(MultiDeviceContext, CreateImage) {
     cl_context imageContext;
     EXPECT_EQ(CL_SUCCESS,
               clGetMemObjectInfo(image, CL_MEM_CONTEXT, sizeof(cl_context),
-                                 &imageContext, nullptr));
+                                 static_cast<void *>(&imageContext), nullptr));
     EXPECT_EQ(context, imageContext);
     ASSERT_EQ(CL_SUCCESS, clReleaseMemObject(image));
   }

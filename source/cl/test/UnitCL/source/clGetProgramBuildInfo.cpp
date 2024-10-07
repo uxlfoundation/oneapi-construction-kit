@@ -101,9 +101,9 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildStatusBinarySuccess) {
 
   const auto *program_binary = new unsigned char[binary_size];
 
-  EXPECT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                  sizeof(unsigned char *), &program_binary,
-                                  nullptr));
+  EXPECT_SUCCESS(
+      clGetProgramInfo(program, CL_PROGRAM_BINARIES, sizeof(unsigned char *),
+                       static_cast<void *>(&program_binary), nullptr));
 
   cl_int binary_status = CL_INVALID_BINARY;
   cl_int error = CL_INVALID_BINARY;

@@ -15,21 +15,15 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <abacus/abacus_config.h>
+#include <abacus/abacus_math.h>
+#include <abacus/internal/fma.h>
 
-namespace abacus {
-namespace detail {
 template <typename T>
-void inplace_fma(T &, T &, T &);
-}  // namespace detail
-}  // namespace abacus
-
-namespace {
-template <typename T>
-inline T fma_helper(T x, T y, T z) {
-  abacus::detail::inplace_fma(x, y, z);
+static inline T fma_helper(T x, T y, T z) {
+  abacus::internal::inplace_fma(x, y, z);
   return x;
 }
-}  // namespace
+
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fma(abacus_half x, abacus_half y,
                                     abacus_half z) {

@@ -38,7 +38,7 @@
 #endif
 
 namespace uvk {
-size_t upScaleAlignment(size_t alignment) {
+static size_t upScaleAlignment(size_t alignment) {
   if (1 == alignment) {
     return sizeof(void *);
   }
@@ -146,8 +146,9 @@ void VKAPI_CALL freeNotify(void *pUserData, size_t size,
   (void)allocationScope;
 }
 
-void *VKAPI_CALL oneUseAlloc(void *pUserData, size_t size, size_t alignment,
-                             VkSystemAllocationScope allocationScope) {
+static void *VKAPI_CALL oneUseAlloc(void *pUserData, size_t size,
+                                    size_t alignment,
+                                    VkSystemAllocationScope allocationScope) {
   // TODO: Use these to intrument how the driver allocates memory and for what
   // purpose it is used.
   (void)allocationScope;

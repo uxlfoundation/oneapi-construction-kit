@@ -32,11 +32,11 @@ const size_t local_wg_size = 16;
 
 // Vector addition: C[x] = A[x] + B[x];
 kts::Reference1D<cl_int> vaddInA = [](size_t x) {
-  return kts::Ref_Identity(x) * 3 + 27;
+  return (kts::Ref_Identity(x) * 3) + 27;
 };
 
 kts::Reference1D<cl_int> vaddInB = [](size_t x) {
-  return kts::Ref_Identity(x) * 7 + 41;
+  return (kts::Ref_Identity(x) * 7) + 41;
 };
 
 kts::Reference1D<cl_int> vaddOutC = [](size_t x) {
@@ -198,7 +198,7 @@ class DmaAutoConvolutionExecute : public Execution {
       cl_uint total = totalStart;
       const cl_uint dstYStride = gsizeX;
       const cl_uint srcYStride = dstYStride + 16;
-      cl_uint srcIndex = gidY * srcYStride + gidX + 8;
+      cl_uint srcIndex = (gidY * srcYStride) + gidX + 8;
       srcIndex += srcYStride;
       for (uint32_t yy = 0; yy < 3; yy++) {
         for (uint32_t xx = 0; xx < 3; xx++) {
@@ -206,7 +206,7 @@ class DmaAutoConvolutionExecute : public Execution {
             continue;
           }
           if (((1 << xx) & maskLoop1) && ((1 << xx) & maskLoop2)) {
-            const cl_uint srcIndexLoop = yy * srcYStride + srcIndex + xx - 1;
+            const cl_uint srcIndexLoop = (yy * srcYStride) + srcIndex + xx - 1;
             total = total + inA(srcIndexLoop);
           }
         }

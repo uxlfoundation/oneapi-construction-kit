@@ -83,7 +83,8 @@ void populatePackedArgs(
         uint8_t *const buffer_value =
             static_cast<uint8_t *>(host_buffer->data) + info.offset;
 
-        std::memcpy(packed_args_alloc + offset, &buffer_value, sizeof(void *));
+        std::memcpy(packed_args_alloc + offset,
+                    static_cast<const void *>(&buffer_value), sizeof(void *));
         offset += sizeof(void *);
       } break;
       case mux_descriptor_info_type_image: {
@@ -156,7 +157,8 @@ void populatePackedArgs(
       } break;
       case mux_descriptor_info_type_null_buffer: {
         void *nullvar = nullptr;
-        std::memcpy(packed_args_alloc + offset, &nullvar, sizeof(void *));
+        std::memcpy(packed_args_alloc + offset, static_cast<void *>(&nullvar),
+                    sizeof(void *));
         offset += sizeof(void *);
       } break;
       default:
@@ -1020,7 +1022,8 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
         auto *buffer_value =
             static_cast<uint8_t *>(host_buffer->data) + info.offset;
 
-        std::memcpy(arg_address, &buffer_value, sizeof(void *));
+        std::memcpy(arg_address, static_cast<void *>(&buffer_value),
+                    sizeof(void *));
       } break;
       case mux_descriptor_info_type_plain_old_data: {
         const mux_descriptor_info_plain_old_data_s info =
@@ -1036,7 +1039,7 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
       } break;
       case mux_descriptor_info_type_null_buffer: {
         void *null = nullptr;
-        std::memcpy(arg_address, &null, sizeof(void *));
+        std::memcpy(arg_address, static_cast<void *>(&null), sizeof(void *));
       } break;
     }
   }

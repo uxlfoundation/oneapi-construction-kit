@@ -35,7 +35,7 @@ T native_exp10(const T x) {
   // r = 10^(k * log10(2)) * 10^f
   // r = 2^k * 10^f
   const SignedType k = abacus::internal::floor_unsafe(x * log102recip);
-  const T f = x - abacus::detail::cast::convert<T>(k) * log102;
+  const T f = x - (abacus::detail::cast::convert<T>(k) * log102);
 
   const abacus_float polynomial[3] = {1.00172475857780f, 2.18462045783410f,
                                       3.72095499205386f};

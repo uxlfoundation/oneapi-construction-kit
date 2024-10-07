@@ -178,7 +178,8 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
 
     err = clGetMemAllocInfoINTEL(
         context, offset_host_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
-        sizeof(host_alloc_base_addr), &host_alloc_base_addr, nullptr);
+        sizeof(host_alloc_base_addr),
+        static_cast<void *>(&host_alloc_base_addr), nullptr);
 
     EXPECT_SUCCESS(err);
     EXPECT_EQ(host_ptr, host_alloc_base_addr);
@@ -196,7 +197,8 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
 
     err = clGetMemAllocInfoINTEL(
         context, offset_shared_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
-        sizeof(shared_alloc_base_addr), &shared_alloc_base_addr, nullptr);
+        sizeof(shared_alloc_base_addr),
+        static_cast<void *>(&shared_alloc_base_addr), nullptr);
 
     EXPECT_SUCCESS(err);
     EXPECT_EQ(shared_ptr, shared_alloc_base_addr);
@@ -207,21 +209,21 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
 
   err = clGetMemAllocInfoINTEL(
       context, offset_device_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
-      sizeof(alloc_base_addr), &alloc_base_addr, nullptr);
+      sizeof(alloc_base_addr), static_cast<void *>(&alloc_base_addr), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(device_ptr, alloc_base_addr);
 
   alloc_base_addr = nullptr;
   err = clGetMemAllocInfoINTEL(context, user_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
-                               sizeof(alloc_base_addr), &alloc_base_addr,
-                               nullptr);
+                               sizeof(alloc_base_addr),
+                               static_cast<void *>(&alloc_base_addr), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(NULL, alloc_base_addr);
 
   alloc_base_addr = nullptr;
   err = clGetMemAllocInfoINTEL(context, nullptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
-                               sizeof(alloc_base_addr), &alloc_base_addr,
-                               nullptr);
+                               sizeof(alloc_base_addr),
+                               static_cast<void *>(&alloc_base_addr), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(NULL, alloc_base_addr);
 }
@@ -302,7 +304,8 @@ TEST_F(USMMemInfoTest, AllocDevice) {
     cl_device_id host_alloc_device = device;
     err = clGetMemAllocInfoINTEL(
         context, offset_host_ptr, CL_MEM_ALLOC_DEVICE_INTEL,
-        sizeof(host_alloc_device), &host_alloc_device, nullptr);
+        sizeof(host_alloc_device), static_cast<void *>(&host_alloc_device),
+        nullptr);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(NULL, host_alloc_device);
   }
@@ -317,7 +320,8 @@ TEST_F(USMMemInfoTest, AllocDevice) {
     cl_device_id shared_alloc_device = device;
     err = clGetMemAllocInfoINTEL(
         context, offset_shared_ptr, CL_MEM_ALLOC_DEVICE_INTEL,
-        sizeof(shared_alloc_device), &shared_alloc_device, nullptr);
+        sizeof(shared_alloc_device), static_cast<void *>(&shared_alloc_device),
+        nullptr);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(device, shared_alloc_device);
   }
@@ -326,19 +330,21 @@ TEST_F(USMMemInfoTest, AllocDevice) {
   cl_device_id alloc_device = NULL;
   err = clGetMemAllocInfoINTEL(context, offset_device_ptr,
                                CL_MEM_ALLOC_DEVICE_INTEL, sizeof(alloc_device),
-                               &alloc_device, nullptr);
+                               static_cast<void *>(&alloc_device), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(device, alloc_device);
 
   alloc_device = device;
   err = clGetMemAllocInfoINTEL(context, user_ptr, CL_MEM_ALLOC_DEVICE_INTEL,
-                               sizeof(alloc_device), &alloc_device, nullptr);
+                               sizeof(alloc_device),
+                               static_cast<void *>(&alloc_device), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(NULL, alloc_device);
 
   alloc_device = device;
   err = clGetMemAllocInfoINTEL(context, nullptr, CL_MEM_ALLOC_DEVICE_INTEL,
-                               sizeof(alloc_device), &alloc_device, nullptr);
+                               sizeof(alloc_device),
+                               static_cast<void *>(&alloc_device), nullptr);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(NULL, alloc_device);
 }

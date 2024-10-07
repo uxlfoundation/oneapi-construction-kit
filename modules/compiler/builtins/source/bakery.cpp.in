@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+#include <cstring>
+
 #include "builtins/bakery.h"
 #include "builtins/resources.h"
-
-#include <cstring>
 
 namespace builtins {
 cargo::array_view<const uint8_t> get_api_src_file() {

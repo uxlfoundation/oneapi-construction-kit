@@ -347,9 +347,9 @@ struct helper<T, abacus_double> {
     exponent_mantissa -=
         abacus::detail::cast::convert<T>(trunced_exponent_mantissa);
 
-    T result = (T)1.0 + exponent_mantissa * abacus::internal::horner_polynomial(
-                                                exponent_mantissa,
-                                                __codeplay_pow_unsafe_coeffD);
+    T result = (T)1.0 + (exponent_mantissa *
+                         abacus::internal::horner_polynomial(
+                             exponent_mantissa, __codeplay_pow_unsafe_coeffD));
 
     result = __abacus_ldexp(
         result, abacus::detail::cast::convert<IntVecType>(exponent_floor));

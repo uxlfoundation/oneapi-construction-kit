@@ -274,8 +274,8 @@ struct GlobalRangeAndLocalRange final {
       : global_range{global_1d, global_2d}, local_range{local_1d, local_2d} {}
 };
 
-std::ostream &operator<<(std::ostream &out,
-                         const GlobalRangeAndLocalRange &ranges) {
+static std::ostream &operator<<(std::ostream &out,
+                                const GlobalRangeAndLocalRange &ranges) {
   out << "GlobalRangeAndLocalRange{.global_range{" << ranges.global_range[0]
       << ", " << ranges.global_range[1] << "}, local_range{"
       << ranges.local_range[0] << ", " << ranges.local_range[1] << "}}";
@@ -481,7 +481,7 @@ TEST_P(Execution, Regression_68_Load16) {
 
   kts::Reference1D<cl_uchar> refOut = [=,
                                        &InBuffer](size_t x) -> unsigned char {
-    return InBuffer[x * 2] + InBuffer[x * 2 + 1];
+    return InBuffer[x * 2] + InBuffer[(x * 2) + 1];
   };
 
   const size_t N = sizeof(InBuffer) / sizeof(cl_uchar);
@@ -635,8 +635,8 @@ struct StrideAligned {
   }
 };
 
-std::stringstream &operator<<(std::stringstream &stream,
-                              const StrideAligned &info) {
+static std::stringstream &operator<<(std::stringstream &stream,
+                                     const StrideAligned &info) {
   stream << "{\n"
          << "  global_size: " << info.global_size.x << ", "
          << info.global_size.y << ", " << info.global_size.z << ", "
@@ -645,8 +645,8 @@ std::stringstream &operator<<(std::stringstream &stream,
   return stream;
 }
 
-std::stringstream &operator<<(std::stringstream &stream,
-                              const StrideMisaligned &info) {
+static std::stringstream &operator<<(std::stringstream &stream,
+                                     const StrideMisaligned &info) {
   stream << "{\n"
          << "  global_size: (" << info.global_size.x << ", "
          << info.global_size.y << ", " << info.global_size.z << ", "

@@ -28,7 +28,7 @@ struct sampler_params {
   cl_filter_mode filter_mode;
 };
 
-std::ostream &operator<<(std::ostream &out, sampler_params params) {
+static std::ostream &operator<<(std::ostream &out, sampler_params params) {
   const std::string normalized_coords =
       params.normalized_coords ? "CL_TRUE" : "CL_FALSE";
   out << "sampler_params{"

@@ -122,7 +122,7 @@ TEST_P(Execution, Regression_106_Varying_LCSSA_Phi) {
     if (hash & 1) {
       return static_cast<cl_ushort>(refIn(x));
     } else {
-      return static_cast<cl_ushort>(hash);
+      return hash;
     }
   };
 

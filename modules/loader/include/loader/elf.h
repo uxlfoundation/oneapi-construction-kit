@@ -214,17 +214,17 @@ class ElfFile {
 
   /// @brief Field accessors, choosing the right bitness and converting
   /// endianness if needed.
-  inline ElfFields::Type type() const {
+  ElfFields::Type type() const {
     return field(is32Bit() ? header32()->type : header64()->type);
   }
   /// @brief Field accessors, choosing the right bitness and converting
   /// endianness if needed.
-  inline ElfFields::Machine machine() const {
+  ElfFields::Machine machine() const {
     return field(is32Bit() ? header32()->machine : header64()->machine);
   }
   /// @brief Field accessors, choosing the right bitness and converting
   /// endianness if needed.
-  inline uint32_t flags() const {
+  uint32_t flags() const {
     return field(is32Bit() ? header32()->flags : header64()->flags);
   }
 
@@ -275,24 +275,24 @@ class ElfFile {
 
   /// @brief Wrapper for a section in the ELF file.
   struct Section {
-    inline Section() : file(nullptr), header(nullptr) {}
+    Section() : file(nullptr), header(nullptr) {}
     /// @brief Constructs the object with the section header starting at ptr.
-    inline Section(ElfFile *file, const void *ptr) : file(file), header(ptr) {}
+    Section(ElfFile *file, const void *ptr) : file(file), header(ptr) {}
 
     ElfFile *file;
     const void *header;
 
     /// @brief Gets the ELF32 section header.
-    inline const SectionHeader32 *header32() const {
+    const SectionHeader32 *header32() const {
       return reinterpret_cast<const SectionHeader32 *>(header);
     }
     /// @brief Gets the ELF64 section header.
-    inline const SectionHeader64 *header64() const {
+    const SectionHeader64 *header64() const {
       return reinterpret_cast<const SectionHeader64 *>(header);
     }
 
     /// @brief Gets the index of this section in the section header table.
-    inline uint32_t index() const {
+    uint32_t index() const {
       auto sht_entry_size = static_cast<size_t>(
           file->is32Bit() ? file->field(file->header32()->sht_entry_size)
                           : file->field(file->header64()->sht_entry_size));
@@ -306,42 +306,42 @@ class ElfFile {
     const cargo::string_view name() const;
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline ElfFields::SectionType type() const {
+    ElfFields::SectionType type() const {
       return file->field(file->is32Bit() ? header32()->type : header64()->type);
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline ElfFields::SectionFlags::Type flags() const {
+    ElfFields::SectionFlags::Type flags() const {
       return static_cast<ElfFields::SectionFlags::Type>(
           file->field(file->is32Bit() ? header32()->flags : header64()->flags));
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline uint64_t virtual_address() const {
+    uint64_t virtual_address() const {
       return file->field(file->is32Bit() ? header32()->virtual_address
                                          : header64()->virtual_address);
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline uint64_t file_offset() const {
+    uint64_t file_offset() const {
       return file->field(file->is32Bit() ? header32()->file_offset
                                          : header64()->file_offset);
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline uint64_t size() const {
+    uint64_t size() const {
       return file->field(file->is32Bit() ? header32()->size : header64()->size);
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline uint64_t entrySize() const {
+    uint64_t entrySize() const {
       return file->field(file->is32Bit() ? header32()->entry_size
                                          : header64()->entry_size);
     }
 
     /// @brief Returns an estimate of what size to allocate for section, may be
     /// different from size() because relocations may need generated stubs.
-    inline uint64_t sizeToAlloc() const {
+    uint64_t sizeToAlloc() const {
       if (file->machine() == ElfFields::Machine::X86 ||
           file->machine() == ElfFields::Machine::X86_64) {
         // no need to write new code on x86 - all relocations fit into target
@@ -356,7 +356,7 @@ class ElfFile {
     }
 
     /// @brief Gets a view of the bytes in this section.
-    inline const cargo::array_view<uint8_t> data() const {
+    const cargo::array_view<uint8_t> data() const {
       CARGO_ASSERT(type() != ElfFields::SectionType::NOBITS,
                    "Trying to get a data view for a nobits section.");
       const size_t offset = file->field(
@@ -365,7 +365,7 @@ class ElfFile {
     }
     /// @brief Field accessors, choosing the right bitness and converting
     /// endianness if needed.
-    inline uint64_t alignment() const {
+    uint64_t alignment() const {
       return file->field(file->is32Bit() ? header32()->alignment
                                          : header64()->alignment);
     }
@@ -373,19 +373,19 @@ class ElfFile {
 
   /// @brief Wrapper for a symbol in the ELF file.
   struct Symbol {
-    inline Symbol() : file(nullptr), entry(nullptr) {}
+    Symbol() : file(nullptr), entry(nullptr) {}
     /// @brief Constructs the object with the symbol entry starting at ptr.
-    inline Symbol(ElfFile *file, const void *ptr) : file(file), entry(ptr) {}
+    Symbol(ElfFile *file, const void *ptr) : file(file), entry(ptr) {}
 
     ElfFile *file;
     const void *entry;
 
     /// @brief Gets the ELF32 symbol entry.
-    inline const Symbol32 *symbol32() const {
+    const Symbol32 *symbol32() const {
       return reinterpret_cast<const Symbol32 *>(entry);
     }
     /// @brief Gets the ELF64 symbol entry.
-    inline const Symbol64 *symbol64() const {
+    const Symbol64 *symbol64() const {
       return reinterpret_cast<const Symbol64 *>(entry);
     }
 
@@ -440,28 +440,28 @@ class ElfFile {
 
   /// @brief Gets the identification part of the ELF header, shared across both
   /// ELF formats.
-  inline const HeaderIdent *headerIdent() const {
+  const HeaderIdent *headerIdent() const {
     return reinterpret_cast<const HeaderIdent *>(bytes.begin());
   }
 
   /// @brief Gets the ELF32 file header.
-  inline const Header32 *header32() const {
+  const Header32 *header32() const {
     return reinterpret_cast<const Header32 *>(bytes.begin());
   }
 
   /// @brief Gets the ELF64 file header.
-  inline const Header64 *header64() const {
+  const Header64 *header64() const {
     return reinterpret_cast<const Header64 *>(bytes.begin());
   }
 
   /// @brief Checks if the ELF file is in the 32-bit format.
-  inline bool is32Bit() const {
+  bool is32Bit() const {
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
     return headerIdent()->bitness == ElfFields::Bitness::B32;
   }
 
   /// @brief Gets the number of sections in the ELF file.
-  inline size_t sectionCount() const {
+  size_t sectionCount() const {
     return static_cast<size_t>(is32Bit() ? header32()->sht_entry_count
                                          : header64()->sht_entry_count);
   }
@@ -479,7 +479,7 @@ class ElfFile {
   SectionIteratorPair sections();
 
   /// @brief Gets the number of symbols in the ELF file.
-  inline size_t symbolCount() const {
+  size_t symbolCount() const {
     return static_cast<size_t>(symbol_section ? symbol_section->size() /
                                                     symbol_section->entrySize()
                                               : 0);
@@ -500,7 +500,7 @@ class ElfFile {
   /// @brief Use this wrapper if reading directly from ELF structures, it
   /// converts the values in memory to the right endianness for the CPU.
   template <typename Integer>
-  inline std::enable_if_t<std::is_unsigned_v<Integer>, Integer> field(
+  std::enable_if_t<std::is_unsigned_v<Integer>, Integer> field(
       Integer v) const {
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
     return (headerIdent()->endianness == (cargo::is_little_endian()
@@ -513,8 +513,7 @@ class ElfFile {
   /// @brief Use this wrapper if reading directly from ELF structures, it
   /// converts the values in memory to the right endianness for the CPU.
   template <typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-  inline std::enable_if_t<std::is_unsigned_v<std::underlying_type_t<Enum>>,
-                          Enum>
+  std::enable_if_t<std::is_unsigned_v<std::underlying_type_t<Enum>>, Enum>
   field(Enum v) const {
     using Integer = std::underlying_type_t<Enum>;
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
@@ -550,19 +549,19 @@ struct ElfMap {
     uint64_t target_address;
   };
 
-  inline ElfMap() : file(nullptr) {}
-  inline ElfMap(ElfFile *file) : file(file) {}
+  ElfMap() : file(nullptr) {}
+  ElfMap(ElfFile *file) : file(file) {}
 
   /// @brief The symbol mappings iterators.
-  inline Mapping *sectionMappingsBegin() { return sectionMappings.begin(); }
+  Mapping *sectionMappingsBegin() { return sectionMappings.begin(); }
   /// @brief The symbol mappings iterators.
-  inline Mapping *sectionMappingsEnd() { return sectionMappings.end(); }
+  Mapping *sectionMappingsEnd() { return sectionMappings.end(); }
 
   /// @brief Adds a new ELF section mapping.
-  inline cargo::result addSectionMapping(const ElfFile::Section &section,
-                                         uint8_t *writable_address,
-                                         uint8_t *writable_end,
-                                         uint64_t target_address) {
+  cargo::result addSectionMapping(const ElfFile::Section &section,
+                                  uint8_t *writable_address,
+                                  uint8_t *writable_end,
+                                  uint64_t target_address) {
     return sectionMappings.push_back({section.index(), writable_address,
                                       writable_address + section.size(),
                                       writable_end, target_address});
@@ -570,8 +569,8 @@ struct ElfMap {
 
   /// @brief Adds a new callback, which allows to define undefined symbols that
   /// are present outside of the ELF file.
-  [[nodiscard]] inline cargo::result addCallback(cargo::string_view name,
-                                                 uint64_t target_address) {
+  [[nodiscard]] cargo::result addCallback(cargo::string_view name,
+                                          uint64_t target_address) {
     return callbacks.push_back(
         {std::string{name.data(), name.size()}, target_address});
   }
@@ -607,8 +606,7 @@ struct ElfMap {
   // Note that `symbol()` only performs bounds checking in debug builds, so
   // further checks may be required if this function is used in non-debug
   // builds.
-  inline cargo::optional<cargo::string_view> getSymbolName(
-      uint32_t index) const {
+  cargo::optional<cargo::string_view> getSymbolName(uint32_t index) const {
     return file->symbol(index).name();
   }
 #endif
@@ -624,32 +622,31 @@ struct SectionIterator {
   ElfFile *file;
   size_t index;
 
-  inline SectionIterator(ElfFile *file, size_t index = 0)
-      : file(file), index(index) {}
+  SectionIterator(ElfFile *file, size_t index = 0) : file(file), index(index) {}
 
-  inline SectionIterator &operator++() {
+  SectionIterator &operator++() {
     ++index;
     return *this;
   }
 
-  inline SectionIterator operator++(int) {
+  SectionIterator operator++(int) {
     SectionIterator old = *this;
     ++index;
     return old;
   }
 
-  inline SectionIterator &operator--() {
+  SectionIterator &operator--() {
     --index;
     return *this;
   }
 
-  inline SectionIterator operator--(int) {
+  SectionIterator operator--(int) {
     SectionIterator old = *this;
     --index;
     return old;
   }
 
-  inline ElfFile::Section &operator*() {
+  ElfFile::Section &operator*() {
     CARGO_ASSERT(file != nullptr,
                  "Section iterator using a null ElfFile instance");
     CARGO_ASSERT(index < file->sectionCount(),
@@ -658,17 +655,17 @@ struct SectionIterator {
     return current;
   }
 
-  inline ElfFile::Section &operator->() { return operator*(); }
+  ElfFile::Section &operator->() { return operator*(); }
 
-  inline bool operator==(const SectionIterator &rhs) {
+  bool operator==(const SectionIterator &rhs) {
     return rhs.file == file && rhs.index == index;
   }
 
-  inline bool operator!=(const SectionIterator &rhs) {
+  bool operator!=(const SectionIterator &rhs) {
     return rhs.file != file || rhs.index != index;
   }
 
-  inline void updateCurrent() { current = file->section(index); }
+  void updateCurrent() { current = file->section(index); }
 
  private:
   ElfFile::Section current;
@@ -679,32 +676,31 @@ struct SymbolIterator {
   ElfFile *file;
   size_t index;
 
-  inline SymbolIterator(ElfFile *file, size_t index = 0)
-      : file(file), index(index) {}
+  SymbolIterator(ElfFile *file, size_t index = 0) : file(file), index(index) {}
 
-  inline SymbolIterator &operator++() {
+  SymbolIterator &operator++() {
     ++index;
     return *this;
   }
 
-  inline SymbolIterator operator++(int) {
+  SymbolIterator operator++(int) {
     SymbolIterator old = *this;
     ++index;
     return old;
   }
 
-  inline SymbolIterator &operator--() {
+  SymbolIterator &operator--() {
     --index;
     return *this;
   }
 
-  inline SymbolIterator operator--(int) {
+  SymbolIterator operator--(int) {
     SymbolIterator old = *this;
     --index;
     return old;
   }
 
-  inline ElfFile::Symbol &operator*() {
+  ElfFile::Symbol &operator*() {
     CARGO_ASSERT(file != nullptr,
                  "Symbol iterator using a null ElfFile instance");
     CARGO_ASSERT(index < file->symbolCount(), "Symbol iterator out of bounds");
@@ -712,17 +708,17 @@ struct SymbolIterator {
     return current;
   }
 
-  inline ElfFile::Symbol &operator->() { return operator*(); }
+  ElfFile::Symbol &operator->() { return operator*(); }
 
-  inline bool operator==(const SymbolIterator &rhs) {
+  bool operator==(const SymbolIterator &rhs) {
     return rhs.file == file && rhs.index == index;
   }
 
-  inline bool operator!=(const SymbolIterator &rhs) {
+  bool operator!=(const SymbolIterator &rhs) {
     return rhs.file != file || rhs.index != index;
   }
 
-  inline void updateCurrent() { current = file->symbol(index); }
+  void updateCurrent() { current = file->symbol(index); }
 
  private:
   ElfFile::Symbol current;
@@ -730,14 +726,14 @@ struct SymbolIterator {
 
 /// @brief Wraps the begin and end section iterators to allow range for loops.
 struct SectionIteratorPair {
-  inline SectionIteratorPair(SectionIterator beginIter, SectionIterator endIter)
+  SectionIteratorPair(SectionIterator beginIter, SectionIterator endIter)
       : beginIter(beginIter), endIter(endIter) {}
 
-  inline SectionIterator &begin() { return beginIter; }
-  inline const SectionIterator &begin() const { return beginIter; }
+  SectionIterator &begin() { return beginIter; }
+  const SectionIterator &begin() const { return beginIter; }
 
-  inline SectionIterator &end() { return endIter; }
-  inline const SectionIterator &end() const { return endIter; }
+  SectionIterator &end() { return endIter; }
+  const SectionIterator &end() const { return endIter; }
 
   SectionIterator beginIter;
   SectionIterator endIter;
@@ -745,14 +741,14 @@ struct SectionIteratorPair {
 
 /// @brief Wraps the begin and end section iterators to allow range for loops.
 struct SymbolIteratorPair {
-  inline SymbolIteratorPair(SymbolIterator beginIter, SymbolIterator endIter)
+  SymbolIteratorPair(SymbolIterator beginIter, SymbolIterator endIter)
       : beginIter(beginIter), endIter(endIter) {}
 
-  inline SymbolIterator &begin() { return beginIter; }
-  inline const SymbolIterator &begin() const { return beginIter; }
+  SymbolIterator &begin() { return beginIter; }
+  const SymbolIterator &begin() const { return beginIter; }
 
-  inline SymbolIterator &end() { return endIter; }
-  inline const SymbolIterator &end() const { return endIter; }
+  SymbolIterator &end() { return endIter; }
+  const SymbolIterator &end() const { return endIter; }
 
   SymbolIterator beginIter;
   SymbolIterator endIter;

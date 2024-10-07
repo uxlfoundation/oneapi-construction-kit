@@ -3,24 +3,24 @@ template <typename T>
 struct FPShape<T, abacus_@type@> final {
   typedef TypeTraits<abacus_@type@>::UnsignedType ScalarUnsignedType;
 
-  static constexpr inline ScalarUnsignedType Mantissa() { return @mantissa_bits@; }
-  static constexpr inline ScalarUnsignedType Exponent() { return @exponent_bits@; }
-  static constexpr inline ScalarUnsignedType Sign() { return 1; }
-  static constexpr inline ScalarUnsignedType Bias() { return @exponent_bias@; }
+  static constexpr ScalarUnsignedType Mantissa() { return @mantissa_bits@; }
+  static constexpr ScalarUnsignedType Exponent() { return @exponent_bits@; }
+  static constexpr ScalarUnsignedType Sign() { return 1; }
+  static constexpr ScalarUnsignedType Bias() { return @exponent_bias@; }
 
-  static constexpr inline ScalarUnsignedType NumBits() { return @mantissa_bits@ + @exponent_bits@ + 1; }
+  static constexpr ScalarUnsignedType NumBits() { return @mantissa_bits@ + @exponent_bits@ + 1; }
 
-  static constexpr inline ScalarUnsignedType MantissaMask() { return @mantissa_mask@; }
-  static constexpr inline ScalarUnsignedType ExponentMask() { return @exponent_mask@; }
-  static constexpr inline ScalarUnsignedType SignMask() { return @sign_mask@; }
-  static constexpr inline ScalarUnsignedType InverseSignMask() { return @inv_sign_mask@; }
-  static constexpr inline ScalarUnsignedType LeastSignificantExponentBit() { return @ls_exp_bit@; }
+  static constexpr ScalarUnsignedType MantissaMask() { return @mantissa_mask@; }
+  static constexpr ScalarUnsignedType ExponentMask() { return @exponent_mask@; }
+  static constexpr ScalarUnsignedType SignMask() { return @sign_mask@; }
+  static constexpr ScalarUnsignedType InverseSignMask() { return @inv_sign_mask@; }
+  static constexpr ScalarUnsignedType LeastSignificantExponentBit() { return @ls_exp_bit@; }
 
-  static constexpr inline abacus_@type@ ZERO() { return @zero@; }
-  static constexpr inline ScalarUnsignedType ZeroPointFive() { return @zero_point_five@; }
-  static constexpr inline ScalarUnsignedType ONE() { return 1u; }
-  static constexpr inline ScalarUnsignedType ExponentOnes() { return @exponent_ones@; }
-  static constexpr inline ScalarUnsignedType MantissaOnes() { return @mantissa_mask@; }
-  static constexpr inline T NaN() { return @nan@; }
+  static constexpr abacus_@type@ ZERO() { return @zero@; }
+  static constexpr ScalarUnsignedType ZeroPointFive() { return @zero_point_five@; }
+  static constexpr ScalarUnsignedType ONE() { return 1u; }
+  static constexpr ScalarUnsignedType ExponentOnes() { return @exponent_ones@; }
+  static constexpr ScalarUnsignedType MantissaOnes() { return @mantissa_mask@; }
+  static constexpr T NaN() { return @nan@; }
 };
 @type_guard_end@

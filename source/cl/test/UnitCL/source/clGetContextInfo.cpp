@@ -87,8 +87,8 @@ TEST_F(clGetContextInfoTest, ContextDevicesDefault) {
 
   UCL::Buffer<cl_device_id> devices(size / sizeof(cl_device_id));
 
-  EXPECT_SUCCESS(
-      clGetContextInfo(context, CL_CONTEXT_DEVICES, size, devices, nullptr));
+  EXPECT_SUCCESS(clGetContextInfo(context, CL_CONTEXT_DEVICES, size,
+                                  static_cast<void *>(devices), nullptr));
 
   bool foundAllDevices = true;
   for (unsigned int i = 0; i < devices.size(); i++) {
@@ -107,9 +107,9 @@ TEST_F(clGetContextInfoTest, ContextDevicesDefault) {
 
 TEST_F(clGetContextInfoTest, BadContextDeviceSize) {
   cl_device_id device = nullptr;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, &device, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetContextInfo(context, CL_CONTEXT_DEVICES, 0,
+                                     static_cast<void *>(&device), nullptr));
   ASSERT_FALSE(device);
 }
 

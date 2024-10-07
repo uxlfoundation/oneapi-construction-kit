@@ -16,11 +16,12 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_type_traits.h>
+#include <abacus/internal/fma.h>
 
 #include <cmath>
 
 namespace abacus {
-namespace detail {
+namespace internal {
 template <typename T>
 void inplace_fma(T &a, T &b, T &c) {
   using ET = typename TypeTraits<T>::ElementType;
@@ -30,48 +31,49 @@ void inplace_fma(T &a, T &b, T &c) {
     *p = std::fma(*p, *q, *r);
   }
 }
-}  // namespace detail
+}  // namespace internal
 }  // namespace abacus
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template void abacus::detail::inplace_fma(abacus_half &, abacus_half &,
-                                          abacus_half &);
-template void abacus::detail::inplace_fma(abacus_half2 &, abacus_half2 &,
-                                          abacus_half2 &);
-template void abacus::detail::inplace_fma(abacus_half3 &, abacus_half3 &,
-                                          abacus_half3 &);
-template void abacus::detail::inplace_fma(abacus_half4 &, abacus_half4 &,
-                                          abacus_half4 &);
-template void abacus::detail::inplace_fma(abacus_half8 &, abacus_half8 &,
-                                          abacus_half8 &);
-template void abacus::detail::inplace_fma(abacus_half16 &, abacus_half16 &,
-                                          abacus_half16 &);
+template void abacus::internal::inplace_fma(abacus_half &, abacus_half &,
+                                            abacus_half &);
+template void abacus::internal::inplace_fma(abacus_half2 &, abacus_half2 &,
+                                            abacus_half2 &);
+template void abacus::internal::inplace_fma(abacus_half3 &, abacus_half3 &,
+                                            abacus_half3 &);
+template void abacus::internal::inplace_fma(abacus_half4 &, abacus_half4 &,
+                                            abacus_half4 &);
+template void abacus::internal::inplace_fma(abacus_half8 &, abacus_half8 &,
+                                            abacus_half8 &);
+template void abacus::internal::inplace_fma(abacus_half16 &, abacus_half16 &,
+                                            abacus_half16 &);
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template void abacus::detail::inplace_fma(abacus_float &, abacus_float &,
-                                          abacus_float &);
-template void abacus::detail::inplace_fma(abacus_float2 &, abacus_float2 &,
-                                          abacus_float2 &);
-template void abacus::detail::inplace_fma(abacus_float3 &, abacus_float3 &,
-                                          abacus_float3 &);
-template void abacus::detail::inplace_fma(abacus_float4 &, abacus_float4 &,
-                                          abacus_float4 &);
-template void abacus::detail::inplace_fma(abacus_float8 &, abacus_float8 &,
-                                          abacus_float8 &);
-template void abacus::detail::inplace_fma(abacus_float16 &, abacus_float16 &,
-                                          abacus_float16 &);
+template void abacus::internal::inplace_fma(abacus_float &, abacus_float &,
+                                            abacus_float &);
+template void abacus::internal::inplace_fma(abacus_float2 &, abacus_float2 &,
+                                            abacus_float2 &);
+template void abacus::internal::inplace_fma(abacus_float3 &, abacus_float3 &,
+                                            abacus_float3 &);
+template void abacus::internal::inplace_fma(abacus_float4 &, abacus_float4 &,
+                                            abacus_float4 &);
+template void abacus::internal::inplace_fma(abacus_float8 &, abacus_float8 &,
+                                            abacus_float8 &);
+template void abacus::internal::inplace_fma(abacus_float16 &, abacus_float16 &,
+                                            abacus_float16 &);
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template void abacus::detail::inplace_fma(abacus_double &, abacus_double &,
-                                          abacus_double &);
-template void abacus::detail::inplace_fma(abacus_double2 &, abacus_double2 &,
-                                          abacus_double2 &);
-template void abacus::detail::inplace_fma(abacus_double3 &, abacus_double3 &,
-                                          abacus_double3 &);
-template void abacus::detail::inplace_fma(abacus_double4 &, abacus_double4 &,
-                                          abacus_double4 &);
-template void abacus::detail::inplace_fma(abacus_double8 &, abacus_double8 &,
-                                          abacus_double8 &);
-template void abacus::detail::inplace_fma(abacus_double16 &, abacus_double16 &,
-                                          abacus_double16 &);
+template void abacus::internal::inplace_fma(abacus_double &, abacus_double &,
+                                            abacus_double &);
+template void abacus::internal::inplace_fma(abacus_double2 &, abacus_double2 &,
+                                            abacus_double2 &);
+template void abacus::internal::inplace_fma(abacus_double3 &, abacus_double3 &,
+                                            abacus_double3 &);
+template void abacus::internal::inplace_fma(abacus_double4 &, abacus_double4 &,
+                                            abacus_double4 &);
+template void abacus::internal::inplace_fma(abacus_double8 &, abacus_double8 &,
+                                            abacus_double8 &);
+template void abacus::internal::inplace_fma(abacus_double16 &,
+                                            abacus_double16 &,
+                                            abacus_double16 &);
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT

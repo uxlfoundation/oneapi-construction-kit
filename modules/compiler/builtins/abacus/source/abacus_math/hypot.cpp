@@ -35,7 +35,7 @@ struct hypot_helper {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
-  inline static T _(const T x, const T y) {
+  static T _(const T x, const T y) {
     const T xAbs = __abacus_fabs(x);
     const T yAbs = __abacus_fabs(y);
 
@@ -45,7 +45,7 @@ struct hypot_helper {
 
     const T part = lo / hi;
 
-    const T part2 = part * part + 1.0f;
+    const T part2 = (part * part) + 1.0f;
 
     // See rsqrt.cpp for documentation on this bound and the scaling
     // done before calling rqsrt_unsafe().

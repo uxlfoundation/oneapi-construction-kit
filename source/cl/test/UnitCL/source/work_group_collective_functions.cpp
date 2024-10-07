@@ -104,7 +104,7 @@ struct NDRange {
   operator const size_t *() const { return &array[0]; }
 };
 
-inline std::string to_string(const NDRange &ndrange) {
+inline static std::string to_string(const NDRange &ndrange) {
   return std::to_string(ndrange.x()) + 'x' + std::to_string(ndrange.y()) + 'x' +
          std::to_string(ndrange.z());
 }
@@ -122,8 +122,8 @@ static std::array<size_t, 3> globalLinearIdToGlobalId(size_t global_linear_id,
 static size_t globalIdToGlobalLinearId(std::array<size_t, 3> global_ids,
                                        size_t global_size_x,
                                        size_t global_size_y) {
-  return global_ids[0] + global_size_x * global_ids[1] +
-         global_size_x * global_size_y * global_ids[2];
+  return global_ids[0] + (global_size_x * global_ids[1]) +
+         (global_size_x * global_size_y * global_ids[2]);
 }
 
 struct ReductionRange {
@@ -347,7 +347,7 @@ struct WorkGroupCollectiveBroadcast1D
                                       local_size_x, &broadcast_ids](
                                          size_t global_linear_id, T value) {
       const auto work_group_linear_id = global_linear_id / work_group_size;
-      const auto broadcast_id = work_group_linear_id * local_size_x +
+      const auto broadcast_id = (work_group_linear_id * local_size_x) +
                                 broadcast_ids[work_group_linear_id];
       return value == input_data[broadcast_id];
     };
@@ -421,12 +421,12 @@ struct WorkGroupCollectiveBroadcast2D
       const auto work_group_id_y = global_ids[1] / local_size_y;
 
       const auto work_group_linear_id =
-          work_group_id_x + work_group_id_y * global_sizes[0] / local_size_x;
+          work_group_id_x + (work_group_id_y * global_sizes[0] / local_size_x);
 
-      const auto broadcast_x_id = local_size_x * work_group_id_x +
+      const auto broadcast_x_id = (local_size_x * work_group_id_x) +
                                   broadcast_x_ids[work_group_linear_id];
 
-      const auto broadcast_y_id = local_size_y * work_group_id_y +
+      const auto broadcast_y_id = (local_size_y * work_group_id_y) +
                                   broadcast_y_ids[work_group_linear_id];
 
       const auto broadcast_linear_id =
@@ -513,17 +513,17 @@ struct WorkGroupCollectiveBroadcast3D
       const auto work_group_id_z = global_ids[2] / local_size_z;
 
       const auto work_group_linear_id =
-          work_group_id_x + work_group_id_y * global_sizes[0] / local_size_x +
-          work_group_id_z * global_sizes[0] / local_size_x * global_sizes[1] /
-              local_size_y;
+          work_group_id_x + (work_group_id_y * global_sizes[0] / local_size_x) +
+          (work_group_id_z * global_sizes[0] / local_size_x * global_sizes[1] /
+           local_size_y);
 
-      const auto broadcast_x_id = local_size_x * work_group_id_x +
+      const auto broadcast_x_id = (local_size_x * work_group_id_x) +
                                   broadcast_x_ids[work_group_linear_id];
 
-      const auto broadcast_y_id = local_size_y * work_group_id_y +
+      const auto broadcast_y_id = (local_size_y * work_group_id_y) +
                                   broadcast_y_ids[work_group_linear_id];
 
-      const auto broadcast_z_id = local_size_z * work_group_id_z +
+      const auto broadcast_z_id = (local_size_z * work_group_id_z) +
                                   broadcast_z_ids[work_group_linear_id];
 
       const auto broadcast_linear_id = globalIdToGlobalLinearId(
@@ -612,10 +612,11 @@ struct WorkGroupCollectiveScanReductionTestBase
 using WorkGroupCollectiveReductions = WorkGroupCollectiveScanReductionTestBase;
 
 template <typename T>
-bool reduceBinOpRefFn(size_t global_linear_id, T result,
-                      const std::vector<T> &input_data,
-                      const NDRange &global_sizes, const NDRange &local_sizes,
-                      T initial_val, const std::function<T(T, T)> &reduce_fn) {
+static bool reduceBinOpRefFn(size_t global_linear_id, T result,
+                             const std::vector<T> &input_data,
+                             const NDRange &global_sizes,
+                             const NDRange &local_sizes, T initial_val,
+                             const std::function<T(T, T)> &reduce_fn) {
   T expected = initial_val;
   const auto range = getReductionRange(global_linear_id, global_sizes.array,
                                        local_sizes.array);
@@ -633,9 +634,10 @@ bool reduceBinOpRefFn(size_t global_linear_id, T result,
 }
 
 template <typename T>
-bool reduceAddRefFn(size_t global_linear_id, T result,
-                    const std::vector<T> &input_data,
-                    const NDRange &global_sizes, const NDRange &local_sizes) {
+static bool reduceAddRefFn(size_t global_linear_id, T result,
+                           const std::vector<T> &input_data,
+                           const NDRange &global_sizes,
+                           const NDRange &local_sizes) {
   const std::function<T(T, T)> &reduce_fn = [](T a, T b) { return a + b; };
   return reduceBinOpRefFn(global_linear_id, result, input_data, global_sizes,
                           local_sizes, T{0}, reduce_fn);
@@ -659,9 +661,10 @@ TEST_P(WorkGroupCollectiveReductions,
 }
 
 template <typename T>
-bool reduceMinRefFn(size_t global_linear_id, T result,
-                    const std::vector<T> &input_data,
-                    const NDRange &global_sizes, const NDRange &local_sizes) {
+static bool reduceMinRefFn(size_t global_linear_id, T result,
+                           const std::vector<T> &input_data,
+                           const NDRange &global_sizes,
+                           const NDRange &local_sizes) {
   const std::function<T(T, T)> &reduce_fn = [](T a, T b) {
     return std::min(a, b);
   };
@@ -688,9 +691,10 @@ TEST_P(WorkGroupCollectiveReductions,
 }
 
 template <typename T>
-bool reduceMaxRefFn(size_t global_linear_id, T result,
-                    const std::vector<T> &input_data,
-                    const NDRange &global_sizes, const NDRange &local_sizes) {
+static bool reduceMaxRefFn(size_t global_linear_id, T result,
+                           const std::vector<T> &input_data,
+                           const NDRange &global_sizes,
+                           const NDRange &local_sizes) {
   const std::function<T(T, T)> &reduce_fn = [](T a, T b) {
     return std::max(a, b);
   };
@@ -719,10 +723,11 @@ TEST_P(WorkGroupCollectiveReductions,
 using WorkGroupCollectiveScans = WorkGroupCollectiveScanReductionTestBase;
 
 template <typename T, bool IsInclusive>
-bool scanBinOpRefFn(size_t global_linear_id, T result,
-                    const std::vector<T> &input_data,
-                    const NDRange &global_sizes, const NDRange &local_sizes,
-                    T initial_val, const std::function<T(T, T)> &scan_fn) {
+static bool scanBinOpRefFn(size_t global_linear_id, T result,
+                           const std::vector<T> &input_data,
+                           const NDRange &global_sizes,
+                           const NDRange &local_sizes, T initial_val,
+                           const std::function<T(T, T)> &scan_fn) {
   T expected = initial_val;
 
   const auto range =
@@ -746,9 +751,10 @@ bool scanBinOpRefFn(size_t global_linear_id, T result,
 }
 
 template <typename T, bool IsInclusive>
-bool scanAddRefFn(size_t global_linear_id, T result,
-                  const std::vector<T> &input_data, const NDRange &global_sizes,
-                  const NDRange &local_sizes) {
+static bool scanAddRefFn(size_t global_linear_id, T result,
+                         const std::vector<T> &input_data,
+                         const NDRange &global_sizes,
+                         const NDRange &local_sizes) {
   const std::function<T(T, T)> &scan_fn = [](T a, T b) { return a + b; };
   return scanBinOpRefFn<T, IsInclusive>(global_linear_id, result, input_data,
                                         global_sizes, local_sizes, T{0},
@@ -756,9 +762,10 @@ bool scanAddRefFn(size_t global_linear_id, T result,
 }
 
 template <typename T, bool IsInclusive>
-bool scanMinRefFn(size_t global_linear_id, T result,
-                  const std::vector<T> &input_data, const NDRange &global_sizes,
-                  const NDRange &local_sizes) {
+static bool scanMinRefFn(size_t global_linear_id, T result,
+                         const std::vector<T> &input_data,
+                         const NDRange &global_sizes,
+                         const NDRange &local_sizes) {
   const std::function<T(T, T)> &scan_fn = [](T a, T b) {
     return std::min(a, b);
   };
@@ -768,9 +775,10 @@ bool scanMinRefFn(size_t global_linear_id, T result,
 }
 
 template <typename T, bool IsInclusive>
-bool scanMaxRefFn(size_t global_linear_id, T result,
-                  const std::vector<T> &input_data, const NDRange &global_sizes,
-                  const NDRange &local_sizes) {
+static bool scanMaxRefFn(size_t global_linear_id, T result,
+                         const std::vector<T> &input_data,
+                         const NDRange &global_sizes,
+                         const NDRange &local_sizes) {
   const std::function<T(T, T)> &scan_fn = [](T a, T b) {
     return std::max(a, b);
   };

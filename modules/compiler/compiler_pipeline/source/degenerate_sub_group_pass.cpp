@@ -441,7 +441,7 @@ PreservedAnalyses compiler::utils::DegenerateSubGroupPass::run(
     Function *const NewF = cast<Function>(Mapped->second);
     assert(NewF && "Missing cloned function");
     // Scrub any old subprogram - CloneFunctionInto will create a new one for us
-    if (auto *const SP = F->getSubprogram()) {
+    if (F->getSubprogram()) {
       NewF->setSubprogram(nullptr);
     }
 

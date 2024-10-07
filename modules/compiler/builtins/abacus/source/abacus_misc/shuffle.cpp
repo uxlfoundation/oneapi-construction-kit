@@ -28,7 +28,7 @@ template <typename T>
 const unsigned SizeLaundry<T>::num_elements = TypeTraits<T>::num_elements;
 
 template <typename R, typename T, typename M>
-R shuffle(const T x, const M m) {
+static R shuffle(const T x, const M m) {
   typedef typename TypeTraits<M>::ElementType MElementType;
   const M maskedM = m % abacus::detail::cast::convert<MElementType>(
                             SizeLaundry<T>::num_elements);

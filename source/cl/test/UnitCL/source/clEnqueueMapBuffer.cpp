@@ -555,9 +555,8 @@ TEST_F(clEnqueueMapBufferTest, InvalidValueFlags) {
   const auto all_valid_map_flags = static_cast<cl_map_flags>(
       CL_MAP_READ | CL_MAP_WRITE | CL_MAP_WRITE_INVALIDATE_REGION);
   void *const map =
-      clEnqueueMapBuffer(command_queue, inMem, CL_FALSE,
-                         static_cast<cl_map_flags>(~all_valid_map_flags), 0,
-                         int_size, 1, &writeEvent, &mapEvent, &errcode);
+      clEnqueueMapBuffer(command_queue, inMem, CL_FALSE, (~all_valid_map_flags),
+                         0, int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE, errcode);
   EXPECT_FALSE(map);
 }
@@ -771,7 +770,8 @@ kernel void generate(global uint* ptr) {
   ASSERT_SUCCESS(error);
 
   // Write the test data into subBuffer.
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &subBuffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&subBuffer)));
   cl_event ndRangeEvent;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
                                         &numElementsPerRegion, nullptr, 0,
@@ -811,7 +811,7 @@ kernel void generate(global uint* ptr) {
     ASSERT_EQ(42 + index, output[index + numElementsPerRegion]);
   }
   for (size_t index = 0; index < numElementsPerRegion; index++) {
-    ASSERT_EQ(0, output[index + numElementsPerRegion * 2]);
+    ASSERT_EQ(0, output[index + (numElementsPerRegion * 2)]);
   }
 }
 

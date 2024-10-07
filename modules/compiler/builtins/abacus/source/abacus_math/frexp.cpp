@@ -48,11 +48,9 @@ struct MagicNumbers {};
 */
 template <>
 struct MagicNumbers<abacus_float> {
-  static inline constexpr abacus_float Coeficent() { return 3.3554432e7f; }
-  static inline constexpr abacus_float Subtraction() {
-    return 3.944304526105059E-31f;
-  }
-  static inline constexpr abacus_int MultiplicationFactor() { return 25; }
+  static constexpr abacus_float Coeficent() { return 3.3554432e7f; }
+  static constexpr abacus_float Subtraction() { return 3.944304526105059E-31f; }
+  static constexpr abacus_int MultiplicationFactor() { return 25; }
 };
 
 // Original comment:
@@ -73,13 +71,11 @@ struct MagicNumbers<abacus_float> {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <>
 struct MagicNumbers<abacus_double> {
-  static inline constexpr abacus_double Coeficent() {
-    return 1.8014398509481984e16;
-  }
-  static inline constexpr abacus_double Subtraction() {
+  static constexpr abacus_double Coeficent() { return 1.8014398509481984e16; }
+  static constexpr abacus_double Subtraction() {
     return 4.008336720017945555992216102695993318699958272e-292;
   }
-  static inline constexpr abacus_int MultiplicationFactor() { return 54; }
+  static constexpr abacus_int MultiplicationFactor() { return 54; }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
@@ -117,7 +113,7 @@ T frexp_denorm_multiplier(const T x) {
 
   const T xAbsPlusHidden = abacus::detail::cast::as<T>(xAbsOrHidden);
 
-  const T result = xAbsPlusHidden * MagicNumbers<ElemType>::Coeficent() -
+  const T result = (xAbsPlusHidden * MagicNumbers<ElemType>::Coeficent()) -
                    MagicNumbers<ElemType>::Subtraction();
 
   return __abacus_copysign(result, x);

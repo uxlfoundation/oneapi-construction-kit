@@ -48,7 +48,8 @@ class clCreateProgramWithBinaryTest : public ucl::ContextTest {
       binaries[i] = new unsigned char[binaryLengths[i]];
     }
     ASSERT_SUCCESS(clGetProgramInfo(originalProgram, CL_PROGRAM_BINARIES,
-                                    binaryLengthsSize, binaries, nullptr));
+                                    binaryLengthsSize,
+                                    static_cast<void *>(binaries), nullptr));
     binaryStatii.resize(1);
     ASSERT_SUCCESS(clReleaseProgram(originalProgram));
   }
@@ -217,8 +218,10 @@ TEST_F(clCreateProgramWithBinaryTest, DefaultNDRangeKernel) {
   EXPECT_TRUE(kernel);
   ASSERT_SUCCESS(errcode);
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &bufin));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &bufout));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&bufin)));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&bufout)));
 
   cl_command_queue command_q =
       clCreateCommandQueue(context, device, 0, &errcode);
@@ -285,8 +288,10 @@ TEST_F(clCreateProgramWithBinaryTest, ConcurrentNDRangeKernel) {
     EXPECT_TRUE(kernel);
     ASSERT_SUCCESS(errcode);
 
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &bufin));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &bufout));
+    ASSERT_SUCCESS(
+        clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&bufin)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                  static_cast<void *>(&bufout)));
 
     cl_command_queue command_q =
         clCreateCommandQueue(context, device, 0, &errcode);

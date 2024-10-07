@@ -73,7 +73,8 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
     exit(1);
   }
 
-  cl_platform_id *platforms = malloc(sizeof(cl_platform_id) * num_platforms);
+  cl_platform_id *platforms =
+      (cl_platform_id *)malloc(sizeof(cl_platform_id) * num_platforms);
   if (NULL == platforms) {
     (void)fprintf(stderr, "\nCould not allocate memory for platform ids\n");
     exit(1);
@@ -137,7 +138,7 @@ cl_platform_id selectPlatform(const char *platform_name_arg) {
   }
 
   cl_platform_id selected_platform_id = platforms[selected_platform];
-  free(platforms);
+  free((void *)platforms);
   return selected_platform_id;
 }
 
@@ -153,7 +154,8 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
     exit(1);
   }
 
-  cl_device_id *devices = malloc(sizeof(cl_device_id) * num_devices);
+  cl_device_id *devices =
+      (cl_device_id *)malloc(sizeof(cl_device_id) * num_devices);
   if (NULL == devices) {
     (void)fprintf(stderr, "\nCould not allocate memory for device ids\n");
     exit(1);
@@ -217,7 +219,7 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
   }
 
   cl_device_id selected_device_id = devices[selected_device];
-  free(devices);
+  free((void *)devices);
   return selected_device_id;
 }
 

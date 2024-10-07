@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
 
 namespace muxc {
 
-uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
+static uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
   uint32_t caps = 0;
   if (device_info->address_capabilities & mux_address_capabilities_bits32) {
     caps |= compiler::CAPS_32BIT;

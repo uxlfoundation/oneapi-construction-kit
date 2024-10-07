@@ -106,7 +106,7 @@ TEST_F(clEnqueueFillBufferTest, OffsetSizeRangeOutOfBounds) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size,
-                          size / 2 + 1, size / 2, 0, nullptr, nullptr));
+                          (size / 2) + 1, size / 2, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, NullPattern) {

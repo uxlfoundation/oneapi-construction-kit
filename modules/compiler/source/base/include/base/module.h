@@ -345,8 +345,7 @@ class BaseModule : public Module {
   ///
   /// @param[in] macro Macro definition to be added.
   /// @param[in,out] macro_defs List of macro defs to be added to.
-  inline void addMacroDef(const std::string &macro,
-                          MacroDefVec &macro_defs) const {
+  void addMacroDef(const std::string &macro, MacroDefVec &macro_defs) const {
     macro_defs.emplace_back(MacroDefType::Def, macro);
   }
 
@@ -355,8 +354,7 @@ class BaseModule : public Module {
   ///
   /// @param[in] macro Macro definition to be added as an undef.
   /// @param[in,out] macro_defs List of macro defs to be added to.
-  inline void addMacroUndef(const std::string &macro,
-                            MacroDefVec &macro_defs) const {
+  void addMacroUndef(const std::string &macro, MacroDefVec &macro_defs) const {
     macro_defs.emplace_back(MacroDefType::Undef, macro);
   }
 
@@ -364,8 +362,7 @@ class BaseModule : public Module {
   ///
   /// @param[in] opt OpenCL option to be added to clang.
   /// @param[in,out] opencl_opts List of options to be added to.
-  inline void addOpenCLOpt(const std::string &opt,
-                           OpenCLOptVec &opencl_opts) const {
+  void addOpenCLOpt(const std::string &opt, OpenCLOptVec &opencl_opts) const {
     opencl_opts.emplace_back(opt);
   }
 

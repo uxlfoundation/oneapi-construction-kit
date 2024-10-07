@@ -180,7 +180,7 @@ class cargo_allocator {
   ///
   /// @param pointer Pointer to allocated memory.
   void free(value_type *pointer) {
-    Allocator.free(Allocator.user_data, pointer);
+    Allocator.free(Allocator.user_data, static_cast<void *>(pointer));
   }
 
   /// @brief Allocate and construct an object.
@@ -192,8 +192,8 @@ class cargo_allocator {
   /// otherwise.
   template <class... Args>
   value_type *create(Args &&...args) {
-    value_type *object = static_cast<value_type *>(alloc(1));
-    new (object) value_type(std::forward<Args>(args)...);
+    value_type *object = alloc(1);
+    new (static_cast<void *>(object)) value_type(std::forward<Args>(args)...);
     return object;
   }
 

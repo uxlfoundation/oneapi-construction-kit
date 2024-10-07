@@ -1156,7 +1156,8 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
       mux_descriptor_info_s descriptor;
       descriptor.type =
           mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
-      descriptor.plain_old_data_descriptor.data = &update_info.pointers[i];
+      descriptor.plain_old_data_descriptor.data =
+          static_cast<const void *>(&update_info.pointers[i]);
       descriptor.plain_old_data_descriptor.length =
           sizeof update_info.pointers[i];
       update_info.pointers[i] = arg_value;

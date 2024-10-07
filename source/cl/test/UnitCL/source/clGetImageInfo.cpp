@@ -323,8 +323,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer1D) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(nullptr, imageBuffer);
 }
 
@@ -494,8 +494,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer1DBuffer) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(buffer, imageBuffer);
 }
 
@@ -665,8 +665,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer1DArray) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(nullptr, imageBuffer);
 }
 
@@ -836,8 +836,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer2D) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(nullptr, imageBuffer);
 }
 
@@ -1008,8 +1008,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer2DArray) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(nullptr, imageBuffer);
 }
 
@@ -1180,8 +1180,8 @@ TEST_P(clGetImageInfoParamTest, DefaultBuffer3D) {
   ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem imageBuffer;
-  ASSERT_SUCCESS(
-      clGetImageInfo(image, CL_IMAGE_BUFFER, size, &imageBuffer, nullptr));
+  ASSERT_SUCCESS(clGetImageInfo(image, CL_IMAGE_BUFFER, size,
+                                static_cast<void *>(&imageBuffer), nullptr));
   ASSERT_EQ(nullptr, imageBuffer);
 }
 
@@ -1457,7 +1457,7 @@ TEST_F(clGetImageInfoTest, InvalidValueParamValueSize) {
   cl_mem bufferValue;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetImageInfo(image, CL_IMAGE_BUFFER, sizeof(cl_mem) - 1,
-                                   &bufferValue, nullptr));
+                                   static_cast<void *>(&bufferValue), nullptr));
   cl_uint numValue;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetImageInfo(image, CL_IMAGE_NUM_MIP_LEVELS,

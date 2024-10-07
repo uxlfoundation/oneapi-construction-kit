@@ -108,7 +108,7 @@ TEST_P(Execution, Compiler_Barrier_04_Mutually_Exclusive_Barriers) {
   kts::Reference1D<cl_int> refOut = [&](size_t x) {
     const cl_int lid = static_cast<cl_int>(x) % kts::localN;
     const size_t group = x / kts::localN;
-    return (group == offset) ? lid * 3 : lid * 3 + 1;
+    return (group == offset) ? lid * 3 : (lid * 3) + 1;
   };
 
   AddMacro("ARRAY_SIZE", (int)ARRAY_SIZE);
@@ -126,7 +126,7 @@ TEST_P(Execution, Compiler_Barrier_05_Simple_Mutually_Exclusive_Barriers) {
   kts::Reference1D<cl_int> refOut = [&](size_t x) {
     const cl_int lid = static_cast<cl_int>(x) % kts::localN;
     const size_t group = x / kts::localN;
-    return (group == offset) ? lid * 3 : lid * 3 + 1;
+    return (group == offset) ? lid * 3 : (lid * 3) + 1;
   };
   AddInputBuffer(ARRAY_SIZE, refIn);
   AddOutputBuffer(kts::N, refOut);

@@ -290,11 +290,12 @@ T normalize(T p) {
       // occur, and try to scale p so that its largest element will have that
       // exponent.
       constexpr ElementType max = TypeTraits<ElementType>::max();
-      constexpr ElementType elem_upper_limit =
-          sizeof(ElementType) == 2   ? 0x1.ffcp6
-          : sizeof(ElementType) == 4 ? 0x1.fffffep62
-          : sizeof(ElementType) == 8 ? 0x1.fffffffffffffp510
-                                     : max;
+      constexpr ElementType elem_upper_limit = []() -> ElementType {
+        if (sizeof(ElementType) == 2) return 0x1.ffcp6;
+        if (sizeof(ElementType) == 4) return 0x1.fffffep62;
+        if (sizeof(ElementType) == 8) return 0x1.fffffffffffffp510;
+        return max;
+      }();
       static_assert(elem_upper_limit * elem_upper_limit * num_elements <= max);
       const ScalarUnsignedType max_au =
           detail::cast::as<ScalarUnsignedType>(max);

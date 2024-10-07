@@ -347,9 +347,8 @@ TEST_F(MDApiStackTest, md_pushf_md_load_f_SimpleTypes) {
 TEST_F(MDApiStackTest, md_pushf_md_loadf_ArrayHashTypes) {
   auto fmt_str = "[u,u,{i:f,f:[u]}]z";
   int err = md_pushf(stack, fmt_str, static_cast<uint64_t>(1),
-                     static_cast<uint64_t>(2), static_cast<int64_t>(-3),
-                     static_cast<double>(2.718), static_cast<double>(3.141),
-                     static_cast<uint64_t>(3), "finalize");
+                     static_cast<uint64_t>(2), static_cast<int64_t>(-3), 2.718,
+                     3.141, static_cast<uint64_t>(3), "finalize");
   ASSERT_FALSE(MD_CHECK_ERR(err));
   EXPECT_EQ(md_top(stack), 1);
 
@@ -433,9 +432,8 @@ TEST_F(MDApiStackTest, md_loadf_InvalidFmtStr) {
 }
 
 TEST_F(MDApiStackTest, md_pushf_UnsuportedCharacters) {
-  const int err =
-      md_pushf(stack, "[u, u]f*&^", static_cast<uint64_t>(3),
-               static_cast<uint64_t>(5), static_cast<double>(3.141));
+  const int err = md_pushf(stack, "[u, u]f*&^", static_cast<uint64_t>(3),
+                           static_cast<uint64_t>(5), 3.141);
   ASSERT_TRUE(MD_CHECK_ERR(err));
   EXPECT_EQ(err, md_err::MD_E_INVALID_FMT_STR);
 }

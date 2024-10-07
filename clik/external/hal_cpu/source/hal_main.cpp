@@ -58,7 +58,7 @@ class cpu_hal_platform : public hal::hal_t {
   cpu_hal_platform() {
     hal_device_info = &cpu_hal::setup_cpu_hal_device_info();
  
-    constexpr static uint32_t implemented_api_version = 6;
+    static constexpr uint32_t implemented_api_version = 6;
     static_assert(implemented_api_version == hal_t::api_version,
                   "Implemented API version for CPU HAL does not match hal.h");
     hal_info.platform_name = hal_device_info->target_name;

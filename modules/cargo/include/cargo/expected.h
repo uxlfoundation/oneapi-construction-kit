@@ -246,8 +246,8 @@ template <class T, class E>
 class expected
     : private detail::expected_move_assign_base<wrap_reference_t<T>, E>,
       private detail::delete_ctor_base<
-          detail::is_copy_constructible_or_void<wrap_reference_t<T>>::value &&
-              detail::is_copy_constructible_or_void<E>::value,
+          detail::is_copy_constructible_or_void_v<wrap_reference_t<T>> &&
+              detail::is_copy_constructible_or_void_v<E>,
           std::is_move_constructible_v<wrap_reference_t<T>> &&
               std::is_move_constructible_v<E>>,
       private detail::delete_assign_base<
@@ -469,6 +469,7 @@ class expected
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
   explicit constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
+  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move constructor.
   ///
   /// @tparam U Type of expected value.
@@ -476,6 +477,7 @@ class expected
   template <class U = T,
             std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
   /// @brief Default copy assignment operator.
@@ -488,6 +490,7 @@ class expected
   /// @param rhs Object to move.
   expected &operator=(expected &&rhs) = default;
 
+  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move assignment operator.
   ///
   /// @tparam U Type of expected value.
@@ -496,12 +499,12 @@ class expected
       class U = T, class G = T,
       std::enable_if_t<std::is_nothrow_constructible_v<T, U &&>> * = nullptr,
       std::enable_if_t<!std::is_void_v<G>> * = nullptr,
-      std::enable_if_t<(!std::is_same_v<expected<T, E>, std::decay_t<U>> &&
-                        !conjunction<std::is_scalar<T>,
-                                     std::is_same<T, std::decay_t<U>>>::value &&
-                        std::is_constructible_v<T, U> &&
-                        std::is_assignable_v<G &, U> &&
-                        std::is_nothrow_move_constructible_v<E>)> * = nullptr>
+      std::enable_if_t<
+          (!std::is_same_v<expected<T, E>, std::decay_t<U>> &&
+           !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
+           std::is_constructible_v<T, U> && std::is_assignable_v<G &, U> &&
+           std::is_nothrow_move_constructible_v<E>)> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   expected &operator=(U &&v) {
     if (has_value()) {
       val() = std::forward<U>(v);
@@ -513,6 +516,7 @@ class expected
     return *this;
   }
 
+  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move assignment operator.
   ///
   /// @tparam U Type of expected value.
@@ -521,12 +525,12 @@ class expected
       class U = T, class G = T,
       std::enable_if_t<!std::is_nothrow_constructible_v<T, U &&>> * = nullptr,
       std::enable_if_t<!std::is_void_v<U>> * = nullptr,
-      std::enable_if_t<(!std::is_same_v<expected<T, E>, std::decay_t<U>> &&
-                        !conjunction<std::is_scalar<T>,
-                                     std::is_same<T, std::decay_t<U>>>::value &&
-                        std::is_constructible_v<T, U> &&
-                        std::is_assignable_v<G &, U> &&
-                        std::is_nothrow_move_constructible_v<E>)> * = nullptr>
+      std::enable_if_t<
+          (!std::is_same_v<expected<T, E>, std::decay_t<U>> &&
+           !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
+           std::is_constructible_v<T, U> && std::is_assignable_v<G &, U> &&
+           std::is_nothrow_move_constructible_v<E>)> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   expected &operator=(U &&v) {
     if (has_value()) {
       val() = std::forward<U>(v);
@@ -948,10 +952,10 @@ class expected
   ///
   /// @param rhs The expected to swap with this.
   void swap(expected &rhs) noexcept(
-      std::is_nothrow_move_constructible_v<T> && noexcept(
-          swap(std::declval<T &>(), std::declval<T &>())) &&
-      std::is_nothrow_move_constructible_v<E> && noexcept(
-          swap(std::declval<E &>(), std::declval<E &>()))) {
+      std::is_nothrow_move_constructible_v<T> &&
+      noexcept(swap(std::declval<T &>(), std::declval<T &>())) &&
+      std::is_nothrow_move_constructible_v<E> &&
+      noexcept(swap(std::declval<E &>(), std::declval<E &>()))) {
     if (has_value() && rhs.has_value()) {
       using std::swap;
       swap(val(), rhs.val());
@@ -1103,9 +1107,9 @@ class expected
   /// otherwise returns the default value.
   template <class U>
   constexpr T value_or(U &&v) const & {
-    static_assert(std::is_copy_constructible<T>::value &&
-                      std::is_convertible<U &&, T>::value,
-                  "T must be copy-constructible and convertible to from U&&");
+    static_assert(
+        std::is_copy_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be copy-constructible and convertible to from U&&");
     return bool(*this) ? **this : static_cast<T>(std::forward<U>(v));
   }
 
@@ -1117,9 +1121,9 @@ class expected
   /// one, otherwise returns the default value.
   template <class U>
   constexpr T value_or(U &&v) && {
-    static_assert(std::is_move_constructible<T>::value &&
-                      std::is_convertible<U &&, T>::value,
-                  "T must be move-constructible and convertible to from U&&");
+    static_assert(
+        std::is_move_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be move-constructible and convertible to from U&&");
     return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(v));
   }
 
@@ -1187,7 +1191,7 @@ template <class Exp, class F,
                                              *std::declval<Exp>())),
           std::enable_if_t<!std::is_void_v<exp_t<Exp>>> * = nullptr>
 constexpr auto and_then_impl(Exp &&exp, F &&f) {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
+  static_assert(detail::is_expected_v<Ret>, "F must return an expected");
   return exp.has_value()
              ? cargo::invoke(std::forward<F>(f), *std::forward<Exp>(exp))
              : Ret(unexpect, exp.error());
@@ -1198,7 +1202,7 @@ template <class Exp, class F,
                                              *std::declval<Exp>())),
           std::enable_if_t<std::is_void_v<exp_t<Exp>>> * = nullptr>
 constexpr auto and_then_impl(Exp &&exp, F &&f) {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
+  static_assert(detail::is_expected_v<Ret>, "F must return an expected");
   return exp.has_value() ? cargo::invoke(std::forward<F>(f))
                          : Ret(unexpect, exp.error());
 }
@@ -1252,12 +1256,14 @@ auto map_error_impl(Exp &&exp, F &&f) {
   return result(unexpect, monostate{});
 }
 
+// NOLINTBEGIN(modernize-type-traits)
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
                                              std::declval<Exp>().error())),
           std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
+// NOLINTEND(modernize-type-traits)
 constexpr auto or_else_impl(Exp &&exp, F &&f) {
-  static_assert(detail::is_expected<Ret>::value, "F must return an expected");
+  static_assert(detail::is_expected_v<Ret>, "F must return an expected");
   return exp.has_value() ? std::forward<Exp>(exp)
                          : cargo::invoke(std::forward<F>(f),
                                          std::forward<Exp>(exp).error());
@@ -1292,9 +1298,11 @@ std::decay_t<Exp> or_else_impl(Exp &&exp, F &&f) {
 template <class T, class E, class U, class F>
 constexpr bool operator==(const expected<T, E> &lhs,
                           const expected<U, F> &rhs) {
-  return (lhs.has_value() != rhs.has_value())
-             ? false
-             : (!lhs.has_value() ? lhs.error() == rhs.error() : *lhs == *rhs);
+  if (lhs.has_value()) {
+    return rhs.has_value() && *lhs == *rhs;
+  } else {
+    return !rhs.has_value() && lhs.error() == rhs.error();
+  }
 }
 
 /// @brief Determine if an expected is not equal to another.
@@ -1310,9 +1318,11 @@ constexpr bool operator==(const expected<T, E> &lhs,
 template <class T, class E, class U, class F>
 constexpr bool operator!=(const expected<T, E> &lhs,
                           const expected<U, F> &rhs) {
-  return (lhs.has_value() != rhs.has_value())
-             ? true
-             : (!lhs.has_value() ? lhs.error() != rhs.error() : *lhs != *rhs);
+  if (lhs.has_value()) {
+    return !rhs.has_value() || *lhs != *rhs;
+  } else {
+    return rhs.has_value() || lhs.error() != rhs.error();
+  }
 }
 
 /// @brief Determine if an expected is equal to a value.

@@ -99,7 +99,8 @@ struct cl_codeplay_wfv_BinaryTest : cl_codeplay_wfv_Test {
     unsigned char *binaries[] = {binary.data()};
     const unsigned char *binaries_const[] = {binary.data()};
     ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                    sizeof(binaries), binaries, nullptr));
+                                    sizeof(binaries),
+                                    static_cast<void *>(binaries), nullptr));
     ASSERT_SUCCESS(clReleaseProgram(program));
     cl_int status;
     cl_int error;

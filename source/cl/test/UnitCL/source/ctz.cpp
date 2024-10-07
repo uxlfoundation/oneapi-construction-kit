@@ -94,10 +94,10 @@ class CtzTest : public ucl::CommandQueueTest {
     ASSERT_SUCCESS(error_code);
 
     // Set the kernel arguments.
-    ASSERT_SUCCESS(
-        clSetKernelArg(kernel, 0, sizeof(input_buffer), &input_buffer));
-    ASSERT_SUCCESS(
-        clSetKernelArg(kernel, 1, sizeof(output_buffer), &output_buffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(input_buffer),
+                                  static_cast<void *>(&input_buffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(output_buffer),
+                                  static_cast<void *>(&output_buffer)));
   }
 
   template <typename Ty>

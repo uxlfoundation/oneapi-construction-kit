@@ -29,13 +29,13 @@ namespace usm {
 //
 // A valid alignment is a possibly 0 power of two. This function does not check
 // for device support.
-constexpr bool isAlignmentValid(cl_uint alignment) {
+static constexpr bool isAlignmentValid(cl_uint alignment) {
   return !alignment || (alignment & (alignment - 1)) == 0;
 }
 
 /// Return whether multiple bits are set for the given value
 template <typename T>
-constexpr bool areMultipleBitsSet(T value) {
+static constexpr bool areMultipleBitsSet(T value) {
   return value && (value & (value - 1)) != 0;
 }
 
@@ -213,8 +213,7 @@ host_allocation_info::~host_allocation_info() {
 
     mux_buffer_t mux_buffer = mux_buffers[index];
     if (mux_buffer) {
-      (void)muxDestroyBuffer(device->mux_device, mux_buffer,
-                             device->mux_allocator);
+      muxDestroyBuffer(device->mux_device, mux_buffer, device->mux_allocator);
     }
 
     mux_memory_t mux_memory = mux_memories[index];
@@ -340,8 +339,7 @@ device_allocation_info::device_allocation_info(const cl_context context,
 
 device_allocation_info::~device_allocation_info() {
   if (mux_buffer) {
-    (void)muxDestroyBuffer(device->mux_device, mux_buffer,
-                           device->mux_allocator);
+    muxDestroyBuffer(device->mux_device, mux_buffer, device->mux_allocator);
   }
 
   if (mux_memory) {
@@ -440,8 +438,7 @@ shared_allocation_info::shared_allocation_info(const cl_context context,
 shared_allocation_info::~shared_allocation_info() {
   if (mux_buffer) {
     assert(device);
-    (void)muxDestroyBuffer(device->mux_device, mux_buffer,
-                           device->mux_allocator);
+    muxDestroyBuffer(device->mux_device, mux_buffer, device->mux_allocator);
   }
 
   if (mux_memory) {

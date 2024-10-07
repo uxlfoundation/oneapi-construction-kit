@@ -84,7 +84,7 @@ using enable_from_other =
 template <class T, class U>
 using enable_assign_forward = std::enable_if_t<
     !std::is_same_v<optional<T>, std::decay_t<U>> &&
-    !conjunction<std::is_scalar<T>, std::is_same<T, std::decay_t<U>>>::value &&
+    !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
     std::is_constructible_v<T, U> && std::is_assignable_v<T &, U>>;
 
 template <class T, class U, class Other>
@@ -162,7 +162,8 @@ struct optional_operations_base : optional_storage_base<T> {
 
   template <class... Args>
   void construct(Args &&...args) {
-    new (std::addressof(this->m_value)) T(std::forward<Args>(args)...);
+    new (static_cast<void *>(std::addressof(this->m_value)))
+        T(std::forward<Args>(args)...);
     this->m_has_value = true;
   }
 

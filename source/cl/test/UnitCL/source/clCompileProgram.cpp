@@ -522,7 +522,8 @@ TEST_F(clCompileProgramMacroTest, NotDefined) {
   EXPECT_SUCCESS(status);
   kernel = clCreateKernel(linkedProgram, "foo", &status);
   EXPECT_SUCCESS(status);
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macroValue));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macroValue)));
   cl_event taskEvent;
   EXPECT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -547,7 +548,8 @@ TEST_F(clCompileProgramMacroTest, DefaultDefined) {
   EXPECT_SUCCESS(status);
   kernel = clCreateKernel(linkedProgram, "foo", &status);
   EXPECT_SUCCESS(status);
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macroValue));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macroValue)));
   cl_event taskEvent;
   EXPECT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;
@@ -572,7 +574,8 @@ TEST_F(clCompileProgramMacroTest, ValueDefined) {
   EXPECT_SUCCESS(status);
   kernel = clCreateKernel(linkedProgram, "foo", &status);
   EXPECT_SUCCESS(status);
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &macroValue));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&macroValue)));
   cl_event taskEvent;
   EXPECT_SUCCESS(clEnqueueTask(command_queue, kernel, 0, nullptr, &taskEvent));
   cl_int value;

@@ -192,7 +192,7 @@ struct muxCloneCommandBufferSingleBufferTest
   /// @brief The buffer object.
   mux_buffer_t buffer = nullptr;
   /// @brief The size of the buffer in bytes.
-  constexpr static size_t buffer_size_in_bytes = 256;
+  static constexpr size_t buffer_size_in_bytes = 256;
   /// @brief A block of host memory that can be read from or written to.
   char data[buffer_size_in_bytes];
 
@@ -338,7 +338,7 @@ struct muxCloneCommandBufferTwoBufferTest : public muxCloneCommandBufferTest {
   /// @brief The second buffer object.
   mux_buffer_t buffer_two = nullptr;
   /// @brief The size of the buffer in bytes.
-  constexpr static size_t buffer_size_in_bytes = 256;
+  static constexpr size_t buffer_size_in_bytes = 256;
 
   /// @brief Virtual method used to setup any resources for the test fixture
   /// that can't be done in the constructor.
@@ -477,9 +477,9 @@ struct muxCloneCommandBufferQueryTest : muxCloneCommandBufferTest {
   /// @brief Query pool used by the query.
   mux_query_pool_t query_pool = nullptr;
   /// @brief Number of queries to allocate storage for.
-  constexpr static uint32_t query_count = 1;
+  static constexpr uint32_t query_count = 1;
   /// @brief Query slot index that will contain the result.
-  constexpr static uint32_t query_index = 0;
+  static constexpr uint32_t query_index = 0;
 
   /// @brief Virtual method used to setup any resources for the test fixture
   /// that can't be done in the constructor.
@@ -572,9 +572,9 @@ TEST_P(muxCloneCommandBufferTest, CloneUserCallbackThenCheckCommandBuffer) {
   };
 
   // Enqueue the original command buffer.
-  ASSERT_SUCCESS(muxCommandUserCallback(command_buffer_to_clone, user_callback,
-                                        &command_buffer_executed, 0, nullptr,
-                                        nullptr));
+  ASSERT_SUCCESS(muxCommandUserCallback(
+      command_buffer_to_clone, user_callback,
+      static_cast<void *>(&command_buffer_executed), 0, nullptr, nullptr));
   ASSERT_SUCCESS(muxFinalizeCommandBuffer(command_buffer_to_clone));
   ASSERT_SUCCESS(muxDispatch(queue, command_buffer_to_clone, nullptr, nullptr,
                              0, nullptr, 0, nullptr, nullptr));
@@ -672,9 +672,9 @@ TEST_P(muxCloneCommandBufferTest, CloneUserCallbackInLoopBlocking) {
   };
 
   // Enqueue the original command buffer.
-  ASSERT_SUCCESS(muxCommandUserCallback(command_buffer_to_clone, user_callback,
-                                        &command_buffer_executed, 0, nullptr,
-                                        nullptr));
+  ASSERT_SUCCESS(muxCommandUserCallback(
+      command_buffer_to_clone, user_callback,
+      static_cast<void *>(&command_buffer_executed), 0, nullptr, nullptr));
   ASSERT_SUCCESS(muxFinalizeCommandBuffer(command_buffer_to_clone));
   ASSERT_SUCCESS(muxDispatch(queue, command_buffer_to_clone, nullptr, nullptr,
                              0, nullptr, 0, nullptr, nullptr));

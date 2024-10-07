@@ -39,7 +39,7 @@ struct TypeInfo<cl_half> {
   using LargerType = cl_float;
 
   static const unsigned mantissa_bits = 10;
-  const static int bias = 15;
+  static const int bias = 15;
 
   static const AsUnsigned mantissa_mask = 0x03FF;
   static const AsUnsigned exponent_mask = 0x7C00;
@@ -65,7 +65,7 @@ struct TypeInfo<cl_float> {
   using LargerType = cl_double;
 
   static const unsigned mantissa_bits = 23;
-  const static int bias = 127;
+  static const int bias = 127;
 
   static const AsUnsigned mantissa_mask = 0x007FFFFF;
   static const AsUnsigned exponent_mask = 0x7F800000;

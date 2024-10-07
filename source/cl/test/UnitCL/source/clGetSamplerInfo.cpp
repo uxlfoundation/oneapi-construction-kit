@@ -57,7 +57,7 @@ TEST_F(clGetSamplerInfoTest, InvalidValueParamValueSize) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clGetSamplerInfo(sampler, CL_SAMPLER_CONTEXT, sizeof(cl_context) - 1,
-                       &sampler_context, nullptr));
+                       static_cast<void *>(&sampler_context), nullptr));
 
   cl_bool normalized_coords;
   ASSERT_EQ_ERRCODE(
@@ -83,7 +83,7 @@ TEST_F(clGetSamplerInfoTest, InvalidSampler) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_SAMPLER,
       clGetSamplerInfo(nullptr, CL_SAMPLER_CONTEXT, sizeof(cl_context),
-                       &sampler_context, nullptr));
+                       static_cast<void *>(&sampler_context), nullptr));
 }
 
 TEST_F(clGetSamplerInfoTest, DefaultReferenceCount) {
@@ -94,9 +94,9 @@ TEST_F(clGetSamplerInfoTest, DefaultReferenceCount) {
 
 TEST_F(clGetSamplerInfoTest, DefaultContext) {
   cl_context sampler_context;
-  ASSERT_SUCCESS(clGetSamplerInfo(sampler, CL_SAMPLER_CONTEXT,
-                                  sizeof(cl_context), &sampler_context,
-                                  nullptr));
+  ASSERT_SUCCESS(
+      clGetSamplerInfo(sampler, CL_SAMPLER_CONTEXT, sizeof(cl_context),
+                       static_cast<void *>(&sampler_context), nullptr));
   ASSERT_EQ(context, sampler_context);
 }
 
@@ -112,7 +112,7 @@ struct sampler_args {
   cl_filter_mode filter_mode;
 };
 
-std::ostream &operator<<(std::ostream &out, sampler_args params) {
+static std::ostream &operator<<(std::ostream &out, sampler_args params) {
   const std::string normalized_coords =
       params.normalized_coords ? "CL_TRUE" : "CL_FALSE";
   out << "sampler_args{"

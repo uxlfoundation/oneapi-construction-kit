@@ -32,11 +32,11 @@ class NDimensions {
 
   NDimensions(std::initializer_list<size_t> g, std::initializer_list<size_t> l,
               std::initializer_list<cl_uint> a)
-      : global(g), local(l), active(a){};
+      : global(g), local(l), active(a) {};
 
   // If there is no active work group.
   NDimensions(std::initializer_list<size_t> g, std::initializer_list<size_t> l)
-      : global(g), local(l), active({0, 0, 0}){};
+      : global(g), local(l), active({0, 0, 0}) {};
 
   size_t size() const {
     // Calculate product.
@@ -73,7 +73,7 @@ class NDimensions {
 };
 
 template <class T>
-std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
+static std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   out << "{";
   for (size_t index = 0, count = v.size(); index < count; index++) {
     out << v[index];
@@ -85,7 +85,7 @@ std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   return out;
 }
 
-std::ostream &operator<<(std::ostream &out, const NDimensions &nd) {
+static std::ostream &operator<<(std::ostream &out, const NDimensions &nd) {
   out << "NDimensions{"
       << ".global" << nd.global << ", "
       << ".local" << nd.local << ", "

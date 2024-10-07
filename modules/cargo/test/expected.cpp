@@ -896,19 +896,21 @@ TEST(expected, map_error_callable_with_expected_type) {
   res.map_error([](F) {});
 }
 
-cargo::expected<int, std::string> getInt3(int val) { return val; }
+static cargo::expected<int, std::string> getInt3(int val) { return val; }
 
-cargo::expected<int, std::string> getInt2(int val) { return val; }
+static cargo::expected<int, std::string> getInt2(int val) { return val; }
 
-cargo::expected<int, std::string> getInt1() {
+static cargo::expected<int, std::string> getInt1() {
   return getInt2(5).and_then(getInt3);
 }
 
 TEST(expected, and_then_std_string) { getInt1(); }
 
-cargo::expected<int, int> operation1() { return 42; }
+static cargo::expected<int, int> operation1() { return 42; }
 
-cargo::expected<std::string, int> operation2(const int) { return "Bananas"; }
+static cargo::expected<std::string, int> operation2(const int) {
+  return "Bananas";
+}
 
 TEST(expected, and_then_non_constexpr) {
   const auto intermediate_result = operation1();

@@ -117,9 +117,12 @@ int main(const int argc, const char **argv) {
       clCreateBuffer(context, CL_MEM_WRITE_ONLY, tile_size, nullptr, &error);
   CL_CHECK(error);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(buffer_tile1), &buffer_tile1));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(buffer_tile2), &buffer_tile2));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(buffer_res), &buffer_res));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(buffer_tile1),
+                          static_cast<void *>(&buffer_tile1)));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(buffer_tile2),
+                          static_cast<void *>(&buffer_tile2)));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(buffer_res),
+                          static_cast<void *>(&buffer_res)));
 
   // CA doesn't support OOO queues.
   cl_command_queue command_queue =
