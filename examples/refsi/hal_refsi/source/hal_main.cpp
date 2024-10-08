@@ -121,7 +121,7 @@ class refsi_hal : public hal::hal_t {
   }
 
   refsi_hal() {
-    constexpr static uint32_t implemented_api_version = 6;
+    static constexpr uint32_t implemented_api_version = 6;
     static_assert(implemented_api_version == hal_t::api_version,
                   "Implemented API version for RefSi HAL does not match hal.h");
     hal_info.num_devices = 1;

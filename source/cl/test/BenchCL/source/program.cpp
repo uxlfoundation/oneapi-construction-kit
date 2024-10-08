@@ -48,6 +48,7 @@ template <>
 std::vector<const char *> CreateProgramData::generate<InputType::NOP>(
     unsigned s) {
   std::vector<const char *> data;
+  data.reserve(s);
   for (unsigned i = 0; i < s; i++) {
     data.push_back("");
   }

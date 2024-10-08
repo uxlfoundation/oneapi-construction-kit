@@ -382,7 +382,7 @@ struct ProgramInfo {
     return true;
   }
 
-  inline size_t getNumKernels() const { return kernel_descriptions.size(); }
+  size_t getNumKernels() const { return kernel_descriptions.size(); }
 
   /// @brief Retrieve a kernel by index.
   ///

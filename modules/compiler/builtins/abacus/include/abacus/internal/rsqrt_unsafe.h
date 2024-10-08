@@ -41,7 +41,7 @@ inline T rsqrt_unsafe(const T &x, unsigned newton_raphson_iterations) {
 template <typename T>
 struct rsqrt_unsafe_helper {
   template <typename T2>
-  inline static T2 _(const T2 &x) {
+  static T2 _(const T2 &x) {
     // N == 3 for float, N == 6 for double
     // Approximate 1/sqrt(x)
     const unsigned s = sizeof(typename TypeTraits<T2>::ElementType);

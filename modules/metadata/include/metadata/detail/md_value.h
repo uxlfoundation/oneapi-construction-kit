@@ -96,7 +96,7 @@ class basic_value {
   ///
   /// @param rhs The object to compare against.
   /// @return `true` if data and tag match, `false` otherwise.
-  inline bool operator==(const basic_value &rhs) const {
+  bool operator==(const basic_value &rhs) const {
     return m_type == rhs.m_type && m_data == rhs.m_data;
   }
 };

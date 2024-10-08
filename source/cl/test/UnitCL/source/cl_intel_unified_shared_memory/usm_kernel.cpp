@@ -179,7 +179,7 @@ TEST_P(USMSetKernelExecInfoTest, ValidUsage) {
     EXPECT_SUCCESS(
         clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                             sizeof(void *) * indirect_usm_pointers.size(),
-                            indirect_usm_pointers.data()));
+                            static_cast<void *>(indirect_usm_pointers.data())));
   } else {
     cl_bool flag = CL_FALSE;
     EXPECT_SUCCESS(
@@ -205,8 +205,9 @@ TEST_P(USMSetKernelExecInfoTest, InvalidUsage) {
     auto indirect_usm_pointers = allPointers();
 
     // Invalid param_value_size
-    err = clSetKernelExecInfo(kernel, param_name, 0,
-                              indirect_usm_pointers.data());
+    err =
+        clSetKernelExecInfo(kernel, param_name, 0,
+                            static_cast<void *>(indirect_usm_pointers.data()));
     EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
 
     // Invalid param_value
@@ -384,7 +385,8 @@ TEST_F(USMVectorAddKernelTest, DeviceInputs) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -402,7 +404,8 @@ TEST_F(USMVectorAddKernelTest, HostInputs) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, host_ptrB));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -420,7 +423,8 @@ TEST_F(USMVectorAddKernelTest, SharedInputs) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, shared_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, shared_ptrB));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -447,7 +451,8 @@ TEST_F(USMVectorAddKernelTest, MixedInputs) {
     // Set kernel arguments
     ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, ptr.first));
     ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, ptr.second));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                  static_cast<void *>(&cl_mem_buffer)));
 
     // Run 1-D kernel with a global size of 'elements'
     ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -502,7 +507,8 @@ TEST_F(USMVectorAddKernelTest, OffsetHostInput) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_host_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -530,7 +536,8 @@ TEST_F(USMVectorAddKernelTest, OffsetSharedInput) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, shared_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_shared_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -554,7 +561,8 @@ TEST_F(USMVectorAddKernelTest, OffsetDeviceInput) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -576,7 +584,8 @@ TEST_F(USMVectorAddKernelTest, OverwriteUSMArg) {
   void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Overwrite Pointer arg
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
@@ -601,12 +610,14 @@ TEST_F(USMVectorAddKernelTest, OverwriteCLMemArg) {
                                        nullptr));
 
   // Set kernel arguments, index 0 and 2 will be overwritten
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 2, device_ptrB));
 
   // Overwrite args
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
@@ -623,7 +634,8 @@ TEST_F(USMVectorAddKernelTest, SetArgsWithoutEnqueue) {
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Release kernel and check USM allocations are still usable
   ASSERT_SUCCESS(clReleaseKernel(kernel));
@@ -648,12 +660,14 @@ TEST_F(USMVectorAddKernelTest, MultipleKernels) {
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Set arguments on new kernel
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel2, 0, device_ptrB));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel2, 1, offset_deviceB_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel2, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel2, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run original 1-D kernel with a global size equal to half the number of
   // cl_int elements in the buffer
@@ -685,7 +699,8 @@ TEST_F(USMVectorAddKernelTest, RepeatedEnqueue) {
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Run 1-D kernel with a global size equal to half the number of cl_int
   // elements in the buffer
@@ -714,7 +729,8 @@ TEST_F(USMVectorAddKernelTest, ClonedKernel) {
   // Set arguments on original kernel
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptrB));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &cl_mem_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                static_cast<void *>(&cl_mem_buffer)));
 
   // Clone kernel, arguments should be copied
   cl_int err = !CL_SUCCESS;

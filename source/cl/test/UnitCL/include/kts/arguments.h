@@ -523,7 +523,7 @@ struct MemoryAccessor<::ucl::PackedVector3Type<T, Tag>> {
 
   vector_type LoadFromBuffer(void *Ptr, size_t Offset) {
     void *const PtrPlusOffset =
-        static_cast<uint8_t *>(Ptr) + 3 * Offset * sizeof(value_type);
+        static_cast<uint8_t *>(Ptr) + (3 * Offset * sizeof(value_type));
     vector_type Val;
     memcpy(Val.data(), PtrPlusOffset, 3 * sizeof(value_type));
     return Val;
@@ -531,7 +531,7 @@ struct MemoryAccessor<::ucl::PackedVector3Type<T, Tag>> {
 
   void StoreToBuffer(const vector_type &Val, void *Ptr, size_t Offset) {
     void *const PtrPlusOffset =
-        static_cast<uint8_t *>(Ptr) + 3 * Offset * sizeof(value_type);
+        static_cast<uint8_t *>(Ptr) + (3 * Offset * sizeof(value_type));
     memcpy(PtrPlusOffset, Val.data(), 3 * sizeof(value_type));
   }
 };

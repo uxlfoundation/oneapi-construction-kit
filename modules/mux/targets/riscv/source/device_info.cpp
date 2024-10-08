@@ -110,12 +110,12 @@ device_info_s::device_info_s()
   this->compute_units = 1;
   this->buffer_alignment = sizeof(uint64_t) * 16;
   this->memory_size =
-      10 * 1024 * 1024;  // default value - should be updated using hal values
+      10L * 1024 * 1024;  // default value - should be updated using hal values
   // All memory could be allocated at once.
   this->allocation_size = this->memory_size;
   this->cache_size = 0;
   this->cacheline_size = 0;
-  this->shared_local_memory_size = 32 * 1024;
+  this->shared_local_memory_size = 32L * 1024;
 
   // default to 128 bit (16 bytes)
   this->native_vector_width = 128 / (8 * sizeof(uint8_t));
@@ -164,9 +164,10 @@ device_info_s::device_info_s()
   this->num_sub_group_sizes = sg_sizes.size();
 }
 
-mux_result_t GetDeviceInfos(uint32_t device_types, uint64_t device_infos_length,
-                            mux_device_info_t *out_device_infos,
-                            uint64_t *out_device_infos_length) {
+static mux_result_t GetDeviceInfos(uint32_t device_types,
+                                   uint64_t device_infos_length,
+                                   mux_device_info_t *out_device_infos,
+                                   uint64_t *out_device_infos_length) {
   // ensure our device infos have been enumerated
   if (!riscv::enumerate_device_infos()) {
     return mux_error_failure;

@@ -68,6 +68,8 @@ cl_int invalid();
 /// zero.
 template <typename T>
 class base {
+  friend T;
+
   /// @brief Pointer to the ICD dispatch table.
   ///
   /// This **must** be the **first** field of the object the ICD loader
@@ -80,7 +82,6 @@ class base {
   /// @brief Pointer type of the inheriting object.
   using object_type = T *;
 
- public:
   /// @brief Construct and initialize internal or external reference count.
   ///
   /// An object created via the OpenCL API must start with an external
@@ -110,6 +111,7 @@ class base {
   /// Also deletes the copy constructor and the assignment operators.
   base(base &&) = delete;
 
+ public:
   /// @brief Increment the external reference count.
   ///
   /// @note This should only be invoked by `::cl::retainExternal`.

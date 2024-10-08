@@ -22,6 +22,13 @@
 template <typename T>
 struct icd_t {
   uintptr_t magic = 0x01CDC0DE;
+
+  friend T;
+
+ private:
+  icd_t() = default;
+  icd_t(const icd_t &) = default;
+  icd_t(icd_t &&) = default;
 };
 
 #endif

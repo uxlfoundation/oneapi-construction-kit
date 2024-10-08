@@ -972,7 +972,7 @@ TEST_F(clGetDeviceInfoTest, PARENT_DEVICE) {
   ASSERT_EQ(sizeof(cl_device_id), size);
   cl_device_id payload;
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PARENT_DEVICE, size,
-                                 &payload, nullptr));
+                                 static_cast<void *>(&payload), nullptr));
   ASSERT_EQ(0, payload);  // assume we are a parent device
 }
 
@@ -1040,7 +1040,7 @@ TEST_F(clGetDeviceInfoTest, PARTITION_TYPE) {
     UCL::Buffer<cl_device_partition_property> payload(
         size / sizeof(cl_device_partition_property));
     ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PARTITION_TYPE, size,
-                                   payload, nullptr));
+                                   static_cast<void *>(payload), nullptr));
     ASSERT_EQ(1u, payload.size());
     ASSERT_EQ(0u, payload[0]);  // we are not a sub-device
   }
@@ -1053,8 +1053,8 @@ TEST_F(clGetDeviceInfoTest, PLATFORM) {
   ASSERT_EQ(sizeof(cl_platform_id), size);
   cl_platform_id payload;
 
-  ASSERT_SUCCESS(
-      clGetDeviceInfo(device, CL_DEVICE_PLATFORM, size, &payload, nullptr));
+  ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PLATFORM, size,
+                                 static_cast<void *>(&payload), nullptr));
   ASSERT_EQ(platform, payload);  // assume we don't support any partition types
 }
 

@@ -176,18 +176,25 @@ struct clSetProgramSpecializationConstantSuccessTest
 
   void getResults() {
     int i = 0;
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &boolBuffer));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &charBuffer));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &shortBuffer));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &intBuffer));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &longBuffer));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &floatBuffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&boolBuffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&charBuffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&shortBuffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&intBuffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&longBuffer)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                  static_cast<void *>(&floatBuffer)));
     if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-      ASSERT_SUCCESS(
-          clSetKernelArg(kernel, i++, sizeof(cl_mem), &doubleBuffer));
+      ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                    static_cast<void *>(&doubleBuffer)));
     }
     if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-      ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem), &halfBuffer));
+      ASSERT_SUCCESS(clSetKernelArg(kernel, i++, sizeof(cl_mem),
+                                    static_cast<void *>(&halfBuffer)));
     }
     cl_event taskEvent;
     ASSERT_SUCCESS(clEnqueueTask(commandQueue, kernel, 0, nullptr, &taskEvent));

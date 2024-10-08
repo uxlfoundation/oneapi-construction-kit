@@ -92,7 +92,8 @@ class clGetEventInfoTest : public ucl::CommandQueueTest {
 
     assert(sizeof(T) == size_needed);
     T result;
-    errcode = clGetEventInfo(event, param_name, size_needed, &result, nullptr);
+    errcode = clGetEventInfo(event, param_name, size_needed,
+                             static_cast<void *>(&result), nullptr);
     EXPECT_SUCCESS(errcode);
     if (expected != result) {
       EXPECT_EQ(expected, result);
@@ -352,7 +353,8 @@ TEST_F(clGetEventInfoTest, EnqueueTaskEvent) {
   cl_mem out = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(cl_int),
                               nullptr, &status);
   ASSERT_SUCCESS(status);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &out));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&out)));
   cl_int a = 7;
   ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_int), &a));
   cl_int b = 6;
@@ -545,7 +547,7 @@ TEST_F(clGetEventInfoTest, CopyBufferRect) {
   ASSERT_SUCCESS(clReleaseMemObject(out_mem));
 }
 
-void CL_CALLBACK user_fun(void *args) { (void)args; }
+static void CL_CALLBACK user_fun(void *args) { (void)args; }
 
 TEST_F(clGetEventInfoTest, NativeKernel) {
   struct Args {

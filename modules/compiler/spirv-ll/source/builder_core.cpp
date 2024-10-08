@@ -379,7 +379,7 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::OpenCLDebugInfo100);
   } else {
-    return makeStringError(llvm::Twine(name.data()) +
+    return makeStringError(name +
                            " extended instruction set is not supported!\n");
   }
   return llvm::Error::success();
@@ -2423,7 +2423,7 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
   const unsigned n_args = op->wordCount() - 4;
 
   if (auto *const fn = module.getValue(op->Function())) {
-    callee = cast<llvm::Function>(module.getValue(op->Function()));
+    callee = cast<llvm::Function>(fn);
   } else {
     // If we haven't seen this function before (i.e., a forward reference),
     // create a call to an internal dummy function which we'll fix up during
@@ -6260,12 +6260,10 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   // Add in any required mangle information before we cache the reduction
   // wrapper. This is important for distinguishing between smin/smax, for
   // example.
-  const std::string cacheName =
-      (signInfo == MangleInfo::ForceSignInfo::ForceSigned
-           ? "s"
-           : (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned ? "u"
-                                                                   : "")) +
-      opName;
+  const char *prefix = "";
+  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned) prefix = "s";
+  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned) prefix = "u";
+  const std::string cacheName = prefix + opName;
   auto *&reductionWrapper =
       module.reductionWrapperMap[operation][cacheName]
                                 [module.getResultType(op->X())];

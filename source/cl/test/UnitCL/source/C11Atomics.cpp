@@ -612,12 +612,12 @@ class FetchTest : public C11AtomicTestBase {
 };
 
 template <typename T>
-T zeroReference(size_t, const std::vector<T> &) {
+static T zeroReference(size_t, const std::vector<T> &) {
   return T{0};
 }
 
 template <typename T>
-T firstEltReference(size_t, const std::vector<T> &input) {
+static T firstEltReference(size_t, const std::vector<T> &input) {
   return input[0];
 }
 

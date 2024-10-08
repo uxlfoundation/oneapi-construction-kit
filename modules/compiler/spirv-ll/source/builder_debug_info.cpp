@@ -252,7 +252,8 @@ static std::unordered_map<uint32_t, llvm::dwarf::LocationAtom>
         {167, llvm::dwarf::DW_OP_LLVM_tag_offset},
 };
 
-llvm::DINode::DIFlags translateLRValueReferenceFlags(uint32_t spv_flags) {
+static llvm::DINode::DIFlags translateLRValueReferenceFlags(
+    uint32_t spv_flags) {
   llvm::DINode::DIFlags flags = llvm::DINode::FlagZero;
   if (spv_flags & OpenCLDebugInfo100FlagLValueReference) {
     flags |= llvm::DINode::FlagLValueReference;
@@ -263,7 +264,7 @@ llvm::DINode::DIFlags translateLRValueReferenceFlags(uint32_t spv_flags) {
   return flags;
 }
 
-llvm::DINode::DIFlags translateAccessFlags(uint32_t spv_flags) {
+static llvm::DINode::DIFlags translateAccessFlags(uint32_t spv_flags) {
   // This is a two-bit combination flag:
   //   Protected: 1 << 0
   //   Private: 1 << 1
@@ -790,11 +791,12 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   if (auto err = size_or_error.takeError()) {
     return std::move(err);
   }
+  auto size = size_or_error.get();
   // Without a size, we can't create a type.
-  if (!size_or_error.get()) {
+  if (!size) {
     return nullptr;
   }
-  const uint64_t size_in_bits = *size_or_error.get();
+  const uint64_t size_in_bits = *size;
 
   if (spv_flags & OpenCLDebugInfo100FlagFwdDecl) {
     return dib.createForwardDecl(llvm::dwarf::DW_TAG_enumeration_type, *name,

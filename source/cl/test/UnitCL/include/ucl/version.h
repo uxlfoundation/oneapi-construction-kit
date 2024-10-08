@@ -38,7 +38,7 @@ namespace ucl {
 struct Version {
   Version() = default;
   Version(int major, int minor)
-      : Major(major), Minor(minor), Scaled(major * 100 + minor * 10) {}
+      : Major(major), Minor(minor), Scaled((major * 100) + (minor * 10)) {}
 
   bool operator==(const Version &rhs) const { return Scaled == rhs.Scaled; }
   bool operator!=(const Version &rhs) const { return Scaled != rhs.Scaled; }

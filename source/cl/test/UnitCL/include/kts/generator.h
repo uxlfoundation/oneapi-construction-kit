@@ -250,7 +250,7 @@ void InputGenerator::GenerateIntData(std::vector<T> &buffer, T min, T max) {
   // then cast back the result.
   using LargerType = std::conditional_t<
       std::is_same_v<std::make_unsigned_t<T>, uint8_t>,
-      std::conditional_t<std::is_unsigned<T>::value, uint32_t, int32_t>, T>;
+      std::conditional_t<std::is_unsigned_v<T>, uint32_t, int32_t>, T>;
 
   std::uniform_int_distribution<LargerType> dist(min, max);
   std::generate(buffer.begin(), buffer.end(),
@@ -317,7 +317,7 @@ T InputGenerator::GenerateInt(T min, T max) {
   // then cast back the result.
   using LargerType = std::conditional_t<
       std::is_same_v<std::make_unsigned_t<T>, uint8_t>,
-      std::conditional_t<std::is_unsigned<T>::value, uint32_t, int32_t>, T>;
+      std::conditional_t<std::is_unsigned_v<T>, uint32_t, int32_t>, T>;
   std::uniform_int_distribution<LargerType> dist(min, max);
   return static_cast<T>(dist(gen_));
 }

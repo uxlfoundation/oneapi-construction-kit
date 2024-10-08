@@ -23,13 +23,13 @@ TEST_F(ktst_sgemm, BasicCorrectnessTest) {
   kts::Reference1D<glsl::floatTy> refOut = [](size_t x) {
     switch (x / 4) {
       case 0:
-        return 224 + 24 * (x % 4);
+        return 224 + (24 * (x % 4));
       case 1:
-        return 608 + 88 * (x % 4);
+        return 608 + (88 * (x % 4));
       case 2:
-        return 992 + 152 * (x % 4);
+        return 992 + (152 * (x % 4));
       default:
-        return 1376 + 216 * (x % 4);
+        return 1376 + (216 * (x % 4));
     }
   };
   AddPrimitive((glsl::uintTy)4);
@@ -130,13 +130,13 @@ TEST_F(ktst_sgemm_custom, BasicCorrectnessTest) {
   kts::Reference1D<glsl::floatTy> refOut = [](size_t x) {
     switch (x / 4) {
       case 0:
-        return 224 + 24 * (x % 4);
+        return 224 + (24 * (x % 4));
       case 1:
-        return 608 + 88 * (x % 4);
+        return 608 + (88 * (x % 4));
       case 2:
-        return 992 + 152 * (x % 4);
+        return 992 + (152 * (x % 4));
       default:
-        return 1376 + 216 * (x % 4);
+        return 1376 + (216 * (x % 4));
     }
   };
 

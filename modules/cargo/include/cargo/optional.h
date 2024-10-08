@@ -172,12 +172,14 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     this->construct(il, std::forward<Args>(args)...);
   }
 
+  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Construction from a value.
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
             std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
+  // NOLINTEND(modernize-type-traits)
   constexpr optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
   /// @brief Construction from a value.
@@ -758,7 +760,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return The constructed value.
   template <class... Args>
   T &emplace(Args &&...args) {
-    static_assert(std::is_constructible<T, Args &&...>::value,
+    static_assert(std::is_constructible_v<T, Args &&...>,
                   "T must be constructible with Args");
     *this = nullopt;
     this->construct(std::forward<Args>(args)...);
@@ -901,18 +903,18 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   /// @return The stored value if there is one, otherwise `u`.
   template <class U>
   constexpr T value_or(U &&u) const & {
-    static_assert(std::is_copy_constructible<T>::value &&
-                      std::is_convertible<U &&, T>::value,
-                  "T must be copy constructible and convertible from U");
+    static_assert(
+        std::is_copy_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be copy constructible and convertible from U");
     return has_value() ? **this : static_cast<T>(std::forward<U>(u));
   }
 
   /// @return The stored value if there is one, otherwise `u`.
   template <class U>
   constexpr T value_or(U &&u) && {
-    static_assert(std::is_move_constructible<T>::value &&
-                      std::is_convertible<U &&, T>::value,
-                  "T must be move constructible and convertible from U");
+    static_assert(
+        std::is_move_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be move constructible and convertible from U");
     return has_value() ? **this : static_cast<T>(std::forward<U>(u));
   }
 
@@ -931,8 +933,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
 /// relational operators. Otherwise `lhs` and `rhs` are equal only if they are
 /// both empty.
 template <class T, class U>
-inline constexpr bool operator==(const optional<T> &lhs,
-                                 const optional<U> &rhs) {
+constexpr bool operator==(const optional<T> &lhs, const optional<U> &rhs) {
   return lhs.has_value() == rhs.has_value() &&
          (!lhs.has_value() || *lhs == *rhs);
 }
@@ -943,8 +944,7 @@ inline constexpr bool operator==(const optional<T> &lhs,
 /// relational operators. Otherwise `lhs` and `rhs` are equal only if they are
 /// both empty.
 template <class T, class U>
-inline constexpr bool operator!=(const optional<T> &lhs,
-                                 const optional<U> &rhs) {
+constexpr bool operator!=(const optional<T> &lhs, const optional<U> &rhs) {
   return lhs.has_value() != rhs.has_value() ||
          (lhs.has_value() && *lhs != *rhs);
 }
@@ -955,8 +955,7 @@ inline constexpr bool operator!=(const optional<T> &lhs,
 /// relational operators. Otherwise `lhs` is less than `rhs` only if `rhs` is
 /// empty and `lhs` is not.
 template <class T, class U>
-inline constexpr bool operator<(const optional<T> &lhs,
-                                const optional<U> &rhs) {
+constexpr bool operator<(const optional<T> &lhs, const optional<U> &rhs) {
   return rhs.has_value() && (!lhs.has_value() || *lhs < *rhs);
 }
 
@@ -966,8 +965,7 @@ inline constexpr bool operator<(const optional<T> &lhs,
 /// relational operators. Otherwise `lhs` is less than `rhs` only if `rhs` is
 /// empty and `lhs` is not.
 template <class T, class U>
-inline constexpr bool operator>(const optional<T> &lhs,
-                                const optional<U> &rhs) {
+constexpr bool operator>(const optional<T> &lhs, const optional<U> &rhs) {
   return lhs.has_value() && (!rhs.has_value() || *lhs > *rhs);
 }
 
@@ -977,8 +975,7 @@ inline constexpr bool operator>(const optional<T> &lhs,
 /// relational operators. Otherwise `lhs` is less than `rhs` only if `rhs` is
 /// empty and `lhs` is not.
 template <class T, class U>
-inline constexpr bool operator<=(const optional<T> &lhs,
-                                 const optional<U> &rhs) {
+constexpr bool operator<=(const optional<T> &lhs, const optional<U> &rhs) {
   return !lhs.has_value() || (rhs.has_value() && *lhs <= *rhs);
 }
 
@@ -988,8 +985,7 @@ inline constexpr bool operator<=(const optional<T> &lhs,
 /// relational operators. Otherwise `lhs` is less than `rhs` only if `rhs` is
 /// empty and `lhs` is not.
 template <class T, class U>
-inline constexpr bool operator>=(const optional<T> &lhs,
-                                 const optional<U> &rhs) {
+constexpr bool operator>=(const optional<T> &lhs, const optional<U> &rhs) {
   return !rhs.has_value() || (lhs.has_value() && *lhs >= *rhs);
 }
 
@@ -997,7 +993,7 @@ inline constexpr bool operator>=(const optional<T> &lhs,
 ///
 /// @return The optional is equal to `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator==(const optional<T> &lhs, nullopt_t) {
+constexpr bool operator==(const optional<T> &lhs, nullopt_t) {
   return !lhs.has_value();
 }
 
@@ -1005,7 +1001,7 @@ inline constexpr bool operator==(const optional<T> &lhs, nullopt_t) {
 ///
 /// @return The optional is equal to `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator==(nullopt_t, const optional<T> &rhs) {
+constexpr bool operator==(nullopt_t, const optional<T> &rhs) {
   return !rhs.has_value();
 }
 
@@ -1013,7 +1009,7 @@ inline constexpr bool operator==(nullopt_t, const optional<T> &rhs) {
 ///
 /// @return The optional is equal to `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator!=(const optional<T> &lhs, nullopt_t) {
+constexpr bool operator!=(const optional<T> &lhs, nullopt_t) {
   return lhs.has_value();
 }
 
@@ -1021,7 +1017,7 @@ inline constexpr bool operator!=(const optional<T> &lhs, nullopt_t) {
 ///
 /// @return The optional is equal to `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator!=(nullopt_t, const optional<T> &rhs) {
+constexpr bool operator!=(nullopt_t, const optional<T> &rhs) {
   return rhs.has_value();
 }
 
@@ -1029,7 +1025,7 @@ inline constexpr bool operator!=(nullopt_t, const optional<T> &rhs) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator<(const optional<T> &, nullopt_t) {
+constexpr bool operator<(const optional<T> &, nullopt_t) {
   return false;
 }
 
@@ -1037,7 +1033,7 @@ inline constexpr bool operator<(const optional<T> &, nullopt_t) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator<(nullopt_t, const optional<T> &rhs) {
+constexpr bool operator<(nullopt_t, const optional<T> &rhs) {
   return rhs.has_value();
 }
 
@@ -1045,7 +1041,7 @@ inline constexpr bool operator<(nullopt_t, const optional<T> &rhs) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator<=(const optional<T> &lhs, nullopt_t) {
+constexpr bool operator<=(const optional<T> &lhs, nullopt_t) {
   return !lhs.has_value();
 }
 
@@ -1053,7 +1049,7 @@ inline constexpr bool operator<=(const optional<T> &lhs, nullopt_t) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator<=(nullopt_t, const optional<T> &) {
+constexpr bool operator<=(nullopt_t, const optional<T> &) {
   return true;
 }
 
@@ -1061,7 +1057,7 @@ inline constexpr bool operator<=(nullopt_t, const optional<T> &) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator>(const optional<T> &lhs, nullopt_t) {
+constexpr bool operator>(const optional<T> &lhs, nullopt_t) {
   return lhs.has_value();
 }
 
@@ -1069,7 +1065,7 @@ inline constexpr bool operator>(const optional<T> &lhs, nullopt_t) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator>(nullopt_t, const optional<T> &) {
+constexpr bool operator>(nullopt_t, const optional<T> &) {
   return false;
 }
 
@@ -1077,7 +1073,7 @@ inline constexpr bool operator>(nullopt_t, const optional<T> &) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator>=(const optional<T> &, nullopt_t) {
+constexpr bool operator>=(const optional<T> &, nullopt_t) {
   return true;
 }
 
@@ -1085,7 +1081,7 @@ inline constexpr bool operator>=(const optional<T> &, nullopt_t) {
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
 template <class T>
-inline constexpr bool operator>=(nullopt_t, const optional<T> &rhs) {
+constexpr bool operator>=(nullopt_t, const optional<T> &rhs) {
   return !rhs.has_value();
 }
 
@@ -1095,7 +1091,7 @@ inline constexpr bool operator>=(nullopt_t, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// not equal to the value.
 template <class T, class U>
-inline constexpr bool operator==(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator==(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs == rhs : false;
 }
 
@@ -1105,7 +1101,7 @@ inline constexpr bool operator==(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// not equal to the value.
 template <class T, class U>
-inline constexpr bool operator==(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator==(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs == *rhs : false;
 }
 
@@ -1115,7 +1111,7 @@ inline constexpr bool operator==(const U &lhs, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// not equal to the value.
 template <class T, class U>
-inline constexpr bool operator!=(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator!=(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs != rhs : true;
 }
 
@@ -1125,7 +1121,7 @@ inline constexpr bool operator!=(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// not equal to the value.
 template <class T, class U>
-inline constexpr bool operator!=(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator!=(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs != *rhs : true;
 }
 
@@ -1135,7 +1131,7 @@ inline constexpr bool operator!=(const U &lhs, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator<(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator<(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs < rhs : true;
 }
 
@@ -1145,7 +1141,7 @@ inline constexpr bool operator<(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator<(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator<(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs < *rhs : false;
 }
 
@@ -1155,7 +1151,7 @@ inline constexpr bool operator<(const U &lhs, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator<=(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator<=(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs <= rhs : true;
 }
 
@@ -1165,7 +1161,7 @@ inline constexpr bool operator<=(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator<=(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator<=(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs <= *rhs : false;
 }
 
@@ -1175,7 +1171,7 @@ inline constexpr bool operator<=(const U &lhs, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator>(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator>(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs > rhs : false;
 }
 
@@ -1185,7 +1181,7 @@ inline constexpr bool operator>(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator>(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator>(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs > *rhs : true;
 }
 
@@ -1195,7 +1191,7 @@ inline constexpr bool operator>(const U &lhs, const optional<T> &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator>=(const optional<T> &lhs, const U &rhs) {
+constexpr bool operator>=(const optional<T> &lhs, const U &rhs) {
   return lhs.has_value() ? *lhs >= rhs : false;
 }
 
@@ -1205,7 +1201,7 @@ inline constexpr bool operator>=(const optional<T> &lhs, const U &rhs) {
 /// using `T`s relational operators. Otherwise, the optional is considered
 /// less than the value.
 template <class T, class U>
-inline constexpr bool operator>=(const U &lhs, const optional<T> &rhs) {
+constexpr bool operator>=(const U &lhs, const optional<T> &rhs) {
   return rhs.has_value() ? lhs >= *rhs : true;
 }
 
@@ -1220,20 +1216,20 @@ void swap(optional<T> &lhs, optional<T> &rhs) {
 
 /// @brief Creates an optional from `v`.
 template <class T>
-inline constexpr optional<std::decay_t<T>> make_optional(T &&v) {
+constexpr optional<std::decay_t<T>> make_optional(T &&v) {
   return optional<std::decay_t<T>>(std::forward<T>(v));
 }
 
 /// @brief Creates an optional from `args`.
 template <class T, class... Args>
-inline constexpr optional<T> make_optional(Args &&...args) {
+constexpr optional<T> make_optional(Args &&...args) {
   return optional<T>(in_place, std::forward<Args>(args)...);
 }
 
 /// @brief Creates an optional from `il` and `args`.
 template <class T, class U, class... Args>
-inline constexpr optional<T> make_optional(std::initializer_list<U> il,
-                                           Args &&...args) {
+constexpr optional<T> make_optional(std::initializer_list<U> il,
+                                    Args &&...args) {
   return optional<T>(in_place, il, std::forward<Args>(args)...);
 }
 
@@ -1243,9 +1239,11 @@ optional(T) -> optional<T>;
 /// @}
 
 namespace detail {
+// NOLINTBEGIN(modernize-type-traits)
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
           std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
+// NOLINTEND(modernize-type-traits)
 constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
   return opt.has_value() ? invoke(std::forward<F>(f), *std::forward<Opt>(opt))
                          : optional<Ret>(nullopt);

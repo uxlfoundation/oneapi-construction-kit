@@ -122,11 +122,11 @@ size_t libimg::HostGetImageOriginOffset(const cl_image_format &format,
       return row_position;
     case CL_MEM_OBJECT_IMAGE1D_ARRAY:
     case CL_MEM_OBJECT_IMAGE2D:
-      return row_position + desc.image_row_pitch * origin[1];
+      return row_position + (desc.image_row_pitch * origin[1]);
     case CL_MEM_OBJECT_IMAGE2D_ARRAY:
     case CL_MEM_OBJECT_IMAGE3D:
-      return row_position + desc.image_row_pitch * origin[1] +
-             desc.image_slice_pitch * origin[2];
+      return row_position + (desc.image_row_pitch * origin[1]) +
+             (desc.image_slice_pitch * origin[2]);
     default:
       IMG_UNREACHABLE("Not an image mem object type!");
       return 0;
@@ -563,16 +563,16 @@ void libimg::HostReadImage(const HostImage *image, const size_t origin[3],
                            const size_t dst_slice_pitch, uint8_t *dst) {
   const ImageMetaData &desc = image->image.meta_data;
 
-  const uint8_t *src = image->image.raw_data + origin[0] * desc.pixel_size;
+  const uint8_t *src = image->image.raw_data + (origin[0] * desc.pixel_size);
 
   const size_t row_size = region[0] * desc.pixel_size;
 
   for (size_t z = 0; z < region[2]; ++z) {
-    const uint8_t *src_slice = src + (z + origin[2]) * desc.slice_pitch;
-    uint8_t *dst_slice = dst + z * dst_slice_pitch;
+    const uint8_t *src_slice = src + ((z + origin[2]) * desc.slice_pitch);
+    uint8_t *dst_slice = dst + (z * dst_slice_pitch);
     for (size_t y = 0; y < region[1]; ++y) {
-      const uint8_t *src_row = src_slice + (y + origin[1]) * desc.row_pitch;
-      uint8_t *dst_row = dst_slice + y * dst_row_pitch;
+      const uint8_t *src_row = src_slice + ((y + origin[1]) * desc.row_pitch);
+      uint8_t *dst_row = dst_slice + (y * dst_row_pitch);
       std::memmove(dst_row, src_row, row_size);
     }
   }
@@ -583,22 +583,23 @@ void libimg::HostWriteImage(HostImage *image, const size_t origin[3],
                             const size_t src_slice_pitch, const uint8_t *src) {
   const ImageMetaData &desc = image->image.meta_data;
 
-  uint8_t *dst = image->image.raw_data + origin[0] * desc.pixel_size;
+  uint8_t *dst = image->image.raw_data + (origin[0] * desc.pixel_size);
 
   const size_t row_size = region[0] * desc.pixel_size;
 
   for (size_t z = 0; z < region[2]; ++z) {
-    const uint8_t *src_slice = src + z * src_slice_pitch;
-    uint8_t *dst_slice = dst + (z + origin[2]) * desc.slice_pitch;
+    const uint8_t *src_slice = src + (z * src_slice_pitch);
+    uint8_t *dst_slice = dst + ((z + origin[2]) * desc.slice_pitch);
     for (size_t y = 0; y < region[1]; ++y) {
-      const uint8_t *src_row = src_slice + y * src_row_pitch;
-      uint8_t *dst_row = dst_slice + (y + origin[1]) * desc.row_pitch;
+      const uint8_t *src_row = src_slice + (y * src_row_pitch);
+      uint8_t *dst_row = dst_slice + ((y + origin[1]) * desc.row_pitch);
       std::memmove(dst_row, src_row, row_size);
     }
   }
 }
 
-libimg::UInt4 ShuffleOrder(const libimg::UInt order, const libimg::UInt4 &in) {
+static libimg::UInt4 ShuffleOrder(const libimg::UInt order,
+                                  const libimg::UInt4 &in) {
   switch (order)
   case CL_A: {
     return libimg::make<libimg::UInt4>(in[3], 0u, 0u, 0u);
@@ -707,15 +708,15 @@ void libimg::HostFillImage(HostImage *image, const void *fill_color,
     }
   }
 
-  uint8_t *dst = image->image.raw_data + origin[0] * desc.pixel_size +
-                 origin[1] * desc.row_pitch + origin[2] * desc.slice_pitch;
+  uint8_t *dst = image->image.raw_data + (origin[0] * desc.pixel_size) +
+                 (origin[1] * desc.row_pitch) + (origin[2] * desc.slice_pitch);
 
   for (size_t z = 0; z < region[2]; ++z) {
-    uint8_t *dst_slice = dst + z * desc.slice_pitch;
+    uint8_t *dst_slice = dst + (z * desc.slice_pitch);
     for (size_t y = 0; y < region[1]; ++y) {
-      uint8_t *dst_row = dst_slice + y * desc.row_pitch;
+      uint8_t *dst_row = dst_slice + (y * desc.row_pitch);
       for (size_t x = 0; x < region[0]; ++x) {
-        uint8_t *dst_pixel = dst_row + x * desc.pixel_size;
+        uint8_t *dst_pixel = dst_row + (x * desc.pixel_size);
         std::memcpy(dst_pixel, final_color, desc.pixel_size);
       }
     }
@@ -729,9 +730,9 @@ void libimg::HostCopyImage(const HostImage *src_image, HostImage *dst_image,
   const ImageMetaData &dst_desc = dst_image->image.meta_data;
 
   const uint8_t *const src =
-      src_image->image.raw_data + src_origin[0] * src_desc.pixel_size;
+      src_image->image.raw_data + (src_origin[0] * src_desc.pixel_size);
   uint8_t *const dst =
-      dst_image->image.raw_data + dst_origin[0] * dst_desc.pixel_size;
+      dst_image->image.raw_data + (dst_origin[0] * dst_desc.pixel_size);
 
   const size_t z_max = region[2];
   const size_t y_max = region[1];
@@ -739,12 +740,13 @@ void libimg::HostCopyImage(const HostImage *src_image, HostImage *dst_image,
 
   for (size_t z = 0; z < z_max; z++) {
     const uint8_t *const src_slice =
-        src + (z + src_origin[2]) * src_desc.slice_pitch;
-    uint8_t *const dst_slice = dst + (z + dst_origin[2]) * dst_desc.slice_pitch;
+        src + ((z + src_origin[2]) * src_desc.slice_pitch);
+    uint8_t *const dst_slice =
+        dst + ((z + dst_origin[2]) * dst_desc.slice_pitch);
     for (size_t y = 0; y < y_max; y++) {
       const uint8_t *const src_row =
-          src_slice + (y + src_origin[1]) * src_desc.row_pitch;
-      uint8_t *dst_row = dst_slice + (y + dst_origin[1]) * dst_desc.row_pitch;
+          src_slice + ((y + src_origin[1]) * src_desc.row_pitch);
+      uint8_t *dst_row = dst_slice + ((y + dst_origin[1]) * dst_desc.row_pitch);
       std::memmove(dst_row, src_row, x_size);
     }
   }
@@ -757,8 +759,8 @@ void libimg::HostCopyImageToBuffer(const HostImage *src_image, void *dst_buffer,
   const ImageMetaData &desc = src_image->image.meta_data;
 
   const uint8_t *const src =
-      src_image->image.raw_data + desc.pixel_size * src_origin[0] +
-      src_origin[1] * desc.row_pitch + src_origin[2] * desc.slice_pitch;
+      src_image->image.raw_data + (desc.pixel_size * src_origin[0]) +
+      (src_origin[1] * desc.row_pitch) + (src_origin[2] * desc.slice_pitch);
   uint8_t *const dst = static_cast<uint8_t *>(dst_buffer) + dst_offset;
 
   const size_t z_max = region[2];
@@ -767,7 +769,7 @@ void libimg::HostCopyImageToBuffer(const HostImage *src_image, void *dst_buffer,
 
   uint8_t *dst_row = dst;
   for (size_t z = 0; z < z_max; z++) {
-    const uint8_t *src_row = src + desc.slice_pitch * z;
+    const uint8_t *src_row = src + (desc.slice_pitch * z);
     for (size_t y = 0; y < y_max; y++) {
       std::memmove(dst_row, src_row, x_size);
       dst_row += x_size;

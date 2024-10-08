@@ -168,7 +168,7 @@ TEST_F(clFlushTest, ConcurrentFlushFinish) {
 // threads at once. This is very similar to clSetEventCallback.EnqueueCallback
 // but it also calls clFlush within the callback as these were two separate
 // deadlocks.
-void CL_CALLBACK EnqueueFlushCallback(cl_event, cl_int, void *s) {
+static void CL_CALLBACK EnqueueFlushCallback(cl_event, cl_int, void *s) {
   auto state = static_cast<std::pair<cl_command_queue, cl_kernel> *>(s);
   const size_t range = 1;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(state->first, state->second, 1, nullptr,

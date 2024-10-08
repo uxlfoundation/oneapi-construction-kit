@@ -78,11 +78,9 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
   };
 
   static std::string getGroupBuiltinBaseName(GroupCollective::ScopeKind Scope) {
-    return std::string(Scope == GroupCollective::ScopeKind::SubGroup ? "sub"
-                       : Scope == GroupCollective::ScopeKind::VectorGroup
-                           ? "vec"
-                           : "work") +
-           "_group_";
+    if (Scope == GroupCollective::ScopeKind::SubGroup) return "sub_group_";
+    if (Scope == GroupCollective::ScopeKind::VectorGroup) return "vec_group_";
+    return "work_group_";
   }
 
   std::vector<GroupOp> getGroupBroadcasts(GroupCollective::ScopeKind Scope) {
@@ -367,8 +365,11 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
     for (const auto &Op : GroupOps) {
       BuiltinDecls.push_back("declare " + Op.getLLVMFnString());
 
-      const StringRef ParamName =
-          Op.LLVMTy == "float" ? "%f" : (Op.LLVMTy == "i32" ? "%i" : "<err>");
+      const StringRef ParamName = [&]() -> StringRef {
+        if (Op.LLVMTy == "float") return "%f";
+        if (Op.LLVMTy == "i32") return "%i";
+        return "<err>";
+      }();
       BuiltinCalls.push_back("%call" + std::to_string(Idx) + " = call " +
                              Op.getLLVMFnString(ParamName));
       ++Idx;

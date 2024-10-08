@@ -601,7 +601,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildDefines) {
       clBuildProgram(program, 0, nullptr, define.c_str(), nullptr, nullptr);
       cl_mem buf = clCreateBuffer(ctx, 0, sizeof(cl_int), nullptr, nullptr);
       cl_kernel kernel = clCreateKernel(program, "k", nullptr);
-      clSetKernelArg(kernel, 0, sizeof(cl_mem), &buf);
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&buf));
       clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &range, nullptr, 0,
                              nullptr, nullptr);
       cl_int result = -1;
@@ -751,7 +751,7 @@ TEST_F(clEnqueueNDRangeKernelTest, NoDeadlockDueToInternalEventCaching) {
   // of a command group itself waiting on the earlier command group's signal.
   ASSERT_EQ(CL_SUCCESS,
             clSetEventCallback(event, CL_COMPLETE, possible_deadlock_callback,
-                               &callback_wait_event));
+                               static_cast<void *>(&callback_wait_event)));
   event = nullptr;
 
   // Fourth command and member of the third command group.
@@ -1447,7 +1447,8 @@ struct NDRangeValue {
   }
 };
 
-std::ostream &operator<<(std::ostream &out, const NDRangeValue &nd_range) {
+static std::ostream &operator<<(std::ostream &out,
+                                const NDRangeValue &nd_range) {
   out << "NDRangeValue{";
   out << ".work dimensions{" << nd_range.work_dim << "}";
   out << ".global work offset{";
@@ -1999,8 +2000,10 @@ struct clEnqueueNDRangeImageTest
                               nullptr, &error);
     ASSERT_SUCCESS(error);
     ASSERT_NE(nullptr, dst_image);
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_image), &src_image));
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_image), &dst_image));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_image),
+                                  static_cast<void *>(&src_image)));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_image),
+                                  static_cast<void *>(&dst_image)));
   }
 
   void TearDown() override {
@@ -2252,8 +2255,8 @@ class LinearIDTest
     EXPECT_TRUE(output_buffer);
     ASSERT_SUCCESS(error_code);
 
-    ASSERT_SUCCESS(
-        clSetKernelArg(kernel, 0, sizeof(output_buffer), &output_buffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(output_buffer),
+                                  static_cast<void *>(&output_buffer)));
 
     ASSERT_SUCCESS(clEnqueueNDRangeKernel(
         command_queue, kernel, work_dim, global_work_offset.data(),
@@ -2391,8 +2394,8 @@ TEST_F(GetEnqueuedLocalSizeTest, Uniform1D) {
                                  nullptr, &error_code);
   EXPECT_TRUE(output_buffer);
   ASSERT_SUCCESS(error_code);
-  ASSERT_SUCCESS(
-      clSetKernelArg(kernel, 0, sizeof(output_buffer), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(output_buffer),
+                                static_cast<void *>(&output_buffer)));
 
   cl_event kernel_event;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(
@@ -2438,8 +2441,8 @@ TEST_F(GetEnqueuedLocalSizeTest, Uniform2D) {
                                  nullptr, &error_code);
   EXPECT_TRUE(output_buffer);
   ASSERT_SUCCESS(error_code);
-  ASSERT_SUCCESS(
-      clSetKernelArg(kernel, 0, sizeof(output_buffer), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(output_buffer),
+                                static_cast<void *>(&output_buffer)));
 
   cl_event kernel_event;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(
@@ -2487,8 +2490,8 @@ TEST_F(GetEnqueuedLocalSizeTest, Uniform3D) {
   EXPECT_TRUE(output_buffer);
   ASSERT_SUCCESS(error_code);
 
-  ASSERT_SUCCESS(
-      clSetKernelArg(kernel, 0, sizeof(output_buffer), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(output_buffer),
+                                static_cast<void *>(&output_buffer)));
 
   cl_event kernel_event;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(

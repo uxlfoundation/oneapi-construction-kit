@@ -640,7 +640,7 @@ void compiler::utils::AlignModuleStructsPass::fixupStructReferences() {
   // Iterate over all the structs in our map
   for (auto &mapItr : originalStructMap) {
     // Get the padding struct type and iterate over members
-    const ReplacementStructSP paddedStructDetails = mapItr.getSecond();
+    const ReplacementStructSP &paddedStructDetails = mapItr.getSecond();
     if (!paddedStructDetails) {
       continue;
     }

@@ -66,9 +66,12 @@ int main(const int argc, const char **argv) {
   /* Create kernel and set arguments */
   cl_kernel kernel = clCreateKernel(program, "vector_addition", &errcode);
   IS_CL_SUCCESS(errcode);
-  IS_CL_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src1_buffer), &src1_buffer));
-  IS_CL_SUCCESS(clSetKernelArg(kernel, 1, sizeof(src2_buffer), &src2_buffer));
-  IS_CL_SUCCESS(clSetKernelArg(kernel, 2, sizeof(dst_buffer), &dst_buffer));
+  IS_CL_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(src1_buffer), (void *)&src1_buffer));
+  IS_CL_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(src2_buffer), (void *)&src2_buffer));
+  IS_CL_SUCCESS(
+      clSetKernelArg(kernel, 2, sizeof(dst_buffer), (void *)&dst_buffer));
   printf(" * Created kernel and set arguments\n");
 
   /* Create command queue */

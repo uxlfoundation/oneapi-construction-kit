@@ -178,7 +178,7 @@ TEST_P(Execution, Regression_80_Varying_Load) {
                       int sum = n;
                       if (meta == 0) {
                         int mul = n * id;
-                        const int div = mul / n + id;
+                        const int div = (mul / n) + id;
                         const int shl = div << 3;
                         mul += shl;
                         sum = mul << 3;
@@ -206,7 +206,7 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops1) {
                     if (id % 2 == 0) {
                       const bool cmp = n == 5;
                       const int mul = n * id;
-                      const int div = mul / n + id;
+                      const int div = (mul / n) + id;
                       const int shl = div << 3;
                       const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
@@ -252,7 +252,7 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops2) {
                     int ret = 0;
                     if (id < 16) {
                       const int mul = n * id;
-                      const int div = mul / n + id;
+                      const int div = (mul / n) + id;
                       const int shl = div << 3;
                       const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
@@ -287,7 +287,7 @@ TEST_P(Execution, Regression_81_Boscc_Nested_Loops3) {
                     if (id < n) {
                       for (size_t i = 0; i < n; ++i) {
                         const int mul = n * id;
-                        const int div = mul / n + id;
+                        const int div = (mul / n) + id;
                         const int shl = div << 3;
                         size_t x = mul + div + shl + i;
                         for (; i < n; ++i) {
@@ -354,7 +354,7 @@ TEST_P(Execution, Regression_83_Vecz_Lcssa) {
                     int ret = 0;
                     if (id % 2 == 0) {
                       const int mul = n * id;
-                      const int div = mul / n + id;
+                      const int div = (mul / n) + id;
                       const int shl = div << 3;
                       const int x = mul + div + shl;
                       for (int i = 0; i < n; ++i) {
@@ -611,9 +611,8 @@ TEST_P(Execution, Regression_93_Ashr_Index_Underflow_1) {
   const cl_uint global = kts::N;
   const cl_uint read_local = 16;
 
-  auto refIn = kts::Reference1D<cl_int2>([=](size_t id) {
-    return cl_int2{{kts::Ref_A(id), 0}};
-  });
+  auto refIn = kts::Reference1D<cl_int2>(
+      [=](size_t id) { return cl_int2{{kts::Ref_A(id), 0}}; });
 
   auto refOut =
       kts::Reference1D<cl_int>([=](size_t id) { return refIn(id >> 1).x; });
@@ -628,9 +627,8 @@ TEST_P(Execution, Regression_93_Ashr_Index_Underflow_2) {
   const cl_uint global = kts::N / 2;
   const cl_uint read_local = 16;
 
-  auto refIn = kts::Reference1D<cl_int2>([=](size_t id) {
-    return cl_int2{{kts::Ref_A(id), 0}};
-  });
+  auto refIn = kts::Reference1D<cl_int2>(
+      [=](size_t id) { return cl_int2{{kts::Ref_A(id), 0}}; });
 
   auto refOut = kts::Reference1D<cl_int>(
       [=](size_t id) { return refIn((id * 3) >> 1).x; });

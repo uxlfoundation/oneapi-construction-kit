@@ -821,26 +821,26 @@ struct FPBits;
 // The number of bits in each component of an IEEE754 16-bit float.
 template <>
 struct FPBits<ushort> {
-  const static uint Mantissa = 10;
-  const static uint Exponent = 5;
-  const static uint Sign = 1;
+  static const uint Mantissa = 10;
+  static const uint Exponent = 5;
+  static const uint Sign = 1;
 };
 
 // The number of bits in each component of an IEEE754 32-bit float.
 template <>
 struct FPBits<float> {
-  const static uint Mantissa = 23;
-  const static uint Exponent = 8;
-  const static uint Sign = 1;
+  static const uint Mantissa = 23;
+  static const uint Exponent = 8;
+  static const uint Sign = 1;
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 // The number of bits in each component of an IEEE754 64-bit float.
 template <>
 struct FPBits<double> {
-  const static uint Mantissa = 52;
-  const static uint Exponent = 11;
-  const static uint Sign = 1;
+  static const uint Mantissa = 52;
+  static const uint Exponent = 11;
+  static const uint Sign = 1;
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
@@ -871,7 +871,7 @@ struct Shape {
   };
 
   // The size of this type.
-  const static uint NumBits = Bits::Mantissa + Bits::Exponent + Bits::Sign;
+  static const uint NumBits = Bits::Mantissa + Bits::Exponent + Bits::Sign;
   static_assert(NumBits == (sizeof(T) * CHAR_BIT),
                 "Unknown floating point bitwidth used");
 
@@ -880,12 +880,12 @@ struct Shape {
   // defined by the IEEE754 specification, but are 2^(BitsInExponent-1) - 1,
   // i.e. pre-bias 0 is in the middle of the range.
   // Spec values are half: 15, float: 127, double: 1023.
-  const static uint Bias = (1u << (Bits::Exponent - 1u)) - 1u;
+  static const uint Bias = (1u << (Bits::Exponent - 1u)) - 1u;
 
   // Setting a single bit, or all the exponent or mantissa bits to all 1's.
-  const static UnsignedType ONE = 1u;
-  const static UnsignedType ExponentOnes = (ONE << Bits::Exponent) - ONE;
-  const static UnsignedType MantissaOnes = (ONE << Bits::Mantissa) - ONE;
+  static const UnsignedType ONE = 1u;
+  static const UnsignedType ExponentOnes = (ONE << Bits::Exponent) - ONE;
+  static const UnsignedType MantissaOnes = (ONE << Bits::Mantissa) - ONE;
 
   // If both exponent and mantissa is zero then this number is a zero.
   static inline bool Zero(Float x) {

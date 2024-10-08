@@ -64,10 +64,10 @@ struct CreateData {
                         &status);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
 
-    ASSERT_EQ_ERRCODE(CL_SUCCESS,
-                      clSetKernelArg(kernel, 0, sizeof(cl_mem), &out));
-    ASSERT_EQ_ERRCODE(CL_SUCCESS,
-                      clSetKernelArg(kernel, 1, sizeof(cl_mem), &in));
+    ASSERT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                                 static_cast<void *>(&out)));
+    ASSERT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                                 static_cast<void *>(&in)));
 
     queue = clCreateCommandQueue(context, device, 0, &status);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
@@ -83,7 +83,7 @@ struct CreateData {
   }
 };
 
-void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
+static void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
   const CreateData cd;
 
   for (auto _ : state) {
@@ -101,7 +101,7 @@ void SingleThreadOneQueueNoDependencies(benchmark::State &state) {
 }
 BENCHMARK(SingleThreadOneQueueNoDependencies)->Arg(1)->Arg(256)->Arg(1024);
 
-void SingleThreadOneQueue(benchmark::State &state) {
+static void SingleThreadOneQueue(benchmark::State &state) {
   const CreateData cd;
 
   for (auto _ : state) {
@@ -126,7 +126,7 @@ void SingleThreadOneQueue(benchmark::State &state) {
 }
 BENCHMARK(SingleThreadOneQueue)->Arg(1)->Arg(256)->Arg(1024);
 
-void MultiThreadOneQueueNoDependencies(benchmark::State &state) {
+static void MultiThreadOneQueueNoDependencies(benchmark::State &state) {
   const CreateData cd;
 
   for (auto _ : state) {
@@ -148,7 +148,7 @@ BENCHMARK(MultiThreadOneQueueNoDependencies)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadOneQueue(benchmark::State &state) {
+static void MultiThreadOneQueue(benchmark::State &state) {
   const CreateData cd;
 
   for (auto _ : state) {
@@ -177,7 +177,7 @@ BENCHMARK(MultiThreadOneQueue)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
+static void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
   const CreateData cd;
 
   cl_command_queue queue;
@@ -211,7 +211,7 @@ BENCHMARK(MultiThreadMultiQueueNoDependencies)
     ->Arg(1024)
     ->Threads(std::thread::hardware_concurrency());
 
-void MultiThreadMultiQueue(benchmark::State &state) {
+static void MultiThreadMultiQueue(benchmark::State &state) {
   const CreateData cd;
 
   cl_command_queue queue;

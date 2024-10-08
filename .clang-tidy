@@ -194,6 +194,7 @@ Checks: "bugprone-*,\
          -cert-err34-c,\
          -cert-err58-cpp,\
          -cert-flp30-c,\
+         -cert-int09-c,\
          -cert-msc30-c,\
          -cert-msc32-c,\
          -cert-msc50-cpp,\
@@ -207,6 +208,7 @@ Checks: "bugprone-*,\
          clang-analyzer-*,\
          -clang-analyzer-cplusplus.NewDelete,\
          -clang-analyzer-cplusplus.NewDeleteLeaks,\
+         -clang-analyzer-optin.core.EnumCastOutOfRange,\
          -clang-analyzer-optin.performance.Padding,\
          -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,\
          *googletest*,\
@@ -280,6 +282,7 @@ Checks: "bugprone-*,\
          -modernize-use-trailing-return-type,\
          -modernize-use-using,\
          performance-*,\
+         -performance-enum-size,\
          -performance-move-const-arg,\
          -performance-move-constructor-init,\
          -performance-noexcept-move-constructor,\
@@ -293,6 +296,7 @@ Checks: "bugprone-*,\
          -readability-convert-member-functions-to-static,
          -readability-delete-null-pointer,\
          -readability-else-after-return,\
+         -readability-enum-initial-value,\
          -readability-function-cognitive-complexity,\
          -readability-function-size,\
          -readability-implicit-bool-conversion,\
@@ -327,9 +331,10 @@ ExtraArgs: [
 ]
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
-AnalyzeTemporaryDtors: false
 FormatStyle:     'file'
 CheckOptions:
+  - key:             bugprone-unused-return-value.AllowCastToVoid
+    value:           true
   - key:             readability-braces-around-statements.ShortStatementLines
     value:           '1'
   - key:             hicpp-braces-around-statements.ShortStatementLines

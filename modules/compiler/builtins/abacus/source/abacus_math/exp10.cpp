@@ -96,7 +96,7 @@ struct helper<T, abacus_float> {
 
     // 0.5f is just to force k into the range [-0.5f, 0.5f]
     const SignedType k =
-        (abacus::internal::floor_unsafe(x * log10_2rcp + 0.5f));
+        (abacus::internal::floor_unsafe((x * log10_2rcp) + 0.5f));
     const T kf = abacus::detail::cast::convert<T>(k);
     const T r = (x - (kf * codyWaite1)) - (kf * codyWaite2);
 

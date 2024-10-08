@@ -31,11 +31,11 @@
 #include <unordered_set>
 #include <vector>
 
-int outputSpecConstants(spirv_ll::Context &spvContext,
-                        llvm::ArrayRef<uint32_t> spvCode,
-                        llvm::raw_os_ostream &out);
+static int outputSpecConstants(spirv_ll::Context &spvContext,
+                               llvm::ArrayRef<uint32_t> spvCode,
+                               llvm::raw_os_ostream &out);
 
-llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
+static llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
     cargo::string_view api, cargo::array_view<cargo::string_view> capabilities,
     cargo::array_view<cargo::string_view> extensions, cargo::string_view bits,
     bool enableAll);

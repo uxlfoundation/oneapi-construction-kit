@@ -28,23 +28,8 @@ class clGetSupportedImageFormatsTest : public ucl::ContextTest {
   }
 };
 
-cl_int getImageFormatsHelper(cl_context context, cl_mem_flags flags,
-                             cl_mem_object_type type,
-                             UCL::vector<cl_image_format> &formats) {
-  cl_uint numEntries = 0;
-  cl_int error =
-      clGetSupportedImageFormats(context, flags, type, 0, nullptr, &numEntries);
-  if (error) {
-    return error;
-  }
-  formats.resize(numEntries);
-  error = clGetSupportedImageFormats(context, flags, type, numEntries,
-                                     formats.data(), nullptr);
-  return error;
-}
-
-void printImageFormats(cl_mem_object_type type,
-                       UCL::vector<cl_image_format> &formats) {
+static void printImageFormats(cl_mem_object_type type,
+                              UCL::vector<cl_image_format> &formats) {
 #define CASE(TYPE)           \
   case TYPE:                 \
     (void)printf(#TYPE " "); \

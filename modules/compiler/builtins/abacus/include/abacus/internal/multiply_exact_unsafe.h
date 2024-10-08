@@ -60,9 +60,9 @@ inline T multiply_exact_unsafe(const T x, const T y, T *out_remainder) {
   const T y_lo = y - y_hi;
 
   const T r1 = x * y;
-  const T t1 = -r1 + x_hi * y_hi;
-  const T t2 = t1 + x_hi * y_lo;
-  const T t3 = t2 + x_lo * y_hi;
+  const T t1 = -r1 + (x_hi * y_hi);
+  const T t2 = t1 + (x_hi * y_lo);
+  const T t3 = t2 + (x_lo * y_hi);
 
   *out_remainder = t3 + x_lo * y_lo;
   return r1;

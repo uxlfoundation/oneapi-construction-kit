@@ -16,6 +16,7 @@
 
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
+#include <abacus/abacus_math.h>
 
 namespace {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>

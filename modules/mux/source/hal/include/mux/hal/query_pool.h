@@ -68,7 +68,7 @@ struct query_pool : mux_query_pool_s {
     // sizeof(query_pool_s) has no remainder when divided by it.
     const size_t query_data_offset =
         sizeof(query_pool) + sizeof(mux_query_duration_result_s) -
-        sizeof(query_pool) % sizeof(mux_query_duration_result_s);
+        (sizeof(query_pool) % sizeof(mux_query_duration_result_s));
     // Calculate the total size of the allocation.
     const size_t query_size = sizeof(mux_query_duration_result_s) * query_count;
     const size_t alloc_size = query_data_offset + query_size;

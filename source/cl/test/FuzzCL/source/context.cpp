@@ -843,8 +843,8 @@ void fuzzcl::enqueueCopyImageToBuffer(context_t &fc, fuzzcl::input_t &input) {
 
   // in bytes
   const size_t dst_offset =
-      input.next(0, BUFFER_SIZE - image_src_origin_ptr->at(0) *
-                                      image_src_origin_ptr->at(1)) *
+      input.next(0, BUFFER_SIZE - (image_src_origin_ptr->at(0) *
+                                   image_src_origin_ptr->at(1))) *
       sizeof(cl_int);
 
   std::unique_lock<std::mutex> lock(fc.mutex);
@@ -907,8 +907,8 @@ void fuzzcl::enqueueCopyBufferToImage(fuzzcl::context_t &fc,
 
   // in bytes
   const size_t src_offset =
-      input.next(0, BUFFER_SIZE - image_dst_origin_ptr->at(0) *
-                                      image_dst_origin_ptr->at(1)) *
+      input.next(0, BUFFER_SIZE - (image_dst_origin_ptr->at(0) *
+                                   image_dst_origin_ptr->at(1))) *
       sizeof(cl_int);
 
   std::unique_lock<std::mutex> lock(fc.mutex);
@@ -1090,7 +1090,7 @@ void fuzzcl::enqueueTask(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 }
 
 /// @brief The callback used by fuzzcl::setEventCallback
-void CL_CALLBACK callback(cl_event, cl_int, void *user_data) {
+static void CL_CALLBACK callback(cl_event, cl_int, void *user_data) {
   const fuzzcl::callback_input_data_t callback_input_data =
       *static_cast<fuzzcl::callback_input_data_t *>(user_data);
   run_input(*callback_input_data.fc, callback_input_data.input);
@@ -1149,6 +1149,7 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
       input.next(0, std::min(MAX_CALLBACK_INPUT_SIZE,
                              int(input.data.size() - input.index - 1)));
   std::vector<uint8_t> callback_data;
+  callback_data.reserve(callback_data_size);
   for (size_t i = 0; i < callback_data_size; i++) {
     callback_data.emplace_back(input.next());
   }

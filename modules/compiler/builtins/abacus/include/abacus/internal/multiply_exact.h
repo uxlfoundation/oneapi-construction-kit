@@ -43,7 +43,7 @@ struct multiply_exact_helper {
     // shift is the number of mantissa bits plus 1 for the implicit bit, then
     // divided by two as we're splitting `x` into two parts, rounded up as
     // described in section 6.3 with reference to 5.7.
-    const SignedType shift = FPShape<E>::Mantissa() / 2 + 1;
+    const SignedType shift = (FPShape<E>::Mantissa() / 2) + 1;
     C = (C << shift) + 1;
     const T gamma = x * abacus::detail::cast::convert<E>(C);
     const T delta = x - gamma;
@@ -96,9 +96,9 @@ inline T multiply_exact(const T x, const T y, T *out_remainder) {
   multiply_exact_helper<ElementType>::split(y, &y_hi, &y_lo);
 
   const T r1 = x * y;
-  const T t1 = -r1 + x_hi * y_hi;
-  const T t2 = t1 + x_hi * y_lo;
-  const T t3 = t2 + x_lo * y_hi;
+  const T t1 = -r1 + (x_hi * y_hi);
+  const T t2 = t1 + (x_hi * y_lo);
+  const T t3 = t2 + (x_lo * y_hi);
 
   *out_remainder = t3 + x_lo * y_lo;
   return r1;

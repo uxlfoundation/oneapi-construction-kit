@@ -17,6 +17,7 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_detail_cast.h>
+#include <abacus/abacus_extra.h>
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>

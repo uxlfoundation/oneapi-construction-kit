@@ -20,7 +20,7 @@
 namespace {
 template <typename T>
 inline T mad_helper(T x, T y, T z) {
-  return x * y + z;
+  return (x * y) + z;
 }
 }  // namespace
 

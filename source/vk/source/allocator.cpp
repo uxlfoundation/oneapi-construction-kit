@@ -31,7 +31,7 @@
 #endif
 
 namespace internal {
-inline size_t upScaleAlignment(size_t alignment) {
+inline static size_t upScaleAlignment(size_t alignment) {
   if (1 == alignment) {
     return sizeof(void *);
   }
@@ -58,8 +58,8 @@ inline size_t upScaleAlignment(size_t alignment) {
   return alignment;
 }
 
-void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
-                       VkSystemAllocationScope allocationScope) {
+static void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
+                              VkSystemAllocationScope allocationScope) {
   // TODO: Use these to instrument how the driver allocates memory and for what
   // purpose it is used.
   (void)pUserData;
@@ -81,9 +81,9 @@ void *VKAPI_CALL alloc(void *pUserData, size_t size, size_t alignment,
   return pMemory;
 }
 
-void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
-                         size_t alignment,
-                         VkSystemAllocationScope allocationScope) {
+static void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
+                                size_t alignment,
+                                VkSystemAllocationScope allocationScope) {
   // TODO: Use these to instrument how the driver allocates memory and for what
   // purpose it is used.
   (void)pUserData;
@@ -108,7 +108,7 @@ void *VKAPI_CALL realloc(void *pUserData, void *pOriginal, size_t size,
   return pMemory;
 }
 
-void VKAPI_CALL free(void *pUserData, void *pMemory) {
+static void VKAPI_CALL free(void *pUserData, void *pMemory) {
   // TODO: Use this to instrument how the driver allocates memroy.
   (void)pUserData;
 
@@ -121,18 +121,18 @@ void VKAPI_CALL free(void *pUserData, void *pMemory) {
 #endif
 }
 
-void VKAPI_CALL internalAlloc(void *pUserData, size_t size,
-                              VkInternalAllocationType allocationType,
-                              VkSystemAllocationScope allocationScope) {
+static void VKAPI_CALL internalAlloc(void *pUserData, size_t size,
+                                     VkInternalAllocationType allocationType,
+                                     VkSystemAllocationScope allocationScope) {
   (void)pUserData;
   (void)size;
   (void)allocationType;
   (void)allocationScope;
 }
 
-void VKAPI_CALL internalFree(void *pUserData, size_t size,
-                             VkInternalAllocationType allocationType,
-                             VkSystemAllocationScope allocationScope) {
+static void VKAPI_CALL internalFree(void *pUserData, size_t size,
+                                    VkInternalAllocationType allocationType,
+                                    VkSystemAllocationScope allocationScope) {
   (void)pUserData;
   (void)size;
   (void)allocationType;

@@ -111,7 +111,7 @@ uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice device) {
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_properties_count, 0);
 
   // Request all queue families
-  VkQueueFamilyProperties* queue_properties = (VkQueueFamilyProperties*)malloc(
+  VkQueueFamilyProperties *queue_properties = (VkQueueFamilyProperties *)malloc(
       sizeof(VkQueueFamilyProperties) * queue_properties_count);
 
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_properties_count,
@@ -137,8 +137,8 @@ uint32_t getComputeQueueFamilyIndex(VkPhysicalDevice device) {
 
 // Given a VkInstance this function finds a vkPhysicalDevice and VkDevice
 // corresponding to Codeplay's CPU target.
-void createVkDevice(VkInstance instance, VkDevice* device,
-                    VkPhysicalDevice* physical_device) {
+void createVkDevice(VkInstance instance, VkDevice *device,
+                    VkPhysicalDevice *physical_device) {
   // Retrieve list of physical devices
   uint32_t num_devices = 0;
   IS_VK_SUCCESS(vkEnumeratePhysicalDevices(instance, &num_devices, 0));
@@ -148,13 +148,13 @@ void createVkDevice(VkInstance instance, VkDevice* device,
     exit(1);
   }
 
-  VkPhysicalDevice* phys_devices =
-      (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * num_devices);
+  VkPhysicalDevice *phys_devices =
+      (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * num_devices);
   IS_VK_SUCCESS(
       vkEnumeratePhysicalDevices(instance, &num_devices, phys_devices));
 
   // Find Codeplay CPU device
-  VkPhysicalDevice* codeplay_cpu_device = NULL;
+  VkPhysicalDevice *codeplay_cpu_device = NULL;
   for (uint32_t i = 0; i < num_devices; ++i) {
     VkPhysicalDevice phys_device = phys_devices[i];
 
@@ -212,7 +212,7 @@ void createVkDevice(VkInstance instance, VkDevice* device,
   IS_VK_SUCCESS(
       vkCreateDevice(*physical_device, &device_create_info, 0, device));
 
-  free(phys_devices);
+  free((void *)phys_devices);
 }
 
 // Loads our shader, sets up compute pipeline and command buffer, before
@@ -438,7 +438,7 @@ void buildAndRunShader(VkDevice device, uint32_t compute_queue_family,
   IS_VK_SUCCESS(vkQueueWaitIdle(queue));
 
   // Cleanup
-  vkDestroyDescriptorSetLayout(device, descriptor_set_layout, NULL); 
+  vkDestroyDescriptorSetLayout(device, descriptor_set_layout, NULL);
   vkDestroyShaderModule(device, shader_module, NULL);
   vkDestroyPipeline(device, pipeline, NULL);
   vkDestroyPipelineLayout(device, pipeline_layout, NULL);
@@ -475,12 +475,14 @@ int main(void) {
   printf(" * Allocated %" PRIu64 " bytes of device memory\n", memory_size);
 
   // Map input buffers to host so that we can initialize them
-  int32_t* mapped_ptr;
+  void *mapped_ptr_void;
+  int32_t *mapped_ptr;
 
   // Input buffer 1 will reside in the first `buffer_size` bytes of memory, and
   // each buffer element is initialized to it's index.
   IS_VK_SUCCESS(
-      vkMapMemory(device, memory, 0, buffer_size, 0, (void*)&mapped_ptr));
+      vkMapMemory(device, memory, 0, buffer_size, 0, &mapped_ptr_void));
+  mapped_ptr = mapped_ptr_void;
   for (int32_t i = 0; i < NUM_WORK_ITEMS; ++i) {
     mapped_ptr[i] = i;
   }
@@ -489,7 +491,8 @@ int main(void) {
   // Input buffer 2 will be located at offset `buffer_size` in memory, and
   // each buffer element is initialized to it's index plus one.
   IS_VK_SUCCESS(vkMapMemory(device, memory, buffer_size, buffer_size, 0,
-                            (void*)&mapped_ptr));
+                            &mapped_ptr_void));
+  mapped_ptr = mapped_ptr_void;
   for (int32_t i = 0; i < NUM_WORK_ITEMS; ++i) {
     mapped_ptr[i] = i + 1;
   }
@@ -533,7 +536,7 @@ int main(void) {
 
   // Map our output buffer back to host memory
   IS_VK_SUCCESS(vkMapMemory(device, memory, 2 * buffer_size, buffer_size, 0,
-                            (void*)&mapped_ptr));
+                            &mapped_ptr_void));
 
   // Verify our results
   for (int32_t i = 0; i < NUM_WORK_ITEMS; ++i) {

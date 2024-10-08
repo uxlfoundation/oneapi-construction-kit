@@ -14,22 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-/// @file
-///
-/// @brief Extension configuration file.
+#ifndef __ABACUS_INTERNAL_FMA_H__
+#define __ABACUS_INTERNAL_FMA_H__
 
-#ifndef EXTENSION_CONFIG_H_INCLUDED
-#define EXTENSION_CONFIG_H_INCLUDED
+#include <abacus/abacus_config.h>
 
-/// @addtogroup cl_extension
-/// @{
-@generate_extension_defines@
+namespace abacus {
+namespace internal {
+template <typename T>
+void inplace_fma(T &, T &, T &);
+}  // namespace internal
+}  // namespace abacus
 
-// Total count of all extensions
-#define CA_CL_RUNTIME_EXTENSION_COUNT @CA_CL_RUNTIME_EXTENSION_COUNT@
-#define CA_CL_COMPILER_EXTENSION_COUNT @CA_CL_COMPILER_EXTENSION_COUNT@
-#define CA_CL_EXTENSION_COUNT (@CA_CL_RUNTIME_EXTENSION_COUNT@ + @CA_CL_COMPILER_EXTENSION_COUNT@)
-
-/// @}
-
-#endif  // EXTENSION_CONFIG_H_INCLUDED
+#endif  //__ABACUS_INTERNAL_FMA_H__

@@ -302,8 +302,8 @@ void FreeCommandBuffers(vk::device device, vk::command_pool commandPool,
                     commandBuffer->commands.end(),
                     [&commandBuffer](command_info &c) {
                       if (c.type == command_type_bind_descriptorset) {
-                        commandBuffer->allocator.free(
-                            c.bind_descriptorset_command.pDescriptorSets);
+                        commandBuffer->allocator.free(static_cast<void *>(
+                            c.bind_descriptorset_command.pDescriptorSets));
                       }
                     });
     }
@@ -397,8 +397,8 @@ VkResult ResetCommandBuffer(vk::command_buffer commandBuffer,
                   commandBuffer->commands.end(),
                   [&commandBuffer](command_info &c) {
                     if (c.type == command_type_bind_descriptorset) {
-                      commandBuffer->allocator.free(
-                          c.bind_descriptorset_command.pDescriptorSets);
+                      commandBuffer->allocator.free(static_cast<void *>(
+                          c.bind_descriptorset_command.pDescriptorSets));
                     }
                   });
   }
@@ -1104,7 +1104,7 @@ void CmdExecuteCommands(vk::command_buffer commandBuffer,
   }
 }
 
-inline barrier_group_info *find_barrier_info(
+inline static barrier_group_info *find_barrier_info(
     mux_command_buffer_t mux_command_buffer,
     vk::command_buffer command_buffer) {
   auto barrier_iter =

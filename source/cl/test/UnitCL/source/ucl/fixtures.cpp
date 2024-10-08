@@ -100,8 +100,8 @@ namespace {
 template <class T>
 T getDeviceInfo(cl_device_id device, cl_device_info info) {
   T value;
-  if (auto error =
-          clGetDeviceInfo(device, info, sizeof(value), &value, nullptr)) {
+  if (auto error = clGetDeviceInfo(device, info, sizeof(value),
+                                   static_cast<void *>(&value), nullptr)) {
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
   }
   return value;

@@ -459,7 +459,7 @@ template <typename T>
 struct MemoryAccessor {
   T LoadFromBuffer(void *Ptr, size_t Offset) {
     void *const PtrPlusOffset =
-        static_cast<uint8_t *>(Ptr) + Offset * sizeof(T);
+        static_cast<uint8_t *>(Ptr) + (Offset * sizeof(T));
     T Val;
     memcpy(&Val, PtrPlusOffset, sizeof(T));
     return Val;
@@ -467,7 +467,7 @@ struct MemoryAccessor {
 
   void StoreToBuffer(const T &Val, void *Ptr, size_t Offset) {
     void *const PtrPlusOffset =
-        static_cast<uint8_t *>(Ptr) + Offset * sizeof(T);
+        static_cast<uint8_t *>(Ptr) + (Offset * sizeof(T));
     memcpy(PtrPlusOffset, &Val, sizeof(T));
   }
 };

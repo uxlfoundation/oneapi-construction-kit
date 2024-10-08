@@ -664,7 +664,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
       BasicBlock::Create(module.getContext(), "store", callFunction);
 
   // the buffer is the first argument of the function
-  Argument *full_buffer = static_cast<Argument *>(&*callFunction->arg_begin());
+  Argument *full_buffer = (&*callFunction->arg_begin());
 
   auto *buffer_elt_ty = getBufferEltTy(module.getContext());
 

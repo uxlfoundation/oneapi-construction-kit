@@ -134,7 +134,7 @@ struct input_t {
     assert(min <= max);
     // Return min if there is not enough data left
     if (index < data.size()) {
-      return min + data[index++] % (max - min + 1);
+      return min + (data[index++] % (max - min + 1));
     } else {
       return min;
     }

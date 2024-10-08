@@ -173,9 +173,8 @@ struct ConvertRefHelper<StrongFrom, CLhalf> {
 
   // Signed integer types
   template <class T = WeakFrom>
-  static bool undef(
-      const typename std::enable_if<std::is_signed_v<T>, T>::type x,
-      const bool) {
+  static bool undef(const std::enable_if_t<std::is_signed_v<T>, T> x,
+                    const bool) {
     // Signed 32 & 64 bit integer types which are too large to represent in
     // half precision have an undefined result, and saturation isn't valid
     return (x > TypeInfo<cl_half>::max_int_bits) ||
@@ -184,9 +183,8 @@ struct ConvertRefHelper<StrongFrom, CLhalf> {
 
   // Unsigned integer types
   template <class T = WeakFrom>
-  static bool undef(
-      const typename std::enable_if<std::is_unsigned_v<T>, T>::type x,
-      const bool) {
+  static bool undef(const std::enable_if_t<std::is_unsigned_v<T>, T> x,
+                    const bool) {
     // Unsigned 32 & 64 bit integer types which are too large to represent in
     // half precision have an undefined result, and saturation isn't valid
     return x > TypeInfo<cl_half>::max_int_bits;
@@ -340,7 +338,7 @@ struct HalfToGentypeConversions : public ExecutionWithParam<unsigned> {
     AddOutputBuffer(out_elements, out_streamer);
 
     AddMacro("IN_TYPE", "half");
-    if (std::is_same<StrongT, CLbool>::value) {
+    if (std::is_same_v<StrongT, CLbool>) {
       // The size of bool device side is implementation defined, so use an
       // unsigned int as the parameter type. See OpenCL spec section 6.9 for
       // kernel argument restrictions.
@@ -421,7 +419,7 @@ struct GentypeToHalfConversions : public ExecutionWithParam<unsigned> {
       const WeakT in = refIn(index);
       const FloatT as_float(in);
 
-      if (std::is_same<StrongT, CLbool>::value && (1 != vec_width) &&
+      if (std::is_same_v<StrongT, CLbool> && (1 != vec_width) &&
           (FloatT(1.0) == as_float)) {
         // Casting a bool to a vector type results in -1, rather than 1
         return FloatT(-1.0);
@@ -433,7 +431,7 @@ struct GentypeToHalfConversions : public ExecutionWithParam<unsigned> {
     auto refOut = makeULPStreamer<cl_half, 0_ULP>(reference, device);
     AddOutputBuffer(out_elements, refOut);
 
-    if (std::is_same<StrongT, CLbool>::value) {
+    if (std::is_same_v<StrongT, CLbool>) {
       // The size of bool device side is implementation defined, so use an
       // unsigned int as the parameter type. See OpenCL spec section 6.9 for
       // kernel argument restrictions.
@@ -481,8 +479,8 @@ class ReinterpretAllVecWidthsTest : public ExecutionWithParam<unsigned> {
     using WeakFrom = typename StrongFrom::WrappedT;
     using WeakTo = typename StrongTo::WrappedT;
 
-    const bool uses_half = std::is_same<StrongFrom, CLhalf>::value ||
-                           std::is_same<StrongTo, CLhalf>::value;
+    const bool uses_half =
+        std::is_same_v<StrongFrom, CLhalf> || std::is_same_v<StrongTo, CLhalf>;
     if (uses_half && !UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
     }
@@ -541,14 +539,14 @@ class ReinterpretSingleTest : public Execution {
     using WeakFrom = typename StrongFrom::WrappedT;
     using WeakTo = typename StrongTo::WrappedT;
 
-    const bool uses_half = std::is_same<StrongFrom, CLhalf>::value ||
-                           std::is_same<StrongTo, CLhalf>::value;
+    const bool uses_half =
+        std::is_same_v<StrongFrom, CLhalf> || std::is_same_v<StrongTo, CLhalf>;
     if (uses_half && !UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
     }
 
-    const bool uses_double = std::is_same<StrongFrom, CLdouble>::value ||
-                             std::is_same<StrongTo, CLdouble>::value;
+    const bool uses_double = std::is_same_v<StrongFrom, CLdouble> ||
+                             std::is_same_v<StrongTo, CLdouble>;
     if (uses_double && !UCL::hasDoubleSupport(device)) {
       GTEST_SKIP();
     }
@@ -642,14 +640,14 @@ class ExplicitConvertTest : public ExecutionWithParam<ConvertConfigTriple> {
     using WeakFrom = typename StrongFrom::WrappedT;
     using WeakTo = typename StrongTo::WrappedT;
 
-    const bool uses_half = std::is_same<StrongFrom, CLhalf>::value ||
-                           std::is_same<StrongTo, CLhalf>::value;
+    const bool uses_half =
+        std::is_same_v<StrongFrom, CLhalf> || std::is_same_v<StrongTo, CLhalf>;
     if (uses_half && !UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
     }
 
-    const bool uses_double = std::is_same<StrongFrom, CLdouble>::value ||
-                             std::is_same<StrongTo, CLdouble>::value;
+    const bool uses_double = std::is_same_v<StrongFrom, CLdouble> ||
+                             std::is_same_v<StrongTo, CLdouble>;
     if (uses_double && !UCL::hasDoubleSupport(device)) {
       GTEST_SKIP();
     }

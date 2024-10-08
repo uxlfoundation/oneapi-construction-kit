@@ -55,7 +55,7 @@ VkResult CreateShaderModule(vk::device device,
   vk::small_vector<uint32_t, 4> code(
       {allocator.getCallbacks(), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT});
   if (code.assign(pCreateInfo->pCode,
-                  pCreateInfo->pCode + pCreateInfo->codeSize / 4)) {
+                  pCreateInfo->pCode + (pCreateInfo->codeSize / 4))) {
     return VK_ERROR_OUT_OF_HOST_MEMORY;
   }
 

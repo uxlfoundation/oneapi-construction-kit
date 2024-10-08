@@ -283,7 +283,7 @@ class clEnqueueWriteImageTestBase : public ucl::CommandQueueTest {
     for (size_t x = 0; x < width; ++x) {
       for (size_t y = 0; y < region_y; ++y) {
         for (size_t z = 0; z < region_z; ++z) {
-          const size_t i = x + width * y + width * region_y * z;
+          const size_t i = x + (width * y) + (width * region_y * z);
           // Appease compiler warnings about subscript above array bounds.
           assert(i < num_pixels);
           if (i < num_pixels) {
@@ -384,7 +384,7 @@ struct clEnqueueWriteImageVerify
   cl_mem image = nullptr;
 };
 
-void generate_write_data(UCL::vector<uint8_t> &data) {
+static void generate_write_data(UCL::vector<uint8_t> &data) {
   std::mt19937 range;
   range.seed();
   // Using a larger than necessary distribution integer type because

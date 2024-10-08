@@ -21,7 +21,7 @@
 namespace {
 template <typename T>
 T reflect(const T i, const T n) {
-  return i - n * __abacus_dot(i, n) * 2;
+  return i - (n * __abacus_dot(i, n) * 2);
 }
 }  // namespace
 

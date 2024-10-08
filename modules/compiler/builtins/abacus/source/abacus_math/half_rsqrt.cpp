@@ -50,7 +50,7 @@ T half_rsqrt(const T x) {
   //                       (x * 2^24)
   T processedX = __abacus_select(
       x,
-      abacus::detail::cast::as<T>(xUint | F_HIDDEN_BIT) * 16777216.0f -
+      (abacus::detail::cast::as<T>(xUint | F_HIDDEN_BIT) * 16777216.0f) -
           __abacus_as_float(0x0C800000),
       xSmall);
 

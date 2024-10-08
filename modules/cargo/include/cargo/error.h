@@ -119,6 +119,7 @@ class error_or {
   /// @brief Default value constructor.
   error_or() : HasError(false) { new (&ValueStorage) value_storage_type(); }
 
+  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Argument value constructor.
   ///
   /// @tparam First Type of the first argument, the constructor will be disabled
@@ -132,9 +133,10 @@ class error_or {
             class = std::enable_if_t<
                 !(sizeof...(Args) == 0 &&
                   std::is_same_v<error_or, std::remove_reference_t<First>>)>>
+  // NOLINTEND(modernize-type-traits)
   error_or(First &&first, Args &&...args) : HasError(false) {
-    new (&ValueStorage) value_storage_type(std::forward<First>(first),
-                                           std::forward<Args>(args)...);
+    new (static_cast<void *>(&ValueStorage)) value_storage_type(
+        std::forward<First>(first), std::forward<Args>(args)...);
   }
 
   /// @brief Copy constructor.

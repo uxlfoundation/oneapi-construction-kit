@@ -77,11 +77,12 @@ struct helper<T, abacus_half> {
 template <typename T>
 struct helper<T, abacus_float> {
   static T numerator(const T x) {
-    return x * 3.14159260961f - x * x * x * 2.97043292307f;
+    return (x * 3.14159260961f) - (x * x * x * 2.97043292307f);
   }
 
   static T denominator(const T x) {
-    return (T)1.f - x * x * 4.23539290179f + x * x * x * x * 0.946484572927f;
+    return (T)1.f - (x * x * 4.23539290179f) +
+           (x * x * x * x * 0.946484572927f);
   }
 
   static T handle_edge_cases(const T, const T ans) { return ans; }

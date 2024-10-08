@@ -29,7 +29,8 @@ void sourceToBinaryKernel(cl_device_id device, cl_context context,
   std::vector<uint8_t> binary(size);
   std::array<const uint8_t *, 1> binaries{{binary.data()}};
   ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES, size,
-                                  binaries.data(), nullptr));
+                                  static_cast<void *>(binaries.data()),
+                                  nullptr));
   cl_int binary_status;
   cl_int status;
   binary_program = clCreateProgramWithBinary(
@@ -196,7 +197,7 @@ struct TypeNameParam {
   const char *expected;
 };
 
-std::ostream &operator<<(std::ostream &out, const TypeNameParam &param) {
+static std::ostream &operator<<(std::ostream &out, const TypeNameParam &param) {
   out << "TypeNameParam{.input{\"" << param.input << "\"}, .expected{\""
       << param.expected << "\"}}";
   return out;
@@ -460,7 +461,7 @@ TEST_P(clGetKernelArgInfoTypeQualifierTest, Default) {
   }
 }
 
-type_qual_pair typeQualParams[] = {
+static type_qual_pair typeQualParams[] = {
     type_qual_pair(CL_KERNEL_ARG_TYPE_NONE, ""),
     type_qual_pair(CL_KERNEL_ARG_TYPE_CONST, "const"),
     type_qual_pair(CL_KERNEL_ARG_TYPE_VOLATILE, "volatile"),
@@ -527,7 +528,7 @@ TEST_P(clGetKernelArgInfoConstTypeQualifierTest, Default) {
   }
 }
 
-type_qual_pair typeConstQualParams[] = {
+static type_qual_pair typeConstQualParams[] = {
     type_qual_pair(CL_KERNEL_ARG_TYPE_RESTRICT, "restrict"),
 };
 

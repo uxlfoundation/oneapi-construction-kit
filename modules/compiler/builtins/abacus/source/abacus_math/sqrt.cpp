@@ -15,17 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <abacus/abacus_config.h>
+#include <abacus/abacus_math.h>
+#include <abacus/internal/sqrt.h>
 
 namespace abacus {
-namespace detail {
-template <typename T>
-void inplace_sqrt(T &);
-}  // namespace detail
-
 namespace internal {
 template <typename T>
 T sqrt(T x) {
-  abacus::detail::inplace_sqrt(x);
+  inplace_sqrt(x);
   return x;
 }
 }  // namespace internal

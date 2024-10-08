@@ -228,16 +228,16 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, IndirectDevicePointer) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
-      indirect_usm_pointers);
+      static_cast<void *>(indirect_usm_pointers));
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -259,16 +259,16 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, OffsetDevicePointer) {
   SetInputBuffer(offset_device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass base device USM pointer to runtime as used indirectly
   void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
-      indirect_usm_pointers);
+      static_cast<void *>(indirect_usm_pointers));
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of half the number of buffer elements
@@ -295,10 +295,10 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, DeviceAccessFlag) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(
-      clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(exec_info_kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, exec_info_kernel, 1, nullptr,
@@ -317,9 +317,9 @@ using KernelExecInfoCodeplayUSMFlags =
 TEST_P(KernelExecInfoCodeplayUSMFlags, ValidUsage) {
   const cl_kernel_exec_info_codeplay param_name = GetParam();
   if (CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL == param_name) {
-    const cl_int err =
-        clSetKernelExecInfoCODEPLAY(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                    sizeof(device_ptr), &device_ptr);
+    const cl_int err = clSetKernelExecInfoCODEPLAY(
+        kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(device_ptr),
+        static_cast<void *>(&device_ptr));
     ASSERT_SUCCESS(err);
   } else {
     cl_bool flag = CL_FALSE;
@@ -342,7 +342,8 @@ TEST_P(KernelExecInfoCodeplayUSMFlags, InvalidUsage) {
     ASSERT_EQ_ERRCODE(err, CL_INVALID_KERNEL);
 
     // Invalid param_value_size
-    err = clSetKernelExecInfoCODEPLAY(kernel, param_name, 0, &device_ptr);
+    err = clSetKernelExecInfoCODEPLAY(kernel, param_name, 0,
+                                      static_cast<void *>(&device_ptr));
     ASSERT_EQ_ERRCODE(err, CL_INVALID_VALUE);
 
     // Invalid param_value

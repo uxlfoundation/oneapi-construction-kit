@@ -61,7 +61,7 @@ struct queue_s final : public mux_queue_s {
   queue_s(mux::allocator allocator, mux_device_t device)
       : pending{allocator}, running{false}, terminate{false} {
     this->device = device;
-    cargo::lock_guard<cargo::mutex> lock(mutex);
+    const cargo::lock_guard<cargo::mutex> lock(mutex);
     thread = cargo::thread{[this]() { run(); }};
     thread.set_name("riscv:queue");
   }
@@ -69,7 +69,7 @@ struct queue_s final : public mux_queue_s {
   /// @brief Destructor.
   ~queue_s() {
     {
-      cargo::lock_guard<cargo::mutex> lock(mutex);
+      const cargo::lock_guard<cargo::mutex> lock(mutex);
       terminate = true;
       condition_variable.notify_all();
     }

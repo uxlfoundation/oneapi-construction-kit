@@ -104,7 +104,7 @@ TEST_F(clGetProgramInfoTest, ProgramContextDefault) {
   ASSERT_EQ(sizeof(cl_context), size);
   cl_context thisContext = nullptr;
   ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_CONTEXT, size,
-                                  &thisContext, nullptr));
+                                  static_cast<void *>(&thisContext), nullptr));
   ASSERT_EQ(context, thisContext);
 }
 
@@ -112,7 +112,8 @@ TEST_F(clGetProgramInfoTest, ProgramContextBadParamValue) {
   cl_context thisContext = nullptr;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
-      clGetProgramInfo(program, CL_PROGRAM_CONTEXT, 0, &thisContext, nullptr));
+      clGetProgramInfo(program, CL_PROGRAM_CONTEXT, 0,
+                       static_cast<void *>(&thisContext), nullptr));
 }
 
 TEST_F(clGetProgramInfoTest, ProgramNumDevicesDefault) {
@@ -139,8 +140,8 @@ TEST_F(clGetProgramInfoTest, ProgramDevicesDefault) {
       clGetProgramInfo(program, CL_PROGRAM_DEVICES, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_device_id), size);
   UCL::Buffer<cl_device_id> devices(size / sizeof(cl_device_id));
-  ASSERT_SUCCESS(
-      clGetProgramInfo(program, CL_PROGRAM_DEVICES, size, devices, nullptr));
+  ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_DEVICES, size,
+                                  static_cast<void *>(devices), nullptr));
   for (unsigned int i = 0; i < devices.size(); i++) {
     ASSERT_TRUE(devices[0]);
   }
@@ -152,9 +153,9 @@ TEST_F(clGetProgramInfoTest, ProgramDevicesBadParamValue) {
       clGetProgramInfo(program, CL_PROGRAM_DEVICES, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_device_id), size);
   UCL::Buffer<cl_device_id> devices(size / sizeof(cl_device_id));
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetProgramInfo(program, CL_PROGRAM_DEVICES, 0, devices, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetProgramInfo(program, CL_PROGRAM_DEVICES, 0,
+                                     static_cast<void *>(devices), nullptr));
 }
 
 TEST_F(clGetProgramInfoProgramSourceTest, ProgramSourceDefault) {
@@ -234,8 +235,8 @@ TEST_F(clGetProgramInfoTest, ProgramBinariesDefault) {
     binaries[i] = new unsigned char[binarySizes[i]];
   }
 
-  EXPECT_SUCCESS(
-      clGetProgramInfo(program, CL_PROGRAM_BINARIES, size, binaries, nullptr));
+  EXPECT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES, size,
+                                  static_cast<void *>(binaries), nullptr));
 
   for (size_t i = 0; i < binaries.size(); ++i) {
     delete[] binaries[i];
@@ -247,9 +248,9 @@ TEST_F(clGetProgramInfoTest, ProgramBinaraiesBadParamValue) {
   ASSERT_SUCCESS(
       clGetProgramInfo(program, CL_PROGRAM_BINARIES, 0, nullptr, &size));
   UCL::Buffer<char> binaries(size);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetProgramInfo(program, CL_PROGRAM_BINARIES, 0, binaries, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetProgramInfo(program, CL_PROGRAM_BINARIES, 0,
+                                     static_cast<void *>(binaries), nullptr));
 }
 
 TEST_F(clGetProgramInfoProgramSourceTest, ProgramBinariesDefault) {
@@ -275,8 +276,8 @@ TEST_F(clGetProgramInfoProgramSourceTest, ProgramBinariesDefault) {
     binaries[i] = nullptr;
   }
 
-  EXPECT_SUCCESS(
-      clGetProgramInfo(program, CL_PROGRAM_BINARIES, size, binaries, nullptr));
+  EXPECT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES, size,
+                                  static_cast<void *>(binaries), nullptr));
 }
 
 TEST_F(clGetProgramInfoTest, ProgramBinariesParamValueSizeRet) {
@@ -466,10 +467,11 @@ TEST_F(clGetProgramInfoInvalidProgramTest, ProgramInfo) {
     binaries[i] = storage[i].data();
   }
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_PROGRAM,
-                    clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                     num_devices * sizeof(unsigned char *),
-                                     binaries.data(), nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_PROGRAM,
+      clGetProgramInfo(program, CL_PROGRAM_BINARIES,
+                       num_devices * sizeof(unsigned char *),
+                       static_cast<void *>(binaries.data()), nullptr));
 }
 
 struct clGetProgramInfoBuiltinTest : ucl::ContextTest {
@@ -556,7 +558,8 @@ TEST_F(clGetProgramInfoBuiltinTest, Binary) {
   // clCreateProgramWithBuiltInKernels, so while no binaries exist this is
   // still expected to succeed.
   ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARIES, size,
-                                  binaries.data(), nullptr));
+                                  static_cast<void *>(binaries.data()),
+                                  nullptr));
 }
 
 TEST_F(clGetProgramInfoBuiltinTest, Source) {

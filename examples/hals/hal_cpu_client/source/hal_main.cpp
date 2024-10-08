@@ -21,7 +21,7 @@ namespace hal {
 class hal_cpu_socket_client : public hal::hal_socket_client {
  public:
   hal_cpu_socket_client() : hal_socket_client(0) {
-    constexpr static uint32_t implemented_api_version = 6;
+    static constexpr uint32_t implemented_api_version = 6;
     static_assert(
         implemented_api_version == hal_t::api_version,
         "Implemented API version for hal_socket_client does not match hal.h");

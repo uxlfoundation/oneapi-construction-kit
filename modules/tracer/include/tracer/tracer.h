@@ -70,7 +70,7 @@ uint64_t getCurrentTimestamp();
 /// @brief Benchmark base class for the Bench object.
 template <bool enable>
 struct BenchmarkCategory {
-  constexpr static bool enabled = enable;
+  static constexpr bool enabled = enable;
 };
 
 template <class T>

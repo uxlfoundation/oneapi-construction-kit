@@ -65,11 +65,11 @@ int main(int argc, char **argv) {
 
 namespace clc {
 
-void mux_message(const char *message, const void *, size_t) {
+static void mux_message(const char *message, const void *, size_t) {
   (void)std::fprintf(stderr, "%s", message);
 }
 
-std::map<cl_int, std::string> cl_error_code_to_name_map = {
+static std::map<cl_int, std::string> cl_error_code_to_name_map = {
     {0, "CL_SUCCESS"},
     {-1, "CL_DEVICE_NOT_FOUND"},
     {-2, "CL_DEVICE_NOT_AVAILABLE"},
@@ -133,11 +133,13 @@ std::map<cl_int, std::string> cl_error_code_to_name_map = {
     {-70, "CL_INVALID_DEVICE_QUEUE"},
 };
 
-bool matchSubstring(cargo::string_view big_string, cargo::string_view filter) {
+static bool matchSubstring(cargo::string_view big_string,
+                           cargo::string_view filter) {
   return big_string.find(filter) != cargo::string_view::npos;
 }
 
-result printMuxCompilers(cargo::array_view<const compiler::Info *> compilers) {
+static result printMuxCompilers(
+    cargo::array_view<const compiler::Info *> compilers) {
   for (cl_uint i = 0; i < compilers.size(); i++) {
     (void)std::fprintf(stderr, "device %u: %s\n", i + 1,
                        compilers[i]->device_info->device_name);
@@ -159,7 +161,7 @@ driver::driver()
 
 #define CL_STD_CHOICES "{CL1.1,CL1.2,CL3.0}\n                        "
 
-const char *CLC_USAGE =
+static const char *CLC_USAGE =
     R"(usage: %s [options] [--] [<input>]
 
 An OpenCL C 1.2 and SPIR-V 1.0 compiler to generate machine code for the
@@ -332,7 +334,7 @@ result driver::parseArguments(int argc, char **argv) {
                          cargo::string_view help_view, bool takes_value)
         : takes_value(takes_value),
           name(name_view.data(), name_view.size()),
-          help(help_view.data(), help_view.size()){};
+          help(help_view.data(), help_view.size()) {};
   };
 
   std::map<const compiler::Info *, std::vector<custom_device_option>>
@@ -513,7 +515,7 @@ result driver::setupContext() {
   return result::success;
 }
 
-result ReadWholeFile(std::istream &fp, std::vector<char> &output) {
+static result ReadWholeFile(std::istream &fp, std::vector<char> &output) {
   fp.seekg(0, std::ios_base::end);
 
   if (!fp.fail()) {
@@ -713,7 +715,7 @@ result driver::saveBinary() {
     if (fp == nullptr) {
       fp = fopen(generated_output_file.c_str(), "wb");
       if (fp == nullptr) {
-        (void)perror("error: Could not open output file");
+        perror("error: Could not open output file");
         return result::failure;
       }
       owns_fp = true;
@@ -726,8 +728,7 @@ result driver::saveBinary() {
       write_error |= fflush(fp);
     }
     if (write_error) {
-      (void)perror(
-          "error: Could not write all of the binary to the output file");
+      perror("error: Could not write all of the binary to the output file");
       return result::failure;
     }
   }

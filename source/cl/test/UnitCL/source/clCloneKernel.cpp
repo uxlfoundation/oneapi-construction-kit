@@ -87,7 +87,8 @@ TEST_F(clCloneKernelTest, SuccessWithArgs) {
   UCL::cl::buffer buffer;
   ASSERT_SUCCESS(
       buffer.create(context, CL_MEM_READ_WRITE, sizeof(cl_int) * 64, nullptr));
-  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer), &buffer));
+  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer),
+                                static_cast<void *>(&buffer)));
   cl_int error;
   clone_kernel = clCloneKernel(source_kernel, &error);
   ASSERT_SUCCESS(error);
@@ -136,7 +137,8 @@ TEST_F(clCloneKernelRunTest, Default) {
   clone_kernel = clCloneKernel(source_kernel, &error);
   // Set an argument on clone_kernel, run it, then validate.
   ASSERT_SUCCESS(error);
-  ASSERT_SUCCESS(clSetKernelArg(clone_kernel, 0, sizeof(buffer), &buffer));
+  ASSERT_SUCCESS(clSetKernelArg(clone_kernel, 0, sizeof(buffer),
+                                static_cast<void *>(&buffer)));
   cl_event ndRangeEvent;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(command_queue, clone_kernel, 1, nullptr,
                                         &work_size, nullptr, 0, nullptr,
@@ -159,7 +161,8 @@ TEST_F(clCloneKernelRunTest, Default) {
 
 TEST_F(clCloneKernelRunTest, WithArgs) {
   // Set an argument on the source_kernel, run it, then validate.
-  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer), &buffer));
+  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer),
+                                static_cast<void *>(&buffer)));
   cl_event ndRangeSourceEvent;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(command_queue, source_kernel, 1,
                                         nullptr, &work_size, nullptr, 0,
@@ -200,7 +203,8 @@ TEST_F(clCloneKernelRunTest, WithArgs) {
 
 TEST_F(clCloneKernelRunTest, WithChangedArgs) {
   // Set an argument on the source_kernel, run it, then validate.
-  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer), &buffer));
+  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer),
+                                static_cast<void *>(&buffer)));
   cl_event ndRangeSourceEvent;
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(command_queue, source_kernel, 1,
                                         nullptr, &work_size, nullptr, 0,
@@ -241,7 +245,8 @@ TEST_F(clCloneKernelRunTest, WithChangedArgs) {
 
 TEST_F(clCloneKernelRunTest, ParallelWithChangedArgs) {
   // Set an argument on the source_kernel.
-  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer), &buffer));
+  ASSERT_SUCCESS(clSetKernelArg(source_kernel, 0, sizeof(buffer),
+                                static_cast<void *>(&buffer)));
   // Clone source_kernel.
   cl_int error;
   clone_kernel = clCloneKernel(source_kernel, &error);

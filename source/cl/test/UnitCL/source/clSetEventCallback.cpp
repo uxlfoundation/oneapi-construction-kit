@@ -50,8 +50,8 @@ TEST_F(clSetEventCallbackTest, Default) {
   };
 
   cl_event hit = nullptr;
-  ASSERT_SUCCESS(
-      clSetEventCallback(event, CL_COMPLETE, Callback::callback, &hit));
+  ASSERT_SUCCESS(clSetEventCallback(event, CL_COMPLETE, Callback::callback,
+                                    static_cast<void *>(&hit)));
 
   ASSERT_SUCCESS(clSetUserEventStatus(event, CL_COMPLETE));
 
@@ -230,8 +230,8 @@ TEST_F(clSetEventCallbackTest, Recursive) {
   };
 
   cl_event hit = nullptr;
-  ASSERT_SUCCESS(
-      clSetEventCallback(event, CL_COMPLETE, Callback::callbackDirect, &hit));
+  ASSERT_SUCCESS(clSetEventCallback(
+      event, CL_COMPLETE, Callback::callbackDirect, static_cast<void *>(&hit)));
 
   ASSERT_SUCCESS(clSetUserEventStatus(event, CL_COMPLETE));
 
@@ -262,8 +262,8 @@ TEST_F(clSetEventCallbackTest, RecursiveForReachedStatus) {
   ASSERT_SUCCESS(clSetUserEventStatus(event, CL_COMPLETE));
 
   cl_event hit = nullptr;
-  ASSERT_SUCCESS(
-      clSetEventCallback(event, CL_COMPLETE, Callback::callbackDirect, &hit));
+  ASSERT_SUCCESS(clSetEventCallback(
+      event, CL_COMPLETE, Callback::callbackDirect, static_cast<void *>(&hit)));
 
   // We assume that `clSetUserEventStatus` immediately triggers the callback.
   // That is very likely for most OpenCL implementations but not necessary.
@@ -291,7 +291,8 @@ TEST_F(clSetEventCallbackTest, RecursiveDuringEventRelease) {
 
   cl_event hit = nullptr;
   ASSERT_SUCCESS(clSetEventCallback(event_to_release, CL_COMPLETE,
-                                    Callback::callbackDirect, &hit));
+                                    Callback::callbackDirect,
+                                    static_cast<void *>(&hit)));
 
   ASSERT_SUCCESS(clReleaseEvent(event_to_release));
 

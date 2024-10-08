@@ -59,8 +59,8 @@ struct clEnqueueMapImageTestsParams {
   bool is_pitched;
 };
 
-std::ostream &operator<<(std::ostream &out,
-                         const clEnqueueMapImageTestsParams &params) {
+static std::ostream &operator<<(std::ostream &out,
+                                const clEnqueueMapImageTestsParams &params) {
   out << "clEnqueueMapImageTestsParams{.object_type{";
   switch (params.object_type) {
 #define CASE(TYPE) \
@@ -319,8 +319,8 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
   // arbitrary, but is used to try and force it down different paths wrt the
   // host_ptr
   const size_t good_alignment = 4096;
-  UCL::vector<float, good_alignment> srcPixels((size_t)numPixels * 4 + 1);
-  UCL::vector<float, good_alignment> dstPixels((size_t)numPixels * 4 + 1);
+  UCL::vector<float, good_alignment> srcPixels((numPixels * 4) + 1);
+  UCL::vector<float, good_alignment> dstPixels((numPixels * 4) + 1);
 
   float *src_pixels = srcPixels.data();
   float *dst_pixels = dstPixels.data();
@@ -350,8 +350,10 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
   ASSERT_SUCCESS(error);
   ASSERT_NE(nullptr, src_image);
   ASSERT_NE(nullptr, dst_image);
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_image), &src_image));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_image), &dst_image));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_image),
+                                static_cast<void *>(&src_image)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_image),
+                                static_cast<void *>(&dst_image)));
 
   size_t image_row_pitch = 0;
   size_t image_slice_pitch = 0;
@@ -387,16 +389,16 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
     for (size_t row = 0; row < image_desc.image_height; row++) {
       for (size_t col = 0; col < image_desc.image_width; col++) {
         const size_t src_pixel_index =
-            slice * slice_pitch_in_pixels + row * row_pitch_in_pixels + col;
+            (slice * slice_pitch_in_pixels) + (row * row_pitch_in_pixels) + col;
         const size_t dst_pixel_index =
-            slice * (image_desc.image_width * image_desc.image_height) +
-            row * image_desc.image_height + col;
+            (slice * (image_desc.image_width * image_desc.image_height)) +
+            (row * image_desc.image_height) + col;
         for (size_t element = 0; element < 4; element++) {
-          ASSERT_EQ(src_pixels[src_pixel_index * 4 + element],
-                    dst_pixels[dst_pixel_index * 4 + element])
+          ASSERT_EQ(src_pixels[(src_pixel_index * 4) + element],
+                    dst_pixels[(dst_pixel_index * 4) + element])
               << "At pixel : " << dst_pixel_index << '\n'
-              << src_pixels[src_pixel_index * 4 + element] << " vs "
-              << dst_pixels[dst_pixel_index * 4 + element] << '\n'
+              << src_pixels[(src_pixel_index * 4) + element] << " vs "
+              << dst_pixels[(dst_pixel_index * 4) + element] << '\n'
               << "Total : " << numPixels;
         }
       }

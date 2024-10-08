@@ -40,7 +40,7 @@ T native_log(const T x) {
   const T logf = abacus::internal::horner_polynomial(f - 1, polynomial);
 
   const T oneOverlog2e = 0.693147180559945309417232121458;
-  return f * logf + abacus::detail::cast::convert<T>(n) * oneOverlog2e;
+  return (f * logf) + (abacus::detail::cast::convert<T>(n) * oneOverlog2e);
 }
 }  // namespace
 

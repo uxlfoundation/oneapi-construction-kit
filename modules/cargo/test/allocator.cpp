@@ -21,7 +21,7 @@
 
 namespace {
 struct RootType {
-  virtual ~RootType(){};
+  virtual ~RootType() {};
 };
 
 struct LeafType : public RootType {

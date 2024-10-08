@@ -74,7 +74,7 @@ TEST_P(Execution, Task_03_05_Distance4_Builtin) {
     const cl_float d1 = (v1.s[1] - v2.s[1]);
     const cl_float d2 = (v1.s[2] - v2.s[2]);
     const cl_float d3 = (v1.s[3] - v2.s[3]);
-    return std::sqrt(d0 * d0 + d1 * d1 + d2 * d2 + d3 * d3);
+    return std::sqrt((d0 * d0) + (d1 * d1) + (d2 * d2) + (d3 * d3));
   };
 
   AddInputBuffer(kts::N, refIn1);
@@ -100,7 +100,7 @@ TEST_P(Execution, Task_03_07_Transpose4) {
   kts::Reference1D<cl_int4> refOut = [](size_t x) {
     const cl_int ix = kts::Ref_Identity(x);
     const cl_int chunkID = ix % 4;
-    const cl_int base = (ix - chunkID) * 4 + chunkID;
+    const cl_int base = ((ix - chunkID) * 4) + chunkID;
     cl_int4 v;
     v.s[0] = kts::Ref_A(base + 0);
     v.s[1] = kts::Ref_A(base + 4);
@@ -388,7 +388,7 @@ TEST_P(Execution, DISABLED_Task_03_28_Normalize4_Builtin) {
 
 TEST_P(Execution, Task_03_29_Modf4_Builtin) {
   kts::Reference1D<cl_float> refIn = [](size_t x) {
-    return static_cast<cl_float>(x + (x % 2) * 0.5f);
+    return static_cast<cl_float>(x + ((x % 2) * 0.5f));
   };
   kts::Reference1D<cl_float> refFrac = [](size_t x) {
     return static_cast<cl_float>((x % 2) * 0.5f);

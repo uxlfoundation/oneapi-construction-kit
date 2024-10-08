@@ -41,17 +41,23 @@ uint64_t timestampNanoSeconds() {
   // without problems.
 #if defined(CA_PLATFORM_LINUX) || defined(CA_PLATFORM_ANDROID)
   timespec ts;
-  ::clock_gettime(CLOCK_REALTIME, &ts);
-  tickCount = static_cast<uint64_t>(ts.tv_sec) * 1000000000 +
-              static_cast<uint64_t>(ts.tv_nsec);
+  if (::clock_gettime(CLOCK_REALTIME, &ts) == 0) {
+    tickCount = static_cast<uint64_t>(ts.tv_sec) * 1000000000 +
+                static_cast<uint64_t>(ts.tv_nsec);
+  }
 #elif defined(CA_PLATFORM_MAC)
+  kern_result_t res;
   clock_serv_t cclock;
   mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  tickCount = static_cast<uint64_t>(mts.tv_sec) * 1000000000 +
-              static_cast<uint64_t>(mts.tv_nsec);
+  res = host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  if (res == KERN_SUCCESS) {
+    res = clock_get_time(cclock, &mts);
+    if (res == KERN_SUCCESS) {
+      tickCount = static_cast<uint64_t>(mts.tv_sec) * 1000000000 +
+                  static_cast<uint64_t>(mts.tv_nsec);
+    }
+    mach_port_deallocate(mach_task_self(), cclock);
+  }
 #elif defined(CA_PLATFORM_WINDOWS)
   LARGE_INTEGER counter;
   LARGE_INTEGER frequency;

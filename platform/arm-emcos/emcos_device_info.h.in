@@ -21,13 +21,9 @@
 
 namespace emcos {
 
-inline uint32_t get_num_cpus() {
-  return MP_CONTROL_CORE_COUNT;
-}
+inline uint32_t get_num_cpus() { return MP_CONTROL_CORE_COUNT; }
 
-inline uint64_t get_device_total_memory_size() {
-  return @EMCOS_TOTAL_MEMORY_SIZE@;
-}
+inline uint64_t get_device_total_memory_size() { return @EMCOS_TOTAL_MEMORY_SIZE@; }
 
 inline size_t get_device_page_size() { return @EMCOS_PAGE_SIZE@; }
 

@@ -107,7 +107,7 @@ struct helper<T, abacus_float> {
 
     const T ex = __abacus_expm1(xNew);
 
-    const T ex_rcp = (T)1.0f / (ex + 1.0f) - 1.0f;
+    const T ex_rcp = ((T)1.0f / (ex + 1.0f)) - 1.0f;
 
     const T ans = (scale * ex_rcp + 1.0f) * ex;
 
@@ -132,7 +132,7 @@ struct helper<T, abacus_double> {
 
     const T ex = __abacus_expm1(xNew);
 
-    const T ex_rcp = (T)1.0 / (ex + 1.0) - 1.0;
+    const T ex_rcp = ((T)1.0 / (ex + 1.0)) - 1.0;
 
     const T ans = (scale * ex_rcp + 1.0) * ex;
 

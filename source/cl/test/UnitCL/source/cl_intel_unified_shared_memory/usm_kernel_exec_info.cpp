@@ -392,14 +392,16 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePointer) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -425,14 +427,15 @@ TEST_F(USMIndirectAccessTest, IndirectHostPointer) {
   SetInputBuffer(host_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptr));
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {host_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -458,14 +461,15 @@ TEST_F(USMIndirectAccessTest, IndirectSharedPointer) {
   SetInputBuffer(shared_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptr));
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {shared_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -502,13 +506,14 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrInsideHostPtr) {
 
   // Set kernel arguments
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, host_ptr));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -534,13 +539,16 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrThenHostPtr) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect device USM pointer to runtime
   void *indirect_usm_pointers[1] = {device_ptr};
   cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                                   sizeof(void *), indirect_usm_pointers);
+                                   sizeof(void *),
+                                   static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -564,7 +572,8 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrThenHostPtr) {
   // of indirect device USM pointer
   indirect_usm_pointers[0] = {host_ptr};
   err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                            sizeof(void *), indirect_usm_pointers);
+                            sizeof(void *),
+                            static_cast<void *>(indirect_usm_pointers));
   ASSERT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -590,15 +599,17 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrAndHostPtr) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass both USM pointers to runtime as used indirectly, but only use one in
   // each execution
   void *indirect_usm_pointers[2] = {device_ptr, host_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -640,14 +651,16 @@ TEST_F(USMIndirectAccessTest, OffsetDevicePointer) {
   SetInputBuffer(offset_device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass base device USM pointer to runtime as used indirectly
   void *indirect_usm_pointers[1] = {device_ptr};
-  const cl_int err =
-      clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                          sizeof(void *), indirect_usm_pointers);
+  const cl_int err = clSetKernelExecInfo(
+      kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
+      static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of half the number of buffer elements
@@ -679,8 +692,10 @@ TEST_F(USMIndirectAccessTest, DeviceAccessFlag) {
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -714,8 +729,10 @@ TEST_F(USMIndirectAccessTest, HostAccessFlag) {
   SetInputBuffer(host_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -757,8 +774,10 @@ TEST_F(USMIndirectAccessTest, DeviceFlagBeforeAlloc) {
   SetInputBuffer(deferred_device_alloc);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -805,8 +824,10 @@ TEST_F(USMIndirectAccessTest, HostFlagBeforeAlloc) {
   SetInputBuffer(deferred_host_alloc);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -846,7 +867,8 @@ TEST_F(USMIndirectAccessTest, DeviceFlagAndExplicitPtr) {
   // Specify deferred device allocation pointer will be used explicitly
   void *indirect_usm_pointers[1] = {deferred_device_alloc};
   err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                            sizeof(void *), indirect_usm_pointers);
+                            sizeof(void *),
+                            static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Initialize USM allocations to patternA
@@ -858,8 +880,10 @@ TEST_F(USMIndirectAccessTest, DeviceFlagAndExplicitPtr) {
   SetInputBuffer(deferred_device_alloc);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -921,15 +945,18 @@ TEST_F(USMIndirectAccessTest, DisableAllFlags) {
   // Explicitly set that device_ptr is used indirectly by the kernel.
   void *indirect_usm_pointers[1] = {device_ptr};
   err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
-                            sizeof(void *), indirect_usm_pointers);
+                            sizeof(void *),
+                            static_cast<void *>(indirect_usm_pointers));
   EXPECT_SUCCESS(err);
 
   // Wrap device USM pointer in a struct
   SetInputBuffer(device_ptr);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Run 1-D kernel with a global size of 'elements'
   ASSERT_SUCCESS(clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &elements,
@@ -952,15 +979,17 @@ TEST_F(USMMultiIndirectAccessTest, Default) {
   SetInputBuffer(device_ptrA, device_ptrB);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
   std::array<void *, 2> indirect_usm_pointers = {device_ptrA, device_ptrB};
   const cl_int err =
       clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                           sizeof(void *) * indirect_usm_pointers.size(),
-                          indirect_usm_pointers.data());
+                          static_cast<void *>(indirect_usm_pointers.data()));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'
@@ -984,15 +1013,17 @@ TEST_F(USMMultiIndirectAccessTest, BlockingFree) {
   SetInputBuffer(device_ptrA, device_ptrB);
 
   // Set kernel arguments
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &output_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&input_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
   std::array<void *, 2> indirect_usm_pointers = {device_ptrA, device_ptrB};
   const cl_int err =
       clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                           sizeof(void *) * indirect_usm_pointers.size(),
-                          indirect_usm_pointers.data());
+                          static_cast<void *>(indirect_usm_pointers.data()));
   EXPECT_SUCCESS(err);
 
   // Run 1-D kernel with a global size of 'elements'

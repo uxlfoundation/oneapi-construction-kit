@@ -37,7 +37,7 @@ struct buffer : mux_buffer_s {
     static_assert(std::is_base_of_v<mux::hal::buffer, Buffer>,
                   "template type Buffer must derive from mux::hal::buffer");
     (void)device;
-    mux_memory_requirements_s memory_requirements = {
+    const mux_memory_requirements_s memory_requirements = {
         size, /*alignment*/ 16, mux::hal::memory::HEAP_BUFFER};
     auto buffer = allocator.create<Buffer>(memory_requirements);
     if (!buffer) {
@@ -53,7 +53,7 @@ struct buffer : mux_buffer_s {
     static_assert(std::is_base_of_v<mux::hal::buffer, Buffer>,
                   "template type Buffer must derive from mux::hal::buffer");
     (void)device;
-    allocator.destroy(static_cast<Buffer *>(buffer));
+    allocator.destroy(buffer);
   }
 
   /// @see muxBindBufferMemory

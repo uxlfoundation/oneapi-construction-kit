@@ -144,7 +144,7 @@ abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
       high_two + ((xAbs < intervals[high_two + 1]) ? 1 : 0);
 
   abacus_float ans = abacus::internal::horner_polynomial(
-      xAbs, __codeplay_asinh_coeff + interval * (size_t)5, 5);
+      xAbs, __codeplay_asinh_coeff + (interval * (size_t)5), 5);
 
   if (interval < 11) {
     ans = __abacus_log1p(ans);
@@ -175,7 +175,7 @@ T asinh(const T x) {
     interval = __abacus_select(interval, i, cond);
 
     const T poly = abacus::internal::horner_polynomial(
-        xAbs, __codeplay_asinh_coeff + i * (size_t)5, 5);
+        xAbs, __codeplay_asinh_coeff + (i * (size_t)5), 5);
 
     ans = __abacus_select(ans, poly, cond);
   }

@@ -478,7 +478,7 @@ inline T tan_naive_reduction(T x, typename TypeTraits<T>::SignedType *octet) {
 
   // Cody & Waite subtraction method.
   const T cw = ((xAbs - foctet * PI_OVER_FOUR_C0) - foctet * PI_OVER_FOUR_C1) -
-               foctet * PI_OVER_FOUR_C2;
+               (foctet * PI_OVER_FOUR_C2);
 
   return __abacus_fabs(cw);
 }

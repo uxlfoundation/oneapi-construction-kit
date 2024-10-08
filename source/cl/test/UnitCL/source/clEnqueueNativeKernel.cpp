@@ -17,7 +17,7 @@
 #include "Common.h"
 #include "EventWaitList.h"
 
-void CL_CALLBACK user_func(void *args) {
+static void CL_CALLBACK user_func(void *args) {
   // Redmine #5130: do stuff
   (void)args;
 }

@@ -627,7 +627,7 @@ class Builder {
     DEVICE = 4u,
     ALL_SVM_DEVICES = 5u,
     ALL_DEVICES = 6u,
-    MEM_FENCE_SCOPES_MAX
+    MEM_FENCE_SCOPES_MAX = 7u
   };
 
   /// @brief Generate the mangled function name.

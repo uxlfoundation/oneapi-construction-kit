@@ -21,7 +21,7 @@
 mux_result_t riscvCreateFence(mux_device_t device,
                               mux_allocator_info_t allocator_info,
                               mux_fence_t *out_fence) {
-  mux::allocator allocator(allocator_info);
+  const mux::allocator allocator(allocator_info);
   auto fence = riscv::fence_s::create<riscv::fence_s>(device, allocator);
   if (!fence) {
     return mux_error_out_of_memory;

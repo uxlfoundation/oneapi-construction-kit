@@ -96,9 +96,11 @@ TEST_F(cl_codeplay_extra_build_options_BuildFlags,
   EXPECT_SUCCESS(errorcode);
 
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 0, sizeof(cl_mem), &out_buffer));
+                    clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                   static_cast<void *>(&out_buffer)));
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(kernel, 1, sizeof(cl_mem), &in_buffer));
+                    clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                   static_cast<void *>(&in_buffer)));
 
   cl_command_queue command_queue =
       clCreateCommandQueue(context, device, 0, &errorcode);

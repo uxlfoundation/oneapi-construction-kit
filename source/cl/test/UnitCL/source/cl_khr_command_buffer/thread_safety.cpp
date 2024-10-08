@@ -368,9 +368,12 @@ TEST_F(CommandBufferNDRangeThreadSafetyTest, NDRangeInParallel) {
     dst_buffers.push_back(dst_buffer);
 
     // Set the kernel args for each kernel.
-    EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &src_a_buffer));
-    EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &src_b_buffer));
-    EXPECT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem), &dst_buffer));
+    EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                  static_cast<void *>(&src_a_buffer)));
+    EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                  static_cast<void *>(&src_b_buffer)));
+    EXPECT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                                  static_cast<void *>(&dst_buffer)));
   }
 
   // Fill the input buffers with values for each thread.

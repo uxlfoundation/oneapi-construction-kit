@@ -88,10 +88,12 @@ class clReleaseEventWithQueueTest : public ucl::ContextTest {
                        input.data(), &err);
     streams[1] = clCreateBuffer(
         context, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR, n, nullptr, &err);
-    err = clSetKernelArg(kernel, 0, sizeof(streams[0]), &streams[0]);
+    err = clSetKernelArg(kernel, 0, sizeof(streams[0]),
+                         static_cast<void *>(&streams[0]));
     EXPECT_SUCCESS(err);
 
-    err = clSetKernelArg(kernel, 1, sizeof(streams[1]), &streams[1]);
+    err = clSetKernelArg(kernel, 1, sizeof(streams[1]),
+                         static_cast<void *>(&streams[1]));
     EXPECT_SUCCESS(err);
 
     err = clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &n, nullptr, 0,

@@ -19,6 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <algorithm>
+
 uint32_t mux::findFirstSupportedHeap(uint32_t heaps) {
   // https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
   static const uint32_t lookupTable[32] = {
@@ -62,9 +64,7 @@ void *mux::alloc(void *, size_t size, size_t alignment) {
   void *pointer = 0;
 
   // our minimum alignment is the pointer width
-  if (alignment < sizeof(void *)) {
-    alignment = sizeof(void *);
-  }
+  alignment = std::max(alignment, sizeof(void *));
 
   size_t v = alignment;
 

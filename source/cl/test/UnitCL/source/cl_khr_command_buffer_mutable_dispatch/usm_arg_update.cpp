@@ -76,7 +76,8 @@ void kernel usm_copy(__global int* in,
     kernel = clCreateKernel(program, "usm_copy", &error);
     ASSERT_SUCCESS(error);
 
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &out_buffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                  static_cast<void *>(&out_buffer)));
   }
 
   void TearDown() override {
@@ -120,8 +121,8 @@ void kernel usm_copy(__global int* in,
   cl_program program = nullptr;
   cl_kernel kernel = nullptr;
 
-  constexpr static size_t global_size = 256;
-  constexpr static size_t data_size_in_bytes = global_size * sizeof(cl_int);
+  static constexpr size_t global_size = 256;
+  static constexpr size_t data_size_in_bytes = global_size * sizeof(cl_int);
 };
 
 // Return CL_INVALID_VALUE if arg_svm_list is NULL and num_svm_args > 0,
@@ -225,7 +226,7 @@ TEST_F(MutableDispatchUSMTest, InvalidArgValue) {
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
-  const cl_mutable_dispatch_arg_khr arg{0, 0, &out_buffer};
+  const cl_mutable_dispatch_arg_khr arg{0, 0, static_cast<void *>(&out_buffer)};
   const cl_mutable_dispatch_config_khr dispatch_config{
       CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,
       nullptr,

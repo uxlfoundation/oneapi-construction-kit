@@ -24,7 +24,7 @@ namespace utils {
 
 AnalysisKey GenericMetadataAnalysis::Key;
 
-Printable printGenericMD(const handler::GenericMetadata &MD) {
+static Printable printGenericMD(const handler::GenericMetadata &MD) {
   return Printable([MD](raw_ostream &Out) {
     Out << "Kernel Name: " << MD.kernel_name << "\n";
     Out << "Source Name: " << MD.source_name << "\n";
@@ -67,7 +67,7 @@ PreservedAnalyses GenericMetadataPrinterPass::run(Function &F,
   return PreservedAnalyses::all();
 }
 
-Printable printVectorizeMD(const handler::VectorizeInfoMetadata &MD) {
+static Printable printVectorizeMD(const handler::VectorizeInfoMetadata &MD) {
   return Printable([MD](raw_ostream &Out) {
     Out << printGenericMD(MD);
     Out << "Min Work Width: " << print(MD.min_work_item_factor) << "\n";

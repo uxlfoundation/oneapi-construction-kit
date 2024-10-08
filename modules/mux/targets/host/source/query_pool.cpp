@@ -168,7 +168,7 @@ void host::query_pool_s::reset() {
 void host::query_pool_s::reset(size_t offset, size_t count) {
   if (type == mux_query_type_duration) {
     std::memset(static_cast<uint8_t *>(this->data) +
-                    offset * sizeof(mux_query_duration_result_s),
+                    (offset * sizeof(mux_query_duration_result_s)),
                 0, count * sizeof(mux_query_duration_result_s));
   }
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS

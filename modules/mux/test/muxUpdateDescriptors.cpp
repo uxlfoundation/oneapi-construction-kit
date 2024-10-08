@@ -80,11 +80,11 @@ struct muxUpdateDescriptorsTest : public DeviceCompilerTest {
   /// @brief Address type of the devices ISA.
   mux_address_type_e address_type;
   /// @brief The local (x, y, z) dimensions of the nd range we will enqueue.
-  constexpr static size_t local_size[] = {1, 1, 1};
+  static constexpr size_t local_size[] = {1, 1, 1};
   /// @brief The global offsets of the nd range we will enqueue.
-  constexpr static size_t global_offset[] = {0, 0, 0};
+  static constexpr size_t global_offset[] = {0, 0, 0};
   /// @brief The global dimensions  of the nd range we will enqueue.
-  constexpr static size_t global_size[] = {256, 1, 1};
+  static constexpr size_t global_size[] = {256, 1, 1};
   /// @brief Descriptors for arguments to kernel.
   std::vector<mux_descriptor_info_t> descriptors;
   /// @brief The nd range options for enqueing a kernel.
@@ -166,15 +166,15 @@ struct muxUpdateDescriptorsBufferTest : public muxUpdateDescriptorsTest {
   /// @brief Updated output data.
   std::vector<char> data_out_updated;
   /// @brief Memory size in bytes of input and output buffers.
-  constexpr static size_t buffer_size = global_size[0] * sizeof(int32_t);
+  static constexpr size_t buffer_size = global_size[0] * sizeof(int32_t);
   /// @brief The initial value that will fill the input buffer.
-  constexpr static char input_value = 0x42;
+  static constexpr char input_value = 0x42;
 
   /// @brief Constructor.
   muxUpdateDescriptorsBufferTest()
       : data_in(buffer_size, input_value),
         data_out(buffer_size, 0x00),
-        data_out_updated(buffer_size, 0x00){};
+        data_out_updated(buffer_size, 0x00) {};
 
   /// @brief Virtual method used to setup any resources for the test fixture
   /// that can't be done in the constructor.
@@ -495,14 +495,14 @@ struct muxUpdateDescriptorsPODTest : public muxUpdateDescriptorsTest {
   /// @brief Initial output data.
   std::vector<char> data_out;
   /// @brief Memory size in bytes of input and output buffers.
-  constexpr static size_t buffer_size = global_size[0] * sizeof(int32_t);
+  static constexpr size_t buffer_size = global_size[0] * sizeof(int32_t);
   /// @brief The initial value that will be broadcast to the output buffer.
-  constexpr static int32_t input_value = 0x42;
+  static constexpr int32_t input_value = 0x42;
   /// @brief The updated value that will be broadcast to the output buffer.
-  constexpr static int32_t input_value_updated = 0x99;
+  static constexpr int32_t input_value_updated = 0x99;
 
   /// @brief Constructor.
-  muxUpdateDescriptorsPODTest() : data_out(buffer_size, 0x00){};
+  muxUpdateDescriptorsPODTest() : data_out(buffer_size, 0x00) {};
 
   /// @brief Virtual method used to setup any resources for the test fixture
   /// that can't be done in the constructor.
