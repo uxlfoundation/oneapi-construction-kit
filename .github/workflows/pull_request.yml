@@ -1,4 +1,4 @@
-name: pull-request
+name: Pull Request
 on:
   workflow_dispatch:
   pull_request:
@@ -11,7 +11,7 @@ on:
     - hal/**
     - .github/actions/do_build_ock/**
     - .github/actions/setup_ubuntu_build/**
-    - .github/workflows/pull-request.yml
+    - .github/workflows/pull_request.yml
     - CMakeLists.txt
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
