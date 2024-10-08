@@ -289,8 +289,8 @@ T normalize(T p) {
       // Otherwise, take the largest exponent that guarantees no overflow will
       // occur, and try to scale p so that its largest element will have that
       // exponent.
-      constexpr ElementType max = TypeTraits<ElementType>::max();
-      constexpr ElementType elem_upper_limit = []() -> ElementType {
+      static constexpr ElementType max = TypeTraits<ElementType>::max();
+      static constexpr ElementType elem_upper_limit = []() -> ElementType {
         if (sizeof(ElementType) == 2) return 0x1.ffcp6;
         if (sizeof(ElementType) == 4) return 0x1.fffffep62;
         if (sizeof(ElementType) == 8) return 0x1.fffffffffffffp510;
