@@ -249,9 +249,20 @@ steps.
   proposing and why.
 * Provide a general overview of how the code contribution works, detailing the
   effects and consequences of the change.
-* Address feedback from participants and resolve any test failures.
+* Wait for CI to be approved and resolve any test failures.
+* Address feedback from reviewers.
 * Wait for a project maintainer to make an approving review.
 * Wait for your pull request to be merged.
+
+For CI you will need to wait for someone from @ock-reviewers to enable the CI
+(or @ock-workflow-reviewers if it is workflow related). The CI can then be
+approved based on the PR. Note that currently some of the CI PR testing is done
+outside of github and you will be notified of any related failures. This is
+currently being addressed. Once it has been approved you can ping @ock-reviewers
+to merge it.
+
+It is also possible that after merging to the main branch an overnight failure
+may show up issues and a comment will be added to the merged PR.
 
 As a final note, try to keep your pull request branch in good condition. If you
 think it makes sense to split your changes across multiple commits, or later
