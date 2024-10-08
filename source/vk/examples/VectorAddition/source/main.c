@@ -537,6 +537,7 @@ int main(void) {
   // Map our output buffer back to host memory
   IS_VK_SUCCESS(vkMapMemory(device, memory, 2 * buffer_size, buffer_size, 0,
                             &mapped_ptr_void));
+  mapped_ptr = mapped_ptr_void;
 
   // Verify our results
   for (int32_t i = 0; i < NUM_WORK_ITEMS; ++i) {
