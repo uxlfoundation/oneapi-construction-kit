@@ -11,7 +11,6 @@ on:
     - hal/**
     - .github/actions/do_build_ock/**
     - .github/actions/setup_ubuntu_build/**
-    - .github/workflows/run_pr_tests.yml
     - .github/workflows/pull-request.yml
     - CMakeLists.txt
 concurrency:
@@ -43,7 +42,6 @@ jobs:
         install_dir: $GITHUB_WORKSPACE/install
         build_targets: check-ock-UnitCL-group-vecz
         mux_targets_enable: riscv
-        external_compiler_dirs: ${{ github.workspace }}/code/examples/refsi/refsi_m1/compiler/refsi_m1
         mux_compilers_enable: riscv
         riscv_enabled: ON
         enable_rvv_scalable_vecz_check: ON
@@ -55,4 +53,3 @@ jobs:
         build_dir: $GITHUB_WORKSPACE/build
         debug_support: ON
         gtest_launcher: "/usr/bin/python;-u;${{ github.workspace }}/code/scripts/gtest-terse-runner.py"
-        extra_flags: -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++

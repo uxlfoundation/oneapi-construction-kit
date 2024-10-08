@@ -100,6 +100,12 @@ inputs:
   gtest_launcher:
     description: "Googletest suite launcher command"
     default: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  c_compiler:
+    description: "C compiler"
+    default: "gcc"
+  cxx_compiler:
+    description: "C++ compiler"
+    default: "g++"
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -148,6 +154,8 @@ runs:
               -DCA_EXTERNAL_CLC=${{ inputs.external_clc }} \
               -DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=${{ inputs.disable_unitcl_vecz_checks }} \
               -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}" \
+              -DCMAKE_C_COMPILER="${{ inputs.c_compiler }}" \
+              -DCMAKE_CXX_COMPILER="${{ inputs.cxx_compiler }}" \
                $ARCH \
                ${{ inputs.extra_flags }} \
                .
