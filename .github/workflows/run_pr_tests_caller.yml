@@ -1,0 +1,41 @@
+# Calling workflow for running PR style tests
+name: Run ock tests for PR style testing
+on:
+  pull_request:
+    paths:
+      - 'source/**'
+      - 'clik/**'
+      - 'modules/**'
+      - 'examples/**'
+      - 'cmake/**'
+      - 'hal/**'
+      - '.github/actions/do_build_ock/**'
+      - '.github/actions/setup_ubuntu_build/**'
+      - '.github/workflows/run_pr_tests.yml'
+      - 'CMakeLists.txt'
+  schedule:
+    - cron: '19 9 * * 3'
+
+jobs:
+  run-with-pull:
+    name: Call PR testing on pull request
+    if: ${{ github.event_name == 'pull_request' }}    
+    uses: ./.github/workflows/run_pr_tests.yml
+    with:
+      llvm_latest: 18
+      llvm_previous: 17
+      update_cache: false
+      riscv_extra: false
+
+  # Could have multiple here
+  run-with-cron:
+    name: Call PR testing on schedule
+    if: ${{ github.event_name == 'schedule' }}    
+    uses: ./.github/workflows/run_pr_tests.yml
+    with:
+      llvm_latest: cron
+      llvm_previous: 17
+      update_cache: true
+      riscv_extra: true
+
+# additional ones here for cron and/or push to main - also can be in different file.
