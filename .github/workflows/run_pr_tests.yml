@@ -1,22 +1,21 @@
 # Simple workflow for running non-documentation PR testing
 name: Run ock tests for PR testing
 on:
-  pull_request:
-    paths:
-      - 'source/**'
-      - 'clik/**'
-      - 'modules/**'
-      - 'examples/**'
-      - 'cmake/**'
-      - 'hal/**'
-      - '.github/actions/do_build_ock/**'
-      - '.github/actions/setup_build/**'
-      - '.github/workflows/run_pr_tests.yml'
-      - 'CMakeLists.txt'
+  workflow_call:
+    inputs:
+      update_cache:
+        required: false
+        type: boolean
+        default: false
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+    inputs:
+      update_cache:
+        required: false      
+        default: false
+        type: boolean
+  
 permissions: {}
 
 concurrency:
@@ -39,6 +38,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
+          save:  ${{ inputs.update_cache }}          
 
       # These need to match the configurations of build_pr_cache to use the cache effectively
       - name: build host x86_64 online release
@@ -83,6 +83,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
+          save:  ${{ inputs.update_cache }}
 
       - name: build riscv M1
         uses: ./.github/actions/do_build_ock/do_build_m1
@@ -117,6 +118,7 @@ jobs:
             clang-format-diff.py -p1 -regex \
             "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
 
+  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
 
     runs-on: windows-2019
@@ -163,3 +165,32 @@ jobs:
           build_dir: ${{ github.workspace }}/build_offline
           c_compiler: 'cl.exe'
           cxx_compiler: 'cl.exe'
+
+  # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
+  run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '18'
+        llvm_build_type: RelAssert
+        os: ubuntu
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_targets: check-ock-UnitCL-group-vecz
+        mux_targets_enable: riscv
+        mux_compilers_enable: riscv
+        riscv_enabled: ON
+        enable_rvv_scalable_vecz_check: ON
+        enable_rvv_scalable_vp_vecz_check: ON
+        use_linker: gold
+        hal_description: RV64GCV_Zfh
+        hal_refsi_soc: G1
+        hal_refsi_thread_mode: WG
+        debug_support: ON
