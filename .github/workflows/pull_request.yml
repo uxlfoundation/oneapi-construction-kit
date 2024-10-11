@@ -47,3 +47,45 @@ jobs:
         hal_refsi_thread_mode: WG
         debug_support: ON
         gtest_launcher: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+
+############### JOB   mr-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+
+  mr-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_ubuntu_build
+      with:
+        llvm_version: '18'
+        llvm_build_type: RelAssert
+        arch: x86
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock one
+      uses: ./.github/actions/do_build_ock
+      with:
+        arch: x86
+        enable_api: ""
+        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        build_targets: check-ock
+        builtin_kernel: ON
+        use_linker: gold
+        debug_support: ON
+    - name: build ock two
+      uses: ./.github/actions/do_build_ock
+      with:
+        arch: x86
+        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        build_targets: check-ock
+        runtime_compiler_enabled: OFF
+        assemble_spirv_ll_lit_test_offline: ON
+        external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
+        use_linker: gold
+        debug_support: ON
+        install_dir: $GITHUB_WORKSPACE/install_offline
+        build_dir: $GITHUB_WORKSPACE/build_offline
+
