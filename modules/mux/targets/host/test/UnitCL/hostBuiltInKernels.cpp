@@ -136,9 +136,11 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, CopyBuffer) {
   EXPECT_TRUE(outMem);
   EXPECT_SUCCESS(status);
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &inMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&inMem)));
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &outMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&outMem)));
 
   cl_command_queue queue = clCreateCommandQueue(context, device, 0, &status);
   EXPECT_TRUE(queue);
@@ -285,9 +287,11 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsFirstKernel) {
   EXPECT_TRUE(outMem);
   EXPECT_SUCCESS(status);
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &inMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&inMem)));
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &outMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&outMem)));
 
   cl_command_queue queue;
   queue = clCreateCommandQueue(context, device, 0, &status);
@@ -378,9 +382,11 @@ TEST_F(hostCreateProgramWithBuiltInKernelsTest, TwoKernelsSecondKernel) {
   EXPECT_TRUE(outMem);
   EXPECT_SUCCESS(status);
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &inMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&inMem)));
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &outMem));
+  ASSERT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&outMem)));
 
   cl_command_queue queue;
   queue = clCreateCommandQueue(context, device, 0, &status);
