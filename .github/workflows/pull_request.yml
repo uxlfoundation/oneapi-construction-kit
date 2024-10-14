@@ -42,6 +42,7 @@ jobs:
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
         use_linker: gold
+        enable_api: cl
         hal_description: RV64GCV_Zfh
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
@@ -63,18 +64,17 @@ jobs:
         llvm_build_type: RelAssert
         arch: x86
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock one
+    - name: build ock x86 relassert
       uses: ./.github/actions/do_build_ock
       with:
         arch: x86
-        enable_api: ""
         c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
         cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
         build_targets: check-ock
         builtin_kernel: ON
         use_linker: gold
         debug_support: ON
-    - name: build ock two
+    - name: build ock x86 offline
       uses: ./.github/actions/do_build_ock
       with:
         arch: x86
@@ -85,6 +85,7 @@ jobs:
         assemble_spirv_ll_lit_test_offline: ON
         external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
         use_linker: gold
+        enable_api: cl
         debug_support: ON
         install_dir: $GITHUB_WORKSPACE/install_offline
         build_dir: $GITHUB_WORKSPACE/build_offline

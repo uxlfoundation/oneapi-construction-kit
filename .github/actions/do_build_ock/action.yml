@@ -71,8 +71,8 @@ inputs:
     description: "Enable Spir-V LL tests offline (Default OFF)"
     default: OFF
   enable_api:
-    description: "APIs to enable (default CL)"
-    default: cl
+    description: 'APIs to enable (default "")'
+    default: ""
   enable_rvv_scalable_vecz_check:
     description: "Enable RVV scalable vecz check (default OFF)"
     default: OFF
