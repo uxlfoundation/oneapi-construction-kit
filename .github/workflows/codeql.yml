@@ -54,6 +54,7 @@ jobs:
           extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
           build_dir: build_offline
           assemble_spirv_ll_lit_test_offline: ON
+          enable_api: cl
           build_targets:
 
       - name: Perform CodeQL Analysis
