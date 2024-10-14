@@ -57,13 +57,13 @@ static cl::opt<bool> WriteTextual(
     cl::init(true));
 
 static cl::opt<CodeGenFileType> FileType(
-    "filetype", cl::init(multi_llvm::CodeGenFileType::AssemblyFile),
+    "filetype", cl::init(llvm::CodeGenFileType::AssemblyFile),
     cl::desc("Choose a file type:"),
-    cl::values(clEnumValN(multi_llvm::CodeGenFileType::AssemblyFile, "asm",
+    cl::values(clEnumValN(llvm::CodeGenFileType::AssemblyFile, "asm",
                           "Emit a textual file"),
-               clEnumValN(multi_llvm::CodeGenFileType::ObjectFile, "obj",
+               clEnumValN(llvm::CodeGenFileType::ObjectFile, "obj",
                           "Emit a binary object file"),
-               clEnumValN(multi_llvm::CodeGenFileType::Null, "null",
+               clEnumValN(llvm::CodeGenFileType::Null, "null",
                           "Emit nothing, for performance testing")));
 
 static cl::opt<int> DeviceIdx(
@@ -143,14 +143,14 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (FileType == multi_llvm::CodeGenFileType::Null) {
+  if (FileType == llvm::CodeGenFileType::Null) {
     return 0;
   }
 
   // Open the output file.
   std::error_code EC;
   sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
-  if (FileType == multi_llvm::CodeGenFileType::AssemblyFile) {
+  if (FileType == llvm::CodeGenFileType::AssemblyFile) {
     OpenFlags |= sys::fs::OF_Text;
   }
   auto Out = std::make_unique<ToolOutputFile>(OutputFilename, EC, OpenFlags);
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
   }
 
   llvm::ModulePassManager printMPM;
-  if (FileType == multi_llvm::CodeGenFileType::AssemblyFile) {
+  if (FileType == llvm::CodeGenFileType::AssemblyFile) {
     printMPM.addPass(llvm::PrintModulePass(Out->os()));
   } else {
     printMPM.addPass(llvm::BitcodeWriterPass(Out->os()));

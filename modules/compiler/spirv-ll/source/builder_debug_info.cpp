@@ -1002,15 +1002,9 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
           "'Value' " + getIDAsStr(*op_val, &module) + " of DebugTypeMember " +
           getIDAsStr(op->IdResult(), &module) + " is not an OpConstant");
     }
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
     return getDIBuilder(op).createStaticMemberType(
         scope, *name, file, op->Line(), base_ty, flags,
         cast<llvm::Constant>(val), llvm::dwarf::DW_TAG_variable);
-#else
-    return getDIBuilder(op).createStaticMemberType(scope, *name, file,
-                                                   op->Line(), base_ty, flags,
-                                                   cast<llvm::Constant>(val));
-#endif
   }
 
   auto size_or_error = getConstantIntValue(op->Size());

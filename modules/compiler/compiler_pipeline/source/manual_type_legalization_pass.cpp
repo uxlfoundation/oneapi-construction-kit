@@ -73,15 +73,7 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
     auto *&FPExt = FPExtVals[{V, ExtTy}];
     if (!FPExt) {
       if (auto *I = dyn_cast<Instruction>(V)) {
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
-        std::optional<BasicBlock::iterator> IPAD;
-        IPAD = I->getInsertionPointAfterDef();
-#else
-        std::optional<Instruction *> IPAD;
-        if (auto *IPADRaw = I->getInsertionPointAfterDef()) {
-          IPAD = IPADRaw;
-        }
-#endif
+        auto IPAD = I->getInsertionPointAfterDef();
         assert(IPAD &&
                "getInsertionPointAfterDef() should return an insertion point "
                "for all FP16 instructions");

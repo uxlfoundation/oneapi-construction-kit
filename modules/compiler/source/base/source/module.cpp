@@ -238,12 +238,7 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   // stored inside the PCH file.
   llvm::BitstreamCursor &Cursor = moduleFile->InputFilesCursor;
   const clang::SavedStreamPosition SavedPosition(Cursor);
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
-  // LLVM 18 introduces a new offset that should be included
   const uint64_t Base = moduleFile->InputFilesOffsetBase;
-#else
-  const uint64_t Base = 0;
-#endif
   if (Cursor.JumpToBit(Base + moduleFile->InputFileOffsets[0])) {
     return false;
   }

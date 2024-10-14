@@ -275,9 +275,6 @@ static std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"Cold", CallingConv::Cold},
     {"GHC", CallingConv::GHC},
     {"HiPE", CallingConv::HiPE},
-#if LLVM_VERSION_LESS(18, 0)
-    {"WebKit_JS", CallingConv::WebKit_JS},
-#endif
     {"AnyReg", CallingConv::AnyReg},
     {"PreserveMost", CallingConv::PreserveMost},
     {"PreserveAll", CallingConv::PreserveAll},
@@ -318,12 +315,10 @@ static std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"WASM_EmscriptenInvoke", CallingConv::WASM_EmscriptenInvoke},
     {"AMDGPU_Gfx", CallingConv::AMDGPU_Gfx},
     {"M68k_INTR", CallingConv::M68k_INTR},
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
     {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0",
      CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0},
     {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2",
      CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2},
-#endif
 };
 
 // For parseFixupCallingConventionPassOptions we check the param against

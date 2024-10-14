@@ -196,7 +196,7 @@ static llvm::TargetMachine *createTargetMachine(
       target.llvm_triple, target.llvm_cpu, target.llvm_features, options,
       target.riscv_hal_device_info->link_shared ? llvm::Reloc::Model::PIC_
                                                 : llvm::Reloc::Model::Static,
-      llvm::CodeModel::Small, multi_llvm::CodeGenOptLevel::Aggressive);
+      llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
 }
 
 llvm::TargetMachine *riscv::RiscvModule::getTargetMachine() {
