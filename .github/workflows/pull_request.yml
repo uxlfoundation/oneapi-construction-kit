@@ -42,7 +42,6 @@ jobs:
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
         use_linker: gold
-        enable_api: cl
         hal_description: RV64GCV_Zfh
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
@@ -71,6 +70,7 @@ jobs:
         c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
         cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
         build_targets: check-ock
+        enable_api: ""
         builtin_kernel: ON
         use_linker: gold
         debug_support: ON
@@ -85,7 +85,6 @@ jobs:
         assemble_spirv_ll_lit_test_offline: ON
         external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
         use_linker: gold
-        enable_api: cl
         debug_support: ON
         install_dir: $GITHUB_WORKSPACE/install_offline
         build_dir: $GITHUB_WORKSPACE/build_offline

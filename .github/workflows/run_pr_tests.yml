@@ -63,7 +63,6 @@ jobs:
           build_dir: build_offline
           build_targets: UnitCL
           assemble_spirv_ll_lit_test_offline: ON
-          enable_api: cl
 
       - name: run host x86_64 offline
         run:
