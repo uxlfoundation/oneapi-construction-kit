@@ -28,7 +28,7 @@ jobs:
       - name: Setup ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:
-          llvm_version: 17
+          llvm_version: 18
           llvm_build_type: Release
 
       - name: Setup python

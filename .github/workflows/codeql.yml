@@ -26,7 +26,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
+      # installs tools, ninja and installs llvm (default 18, RelAssert) and sets up cache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:
@@ -74,7 +74,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # installs tools, ninja and installs llvm (default 17, RelAssert) and sets up cache
+      # installs tools, ninja and installs llvm (default 18, RelAssert) and sets up cache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_ubuntu_build
         with:

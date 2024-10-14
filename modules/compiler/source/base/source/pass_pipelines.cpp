@@ -134,8 +134,8 @@ Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
                        raw_pwrite_stream &ostream, bool create_assembly) {
   legacy::PassManager PM;
   const CodeGenFileType type = !create_assembly
-                                   ? multi_llvm::CodeGenFileType::ObjectFile
-                                   : multi_llvm::CodeGenFileType::AssemblyFile;
+                                   ? llvm::CodeGenFileType::ObjectFile
+                                   : llvm::CodeGenFileType::AssemblyFile;
   if (TM->addPassesToEmitFile(PM, ostream, /*DwoOut*/ nullptr, type,
                               /*DisableVerify*/ false)) {
     return compiler::Result::FAILURE;

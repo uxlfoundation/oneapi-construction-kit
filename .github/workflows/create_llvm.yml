@@ -17,7 +17,7 @@ jobs:
   create_llvm_cache:
     strategy:
       matrix:
-        version: [17, 18]
+        version: [18, 19]
         os: [ubuntu-22.04, windows-2019]
         build_type: [Release, RelAssert]
         arch : [x86, x86_64, aarch64]
@@ -25,15 +25,15 @@ jobs:
           # Reduce the versions of llvm for aarch64 & x86 architectures and windows, as
           # well as any windows os variants to reduce cache usage.
           - arch: aarch64
-            version: 17
+            version: 18
           - arch: aarch64
             build_type: Release
           - arch: x86
-            version: 17
+            version: 18
           - arch: x86
             build_type: Release
           - os: windows-2019
-            version: 17
+            version: 18
           - os: windows-2019
             build_type: Release
           - os: windows-2019

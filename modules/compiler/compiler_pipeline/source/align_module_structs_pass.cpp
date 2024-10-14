@@ -276,11 +276,7 @@ Function *cloneFunctionUpdatingTypes(Function &func,
 
   // Take attributes of old function
   newFunc->takeName(&func);
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
   newFunc->updateAfterNameChange();
-#else
-  newFunc->recalculateIntrinsicID();
-#endif
   newFunc->setCallingConv(func.getCallingConv());
 
   assert(func.isIntrinsic() == newFunc->isIntrinsic() &&

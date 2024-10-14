@@ -95,13 +95,11 @@ endif()
 set(CLANG_LIBS "clangCodeGen" "clangFrontend" "clangDriver"
                "clangParse" "clangSerialization" "clangSema"
                "clangAnalysis" "clangAST" "clangEdit" "clangASTMatchers"
-               "clangLex" "clangBasic" "clangSupport")
-set(LLVM_LIBS "LLVMCodeGen" "LLVMOption" "LLVMCoroutines" "LLVMCoverage"
-              "LLVMLTO" "LLVMWindowsDriver" "LLVMFrontendHLSL")
-if(LLVM_VERSION_MAJOR GREATER_EQUAL 18)
-  list(APPEND CLANG_LIBS "clangAPINotes" "clangBasic")
-  list(APPEND LLVM_LIBS "LLVMFrontendDriver")
-endif()
+               "clangLex" "clangBasic" "clangSupport" "clangAPINotes"
+               "clangBasic")
+set(LLVM_LIBS "LLVMCodeGen" "LLVMCoroutines" "LLVMCoverage"
+              "LLVMFrontendDriver" "LLVMFrontendHLSL" "LLVMLTO" "LLVMOption"
+              "LLVMWindowsDriver")
 
 # In-tree, we should have each of these library targets available.
 # Otherwise, we have to provide the full path to them.

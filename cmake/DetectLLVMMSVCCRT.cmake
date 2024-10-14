@@ -34,63 +34,10 @@ endif()
 
 # LLVM 18 uses the CMake default setting, which depends on the mode LLVM
 # was built in, not the mode we were built in.
-if(LLVM_VERSION_MAJOR GREATER_EQUAL 18)
-  if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-    if(LLVM_BUILD_TYPE STREQUAL "Debug")
-      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
-    else()
-      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-    endif()
+if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+  if(LLVM_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
+  else()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
   endif()
-  return()
 endif()
-
-# Get the directory of cl.exe
-get_filename_component(tools_dir "${CMAKE_C_COMPILER}" DIRECTORY)
-
-# Find the dumpbin.exe executable in the directory of cl.exe
-find_program(dumpbin "dumpbin.exe" PATHS "${tools_dir}" NO_DEFAULT_PATH)
-
-if("${dumpbin}" STREQUAL "dumpbin-NOTFOUND")
-  message(WARNING "Could not detect which CRT LLVM was built against - "
-                  "could not find 'dumpbin.exe'.")
-  return()
-endif()
-
-# Get the location in the file-system of LLVMCore.lib
-get_target_property(llvmcore LLVMCore LOCATION)
-
-if("${llvmcore}" STREQUAL "llvmcore-NOTFOUND")
-  message(WARNING "Could not detect which CRT LLVM was built against - "
-                  "could not find location of 'LLVMCore.lib'.")
-  return()
-endif()
-
-# Get the directives that LLVMCore.lib contains
-execute_process(COMMAND "${dumpbin}" "/DIRECTIVES" "${llvmcore}"
-  OUTPUT_VARIABLE output)
-
-# Find the first directive specifying what CRT to use
-string(FIND "${output}" "/FAILIFMISMATCH:RuntimeLibrary=" position)
-
-# Strip away everything but the directive we want to examine
-string(SUBSTRING "${output}" ${position} 128 output)
-
-# Remove the directive prefix which we don't need
-string(REPLACE "/FAILIFMISMATCH:RuntimeLibrary=" "" output "${output}")
-
-# Get the position of the '_' character that breaks the CRT from all else
-string(FIND "${output}" "_" position)
-
-# Substring output to be one of the four CRT values: MDd MD MTd MT
-string(SUBSTRING "${output}" 0 ${position} output)
-
-# Set all possible CMAKE_BUILD_TYPE's to the CRT that LLVM was linked against
-set(LLVM_USE_CRT_DEBUG "${output}")
-set(LLVM_USE_CRT_RELWITHDEBINFO "${output}")
-set(LLVM_USE_CRT_MINSIZEREL "${output}")
-set(LLVM_USE_CRT_RELEASEASSERT "${output}")
-set(LLVM_USE_CRT_RELEASE "${output}")
-
-# Include the LLVM cmake module to choose the correct CRT for our libraries
-include(ChooseMSVCCRT)
