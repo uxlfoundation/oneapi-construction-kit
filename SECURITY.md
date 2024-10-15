@@ -20,7 +20,7 @@ before disclosing them on public forums or opening a public GitHub issue.
 Report a vulnerability to us in one of two ways:
 
 * Open a draft [**GitHub Security Advisory**][2]
-* Send e-mail to the following address: <security@uxlfoundation.org>.
+* Send an e-mail to the following address: <security@uxlfoundation.org>.
 
 Along with the report, please include the following info:
 
