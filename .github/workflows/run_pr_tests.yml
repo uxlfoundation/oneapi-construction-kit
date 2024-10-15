@@ -110,16 +110,9 @@ jobs:
 
       - name: run clang-format
         run: |
-          # we've installed clang-format-16 in the docker via pip, which just installs it as clang-format,
+          # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
           # so just use clang-format-diff and -b clang-format directly
           git fetch origin ${{ github.base_ref }}
           git diff --no-color origin/${{ github.base_ref }} | \
             clang-format-diff.py -p1 -regex \
-            "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format \
-            > clang-format.diff
-          if [ `wc -l < clang-format.diff` = 0 ]; then
-            echo 'success: clang-format did not generate a diff'
-            exit 0
-          fi
-          cat clang-format.diff
-          exit 1
+            "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
