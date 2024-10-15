@@ -115,7 +115,8 @@ void replaceSubgroupBuiltinCall(CallInst *CI,
     for (auto &arg : CI->args()) {
       Args.push_back(arg);
     }
-    auto *WGCI = CallInst::Create(WorkGroupBuiltinFn, Args, "", CI);
+    auto *WGCI = CallInst::Create(WorkGroupBuiltinFn, Args);
+    WGCI->insertBefore(CI->getIterator());
     WGCI->setCallingConv(CI->getCallingConv());
     CI->replaceAllUsesWith(WGCI);
     return;
@@ -217,11 +218,13 @@ void replaceSubgroupWorkItemBuiltinCall(CallInst *CI,
         compiler::utils::eMuxBuiltinGetLocalLinearId, *M);
     GetLocalLinearID->setCallingConv(CI->getCallingConv());
     auto *const LocalLinearIDCall =
-        CallInst::Create(GetLocalLinearID, {}, "", CI);
+        CallInst::Create(GetLocalLinearID, ArrayRef<Value *>{});
+    LocalLinearIDCall->insertBefore(CI->getIterator());
     LocalLinearIDCall->setCallingConv(CI->getCallingConv());
     auto *const LocalLinearID = CastInst::CreateIntegerCast(
         LocalLinearIDCall, Type::getInt32Ty(M->getContext()),
-        /* isSigned */ false, "", CI);
+        /* isSigned */ false);
+    LocalLinearID->insertBefore(CI->getIterator());
     CI->replaceAllUsesWith(LocalLinearID);
   } else {
     llvm_unreachable("unhandled sub-group builtin function");
