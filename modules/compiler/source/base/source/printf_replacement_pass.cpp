@@ -803,7 +803,8 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   const std::string name = ci->getName().str();
   ci->setName("");
 
-  auto newCi = CallInst::Create(callFunction, new_args, name, ci);
+  auto newCi = CallInst::Create(callFunction, new_args, name);
+  newCi->insertBefore(ci->getIterator());
   newCi->setDebugLoc(ci->getDebugLoc());
   newCi->setCallingConv(ci->getCallingConv());
 

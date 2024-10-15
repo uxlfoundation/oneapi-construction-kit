@@ -175,7 +175,8 @@ bool powToX(Module &module, const std::map<std::string, std::string> &map,
     args.push_back(newY);
 
     // create a new call that calls the replacement fast function
-    auto newCi = CallInst::Create(newFunc, args, bundles, "", ci);
+    auto newCi = CallInst::Create(newFunc, args, bundles);
+    newCi->insertBefore(ci->getIterator());
 
     // take the name of the old call instruction
     newCi->takeName(ci);

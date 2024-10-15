@@ -445,8 +445,10 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
       // Make sure our index is a 32 bit integer to match the work item function
       // signatures.
       if (index->getType()->getScalarSizeInBits() != 32) {
-        index = llvm::CastInst::CreateIntegerCast(index, IRBuilder.getInt32Ty(),
-                                                  false, "", useInst);
+        auto *cast = llvm::CastInst::CreateIntegerCast(
+            index, IRBuilder.getInt32Ty(), false);
+        cast->insertBefore(useInst->getIterator());
+        index = cast;
       }
       arg.push_back(index);
     }
@@ -458,8 +460,10 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     // is needed for VK modules sometimes because the GLSL builtin variables are
     // vectors of 32 bit ints whereas the CL work item functions return size_t.
     if (use->getType() != workItemCall->getType()) {
-      workItemCall = llvm::CastInst::CreateIntegerCast(
-          workItemCall, use->getType(), false, "", useInst);
+      auto *cast = llvm::CastInst::CreateIntegerCast(workItemCall,
+                                                     use->getType(), false);
+      cast->insertBefore(useInst->getIterator());
+      workItemCall = cast;
     }
     workItemCall->takeName(useInst);
     useInst->replaceAllUsesWith(workItemCall);

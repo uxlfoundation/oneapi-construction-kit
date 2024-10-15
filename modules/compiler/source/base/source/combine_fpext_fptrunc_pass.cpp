@@ -17,7 +17,6 @@
 #include <base/combine_fpext_fptrunc_pass.h>
 #include <compiler/utils/device_info.h>
 #include <llvm/IR/Instructions.h>
-#include <multi_llvm/multi_llvm.h>
 
 using namespace llvm;
 
@@ -76,8 +75,9 @@ PreservedAnalyses compiler::CombineFPExtFPTruncPass::run(
           for (auto old_extract : extracts) {
             // Create new extract instruction from single/half precision vector
             auto *new_extract = ExtractElementInst::Create(
-                fpext->getOperand(0), old_extract->getIndexOperand(), "",
-                old_extract);
+                fpext->getOperand(0), old_extract->getIndexOperand());
+            new_extract->insertBefore(old_extract->getIterator());
+
             auto *fptrunc = cast<FPTruncInst>(old_extract->user_back());
             fptrunc->replaceAllUsesWith(new_extract);
 
@@ -104,8 +104,9 @@ PreservedAnalyses compiler::CombineFPExtFPTruncPass::run(
                   // shortcut the instructions
                   fptrunc->replaceAllUsesWith(fp_op);
                 } else {
-                  auto new_ext = CastInst::CreateFPCast(
-                      fp_op, fptrunc->getDestTy(), "", fpext);
+                  auto new_ext =
+                      CastInst::CreateFPCast(fp_op, fptrunc->getDestTy());
+                  new_ext->insertBefore(fpext->getIterator());
 
                   // shortcut the instructions
                   fptrunc->replaceAllUsesWith(new_ext);
