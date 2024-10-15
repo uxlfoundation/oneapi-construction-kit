@@ -22,6 +22,16 @@ runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
+    - name: setup ubuntu inputs
+      shell: bash
+      run: |
+        echo llvm_build_type "${{ inputs.llvm_build_type }}"
+        echo llvm_version "${{ inputs.llvm_version }}"
+        echo ubuntu_version "${{ inputs.ubuntu_version }}"
+        echo llvm_build_type "${{ inputs.llvm_build_type }}"
+        echo save "${{ inputs.save }}"
+        echo arch "${{ inputs.arch }}"
+
     - name: Install prerequisites
       shell: bash
       run: |
