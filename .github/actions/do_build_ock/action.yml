@@ -4,9 +4,6 @@ description: Action to build the oneapi-construction-kit
 # Some of these are riscv or host target specific, but it does not harm at present to
 # overset cmake values
 inputs:
-  path:
-    description: 'Change to PATH before building'
-    default: '.'
   build_type:
     description: 'build type e.g Release, ReleaseAssert (default ReleaseAssert)'
     default: ReleaseAssert
@@ -98,69 +95,80 @@ inputs:
     description: "Disable unitcl vecz checks"
     default: OFF
   gtest_launcher:
-    description: "Googletest suite launcher command"
+    description: "Googletest suite launcher command (default ubuntu)"
     default: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  build_32_bit:
+    description: "32-bit building"
+    default: OFF
+  shell_to_use:
+    description: "which shell to use (default bash)"
+    default: bash
   c_compiler:
-    description: "C compiler"
+    description: "C compiler (default gcc)"
     default: "gcc"
   cxx_compiler:
-    description: "C++ compiler"
+    description: "C++ compiler (default g++)"
     default: "g++"
 
 runs:
-  # We don't want a new docker just a list of steps, so mark as composite
+  # we don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
-    - name: cmake_ock
-      shell: bash
+
+    - name: windows - set ICD registry and external clc for cmake
+      id: set_windows
+      if: startsWith(runner.os, 'Windows')
+      shell: ${{ inputs.shell_to_use }}
       run: |
-        ARCH="-DCA_BUILD_32_BITS"
-        if [[ "${{ inputs.arch }}" == "x86" ]]; then
-           ARCH="${ARCH}=ON"
-        else
-           ARCH="${ARCH}=OFF"
-        fi
-        cd ${{ inputs.path }}
-        set -x && cmake -GNinja \
-              -B${{ inputs.build_dir }} \
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache                 \
-              -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }} \
-              -DCA_ENABLE_API=${{ inputs.enable_api }} \
-              -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }} \
-              -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }} \
-              -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
-              -DCA_ENABLE_HOST_IMAGE_SUPPORT=${{ inputs.host_image }} \
-              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.builtin_kernel }} \
-              -DCA_HOST_ENABLE_BUILTINS_EXTENSION=${{ inputs.host_enable_builtins}} \
-              -DCA_HOST_ENABLE_FP16=${{ inputs.host_fp16 }} \
-              -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=${{ inputs.offline_kernel_tests }} \
-              -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=${{ inputs.assemble_spirv_ll_lit_test_offline }} \
-              -DOCL_EXTENSION_cl_intel_unified_shared_memory=${{ inputs.usm }} \
-              -DOCL_EXTENSION_cl_khr_command_buffer=${{ inputs.command_buffer }} \
-              -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=${{ inputs.command_buffer }} \
-              -DCA_MUX_COMPILERS_TO_ENABLE=${{ inputs.mux_compilers_enable}} \
-              -DCA_EXTERNAL_MUX_COMPILER_DIRS=${{ inputs.external_compiler_dirs }} \
-              -DCA_CL_ENABLE_ICD_LOADER=ON \
-              -DHAL_DESCRIPTION=${{ inputs.hal_description }} \
-              -DHAL_REFSI_SOC=${{ inputs.hal_refsi_soc }} \
-              -DHAL_REFSI_THREAD_MODE=${{ inputs.hal_refsi_thread_mode }} \
-              -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }} \
-              -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }} \
-              -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }} \
-              -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }} \
-              -DCA_USE_LINKER=${{ inputs.use_linker }} \
-              -DCA_RUNTIME_COMPILER_ENABLED=${{ inputs.runtime_compiler_enabled }} \
-              -DCA_EXTERNAL_CLC=${{ inputs.external_clc }} \
-              -DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=${{ inputs.disable_unitcl_vecz_checks }} \
-              -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}" \
-              -DCMAKE_C_COMPILER="${{ inputs.c_compiler }}" \
-              -DCMAKE_CXX_COMPILER="${{ inputs.cxx_compiler }}" \
-               $ARCH \
-               ${{ inputs.extra_flags }} \
+        $PWD = Convert-Path .; source/cl/tools/icd-register.ps1 "$PWD/${{ inputs.build_dir }}/bin/CL.dll"
+        echo "inputs.external_clc is ${{ inputs.external_clc }}"
+        $PATTERN = '[\\]'
+        $WINDOWSCLC = "${{ inputs.external_clc }}" -replace $PATTERN, '/'
+        echo "windowsclc is $WINDOWSCLC"
+        echo "windowsclc='$WINDOWSCLC'" >> $env:GITHUB_OUTPUT
+
+    - name: cmake_ock
+      shell: ${{ inputs.shell_to_use }}
+      run:
+        cmake -GNinja
+              -B${{ inputs.build_dir }}
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+              -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }}
+              -DCA_ENABLE_API=${{ inputs.enable_api }}
+              -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }}
+              -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }}
+              -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+              -DCA_ENABLE_HOST_IMAGE_SUPPORT=${{ inputs.host_image }}
+              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.builtin_kernel }}
+              -DCA_HOST_ENABLE_BUILTINS_EXTENSION=${{ inputs.host_enable_builtins}}
+              -DCA_HOST_ENABLE_FP16=${{ inputs.host_fp16 }}
+              -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=${{ inputs.offline_kernel_tests }}
+              -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=${{ inputs.assemble_spirv_ll_lit_test_offline }}
+              -DOCL_EXTENSION_cl_intel_unified_shared_memory=${{ inputs.usm }}
+              -DOCL_EXTENSION_cl_khr_command_buffer=${{ inputs.command_buffer }}
+              -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=${{ inputs.command_buffer }}
+              -DCA_MUX_COMPILERS_TO_ENABLE=${{ inputs.mux_compilers_enable}}
+              -DCA_EXTERNAL_MUX_COMPILER_DIRS=${{ inputs.external_compiler_dirs }}
+              -DCA_CL_ENABLE_ICD_LOADER=ON
+              -DHAL_DESCRIPTION=${{ inputs.hal_description }}
+              -DHAL_REFSI_SOC=${{ inputs.hal_refsi_soc }}
+              -DHAL_REFSI_THREAD_MODE=${{ inputs.hal_refsi_thread_mode }}
+              -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }}
+              -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }}
+              -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }}
+              -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
+              -DCA_USE_LINKER=${{ inputs.use_linker }}
+              -DCA_RUNTIME_COMPILER_ENABLED=${{ inputs.runtime_compiler_enabled }}
+              -DCA_EXTERNAL_CLC=${{ startsWith(runner.os, 'Windows') && steps.set_windows.outputs.windowsclc || inputs.external_clc }}
+              -DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=${{ inputs.disable_unitcl_vecz_checks }}
+              -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}"
+              -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
+              -DCMAKE_C_COMPILER=${{ inputs.c_compiler }}
+              -DCMAKE_CXX_COMPILER=${{ inputs.cxx_compiler }}
+               ${{ inputs.extra_flags }}
                .
     - name: build_ock
-      shell: bash
-      run: |
-        cd ${{ inputs.path }}
-        set -x && ninja -C ${{ inputs.build_dir }} ${{ inputs.build_targets }}
+      shell: ${{ inputs.shell_to_use }}
+      run:
+        ninja -C ${{ inputs.build_dir }} ${{ inputs.build_targets }}
