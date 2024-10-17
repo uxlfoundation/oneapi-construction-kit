@@ -10,7 +10,7 @@ on:
       - 'cmake/**'
       - 'hal/**'
       - '.github/actions/do_build_ock/**'
-      - '.github/actions/setup_ubuntu_build/**'
+      - '.github/actions/setup_build/**'
       - '.github/workflows/run_pr_tests.yml'
       - 'CMakeLists.txt'
 
@@ -35,7 +35,7 @@ jobs:
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
-        uses:  ./.github/actions/setup_ubuntu_build
+        uses:  ./.github/actions/setup_build
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
@@ -79,7 +79,7 @@ jobs:
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
-        uses:  ./.github/actions/setup_ubuntu_build
+        uses:  ./.github/actions/setup_build
         with:
           llvm_version: 18
           llvm_build_type: RelAssert

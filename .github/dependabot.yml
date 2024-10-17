@@ -8,7 +8,7 @@ updates:
       - "/.github/actions/build_portBLAS_action"
       - "/.github/actions/build_portDNN_action"
       - "/.github/actions/build_vgg_resnet_action"
-      - "/.github/actions/setup_ubuntu_build"
+      - "/.github/actions/setup_build"
     schedule:
       interval: "monthly"
     groups:
