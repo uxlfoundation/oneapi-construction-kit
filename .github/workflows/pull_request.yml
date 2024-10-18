@@ -10,7 +10,7 @@ on:
     - cmake/**
     - hal/**
     - .github/actions/do_build_ock/**
-    - .github/actions/setup_ubuntu_build/**
+    - .github/actions/setup_build/**
     - .github/workflows/pull_request.yml
     - CMakeLists.txt
 concurrency:
@@ -27,10 +27,11 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
     - name: setup-ubuntu
-      uses: ./.github/actions/setup_ubuntu_build
+      uses: ./.github/actions/setup_build
       with:
         llvm_version: '18'
         llvm_build_type: RelAssert
+        os: ubuntu
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
@@ -46,4 +47,3 @@ jobs:
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
         debug_support: ON
-        gtest_launcher: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
