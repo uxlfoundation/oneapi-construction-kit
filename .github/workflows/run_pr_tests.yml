@@ -116,3 +116,50 @@ jobs:
           git diff --no-color origin/${{ github.base_ref }} | \
             clang-format-diff.py -p1 -regex \
             "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
+
+  run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
+
+    runs-on: windows-2019
+
+    steps:
+      - name: Setup Windows llvm base
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
+
+      # installs tools, ninja, installs llvm and sets up sccache
+      - name: setup-windows
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: 19
+          llvm_build_type: RelAssert
+          os: windows
+
+      - name: build ock x86_64 relassert
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: check-ock
+          enable_api: ""
+          builtin_kernel: ON
+          shell_to_use: pwsh
+          gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+          debug_support: ON
+          c_compiler: 'cl.exe'
+          cxx_compiler: 'cl.exe'
+
+      - name: build ock x86_64 offline
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: check-ock
+          runtime_compiler_enabled: OFF
+          external_clc: "${{ github.workspace }}/build/bin/clc.exe"
+          shell_to_use: pwsh
+          gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+          debug_support: ON
+          install_dir: ${{ github.workspace }}/install_offline
+          build_dir: ${{ github.workspace }}/build_offline
+          c_compiler: 'cl.exe'
+          cxx_compiler: 'cl.exe'
