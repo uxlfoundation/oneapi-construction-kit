@@ -194,3 +194,43 @@ jobs:
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
         debug_support: ON
+
+  # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
+  run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90 # offline needs longer timeout
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_ubuntu_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: RelAssert
+        arch: x86
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock x86 relassert
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_32_bit: ON
+        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        build_targets: check-ock
+        enable_api: ""
+        builtin_kernel: ON
+        use_linker: gold
+        debug_support: ON
+    - name: build ock x86 offline
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_32_bit: ON
+        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        build_targets: check-ock
+        runtime_compiler_enabled: OFF
+        assemble_spirv_ll_lit_test_offline: ON
+        external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
+        use_linker: gold
+        debug_support: ON
+        install_dir: $GITHUB_WORKSPACE/install_offline
+        build_dir: $GITHUB_WORKSPACE/build_offline
