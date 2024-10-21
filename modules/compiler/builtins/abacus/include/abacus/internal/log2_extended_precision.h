@@ -45,15 +45,12 @@ static ABACUS_CONSTANT abacus_half
         -0.1474609375f16};
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-// see maple worksheet for how coefficient was derived
-static ABACUS_CONSTANT abacus_float
-    __codeplay_log2_extended_precision_coeff[16] = {
-        -.72134752044367709f,     .48089834695927680f,     -.36067376055899679f,
-        .28853900903746190f,      -.24044913178516529f,    .20609921341711487f,
-        -.18033920103731198f,     .16030301033157655f,     -.14420120724015226f,
-        .13106324614753728f,      -.12135615255608116f,    .11232690718087393f,
-        -0.92542744786243758e-1f, 0.84679695565939149e-1f, -.13981754775229332f,
-        .13540255679513207f};
+// Aprroximation of log2(x+1) between [sqrt(0.5)-1;2*sqrt(0.5)-1]
+// See log2_extended_precision.sollya for derivation
+// The first terms are separated out to avoid double-precision arithmetic.
+static ABACUS_CONSTANT abacus_float __codeplay_log2_extended_precision_coeff[] =
+    {0.33333301f,  -0.25000026f, 0.20002578f,   -0.16667923f, 0.14212508f,
+     -0.12400908f, 0.11926104f,  -0.117190584f, 0.067263625f};
 }  // namespace
 
 namespace abacus {
@@ -66,27 +63,40 @@ struct log2_extended_precision_helper<T, abacus_float> {
   static T _(const T &xMant, T *out_remainder) {
     T xMAnt1m = xMant - 1.0f;
 
-    T poly = abacus::internal::horner_polynomial(
-        xMAnt1m, __codeplay_log2_extended_precision_coeff);
+    T hi = xMAnt1m * abacus::internal::horner_polynomial(
+                         xMAnt1m, __codeplay_log2_extended_precision_coeff);
+    T lo = 0;
 
-    T poly_times_x_lo;
-    T poly_times_x_hi =
-        abacus::internal::multiply_exact(poly, xMAnt1m, &poly_times_x_lo);
+    auto AddF = [](T &hi, T &lo, T val) {
+      abacus::internal::add_exact(&hi, &val);
+      abacus::internal::add_exact(&lo, &val);
+    };
+    auto MulF = [](T &hi, T &lo, T val) {
+      T mullo;
+      hi = abacus::internal::multiply_exact(hi, val, &mullo);
+      lo = __abacus_fma(val, lo, mullo);
+    };
+    auto MulD = [&AddF, &MulF](T &hi, T &lo, T hival, T loval) {
+      T hihi = hi, hilo = lo, lohi = hi, lolo = lo;
+      MulF(hihi, hilo, hival);
+      MulF(lohi, lolo, loval);
 
-    T total_sum_lo;
-    T total_sum_hi = abacus::internal::add_exact(
-        (T)1.44269502162933349609375f, poly_times_x_hi, &total_sum_lo);
+      hi = lohi;
+      lo = lolo;
+      AddF(hi, lo, hilo);
+      AddF(hi, lo, hihi);
+    };
 
-    total_sum_lo += poly_times_x_lo;
-    // total_sum_lo += 1.837066650390625e-8f;  // a magic correction term
-    total_sum_lo += 1.92596333e-8f;
+    AddF(hi, lo, -0.5f);
+    AddF(hi, lo, 3.3101797e-09f);
+    MulF(hi, lo, xMAnt1m);
+    AddF(hi, lo, 1.f);
+    AddF(hi, lo, 6.3439454e-10f);
+    MulF(hi, lo, xMAnt1m);
+    MulD(hi, lo, 1.442695f, 1.925963e-08f);
 
-    T result_lo;
-    T result_hi =
-        abacus::internal::multiply_exact(total_sum_hi, xMAnt1m, &result_lo);
-
-    *out_remainder = result_lo + (xMAnt1m * total_sum_lo);
-    return result_hi;
+    *out_remainder = lo;
+    return hi;
   }
 };
 
@@ -161,12 +171,12 @@ T log2_extended_precision_half_unsafe(const T &x, T *ans_lo, T *xExp) {
   T c_term_hi = 1.4423828125f16;
   T c_term_lo = 0.000306606292724609375f16;
 
-  abacus::internal::add_exact(&c_term_hi, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &poly_hi);
   // This adds in exactly, so no need for an add_exact
   c_term_lo = c_term_lo + poly_lo;
 
-  abacus::internal::add_exact(&c_term_lo, &poly_hi);
-  abacus::internal::add_exact(&c_term_hi, &c_term_lo);
+  abacus::internal::add_exact_unsafe(&c_term_lo, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &c_term_lo);
 
   // This adds in exactly, no need for add_exact
   c_term_lo = c_term_lo + poly_hi;
@@ -249,12 +259,12 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
   // 0.0098114 ==> 0.000306606292724609375 * 2^5
   T c_term_lo = 0.0098114f16;
 
-  abacus::internal::add_exact(&c_term_hi, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &poly_hi);
   // This adds in exactly, so no need for an add_exact
   c_term_lo = c_term_lo + poly_lo;
 
-  abacus::internal::add_exact(&c_term_lo, &poly_hi);
-  abacus::internal::add_exact(&c_term_hi, &c_term_lo);
+  abacus::internal::add_exact_unsafe(&c_term_lo, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &c_term_lo);
 
   // This adds in exactly, no need for add_exact
   c_term_lo = c_term_lo + poly_hi;
@@ -301,102 +311,6 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
 }
 
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-
-/*
-If you ever need a more accurate log2 for use in pow this is one. I wrote it
-when tests were failing in the other building but ended up fixing it a different
-way.
-inline float log_extended_precision(float xMant, float * out_remainder){
-        //New plan, get ln(xMAnt) first, then change to log2:
-        float xMant1m = xMant - 1.0f;
-
-        float poly = (-0.25f + (0.2f + (-0.16666573839961348e0f +
-(0.14285549680165117e0f + (-0.12508235072240584e0f + (0.11122317723555506e0f +
-(-0.97786162288840440e-1f + (0.88356744995684893e-1f + (-0.10603185816023552e0f
-+ 0.10021792733479427e0f * xMant1m) * xMant1m) * xMant1m) * xMant1m) * xMant1m)
-* xMant1m) * xMant1m) * xMant1m) *xMant1m) * xMant1m;
-        poly += 3.333333432674407958984375e-1f;
-        poly -= 9.934107462565104166666e-9; //To conensate for 1/3 not being
-exact
-
-        //We need xMant1m*(xMant1m*(xMant1m*poly - 0.5) + 1) accurately now
-
-        //xMant1m*poly - 0.5:
-        float term1_lo;
-        float term1_hi = abacus::internal::multiply_exact(poly, xMant1m,
-&term1_lo);
-
-        float mhalf = -0.5f;
-        abacus::internal::add_exact(&mhalf, &term1_hi);
-        abacus::internal::add_exact(&term1_hi, &term1_lo);
-
-        term1_lo = term1_hi;
-        term1_hi = mhalf;
-
-        //multiply by xMant1m:
-        float term2_lo;
-        float term2_hi = abacus::internal::multiply_exact(term1_hi, xMant1m,
-&term2_lo);
-
-        float term2_lo_lo;
-        float term2_lo_hi = abacus::internal::multiply_exact(term1_lo, xMant1m,
-&term2_lo_lo);
-
-        //Make sure all these get added up ok:
-        abacus::internal::add_exact(&term2_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term2_hi, &term2_lo);
-
-        abacus::internal::add_exact(&term2_lo_hi, &term2_lo_lo); //exact
-        abacus::internal::add_exact(&term2_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term2_hi, &term2_lo);
-
-
-        //Multiply by xMant again:
-        float term3_lo;
-        float term3_hi = abacus::internal::multiply_exact(term2_hi, xMant1m,
-&term3_lo);
-
-        float term3_lo_lo;
-        float term3_lo_hi = abacus::internal::multiply_exact(term2_lo_hi,
-xMant1m, &term3_lo_lo);
-
-        term3_lo_lo += term2_lo_hi*xMant1m;
-
-        abacus::internal::add_exact(&term2_lo_hi, &term3_lo_lo);
-        abacus::internal::add_exact(&term3_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term3_hi, &term3_lo);
-
-        //Add in xMant1m for the final answer
-        abacus::internal::add_exact(&xMant1m, &term3_hi);
-        abacus::internal::add_exact(&term3_hi, &term3_lo);
-        abacus::internal::add_exact(&term3_hi, &term2_lo_hi);
-
-        *out_remainder = term3_hi;
-
-        return xMant1m;
-}
-
-inline float log2_extended_precision(float xMant, float * out_remainder){
-        //Get the log first:
-        float ln_lo;
-        float ln_hi = log_extended_precision(xMant, &ln_lo);
-
-        //an accurate 1/ln(2) (both needed)
-        float recip_ln2_hi = 1.44269502162933349609375;
-        float recip_ln2_lo =
-1.9259629911266174681001892137426645954152985934135449406931109219181185079885526622893506345e-8;
-
-        float log2_hi_lo;
-        float log2_hi_hi = abacus::internal::multiply_exact(ln_hi, recip_ln2_hi,
-&log2_hi_lo);
-
-
-        *out_remainder = log2_hi_lo + (ln_lo*recip_ln2_hi + ln_hi*
-recip_ln2_lo);
-
-        return log2_hi_hi;
-}
-*/
 }  // namespace internal
 }  // namespace abacus
 

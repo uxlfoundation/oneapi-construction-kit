@@ -58,7 +58,7 @@ T atan2pi_horner_polynomial(const T x2) {
   // `add_exact`, then computing the rest of the horner polynomial by hand gives
   // us some extra precision.
   T first_iter_lo;
-  const T first_iter_hi = abacus::internal::add_exact<T>(
+  const T first_iter_hi = abacus::internal::add_exact_unsafe<T>(
       _atan2piH[3], x2 * _atan2piH[4], &first_iter_lo);
 
   T poly = _atan2piH[2] + ((x2 * first_iter_lo) + (x2 * first_iter_hi));

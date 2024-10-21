@@ -8,3 +8,14 @@ Poly;
 
 Err=dirtyinfnorm(Poly-Func, Range);
 print("\ninf-norm error:", Err);
+
+print("Single log2 with extended precision for use in pow:");
+
+Range=[sqrt(0.5)-1;2*sqrt(0.5)-1];
+Func=log(x+1);
+Order=[|1,2,3,4,5,6,7,8,9,10,11|];
+Poly=fpminimax(Func, Order, [|double, double, single...|], Range, floating, relative);
+Poly;
+
+Err=dirtyinfnorm(Poly-Func, Range);
+print("\ninf-norm error:", Err);

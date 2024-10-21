@@ -39,8 +39,8 @@ inline T multiply_extended_precision(
   const SignedType n_lo = n & 0x0000FFFF;
 
   T high_sum_lo;
-  const T high_sum_hi =
-      abacus::internal::add_exact<>(xExp_abacus_float, input_hi, &high_sum_lo);
+  const T high_sum_hi = abacus::internal::add_exact_unsafe<>(
+      xExp_abacus_float, input_hi, &high_sum_lo);
 
   high_sum_lo += input_lo;
 
@@ -55,14 +55,14 @@ inline T multiply_extended_precision(
 
   T more_sum_lo;
   const T more_sum_hi =
-      abacus::internal::add_exact<>(term1_hi, term1_lo, &more_sum_lo);
+      abacus::internal::add_exact_unsafe<>(term1_hi, term1_lo, &more_sum_lo);
 
   const T half_sum = (more_sum_lo + term2_lo) +
                      (abacus::detail::cast::convert<T>(n) * high_sum_lo);
 
   T final_sum_lo;
-  const T final_sum_hi =
-      abacus::internal::add_exact<>(more_sum_hi, half_sum, &final_sum_lo);
+  const T final_sum_hi = abacus::internal::add_exact_unsafe<>(
+      more_sum_hi, half_sum, &final_sum_lo);
 
   const T total_floor = __abacus_floor(final_sum_hi);
 

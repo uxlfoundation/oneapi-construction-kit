@@ -47,9 +47,9 @@ struct helper<T, abacus_half> {
 
     // For all possible inputs of cospi, we have tested that exponent of
     // polynomial[0] is >= expoonent of poly_mul_hi, so therefore it's safe to
-    // use add_exact instead of add_exact_safe.
+    // use add_exact_unsafe instead of add_exact.
     T poly_mul_add_lo;
-    const T poly_mul_add_hi = abacus::internal::add_exact<T>(
+    const T poly_mul_add_hi = abacus::internal::add_exact_unsafe<T>(
         polynomial[0], poly_mul_hi, &poly_mul_add_lo);
     poly_mul_add_lo += poly_mul_lo;
 
