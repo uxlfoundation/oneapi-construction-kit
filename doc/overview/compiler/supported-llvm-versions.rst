@@ -6,7 +6,7 @@ The oneAPI Construction Kit depends on LLVM, Clang and (optionally) LLD.
 All targets
 -----------
 
-.. rubric:: Supported - tested daily
+.. rubric:: Supported - tested regularly
 
-- 17.0.3+
-- 18.1.5+
+- 18.1.8+
+- 19.1.2+
