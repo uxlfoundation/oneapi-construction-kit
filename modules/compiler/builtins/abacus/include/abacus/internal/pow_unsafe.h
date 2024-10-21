@@ -193,7 +193,7 @@ struct pow_unsafe_helper<T, abacus_float> {
     SignedType xExp;
     T xMant = __abacus_frexp(x, &xExp);
 
-    const SignedType cond = xMant <= 0.671092f;
+    const SignedType cond = xMant <= 0.70710678f;
     xMant = __abacus_select(xMant, xMant * 2.0f, cond);
     xExp = __abacus_select(xExp, xExp - 1, cond);
 
