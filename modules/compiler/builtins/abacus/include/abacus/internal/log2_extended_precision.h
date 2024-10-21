@@ -74,7 +74,7 @@ struct log2_extended_precision_helper<T, abacus_float> {
         abacus::internal::multiply_exact(poly, xMAnt1m, &poly_times_x_lo);
 
     T total_sum_lo;
-    T total_sum_hi = abacus::internal::add_exact(
+    T total_sum_hi = abacus::internal::add_exact_unsafe(
         (T)1.44269502162933349609375f, poly_times_x_hi, &total_sum_lo);
 
     total_sum_lo += poly_times_x_lo;
@@ -161,12 +161,12 @@ T log2_extended_precision_half_unsafe(const T &x, T *ans_lo, T *xExp) {
   T c_term_hi = 1.4423828125f16;
   T c_term_lo = 0.000306606292724609375f16;
 
-  abacus::internal::add_exact(&c_term_hi, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &poly_hi);
   // This adds in exactly, so no need for an add_exact
   c_term_lo = c_term_lo + poly_lo;
 
-  abacus::internal::add_exact(&c_term_lo, &poly_hi);
-  abacus::internal::add_exact(&c_term_hi, &c_term_lo);
+  abacus::internal::add_exact_unsafe(&c_term_lo, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &c_term_lo);
 
   // This adds in exactly, no need for add_exact
   c_term_lo = c_term_lo + poly_hi;
@@ -249,12 +249,12 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
   // 0.0098114 ==> 0.000306606292724609375 * 2^5
   T c_term_lo = 0.0098114f16;
 
-  abacus::internal::add_exact(&c_term_hi, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &poly_hi);
   // This adds in exactly, so no need for an add_exact
   c_term_lo = c_term_lo + poly_lo;
 
-  abacus::internal::add_exact(&c_term_lo, &poly_hi);
-  abacus::internal::add_exact(&c_term_hi, &c_term_lo);
+  abacus::internal::add_exact_unsafe(&c_term_lo, &poly_hi);
+  abacus::internal::add_exact_unsafe(&c_term_hi, &c_term_lo);
 
   // This adds in exactly, no need for add_exact
   c_term_lo = c_term_lo + poly_hi;
@@ -327,8 +327,8 @@ exact
 &term1_lo);
 
         float mhalf = -0.5f;
-        abacus::internal::add_exact(&mhalf, &term1_hi);
-        abacus::internal::add_exact(&term1_hi, &term1_lo);
+        abacus::internal::add_exact_unsafe(&mhalf, &term1_hi);
+        abacus::internal::add_exact_unsafe(&term1_hi, &term1_lo);
 
         term1_lo = term1_hi;
         term1_hi = mhalf;
@@ -343,12 +343,12 @@ exact
 &term2_lo_lo);
 
         //Make sure all these get added up ok:
-        abacus::internal::add_exact(&term2_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term2_hi, &term2_lo);
+        abacus::internal::add_exact_unsafe(&term2_lo, &term2_lo_hi);
+        abacus::internal::add_exact_unsafe(&term2_hi, &term2_lo);
 
-        abacus::internal::add_exact(&term2_lo_hi, &term2_lo_lo); //exact
-        abacus::internal::add_exact(&term2_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term2_hi, &term2_lo);
+        abacus::internal::add_exact_unsafe(&term2_lo_hi, &term2_lo_lo); //exact
+        abacus::internal::add_exact_unsafe(&term2_lo, &term2_lo_hi);
+        abacus::internal::add_exact_unsafe(&term2_hi, &term2_lo);
 
 
         //Multiply by xMant again:
@@ -362,14 +362,14 @@ xMant1m, &term3_lo_lo);
 
         term3_lo_lo += term2_lo_hi*xMant1m;
 
-        abacus::internal::add_exact(&term2_lo_hi, &term3_lo_lo);
-        abacus::internal::add_exact(&term3_lo, &term2_lo_hi);
-        abacus::internal::add_exact(&term3_hi, &term3_lo);
+        abacus::internal::add_exact_unsafe(&term2_lo_hi, &term3_lo_lo);
+        abacus::internal::add_exact_unsafe(&term3_lo, &term2_lo_hi);
+        abacus::internal::add_exact_unsafe(&term3_hi, &term3_lo);
 
         //Add in xMant1m for the final answer
-        abacus::internal::add_exact(&xMant1m, &term3_hi);
-        abacus::internal::add_exact(&term3_hi, &term3_lo);
-        abacus::internal::add_exact(&term3_hi, &term2_lo_hi);
+        abacus::internal::add_exact_unsafe(&xMant1m, &term3_hi);
+        abacus::internal::add_exact_unsafe(&term3_hi, &term3_lo);
+        abacus::internal::add_exact_unsafe(&term3_hi, &term2_lo_hi);
 
         *out_remainder = term3_hi;
 

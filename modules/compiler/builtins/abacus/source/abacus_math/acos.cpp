@@ -202,10 +202,10 @@ T ABACUS_API acos_half(T x) {
       abacus::internal::multiply_exact<T>(x2, __codeplay_acos_2[1], &mul_lo);
   // For all possible inputs of acos, we have tested that exponent of
   // __codeplay_acos_2[0] is >= expoonent of mul_hi, so therefore it's safe to
-  // use add_exact instead of add_exact_safe.
+  // use add_exact_unsafe instead of add_exact.
   T mul_add_lo;
-  const T mul_add_hi =
-      abacus::internal::add_exact<T>(__codeplay_acos_2[0], mul_hi, &mul_add_lo);
+  const T mul_add_hi = abacus::internal::add_exact_unsafe<T>(
+      __codeplay_acos_2[0], mul_hi, &mul_add_lo);
   mul_add_lo = mul_add_lo + mul_lo;
 
   // Multiply by xAbs.

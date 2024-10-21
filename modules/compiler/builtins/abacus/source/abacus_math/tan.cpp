@@ -203,7 +203,7 @@ T tan_half(const T x) {
   const T poly1_extra_precision_term1 = -2.4390220642089844e-4f16;
 
   T poly_add_lo = 0;
-  const T poly_add_hi = abacus::internal::add_exact(
+  const T poly_add_hi = abacus::internal::add_exact_unsafe(
       abacus::internal::horner_polynomial(x2, _tan1H),
       poly1_extra_precision_term1, &poly_add_lo);
 
