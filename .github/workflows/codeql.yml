@@ -30,7 +30,6 @@ jobs:
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
         with:
-          save: true
           llvm_version: 18
           llvm_build_type: RelAssert
 
