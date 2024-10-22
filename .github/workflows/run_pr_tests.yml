@@ -276,7 +276,7 @@ jobs:
         path: code
     - run: cp -R code/.github .github
     - name: setup-ubuntu
-      uses: ./.github/actions/setup_ubuntu_build
+      uses: ./.github/actions/setup_build
       with:
         llvm_version: '19'
         llvm_build_type: Release
