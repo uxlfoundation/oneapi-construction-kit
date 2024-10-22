@@ -264,3 +264,28 @@ jobs:
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
         debug_support: ON
+
+  # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+  run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+      with:
+        path: code
+    - run: cp -R code/.github .github
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_ubuntu_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: Release
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_type: Release
+        build_targets: check-ock
+        host_image: ON
+        debug_support: ON
+        use_linker: gold
