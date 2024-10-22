@@ -14,6 +14,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+option(CA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK "Enable RVV scalable vecz checking" OFF)
+option(CA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK "Enable RVV scalable VP vecz checking" OFF)
+option(CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK "Enable vecz full checking" ON)
+option(CA_CL_ENABLE_UNITCL_FULL_CHECK "Enable full checking UnitCL on non vecz tests" ON)
+set(CA_CL_UNITCL_FILTER_OUT "" CACHE STRING "TBD" )
+
+message("CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK ${CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK}")
+message("CA_CL_ENABLE_UNITCL_FULL_CHECK ${CA_CL_ENABLE_UNITCL_FULL_CHECK}")
+
 if(CA_CL_ENABLE_OFFLINE_KERNEL_TESTS AND
     NOT CA_RUNTIME_COMPILER_ENABLED AND NOT CA_EXTERNAL_CLC)
   message(FATAL_ERROR "CA_CL_ENABLE_OFFLINE_KERNEL_TESTS is set, but "
@@ -421,7 +430,13 @@ function(add_ca_unitcl_check name)
     set(filter "--gtest_filter=*Compile*:*Link*:*Build*:*Execution*:*Half*:*print*:*WorkGroupCollective*:*SubGroup*:${args_FILTER}")
   elseif(args_FILTER)
     set(filter "--gtest_filter=${args_FILTER}")
+  else()
+    set(filter "--gtest_filter=*")
   endif()
+  if (CA_CL_UNITCL_FILTER_OUT)
+    set(filter "${filter}:-${CA_CL_UNITCL_FILTER_OUT}")
+  endif()
+  message("__CSD add_ca_unitcl_check ${name} ${filter}")
   if(args_ENVIRONMENT)
     set(environment ENVIRONMENT ${args_ENVIRONMENT})
   endif()
@@ -444,6 +459,7 @@ add_ca_check_group(UnitCL-group-vecz)
 
 # Convenience function to add a UnitCL check in the default group
 function(add_ca_default_unitcl_check name)
+  message("___CSD Adding UnitCL ${name}")
   get_ock_check_name(group_check_name UnitCL-group)
   add_ca_unitcl_check(${name} ${ARGV} GROUP ${group_check_name})
 endfunction()
@@ -451,6 +467,7 @@ endfunction()
 # Convenience function to add a UnitCL check in the vecz group
 function(add_ca_vecz_unitcl_check name)
   get_ock_check_name(group_check_name UnitCL-group-vecz)
+  message("___CSD Adding UnitCL vecz ${name} ${group_check_name}")
   add_ca_unitcl_check(${name} ${ARGV} GROUP ${group_check_name})
 endfunction()
 
@@ -460,6 +477,7 @@ endfunction()
 # now, but we don't "--vecz-check" here since it may bail out by design.
 add_ca_default_unitcl_check(UnitCL)
 
+if (CA_CL_ENABLE_UNITCL_FULL_CHECK)
 # This only provides minimal additional coverage over the `-cl-opt-disable
 # -g` test, so only include this in the extended set.
 add_ca_default_unitcl_check(UnitCL-opt-disable COMPILER EXTENDED
@@ -472,54 +490,61 @@ add_ca_default_unitcl_check(UnitCL-debug COMPILER EXTENDED
 
 add_ca_default_unitcl_check(UnitCL-prevec COMPILER EXTENDED
   ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=never")
+endif()
 
-# Running without optimizations but with VECZ provides additional testing of
-# VECZ by essentially testing a different set of inputs.  Note that unlike
-# other VECZ UnitCL checks these do not use `--vecz-check`, that is because
-# we don't expect VECZ to successfully vectorize all kernels in this
-# circumstance as optimizations perform canonicalizations that we rely upon.
-# However, VECZ should never crash or generate wrong code without the
-# canonicalizations.
-add_ca_default_unitcl_check(UnitCL-opt-disable-vecz COMPILER EXTENDED
-  ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-opt-disable -cl-wfv=always")
+  
+if ( CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK)
+  # Running without optimizations but with VECZ provides additional testing of
+  # VECZ by essentially testing a different set of inputs.  Note that unlike
+  # other VECZ UnitCL checks these do not use `--vecz-check`, that is because
+  # we don't expect VECZ to successfully vectorize all kernels in this
+  # circumstance as optimizations perform canonicalizations that we rely upon.
+  # However, VECZ should never crash or generate wrong code without the
+  # canonicalizations.
+  add_ca_default_unitcl_check(UnitCL-opt-disable-vecz COMPILER EXTENDED
+    ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-opt-disable -cl-wfv=always")
 
-add_ca_default_unitcl_check(UnitCL-opt-disable-vecz-boscc COMPILER EXTENDED
-  ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
-              "CA_EXTRA_COMPILE_OPTS=-cl-opt-disable -cl-wfv=always")
+  add_ca_default_unitcl_check(UnitCL-opt-disable-vecz-boscc COMPILER EXTENDED
+    ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
+                "CA_EXTRA_COMPILE_OPTS=-cl-opt-disable -cl-wfv=always")
 
-# Test VECZ Full Scalarization in combination with SLP and loop vectorization,
-# because it stresses the scalarizer.
-add_ca_default_unitcl_check(UnitCL-prevec-vecz-full-scalarization COMPILER
-  ENVIRONMENT "CODEPLAY_VECZ_CHOICES=FullScalarization"
-              "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
-  ARGS --vecz-check)
+  # Test VECZ Full Scalarization in combination with SLP and loop vectorization,
+  # because it stresses the scalarizer.
+  add_ca_default_unitcl_check(UnitCL-prevec-vecz-full-scalarization COMPILER
+    ENVIRONMENT "CODEPLAY_VECZ_CHOICES=FullScalarization"
+                "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
+    ARGS --vecz-check)
 
-# Test auto-vectorization.
-# At least one kernel is known not to vectorize in this config.
-add_ca_default_unitcl_check(UnitCL-prevec-opt-disable COMPILER
-  ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-opt-disable")
+  # Test auto-vectorization.
+  # At least one kernel is known not to vectorize in this config.
+  add_ca_default_unitcl_check(UnitCL-prevec-opt-disable COMPILER
+    ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-opt-disable")
+endif()
 
 if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
   add_ca_vecz_unitcl_check(UnitCL-vecz COMPILER
     ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always"
     ARGS --vecz-check)
 
-  # Test VECZ in combination with the loop vectorizer.
-  add_ca_vecz_unitcl_check(UnitCL-prevec-vecz COMPILER EXTENDED
-    ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
-    ARGS --vecz-check)
+  if ( CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK)
+    # Test VECZ in combination with the loop vectorizer.
+    add_ca_vecz_unitcl_check(UnitCL-prevec-vecz COMPILER EXTENDED
+      ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
+      ARGS --vecz-check)
 
-  # BOSCC specific debug info failures are quite specific, so only test that in
-  # the extended test set.
-  add_ca_vecz_unitcl_check(UnitCL-vecz-boscc-debug COMPILER EXTENDED
-    ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
-                "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always -g"
-    ARGS --vecz-check)
+    # BOSCC specific debug info failures are quite specific, so only test that in
+    # the extended test set.
+    add_ca_vecz_unitcl_check(UnitCL-vecz-boscc-debug COMPILER EXTENDED
+      ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
+                  "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always -g"
+      ARGS --vecz-check)
 
-  add_ca_vecz_unitcl_check(UnitCL-vecz-boscc COMPILER
-    ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
-                "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always"
-    ARGS --vecz-check)
+    add_ca_vecz_unitcl_check(UnitCL-vecz-boscc COMPILER
+      ENVIRONMENT "CODEPLAY_VECZ_CHOICES=LinearizeBOSCC"
+                  "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always"
+      ARGS --vecz-check)
+  endif()
+endif()
 
   # Test scalable vectorization on RVV.
   if(CA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK)
@@ -543,6 +568,7 @@ if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
       ENVIRONMENT "CA_RISCV_VF=1,S,VVP")
   endif()
 
+if ( CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK)
   add_ca_vecz_unitcl_check(UnitCL-vecz-debug COMPILER
     ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-wfv=always -g"
     ARGS --vecz-check)
@@ -551,8 +577,7 @@ if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
   add_ca_vecz_unitcl_check(UnitCL-vecz-never-opt-disable-debug COMPILER
     ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-opt-disable -g -cl-wfv=never")
 
-  add_ca_vecz_unitcl_check(UnitCL-vecz-never COMPILER
-    ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-wfv=never")
+
 
   # Let's throw the kitchen sink at it, since that found at least one bug already..
   add_ca_vecz_unitcl_check(UnitCL-vecz-everything COMPILER
@@ -560,9 +585,15 @@ if(NOT CA_CL_DISABLE_UNITCL_VECZ_CHECKS)
                 "CA_EXTRA_COMPILE_OPTS=-cl-vec=all -cl-wfv=always"
     ARGS --vecz-check)
 endif()
+if ( CA_CL_ENABLE_UNITCL_FULL_CHECK)
+  add_ca_vecz_unitcl_check(UnitCL-vecz-never COMPILER
+  ENVIRONMENT "CA_EXTRA_COMPILE_OPTS=-cl-wfv=never")
+endif()
 
 if(OCL_EXTENSION_cl_intel_unified_shared_memory)
-  add_ca_default_unitcl_check(UnitCL-USM ARGS --gtest_filter=*USM*)
+  if ( CA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK)
+    add_ca_default_unitcl_check(UnitCL-USM ARGS --gtest_filter=*USM*)
+  endif()
 endif()
 
 if(CMAKE_CROSSCOMPILING)
