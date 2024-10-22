@@ -272,9 +272,6 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
-      with:
-        path: code
-    - run: cp -R code/.github .github
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
