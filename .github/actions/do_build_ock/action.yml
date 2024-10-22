@@ -76,6 +76,10 @@ inputs:
   enable_rvv_scalable_vp_vecz_check:
     description: "Enable RVV scalable vecz VP check (default OFF)"
     default: OFF
+  enable_unitcl_expensive:
+    description: "UnitCL expensive tests enabled (default ON)"
+    required: false
+    default: ON
   install_dir:
     description: "Install directory for OCK"
     default: install
@@ -154,6 +158,7 @@ runs:
               -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }}
+              -DCA_CL_ENABLE_UNITCL_EXPENSIVE_CHECK=${{ inputs.enable_unitcl_expensive }}
               -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
               -DCA_USE_LINKER=${{ inputs.use_linker }}
               -DCA_RUNTIME_COMPILER_ENABLED=${{ inputs.runtime_compiler_enabled }}

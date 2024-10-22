@@ -7,15 +7,22 @@ on:
         required: false
         type: boolean
         default: false
+      is_pull_request:
+        required: false
+        type: boolean
+        default: true
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       update_cache:
-        required: false      
-        default: false
+        required: false
         type: boolean
-  
+        default: false
+      is_pull_request:
+        required: false
+        type: bool
+        default: true
 permissions: {}
 
 concurrency:
@@ -211,6 +218,7 @@ jobs:
           shell_to_use: pwsh
           gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
           debug_support: ON
+          enable_unitcl_expensive: ${{ !inputs.is_pull_request && 'ON' || 'OFF' }}
 
       - name: build ock x86_64 offline
         uses: ./.github/actions/do_build_ock
