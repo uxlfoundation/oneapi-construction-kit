@@ -14,6 +14,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+option(CA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK "Enable RVV scalable vecz checking" OFF)
+option(CA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK "Enable RVV scalable VP vecz checking" OFF)
+option(CA_CL_ENABLE_VECZ_FULL_CHECK "Enable vecz full checking" ON)
+
+
 if(CA_CL_ENABLE_OFFLINE_KERNEL_TESTS AND
     NOT CA_RUNTIME_COMPILER_ENABLED AND NOT CA_EXTERNAL_CLC)
   message(FATAL_ERROR "CA_CL_ENABLE_OFFLINE_KERNEL_TESTS is set, but "

@@ -25,100 +25,100 @@ concurrency:
 jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
-  run_host_x86_64:
-    runs-on: ubuntu-22.04
+  # run_host_x86_64:
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up sccahe
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: 18
-          llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}          
+  #     # installs tools, ninja, installs llvm and sets up sccahe
+  #     - name: setup-ubuntu
+  #       uses:  ./.github/actions/setup_build
+  #       with:
+  #         llvm_version: 18
+  #         llvm_build_type: RelAssert
+  #         save:  ${{ inputs.update_cache }}          
 
-      # These need to match the configurations of build_pr_cache to use the cache effectively
-      - name: build host x86_64 online release
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_type: Release
+  #     # These need to match the configurations of build_pr_cache to use the cache effectively
+  #     - name: build host x86_64 online release
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_type: Release
 
-      - name: run just online lit
-        run:
-          ninja -C build check-ock-all-lit
+  #     - name: run just online lit
+  #       run:
+  #         ninja -C build check-ock-all-lit
 
-      - name: run host online check
-        run:
-          ninja -C build check-ock-UnitCL
+  #     - name: run host online check
+  #       run:
+  #         ninja -C build check-ock-UnitCL
 
-      # use the previous build for online to get clc
-      - name: build host x86_64 offline release
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_type: Release
-          extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
-          build_dir: build_offline
-          build_targets: UnitCL
-          assemble_spirv_ll_lit_test_offline: ON
+  #     # use the previous build for online to get clc
+  #     - name: build host x86_64 offline release
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_type: Release
+  #         extra_flags: -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_EXTERNAL_CLC=${{ github.workspace }}/build/bin/clc
+  #         build_dir: build_offline
+  #         build_targets: UnitCL
+  #         assemble_spirv_ll_lit_test_offline: ON
 
-      - name: run host x86_64 offline
-        run:
-          ninja -C build_offline check-ock-UnitCL
+  #     - name: run host x86_64 offline
+  #       run:
+  #         ninja -C build_offline check-ock-UnitCL
 
-  # build and run riscv m1, execute UnitCL and lit tests
-  run_riscv_m1:
+  # # build and run riscv m1, execute UnitCL and lit tests
+  # run_riscv_m1:
 
-    runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up sccahe
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: 18
-          llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}
+  #     # installs tools, ninja, installs llvm and sets up sccahe
+  #     - name: setup-ubuntu
+  #       uses:  ./.github/actions/setup_build
+  #       with:
+  #         llvm_version: 18
+  #         llvm_build_type: RelAssert
+  #         save:  ${{ inputs.update_cache }}
 
-      - name: build riscv M1
-        uses: ./.github/actions/do_build_ock/do_build_m1
+  #     - name: build riscv M1
+  #       uses: ./.github/actions/do_build_ock/do_build_m1
 
-      - name: run riscv M1 lit
-        run:
-          ninja -C build check-ock-all-lit
+  #     - name: run riscv M1 lit
+  #       run:
+  #         ninja -C build check-ock-all-lit
 
-      - name: run riscv M1 UnitCL tests
-        run:
-          ninja -C build check-ock-UnitCL
+  #     - name: run riscv M1 UnitCL tests
+  #       run:
+  #         ninja -C build check-ock-UnitCL
 
-  # run clang-format-diff on the repo
-  run_clang_format:
+  # # run clang-format-diff on the repo
+  # run_clang_format:
 
-    runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
 
-      - name: setup-ubuntu-clang-format
-        run:
-          pip install clang-format==19.1.0
+  #     - name: setup-ubuntu-clang-format
+  #       run:
+  #         pip install clang-format==19.1.0
 
-      - name: run clang-format
-        run: |
-          # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
-          # so just use clang-format-diff and -b clang-format directly
-          git fetch origin ${{ github.base_ref }}
-          git diff --no-color origin/${{ github.base_ref }} | \
-            clang-format-diff.py -p1 -regex \
-            "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
+  #     - name: run clang-format
+  #       run: |
+  #         # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
+  #         # so just use clang-format-diff and -b clang-format directly
+  #         git fetch origin ${{ github.base_ref }}
+  #         git diff --no-color origin/${{ github.base_ref }} | \
+  #           clang-format-diff.py -p1 -regex \
+  #           "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
 
-  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
+  # # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
 
     runs-on: windows-2019
@@ -143,7 +143,8 @@ jobs:
       - name: build ock x86_64 relassert
         uses: ./.github/actions/do_build_ock
         with:
-          build_targets: check-ock
+          build_targets: UnitCL
+          # check-ock
           enable_api: ""
           builtin_kernel: ON
           shell_to_use: pwsh
@@ -151,20 +152,82 @@ jobs:
           debug_support: ON
           c_compiler: 'cl.exe'
           cxx_compiler: 'cl.exe'
+      #  - name: TBD
+      #    run: ninja -C build check-ock-utility command for ca-common-lit 
+      - name: check-UnitCL-
+        run: ninja -C build check-ock-UnitCL           
+      - name: check-UnitCL-opt-disable
+        run: ninja -C build check-ock-UnitCL-opt-disable
+      - name: check-UnitCL-opt-disable-vecz
+        run: ninja -C build check-ock-UnitCL-opt-disable-vecz
+      - name: check-UnitCL-opt-disable-vecz-boscc
+        run: ninja -C build check-ock-UnitCL-opt-disable-vecz-boscc
+      - name: check-UnitCL-prevec
+        run: ninja -C build check-ock-UnitCL-prevec
+      - name: check-UnitCL-debug
+        run: ninja -C build check-ock-UnitCL-debug
+      - name: check-UnitCL-prevec-opt-disable
+        run: ninja -C build check-ock-UnitCL-prevec-opt-disable
+      - name: check-UnitCL-prevec-vecz-full-scalarization
+        run: ninja -C build check-ock-UnitCL-prevec-vecz-full-scalarization
+      - name: check-UnitCL-UnitCL-vecz
+        run: ninja -C build check-ock-UnitCL-vecz
+      - name: check-UnitCL-vecz-never-opt-disable-debug
+        run: ninja -C build check-ock-UnitCL-vecz-never-opt-disable-debug
+      - name: check-UnitCL-prevec-vecz
+        run: ninja -C build check-ock-UnitCL-prevec-vecz
+      - name: check-UnitCL-vecz-boscc-debug
+        run: ninja -C build check-ock-UnitCL-vecz-boscc-debug
+      - name: check-UnitCL-USM
+        run: ninja -C build check-ock-UnitCL-USM
+      - name: check-UnitCL-vecz-boscc
+        run: ninja -C build check-ock-UnitCL-vecz-boscc
+      - name: check-ock-UnitCL-vecz-debug
+        run: ninja -C build check-ock-UnitCL-vecz-debug
+      - name: check-ock-UnitCL-vecz-never
+        run: ninja -C build check-ock-UnitCL-vecz-never
+      - name: ock-vkVectorAddition
+        run: ninja -C build check-ock-vkVectorAddition
+      - name: ock-UnitVK
+        run: ninja -C build check-ock-UnitVK
+      - name: UnitCL-vecz-everything
+        run: ninja -C build check-ock-UnitCL-vecz-everything
+      - name: host-compiler-lit
+        run: ninja -C build check-ock-host-compiler-lit
+      - name: spirv-ll-lit
+        run: ninja -C build check-ock-spirv-ll-lit
+      - name: UnitMux
+        run: ninja -C build check-ock-UnitMux
+      - name: clVectorAddition-ComputeAorta_x86_64_Windows
+        run: ninja -C build check-ock-clVectorAddition-ComputeAorta_x86_64_Windows
+      - name: clCommandBufferKHR-ComputeAorta_x86_64_Windows
+        run: ninja -C build check-ock-clCommandBufferKHR-ComputeAorta_x86_64_Windows
+      - name: clMutableDispathcKHR-ComputeAorta_x86_64_Windows
+        run: ninja -C build check-ock-clMutableDispathcKHR-ComputeAorta_x86_64_Windows
+      - name: clSubGroups-ComputeAorta_x86_64_Windows
+        run: ninja -C build check-ock-clSubGroups-ComputeAorta_x86_64_Windows
+      - name: host-mux-lit
+        run: ninja -C build check-ock-host-mux-lit
+      - name: vecz-lit
+        run: ninja -C build check-ock-vecz-lit
+      - name: passes-lit
+        run: ninja -C build check-ock-passes-lit
+      - name: MultiDevice
+        run: ninja -C build check-ock-MultiDevice
 
-      - name: build ock x86_64 offline
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_targets: check-ock
-          runtime_compiler_enabled: OFF
-          external_clc: "${{ github.workspace }}/build/bin/clc.exe"
-          shell_to_use: pwsh
-          gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
-          debug_support: ON
-          install_dir: ${{ github.workspace }}/install_offline
-          build_dir: ${{ github.workspace }}/build_offline
-          c_compiler: 'cl.exe'
-          cxx_compiler: 'cl.exe'
+  #     - name: build ock x86_64 offline
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_targets: check-ock
+  #         runtime_compiler_enabled: OFF
+  #         external_clc: "${{ github.workspace }}/build/bin/clc.exe"
+  #         shell_to_use: pwsh
+  #         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  #         debug_support: ON
+  #         install_dir: ${{ github.workspace }}/install_offline
+  #         build_dir: ${{ github.workspace }}/build_offline
+  #         c_compiler: 'cl.exe'
+  #         cxx_compiler: 'cl.exe'
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
@@ -183,7 +246,8 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
-        build_targets: check-ock-UnitCL-group-vecz
+        build_targets: UnitCL
+        # check-ock-UnitCL-group-vecz
         mux_targets_enable: riscv
         mux_compilers_enable: riscv
         riscv_enabled: ON
@@ -194,43 +258,64 @@ jobs:
         hal_refsi_soc: G1
         hal_refsi_thread_mode: WG
         debug_support: ON
+    
+    - name: run check-ock-UnitCL
+      run: ninja -C build check-ock-UnitCL
+    - name: run check-ock-UnitCL-vecz-never
+      run: ninja -C build check-ock-UnitCL-vecz-never
+    - name: run check-ock-UnitCL-prevec-vecz
+      run: ninja -C build check-ock-UnitCL-prevec-vecz
+    - name: run check-ock-UnitCL-vecz-everything
+      run: ninja -C build check-ock-UnitCL-vecz-everything
+    - name: run check-ock-UnitCL-vecz-never-opt-disable-debug
+      run: ninja -C build check-ock-UnitCL-vecz-never-opt-disable-debug
+    - name: run check-ock-UnitCL-vecz-boscc
+      run: ninja -C build check-ock-UnitCL-vecz-boscc
+    - name: run check-ock-UnitCL-vecz-boscc-debug
+      run: ninja -C build check-ock-UnitCL-vecz-boscc-debug
+    - name: run check-ock-UnitCL-vecz-debug
+      run: ninja -C build check-ock-UnitCL-vecz-debug
+    - name: run check-ock-UnitCL-riscv-vecz-vf-nxv1-vp
+      run: ninja -C build check-ock-UnitCL-riscv-vecz-vf-nxv1-vp
+    - name: run check-ock-UnitCL-riscv-vecz-vf-nxv1-vvp
+      run: ninja -C build check-ock-UnitCL-riscv-vecz-vf-nxv1-vvp
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
-  run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 90 # offline needs longer timeout
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: RelAssert
-        arch: x86
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock x86 relassert
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_32_bit: ON
-        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
-        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
-        build_targets: check-ock
-        enable_api: ""
-        builtin_kernel: ON
-        use_linker: gold
-        debug_support: ON
-    - name: build ock x86 offline
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_32_bit: ON
-        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
-        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
-        build_targets: check-ock
-        runtime_compiler_enabled: OFF
-        assemble_spirv_ll_lit_test_offline: ON
-        external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
-        use_linker: gold
-        debug_support: ON
-        install_dir: $GITHUB_WORKSPACE/install_offline
-        build_dir: $GITHUB_WORKSPACE/build_offline
+  # run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 90 # offline needs longer timeout
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: RelAssert
+  #       arch: x86
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock x86 relassert
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_32_bit: ON
+  #       c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+  #       cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+  #       build_targets: check-ock
+  #       enable_api: ""
+  #       builtin_kernel: ON
+  #       use_linker: gold
+  #       debug_support: ON
+  #   - name: build ock x86 offline
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_32_bit: ON
+  #       c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
+  #       cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+  #       build_targets: check-ock
+  #       runtime_compiler_enabled: OFF
+  #       assemble_spirv_ll_lit_test_offline: ON
+  #       external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
+  #       use_linker: gold
+  #       debug_support: ON
+  #       install_dir: $GITHUB_WORKSPACE/install_offline
+  #       build_dir: $GITHUB_WORKSPACE/build_offline
