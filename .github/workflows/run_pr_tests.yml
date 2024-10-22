@@ -213,7 +213,6 @@ jobs:
       with:
         build_targets: check-ock
         mux_targets_enable: riscv
-        external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
         mux_compilers_enable: riscv
         riscv_enabled: ON
         disable_unitcl_vecz_checks: ON
