@@ -213,15 +213,13 @@ jobs:
       with:
         build_targets: check-ock
         mux_targets_enable: riscv
-        external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1
+        external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
         mux_compilers_enable: riscv
-        runtime_compiler_enabled: OFF
         riscv_enabled: ON
         disable_unitcl_vecz_checks: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
         host_enable_builtins: OFF
-        offline_kernel_tests: OFF
         use_linker: gold
         hal_description: RV64GCV_Zfh
         hal_refsi_soc: G1
