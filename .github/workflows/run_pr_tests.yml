@@ -284,5 +284,6 @@ jobs:
         build_type: Release
         build_targets: check-ock
         host_image: ON
-        debug_support: ON
         use_linker: gold
+        enable_api: ""
+        builtin_kernel: ON
