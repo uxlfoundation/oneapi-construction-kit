@@ -1,5 +1,5 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/codeplaysoftware/oneapi-construction-kit/badge)](https://scorecard.dev/viewer/?uri=github.com/codeplaysoftware/oneapi-construction-kit)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/uxlfoundation/oneapi-construction-kit/badge)](https://scorecard.dev/viewer/?uri=github.com/uxlfoundation/oneapi-construction-kit)
 
 # oneAPI Construction Kit
 
