@@ -95,7 +95,7 @@ inputs:
     description: "Disable unitcl vecz checks"
     default: OFF
   gtest_launcher:
-    description: "Googletest suite launcher command (default ubuntu)"
+    description: "Googletest suite launcher command (default launcher used for ubuntu)"
     default: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
   build_32_bit:
     description: "32-bit building"
@@ -111,7 +111,7 @@ inputs:
     default: "g++"
 
 runs:
-  # we don't want a new docker just a list of steps, so mark as composite
+  # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
 
