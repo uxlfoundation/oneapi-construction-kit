@@ -304,7 +304,7 @@ jobs:
     - name: load native llvm
       uses: actions/cache/restore@v4
       with:
-        path: llvm_install/llvm_tools
+        path: llvm_install/llvm_tools/**
         key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
         fail-on-cache-miss: true
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al && ls -al llvm_install
