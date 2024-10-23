@@ -1,0 +1,50 @@
+# Simple workflow for running non-documentation PR testing
+name: Run ock tests for PR testing
+on:
+  workflow_call:
+    inputs:
+      ock:
+        required: false
+        type: boolean
+        default: true
+      target_linux:
+        required: false
+        type: string
+        default: "[x86_64, aarch64]"
+      # target_host_x86_64_windows:
+      #   required: false
+      #   type: boolean
+      #   default: false
+      # target_host_aarch64_linux:
+      #   required: false
+      #   type: boolean
+      #   default: true
+      llvm_version:
+        required: false
+        type: string
+        default: 18
+
+jobs:
+
+  create_ock_artefacts:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        build_type: [RelAssert]
+        arch : ${{ fromJson(inputs.target_linux) }}
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Build ock (pretend)
+        # if: ${{ contains(inputs.target_linux.matrix.arch,  matrix.arch) }}
+        run:
+          echo Running for ${{ matrix.arch }}, input is ${{ inputs.target_linux }})
+
+        # echo "${{ matrix.os }} ${{ matrix.build_type }} ${{ matrix.arch }}" > foo.txt
+        
+        # --define CA_CL_ENABLE_ICD_LOADER=ON
+        # --define OCL_EXTENSION_cl_khr_command_buffer=ON
+        # --define OCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON
+        # --define OCL_EXTENSION_cl_khr_extended_async_copies=ON
+        # --target check-ock
+        # -B build
