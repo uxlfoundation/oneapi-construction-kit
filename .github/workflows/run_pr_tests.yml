@@ -305,7 +305,7 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
-        arch: arm64   # needed?
+        arch: aarch64   # needed?
         build_targets: check-ock-cross
         host_fp16: ON
         use_linker: gold
@@ -313,6 +313,4 @@ jobs:
         builtin_kernel: ON
         cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
-        c_compiler: ""
-        cxx_compiler: ""
 

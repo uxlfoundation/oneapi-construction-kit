@@ -21,7 +21,7 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   arch:
-    description: 'Architecture'
+    description: 'Architecture: x86_64 | x86 | aarch64'
     default: x86_64
 
 runs:
@@ -33,12 +33,12 @@ runs:
       shell: bash
       run: |
         pip install lit clang-format==19.1.0 virtualenv
-        # x86:   Enable ability to install x86 packages for cross compilation
+        # x86: Enable ability to install x86 packages for cross compilation
         if [ "${{ inputs.arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
-        # arm64: Enable ability to install arm64 packages for cross compilation
-        #        The main archive only hosts amd64 and i386, also add ports for arm64.
-        #        Also install Arm/Aarch64 requirements
-        if [ "${{ inputs.arch }}" = "arm64" ]; then \
+        # aarch64: Enable ability to install arm64 packages for cross compilation
+        #      The main archive only hosts amd64 and i386, also add ports for arm64.
+        #      Also install Arm/Aarch64 requirements
+        if [ "${{ inputs.arch }}" = "aarch64" ]; then \
            sudo dpkg --add-architecture arm64 ; \
            sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
            sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
