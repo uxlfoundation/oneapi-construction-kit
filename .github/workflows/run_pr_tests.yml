@@ -300,6 +300,7 @@ jobs:
       with:
         llvm_version: '18'
         llvm_build_type: RelAssert
+        arch: arm64
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
