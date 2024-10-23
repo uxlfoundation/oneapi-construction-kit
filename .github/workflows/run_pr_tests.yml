@@ -311,6 +311,8 @@ jobs:
         use_linker: gold
         debug_support: ON
         builtin_kernel: ON
-        cross_compiling: TRUE
+        cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
+        c_compiler: ""
+        cxx_compiler: ""
 

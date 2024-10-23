@@ -114,7 +114,7 @@ inputs:
     default: ""
   cross_compiling:
     description: "Cross compiling flag (default FALSE)"
-    default: FALSE
+    default: 'FALSE'
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
