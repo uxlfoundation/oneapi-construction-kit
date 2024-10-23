@@ -314,6 +314,7 @@ jobs:
         enable_api: ""
         cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
+        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/llvm_tools
         c_compiler: ""
         cxx_compiler: ""
 

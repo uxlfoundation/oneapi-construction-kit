@@ -31,9 +31,6 @@ inputs:
   llvm_install_dir:
     description: 'Directory for llvm install'
     default: ${{ github.workspace }}/llvm_install
-  builtins_tools_dir:
-    description: 'Directory for builtins tools'
-    default: ${{ github.workspace }}/llvm_install/llvm_tools
   build_targets:
     description: 'cmake targets to build (default UnitCL muxc veczc clc)'
     default: UnitCL muxc veczc clc
@@ -146,7 +143,6 @@ runs:
               -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }}
               -DCA_ENABLE_API=${{ inputs.enable_api }}
               -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }}
-              -DCA_BUILTINS_TOOLS_DIR=${{ inputs.builtins_tools_dir }}
               -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }}
               -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
               -DCA_ENABLE_HOST_IMAGE_SUPPORT=${{ inputs.host_image }}
