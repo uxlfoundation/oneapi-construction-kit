@@ -363,13 +363,6 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
-    - name: load native llvm
-      uses: actions/cache/restore@v4
-      with:
-        path: llvm_install/**
-        key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
-        fail-on-cache-miss: true
-    - run: mv llvm_install llvm_install_native
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:

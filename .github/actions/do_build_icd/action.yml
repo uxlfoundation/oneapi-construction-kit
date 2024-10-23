@@ -1,0 +1,72 @@
+name: pull and build opencl icd loader
+description: pull icd loader and build with a particular toolchain, uploading opencl header and icd artefacts
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}  
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+
+    - name: clone headers
+      uses: actions/checkout@v4
+      with:
+        repository: KhronosGroup/OpenCL-Headers
+        path: headers
+
+    - name: cmake headers
+      shell: bash
+      run:
+        cmake headers -Bheaders/build_${{steps.calc_vars.outputs.arch}}
+         -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }}
+         -DCMAKE_INSTALL_PREFIX=$PWD/headers_install_${{steps.calc_vars.outputs.arch}}
+         -GNinja
+    - name: ninja install headers
+      shell: bash
+      run:
+        ninja -v -C headers/build_${{steps.calc_vars.outputs.arch}} install
+
+    - name: upload header artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: header_${{inputs.target}}
+        path: headers_install_${{steps.calc_vars.outputs.arch}}
+        retention-days: 1
+
+    - name: clone icd 
+      uses: actions/checkout@v4
+      with:
+        repository: KhronosGroup/OpenCL-ICD-Loader
+        path: icd
+
+    - name: icd cmake
+      shell: bash
+      run:
+        cmake icd -B icd/build_${{steps.calc_vars.outputs.arch}}
+        -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }}
+        -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+        -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install_icd_${{steps.calc_vars.outputs.arch}}
+        -DOpenCLHeaders_DIR=$GITHUB_WORKSPACE/headers_install_${{steps.calc_vars.outputs.arch}}/share/cmake/OpenCLHeaders
+        -GNinja
+
+    - name: icd build
+      shell: bash
+      run:
+        ninja -v -C icd/build_${{steps.calc_vars.outputs.arch}} install
+
+    - name: upload icd artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd_${{steps.calc_vars.outputs.arch}}
+        retention-days: 1
+

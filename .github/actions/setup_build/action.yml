@@ -21,9 +21,8 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   cross_arch:
-    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "" (no cross compile)'
-    default: ""
-    # Note: runner architectures from: x86_64 (aka runner.arch: X64), aarch64 (aka runner.arch: ARM64)
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
+    default: "none"
   clang_tidy:
     description: 'Enable installing of clang-tidy (currently 19)'
     type: boolean
@@ -67,7 +66,7 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
            sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
         fi
-        if [ "${{ inputs.cross_arch }}" != "" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
+        if [ "${{ inputs.cross_arch }}" != "none" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
            # Install QEMU for testing cross compilation.
            sudo apt-get install --yes qemu-user; \
         fi
@@ -84,27 +83,40 @@ runs:
         pip install lit
 
     - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
     - name: set llvm key
       id: set_llvm_key
       shell: bash
       run: |
         KEY_VERSION="${{ inputs.ubuntu_version }}"
-        if [ "${{ inputs.os }}" = "windows" ]; then \
-           KEY_VERSION="${{ inputs.windows_version }}" ; \
+        if [ "${{ inputs.os }}" = "windows" ]; then
+           KEY_VERSION="${{ inputs.windows_version }}"
         fi
         echo "key_version=$KEY_VERSION" >> "$GITHUB_OUTPUT"
         KEY_ARCH="x86_64"
-        if [ "${{ runner.arch }}" = "ARM64" ]; then \
-           KEY_ARCH="aarch64" ; \
+        KEY_NATIVE_ARCH="x86_64"
+        if [ "${{ runner.arch }}" = "ARM64" ]; then
+           KEY_ARCH="aarch64" ;
+           KEY_NATIVE_ARCH="aarch64"
         fi
-        if [ "${{ inputs.cross_arch }}" != "" ]; then \
-           KEY_ARCH="${{ inputs.cross_arch }}" ; \
+        if [ "${{ inputs.cross_arch }}" != "none" ]; then
+           KEY_ARCH="${{ inputs.cross_arch }}"
         fi
         echo "key_arch=$KEY_ARCH" >> "$GITHUB_OUTPUT"
-        echo "key_version=$KEY_VERSION"
-        echo "key_arch=$KEY_ARCH"
+        echo "key_native_arch=$KEY_NATIVE_ARCH" >> "$GITHUB_OUTPUT"
+        cat $GITHUB_OUTPUT
+
+    - name: load llvm native
+      if: inputs.cross_arch != 'none'
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        fail-on-cache-miss: true
+    - shell: bash
+      if: inputs.cross_arch != 'none'    
+      run: mv llvm_install llvm_install_native
 
     - name: load llvm
       uses: actions/cache/restore@v4
