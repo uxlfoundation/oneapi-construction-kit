@@ -302,7 +302,6 @@ jobs:
         llvm_build_type: RelAssert
         arch: aarch64
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - run: echo LLVM is && ls -alR llvm_install
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
@@ -315,5 +314,6 @@ jobs:
         enable_api: ""
         cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
-        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/llvm_tools
+        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install
+        #extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/llvm_tools
 
