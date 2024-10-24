@@ -38,7 +38,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}          
+          save:  ${{ inputs.update_cache }}
 
       # These need to match the configurations of build_pr_cache to use the cache effectively
       - name: build host x86_64 online release
@@ -138,6 +138,7 @@ jobs:
         with:
           llvm_version: 19
           llvm_build_type: RelAssert
+          save:  ${{ inputs.update_cache }}
           os: windows
 
       - name: build ock x86_64 relassert
@@ -149,8 +150,7 @@ jobs:
           shell_to_use: pwsh
           gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
           debug_support: ON
-          c_compiler: 'cl.exe'
-          cxx_compiler: 'cl.exe'
+          extra_flags: -DCMAKE_C_COMPILER='cl.exe' -DCMAKE_CXX_COMPILER='cl.exe'
 
       - name: build ock x86_64 offline
         uses: ./.github/actions/do_build_ock
@@ -163,8 +163,7 @@ jobs:
           debug_support: ON
           install_dir: ${{ github.workspace }}/install_offline
           build_dir: ${{ github.workspace }}/build_offline
-          c_compiler: 'cl.exe'
-          cxx_compiler: 'cl.exe'
+          extra_flags: -DCMAKE_C_COMPILER='cl.exe' -DCMAKE_CXX_COMPILER='cl.exe'
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
@@ -178,6 +177,7 @@ jobs:
       with:
         llvm_version: '18'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
         os: ubuntu
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
@@ -207,14 +207,14 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
         arch: x86
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock x86 relassert
       uses: ./.github/actions/do_build_ock
       with:
         build_32_bit: ON
-        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
-        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
         build_targets: check-ock
         enable_api: ""
         builtin_kernel: ON
@@ -224,8 +224,7 @@ jobs:
       uses: ./.github/actions/do_build_ock
       with:
         build_32_bit: ON
-        c_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang
-        cxx_compiler: $GITHUB_WORKSPACE/llvm_install/bin/clang++
+        extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
         build_targets: check-ock
         runtime_compiler_enabled: OFF
         assemble_spirv_ll_lit_test_offline: ON
@@ -234,3 +233,94 @@ jobs:
         debug_support: ON
         install_dir: $GITHUB_WORKSPACE/install_offline
         build_dir: $GITHUB_WORKSPACE/build_offline
+
+  # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
+  run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_targets: check-ock
+        mux_targets_enable: riscv
+        mux_compilers_enable: riscv
+        riscv_enabled: ON
+        disable_unitcl_vecz_checks: ON
+        enable_rvv_scalable_vecz_check: ON
+        enable_rvv_scalable_vp_vecz_check: ON
+        host_enable_builtins: OFF
+        use_linker: gold
+        hal_description: RV64GCV_Zfh
+        hal_refsi_soc: G1
+        hal_refsi_thread_mode: WG
+        debug_support: ON
+
+  # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+  run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: Release
+        save:  ${{ inputs.update_cache }}
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_type: Release
+        build_targets: check-ock
+        host_image: ON
+        use_linker: gold
+        enable_api: ""
+        builtin_kernel: ON
+
+  # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16:
+  run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90 # aarch64 needs longer timeout
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: load native llvm
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
+        fail-on-cache-miss: true
+    - run: mv llvm_install llvm_install_native
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
+        arch: aarch64
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_targets: check-ock-cross
+        host_fp16: ON
+        use_linker: gold
+        debug_support: ON
+        builtin_kernel: ON
+        enable_api: ""
+        cross_compiling: 'TRUE'
+        toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
+        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
+
