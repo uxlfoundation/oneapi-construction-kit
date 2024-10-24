@@ -38,7 +38,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}          
+          save:  ${{ inputs.update_cache }}
 
       # These need to match the configurations of build_pr_cache to use the cache effectively
       - name: build host x86_64 online release
@@ -138,6 +138,7 @@ jobs:
         with:
           llvm_version: 19
           llvm_build_type: RelAssert
+          save:  ${{ inputs.update_cache }}
           os: windows
 
       - name: build ock x86_64 relassert
@@ -178,6 +179,7 @@ jobs:
       with:
         llvm_version: '18'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
         os: ubuntu
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
@@ -207,6 +209,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
         arch: x86
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock x86 relassert
@@ -247,6 +250,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
@@ -277,6 +281,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: Release
+        save:  ${{ inputs.update_cache }}
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
@@ -291,14 +296,14 @@ jobs:
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16:
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90 # aarch64 needs longer timeout
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
     - name: load native llvm
       uses: actions/cache/restore@v4
       with:
-        path: llvm_install/**
+        path: llvm_install/bin/**
         key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
         fail-on-cache-miss: true
     - run: mv llvm_install llvm_install_native
@@ -307,13 +312,13 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
         arch: aarch64
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - run: echo LLVM NATIVE is && ls -alR llvm_install_native
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
-        arch: aarch64   # needed?
+        arch: aarch64
         build_targets: check-ock-cross
         host_fp16: ON
         use_linker: gold
