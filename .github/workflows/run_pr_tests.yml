@@ -303,7 +303,7 @@ jobs:
     - name: load native llvm
       uses: actions/cache/restore@v4
       with:
-        path: llvm_install/bin/**
+        path: llvm_install/**
         key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
         fail-on-cache-miss: true
     - run: mv llvm_install llvm_install_native
