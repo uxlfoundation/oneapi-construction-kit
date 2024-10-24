@@ -295,19 +295,20 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
+    - name: load native llvm
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
+        fail-on-cache-miss: true
+    - run: mv llvm_install llvm_install_native
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
         arch: aarch64
-    - name: load native llvm
-      uses: actions/cache/restore@v4
-      with:
-        path: llvm_install/llvm_tools/**
-        key: llvm-ubuntu-22.04-x86_64-v19-RelAssert
-        fail-on-cache-miss: true
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al && ls -al llvm_install
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
@@ -320,5 +321,5 @@ jobs:
         enable_api: ""
         cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
-        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/llvm_tools
+        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native
 
