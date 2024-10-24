@@ -103,12 +103,6 @@ inputs:
   shell_to_use:
     description: "which shell to use (default bash)"
     default: bash
-  c_compiler:
-    description: "C compiler (default gcc)"
-    default: "gcc"
-  cxx_compiler:
-    description: "C++ compiler (default g++)"
-    default: "g++"
   toolchain_file:
     description: "Path to toolchain file"
     default: ""
@@ -132,15 +126,6 @@ runs:
         $WINDOWSCLC = "${{ inputs.external_clc }}" -replace $PATTERN, '/'
         echo "windowsclc is $WINDOWSCLC"
         echo "windowsclc='$WINDOWSCLC'" >> $env:GITHUB_OUTPUT
-
-    - name: set compiler defines
-      id: set_compilers
-      shell: bash
-      run: |
-        COMPILERDEFS="-DCMAKE_C_COMPILER='${{ inputs.c_compiler }}' -DCMAKE_CXX_COMPILER='${{ inputs.cxx_compiler }}'"
-        if [ "${{ inputs.arch }}" = "aarch64" ]; then COMPILERDEFS="" ; fi
-        echo "compilerdefs is $COMPILERDEFS"
-        echo "compilerdefs=$COMPILERDEFS" >> $env:GITHUB_OUTPUT
 
     - name: cmake_ock
       shell: ${{ inputs.shell_to_use }}
@@ -181,7 +166,7 @@ runs:
               -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
               -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
               -DCMAKE_CROSSCOMPILING=${{ inputs.cross_compiling }}
-               ${{ steps.set_compilers.outputs.compilerdefs }} ${{ inputs.extra_flags }}
+               ${{ inputs.extra_flags }}
                .
     - name: build_ock
       shell: ${{ inputs.shell_to_use }}
