@@ -170,12 +170,12 @@ runs:
               -DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=${{ inputs.disable_unitcl_vecz_checks }}
               -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}"
               -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
-              -DCMAKE_C_COMPILER=${{ inputs.c_compiler }}
-              -DCMAKE_CXX_COMPILER=${{ inputs.cxx_compiler }}
               -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
               -DCMAKE_CROSSCOMPILING=${{ inputs.cross_compiling }}
                ${{ inputs.extra_flags }}
                .
+#              -DCMAKE_C_COMPILER=${{ inputs.c_compiler }}
+#              -DCMAKE_CXX_COMPILER=${{ inputs.cxx_compiler }}
     - name: build_ock
       shell: ${{ inputs.shell_to_use }}
       run:
