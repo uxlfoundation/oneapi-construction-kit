@@ -12,6 +12,7 @@ on:
       - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_build/**'
       - '.github/workflows/run_pr_tests.yml'
+      - '.github/workflows/run_pr_tests_caller.yml'
       - 'CMakeLists.txt'
   schedule:
     # Run Mon-Fri at 7pm
@@ -24,6 +25,9 @@ jobs:
     uses: ./.github/workflows/run_pr_tests.yml
     with:
       update_cache: false
+      enable_full_unitcl_vecz_check: OFF
+      enable_full_unitcl_riscv_vecz_check: OFF
+      enable_full_unitcl_check: OFF
 
   # Could have multiple here
   run-with-cron:
@@ -32,5 +36,8 @@ jobs:
     uses: ./.github/workflows/run_pr_tests.yml
     with:
       update_cache: true
+      enable_full_unitcl_vecz_check: ON
+      enable_full_unitcl_riscv_vecz_check: ON
+      enable_full_unitcl_check: ON
 
 # additional ones here for cron and/or push to main - also can be in different file.

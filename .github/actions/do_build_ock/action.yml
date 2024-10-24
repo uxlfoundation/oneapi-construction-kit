@@ -72,10 +72,21 @@ inputs:
     default: cl
   enable_rvv_scalable_vecz_check:
     description: "Enable RVV scalable vecz check (default OFF)"
+    type: string
     default: OFF
   enable_rvv_scalable_vp_vecz_check:
     description: "Enable RVV scalable vecz VP check (default OFF)"
+    type: string
     default: OFF
+  enable_full_unitcl_vecz_check:
+    required: false
+    type: string
+    default: false
+  enable_full_unitcl_check:
+    required: false
+    type: string
+    default: false
+
   install_dir:
     description: "Install directory for OCK"
     default: install
@@ -157,6 +168,8 @@ runs:
               -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }}
+              -DCA_CL_ENABLE_UNITCL_VECZ_FULL_CHECK=${{ inputs.enable_full_unitcl_vecz_check }}
+              -DCA_CL_ENABLE_UNITCL_FULL_CHECK=${{ inputs.enable_full_unitcl_check }}
               -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
               -DCA_USE_LINKER=${{ inputs.use_linker }}
               -DCA_RUNTIME_COMPILER_ENABLED=${{ inputs.runtime_compiler_enabled }}
