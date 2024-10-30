@@ -256,14 +256,13 @@ compiler::Result HostTarget::initWithBuiltins(
       // for single precision floating points.
       Features.AddFeature("strict-align", true);
       Features.AddFeature("neonfp", true);
-      Features.AddFeature("neon", true);
+      // We need hardware FMA support which is only available as of VFP4.
+      // VFP4 also includes FP16.
+      Features.AddFeature("vfp4", true);
       // Hardware division instructions might not exist on all ARMv7 CPUs, but
       // they probably exist on all the ones we might care about.
       Features.AddFeature("hwdiv", true);
       Features.AddFeature("hwdiv-arm", true);
-      if (host_device_info.half_capabilities) {
-        Features.AddFeature("fp16", true);
-      }
       break;
 #endif
 #ifdef HOST_LLVM_RISCV
