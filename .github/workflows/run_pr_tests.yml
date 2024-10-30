@@ -22,6 +22,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# added a comment here to force a workflow run.
 jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
