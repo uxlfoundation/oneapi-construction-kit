@@ -6042,11 +6042,11 @@ llvm::Error Builder::create<OpBranchConditional>(
       branch_inst->setMetadata(md_nodes.front().second, md_nodes.front().first);
     } else {
       // if both possible nodes are needed create an `MDTuple` out of them
-      const llvm::ArrayRef<llvm::Metadata *> md_arr = {md_nodes[0].first,
-                                                       md_nodes[1].first};
+      llvm::Metadata *md_arr[] = {md_nodes[0].first, md_nodes[1].first};
 
       branch_inst->setMetadata(
-          "MDTuple", llvm::MDTuple::get(*context.llvmContext, md_arr));
+          "MDTuple",
+          llvm::MDTuple::get(*context.llvmContext, llvm::ArrayRef(md_arr)));
     }
   }
 
