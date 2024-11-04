@@ -150,7 +150,6 @@ jobs:
           shell_to_use: pwsh
           gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
           debug_support: ON
-          extra_flags: -DCMAKE_C_COMPILER='cl.exe' -DCMAKE_CXX_COMPILER='cl.exe'
 
       - name: build ock x86_64 offline
         uses: ./.github/actions/do_build_ock
@@ -163,7 +162,6 @@ jobs:
           debug_support: ON
           install_dir: ${{ github.workspace }}/install_offline
           build_dir: ${{ github.workspace }}/build_offline
-          extra_flags: -DCMAKE_C_COMPILER='cl.exe' -DCMAKE_CXX_COMPILER='cl.exe'
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
