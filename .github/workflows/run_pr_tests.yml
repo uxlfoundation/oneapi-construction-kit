@@ -318,7 +318,6 @@ jobs:
         debug_support: ON
         builtin_kernel: ON
         enable_api: ""
-        cross_compiling: 'TRUE'
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
         extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
 

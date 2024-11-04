@@ -106,9 +106,6 @@ inputs:
   toolchain_file:
     description: "Path to toolchain file"
     default: ""
-  cross_compiling:
-    description: "Cross compiling flag (default FALSE)"
-    default: 'FALSE'
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -165,7 +162,6 @@ runs:
               -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}"
               -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
               -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
-              -DCMAKE_CROSSCOMPILING=${{ inputs.cross_compiling }}
                ${{ inputs.extra_flags }}
                .
     - name: build_ock
