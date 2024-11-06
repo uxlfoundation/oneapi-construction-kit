@@ -62,7 +62,8 @@ runs:
         fi
         if [ "${{ inputs.cross_arch }}" = "aarch64" && "${{ runner.arch }}" = "X64" ]; then \
            # aarch64: requirements for cross compilation
-           #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+           sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
            sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
         fi
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
