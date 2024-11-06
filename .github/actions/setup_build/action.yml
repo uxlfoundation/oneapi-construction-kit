@@ -41,10 +41,10 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "armhf" ]; then sudo dpkg --add-architecture armhf ; fi
         if [ "${{ inputs.cross_arch }}" = "aarch64" && "${{ runner.arch }}" = "X64" ]; then sudo dpkg --add-architecture arm64 ; fi
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then sudo dpkg --add-architecture riscv64 ; fi
-        #wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-        #if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
-        #if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
-        #if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
+        wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+        if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
+        if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
+        if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
         sudo apt-get update
         pip install lit clang-format==19.1.0 virtualenv
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
@@ -76,7 +76,7 @@ runs:
            echo Add any aarch64 runner.arch reqs here if supported; \
         fi
         sudo apt-get install --yes doxygen
-        #sudo apt-get install --yes vulkan-sdk
+        sudo apt-get install --yes vulkan-sdk
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}
@@ -97,18 +97,20 @@ runs:
       shell: bash
       run: |
         KEY_VERSION="${{ inputs.ubuntu_version }}"
-        if [ ${{ inputs.os }} = "windows" ]; then \
+        if [ "${{ inputs.os }}" = "windows" ]; then \
            KEY_VERSION="${{ inputs.windows_version }}" ; \
         fi
         echo "key_version=$KEY_VERSION" >> "$GITHUB_OUTPUT"
         KEY_ARCH="x86_64"
-        if [ ${{ runner.arch }} = "ARM64" ]; then \
+        if [ "${{ runner.arch }}" = "ARM64" ]; then \
            KEY_ARCH="aarch64" ; \
         fi
-        if [ ${{ inputs.cross_arch }} != "" ]; then \
+        if [ "${{ inputs.cross_arch }}" != "" ]; then \
            KEY_ARCH="${{ inputs.cross_arch }}" ; \
         fi
         echo "key_arch=$KEY_ARCH" >> "$GITHUB_OUTPUT"
+        echo "key_version=$KEY_VERSION"
+        echo "key_arch=$KEY_ARCH"
 
     - name: load llvm
       uses: actions/cache/restore@v4
