@@ -21,8 +21,11 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   arch:
-    description: 'Architecture: x86_64 | x86 | aarch64'
+    description: 'Architecture: x86_64'
     default: x86_64
+  cross_arch:
+    description: 'Cross Architecture: x86, aarch64, riscv64 (Default: "")'
+    default: ""
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -32,28 +35,36 @@ runs:
       if: ${{ inputs.os == 'ubuntu' }}
       shell: bash
       run: |
-        pip install lit clang-format==19.1.0 virtualenv
-        # x86: Enable ability to install x86 packages for cross compilation
-        if [ "${{ inputs.arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
-        # aarch64: Enable ability to install arm64 packages for cross compilation
-        #      The main archive only hosts amd64 and i386, also add ports for arm64.
-        #      Also install Arm/Aarch64 requirements
-        if [ "${{ inputs.arch }}" = "aarch64" ]; then \
-           sudo dpkg --add-architecture arm64 ; \
-           sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
-           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
-           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
-        fi
+        if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
+        if [ "${{ inputs.cross_arch }}" = "aarch64" ]; then sudo dpkg --add-architecture arm64 ; fi
+        if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then sudo dpkg --add-architecture riscv64 ; fi
         wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
         if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
         sudo apt-get update
+        pip install lit clang-format==19.1.0 virtualenv
+        if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
+           # x86: requirements for cross compilation
+           sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev; \
+        fi
+        if [ "${{ inputs.cross_arch }}" = "aarch64" ]; then \
+           # aarch64: requirements for cross compilation
+           sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
+           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
+        fi
+        if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
+           # riscv64: requirements for cross compilation
+           sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+           sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
+        fi
         # Install QEMU for testing cross compilation.
-        sudo apt-get install --yes qemu-user
+        if [ "${{ inputs.cross_arch }}" == "aarch64" ] || [ "${{ inputs.cross_arch }}" == "riscv64" ] ; then \
+           sudo apt-get install --yes qemu-user ; \
+        fi
         sudo apt-get install --yes doxygen
         sudo apt-get install --yes vulkan-sdk
-        if [ "${{ inputs.arch }}" = "x86" ]; then sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev ; fi
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}
@@ -73,7 +84,7 @@ runs:
       uses: actions/cache/restore@v4
       with:
         path: llvm_install/**
-        key: llvm-${{ inputs.os }}-${{ inputs.os == 'ubuntu' && inputs.ubuntu_version || inputs.windows_version }}-${{ inputs.arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        key: llvm-${{ inputs.os }}-${{ inputs.os == 'ubuntu' && inputs.ubuntu_version || inputs.windows_version }}-${{ inputs.cross_arch == '' && inputs.arch || inputs.cross_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
