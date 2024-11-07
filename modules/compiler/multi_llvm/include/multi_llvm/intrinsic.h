@@ -19,15 +19,46 @@
 
 #include <multi_llvm/llvm_version.h>
 
+namespace llvm {
+namespace Intrinsic {
+static inline auto getOrInsertDeclaration(...) { return nullptr; }
+static inline auto getDeclaration(...) { return nullptr; }
+}  // namespace Intrinsic
+}  // namespace llvm
+
 namespace multi_llvm {
-static inline auto GetOrInsertIntrinsicDeclaration(
+namespace IntrinsicHelper {
+template <bool>
+struct SelectIf;
+template <>
+struct SelectIf<false> {
+  template <typename T>
+  auto operator()(T) {
+    return nullptr;
+  }
+};
+template <>
+struct SelectIf<true> {
+  template <typename T>
+  auto operator()(T t) {
+    return t;
+  }
+};
+}  // namespace IntrinsicHelper
+
+static inline llvm::Function *GetOrInsertIntrinsicDeclaration(
     llvm::Module *M, llvm::Intrinsic::ID id,
     llvm::ArrayRef<llvm::Type *> Tys = {}) {
-#if LLVM_VERSION_GREATER_EQUAL(20, 0)
-  return llvm::Intrinsic::getOrInsertDeclaration(M, id, Tys);
-#else
-  return llvm::Intrinsic::getDeclaration(M, id, Tys);
-#endif
+  auto goid = llvm::Intrinsic::getOrInsertDeclaration(M, id, Tys);
+  constexpr bool use_goid = std::is_same_v<decltype(goid), llvm::Function *>;
+  if constexpr (use_goid) {
+    return goid;
+  } else {
+    // Even if use_goid is true and this block is never executed, we need a
+    // workaround to avoid a deprecation warning.
+    IntrinsicHelper::SelectIf<!use_goid> SI;
+    return llvm::Intrinsic::getDeclaration(SI(M), SI(id), SI(Tys));
+  }
 }
 
 }  // namespace multi_llvm
