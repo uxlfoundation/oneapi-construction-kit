@@ -36,7 +36,7 @@ runs:
       if: ${{ inputs.os == 'ubuntu' }}
       shell: bash
       run: |
-        #if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
+        if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
         #if [ "${{ inputs.cross_arch }}" = "x86_64" ] && [ "${{ runner.arch }}" = "ARM64" ]; then sudo dpkg --add-architecture amd64 ; fi
         #if [ "${{ inputs.cross_arch }}" = "armhf" ]; then sudo dpkg --add-architecture armhf ; fi
         #if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then sudo dpkg --add-architecture arm64 ; fi
