@@ -39,7 +39,7 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
         #if [ "${{ inputs.cross_arch }}" = "x86_64" ] && [ "${{ runner.arch }}" = "ARM64" ]; then sudo dpkg --add-architecture amd64 ; fi
         #if [ "${{ inputs.cross_arch }}" = "armhf" ]; then sudo dpkg --add-architecture armhf ; fi
-        #if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then sudo dpkg --add-architecture arm64 ; fi
+        if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then sudo dpkg --add-architecture arm64 ; fi
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then sudo dpkg --add-architecture riscv64 ; fi
         wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
         if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
