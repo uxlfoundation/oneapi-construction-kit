@@ -37,51 +37,50 @@ runs:
       shell: bash
       run: |
         set -x
+        pip install lit clang-format==19.1.0 virtualenv
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
         #if [ "${{ inputs.cross_arch }}" = "x86_64" ] && [ "${{ runner.arch }}" = "ARM64" ]; then sudo dpkg --add-architecture amd64 ; fi
         #if [ "${{ inputs.cross_arch }}" = "armhf" ]; then sudo dpkg --add-architecture armhf ; fi
-        if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then \
-           sudo dpkg --add-architecture arm64 ; \
-           sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
-        fi
-        if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then sudo dpkg --add-architecture riscv64 ; fi
+        #if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then \
+        #   sudo dpkg --add-architecture arm64 ; \
+        #   sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+        #fi
+        #if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then sudo dpkg --add-architecture riscv64 ; fi
         wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
         if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
         sudo apt-get update
-        pip install lit clang-format==19.1.0 virtualenv
+        sudo apt-get install --yes doxygen
+        sudo apt-get install --yes vulkan-sdk
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
            # x86: requirements for cross compilation
            sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev; \
         fi
-        if [ "${{ inputs.cross_arch }}" = "x86_64" ] && [ "${{ runner.arch }}" = "ARM64" ]; then \
-           # x86_64: requirements for cross compilation
-           echo Add any x86_64 cross reqs here if supported; \
-        fi
-        if [ "${{ inputs.cross_arch }}" = "armhf" ]; then \
-           # armhf: requirements for cross compilation
-           #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
-           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
-        fi
+        #if [ "${{ inputs.cross_arch }}" = "x86_64" ] && [ "${{ runner.arch }}" = "ARM64" ]; then \
+        #   # x86_64: requirements for cross compilation
+        #   echo Add any x86_64 cross reqs here if supported; \
+        #fi
+        #if [ "${{ inputs.cross_arch }}" = "armhf" ]; then \
+        #   # armhf: requirements for cross compilation
+        #   #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+        #   sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
+        #fi
         if [ "${{ inputs.cross_arch }}" = "aarch64" ] && [ "${{ runner.arch }}" = "X64" ]; then \
            # aarch64: requirements for cross compilation
            #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
            sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
         fi
-        if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
-           # riscv64: requirements for cross compilation
-           #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
-           sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
-        fi
+        #if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
+        #   # riscv64: requirements for cross compilation
+        #   #sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list; \
+        #   sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
+        #fi
         # Install QEMU for testing cross compilation.
         if [ "${{ runner.arch }}" = "X64" ] && [ "${{ inputs.cross_arch }}" = "armhf" -o "${{ inputs.cross_arch }}" = "aarch64" -o "${{ inputs.cross_arch }}" = "riscv64" ]; then \
            sudo apt-get install --yes qemu-user; \
            echo Add any aarch64 runner.arch reqs here if supported; \
-        fi
-        sudo apt-get install --yes doxygen
-        if [ "${{ inputs.cross_arch }}" = "" ] || [ "${{ inputs.cross_arch }}" != "armhf" -a "${{ inputs.cross_arch }}" != "aarch64" ]; then \
-           sudo apt-get install --yes vulkan-sdk; \
         fi
 
     - name: Install windows prerequisites
