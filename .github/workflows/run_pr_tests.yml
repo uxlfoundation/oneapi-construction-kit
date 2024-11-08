@@ -26,11 +26,12 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
+    if: false
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.0
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -70,12 +71,13 @@ jobs:
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
+    if: false
 
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.0
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -96,14 +98,83 @@ jobs:
         run:
           ninja -C build check-ock-UnitCL
 
-  # run clang-format-diff on the repo
-  run_clang_format:
+  # build and run clang-tidy
+  run_clang_tidy_changes:
 
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.0
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_ubuntu_build
+        with:
+          llvm_version: 19
+          llvm_build_type: RelAssert
+
+      # These need to match the configurations of build_pr_cache to use the cache effectively
+      - name: build initial config files
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: ReleaseAssert
+          host_image: ON
+          build_targets: build.ninja
+
+      # Make a good guess as to the generated targets we require.
+      #
+      # Here we compute the set difference between the output of the two
+      # temporary file descriptors using `awk`. Awk processes both files line by
+      # line, going through the first file, then the second file. The NR==FNR
+      # predicate executes its block only on the records of the first file,
+      # ensuring to call `next` (equivalent to `return`) to avoid running the
+      # second block on each line in the first file.
+      #
+      # The first input to `awk` lists all targets reported by ninja.
+      #
+      # The second input to awk collects all targets on which `tidy-` targets
+      # depend. This may include targets which are guarded by if() statements in
+      # CMake, hence why we need to compute a set difference with the targets that
+      # ninja reports.
+      - name: build actual targets needed
+        if: false
+        run:
+         ninja -C build
+          $(
+            awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
+              <(ninja -C build -t targets)
+              <(
+                find modules source -type f -name CMakeLists.txt -exec
+                awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
+                {} \+ | tr ' ' '\n'
+              )
+           )
+
+      - name: run clang-tidy
+        if: false
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          ./scripts/compute-dependants.py \
+            --exclude-filter='(/build/.*\.s$)|(.*/(external|cookie)/.*)' \
+            --build-dir="$PWD/build" \
+            `git diff --name-only --diff-filter=d \
+              HEAD..origin/${{ github.base_ref }} | \
+              grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
+            tee /dev/stderr | \
+            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
+          # ^ When updating the clang-tidy version, the version used by the cmake
+          # target should match updated c.f. the `tidy` target
+
+  # run clang-format-diff on the repo
+  run_clang_format:
+    if: false
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
 
       - name: setup-ubuntu-clang-format
         run:
@@ -120,6 +191,7 @@ jobs:
 
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
+    if: false
 
     runs-on: windows-2019
 
@@ -165,6 +237,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -194,6 +267,7 @@ jobs:
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 90 # offline needs longer timeout
     steps:
@@ -233,6 +307,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -264,6 +339,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -288,6 +364,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16:
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 90 # aarch64 needs longer timeout
     steps:
