@@ -21,7 +21,7 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   cross_arch:
-    description: 'Cross compilation architecture from: x86, x86_64, armhf, aarch64, riscv64'
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "" (no cross compile)'
     default: ""
     # Note: runner architectures from: x86_64 (aka runner.arch: X64), aarch64 (aka runner.arch: ARM64)
 
@@ -45,7 +45,7 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
            sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev; \
         fi
-        if [ "${{ inputs.cross_arch }}" = "armhf" ]; then \
+        if [ "${{ inputs.cross_arch }}" = "arm" ]; then \
            sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
         fi
         if [ "${{ inputs.cross_arch }}" = "aarch64" ]; then \
@@ -54,7 +54,7 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
            sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
         fi
-        if [ "${{ inputs.cross_arch }}" = "armhf" -o "${{ inputs.cross_arch }}" = "aarch64" -o "${{ inputs.cross_arch }}" = "riscv64" ]; then \
+        if [ "${{ inputs.cross_arch }}" != "" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
            # Install QEMU for testing cross compilation.
            sudo apt-get install --yes qemu-user; \
         fi
