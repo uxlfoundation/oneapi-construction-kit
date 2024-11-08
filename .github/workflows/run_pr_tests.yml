@@ -146,6 +146,16 @@ jobs:
         run:
           find modules source -type f -name CMakeLists.txt -exec awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}' {} \+ | tr ' ' '\n'
 
+      - name: awk ninja targets
+        run:
+          awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
+            <(ninja -C build -t targets)
+            <(
+              find modules source -type f -name CMakeLists.txt -exec
+              awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
+              {} \+ | tr ' ' '\n'
+            )
+
       - name: build actual targets needed
         if: false
         run:
