@@ -137,6 +137,15 @@ jobs:
       # depend. This may include targets which are guarded by if() statements in
       # CMake, hence why we need to compute a set difference with the targets that
       # ninja reports.
+
+      - name: build ninja targets
+        run:
+          ninja -C build -t targets
+
+      - name: list ninja targets
+        run:
+          find modules source -type f -name CMakeLists.txt -exec awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}' {} \+ | tr ' ' '\n'
+
       - name: build actual targets needed
         if: false
         run:
