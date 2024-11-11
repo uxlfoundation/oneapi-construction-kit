@@ -73,7 +73,8 @@ mux_result_t muxFinalizeCommandBuffer(mux_command_buffer_t command_buffer) {
     return mux_error_invalid_value;
   }
 
-  return muxSelectFinalizeCommandBuffer(/*alan=*/ command_buffer);
+  // Comment: return muxSelectFinalizeCommandBuffer(/*alan=*/ command_buffer);
+  return muxSelectFinalizeCommandBuffer(command_buffer);
 }
 
 mux_result_t muxCloneCommandBuffer(mux_device_t device,
@@ -136,7 +137,8 @@ mux_result_t muxResetCommandBuffer(mux_command_buffer_t command_buffer) {
     return mux_error_invalid_value;
   }
 
-  return muxSelectResetCommandBuffer(/*alan=*/ command_buffer);
+  // Comment: return muxSelectResetCommandBuffer(/*alan=*/ command_buffer);
+  return muxSelectResetCommandBuffer(command_buffer);
 }
 
 mux_result_t muxCommandCopyBuffer(mux_command_buffer_t command_buffer,
