@@ -189,9 +189,7 @@ jobs:
               HEAD..origin/${{ github.base_ref }} | \
               grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
             tee /dev/stderr | \
-            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
-          # ^ When updating the clang-tidy version, the version used by the cmake
-          # target should match updated c.f. the `tidy` target
+            parallel --verbose -- clang-tidy --quiet -p "$PWD/build/" "{}"
 
   # run clang-format-diff on the repo
   run_clang_format:
