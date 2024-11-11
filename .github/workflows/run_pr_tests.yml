@@ -179,7 +179,7 @@ jobs:
               grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'
 
       - name: run clang-tidy
-        if: false
+        #if: false
         run: |
           git fetch origin ${{ github.base_ref }}
           ./scripts/compute-dependants.py \
@@ -189,7 +189,7 @@ jobs:
               HEAD..origin/${{ github.base_ref }} | \
               grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
             tee /dev/stderr | \
-            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
+            parallel --verbose -- echo clang-tidy-19 --quiet -p "$PWD/build/" "{}"
           # ^ When updating the clang-tidy version, the version used by the cmake
           # target should match updated c.f. the `tidy` target
 
