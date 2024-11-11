@@ -157,7 +157,7 @@ jobs:
             )
 
       - name: build actual targets needed
-        if: false
+        #if: false
         run:
          ninja -C build
           $(
