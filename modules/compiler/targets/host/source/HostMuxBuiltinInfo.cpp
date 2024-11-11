@@ -88,7 +88,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
   {
     auto *const WIInfoS = compiler::utils::getWorkItemInfoStructTy(M);
     WIInfo.ID = SchedParamIndices::WI;
-    WIInfo.ParamTy = WIInfoS->getPointerTo();
+    WIInfo.ParamTy = PointerType::get(WIInfoS, /*AddressSpace=*/0);
     WIInfo.ParamPointeeTy = WIInfoS;
     WIInfo.ParamName = "wi-info";
     WIInfo.ParamDebugName = WIInfoS->getStructName().str();
@@ -104,7 +104,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
   {
     auto *const SchedInfoS = getScheduleInfoStruct(M);
     SchedInfo.ID = SchedParamIndices::SCHED;
-    SchedInfo.ParamTy = SchedInfoS->getPointerTo();
+    SchedInfo.ParamTy = PointerType::get(SchedInfoS, /*AddressSpace=*/0);
     SchedInfo.ParamPointeeTy = SchedInfoS;
     SchedInfo.ParamName = "sched-info";
     SchedInfo.ParamDebugName = SchedInfoS->getStructName().str();
@@ -120,7 +120,7 @@ HostBIMuxInfo::getMuxSchedulingParameters(Module &M) {
   {
     auto *const WGInfoS = getMiniWGInfoStruct(M);
     WGInfo.ID = SchedParamIndices::MINIWG;
-    WGInfo.ParamTy = WGInfoS->getPointerTo();
+    WGInfo.ParamTy = PointerType::get(WGInfoS, /*AddressSpace=*/0);
     WGInfo.ParamPointeeTy = WGInfoS;
     WGInfo.ParamName = "mini-wg-info";
     WGInfo.ParamDebugName = WGInfoS->getStructName().str();

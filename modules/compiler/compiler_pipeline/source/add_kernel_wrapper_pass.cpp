@@ -43,7 +43,7 @@ void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
     StructType *structTy, SmallVectorImpl<KernelArgMapping> &argMappings,
     SmallVectorImpl<Type *> &argTypes) {
   // the first element is our new packed argument struct
-  argTypes.push_back(structTy->getPointerTo());
+  argTypes.push_back(PointerType::get(structTy, /*AddressSpace=*/0));
 
   uint32_t index = 0;
   // Track which arguments are *not* packed, and which index each corresponds

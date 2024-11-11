@@ -367,12 +367,6 @@ bool RunOnInstruction(CallInst &call) {
                      ? builder.getIntN(call.getType()->getIntegerBitWidth(), 1)
                      : call.getArgOperand(1);
 
-      if (call.getType()->isFloatingPointTy()) {
-        auto ptr = builder.getIntNTy(call.getType()->getPrimitiveSizeInBits())
-                       ->getPointerTo(op0->getType()->getPointerAddressSpace());
-        op0 = builder.CreateBitCast(op0, ptr);
-      }
-
       if (op1->getType()->isFloatingPointTy()) {
         op1 = builder.CreateBitCast(
             op1, builder.getIntNTy(call.getType()->getPrimitiveSizeInBits()));
