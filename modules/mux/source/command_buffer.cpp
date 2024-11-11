@@ -136,7 +136,7 @@ mux_result_t muxResetCommandBuffer(mux_command_buffer_t command_buffer) {
     return mux_error_invalid_value;
   }
 
-  return muxSelectResetCommandBuffer(command_buffer);
+  return muxSelectResetCommandBuffer(/*alan=*/ command_buffer);
 }
 
 mux_result_t muxCommandCopyBuffer(mux_command_buffer_t command_buffer,
