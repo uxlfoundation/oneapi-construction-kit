@@ -122,8 +122,6 @@ jobs:
           host_image: ON
           build_targets: build.ninja
 
-      # Make a good guess as to the generated targets we require.
-      #
       # Here we compute the set difference between the output of the two
       # temporary file descriptors using `awk`. Awk processes both files line by
       # line, going through the first file, then the second file. The NR==FNR
@@ -137,27 +135,7 @@ jobs:
       # depend. This may include targets which are guarded by if() statements in
       # CMake, hence why we need to compute a set difference with the targets that
       # ninja reports.
-
-      - name: build ninja targets
-        run:
-          ninja -C build -t targets
-
-      - name: list ninja targets
-        run:
-          find modules source -type f -name CMakeLists.txt -exec awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}' {} \+ | tr ' ' '\n'
-
-      - name: awk ninja targets
-        run:
-          awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
-            <(ninja -C build -t targets)
-            <(
-              find modules source -type f -name CMakeLists.txt -exec
-              awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
-              {} \+ | tr ' ' '\n'
-            )
-
       - name: build actual targets needed
-        #if: false
         run:
          ninja -C build
           $(
@@ -170,16 +148,7 @@ jobs:
               )
            )
 
-      - name: run clang-tidy diff
-        #if: false
-        run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff --name-only --diff-filter=d \
-              HEAD..origin/${{ github.base_ref }} | \
-              grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'
-
       - name: run clang-tidy
-        #if: false
         run: |
           git fetch origin ${{ github.base_ref }}
           ./scripts/compute-dependants.py \
