@@ -73,7 +73,6 @@ mux_result_t muxFinalizeCommandBuffer(mux_command_buffer_t command_buffer) {
     return mux_error_invalid_value;
   }
 
-  // Comment: return muxSelectFinalizeCommandBuffer(/*alan=*/ command_buffer);
   return muxSelectFinalizeCommandBuffer(command_buffer);
 }
 
@@ -137,7 +136,6 @@ mux_result_t muxResetCommandBuffer(mux_command_buffer_t command_buffer) {
     return mux_error_invalid_value;
   }
 
-  // Comment: return muxSelectResetCommandBuffer(/*alan=*/ command_buffer);
   return muxSelectResetCommandBuffer(command_buffer);
 }
 

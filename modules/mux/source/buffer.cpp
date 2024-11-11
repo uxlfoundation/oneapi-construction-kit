@@ -92,6 +92,5 @@ mux_result_t muxBindBufferMemory(mux_device_t device, mux_memory_t memory,
     return mux_error_invalid_value;
   }
 
-  // comment: return muxSelectBindBufferMemory(/*alan=*/ device, memory, buffer, offset);
   return muxSelectBindBufferMemory(device, memory, buffer, offset);
 }
