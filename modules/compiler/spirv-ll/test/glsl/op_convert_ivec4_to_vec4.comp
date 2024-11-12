@@ -29,7 +29,7 @@ void main() {
 // CHECK: define spir_kernel void @main() #0 {
 // CHECK: [[FROM:%.*]] = alloca <4 x i32>
 // CHECK: [[TO:%.*]] = alloca <4 x float>
-// CHECK: store <4 x i32> <i32 -42, i32 -42, i32 -42, i32 -42>, ptr [[FROM]]
+// CHECK: store <4 x i32> {{<(i32 -42(, )?)+>|splat \(i32 -42\)}}, ptr [[FROM]]
 // CHECK: = load <4 x i32>, ptr {{[%@].*}}
 // CHECK: [[RESULT:%.*]] = call spir_func <4 x float> @_Z14convert_float4Dv4_i(<4 x i32> %1)
 // CHECK: store <4 x float> [[RESULT]], ptr [[TO]]

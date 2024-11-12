@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @smoothstep_v8double()
                    %2 = OpLabel
                    %3 = OpExtInst %v8double_t %1 smoothstep %v8double_1 %v8double_2 %v8double_3
-; CHECK: = call spir_func <8 x double> @_Z10smoothstepDv8_dS_S_(<8 x double> <double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00, double 1.900000e+00>, <8 x double> <double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00, double 2.000000e+00>, <8 x double> <double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00>)
+; CHECK: = call spir_func <8 x double> @_Z10smoothstepDv8_dS_S_(<8 x double> {{<(double 1.900000e\+00(, )?)+>|splat \(double 1.900000e\+00\)}}, <8 x double> {{<(double 2.000000e\+00(, )?)+>|splat \(double 2.000000e\+00\)}}, <8 x double> {{<(double 3.140000e\+00(, )?)+>|splat \(double 3.140000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

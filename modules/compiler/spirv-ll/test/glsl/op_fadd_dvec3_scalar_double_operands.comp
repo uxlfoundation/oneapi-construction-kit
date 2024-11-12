@@ -31,7 +31,7 @@ void main() {
 // CHECK: = alloca <3 x double>
 // CHECK: = alloca double
 // CHECK: = alloca <3 x double>
-// CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: store <3 x double> {{<double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+), double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+), double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)>|splat \(double -?[0x]*[0-9A-F.e+]+\)}}, ptr {{[%@].*}}
 // CHECK: store double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, ptr {{[%@].*}}
 // CHECK: = load <3 x double>, ptr {{[%@].*}}
 // CHECK: = load double, ptr {{[%@].*}}

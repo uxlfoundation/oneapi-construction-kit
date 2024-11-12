@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @s_mad_sat_v4i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i32_t %1 s_mad_sat %v4i32_1 %v4i32_2 %v4i32_3
-; CHECK: = call spir_func <4 x i32> @_Z7mad_satDv4_iS_S_(<4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32> <i32 2, i32 2, i32 2, i32 2>, <4 x i32> <i32 3, i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <4 x i32> @_Z7mad_satDv4_iS_S_(<4 x i32> {{<(i32 1(, )?)+>|splat \(i32 1\)}}, <4 x i32> {{<(i32 2(, )?)+>|splat \(i32 2\)}}, <4 x i32> {{<(i32 3(, )?)+>|splat \(i32 3\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

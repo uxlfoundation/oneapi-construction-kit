@@ -42,7 +42,7 @@
                    %3 = OpVariable %v4int_ptr_t Function
 ; CHECK: [[signp:%.*]] = alloca <4 x i32>
                    %4 = OpExtInst %v4float_t %1 lgamma_r %v4float_2 %3
-; CHECK: = call spir_func <4 x float> @_Z8lgamma_rDv4_fPDv4_i(<4 x float> <float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000, float 0x40011EB860000000>, ptr [[signp]])
+; CHECK: = call spir_func <4 x float> @_Z8lgamma_rDv4_fPDv4_i(<4 x float> {{<(float 0x40011EB860000000(, )?)+>|splat \(float 0x40011EB860000000\)}}, ptr [[signp]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

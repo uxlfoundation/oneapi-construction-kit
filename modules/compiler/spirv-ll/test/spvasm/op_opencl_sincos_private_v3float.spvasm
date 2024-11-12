@@ -40,7 +40,7 @@
                    %3 = OpVariable %v3float_ptr_t Function
 ; CHECK: [[cosval:%.*]] = alloca <3 x float>
                    %4 = OpExtInst %v3float_t %1 sincos %v3float_1 %3
-; CHECK: = call spir_func <3 x float> @_Z6sincosDv3_fPS_(<3 x float> <float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000, float 0x3FF0CCCCC0000000>, ptr [[cosval]])
+; CHECK: = call spir_func <3 x float> @_Z6sincosDv3_fPS_(<3 x float> {{<(float 0x3FF0CCCCC0000000(, )?)+>|splat \(float 0x3FF0CCCCC0000000\)}}, ptr [[cosval]])
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

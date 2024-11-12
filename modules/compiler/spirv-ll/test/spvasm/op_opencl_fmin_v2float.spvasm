@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @fmin_v2float()
                    %2 = OpLabel
                    %3 = OpExtInst %v2float_t %1 fmin %v2float_2 %v2float_1
-; CHECK: = call spir_func <2 x float> @_Z4fminDv2_fS_(<2 x float> <float 2.000000e+00, float 2.000000e+00>, <2 x float> <float 1.000000e+00, float 1.000000e+00>)
+; CHECK: = call spir_func <2 x float> @_Z4fminDv2_fS_(<2 x float> {{<(float 2.000000e\+00(, )?)+>|splat \(float 2.000000e\+00\)}}, <2 x float> {{<(float 1.000000e\+00(, )?)+>|splat \(float 1.000000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

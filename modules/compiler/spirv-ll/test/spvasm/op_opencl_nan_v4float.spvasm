@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @nan_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 nan %v4uint_3
-; CHECK: = call spir_func <4 x float> @_Z3nanDv4_j(<4 x i32> <i32 3, i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <4 x float> @_Z3nanDv4_j(<4 x i32> {{<(i32 3(, )?)+>|splat \(i32 3\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

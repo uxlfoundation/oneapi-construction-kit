@@ -31,7 +31,7 @@ void main() {
 // CHECK: = alloca <2 x i32>
 // CHECK: = alloca i32
 // CHECK: = alloca <2 x i32>
-// CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: store <2 x i32> {{<(i32 -42(, )?)+>|splat \(i32 -42\)}}, ptr {{[%@].*}}
 // CHECK: store i32 -42, ptr {{[%@].*}}
 // CHECK: = load <2 x i32>, ptr {{[%@].*}}
 // CHECK: = load i32, ptr {{[%@].*}}

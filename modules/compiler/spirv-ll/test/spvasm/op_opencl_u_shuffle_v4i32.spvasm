@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @u_shuffle_v4i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i32_t %1 shuffle %v4i32_3 %v4i32_4
-; CHECK: = call spir_func <4 x i32> @_Z7shuffleDv4_jS_(<4 x i32> <i32 3, i32 3, i32 3, i32 3>, <4 x i32> <i32 4, i32 4, i32 4, i32 4>)
+; CHECK: = call spir_func <4 x i32> @_Z7shuffleDv4_jS_(<4 x i32> {{<(i32 3(, )?)+>|splat \(i32 3\)}}, <4 x i32> {{<(i32 4(, )?)+>|splat \(i32 4\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

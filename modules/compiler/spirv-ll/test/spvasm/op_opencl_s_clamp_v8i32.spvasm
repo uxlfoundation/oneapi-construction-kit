@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @s_clamp_v8i32()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i32_t %1 s_clamp %v8i32_1 %v8i32_2 %v8i32_3
-; CHECK: = call spir_func <8 x i32> @_Z5clampDv8_iS_S_(<8 x i32> <i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1, i32 1>, <8 x i32> <i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2, i32 2>, <8 x i32> <i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3, i32 3>)
+; CHECK: = call spir_func <8 x i32> @_Z5clampDv8_iS_S_(<8 x i32> {{<(i32 1(, )?)+>|splat \(i32 1\)}}, <8 x i32> {{<(i32 2(, )?)+>|splat \(i32 2\)}}, <8 x i32> {{<(i32 3(, )?)+>|splat \(i32 3\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

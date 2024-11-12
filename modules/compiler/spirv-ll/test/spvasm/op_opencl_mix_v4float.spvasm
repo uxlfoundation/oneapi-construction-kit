@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @mix_v4float()
                    %2 = OpLabel
                    %3 = OpExtInst %v4float_t %1 mix %v4float_1 %v4float_2 %v4float_3
-; CHECK: = call spir_func <4 x float> @_Z3mixDv4_fS_S_(<4 x float> <float 0x3FF19999A0000000, float 0x3FF19999A0000000, float 0x3FF19999A0000000, float 0x3FF19999A0000000>, <4 x float> <float 0x40019999A0000000, float 0x40019999A0000000, float 0x40019999A0000000, float 0x40019999A0000000>, <4 x float> <float 0x400A666660000000, float 0x400A666660000000, float 0x400A666660000000, float 0x400A666660000000>)
+; CHECK: = call spir_func <4 x float> @_Z3mixDv4_fS_S_(<4 x float> {{<(float 0x3FF19999A0000000(, )?)+>|splat \(float 0x3FF19999A0000000\)}}, <4 x float> {{<(float 0x40019999A0000000(, )?)+>|splat \(float 0x40019999A0000000\)}}, <4 x float> {{<(float 0x400A666660000000(, )?)+>|splat \(float 0x400A666660000000\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd
