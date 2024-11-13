@@ -43,7 +43,7 @@
 ; CHECK: define spir_kernel void @mix_v16double()
                    %2 = OpLabel
                    %3 = OpExtInst %v16double_t %1 mix %v16double_1 %v16double_2 %v16double_3
-; CHECK: = call spir_func <16 x double> @_Z3mixDv16_dS_S_(<16 x double> <double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00, double 1.100000e+00>, <16 x double> <double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00, double 2.200000e+00>, <16 x double> <double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00, double 3.300000e+00>)
+; CHECK: = call spir_func <16 x double> @_Z3mixDv16_dS_S_(<16 x double> {{<(double 1.100000e\+00(, )?)+>|splat \(double 1.100000e\+00\)}}, <16 x double> {{<(double 2.200000e\+00(, )?)+>|splat \(double 2.200000e\+00\)}}, <16 x double> {{<(double 3.300000e\+00(, )?)+>|splat \(double 3.300000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

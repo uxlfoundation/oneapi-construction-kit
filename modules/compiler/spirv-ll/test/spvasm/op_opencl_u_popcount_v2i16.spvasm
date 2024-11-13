@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @u_popcount_v2i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i16_t %1 popcount %v2i16_3
-; CHECK: = call spir_func <2 x i16> @_Z8popcountDv2_t(<2 x i16> <i16 3, i16 3>)
+; CHECK: = call spir_func <2 x i16> @_Z8popcountDv2_t(<2 x i16> {{<(i16 3(, )?)+>|splat \(i16 3\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

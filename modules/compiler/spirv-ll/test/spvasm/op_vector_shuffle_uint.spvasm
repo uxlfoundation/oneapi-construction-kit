@@ -47,5 +47,5 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
 ; CHECK: = alloca <3 x i32>
-; CHECK: store <3 x i32> <i32 42, i32 42, i32 42>, ptr {{[%@].*}}
+; CHECK: store <3 x i32> {{<(i32 42(, )?)+>|splat \(i32 42\)}}, ptr {{[%@].*}}
 ; CHECK: ret void

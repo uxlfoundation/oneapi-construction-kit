@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @sign_v16double()
                    %2 = OpLabel
                    %3 = OpExtInst %v16double_t %1 sign %v16double_3
-; CHECK: = call spir_func <16 x double> @_Z4signDv16_d(<16 x double> <double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00, double 3.140000e+00>)
+; CHECK: = call spir_func <16 x double> @_Z4signDv16_d(<16 x double> {{<(double 3.140000e\+00(, )?)+>|splat \(double 3.140000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

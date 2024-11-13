@@ -44,7 +44,7 @@
 ; CHECK: define spir_kernel void @shuffle2_v8float()
                    %2 = OpLabel
                    %3 = OpExtInst %v8float_t %1 shuffle2 %v8float_3 %v8float_4 %v8i32_5
-; CHECK: = call spir_func <8 x float> @_Z8shuffle2Dv8_fS_Dv8_j(<8 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, <8 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, <8 x i32> <i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5, i32 5>)
+; CHECK: = call spir_func <8 x float> @_Z8shuffle2Dv8_fS_Dv8_j(<8 x float> {{<(float 3.000000e\+00(, )?)+>|splat \(float 3.000000e\+00\)}}, <8 x float> {{<(float 4.000000e\+00(, )?)+>|splat \(float 4.000000e\+00\)}}, <8 x i32> {{<(i32 5(, )?)+>|splat \(i32 5\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

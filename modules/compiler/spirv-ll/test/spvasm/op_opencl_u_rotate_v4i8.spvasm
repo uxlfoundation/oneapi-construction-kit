@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_rotate_v4i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i8_t %1 rotate %v4i8_2 %v4i8_4
-; CHECK: = call spir_func <4 x i8> @_Z6rotateDv4_hS_(<4 x i8> <i8 2, i8 2, i8 2, i8 2>, <4 x i8> <i8 4, i8 4, i8 4, i8 4>)
+; CHECK: = call spir_func <4 x i8> @_Z6rotateDv4_hS_(<4 x i8> {{<(i8 2(, )?)+>|splat \(i8 2\)}}, <4 x i8> {{<(i8 4(, )?)+>|splat \(i8 4\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

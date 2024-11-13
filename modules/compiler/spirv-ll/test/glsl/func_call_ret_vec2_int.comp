@@ -37,6 +37,6 @@ void main() {
 // CHECK: ret void
 // CHECK: define private spir_func <2 x i32> @{{("func_call_ret_vec2_int.+")}}()
 // CHECK: = alloca <2 x i32>
-// CHECK: store <2 x i32> <i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: store <2 x i32> {{<(i32 -42(, )?)+>|splat \(i32 -42\)}}, ptr {{[%@].*}}
 // CHECK: = load <2 x i32>, ptr {{[%@].*}}
 // CHECK: ret <2 x i32> {{[%@].*}}

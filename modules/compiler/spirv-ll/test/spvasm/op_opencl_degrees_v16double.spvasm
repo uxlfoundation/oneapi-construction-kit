@@ -39,7 +39,7 @@
 ; CHECK: define spir_kernel void @degrees_v16double()
                    %2 = OpLabel
                    %3 = OpExtInst %v16double_t %1 degrees %v16double_1
-; CHECK: = call spir_func <16 x double> @_Z7degreesDv16_d(<16 x double> <double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00, double 1.570000e+00>)
+; CHECK: = call spir_func <16 x double> @_Z7degreesDv16_d(<16 x double> {{<(double 1.570000e\+00(, )?)+>|splat \(double 1.570000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

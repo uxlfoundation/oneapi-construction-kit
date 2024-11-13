@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @u_clz_v2i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i16_t %1 clz %v2i16_1
-; CHECK: = call spir_func <2 x i16> @_Z3clzDv2_t(<2 x i16> <i16 1, i16 1>)
+; CHECK: = call spir_func <2 x i16> @_Z3clzDv2_t(<2 x i16> {{<(i16 1(, )?)+>|splat \(i16 1\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

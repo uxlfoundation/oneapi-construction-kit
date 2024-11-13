@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @s_rhadd_v3i8()
                    %2 = OpLabel
                    %3 = OpExtInst %v3i8_t %1 s_rhadd %v3i8_1 %v3i8_2
-; CHECK: = call spir_func <3 x i8> @_Z5rhaddDv3_cS_(<3 x i8> <i8 1, i8 1, i8 1>, <3 x i8> <i8 2, i8 2, i8 2>)
+; CHECK: = call spir_func <3 x i8> @_Z5rhaddDv3_cS_(<3 x i8> {{<(i8 1(, )?)+>|splat \(i8 1\)}}, <3 x i8> {{<(i8 2(, )?)+>|splat \(i8 2\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

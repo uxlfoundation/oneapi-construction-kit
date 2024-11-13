@@ -46,7 +46,7 @@
 ; CHECK: define spir_kernel void @shuffle2_v16double()
                    %2 = OpLabel
                    %3 = OpExtInst %v16double_t %1 shuffle2 %v16double_3 %v16double_4 %v16i64_5
-; CHECK: = call spir_func <16 x double> @_Z8shuffle2Dv16_dS_Dv16_m(<16 x double> <double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00, double 3.000000e+00>, <16 x double> <double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00, double 4.000000e+00>, <16 x i64> <i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5, i64 5>)
+; CHECK: = call spir_func <16 x double> @_Z8shuffle2Dv16_dS_Dv16_m(<16 x double> {{<(double 3.000000e\+00(, )?)+>|splat \(double 3.000000e\+00\)}}, <16 x double> {{<(double 4.000000e\+00(, )?)+>|splat \(double 4.000000e\+00\)}}, <16 x i64> {{<(i64 5(, )?)+>|splat \(i64 5\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

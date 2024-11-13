@@ -28,9 +28,9 @@ void main() {
 // CHECK:  = alloca <4 x double>
 // CHECK:  = alloca <4 x double>
   dvec4 x = dvec4(-42.42, -42.42, -42.42, -42.42);
-// CHECK:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
+// CHECK:  store <4 x double> {{<(double -4.242000e\+01(, )?)+>|splat \(double -4.242000e\+01\)}}, ptr {{%.*}}
   dvec4 y = dvec4(-42.42, -42.42, -42.42, -42.42);
-// CHECK:  store <4 x double> <double -4.242000e+01, double -4.242000e+01, double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
+// CHECK:  store <4 x double> {{<(double -4.242000e\+01(, )?)+>|splat \(double -4.242000e\+01\)}}, ptr {{%.*}}
 // CHECK:  [[X:%.*]] = load <4 x double>, ptr {{%.*}}
 // CHECK:  [[Y:%.*]] = load <4 x double>, ptr {{%.*}}
   dvec4 res = mod(x, y);

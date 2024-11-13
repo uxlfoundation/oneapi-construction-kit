@@ -28,9 +28,9 @@ void main() {
 // CHECK:  = alloca <2 x double>
 // CHECK:  = alloca <2 x double>
   dvec2 x = dvec2(-42.42, -42.42);
-// CHECK:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
+// CHECK:  store <2 x double> {{<(double -4.242000e\+01(, )?)+>|splat \(double -4.242000e\+01\)}}, ptr {{%.*}}
   dvec2 y = dvec2(-42.42, -42.42);
-// CHECK:  store <2 x double> <double -4.242000e+01, double -4.242000e+01>, ptr {{%.*}}
+// CHECK:  store <2 x double> {{<(double -4.242000e\+01(, )?)+>|splat \(double -4.242000e\+01\)}}, ptr {{%.*}}
 // CHECK:  [[X:%.*]] = load <2 x double>, ptr {{%.*}}
 // CHECK:  [[Y:%.*]] = load <2 x double>, ptr {{%.*}}
   dvec2 res = mod(x, y);
