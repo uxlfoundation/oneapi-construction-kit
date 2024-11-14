@@ -413,6 +413,8 @@ jobs:
 #        llvm_version: '19'
 #        llvm_build_type: RelAssert
 #        save:  ${{ inputs.update_cache }}
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
@@ -430,6 +432,8 @@ jobs:
 #        llvm_version: '19'
 #        llvm_build_type: RelAssert
 #        save:  ${{ inputs.update_cache }}
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
