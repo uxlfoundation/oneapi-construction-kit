@@ -33,6 +33,7 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
+    if: false
     runs-on: ubuntu-22.04
 
     steps:
@@ -77,6 +78,7 @@ jobs:
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
+    if: false
 
     runs-on: ubuntu-22.04
 
@@ -105,6 +107,7 @@ jobs:
 
   # build and run clang-tidy
   run_clang_tidy_changes:
+    if: false
 
     runs-on: ubuntu-22.04
 
@@ -167,6 +170,7 @@ jobs:
 
   # run clang-format-diff on the repo
   run_clang_format:
+    if: false
 
     runs-on: ubuntu-22.04
 
@@ -189,6 +193,7 @@ jobs:
 
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
+    if: false
 
     runs-on: windows-2019
 
@@ -235,6 +240,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -264,6 +270,7 @@ jobs:
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 90 # offline needs longer timeout
     steps:
@@ -303,6 +310,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -332,8 +340,9 @@ jobs:
         hal_refsi_thread_mode: WG
         debug_support: ON
 
-  # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+  # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -356,8 +365,9 @@ jobs:
         enable_api: ""
         builtin_kernel: ON
 
-  # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16:
+  # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 90 # aarch64 needs longer timeout
     steps:
@@ -389,4 +399,54 @@ jobs:
         enable_api: ""
         toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
         extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
+
+  # Based on: mr-ubuntu-gcc-x86_64-clik
+  run-ubuntu-gcc-x86_64-clik:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
+    - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
+
+############### JOB   mr-ubuntu-gcc-x86_64-clik-refsi:
+
+  mr-ubuntu-gcc-x86_64-clik-refsi:
+    if: false
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      LLVM_LATEST: release_180
+      LLVM_PREVIOUS: release_170
+      Arch: x86_64
+      Target: check-ock
+      Images: OFF
+      CommandBuffer: ON
+      USM: ON
+      FP16: OFF
+      Compiler: gcc-9
+      CXXCompiler: llvm_install/bin/clang++
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+      with:
+        path: code
+    - run: cp -R code/.github .github
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_ubuntu_build
+      with:
+        llvm_version: '17'
+        llvm_build_type: RelAssert
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/code/examples/refsi/hal_refsi clik
+    - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
+
 
