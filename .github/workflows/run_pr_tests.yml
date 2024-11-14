@@ -415,10 +415,8 @@ jobs:
         echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
         cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
         LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
-    - name: Clean
-      run: git clean -d -f -x
     - name: Run Clik-Refsi
       run: |
         echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-        cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
-        LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
+        cmake -Bbuild_clik_refsi -GNinja -DCMAKE_INSTALL_PREFIX=install_refsi -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
+        LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik_refsi check
