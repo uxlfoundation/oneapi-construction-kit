@@ -417,36 +417,20 @@ jobs:
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
 
-############### JOB   mr-ubuntu-gcc-x86_64-clik-refsi:
-
-  mr-ubuntu-gcc-x86_64-clik-refsi:
-    if: false
+  # Based on: mr-ubuntu-gcc-x86_64-clik-refsi
+  run-ubuntu-gcc-x86_64-clik-refsi:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
-    env:
-      LLVM_LATEST: release_180
-      LLVM_PREVIOUS: release_170
-      Arch: x86_64
-      Target: check-ock
-      Images: OFF
-      CommandBuffer: ON
-      USM: ON
-      FP16: OFF
-      Compiler: gcc-9
-      CXXCompiler: llvm_install/bin/clang++
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4.1.0
-      with:
-        path: code
-    - run: cp -R code/.github .github
     - name: setup-ubuntu
-      uses: ./.github/actions/setup_ubuntu_build
+      uses: ./.github/actions/setup_build
       with:
-        llvm_version: '17'
+        llvm_version: '19'
         llvm_build_type: RelAssert
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/code/examples/refsi/hal_refsi clik
+    - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
 
 
