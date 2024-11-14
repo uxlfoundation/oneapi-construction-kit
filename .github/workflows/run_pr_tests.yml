@@ -401,7 +401,7 @@ jobs:
         extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
 
   # Based on: mr-ubuntu-gcc-x86_64-clik
-  run-ubuntu-gcc-x86_64-clik:
+  delete-run-ubuntu-gcc-x86_64-clik:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -414,7 +414,7 @@ jobs:
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
 
   # Based on: mr-ubuntu-gcc-x86_64-clik-refsi
-  run-ubuntu-gcc-x86_64-clik-refsi:
+  delete-run-ubuntu-gcc-x86_64-clik-refsi:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -426,7 +426,9 @@ jobs:
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
 
-  combo:
+  # Based on a combination of: mr-ubuntu-gcc-x86_64-clik, and ...
+  #                            mr-ubuntu-gcc-x86_64-clik-refsi
+  run-ubuntu-gcc-x86_64-clik-refsi:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -434,10 +436,13 @@ jobs:
       uses: actions/checkout@v4.1.0
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
+    - name: Run Clik
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
+    - name: Clean
     - run: git clean -d -f -x
+    - name: Run Clik-Refsi
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - run: cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
     - run: LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
