@@ -439,7 +439,8 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_ock
       with:
-        build_targets: install
+#        build_targets: install  # build install to catch any compilation errors
+        no_ninja_run: true
         mux_targets_enable: riscv
         external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
         mux_compilers_enable: refsi_g1_wi
@@ -456,8 +457,8 @@ jobs:
 #    - run: python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
 #    - run: echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> skipped.txt
 #    - run: python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -i skipped.txt -b CA-OpenCL-CTS/bin -L build/lib -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_refsi_g1_wi.xml
-#    - run: ninja -C build check-ock
-#    - run: ninja -C build check-ock-UnitCL-half
+    - run: ninja -C build check-ock
+    - run: ninja -C build check-ock-UnitCL-half
 #    - uses: actions/upload-artifact@v4.1.0
 #      if: success()
 #      with:
