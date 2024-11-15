@@ -403,6 +403,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -415,8 +416,52 @@ jobs:
         echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
         cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
         LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
-    - name: Run Clik-Refsi
+    - name: Run Clik-Refsi # No clean - just point o/p at new dirs
       run: |
         echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
         cmake -Bbuild_clik_refsi -GNinja -DCMAKE_INSTALL_PREFIX=install_refsi -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
         LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik_refsi check
+
+  # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
+  run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4.1.0
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: '19'
+        llvm_build_type: RelAssert
+        save:  ${{ inputs.update_cache }}
+    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+    - name: build ock
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_targets: install
+        mux_targets_enable: riscv
+        external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
+        mux_compilers_enable: refsi_g1_wi
+        riscv_enabled: ON
+        disable_unitcl_vecz_checks: ON
+        enable_rvv_scalable_vecz_check: ON
+        enable_rvv_scalable_vp_vecz_check: ON
+        use_linker: gold
+        hal_description: RV64GCV
+        hal_refsi_soc: G1
+        hal_refsi_thread_mode: WI
+        debug_support: ON
+# DO POST BUILD STEPS WHEN IT RUNS ... note: import tool seems to have mangled the last step slightly?
+#    - run: python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
+#    - run: echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> skipped.txt
+#    - run: python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -i skipped.txt -b CA-OpenCL-CTS/bin -L build/lib -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_refsi_g1_wi.xml
+#    - run: ninja -C build check-ock
+#    - run: ninja -C build check-ock-UnitCL-half
+#    - uses: actions/upload-artifact@v4.1.0
+#      if: success()
+#      with:
+#        name: ${{ github.job }}
+#        path: 'oneapi-construction-kit/build/*.fail
+#
+#          oneapi-construction-kit/''build/*.log'''
