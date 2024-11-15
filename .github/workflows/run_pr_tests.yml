@@ -403,7 +403,6 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -440,7 +439,7 @@ jobs:
       uses: ./.github/actions/do_build_ock
       with:
 #        build_targets: install  # build install to catch any compilation errors
-        no_ninja_run: true
+        ninja_run: false
         mux_targets_enable: riscv
         external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
         mux_compilers_enable: refsi_g1_wi
