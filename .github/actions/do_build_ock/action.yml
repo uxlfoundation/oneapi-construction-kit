@@ -110,9 +110,6 @@ inputs:
   toolchain_file:
     description: "Path to toolchain file"
     default: ""
-  ninja_run:
-    description: "Run ninja command"
-    default: "true"
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -173,7 +170,6 @@ runs:
                ${{ inputs.extra_flags }}
                .
     - name: build_ock
-      if: ${{ inputs.ninja_run == 'true' }}
       shell: ${{ inputs.shell_to_use }}
       run:
         ninja -C ${{ inputs.build_dir }} ${{ inputs.build_targets }}
