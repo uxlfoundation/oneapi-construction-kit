@@ -58,6 +58,10 @@ jobs:
             arch: x86
           - build_type: Release
             build_type_flags: -DCMAKE_BUILD_TYPE=Release
+          # Todo: for risc-v we need to build on ubuntu-24.04 as gcc 13 is required for the dynamic links flags to work
+          # This will probably require some exclude: on the different os or building all on each os.
+          - os: ubuntu-22.04
+            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
 
     runs-on: ${{ matrix.os }}
     steps:
