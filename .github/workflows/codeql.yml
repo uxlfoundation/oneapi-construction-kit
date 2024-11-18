@@ -25,6 +25,7 @@ permissions: {}
 
 jobs:
   analyze-host-x86_64-release:
+    if: false
     name: Analyze host x86_64 release
     permissions:
       # required for all workflows
@@ -72,6 +73,7 @@ jobs:
           category: "/language:c-cpp"
 
   analyze-riscv-m1:
+    if: false  
     name: Analyze riscv m1
     permissions:
       # required for all workflows

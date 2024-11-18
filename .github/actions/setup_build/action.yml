@@ -39,7 +39,8 @@ runs:
         if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
         sudo apt-get update
-        pip install lit clang-format==19.1.0 clang-tidy==19.1.0 virtualenv
+        pip install lit clang-format==19.1.0 virtualenv
+        sudo apt-get install --yes clang-tidy-19
         sudo apt-get install --yes doxygen
         sudo apt-get install --yes vulkan-sdk
         if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
