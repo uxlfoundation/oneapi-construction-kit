@@ -118,6 +118,7 @@ jobs:
         with:
           llvm_version: 19
           llvm_build_type: RelAssert
+          clang_tidy: true
 
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
@@ -162,7 +163,7 @@ jobs:
               HEAD..origin/${{ github.base_ref }} | \
               grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
             tee /dev/stderr | \
-            parallel --verbose -- clang-tidy --quiet -p "$PWD/build/" "{}"
+            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
 
   # run clang-format-diff on the repo
   run_clang_format:
