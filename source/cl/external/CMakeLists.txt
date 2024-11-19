@@ -41,7 +41,7 @@ if(CA_CL_ENABLE_ICD_LOADER)
     FetchContent_Declare(
       OpenCL_ICD_LOADER
       GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-ICD-Loader.git
-      GIT_TAG        v2021.04.29
+      GIT_TAG        v2024.05.08
     )
 
     # Fetch ICD from github. This also sets opencl_icd_loader_SOURCE_DIR
