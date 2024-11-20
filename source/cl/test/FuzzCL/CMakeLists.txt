@@ -17,6 +17,7 @@
 add_ca_cl_library(Fuzz STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/FuzzCL/context.h)
+target_link_libraries(Fuzz PRIVATE Threads::Threads)
 
 target_include_directories(Fuzz
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
