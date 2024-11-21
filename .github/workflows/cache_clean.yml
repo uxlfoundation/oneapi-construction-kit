@@ -24,6 +24,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4.1.0
       - name: Cache clean
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ls -l
           which gh
