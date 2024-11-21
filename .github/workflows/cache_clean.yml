@@ -21,6 +21,8 @@ jobs:
     name: Cache clean
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
       - name: Cache clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
