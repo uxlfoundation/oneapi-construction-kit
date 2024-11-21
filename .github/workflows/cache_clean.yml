@@ -30,4 +30,7 @@ jobs:
           ls -l
           which gh
           gh extension install actions/gh-actions-cache
-          gh actions-cache -B main -L 999 --order asc --sort created-at
+          gh actions-cache --help
+          gh actions-cache list --help
+          gh actions-cache delete --help
+          gh actions-cache list -B main -L 100 --order asc --sort created-at
