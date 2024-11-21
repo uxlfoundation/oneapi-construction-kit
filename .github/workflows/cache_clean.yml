@@ -27,4 +27,5 @@ jobs:
         run: |
           ls -l
           which gh
+          gh extension install actions/gh-actions-cache
           gh actions-cache -B main -L 999 --order asc --sort created-at
