@@ -19,18 +19,15 @@ permissions: {}
 jobs:
   clean_cache:
     name: Cache clean
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
       - name: Cache clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ls -l
-          which gh
           gh extension install actions/gh-actions-cache
           gh actions-cache --help
           gh actions-cache list --help
           gh actions-cache delete --help
           gh actions-cache list -B main -L 100 --order asc --sort created-at
+          gh actions-cache list -B main -L 100 --order asc --sort created-at | egrep -m 1 "^codeql-trap-|^sccache-sccache-"
