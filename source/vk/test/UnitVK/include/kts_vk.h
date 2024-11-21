@@ -292,6 +292,8 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     VkDeviceMemory deviceMemory;
     VkDescriptorType descriptorType;
     VkBuffer buf;
+
+    virtual ~ArgumentInfo() = default;
   };
 
   struct BufferInfo : ArgumentInfo {
