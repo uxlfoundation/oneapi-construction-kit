@@ -43,7 +43,7 @@ runs:
         if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
         if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
 
-        if [ "${{ inputs.clang_tidy}}" = "true"]; then
+        if [ "${{ inputs.clang_tidy }}" = "true" ]; then
           wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | sudo tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
           if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/focal/ llvm-toolchain-focal-19 main' | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null; fi
           if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null; fi
@@ -51,7 +51,7 @@ runs:
         fi
 
         sudo apt-get update
-        if [ "${{ inputs.clang_tidy}}" = "true"]; then sudo apt-get install --yes clang-tidy-19; fi
+        if [ "${{ inputs.clang_tidy }}" = "true" ]; then sudo apt-get install --yes clang-tidy-19; fi
         pip install lit clang-format==19.1.0 virtualenv
         sudo apt-get install --yes doxygen
         sudo apt-get install --yes vulkan-sdk

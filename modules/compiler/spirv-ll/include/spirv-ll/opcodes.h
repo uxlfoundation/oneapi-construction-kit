@@ -39,6 +39,9 @@ class OpCode {
   /// @brief Copy constructor, can be used for creating the derived classes.
   OpCode(const OpCode &other, spv::Op code);
 
+  /// @brief Destructor.
+  virtual ~OpCode() = default;
+
   /// @brief Return the instruction's opcode.
   uint16_t opCode() const;
 
