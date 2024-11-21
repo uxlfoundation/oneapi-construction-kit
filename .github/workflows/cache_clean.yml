@@ -7,6 +7,8 @@ on:
   #  # Run Mon-Fri at 7pm
   #  - cron: '00 19 * * 1-5'
   workflow_dispatch:
+  pull_request:
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
