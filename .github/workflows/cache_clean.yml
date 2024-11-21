@@ -1,0 +1,27 @@
+# Cache clean workflow
+
+name: Cache clean
+
+on:
+  #schedule:
+  #  # Run Mon-Fri at 7pm
+  #  - cron: '00 19 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  clean_cache:
+    name: Cache clean
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
+      - name: Cache clean
+        run: |
+          ls -l
+          which gh
