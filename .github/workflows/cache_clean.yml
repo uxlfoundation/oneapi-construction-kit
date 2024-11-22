@@ -32,5 +32,5 @@ jobs:
           gh actions-cache list --help
           gh actions-cache delete --help
           gh actions-cache list -B main -L 100 --order desc --sort created-at
-          #for cache_prefix in llvm-ubuntu- sccache-sccache- ; do gh actions-cache list -B main -L 100 --order desc --sort created-at | grep -E -o "^${cache_prefix}[^[:space:]]+" | sed '1d' ; done
-          for cache_prefix in llvm-ubuntu- codeql-trap- sccache-sccache- ; do gh actions-cache list -B main -L 100 --order desc --sort created-at | grep -E -o "^${cache_prefix}[^[:space:]]+" | sed '1d' ; done
+          DELETE_LIST=$(for CACHE_PREFIX in llvm-ubuntu- codeql-trap- sccache-sccache- ; do gh actions-cache list -B main -L 100 --order desc --sort created-at | grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" | sed '1d' ; done)
+          for CACHE in DELETE_LIST; do echo DELETING $CACHE ; done
