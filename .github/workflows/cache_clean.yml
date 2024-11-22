@@ -44,6 +44,7 @@ jobs:
           echo DELETIONS ...
           # Delete caches via keys in DELETE_LIST if not dryrun
           for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || echo gh actions-cache delete -B main --confirm $KEY ; done
+          gh actions-cache delete -B main --confirm sccache-sccache-build-2024-11-15T19:18:58.560Z
           # Generate post-clean list
           echo AFTER ...
           gh actions-cache list -B main -L 100 --order asc --sort created-at
