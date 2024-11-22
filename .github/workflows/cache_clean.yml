@@ -11,19 +11,19 @@ on:
       dryrun:
         required: true
         type: boolean
-        default: false
+        default: true
   pull_request: # DELETE ME
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: {}
-
 jobs:
   clean_cache:
     name: Cache clean
     runs-on: ubuntu-latest
+    permissions:
+      metadata: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4.1.0
@@ -34,15 +34,15 @@ jobs:
           # Install gh cache manager extension
           # For usage, flags and examples: $ gh actions-cache [ --help | list --help | delete --help ]
           gh extension install actions/gh-actions-cache
-          # Generate current cache list for main, oldest first (note: 100 entries is gh maximum)
+          # Generate current cache list for main, oldest first (note: 100 cache entries is gh maximum)
           echo BEFORE ...
           gh actions-cache list -B main -L 100 --order asc --sort created-at | tee CACHE_LIST
-          # Define cache prefixes in list for deletion
+          # Define unique cache prefixes in list for deletion
           PREFIX_LIST="llvm-ubuntu- codeql-trap- sccache-sccache-"
-          # Generate list of cache keys for deletion - retaining only the newest entry for each prefix
+          # Generate corresponding list of cache keys for deletion - retain only the newest entry for each prefix
           DELETE_LIST=$(for CACHE_PREFIX in $PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
           echo DELETIONS ...
-          # Delete caches by keys in DELETE_LIST if not dryrun
+          # Delete caches via keys in DELETE_LIST if not dryrun
           for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || echo gh actions-cache delete -B main --confirm $KEY ; done
           # Generate post-clean list
           echo AFTER ...
