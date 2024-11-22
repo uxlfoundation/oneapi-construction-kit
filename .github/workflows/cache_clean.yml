@@ -23,7 +23,7 @@ jobs:
     name: Cache clean
     runs-on: ubuntu-latest
     permissions:
-      actions: read
+      actions: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4.1.0
