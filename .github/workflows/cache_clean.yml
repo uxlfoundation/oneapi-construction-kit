@@ -42,7 +42,7 @@ jobs:
           gh extension install actions/gh-actions-cache
           # ... for usage, flags and examples: $ gh actions-cache [ --help | list --help | delete --help ]
           # Define args for gh cache commands
-          GH_LIST_ARGS="-B main -L 100 --order asc --sort created-at"
+          GH_LIST_ARGS="-B main -L 100 --order desc --sort created-at"
           GH_DELETE_ARGS="-B main --confirm"
           echo CACHE PREFIXES FOR CLEANING ... $CACHE_PREFIX_LIST
           # Generate current cache list for main, oldest first (note: 100 cache entries is gh maximum)
