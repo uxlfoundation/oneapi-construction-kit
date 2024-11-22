@@ -27,8 +27,8 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+      #- name: Checkout repo
+      #  uses: actions/checkout@v4.1.0
       - name: Cache clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,8 +42,9 @@ jobs:
           # Define args for gh cache commands
           GH_LIST_ARGS="-B main -L 100 --order asc --sort created-at"
           GH_DELETE_ARGS="-B main --confirm"
+          echo CACHE PREFIXES FOR CLEANING ... $CACHE_PREFIX_LIST
           # Generate current cache list for main, oldest first (note: 100 cache entries is gh maximum)
-          echo BEFORE ...
+          echo CACHE LIST BEFORE ...
           gh actions-cache list $GH_LIST_ARGS | tee CACHE_LIST
           # Generate corresponding list of cache keys for deletion - retain only the newest key for each prefix
           DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
@@ -52,5 +53,5 @@ jobs:
           # TODO remove non-dryrun echo for live use
           for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || echo gh actions-cache delete $GH_DELETE_ARGS $KEY ; done
           # Generate post-clean list
-          echo AFTER ...
+          echo CACHE LIST AFTER ...
           gh actions-cache list $GH_LIST_ARGS
