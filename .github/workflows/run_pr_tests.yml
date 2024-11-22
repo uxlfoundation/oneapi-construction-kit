@@ -412,7 +412,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    if: ${{ !inputs.is_pull_request }}  # include as PR job when run_cities.py is running - see comment below
+    if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
