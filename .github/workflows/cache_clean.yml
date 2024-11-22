@@ -3,7 +3,7 @@
 name: Cache clean
 
 on:
-# TODO: restore schedule
+  # TODO restore schedule
   #schedule:
   #  # Run Mon-Sun at 11pm
   #  - cron: '00 23 * * 1-7'
@@ -13,7 +13,7 @@ on:
         required: true
         type: boolean
         default: true
-# TODO: delete pull_request
+  # TODO delete pull_request
   pull_request:
 
 concurrency:
@@ -43,13 +43,13 @@ jobs:
           echo BEFORE ...
           gh actions-cache list $GH_LIST_ARGS | tee CACHE_LIST
           # Define unique cache prefixes in list for deletion
-    # TODO: set prefixes correctly
+          # TODO set prefixes correctly
           PREFIX_LIST="llvm-ubuntu- codeql-trap- sccache-sccache-"
           # Generate corresponding list of cache keys for deletion - retain only the newest entry for each prefix
           DELETE_LIST=$(for CACHE_PREFIX in $PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
           echo DELETIONS ...
           # Delete caches via keys in DELETE_LIST if not dryrun
-    # TODO: remove non-dryrun echo for live use
+          # TODO remove non-dryrun echo for live use
           for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || echo gh actions-cache delete $GH_DELETE_ARGS $KEY ; done
           # Generate post-clean list
           echo AFTER ...
