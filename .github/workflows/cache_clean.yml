@@ -13,6 +13,7 @@ on:
         type: boolean
         default: false
   pull_request:
+  push:
 
 
 concurrency:
