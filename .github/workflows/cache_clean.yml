@@ -40,6 +40,6 @@ jobs:
           PREFIX_LIST="llvm-ubuntu- codeql-trap- sccache-sccache-"
           DELETE_LIST=$(for CACHE_PREFIX in $PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
           echo DELETIONS ...
-          for CACHE in $DELETE_LIST; do [ "${{ inputs.dryrun }}" = "true" ] && echo DELETING $CACHE || echo \[DRY RUN\] DELETING $CACHE; done
+          for CACHE in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $CACHE || echo DELETING $CACHE ; done
           echo AFTER ...
           gh actions-cache list -B main -L 100 --order asc --sort created-at
