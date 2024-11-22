@@ -32,6 +32,9 @@ jobs:
       - name: Cache clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Define unique cache prefixes for deletion
+          # TODO set prefixes correctly
+          CACHE_PREFIX_LIST: "llvm-ubuntu- codeql-trap- sccache-sccache-"
         run: |
           # Install gh cache manager extension
           gh extension install actions/gh-actions-cache
@@ -42,11 +45,8 @@ jobs:
           # Generate current cache list for main, oldest first (note: 100 cache entries is gh maximum)
           echo BEFORE ...
           gh actions-cache list $GH_LIST_ARGS | tee CACHE_LIST
-          # Define unique cache prefixes in list for deletion
-          # TODO set prefixes correctly
-          PREFIX_LIST="llvm-ubuntu- codeql-trap- sccache-sccache-"
-          # Generate corresponding list of cache keys for deletion - retain only the newest entry for each prefix
-          DELETE_LIST=$(for CACHE_PREFIX in $PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
+          # Generate corresponding list of cache keys for deletion - retain only the newest key for each prefix
+          DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
           echo DELETIONS ...
           # Delete caches via keys in DELETE_LIST if not dryrun
           # TODO remove non-dryrun echo for live use
