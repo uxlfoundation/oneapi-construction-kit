@@ -27,8 +27,10 @@ jobs:
     permissions:
       actions: write
     steps:
-      #- name: Checkout repo
-      #  uses: actions/checkout@v4.1.0
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
+        with:
+          sparse-checkout: .github
       - name: Cache clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
