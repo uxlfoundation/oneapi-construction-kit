@@ -35,8 +35,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Define unique cache prefixes for deletion
-          # TODO set prefixes correctly
-          CACHE_PREFIX_LIST: "llvm-ubuntu- codeql-trap- sccache-sccache-"
+          CACHE_PREFIX_LIST: "codeql-trap- sccache-sccache-"
         run: |
           # Install gh cache manager extension
           gh extension install actions/gh-actions-cache
