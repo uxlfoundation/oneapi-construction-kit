@@ -7,6 +7,11 @@ on:
   #  # Run Mon-Fri at 7pm
   #  - cron: '00 19 * * 1-5'
   workflow_dispatch:
+   inputs:
+      dryrun:
+        required: true
+        type: boolean
+        default: false
   pull_request:
 
 
@@ -31,11 +36,12 @@ jobs:
           #gh actions-cache --help
           #gh actions-cache list --help
           #gh actions-cache delete --help
-          echo BEFORE
+          echo BEFORE ...
           gh actions-cache list -B main -L 100 --order asc --sort created-at | tee CACHE_LIST
           PREFIX_LIST="llvm-ubuntu- codeql-trap- sccache-sccache-"
           DELETE_LIST=$(for CACHE_PREFIX in $PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
-          echo DELETIONS
+          echo DELETIONS ...
+          echo DRYRUN ... ${{ inputs.dryrun }}
           for CACHE in $DELETE_LIST; do echo DELETING $CACHE ; done
-          echo AFTER
+          echo AFTER ...
           gh actions-cache list -B main -L 100 --order asc --sort created-at
