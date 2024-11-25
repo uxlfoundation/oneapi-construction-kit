@@ -44,11 +44,11 @@ jobs:
           GH_LIST_ARGS="-B main -L 100 --order desc --sort created-at"
           GH_DELETE_ARGS="-B main --confirm"
           echo CACHE PREFIXES FOR CLEANING ... $CACHE_PREFIX_LIST
-          # Generate current cache list for main, oldest first (note: 100 cache entries is gh maximum)
+          # Generate current cache list for main, newest first (note: 100 cache entries is gh maximum)
           echo CACHE LIST BEFORE ...
           gh actions-cache list $GH_LIST_ARGS | tee CACHE_LIST
           # Generate corresponding list of cache keys for deletion - retain only the newest key for each prefix
-          DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST| sed '1d' ; done)
+          DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' ; done)
           echo DELETIONS ...
           # Delete caches via keys in DELETE_LIST if not dryrun
           # TODO remove non-dryrun echo for live use
