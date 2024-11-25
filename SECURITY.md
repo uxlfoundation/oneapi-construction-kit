@@ -17,9 +17,8 @@ We are very grateful to the security researchers and users that report back
 security vulnerabilities. We investigate every report thoroughly.
 We strongly encourage you to report security vulnerabilities to us privately,
 before disclosing them on public forums or opening a public GitHub issue.
-Report a vulnerability to us in one of two ways:
+To report a vulnerability to us:
 
-* Open a draft [**GitHub Security Advisory**][2]
 * Send an e-mail to the following address: <security@uxlfoundation.org>.
 
 Along with the report, please include the following info:
@@ -60,7 +59,7 @@ Normally, security issues are fixed in the next planned release.
 ## Disclosure Policy
 
 We will publish security advisories using the
-[**GitHub Security Advisories feature**][3]
+[**GitHub Security Advisories feature**][2]
 to keep our community well-informed, and will credit you for your findings
 unless you prefer to stay anonymous. We request that you refrain from
 exploiting the vulnerability or making it public before the official disclosure.
@@ -75,5 +74,4 @@ an issue or a pull request to this repository. Please **do not** report
 potential vulnerabilities or security flaws via a pull request.
 
 [1]: https://github.com/uxlfoundation/oneapi-construction-kit/releases/latest
-[2]: https://github.com/uxlfoundation/oneapi-construction-kit/security/advisories/new
-[3]: https://github.com/uxlfoundation/oneapi-construction-kit/security/advisories
+[2]: https://github.com/uxlfoundation/oneapi-construction-kit/security/advisories
