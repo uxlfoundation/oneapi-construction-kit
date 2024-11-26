@@ -1,0 +1,24 @@
+name: run opencl cts
+description: run opencl cts
+
+# This action is not standalone and assumes it has been run after the build_opencl_cts action
+# and that the icd is already installed at install_icd
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: Download ock artefact
+      uses: actions/download-artifact@v4
+      with:
+        name: ock_${{inputs.target}}
+        path: install_ock
+
+    - name: Run opencl cts example
+      shell: bash
+      run: |
+        echo Running opencl cts
+

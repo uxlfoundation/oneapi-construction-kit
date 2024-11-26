@@ -1,0 +1,39 @@
+name: build opencl cts
+description: build opencl cts
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+    
+    - name: download icd artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    - name: build opencl cts
+      shell: bash    
+      run: |
+        mkdir $GITHUB_WORKSPACE/opencl_cts_dir
+        echo Hello > $GITHUB_WORKSPACE/opencl_cts_dir/artefact
+
+    - name: upload opencl cts artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: opencl_cts_${{inputs.target}}
+        path: opencl_cts_dir
+        retention-days: 1
+

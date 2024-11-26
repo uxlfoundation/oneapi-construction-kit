@@ -11,6 +11,10 @@ on:
         required: false
         type: boolean
         default: true        
+      test_opencl_cts:
+        required: false
+        type: boolean
+        default: true        
       target_list:
         required: false
         type: string
@@ -45,7 +49,8 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
     runs-on: ${{ (contains(matrix.target, 'host_riscv') && 'ubuntu-24.04') || (contains(matrix.target, 'windows') && 'windows-2019' || 'ubuntu-22.04' ) }}
     if : inputs.ock
@@ -65,7 +70,8 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
     runs-on: ubuntu-22.04
     steps:
@@ -107,6 +113,34 @@ jobs:
           target: ${{ matrix.target }}
       - name : run tornado
         uses: ./.github/actions/run_tornado
+        with:
+          target: ${{ matrix.target }}
+
+  # Currently only builds and runs on x86_64 linux
+  build_run_opencl_cts:
+    if: inputs.test_opencl_cts
+    needs: [ workflow_vars, build_icd, create_ock_artefacts ]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+
+    # Todo: expand for aarch64
+    runs-on: ubuntu-22.04
+    steps:
+      - name: clone ock platform
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            platform
+            .github
+      # TODO: Consider separating out tornado build and run in the future
+      - name : build and upload opencl_cts
+        uses: ./.github/actions/do_build_opencl_cts
+        with:
+          target: ${{ matrix.target }}
+      - name : run opencl_cts
+        uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
 
