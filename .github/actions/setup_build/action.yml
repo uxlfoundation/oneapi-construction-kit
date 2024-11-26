@@ -21,9 +21,8 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   cross_arch:
-    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "" (no cross compile)'
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "" (no cross compile), will auto fetch native arch'
     default: ""
-    # Note: runner architectures from: x86_64 (aka runner.arch: X64), aarch64 (aka runner.arch: ARM64)
   clang_tidy:
     description: 'Enable installing of clang-tidy (currently 19)'
     type: boolean
@@ -91,20 +90,34 @@ runs:
       shell: bash
       run: |
         KEY_VERSION="${{ inputs.ubuntu_version }}"
-        if [ "${{ inputs.os }}" = "windows" ]; then \
-           KEY_VERSION="${{ inputs.windows_version }}" ; \
+        if [ "${{ inputs.os }}" = "windows" ]; then
+           KEY_VERSION="${{ inputs.windows_version }}"
         fi
         echo "key_version=$KEY_VERSION" >> "$GITHUB_OUTPUT"
         KEY_ARCH="x86_64"
-        if [ "${{ runner.arch }}" = "ARM64" ]; then \
-           KEY_ARCH="aarch64" ; \
+        KEY_NATIVE_ARCH="x86_64"
+        if [ "${{ runner.arch }}" = "ARM64" ]; then
+           KEY_ARCH="aarch64" ;
+           KEY_NATIVE_ARCH="aarch64"
         fi
-        if [ "${{ inputs.cross_arch }}" != "" ]; then \
-           KEY_ARCH="${{ inputs.cross_arch }}" ; \
+        if [ "${{ inputs.cross_arch }}" != "" ]; then
+           KEY_ARCH="${{ inputs.cross_arch }}"
         fi
+        
         echo "key_arch=$KEY_ARCH" >> "$GITHUB_OUTPUT"
-        echo "key_version=$KEY_VERSION"
-        echo "key_arch=$KEY_ARCH"
+        echo "key_native_arch=$KEY_NATIVE_ARCH" >> "$GITHUB_OUTPUT"
+        cat $GITHUB_OUTPUT
+
+    - name: load llvm native
+      if: inputs.cross_arch != ''
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        fail-on-cache-miss: true
+    - shell: bash
+      if: inputs.cross_arch != ''    
+      run: mv llvm_install llvm_install_native
 
     - name: load llvm
       uses: actions/cache/restore@v4
@@ -121,3 +134,4 @@ runs:
         key: sccache-build
         variant: sccache
         save: ${{ inputs.save }}
+
