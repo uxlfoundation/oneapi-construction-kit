@@ -65,7 +65,7 @@ jobs:
 
   build_icd:
     # Will also be required for opencl
-    if: inputs.test_tornado
+    if: ${{ inputs.test_tornado || inputs.test_opencl_cts }}
     needs: [workflow_vars]
     strategy:
       matrix:
