@@ -1,0 +1,27 @@
+# Calling workflow for running planned style tests
+name: Run planned testing
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/planned_testing.yml'
+      - '.github/workflows/planned_testing_caller.yml'      
+    branches:
+      - main      
+  schedule:
+    # Run Mon-Fri at 7pm
+    - cron: '00 19 * * 1-5'
+
+jobs:
+  call_planned:
+    # This makes the diagram too big if we post much here so P_ for pull request.
+    name: P_
+    if: ${{ github.event_name == 'pull_request' }}    
+    uses: ./.github/workflows/planned_testing.yml
+    with:
+      target_list: '["host_x86_64_linux", "host_aarch64_linux", "host_riscv64_linux", "host_i686_linux", "host_refsi_linux", "host_x86_64_windows" ]'
+      test_tornado: true
+      ock: true
+      # Have a pull request setting which can be used to test the flow as best as possible
+      # in a reasonable time
+      pull_request: ${{ github.event_name == 'pull_request' && true || false }}
+
