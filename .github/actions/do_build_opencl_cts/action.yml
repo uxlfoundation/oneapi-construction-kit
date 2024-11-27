@@ -27,13 +27,12 @@ runs:
     - name: download header artifact
       uses: actions/download-artifact@v4
       with:
-        name: headers_install_${{inputs.target}}
+        name: header_${{inputs.target}}
         path: install_headers
 
     - name: build opencl cts
       shell: bash    
       run: |
-        ls -l *
         git -c advice.detachedHead=false clone https://github.com/KhronosGroup/OpenCL-CTS --single-branch --depth 1
         cd OpenCL-CTS
         git log -1
@@ -43,6 +42,7 @@ runs:
         # OpenCL CTS does not have an install target. Build directly in the install directory instead.
         # dummy artefact
         cd ..
+        ls -l *
         echo Hello > $GITHUB_WORKSPACE/opencl_cts_dir/artefact
 
     - name: upload opencl cts artifact
