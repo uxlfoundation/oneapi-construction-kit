@@ -27,6 +27,8 @@ runs:
     - name: build opencl cts
       shell: bash    
       run: |
+        ls -l
+        ls -l *
         mkdir $GITHUB_WORKSPACE/opencl_cts_dir
         echo Hello > $GITHUB_WORKSPACE/opencl_cts_dir/artefact
 
