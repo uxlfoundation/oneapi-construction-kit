@@ -119,7 +119,8 @@ jobs:
   # Currently only builds and runs on x86_64 linux
   build_run_opencl_cts:
     if: inputs.test_opencl_cts
-    needs: [ workflow_vars, build_icd, create_ock_artefacts ]
+    needs: [ workflow_vars, build_icd ]
+    #needs: [ workflow_vars, build_icd, create_ock_artefacts ]
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
