@@ -33,16 +33,17 @@ runs:
     - name: build opencl cts
       shell: bash    
       run: |
+        # TODO: use formal checkout
         git -c advice.detachedHead=false clone https://github.com/KhronosGroup/OpenCL-CTS --single-branch --depth 1
         cd OpenCL-CTS
         git log -1
         # Ignore patches for now
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
-        # OpenCL CTS does not have an install target. Build directly in the install directory instead.
-        # dummy artefact
         cd ..
         ls -l *
+        # dummy artefact
+        mkdir $GITHUB_WORKSPACE/opencl_cts_dir
         echo Hello > $GITHUB_WORKSPACE/opencl_cts_dir/artefact
 
     - name: upload opencl cts artifact
