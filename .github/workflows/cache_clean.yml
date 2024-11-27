@@ -53,8 +53,7 @@ jobs:
           DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' ; done)
           echo DELETIONS ...
           # Delete caches via keys in DELETE_LIST if not dryrun
-          # TODO remove non-dryrun echo for live use
-          for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || echo gh actions-cache delete $GH_DELETE_ARGS $KEY ; done
+          for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || gh actions-cache delete $GH_DELETE_ARGS $KEY ; done
           # Generate post-clean list
           echo CACHE LIST AFTER ...
           gh actions-cache list $GH_LIST_ARGS
