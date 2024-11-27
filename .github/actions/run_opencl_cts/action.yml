@@ -11,11 +11,12 @@ runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
-    - name: Download ock artefact
-      uses: actions/download-artifact@v4
-      with:
-        name: ock_${{inputs.target}}
-        path: install_ock
+    # Will need to dowload ock when we run
+    #- name: Download ock artefact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: ock_${{inputs.target}}
+    #    path: install_ock
 
     - name: Run opencl cts example
       shell: bash
