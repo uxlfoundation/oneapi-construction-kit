@@ -10,7 +10,11 @@ on:
       test_tornado:
         required: false
         type: boolean
-        default: true        
+        default: true
+      test_sycl_cts:
+        required: false
+        type: boolean
+        default: true
       target_list:
         required: false
         type: string
@@ -66,7 +70,7 @@ jobs:
 
   build_icd:
     # Will also be required for opencl
-    if: inputs.test_tornado
+    if: inputs.test_tornado || inputs.test_sycl_cts
     needs: [workflow_vars]
     strategy:
       matrix:
@@ -112,5 +116,58 @@ jobs:
           target: ${{ matrix.target }}
       - name : run tornado
         uses: ./.github/actions/run_tornado
+        with:
+          target: ${{ matrix.target }}
+
+  build_dpcpp_native_host:
+    needs: [workflow_vars]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+
+    runs-on: ${{ contains(matrix.target, 'windows') && 'windows-2019' || 'ubuntu-22.04'  }}
+    if : inputs.test_sycl_cts
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: build dpc++ artefact
+        uses: ./.github/actions/do_build_dpcpp
+        with:
+          target: ${{ matrix.target }}
+
+  build_sycl_cts:
+    needs: [workflow_vars, build_icd, build_dpcpp_native_host]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        # For now just linux x86_64
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+
+    runs-on: 'ubuntu-22.04'
+    if : inputs.test_sycl_cts
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: build dpc++ artefact
+        uses: ./.github/actions/do_build_sycl_cts
+        with:
+          target: ${{ matrix.target }}
+
+  run_sycl_cts:
+    needs: [workflow_vars, create_ock_artefacts, build_dpcpp_native_host, build_sycl_cts]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        # For now just linux x86_64
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+
+    runs-on: 'ubuntu-22.04'
+    if : inputs.test_sycl_cts
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: build dpc++ artefact
+        uses: ./.github/actions/run_sycl_cts
         with:
           target: ${{ matrix.target }}

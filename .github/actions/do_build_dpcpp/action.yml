@@ -1,0 +1,87 @@
+name: build dpc++
+description: build dpc++
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}  
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: Install spirv tools
+      shell: bash
+      run:    
+        sudo apt-get install spirv-tools
+    
+    - name: clone dpc++
+      uses: actions/checkout@v4
+      with:
+        repository: intel/llvm
+        path: llvm
+
+    - name: dpcpp configure
+      shell: bash
+      run:
+        cd llvm; python buildbot/configure.py
+        -o build
+        --host-target="X86;AArch64;RISCV"
+        --native_cpu
+        --llvm-external-projects=lld
+        --cmake-opt=-DNATIVECPU_USE_OCK=ON
+        --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF
+        --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
+    - name: build sycl-headers
+      shell: bash
+      run:
+        cmake --build llvm/build -- sycl-headers
+  
+    - name: build dpc plus plus
+      shell: bash
+      run:
+       python llvm/buildbot/compile.py -o llvm/build -v -j 8
+
+    - name: build extra utilties
+      # Build various utilities, since those aren't proper dependencies.
+      # FileCheck and not are needed for tests. The rest are needed for
+      # cross builds. They are enabled on all targets for consistency.
+      shell: bash
+      run:
+       cmake --build llvm/build -- FileCheck clang-tblgen
+        libclc-remangler llvm-as llvm-min-tblgen llvm-tblgen not
+        opt prepare_builtins -j8
+    - name: copy utilities
+      shell: bash
+      run:
+        cd llvm/build/bin;
+        cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
+        llvm-tblgen not opt prepare_builtins ../install/bin
+
+    - name: install config files to pick up libraries for cross compilation.
+      shell: bash
+      run: |
+        echo Installing configuration files
+        cd llvm/build/bin
+        # Install configuration files to pick up libraries for cross compilation.
+        for arch in x86_64 aarch64 riscv64; do
+          echo "
+          -L<CFGDIR>/../../../$arch-linux/install/lib
+          -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
+          -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
+          " >../install/bin/$arch-unknown-linux-gnu.cfg;
+        done
+
+    - name: upload dpcpp artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dpcpp_${{inputs.target}}
+        path: llvm/build/install
+        retention-days: 1
