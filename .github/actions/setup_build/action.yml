@@ -21,8 +21,8 @@ inputs:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
   cross_arch:
-    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "" (no cross compile), will auto fetch native arch'
-    default: ""
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
+    default: "none"
   clang_tidy:
     description: 'Enable installing of clang-tidy (currently 19)'
     type: boolean
@@ -66,7 +66,7 @@ runs:
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
            sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
         fi
-        if [ "${{ inputs.cross_arch }}" != "" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
+        if [ "${{ inputs.cross_arch }}" != "none" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
            # Install QEMU for testing cross compilation.
            sudo apt-get install --yes qemu-user; \
         fi
@@ -83,7 +83,7 @@ runs:
         pip install lit
 
     - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
     - name: set llvm key
       id: set_llvm_key
@@ -100,7 +100,7 @@ runs:
            KEY_ARCH="aarch64" ;
            KEY_NATIVE_ARCH="aarch64"
         fi
-        if [ "${{ inputs.cross_arch }}" != "" ]; then
+        if [ "${{ inputs.cross_arch }}" != "none" ]; then
            KEY_ARCH="${{ inputs.cross_arch }}"
         fi
         
@@ -109,14 +109,15 @@ runs:
         cat $GITHUB_OUTPUT
 
     - name: load llvm native
-      if: inputs.cross_arch != ''
+      if: inputs.cross_arch != 'none'
       uses: actions/cache/restore@v4
       with:
         path: llvm_install/**
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
     - shell: bash
-      if: inputs.cross_arch != ''    
+
+      if: inputs.cross_arch != 'none'    
       run: mv llvm_install llvm_install_native
 
     - name: load llvm

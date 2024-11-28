@@ -34,7 +34,7 @@ jobs:
   # Could have multiple here
   run-with-cron:
     name: Call PR testing on schedule
-    if: ${{ github.event_name == 'schedule' }}    
+    if: ${{ github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit'}}
     uses: ./.github/workflows/run_pr_tests.yml
     with:
       update_cache: true

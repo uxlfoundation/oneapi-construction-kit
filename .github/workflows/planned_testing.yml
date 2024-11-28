@@ -1,5 +1,5 @@
-# Simple workflow for running non-documentation PR testing
-name: Run ock tests for PR testing
+# Simple workflow for running planned testing
+name: Run planned tests
 on:
   workflow_call:
     inputs:
@@ -38,6 +38,9 @@ jobs:
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
     steps:
     - id: vars
+      # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
+      # These variables are for excluding certain targets from the total list, which is why just including
+      # two targets is a long list of excludes
       run: |
         echo matrix_only_linux_x86_64_aarch64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
@@ -52,6 +55,9 @@ jobs:
         #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
+    # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
+    # build llvm. Otherwise we choose windows or ubuntu-22.04 depending on the
+    # target.
     runs-on: ${{ (contains(matrix.target, 'host_riscv') && 'ubuntu-24.04') || (contains(matrix.target, 'windows') && 'windows-2019' || 'ubuntu-22.04' ) }}
     if : inputs.ock
     steps:
@@ -65,7 +71,7 @@ jobs:
 
   build_icd:
     # Will also be required for opencl
-    if: ${{ inputs.test_tornado || inputs.test_opencl_cts }}
+    if: inputs.test_tornado || inputs.test_opencl_cts
     needs: [workflow_vars]
     strategy:
       matrix:
@@ -81,7 +87,6 @@ jobs:
           sparse-checkout: |
             platform
             .github
-      # The following can also be done with the matrix with exclude: to limit the targets to what we want
       - name : build and upload icd ${{matrix.target}}
         uses: ./.github/actions/do_build_icd
         with:
@@ -144,4 +149,3 @@ jobs:
         uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
-
