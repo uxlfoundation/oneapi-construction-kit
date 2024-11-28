@@ -44,4 +44,3 @@ runs:
         echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
         echo "cmake_toolchain=$CMAKE_TOOLCHAIN" >> $GITHUB_OUTPUT        
         cat $GITHUB_OUTPUT
-
