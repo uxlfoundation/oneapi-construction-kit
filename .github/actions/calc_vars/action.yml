@@ -1,0 +1,46 @@
+name: calc vars
+description: calculate variables based off the target name that may be useful in other steps
+
+inputs:
+  target:
+    description: 'target architecture'
+
+outputs:
+  arch:
+    description: "base architecture - one of x86, x86_64, arm, aarch64 or riscv64"
+    value: ${{ steps.calc_vars_action.outputs.arch }}
+  toolchain:
+    description: "path to toolchain file for architecture"
+    value: ${{ steps.calc_vars_action.outputs.toolchain }}
+  cmake_toolchain:
+    description: "cmake argument to pass to CMAKE_TOOLCHAIN_FILE"    
+    value: ${{ steps.calc_vars_action.outputs.cmake_toolchain }}    
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      id: calc_vars_action
+      run: |
+        ARCH=
+        TOOLCHAIN=
+        CMAKE_TOOLCHAIN=
+        if [[ "${{inputs.target}}" = "host_x86_64_linux" ]]; then
+         ARCH=x86_64 >> $GITHUB_OUTPUT
+        elif [[ "${{inputs.target}}" = "host_x86_64_windows" ]]; then
+         ARCH=x86_64 >> $GITHUB_OUTPUT
+        elif [[ "${{inputs.target}}" = "host_aarch64_linux" ]]; then
+         ARCH=aarch64 >> $GITHUB_OUTPUT
+         TOOLCHAIN=$GITHUB_WORKSPACE/platform/arm-linux/aarch64-toolchain.cmake
+         CMAKE_TOOLCHAIN="--toolchain $TOOLCHAIN"
+        elif [[ "${{inputs.target}}" = "host_riscv64_linux" ]]; then
+         ARCH=riscv64 >> $GITHUB_OUTPUT
+         TOOLCHAIN=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-toolchain.cmake
+         CMAKE_TOOLCHAIN="--toolchain $TOOLCHAIN"       
+        else
+         echo Unknown target ${{inputs.target}}
+         exit 1
+        fi
+        echo "arch=$ARCH" >> $GITHUB_OUTPUT
+        echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
+        echo "cmake_toolchain=$CMAKE_TOOLCHAIN" >> $GITHUB_OUTPUT        
+        cat $GITHUB_OUTPUT
