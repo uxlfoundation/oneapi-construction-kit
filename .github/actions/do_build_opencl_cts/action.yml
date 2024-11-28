@@ -53,7 +53,16 @@ runs:
         cd $GITHUB_WORKSPACE/install_headers
         echo cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
+        echo ninja -v
         ninja -v
+        ls -lR *
+        #python3 $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v
+        #--source-dir $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/spirv_asm
+        #--output-dir $CI_PROJECT_DIR/OpenCL-CTS/test_conformance/spirv_bin
+        python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v
+        --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm
+        --output-dir $CI_PROJECT_DIR/install_headers/test_conformance/spirv_bin
+
 
         # dummy artefact
         mkdir $GITHUB_WORKSPACE/opencl_cts_dir
