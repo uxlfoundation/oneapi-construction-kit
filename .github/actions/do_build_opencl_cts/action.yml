@@ -50,7 +50,7 @@ runs:
         export ICD_LOADER_INSTALL_PATH=$GITHUB_WORKSPACE/install_icd
         # simulate toolchain data for now
         export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        cd $CI_PROJECT_DIR/install_headers
+        cd $GITHUB_WORKSPACE/install_headers
         cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         ninja -v
 
