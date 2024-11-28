@@ -44,13 +44,14 @@ runs:
         ls -l *
         #cd $CI_PROJECT_DIR/OpenCL-CTS
         #cmake -G Ninja $CMAKE_TOOLCHAIN $CI_PROJECT_DIR/build/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$CI_PROJECT_DIR/OpenCL-CTS/include" "-DCL_LIB_DIR=$CI_PROJECT_DIR/OpenCL-CTS/lib"
-        export CTS_BUILD_TYPE=release
+        export CTS_BUILD_TYPE=Release
         # used by cmake ??
         export OPENCL_HEADERS_PATH=$GITHUB_WORKSPACE/install_headers
         export ICD_LOADER_INSTALL_PATH=$GITHUB_WORKSPACE/install_icd
         # simulate toolchain data for now
         export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         cd $GITHUB_WORKSPACE/install_headers
+        echo cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         ninja -v
 
