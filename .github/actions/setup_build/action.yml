@@ -103,7 +103,6 @@ runs:
         if [ "${{ inputs.cross_arch }}" != "none" ]; then
            KEY_ARCH="${{ inputs.cross_arch }}"
         fi
-        
         echo "key_arch=$KEY_ARCH" >> "$GITHUB_OUTPUT"
         echo "key_native_arch=$KEY_NATIVE_ARCH" >> "$GITHUB_OUTPUT"
         cat $GITHUB_OUTPUT
@@ -116,7 +115,6 @@ runs:
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
     - shell: bash
-
       if: inputs.cross_arch != 'none'    
       run: mv llvm_install llvm_install_native
 
@@ -135,4 +133,3 @@ runs:
         key: sccache-build
         variant: sccache
         save: ${{ inputs.save }}
-

@@ -12,7 +12,6 @@ inputs:
 
 # TODO: This has not been tested yet on windows so would likely need some updating.
 runs:
-
   using: "composite"
   steps:
       - name: calc vars
