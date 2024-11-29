@@ -39,10 +39,12 @@ runs:
     - name: build opencl cts
       shell: bash    
       run: |
-        sudo apt-get update; sudo apt-get install -y spirv-tools
-        (cd OpenCL-CTS; git log -1)
+        cd OpenCL-CTS
+        git log -1
         git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
         git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        cd ..
+        sudo apt-get update; sudo apt-get install -y spirv-tools
         cd install_headers
         export CTS_BUILD_TYPE=Release
         # TODO: simulate toolchain data for now
