@@ -139,7 +139,7 @@ jobs:
           sparse-checkout: |
             platform
             .github
-      # TODO: Consider separating out tornado build and run in the future
+      # TODO: Consider separating out opencl_cts build and run in the future
       - name : build and upload opencl_cts
         uses: ./.github/actions/do_build_opencl_cts
         with:
