@@ -33,7 +33,7 @@ runs:
     - name: checkout test suite
       uses: actions/checkout@v4
       with:
-        repository: github.com/KhronosGroup/OpenCL-CTS
+        repository: KhronosGroup/OpenCL-CTS
 
     - name: build opencl cts
       shell: bash    
