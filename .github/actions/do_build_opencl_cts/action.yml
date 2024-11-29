@@ -33,7 +33,6 @@ runs:
     - name: build opencl cts
       shell: bash    
       run: |
-        # TODO: move install ?
         sudo apt-get update
         sudo apt-get install -y spirv-tools
         # TODO: use formal checkout
@@ -44,8 +43,8 @@ runs:
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         export CTS_BUILD_TYPE=Release
         # TODO: used by cmake ??
-        export OPENCL_HEADERS_PATH=$GITHUB_WORKSPACE/install_headers
-        export ICD_LOADER_INSTALL_PATH=$GITHUB_WORKSPACE/install_icd
+        #export OPENCL_HEADERS_PATH=$GITHUB_WORKSPACE/install_headers
+        #export ICD_LOADER_INSTALL_PATH=$GITHUB_WORKSPACE/install_icd
         # TODO: simulate toolchain data for now
         export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         cd install_headers
