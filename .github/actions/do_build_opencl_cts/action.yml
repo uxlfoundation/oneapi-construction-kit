@@ -67,14 +67,10 @@ runs:
         python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         ls -lR $GITHUB_WORKSPACE/*
 
-        # dummy artefact
-        mkdir $GITHUB_WORKSPACE/opencl_cts_dir
-        echo Hello > $GITHUB_WORKSPACE/opencl_cts_dir/artefact
-
-    - name: upload opencl cts artifact
+    - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
       with:
         name: opencl_cts_${{inputs.target}}
-        path: opencl_cts_dir
+        path: $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance
         retention-days: 1
 
