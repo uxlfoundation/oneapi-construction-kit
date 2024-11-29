@@ -59,6 +59,10 @@ runs:
         #python3 $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v
         #--source-dir $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/spirv_asm
         #--output-dir $CI_PROJECT_DIR/OpenCL-CTS/test_conformance/spirv_bin
+        which spirv-as || echo NO SPIRV-AS
+        sudo apt-get update
+        sudo apt-get install -y spirv-tools
+        which spirv-as || echo NO SPIRV-AS
         echo python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         ls -lR $GITHUB_WORKSPACE/*
