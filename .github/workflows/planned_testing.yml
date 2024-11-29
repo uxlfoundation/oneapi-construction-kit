@@ -69,7 +69,6 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   build_icd:
-    # Will also be required for opencl
     if: inputs.test_tornado || inputs.test_opencl_cts
     needs: [workflow_vars]
     strategy:
