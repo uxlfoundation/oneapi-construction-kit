@@ -71,6 +71,14 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: opencl_cts_${{inputs.target}}
-        path: $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance
+        path: OpenCL-CTS/test_conformance
+              !OpenCL-CTS/test_conformance/**/.*
+              !OpenCL-CTS/test_conformance/**/CMakeCache.txt
+              !OpenCL-CTS/test_conformance/**/CMakeFiles
+              !OpenCL-CTS/test_conformance/**/CMakeFiles/**
+              !OpenCL-CTS/test_conformance/**/*.cmake
+              !OpenCL-CTS/test_conformance/**/*.ninja
+              !OpenCL-CTS/test_conformance/test_common
+              !OpenCL-CTS/test_conformance/test_common/**
         retention-days: 1
 
