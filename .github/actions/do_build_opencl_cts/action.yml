@@ -34,6 +34,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: KhronosGroup/OpenCL-CTS
+        path: OpenCL-CTS
 
     - name: build opencl cts
       shell: bash    
