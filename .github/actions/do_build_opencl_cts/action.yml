@@ -67,13 +67,15 @@ runs:
         ls -lR $GITHUB_WORKSPACE/*
         cd $GITHUB_WORKSPACE
         ls -lR OpenCL-CTS/test_conformance
+        # Copy cllayerinfo for artefact upload
+        cp -R install_icd/bin OpenCL-CTS
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
       with:
         name: opencl_cts_${{inputs.target}}
         path: |
-          OpenCL-CTS/install_icd/bin/**
+          OpenCL-CTS/bin
           OpenCL-CTS/test_conformance
           !OpenCL-CTS/test_conformance/**/.*
           !OpenCL-CTS/test_conformance/**/CMakeCommon.txt
