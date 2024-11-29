@@ -39,18 +39,14 @@ runs:
     - name: build opencl cts
       shell: bash    
       run: |
-        sudo apt-get update
-        sudo apt-get install -y spirv-tools
-        # TODO: use formal checkout
-        #git -c advice.detachedHead=false clone https://github.com/KhronosGroup/OpenCL-CTS --single-branch --depth 1
+        sudo apt-get update; sudo apt-get install -y spirv-tools
         (cd OpenCL-CTS; git log -1)
-        # TODO: Ignore patches for now
-        #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
-        #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         cd install_headers
         export CTS_BUILD_TYPE=Release
         # TODO: simulate toolchain data for now
-        export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
+        #export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         set -x
         cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         ninja -v
