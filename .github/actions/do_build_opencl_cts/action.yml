@@ -46,13 +46,12 @@ runs:
         git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
         git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         popd
-        pushd install_headers
+        #pushd install_headers
         set -x
         cmake -G Ninja $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=Release" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         ninja -v
-        #python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         set +x
-        popd
+        #popd
         cp -R install_icd/bin OpenCL-CTS # for cllayerinfo artefact upload
 
     - name: upload opencl cts artifacts
