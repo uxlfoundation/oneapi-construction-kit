@@ -41,9 +41,6 @@ runs:
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         cd ..
-        ls -lR $GITHUB_WORKSPACE/*
-        #cd $CI_PROJECT_DIR/OpenCL-CTS
-        #cmake -G Ninja $CMAKE_TOOLCHAIN $CI_PROJECT_DIR/build/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$CI_PROJECT_DIR/OpenCL-CTS/include" "-DCL_LIB_DIR=$CI_PROJECT_DIR/OpenCL-CTS/lib"
         export CTS_BUILD_TYPE=Release
         # TODO: used by cmake ??
         export OPENCL_HEADERS_PATH=$GITHUB_WORKSPACE/install_headers
@@ -51,24 +48,15 @@ runs:
         # TODO: simulate toolchain data for now
         export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         cd $GITHUB_WORKSPACE/install_headers
-        echo cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
-        cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
-        echo ninja -v
-        ninja -v
-        ls -lR $GITHUB_WORKSPACE/*
-        #python3 $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v
-        #--source-dir $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/spirv_asm
-        #--output-dir $CI_PROJECT_DIR/OpenCL-CTS/test_conformance/spirv_bin
+        (set -x; cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"; ninja -v)
         # TODO: move install ?  
         sudo apt-get update
         sudo apt-get install -y spirv-tools
-        echo python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
-        python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
-        ls -lR $GITHUB_WORKSPACE/*
+        (set -x; python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin)
         cd $GITHUB_WORKSPACE
-        ls -lR OpenCL-CTS/test_conformance
-        # Copy cllayerinfo for artefact upload
+        # Copy install_icd/bin for cllayerinfo artefact upload
         cp -R install_icd/bin OpenCL-CTS
+        ls -lR
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
