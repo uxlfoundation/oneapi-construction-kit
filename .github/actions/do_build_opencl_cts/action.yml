@@ -37,7 +37,7 @@ runs:
         git -c advice.detachedHead=false clone https://github.com/KhronosGroup/OpenCL-CTS --single-branch --depth 1
         cd OpenCL-CTS
         git log -1
-        # Ignore patches for now
+        # TODO: Ignore patches for now
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
         #git apply $CI_PROJECT_DIR/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         cd ..
@@ -45,10 +45,10 @@ runs:
         #cd $CI_PROJECT_DIR/OpenCL-CTS
         #cmake -G Ninja $CMAKE_TOOLCHAIN $CI_PROJECT_DIR/build/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$CI_PROJECT_DIR/OpenCL-CTS/include" "-DCL_LIB_DIR=$CI_PROJECT_DIR/OpenCL-CTS/lib"
         export CTS_BUILD_TYPE=Release
-        # used by cmake ??
+        # TODO: used by cmake ??
         export OPENCL_HEADERS_PATH=$GITHUB_WORKSPACE/install_headers
         export ICD_LOADER_INSTALL_PATH=$GITHUB_WORKSPACE/install_icd
-        # simulate toolchain data for now
+        # TODO: simulate toolchain data for now
         export TOOLCHAIN="-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         cd $GITHUB_WORKSPACE/install_headers
         echo cmake -G Ninja $TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=$CTS_BUILD_TYPE" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
@@ -59,26 +59,28 @@ runs:
         #python3 $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v
         #--source-dir $CI_PROJECT_DIR/build/OpenCL-CTS/test_conformance/spirv_new/spirv_asm
         #--output-dir $CI_PROJECT_DIR/OpenCL-CTS/test_conformance/spirv_bin
-        which spirv-as || echo NO SPIRV-AS
+        # TODO: move install ?  
         sudo apt-get update
         sudo apt-get install -y spirv-tools
-        which spirv-as || echo NO SPIRV-AS
         echo python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
         ls -lR $GITHUB_WORKSPACE/*
+        cd $GITHUB_WORKSPACE
+        ls -lR OpenCL-CTS/test_conformance
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
       with:
         name: opencl_cts_${{inputs.target}}
-        path: OpenCL-CTS/test_conformance
-              !OpenCL-CTS/test_conformance/**/.*
-              !OpenCL-CTS/test_conformance/**/CMakeCache.txt
-              !OpenCL-CTS/test_conformance/**/CMakeFiles
-              !OpenCL-CTS/test_conformance/**/CMakeFiles/**
-              !OpenCL-CTS/test_conformance/**/*.cmake
-              !OpenCL-CTS/test_conformance/**/*.ninja
-              !OpenCL-CTS/test_conformance/test_common
-              !OpenCL-CTS/test_conformance/test_common/**
+        path: |
+          OpenCL-CTS/test_conformance
+          !OpenCL-CTS/test_conformance/**/.*
+          !OpenCL-CTS/test_conformance/**/CMakeCache.txt
+          !OpenCL-CTS/test_conformance/**/CMakeFiles
+          !OpenCL-CTS/test_conformance/**/CMakeFiles/**
+          !OpenCL-CTS/test_conformance/**/*.cmake
+          !OpenCL-CTS/test_conformance/**/*.ninja
+          !OpenCL-CTS/test_conformance/test_common
+          !OpenCL-CTS/test_conformance/test_common/**
         retention-days: 1
 
