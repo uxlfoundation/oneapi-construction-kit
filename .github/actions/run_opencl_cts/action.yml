@@ -29,23 +29,23 @@ runs:
         # CTS_TIMEOUT == 18:00:00 - OK on github?
         CTS_TIMEOUT: 18:00:00
       run: |
-        ls -la * $GITHUB_WORKSPACE
+        ls -la * $GITHUB_WORKSPACE && sleep 2
         set -x
-        ls -l $GITHUB_WORKSPACE/OpenCL-CTS
-        ls -l $GITHUB_WORKSPACE/scripts/testing/run_cities.py
-        ls -l $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance
-        ls -l $GITHUB_WORKSPACE/install_icd/lib
-        ls -l install_ock/bin/clc
-        ls -l install_ock/lib/libCL.so
-        ls -l $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/$CTS_CSV_FILE
-        ls -l $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER
+        ls -l $GITHUB_WORKSPACE/OpenCL-CTS && sleep 2
+        ls -l $GITHUB_WORKSPACE/scripts/testing/run_cities.py && sleep 2
+        ls -l $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance && sleep 2
+        ls -l $GITHUB_WORKSPACE/install_icd/lib && sleep 2
+        ls -l install_ock/bin/clc && sleep 2
+        ls -l install_ock/lib/libCL.so && sleep 2
+        ls -l $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/$CTS_CSV_FILE && sleep 2
+        ls -l $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER && sleep 2
         set +x
 
         cd "$GITHUB_WORKSPACE/OpenCL-CTS"
         echo "Running OpenCL CTS tests with CTS file $CTS_CSV_FILE with filter $CTS_FILTER"
         # $[[ inputs.cts_profile ]]
         # $[[ inputs.cities_args ]]
-        python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v --color=always --timeout $CTS_TIMEOUT $[[ inputs.cts_profile ]] $[[ inputs.cities_args ]] -b "$GITHUB_WORKSPACE/OpenCL-CTS/test_conformance" -L "$GITHUB_WORKSPACE/install_icd/lib" -e "CLC_EXECUTABLE=install_ock/bin/clc" -e "OCL_ICD_FILENAMES=install_ock/lib/libCL.so" -e "CL_PLATFORM_INDEX=0" -s "$GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/$CTS_CSV_FILE" -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
+        python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v --color=always --timeout $CTS_TIMEOUT -b "$GITHUB_WORKSPACE/OpenCL-CTS/test_conformance" -L "$GITHUB_WORKSPACE/install_icd/lib" -e "CLC_EXECUTABLE=install_ock/bin/clc" -e "OCL_ICD_FILENAMES=install_ock/lib/libCL.so" -e "CL_PLATFORM_INDEX=0" -s "$GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/$CTS_CSV_FILE" -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
 
 #        cd "$CI_PROJECT_DIR/OpenCL-CTS"
 #        echo "Running OpenCL CTS tests with CTS file $CTS_CSV_FILE with filter $CTS_FILTER"
