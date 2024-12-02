@@ -29,7 +29,7 @@ runs:
         # CTS_TIMEOUT == 18:00:00 - OK on github?
         CTS_TIMEOUT: 18:00:00
       run: |
-        ls -la * $GITHUB_WORKSPACE && sleep 2
+        ls -lRa * $GITHUB_WORKSPACE && sleep 2
         set -x
         ls -l $GITHUB_WORKSPACE/OpenCL-CTS && sleep 2
         ls -l $GITHUB_WORKSPACE/scripts/testing/run_cities.py && sleep 2
