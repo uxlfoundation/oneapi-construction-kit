@@ -15,5 +15,3 @@ updates:
       github-actions:
         patterns:
           - "*"
-    reviewers:
-      - "codeplaysoftware/security-managers"
