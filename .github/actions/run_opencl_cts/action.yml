@@ -5,16 +5,12 @@ description: run opencl cts
 
 inputs:
   target:
-    description: 'target architecture' # TODO: for future matrix reqs.
+    description: 'target architecture'
 
 runs:
   using: "composite"
   steps:
     - name: Download ock artefact
-      uses: actions/download-artifact@v4
-      with:
-        name: ock_${{inputs.target}}
-        path: install_ock- name: Download ock artefact
       uses: actions/download-artifact@v4
       with:
         name: ock_${{inputs.target}}
