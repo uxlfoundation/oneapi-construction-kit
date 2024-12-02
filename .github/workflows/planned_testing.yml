@@ -133,8 +133,13 @@ jobs:
       - name: clone ock platform
         uses: actions/checkout@v4
         with:
+          # platform: toolchain files - TODO: needed?
+          # scripts: run_cities.py
+          # source: CTS filter.csv  files
           sparse-checkout: |
             platform
+            scripts
+            source
             .github
       # TODO: Consider separating out opencl_cts build and run in the future
       - name : build and upload opencl_cts

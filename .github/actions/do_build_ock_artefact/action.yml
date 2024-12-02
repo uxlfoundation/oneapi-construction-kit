@@ -59,8 +59,8 @@ runs:
       - name: prune ock artefact
         shell: bash
         run: |
-          # delete all but city runner and the python associated file under bin
-          find install/bin -maxdepth 1 -type f  ! -name "*.py"  -delete
+          # delete all but clc, city runner and the python associated file under bin
+          find install/bin -maxdepth 1 -type f  ! \( -name "*.py" -o name "*clc" \)  -delete
           rm -rf install/share
 
       - name: upload ock artefact
