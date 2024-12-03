@@ -24,7 +24,7 @@ runs:
       env:
         CTS_CSV_FILE: opencl_conformance_tests_${{inputs.test_type}}.csv
         CTS_FILTER: cts-3.0-online-ignore-linux-host.csv
-        CTS_TIMEOUT: 18:00:00 # OK on github?
+        CTS_TIMEOUT: 18:00:00 # OK for github?
       run: |
         ls -lRa * $GITHUB_WORKSPACE && sleep 2
         cd "$GITHUB_WORKSPACE/OpenCL-CTS"

@@ -127,7 +127,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
-    # Todo: expand for aarch64
+    # TODO: host-x86_64-linux only - expand for other targets
     runs-on: ubuntu-22.04
     steps:
       - name: clone ock
