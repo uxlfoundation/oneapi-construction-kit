@@ -133,11 +133,9 @@ jobs:
       - name: clone ock
         uses: actions/checkout@v4
         with:
-          # platform: for toolchain files - TODO: needed?
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
           sparse-checkout: |
-            platform
             scripts
             source
             .github
