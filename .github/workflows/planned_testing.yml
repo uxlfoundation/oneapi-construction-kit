@@ -118,7 +118,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-  # Currently only builds and runs on x86_64 linux
+  # Currently only builds and runs (default: quick) on x86_64 linux
   build_run_opencl_cts:
     if: inputs.test_opencl_cts
     needs: [ workflow_vars, build_icd, create_ock_artefacts ]
@@ -130,12 +130,12 @@ jobs:
     # Todo: expand for aarch64
     runs-on: ubuntu-22.04
     steps:
-      - name: clone ock platform
+      - name: clone ock
         uses: actions/checkout@v4
         with:
-          # platform: toolchain files - TODO: needed?
-          # scripts: run_cities.py
-          # source: CTS filter.csv  files
+          # platform: for toolchain files - TODO: needed?
+          # scripts: for run_cities.py
+          # source: for CTS filter.csv files
           sparse-checkout: |
             platform
             scripts

@@ -53,8 +53,6 @@ runs:
         cmake -G Ninja $GITHUB_WORKSPACE/OpenCL-CTS "-DCMAKE_BUILD_TYPE=Release" -DOPENCL_LIBRARIES=OpenCL "-DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include" "-DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib"
         ninja -v
         python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm --output-dir $GITHUB_WORKSPACE/install_headers/test_conformance/spirv_bin
-        ls -lR test_conformance
-        set +x
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
@@ -63,14 +61,11 @@ runs:
         path: |
           test_conformance
           !test_conformance/**/.*
-          !test_conformance/**/CMakeCommon.txt
-          !test_conformance/**/CMakeLists.txt
           !test_conformance/**/CMakeCache.txt
           !test_conformance/**/CMakeFiles
           !test_conformance/**/CMakeFiles/**
           !test_conformance/**/*.cmake
           !test_conformance/**/*.ninja
-          !test_conformance/submission_details_template.txt
           !test_conformance/test_common
           !test_conformance/test_common/**
         retention-days: 1
