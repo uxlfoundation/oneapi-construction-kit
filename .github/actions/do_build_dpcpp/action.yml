@@ -27,14 +27,14 @@ runs:
         sudo apt-get install spirv-tools
     
     - name: clone dpc++
-      if: build ==  'true'
+      if: input.build == 'true'
       uses: actions/checkout@v4
       with:
         repository: intel/llvm
         path: llvm
 
     - name: dpcpp configure
-      if: build ==  'true'
+      if: input.build == 'true'
       shell: bash
       run:
         cd llvm; python buildbot/configure.py
@@ -47,19 +47,19 @@ runs:
         --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
 
     - name: build sycl-headers
-      if: build ==  'true'
+      if: input.build == 'true'
       shell: bash
       run:
         cmake --build llvm/build -- sycl-headers
   
     - name: build dpc plus plus
-      if: build ==  'true'
+      if: input.build == 'true'
       shell: bash
       run:
        python llvm/buildbot/compile.py -o llvm/build -v -j 8
 
     - name: build extra utilties
-      if: build ==  'true'
+      if: input.build == 'true'
       # Build various utilities, since those aren't proper dependencies.
       # FileCheck and not are needed for tests. The rest are needed for
       # cross builds. They are enabled on all targets for consistency.
@@ -76,7 +76,7 @@ runs:
         llvm-tblgen not opt prepare_builtins ../install/bin
 
     - name: install config files to pick up libraries for cross compilation.
-      if: build ==  'true'
+      if: input.build == 'true'
       shell: bash
       run: |
         echo Installing configuration files
@@ -91,7 +91,7 @@ runs:
         done
 
     - name: download dpc plus plus
-      if: build == 'false'
+      if: input.build == 'false'
       shell: bash
       run: |
         mkdir -p llvm/build/install
