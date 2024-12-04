@@ -44,6 +44,8 @@ runs:
     - name: build SYCL CTS
       shell: bash
       run: |
+        echo LISTING
+        ls -lRa install_dpcpp
         echo calling cmake and ninja on SYCL CTS
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.

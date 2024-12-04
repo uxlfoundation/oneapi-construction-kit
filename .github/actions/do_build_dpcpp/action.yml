@@ -100,6 +100,9 @@ runs:
         cd llvm/build/install
         wget -q https://github.com/intel/llvm/releases/download/nightly-2024-12-04/sycl_linux.tar.gz
         tar xf sycl_linux.tar.gz
+        rm sycl_linux.tar.gz
+        echo LISTING
+        ls -lRa
 
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
