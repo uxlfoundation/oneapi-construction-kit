@@ -39,7 +39,9 @@ runs:
       shell: bash
       run: |
         cd install_dpcpp
-        tar cf dpcpp.tar
+        echo LISTING
+        ls -la
+        tar xf dpcpp.tar
         rm dpcpp.tar
         echo LISTING
         ls -la
