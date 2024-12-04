@@ -51,6 +51,7 @@ runs:
       with:
         repository: KhronosGroup/SYCL-CTS
         path: SYCL-CTS.src
+        submodules: true
 
     - name: build SYCL CTS
       shell: bash
