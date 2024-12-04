@@ -68,7 +68,9 @@ runs:
        cmake --build llvm/build -- FileCheck clang-tblgen
         libclc-remangler llvm-as llvm-min-tblgen llvm-tblgen not
         opt prepare_builtins -j8
+
     - name: copy utilities
+      if: inputs.build == 'true'
       shell: bash
       run:
         cd llvm/build/bin;
