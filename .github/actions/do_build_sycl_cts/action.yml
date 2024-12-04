@@ -36,13 +36,13 @@ runs:
         path: install_dpcpp
 
     - name: unpackage artifacts # package/unpackage avoids known 'permissions loss' issue
-        shell: bash
-        run: |
-          cd install_dpcpp
-          tar cf dpcpp.tar
-          rm dpcpp.tar
-          echo LISTING
-          ls -la
+      shell: bash
+      run: |
+        cd install_dpcpp
+        tar cf dpcpp.tar
+        rm dpcpp.tar
+        echo LISTING
+        ls -la
 
     - name: checkout sycl cts
       uses: actions/checkout@v4
