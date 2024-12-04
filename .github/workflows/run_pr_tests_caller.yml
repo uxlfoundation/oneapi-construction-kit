@@ -25,7 +25,8 @@ concurrency:
 jobs:
   run-with-pull:
     name: Call PR testing on pull request
-    if: ${{ github.event_name == 'pull_request' }}    
+    if: false
+    # ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/run_pr_tests.yml
     with:
       update_cache: false

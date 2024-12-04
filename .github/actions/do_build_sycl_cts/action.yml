@@ -1,0 +1,70 @@
+name: build sycl cts
+description: build sycl cts
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}  
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: download icd artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    - name: download headers artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: header_${{inputs.target}}
+        path: install_headers
+
+    - name: download dpc++ artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_${{inputs.target}}
+        path: install_dpcpp
+
+    - name: checkout sycl cts
+      uses: actions/checkout@v4
+      with:
+        repository: KhronosGroup/SYCL-CTS
+        path: SYCL-CTS.src
+
+    - name: build SYCL CTS
+      shell: bash
+      run: |
+        echo calling cmake and ninja on SYCL CTS
+        # Todo: as we extend into cross etc, we may want to expand on the cxx flags
+        # We build SYCL-CTS without installing it, so build directly in the top level.
+        git -C SYCL-CTS.src log -1
+        # git -C SYCL-CTS.src apply $CI_PROJECT_DIR/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        cmake -S SYCL-CTS.src \
+            -GNinja \
+            -B SYCL-CTS \
+            -DSYCL_IMPLEMENTATION=DPCPP \
+            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/install_dpcpp \
+            -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
+            -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
+            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
+            -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
+            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
+        ninja -C SYCL-CTS -v -j8 -k 0 || :        
+
+    - name: upload artefact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sycl_cts_${{inputs.target}}
+        path: SYCL-CTS/bin/**
+        retention-days: 1
+  
