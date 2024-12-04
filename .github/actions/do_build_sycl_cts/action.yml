@@ -35,6 +35,15 @@ runs:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
 
+    - name: unpackage artifacts # package/unpackage avoids known 'permissions loss' issue
+        shell: bash
+        run: |
+          cd install_dpcpp
+          tar cf dpcpp.tar
+          rm dpcpp.tar
+          echo LISTING
+          ls -la
+
     - name: checkout sycl cts
       uses: actions/checkout@v4
       with:
@@ -44,8 +53,6 @@ runs:
     - name: build SYCL CTS
       shell: bash
       run: |
-        echo LISTING
-        ls -lRa install_dpcpp
         echo calling cmake and ninja on SYCL CTS
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.
