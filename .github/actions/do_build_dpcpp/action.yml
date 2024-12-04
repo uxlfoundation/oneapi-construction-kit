@@ -109,7 +109,7 @@ runs:
         cd llvm/build/install
         echo LISTING
         ls -la
-        tar tf dpcpp.tar *
+        tar cf dpcpp.tar *
 
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
