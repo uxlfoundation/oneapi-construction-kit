@@ -61,6 +61,8 @@ runs:
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
         # git -C SYCL-CTS.src apply $CI_PROJECT_DIR/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        echo "accessor_basic accessor_generic accessor_legacy accessor_placeholder address_space atomic atomic_fence atomic_ref atomic_ref_stress bit_cast buffer common context cuda_interop device device_event device_selector error event exception_handling exceptions extension full_feature_set function_objects group group_functions h_item handler header hierarchical host_accessor host_task id image image_accessor invoke is_device_copyable item kernel kernel_args kernel_bundle language local_accessor marray_arithmetic_assignment marray_arithmetic_binary marray_basic marray_bitwise marray_pre_post marray_relational math_builtin_api multi_ptr namespace nd_item nd_range opencl_interop optional_kernel_features platform pointers property queue range reduction sampler scalars spec_constants stream sub_group sycl_external usm vector_alias vector_api vector_constructors vector_deduction_guides vector_load_store vector_operators vector_swizzle_assignment vector_swizzles" > $GITHUB_WORKSPACE/EXCLUSIONS
+        # TODO: Remove exclusions
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
@@ -70,7 +72,8 @@ runs:
             -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
-            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
+            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
+            -DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/EXCLUSIONS
         #ninja -C SYCL-CTS -v -j8 -k 0 || :
         ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
 

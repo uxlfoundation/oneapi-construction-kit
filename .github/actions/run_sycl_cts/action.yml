@@ -35,6 +35,8 @@ runs:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
 
+  #TODO: unpackage dpcpp *****************************************`
+
     - name: run sycl cts
       shell: bash
       run: |
