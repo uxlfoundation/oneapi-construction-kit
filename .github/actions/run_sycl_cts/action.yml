@@ -23,10 +23,10 @@ runs:
         name: ock_${{inputs.target}}
         path: install_ock
 
-    - name: download headers artifact
+    - name: download header artifact
       uses: actions/download-artifact@v4
       with:
-        name: headers_${{inputs.target}}
+        name: header_${{inputs.target}}
         path: install_headers
 
     - name: download dpc++ artifact
@@ -48,9 +48,10 @@ runs:
 
     - name: run sycl cts
       shell: bash
+      env:
+        PREPEND_PATH:  # TODO: have qemu as input and set up this
+        SYCL_CTS_TIMEOUT: '02:00:00'
       run: |
-        # TODO: have qemu as input and set up this
-        export PREPEND_PATH=
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
