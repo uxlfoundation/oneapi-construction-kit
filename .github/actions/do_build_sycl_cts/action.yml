@@ -61,8 +61,9 @@ runs:
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
         # git -C SYCL-CTS.src apply $CI_PROJECT_DIR/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
-        printf "test_accessor_basic\ntest/accessor_generic\naccessor_legacy\naccessor_placeholder\naddress_space\natomic\natomic_fence\natomic_ref\natomic_ref_stress\nbit_cast\nbuffer\ncommon\ncontext\ncuda_interop\ndevice\ndevice_event\ndevice_selector\nerror\nevent\nexception_handling\nexceptions\nextension\nfull_feature_set\nfunction_objects\ngroup\ngroup_functions\nh_item\nhandler\nheader\nhierarchical\nhost_accessor\nhost_task\nid\nimage\nimage_accessor\ninvoke\nis_device_copyable\nitem\nkernel\nkernel_args\nkernel_bundle\nlanguage\nlocal_accessor\nmarray_arithmetic_assignment\nmarray_arithmetic_binary\nmarray_basic\nmarray_bitwise\nmarray_pre_post\nmarray_relational\nmath_builtin_api\nmulti_ptr\nnamespace\nnd_item\nnd_range\nopencl_interop\noptional_kernel_features\nplatform\npointers\nproperty\nqueue\nrange\nreduction\nsampler\nscalars\nspec_constants\nstream\nsub_group\nsycl_external\nusm\nvector_alias\nvector_api\nvector_constructors\nvector_deduction_guides\nvector_load_store\nvector_operators\nvector_swizzle_assignment\nvector_swizzles\n" > $GITHUB_WORKSPACE/EXCLUSIONS
-        # TODO: Remove exclusions
+        # TODO: REMOVE EXCLUSIONS
+        # build only accessor_basic for now
+        printf "accessor_generic\naccessor_legacy\naccessor_placeholder\naddress_space\natomic\natomic_fence\natomic_ref\natomic_ref_stress\nbit_cast\nbuffer\ncommon\ncontext\ncuda_interop\ndevice\ndevice_event\ndevice_selector\nerror\nevent\nexception_handling\nexceptions\nextension\nfull_feature_set\nfunction_objects\ngroup\ngroup_functions\nh_item\nhandler\nheader\nhierarchical\nhost_accessor\nhost_task\nid\nimage\nimage_accessor\ninvoke\nis_device_copyable\nitem\nkernel\nkernel_args\nkernel_bundle\nlanguage\nlocal_accessor\nmarray_arithmetic_assignment\nmarray_arithmetic_binary\nmarray_basic\nmarray_bitwise\nmarray_pre_post\nmarray_relational\nmath_builtin_api\nmulti_ptr\nnamespace\nnd_item\nnd_range\nopencl_interop\noptional_kernel_features\nplatform\npointers\nproperty\nqueue\nrange\nreduction\nsampler\nscalars\nspec_constants\nstream\nsub_group\nsycl_external\nusm\nvector_alias\nvector_api\nvector_constructors\nvector_deduction_guides\nvector_load_store\nvector_operators\nvector_swizzle_assignment\nvector_swizzles\n" > $GITHUB_WORKSPACE/EXCLUSIONS
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
@@ -74,8 +75,8 @@ runs:
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
             -DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/EXCLUSIONS
-        #ninja -C SYCL-CTS -v -j8 -k 0 || :
-        ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
+        ninja -C SYCL-CTS -v -j8 -k 0 || :
+        #TODO: fyi this made no difference: ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
 
     - name: upload artefact
       uses: actions/upload-artifact@v4
