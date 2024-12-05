@@ -71,7 +71,8 @@ runs:
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
-        ninja -C SYCL-CTS -v -j8 -k 0 || :        
+        #ninja -C SYCL-CTS -v -j8 -k 0 || :
+        ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
 
     - name: upload artefact
       uses: actions/upload-artifact@v4
