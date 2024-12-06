@@ -60,6 +60,7 @@ runs:
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
+        # TODO: ADD PATCH?
         # git -C SYCL-CTS.src apply $CI_PROJECT_DIR/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         # TODO: REMOVE EXCLUSIONS
         # build only accessor_basic for now
@@ -75,8 +76,10 @@ runs:
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
             -DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/EXCLUSIONS
+        #TODO: ninja KILLS RUNNER WHEN ALL TEST CATEGORIES ARE 'LIVE'
+        #    fyi this made no difference:
+        #        ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
         ninja -C SYCL-CTS -v -j8 -k 0 || :
-        #TODO: fyi this made no difference: ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       shell: bash
