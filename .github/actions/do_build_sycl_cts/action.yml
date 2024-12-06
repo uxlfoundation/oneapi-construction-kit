@@ -60,7 +60,7 @@ runs:
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
-        git -C SYCL-CTS.src apply $CI_PROJECT_DIR/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         # TODO: REMOVE EXCLUSIONS
         # build only accessor_basic for now
         printf "accessor_generic\naccessor_legacy\naccessor_placeholder\naddress_space\natomic\natomic_fence\natomic_ref\natomic_ref_stress\nbit_cast\nbuffer\ncommon\ncontext\ncuda_interop\ndevice\ndevice_event\ndevice_selector\nerror\nevent\nexception_handling\nexceptions\nextension\nfull_feature_set\nfunction_objects\ngroup\ngroup_functions\nh_item\nhandler\nheader\nhierarchical\nhost_accessor\nhost_task\nid\nimage\nimage_accessor\ninvoke\nis_device_copyable\nitem\nkernel\nkernel_args\nkernel_bundle\nlanguage\nlocal_accessor\nmarray_arithmetic_assignment\nmarray_arithmetic_binary\nmarray_basic\nmarray_bitwise\nmarray_pre_post\nmarray_relational\nmath_builtin_api\nmulti_ptr\nnamespace\nnd_item\nnd_range\nopencl_interop\noptional_kernel_features\nplatform\npointers\nproperty\nqueue\nrange\nreduction\nsampler\nscalars\nspec_constants\nstream\nsub_group\nsycl_external\nusm\nvector_alias\nvector_api\nvector_constructors\nvector_deduction_guides\nvector_load_store\nvector_operators\nvector_swizzle_assignment\nvector_swizzles\n" > $GITHUB_WORKSPACE/EXCLUSIONS
