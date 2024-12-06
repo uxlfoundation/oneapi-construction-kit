@@ -56,10 +56,8 @@ runs:
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
-        # TODO:
-        # * assume sycl-cts.csv is a new file?
-        # * check -e option and OCL_ICD_FILENAMES= - what are they for?
-        set +x
+        # TODO: assume sycl-cts.csv is a new file?
+        set -x
         python $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
