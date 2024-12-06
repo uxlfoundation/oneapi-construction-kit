@@ -35,6 +35,17 @@ runs:
         name: sycl_cts_${{inputs.target}}
         path: SYCL-CTS
 
+    - name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
+      shell: bash
+      run: |
+        cd SYCL-CTS
+        echo LISTING
+        ls -la
+        tar xf sycl-cts.tar
+        rm sycl-cts.tar
+        echo LISTING
+        ls -la
+
     - name: download dpc++ artifact
       uses: actions/download-artifact@v4
       with:
@@ -64,6 +75,7 @@ runs:
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         # TODO: assume sycl-cts.csv is a new file?
+        #       SYCL-CTS/lib does not exist
         set -x
         python $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \

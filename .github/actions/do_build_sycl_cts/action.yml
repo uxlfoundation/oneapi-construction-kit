@@ -78,11 +78,19 @@ runs:
         ninja -C SYCL-CTS -v -j8 -k 0 || :
         #TODO: fyi this made no difference: ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
 
+    - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
+      shell: bash
+      run: |
+        cd SYCL-CTS
+        echo LISTING
+        ls -la
+        # TODO: only bin ??
+        tar cf sycl-cts.tar bin
+
     - name: upload artefact
       uses: actions/upload-artifact@v4
       with:
         name: sycl_cts_${{inputs.target}}
-        path: SYCL-CTS/**
-        #path: SYCL-CTS/bin/**
+        path: SYCL-CTS/sycl-cts.tar
         retention-days: 1
   
