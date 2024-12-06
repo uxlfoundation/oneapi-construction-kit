@@ -29,13 +29,19 @@ runs:
         name: header_${{inputs.target}}
         path: install_headers
 
+    - name: download SYCL-CTS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: sycl_cts_${{inputs.target}}
+        path: SYCL-CTS
+
     - name: download dpc++ artifact
       uses: actions/download-artifact@v4
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
 
-    - name: unpackage artifacts  # package/unpackage avoids known 'permissions loss' issue
+    - name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
       shell: bash
       run: |
         cd install_dpcpp
@@ -49,8 +55,9 @@ runs:
     - name: run sycl cts
       shell: bash
       env:
-        PREPEND_PATH:  # TODO: have qemu as input and set up this
+        PREPEND_PATH: ''  # TODO: have qemu as input and set up this
         SYCL_CTS_TIMEOUT: '02:00:00'
+        SYCL_CTS_FILTER: ''  # TODO: needed?
       run: |
         pwd && ls -laR && sleep 2
         echo running sycl cts
@@ -71,7 +78,7 @@ runs:
           -r SYCL-CTS/cts.xml \
           -v \
           $SYCL_CTS_FILTER || exitcode=$?
-        export OCL_ICD_FILENAMES=$CA_INSTALL_DIR/lib/libCL.so
+        export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         #$GITHUB_WORKSPACE/scripts/create_sycl_cts_test_lists.sh $[[ inputs.prepend_path ]] SYCL-CTS "$CTS_CSV_FILE" csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
         # - diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
