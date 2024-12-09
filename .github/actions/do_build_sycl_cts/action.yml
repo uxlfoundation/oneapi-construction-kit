@@ -56,6 +56,9 @@ runs:
     - name: build SYCL CTS
       shell: bash
       run: |
+        echo LOGGING
+        df -h
+        swapon --show
         echo calling cmake and ninja on SYCL CTS
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.

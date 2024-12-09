@@ -110,8 +110,6 @@ runs:
       shell: bash
       run: |
         pwd
-        echo /home/runner/work/oneapi-construction-kit/oneapi-construction-kit/install_dpcpp/bin/../../..
-        ls -laR /home/runner/work/oneapi-construction-kit/oneapi-construction-kit/install_dpcpp/bin/../../..
         echo $GITHUB_WORKSPACE
         ls -laR $GITHUB_WORKSPACE
         cd llvm/build/install
