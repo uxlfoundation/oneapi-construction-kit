@@ -371,6 +371,6 @@ The results are correct!
 # Governance
 The oneAPI Construction Kit project is governed by the [UXL Foundation] and you can get involved in
 this project in the following ways:
-* Contribute to oneAPI Construction Kit project. Read [CONTRIBUTING](./CONTRIBUTING.md) for more information.
+* Contribute to the oneAPI Construction Kit project. Read [CONTRIBUTING](./CONTRIBUTING.md) for more information.
 * Join the [Open Source and Specification Working Group](https://github.com/uxlfoundation/foundation/tree/main?tab=readme-ov-file#working-groups) meetings.
 * Join the mailing lists for the [UXL Foundation](https://lists.uxlfoundation.org/g/main/subgroups) to receive meetings schedule and latest updates.
