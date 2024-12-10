@@ -77,20 +77,20 @@ runs:
         cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
         llvm-tblgen not opt prepare_builtins ../install/bin
 
-    - name: install config files to pick up libraries for cross compilation.
-      if: inputs.build == 'true'
-      shell: bash
-      run: |
-        echo Installing configuration files
-        cd llvm/build/bin
-        # Install configuration files to pick up libraries for cross compilation.
-        for arch in x86_64 aarch64 riscv64; do
-          echo "
-          -L<CFGDIR>/../../../$arch-linux/install/lib
-          -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
-          -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
-          " >../install/bin/$arch-unknown-linux-gnu.cfg;
-        done
+#    - name: install config files to pick up libraries for cross compilation.
+#      if: inputs.build == 'true'
+#      shell: bash
+#      run: |
+#        echo Installing configuration files
+#        cd llvm/build/bin
+#        # Install configuration files to pick up libraries for cross compilation.
+#        for arch in x86_64 aarch64 riscv64; do
+#          echo "
+#          -L<CFGDIR>/../../../$arch-linux/install/lib
+#          -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
+#          -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
+#          " >../install/bin/$arch-unknown-linux-gnu.cfg;
+#        done
 
     - name: download dpc plus plus
       if: inputs.build == 'false'

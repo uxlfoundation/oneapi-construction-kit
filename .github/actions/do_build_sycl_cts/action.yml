@@ -56,19 +56,19 @@ runs:
     - name: build SYCL CTS
       shell: bash
       run: |
-        echo SWAP LOGGING START
-        set -x
-        df -h
-        sudo swapon --show
-        sudo swapoff -a
-        sudo fallocate -l 16G /mnt/swapfilenew
-        sudo chmod 600 /mnt/swapfilenew
-        sudo mkswap /mnt/swapfilenew
-        sudo swapon /mnt/swapfilenew
-        df -h
-        sudo swapon --show
-        set +x
-        echo SWAP LOGGING END
+        #echo SWAP LOGGING START
+        #set -x
+        #df -h
+        #sudo swapon --show
+        #sudo swapoff -a
+        #sudo fallocate -l 16G /mnt/swapfilenew
+        #sudo chmod 600 /mnt/swapfilenew
+        #sudo mkswap /mnt/swapfilenew
+        #sudo swapon /mnt/swapfilenew
+        #df -h
+        #sudo swapon --show
+        #set +x
+        #echo SWAP LOGGING END
         echo calling cmake and ninja on SYCL CTS
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.
@@ -92,7 +92,8 @@ runs:
         #TODO: ninja KILLS RUNNER WHEN ALL TEST CATEGORIES ARE 'LIVE'
         #    fyi this made no difference:
         #        ninja -C SYCL-CTS -v -l 2.5 -k 0 || :
-        ninja -C SYCL-CTS -v -j8 -k 0 || :
+        #ninja -C SYCL-CTS -v -j8 -k 0 || :
+        ninja -C SYCL-CTS -v -j1 -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       shell: bash

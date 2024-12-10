@@ -135,8 +135,8 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
-          build: false
-          #build: true
+          #build: false
+          build: true
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native_host]
