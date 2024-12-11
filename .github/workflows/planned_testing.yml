@@ -26,6 +26,16 @@ on:
         required: false
         type: boolean
         default: false
+      test_ock_artefact_unitcl:
+        # UnitCL testing via an ock artefact (i.e. not standalone)
+        required: false
+        type: boolean
+        default: true
+      create_ock_artefact_method:
+        # How to create the ock artefact
+        required: false
+        type: string
+        default: "build"
 
 jobs:
 
@@ -35,6 +45,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
+      matrix_only_linux_aarch64: ${{ steps.vars.outputs.matrix_only_linux_aarch64 }}
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
     steps:
     - id: vars
@@ -42,6 +53,7 @@ jobs:
       # These variables are for excluding certain targets from the total list, which is why just including
       # two targets is a long list of excludes
       run: |
+        echo matrix_only_linux_aarch64="[ {\"target\": \"host_x86_64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64_aarch64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
@@ -62,11 +74,21 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: set up secret ubuntu
+        if: startsWith(runner.os, 'Windows') != true
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      - name: set up secret windows
+        if: startsWith(runner.os, 'Windows')
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $env:GITHUB_ENV
+
       - name: build ock artefact
         uses: ./.github/actions/do_build_ock_artefact
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
+          create_ock_artefact_method: ${{ inputs.create_ock_artefact_method }}
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts
@@ -149,3 +171,23 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
+  test_unitcl_ock_artefact:
+    if: inputs.test_ock_artefact_unitcl
+    needs: [workflow_vars, create_ock_artefacts ]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}    
+    runs-on: ubuntu-22.04
+    # TODO: Look into running on aarch64/riscv64 (and aarch64 hardware)
+    steps:
+      - name: Download ock artefact
+        uses: actions/download-artifact@v4
+        with:
+          name: ock_${{matrix.target}}
+          path: install_ock
+      - name: run unitcl
+        # chmod +x here since archiving removes execute permissions
+        run:
+          chmod +x ./install_ock/bin/UnitCL;
+          LD_LIBRARY_PATH=$PWD/install_ock/lib OCL_ICD_FILENAMES=$PWD/install_ock/lib/libCL.so ./install_ock/bin/UnitCL --gtest_filter=Exec*Task_01_02*
