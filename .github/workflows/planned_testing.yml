@@ -15,6 +15,10 @@ on:
         required: false
         type: boolean
         default: true
+      test_opencl_cts:
+        required: false
+        type: boolean
+        default: true  
       target_list:
         required: false
         type: string
@@ -69,8 +73,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   build_icd:
-    # Will also be required for opencl
-    if: inputs.test_tornado || inputs.test_sycl_cts
+    if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
     needs: [workflow_vars]
     strategy:
       matrix:
@@ -116,6 +119,37 @@ jobs:
           target: ${{ matrix.target }}
       - name : run tornado
         uses: ./.github/actions/run_tornado
+        with:
+          target: ${{ matrix.target }}
+
+  # Currently only builds and runs (default: quick) on x86_64 linux
+  build_run_opencl_cts:
+    if: inputs.test_opencl_cts
+    needs: [ workflow_vars, build_icd, create_ock_artefacts ]
+    strategy:
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+
+    # TODO: host-x86_64-linux only - expand for other targets
+    runs-on: ubuntu-22.04
+    steps:
+      - name: clone ock
+        uses: actions/checkout@v4
+        with:
+          # scripts: for run_cities.py
+          # source: for CTS filter.csv files
+          sparse-checkout: |
+            scripts
+            source
+            .github
+      # TODO: Consider separating out opencl_cts build and run in the future
+      - name : build and upload opencl_cts
+        uses: ./.github/actions/do_build_opencl_cts
+        with:
+          target: ${{ matrix.target }}
+      - name : run opencl_cts
+        uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
 

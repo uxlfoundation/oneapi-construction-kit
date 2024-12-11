@@ -24,7 +24,7 @@ jobs:
       ock: true
       test_tornado: false
       test_sycl_cts: true
-      # true
+      test_opencl_cts: false
       # Have a pull request setting which can be used to test the flow as best as possible
       # in a reasonable time
       pull_request: ${{ github.event_name == 'pull_request' }}
