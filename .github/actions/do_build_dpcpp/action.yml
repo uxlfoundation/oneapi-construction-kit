@@ -77,20 +77,22 @@ runs:
         cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
         llvm-tblgen not opt prepare_builtins ../install/bin
 
-#    - name: install config files to pick up libraries for cross compilation.
-#      if: inputs.build == 'true'
-#      shell: bash
-#      run: |
-#        echo Installing configuration files
-#        cd llvm/build/bin
-#        # Install configuration files to pick up libraries for cross compilation.
-#        for arch in x86_64 aarch64 riscv64; do
-#          echo "
-#          -L<CFGDIR>/../../../$arch-linux/install/lib
-#          -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
-#          -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
-#          " >../install/bin/$arch-unknown-linux-gnu.cfg;
-#        done
+    # TODO: For now just linux x86_64
+    #       Review for location of components (paths) and any archive package/unpackage reqs.
+    #- name: install config files to pick up libraries for cross compilation.
+    #  if: inputs.build == 'true'
+    #  shell: bash
+    #  run: |
+    #    echo Installing configuration files
+    #    cd llvm/build/bin
+    #    # Install configuration files to pick up libraries for cross compilation.
+    #    for arch in x86_64 aarch64 riscv64; do
+    #      echo "
+    #      -L<CFGDIR>/../../../$arch-linux/install/lib
+    #      -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
+    #      -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
+    #      " >../install/bin/$arch-unknown-linux-gnu.cfg;
+    #    done
 
     - name: download dpc plus plus
       if: inputs.build == 'false'
@@ -109,12 +111,7 @@ runs:
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       shell: bash
       run: |
-        pwd
-        echo $GITHUB_WORKSPACE
-        ls -laR $GITHUB_WORKSPACE
         cd llvm/build/install
-        echo LISTING
-        ls -la
         tar cf dpcpp.tar *
 
     - name: upload dpcpp artifact
