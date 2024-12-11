@@ -6,7 +6,6 @@ inputs:
     description: 'target architecture'
 
 runs:
-  # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
     - name: calc vars
