@@ -25,10 +25,6 @@ on:
         default: true
 permissions: {}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
