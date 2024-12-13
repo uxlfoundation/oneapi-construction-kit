@@ -368,6 +368,18 @@ refsi_hal_device::mem_free(address=0x9ff0ff80)
 The results are correct!
 ```
 
+# Support
+
+Submit questions, feature requests, and bug reports on the
+[GitHub issues] page.
+
+You can also contact oneapi Construction Kit developers via [UXL Foundation Slack] using
+[#oneck] channel.
+
+[Github issues]: https://github.com/uxlfoundation/oneapi-construction-kit/issues
+[UXL Foundation Slack]: https://slack-invite.uxlfoundation.org/
+[#oneck]: https://uxlfoundation.slack.com/channels/oneck
+
 # Governance
 The oneAPI Construction Kit project is governed by the [UXL Foundation] and you can get involved in
 this project in the following ways:
