@@ -26,6 +26,16 @@ on:
         required: false
         type: boolean
         default: false
+      create_ock_artefact_method:
+        # How to create the ock artefact build or workflow id
+        required: false
+        type: string
+        default: "build"
+      create_opencl_cts_artefact_method:
+        # How to create the ock opencl cts build or workflow id
+        required: false
+        type: string
+        default: "build"        
 
 jobs:
 
@@ -62,11 +72,20 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: set up secret ubuntu
+        if: startsWith(runner.os, 'Windows') != true
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      - name: set up secret windows
+        if: startsWith(runner.os, 'Windows')
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $env:GITHUB_ENV
       - name: build ock artefact
         uses: ./.github/actions/do_build_ock_artefact
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
+          create_ock_artefact_method: ${{ inputs.create_ock_artefact_method }}
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts
@@ -139,13 +158,16 @@ jobs:
             scripts
             source
             .github
+      - name: set up secret ubuntu
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
       # TODO: Consider separating out opencl_cts build and run in the future
       - name : build and upload opencl_cts
         uses: ./.github/actions/do_build_opencl_cts
         with:
           target: ${{ matrix.target }}
+          create_opencl_cts_artefact_method: ${{ inputs.create_opencl_cts_artefact_method }}
       - name : run opencl_cts
         uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
-
