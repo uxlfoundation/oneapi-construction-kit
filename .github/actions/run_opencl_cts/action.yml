@@ -13,6 +13,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
     - name: Download ock artefact
       uses: actions/download-artifact@v4
       with:
@@ -20,7 +26,7 @@ runs:
         path: install_ock
 
     - name: Run opencl cts x86_64
-      if: ARCH == x86_64
+      if: steps.calc_vars.outputs.arch == x86_64
       shell: bash
       env:
         CTS_CSV_FILE: opencl_conformance_tests_${{inputs.test_type}}.csv
@@ -42,7 +48,7 @@ runs:
                -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
 
     - name: Run opencl cts aarch64
-      if: ARCH == aarch64
+      if: steps.calc_vars.outputs.arch == aarch64
       shell: bash
       env:
         CTS_CSV_FILE: opencl_conformance_tests_${{inputs.test_type}}.csv
