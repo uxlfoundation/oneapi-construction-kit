@@ -63,9 +63,14 @@ clarification, we ask that you follow these steps.
 * Provide as much context as you can about the problem or question you have.
 * Provide project version and any relevant system details (e.g. operating
   system).
+* You can contact oneapi Construction Kit developers via [UXL Foundation Slack] using
+  [#oneck] channel.
+
 
 Once your issue has been opened, we will take a look and try to help you as
 soon as possible.
+
+[#oneck]: https://uxlfoundation.slack.com/channels/oneck
 
 # I want to contribute
 
@@ -168,6 +173,7 @@ in preparation for your suggestion.
 Once you have prepared to submit your enhancement suggestion, we ask that you
 follow these steps.
 
+* Consider using the slack channel [#oneck] to discuss the idea.
 * Open an
   [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
 * Select the **Enhancement** issue template and fill in the requested details.
