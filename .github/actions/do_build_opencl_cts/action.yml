@@ -36,7 +36,7 @@ runs:
         path: OpenCL-CTS
 
     - name: build opencl cts x86_64
-      if: steps.calc_vars.outputs.arch == x86_64
+      if: steps.calc_vars.outputs.arch == 'x86_64'
       shell: bash
       env:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
@@ -65,7 +65,7 @@ runs:
           --output-dir $GITHUB_WORKSPACE/test_conformance/spirv_bin
 
     - name: build opencl cts aarch64
-      if: steps.calc_vars.outputs.arch == aarch64
+      if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
       env:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
