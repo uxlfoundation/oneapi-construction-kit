@@ -25,10 +25,14 @@ runs:
 
     - name: cmake headers
       shell: bash
-      run:
-        cmake headers -Bheaders/build_${{steps.calc_vars.outputs.arch}}
-         -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }}
-         -DCMAKE_INSTALL_PREFIX=$PWD/headers_install_${{steps.calc_vars.outputs.arch}}
+      run: |
+        if [ "$ARCH" = "aarch64" ] ; then \
+          sudo apt-get update ; \
+          sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
+        fi
+        cmake headers -Bheaders/build_${{steps.calc_vars.outputs.arch}} \
+         -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
+         -DCMAKE_INSTALL_PREFIX=$PWD/headers_install_${{steps.calc_vars.outputs.arch}} \
          -GNinja
     - name: ninja install headers
       shell: bash
@@ -50,17 +54,13 @@ runs:
 
     - name: icd cmake
       shell: bash
-      run:
-        if [ "$ARCH" = "aarch64" ] ; then
-           sudo apt-get update
-           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
-        fi
-        cmake icd -B icd/build_${{steps.calc_vars.outputs.arch}}
-        -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }}
-        -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
-        -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install_icd_${{steps.calc_vars.outputs.arch}}
-        -DOpenCLHeaders_DIR=$GITHUB_WORKSPACE/headers_install_${{steps.calc_vars.outputs.arch}}/share/cmake/OpenCLHeaders
-        -GNinja
+      run: |
+        cmake icd -B icd/build_${{steps.calc_vars.outputs.arch}} \
+          -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
+          -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
+          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install_icd_${{steps.calc_vars.outputs.arch}} \
+          -DOpenCLHeaders_DIR=$GITHUB_WORKSPACE/headers_install_${{steps.calc_vars.outputs.arch}}/share/cmake/OpenCLHeaders \
+          -GNinja
 
     - name: icd build
       shell: bash
