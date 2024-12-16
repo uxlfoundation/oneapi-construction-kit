@@ -27,7 +27,9 @@ runs:
       shell: bash
       run: |
         echo ARCH is: $arch
-        if [ "$arch" = "aarch64" ] ; then \
+        echo ARCH is: $ARCH
+        echo ARCH is: ${{ steps.calc_vars.outputs.arch }}
+        if [ "${{ steps.calc_vars.outputs.arch }}" = "aarch64" ] ; then \
           sudo apt-get update ; \
           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
         fi

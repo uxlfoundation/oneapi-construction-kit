@@ -38,14 +38,14 @@ runs:
     - name: build opencl cts x86_64
       if: steps.calc_vars.outputs.arch == 'x86_64'
       shell: bash
-      #env:
+      env:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.toolchain }}"
       run: |
-        echo ARCH is: $arch
-        echo CMAKE_TOOLCHAIN is: $cmake_toolchain
+        echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
         # get spirv-as
         sudo apt-get update
@@ -58,7 +58,7 @@ runs:
         popd
         # do build
         set -x
-        cmake -G Ninja $cmake_toolchain $GITHUB_WORKSPACE/OpenCL-CTS \
+        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
@@ -76,9 +76,9 @@ runs:
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.toolchain }}"
       run: |
-        echo ARCH is: $arch
-        echo CMAKE_TOOLCHAIN is: $cmake_toolchain
+        echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
         sudo apt-get update
         # x-compile prereqs
@@ -94,7 +94,7 @@ runs:
         popd
         # do build
         set -x
-        cmake -G Ninja $cmake_toolchain $GITHUB_WORKSPACE/OpenCL-CTS \
+        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
