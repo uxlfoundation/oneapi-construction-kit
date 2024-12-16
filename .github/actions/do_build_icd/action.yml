@@ -26,7 +26,8 @@ runs:
     - name: cmake headers
       shell: bash
       run: |
-        if [ "$ARCH" = "aarch64" ] ; then \
+        echo ARCH is: $arch
+        if [ "$arch" = "aarch64" ] ; then \
           sudo apt-get update ; \
           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
         fi

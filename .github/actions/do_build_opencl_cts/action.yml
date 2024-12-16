@@ -44,6 +44,8 @@ runs:
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
+        echo ARCH is: $arch
+        echo CMAKE_TOOLCHAIN is: $cmake_toolchain
         ls -laR
         # get spirv-as
         sudo apt-get update
@@ -56,7 +58,7 @@ runs:
         popd
         # do build
         set -x
-        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
+        cmake -G Ninja $cmake_toolchain $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
@@ -75,6 +77,8 @@ runs:
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
+        echo ARCH is: $arch
+        echo CMAKE_TOOLCHAIN is: $cmake_toolchain
         ls -laR
         sudo apt-get update
         # x-compile prereqs
@@ -90,7 +94,7 @@ runs:
         popd
         # do build
         set -x
-        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
+        cmake -G Ninja $cmake_toolchain $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
