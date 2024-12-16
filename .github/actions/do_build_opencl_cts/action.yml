@@ -42,7 +42,7 @@ runs:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        CMAKE_TOOLCHAIN: "--toolchain $GITHUB_WORKSPACE/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
         # get spirv-as
         sudo apt-get update
@@ -72,7 +72,7 @@ runs:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        CMAKE_TOOLCHAIN: "--toolchain $GITHUB_WORKSPACE/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
         # get spirv-as
         sudo apt-get update
