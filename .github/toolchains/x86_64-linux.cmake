@@ -1,0 +1,6 @@
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_C_FLAGS -m64)
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_FLAGS -m64)
+set(PKG_CONFIG_EXECUTABLE pkg-config)
+
