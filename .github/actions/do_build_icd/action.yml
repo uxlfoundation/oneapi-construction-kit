@@ -26,9 +26,8 @@ runs:
     - name: cmake headers
       shell: bash
       run: |
-        echo ARCH is: $arch
-        echo ARCH is: $ARCH
         echo ARCH is: ${{ steps.calc_vars.outputs.arch }}
+        set -x
         if [ "${{ steps.calc_vars.outputs.arch }}" = "aarch64" ] ; then \
           sudo apt-get update ; \
           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
@@ -37,6 +36,7 @@ runs:
          -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
          -DCMAKE_INSTALL_PREFIX=$PWD/headers_install_${{steps.calc_vars.outputs.arch}} \
          -GNinja
+
     - name: ninja install headers
       shell: bash
       run:
@@ -58,6 +58,7 @@ runs:
     - name: icd cmake
       shell: bash
       run: |
+        set -x
         cmake icd -B icd/build_${{steps.calc_vars.outputs.arch}} \
           -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
           -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \

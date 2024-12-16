@@ -139,9 +139,11 @@ jobs:
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
+          # platform: for toolchain files
           sparse-checkout: |
             scripts
             source
+            platform
             .github
       # TODO: Consider separating out opencl_cts build and run in the future
       - name : build and upload opencl_cts
