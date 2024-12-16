@@ -1,0 +1,66 @@
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Wed, 15 May 2024 17:57:47 +0100
+Subject: [PATCH] Permit building for unknown architectures.
+
+---
+ oclmath/fpcontrol.h       | 6 +++---
+ oclmath/rounding_mode.cpp | 5 +++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/oclmath/fpcontrol.h b/oclmath/fpcontrol.h
+index cf9e9569..19a07655 100644
+--- a/oclmath/fpcontrol.h
++++ b/oclmath/fpcontrol.h
+@@ -69,7 +69,7 @@ inline void ForceFTZ(FPU_mode_type* mode) {
+ #elif defined(__mips__)
+   fpa_bissr(FPA_CSR_FS);
+ #else
+-#error ForceFTZ needs an implentation
++#warning ForceFTZ needs an implentation
+ #endif
+ }
+
+@@ -96,7 +96,7 @@ inline void DisableFTZ(FPU_mode_type* mode) {
+ #elif defined(__mips__)
+   fpa_bicsr(FPA_CSR_FS);
+ #else
+-#error DisableFTZ needs an implentation
++#warning DisableFTZ needs an implentation
+ #endif
+ }
+
+@@ -115,7 +115,7 @@ inline void RestoreFPState(FPU_mode_type* mode) {
+ #elif defined(__mips__)
+   // Mips runs by default with DAZ=1 FTZ=1
+ #else
+-#error RestoreFPState needs an implementation
++#warning RestoreFPState needs an implementation
+ #endif
+ }
+ #else
+diff --git a/oclmath/rounding_mode.cpp b/oclmath/rounding_mode.cpp
+index 24e8ea99..bbac296b 100644
+--- a/oclmath/rounding_mode.cpp
++++ b/oclmath/rounding_mode.cpp
+@@ -217,7 +217,8 @@ void* FlushToZero(void) {
+   fpa_bissr(FPA_CSR_FS);
+   return NULL;
+ #else
+-#error Unknown arch
++#warning Unknown arch
++  return NULL;
+ #endif
+ #else
+ #error  Please configure FlushToZero and UnFlushToZero to behave properly on this operating system.
+@@ -246,7 +247,7 @@ void UnFlushToZero(void* p) {
+ #elif defined(__mips__)
+   fpa_bicsr(FPA_CSR_FS);
+ #else
+-#error Unknown arch
++#warning Unknown arch
+ #endif
+ #else
+ #error  Please configure FlushToZero and UnFlushToZero to behave properly on this operating system.
+--
+2.43.0
+
