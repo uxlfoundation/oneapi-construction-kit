@@ -42,8 +42,9 @@ runs:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
+        ls -laR
         # get spirv-as
         sudo apt-get update
         sudo apt-get install -y spirv-tools
@@ -72,8 +73,9 @@ runs:
         # TODO: host-x86_64-linux 'toolchain' - expand for other targets
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
+        #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
       run: |
+        ls -laR
         sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
         sudo apt-get install --yes qemu-user
         # get spirv-as
