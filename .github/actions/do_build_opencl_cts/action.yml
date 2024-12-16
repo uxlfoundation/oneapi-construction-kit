@@ -76,7 +76,7 @@ runs:
         #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
         #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
         #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
-        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.toolchain }}"
+        CMAKE_TOOLCHAIN: "--toolchain ${{ steps.calc_vars.outputs.toolchain }}"
       run: |
         echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
