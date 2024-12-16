@@ -51,6 +51,10 @@ runs:
     - name: icd cmake
       shell: bash
       run:
+        if [ "$ARCH" = "aarch64" ] ; then
+           sudo apt-get update
+           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
+        fi
         cmake icd -B icd/build_${{steps.calc_vars.outputs.arch}}
         -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }}
         -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
