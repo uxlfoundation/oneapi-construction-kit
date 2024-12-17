@@ -81,11 +81,11 @@ runs:
         echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
         # add x-compile support for aarch64
-        sudo dpkg --add-architecture arm64
         sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
-        sudo apt-get update
+        sudo dpkg --add-architecture arm64
         sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
-        sudo apt install libc6:arm64
+        sudo apt-get update
+        #sudo apt install libc6:arm64
         ls -l /lib
         sudo apt-get install --yes qemu-user
         # get spirv-as
