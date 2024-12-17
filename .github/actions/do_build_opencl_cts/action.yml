@@ -46,7 +46,7 @@ runs:
         sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
         sudo apt-get update
         sudo apt-get install --yes qemu-user
-        echo WHICH && which qemu-aarch64
+        echo WHICH1 && which qemu-aarch64
 
     - name: build opencl cts
       shell: bash
@@ -65,6 +65,9 @@ runs:
         popd
         # do build
         set -x
+        echo WHICH2 && which qemu-aarch64
+        echo CAT && cat ${{ steps.calc_vars.outputs.toolchain }}
+        echo FIND1 && sudo find / -name ld-linux-aarch64.so.1 || echo NOT FOUND
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
