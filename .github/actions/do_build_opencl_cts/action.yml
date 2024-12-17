@@ -66,7 +66,7 @@ runs:
         # do build
         set -x
         echo WHICH2 && which qemu-aarch64
-        echo CAT && cat ${{ steps.calc_vars.outputs.toolchain }}
+        echo CAT1 && cat ${{ steps.calc_vars.outputs.toolchain }}
         echo FIND1 && sudo find / -name ld-linux-aarch64.so.1 || echo NOT FOUND
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
