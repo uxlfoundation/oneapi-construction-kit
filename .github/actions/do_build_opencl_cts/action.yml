@@ -80,6 +80,7 @@ runs:
       run: |
         echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
+        sudo dpkg --add-architecture arm64
         sudo apt-get update
         # x-compile prereqs
         sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
