@@ -35,60 +35,27 @@ runs:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
 
-    - name: build opencl cts x86_64
-      if: steps.calc_vars.outputs.arch == 'x86_64'
-      shell: bash
-      env:
-        # TODO: host-x86_64-linux 'toolchain' - expand for other targets
-        #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
-        #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
-        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.toolchain }}"
-      run: |
-        echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
-        ls -laR
-        # get spirv-as
-        sudo apt-get update
-        sudo apt-get install -y spirv-tools
-        # apply patches
-        pushd OpenCL-CTS
-        git log -1
-        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
-        popd
-        # do build
-        set -x
-        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DOPENCL_LIBRARIES=OpenCL \
-          -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-          -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
-        ninja -v
-        python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v \
-          --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm \
-          --output-dir $GITHUB_WORKSPACE/test_conformance/spirv_bin
-
-    - name: build opencl cts aarch64
+    - name: aarch64 set-up
       if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
       env:
-        # TODO: host-x86_64-linux 'toolchain' - expand for other targets
-        #CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
-        #                  -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
-        #CMAKE_TOOLCHAIN: "--toolchain ${{ github.workspace }}/.github/toolchains/${{ steps.calc_vars.outputs.arch }}-linux.cmake"
-        CMAKE_TOOLCHAIN: "--toolchain ${{ steps.calc_vars.outputs.toolchain }}"
       run: |
-        echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.toolchain }}
         ls -laR
-        # add x-compile support for aarch64
+        set -x
         sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
         sudo dpkg --add-architecture arm64
         sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
         sudo apt-get update
-        #sudo apt install libc6:arm64
-        ls -l /lib
         sudo apt-get install --yes qemu-user
+
+    - name: build opencl cts
+      shell: bash
+      env:
+        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.cmake_toolchain }}"
+      run: |
+        echo CMAKE_TOOLCHAIN is: ${{ steps.calc_vars.outputs.cmake_toolchain }}
         # get spirv-as
+        sudo apt-get update
         sudo apt-get install -y spirv-tools
         # apply patches
         pushd OpenCL-CTS
