@@ -38,7 +38,6 @@ runs:
     - name: aarch64 set-up
       if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
-      env:
       run: |
         ls -laR
         set -x
