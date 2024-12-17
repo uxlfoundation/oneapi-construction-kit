@@ -52,9 +52,7 @@ runs:
       env:
         CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.cmake_toolchain }}"
       run: |
-        echo OLD CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
-        CMAKE_TOOLCHAIN="$GITHUB_WORKSPACE/.github/toolchains/aarch64-linux.cmake"
-        echo NEW CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
+        echo CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
         # get spirv-as
         sudo apt-get update
         sudo apt-get install -y spirv-tools
