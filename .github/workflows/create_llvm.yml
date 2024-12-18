@@ -104,7 +104,7 @@ jobs:
       - name: install aarch64 build tools
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'aarch64' }}
         run:
-          sudo apt-get install --yes g++-11-aarch64-linux-gnu
+          sudo apt-get install --yes g++-aarch64-linux-gnu
 
       - name: install x86 build tools
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'x86' }}

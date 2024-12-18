@@ -24,7 +24,7 @@ runs:
         echo ARCH is: ${{ steps.calc_vars.outputs.arch }}
         set -x
         sudo apt-get update
-        sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
+        sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
     - name: clone headers
       uses: actions/checkout@v4

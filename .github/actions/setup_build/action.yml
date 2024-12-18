@@ -58,10 +58,10 @@ runs:
            sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev; \
         fi
         if [ "${{ inputs.cross_arch }}" = "arm" ]; then \
-           sudo apt-get install --yes gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf; \
+           sudo apt-get install --yes gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf; \
         fi
         if [ "${{ inputs.cross_arch }}" = "aarch64" ]; then \
-           sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu; \
+           sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu; \
         fi
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
            sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \

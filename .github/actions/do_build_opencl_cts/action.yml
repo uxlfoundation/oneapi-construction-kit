@@ -43,7 +43,7 @@ runs:
         set -x
         sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
         sudo dpkg --add-architecture arm64
-        sudo apt-get install --yes gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
+        sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         sudo apt-get update
         sudo apt-get install --yes qemu-user
         echo WHICH1 && which qemu-aarch64
