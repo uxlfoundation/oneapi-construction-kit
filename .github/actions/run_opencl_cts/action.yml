@@ -28,7 +28,7 @@ runs:
         CTS_TIMEOUT: 18:00:00 # OK for github?
       run: |
         CTS_PROFILE=""
-        if [ "${{inputs.target}}" = "aarch64" ] ; then \
+        if [ "${{inputs.target}}" = "host_aarch64_linux" ] ; then \
           CTS_PROFILE="-p qemu --qemu 'qemu-aarch64 -L /usr/aarch64-linux-gnu'"; \
         fi
         cd "$GITHUB_WORKSPACE/OpenCL-CTS"
