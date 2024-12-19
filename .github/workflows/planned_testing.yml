@@ -41,7 +41,7 @@ jobs:
       matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
     env:
-      CTS_PROFILE: '-p qemu --qemu "/usr/bin/qemu-aarch64 -L /usr/aarch64-linux-gnu"'
+      CTS_PROFILE: '-p qemu --qemu \"/usr/bin/qemu-aarch64 -L /usr/aarch64-linux-gnu\"'
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
