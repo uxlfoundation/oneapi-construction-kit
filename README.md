@@ -370,15 +370,30 @@ The results are correct!
 
 # Support
 
-Submit questions, feature requests, and bug reports on the
-[GitHub issues] page.
+Questions can be submitted on [GitHub Discussions Q&A] or on [GitHub Issues].
 
-You can also contact oneapi Construction Kit developers via [UXL Foundation Slack] using
-[#oneck] channel.
+Before submitting a question, please make sure to read through the relevant
+[documentation] and any existing discussions or issues.
 
-[Github issues]: https://github.com/uxlfoundation/oneapi-construction-kit/issues
-[UXL Foundation Slack]: https://slack-invite.uxlfoundation.org/
-[#oneck]: https://uxlfoundation.slack.com/channels/oneck
+If you find that your question has been previously asked but you are in need of
+further clarification, feel free to write your question on the existing
+discussion or issue.
+
+If you would like to open a new question, we ask that you follow these steps:
+
+* [Open a new question](https://github.com/uxlfoundation/oneapi-construction-kit/discussions/new?category=q-a)
+* Alternatively, [open a new issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
+  * Select the **Question** issue template and fill in the requested details.
+* Provide as much context as you can about the problem or question you have.
+* Provide project version and any relevant system details (e.g. operating
+  system).
+
+Once your question has been opened, we will take a look and try to help you as
+soon as possible.
+
+[Documentation]: https://developer.codeplay.com/products/oneapi/construction-kit/guides
+[GitHub Discussions Q&A]: https://github.com/uxlfoundation/oneapi-construction-kit/discussions/categories/q-a
+[GitHub Issues]: https://github.com/uxlfoundation/oneapi-construction-kit/issues
 
 # Governance
 The oneAPI Construction Kit project is governed by the [UXL Foundation] and you can get involved in
