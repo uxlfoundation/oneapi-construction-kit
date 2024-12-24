@@ -60,9 +60,7 @@ if (CA_ENABLE_TESTS)
 endif()
 
 if(NOT MSVC AND (CA_BUILD_32_BITS OR CMAKE_SIZEOF_VOID_P EQUAL 4) AND
-    (CMAKE_SYSTEM_PROCESSOR STREQUAL x86 OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64))
+    (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86(_64)?|AMD64)$"))
   # Enable 32 bit builds when requested or detected and enable sse3
   # instructions.
   set(BUILD_32_BIT_FLAG "-m32 -msse3 -mfpmath=sse")
