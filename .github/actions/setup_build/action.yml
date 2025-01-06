@@ -64,7 +64,7 @@ runs:
            sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu; \
         fi
         if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
-           sudo apt-get install --yes gcc-11-riscv64-linux-gnu g++-11-riscv64-linux-gnu; \
+           sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu; \
         fi
         if [ "${{ inputs.cross_arch }}" != "none" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
            # Install QEMU for testing cross compilation.
