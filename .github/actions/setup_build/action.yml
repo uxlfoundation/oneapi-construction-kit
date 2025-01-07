@@ -54,22 +54,17 @@ runs:
         pip install lit clang-format==19.1.0 virtualenv
         sudo apt-get install --yes doxygen
         sudo apt-get install --yes vulkan-sdk
-        if [ "${{ inputs.cross_arch }}" = "x86" ]; then \
-           sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev; \
-        fi
-        if [ "${{ inputs.cross_arch }}" = "arm" ]; then \
-           sudo apt-get install --yes gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf; \
-        fi
-        if [ "${{ inputs.cross_arch }}" = "aarch64" ]; then \
-           sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu; \
-        fi
-        if [ "${{ inputs.cross_arch }}" = "riscv64" ]; then \
-           sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu; \
-        fi
+        # TODO: Only required if we are running something that requires qemu, not required for building
         if [ "${{ inputs.cross_arch }}" != "none" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
            # Install QEMU for testing cross compilation.
            sudo apt-get install --yes qemu-user; \
         fi
+
+    - name: Install cross arch tools
+      if: ${{ inputs.os == 'ubuntu' }}
+      uses: ./.github/actions/do_install_ubuntu_cross_tools
+      with:
+        cross_arch: ${{ inputs.cross_arch }}      
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}

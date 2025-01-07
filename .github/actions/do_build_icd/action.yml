@@ -17,6 +17,12 @@ runs:
     - name: Install Ninja
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
+    - name: install cross tools
+      if: steps.calc_vars.outputs.arch != 'x86_64'
+      uses: ./.github/actions/do_install_ubuntu_cross_tools
+      with:
+        cross_arch: ${{ steps.calc_vars.outputs.arch }}
+
     - name: clone headers
       uses: actions/checkout@v4
       with:
