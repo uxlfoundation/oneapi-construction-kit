@@ -34,7 +34,7 @@ runs:
          CMAKE_TOOLCHAIN="--toolchain $TOOLCHAIN"
         elif [[ "${{inputs.target}}" = "host_riscv64_linux" ]]; then
          ARCH=riscv64 >> $GITHUB_OUTPUT
-         TOOLCHAIN=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-toolchain.cmake
+         TOOLCHAIN=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
          CMAKE_TOOLCHAIN="--toolchain $TOOLCHAIN"       
         else
          echo Unknown target ${{inputs.target}}
