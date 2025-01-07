@@ -26,6 +26,15 @@ runs:
         sudo apt-get update
         sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
+    - name: riscv64 set-up
+      if: steps.calc_vars.outputs.arch == 'riscv64'
+      shell: bash
+      run: |
+        echo ARCH is: ${{ steps.calc_vars.outputs.arch }}
+        set -x
+        sudo apt-get update
+        sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+
     - name: clone headers
       uses: actions/checkout@v4
       with:
