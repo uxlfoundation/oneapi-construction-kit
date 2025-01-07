@@ -354,7 +354,11 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
-    runs-on: ubuntu-22.04
+    runs-on: cp-ubuntu-24.04
+    container:
+      image: ghcr.io/intel/llvm/ubuntu2204_base:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # aarch64 needs longer timeout
     steps:
     - name: Checkout repo
