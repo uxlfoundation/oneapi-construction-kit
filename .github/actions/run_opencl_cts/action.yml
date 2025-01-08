@@ -38,4 +38,5 @@ runs:
                -e "OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so" \
                -e "CL_PLATFORM_INDEX=0" \
                -s "$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE" \
-               -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
+               -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER" \
+               -j 8
