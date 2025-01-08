@@ -12,6 +12,10 @@ on:
     # Run Mon-Fri at 7pm
     - cron: '00 19 * * 1-5'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   call_planned:
     # This makes the diagram too big if we post much here so S_ for scheduled.
