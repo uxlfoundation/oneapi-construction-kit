@@ -26,7 +26,7 @@ runs:
           echo arch = ${{steps.calc_vars.outputs.arch}}
           echo toolchain = ${{steps.calc_vars.outputs.toolchain}}
 
-      # installs tools, ninja, installs llvm and sets up sccache
+      # installs tools, ninja, installs llvm and sets up ccache
       - name: setup
         uses:  ./.github/actions/setup_build
         with:

@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-       # installs tools, ninja, installs llvm and sets up sccache
+       # installs tools, ninja, installs llvm and sets up ccache
       - name: Setup ubuntu
         uses:  ./.github/actions/setup_build
         with:
