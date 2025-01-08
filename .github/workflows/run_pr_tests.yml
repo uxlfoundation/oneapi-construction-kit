@@ -197,7 +197,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4.1.0
 
-      # installs tools, ninja, installs llvm and sets up sccache
+      # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-windows
         uses:  ./.github/actions/setup_build
         with:
