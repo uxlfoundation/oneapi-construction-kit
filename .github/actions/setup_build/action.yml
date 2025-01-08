@@ -28,7 +28,8 @@ inputs:
     type: boolean
     default: false
   vulkan_sdk_install:
-    description: 'vulkan install flag'                                                                                 default: true
+    description: 'vulkan install flag'
+    default: true
   
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
