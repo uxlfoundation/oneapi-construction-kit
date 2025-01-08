@@ -37,41 +37,6 @@ where it's unclear if your behaviour would violate the code. Please report
 unacceptable behaviour to
 [oneapi.construction.kit@codeplay.com](mailto:oneapi.construction.kit@codeplay.com).
 
-# I have a question
-
-Before asking a question, it is best to search through the available resources
-in case your question has already been answered.
-
-* We assume that you have read through the relevant
-  [Documentation](https://developer.codeplay.com/products/oneapi/construction-kit/guides).
-* There may be existing
-  [issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues)
-  that might help you.
-* An answer may have been provided elsewhere on the internet.
-
-In case you have found a suitable
-[issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues) and
-still need clarification, you can feel free to write your question in the
-existing issue.
-
-If your question has not been answered or you still feel that you need
-clarification, we ask that you follow these steps.
-
-* Open an
-  [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
-* Select the **Question** issue template and fill in the requested details.
-* Provide as much context as you can about the problem or question you have.
-* Provide project version and any relevant system details (e.g. operating
-  system).
-* You can contact oneapi Construction Kit developers via [UXL Foundation Slack] using
-  [#oneck] channel.
-
-
-Once your issue has been opened, we will take a look and try to help you as
-soon as possible.
-
-[#oneck]: https://uxlfoundation.slack.com/channels/oneck
-
 # I want to contribute
 
 ## Legal notice

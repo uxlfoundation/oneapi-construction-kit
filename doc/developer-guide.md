@@ -897,7 +897,7 @@ ninja -C build-arm install
 ```
 
 The provided `arm-toolchain.cmake` will set the `CMAKE_CROSSCOMPILING_EMULATOR`
-variable to `qemu-armhf`; if available, the oneAPI Construction Kit can use this
+variable to `qemu-arm`; if available, the oneAPI Construction Kit can use this
 to enable emulated testing using the `check` target.
 
 ```sh

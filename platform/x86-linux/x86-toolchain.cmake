@@ -14,15 +14,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-set(CMAKE_SYSTEM_NAME                 Linux)
-set(CMAKE_SYSTEM_PROCESSOR            arm)
-set(CMAKE_C_COMPILER                  arm-linux-gnueabihf-gcc CACHE STRING "")
-set(CMAKE_CXX_COMPILER                arm-linux-gnueabihf-g++ CACHE STRING "")
-set(PKG_CONFIG_EXECUTABLE             arm-linux-gnueabihf-pkg-config)
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR i686)
 
-set(CMAKE_FIND_ROOT_PATH              /usr/arm-linux-gnueabihf)
+set(TOOLCHAIN_TRIPLE "i686-linux-gnu")
+set(CMAKE_C_FLAGS -m32)
+set(CMAKE_CXX_FLAGS -m32)
+set(PKG_CONFIG_EXECUTABLE "${TOOLCHAIN_TRIPLE}-pkg-config")
+
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-set(CMAKE_CROSSCOMPILING_EMULATOR     qemu-arm -L ${CMAKE_FIND_ROOT_PATH} CACHE STRING "")
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
