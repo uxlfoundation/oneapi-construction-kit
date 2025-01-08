@@ -23,13 +23,17 @@ jobs:
         version: [18, 19]
         os: [ubuntu-22.04, windows-2019]
         build_type: [Release, RelAssert]
-        arch : [x86, x86_64, aarch64]
+        arch : [x86, x86_64, aarch64, riscv64]
         exclude:
-          # Reduce the versions of llvm for aarch64 & x86 architectures and windows, as
+          # Reduce the versions of llvm for aarch64, riscv64 & x86 architectures and windows, as
           # well as any windows os variants to reduce cache usage.
           - arch: aarch64
             version: 18
           - arch: aarch64
+            build_type: Release
+          - arch: riscv64
+            version: 18
+          - arch: riscv64
             build_type: Release
           - arch: x86
             version: 18
@@ -41,6 +45,8 @@ jobs:
             build_type: Release
           - os: windows-2019
             arch: aarch64
+          - os: windows-2019
+            arch: riscv64
           - os: windows-2019
             arch: x86
         include:
@@ -55,6 +61,9 @@ jobs:
             build_type: RelAssert
           - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/aarch64-toolchain.cmake"
                         -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
+            arch: aarch64
+          - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/riscv64-linux/riscv64-gcc-toolchain.cmake"
+                        -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu
             arch: aarch64
           - arch_flags: -DLLVM_BUILD_32_BITS=ON -DLIBXML2_LIBRARIES=IGNORE -DLLVM_ENABLE_TERMINFO=OFF
                         -DLLVM_HOST_TRIPLE=i686-unknown-linux-gnu
@@ -105,6 +114,11 @@ jobs:
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'aarch64' }}
         run:
           sudo apt-get install --yes g++-aarch64-linux-gnu
+
+      - name: install riscv64 build tools
+        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'riscv64' }}
+        run:
+          sudo apt-get install --yes g++-riscv64-linux-gnu
 
       - name: install x86 build tools
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'x86' }}

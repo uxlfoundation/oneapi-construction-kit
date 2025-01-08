@@ -126,10 +126,10 @@ runs:
         fail-on-cache-miss: true
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
-    - name: Setup sccache
+    - name: Setup ccache
       uses: hendrikmuhs/ccache-action@ed74d11c0b343532753ecead8a951bb09bb34bc9 # v1.2.14
       with:
         max-size: 200M
-        key: sccache-build
-        variant: sccache
+        key: ccache-build
+        variant: ccache
         save: ${{ inputs.save }}
