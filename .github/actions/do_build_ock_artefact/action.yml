@@ -9,6 +9,9 @@ inputs:
     default: '19'
   target:
     description: 'target architecture'
+  vulkan_sdk_install:
+    description: 'vulkan install flag'
+    default: true
 
 # TODO: This has not been tested yet on windows so would likely need some updating.
 runs:
@@ -33,6 +36,7 @@ runs:
           llvm_version: ${{ inputs.llvm_version }}
           llvm_build_type: RelAssert
           cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
+          vulkan_sdk_install: ${{ inputs.vulkan_sdk_install }}
 
       - name: build ock x86
         if: steps.calc_vars.outputs.arch  == 'x86_64'
