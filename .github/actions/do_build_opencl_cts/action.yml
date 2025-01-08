@@ -47,6 +47,18 @@ runs:
         sudo apt-get update
         sudo apt-get install --yes qemu-user
 
+    - name: riscv64 set-up
+      if: steps.calc_vars.outputs.arch == 'riscv64'
+      shell: bash
+      run: |
+        #ls -laR
+        set -x
+        sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
+        sudo dpkg --add-architecture riscv64
+        sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+        sudo apt-get update
+        sudo apt-get install --yes qemu-user
+
     - name: build opencl cts
       shell: bash
       env:

@@ -50,7 +50,7 @@ runs:
         set -x
         python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v \
                --color=always --timeout $CTS_TIMEOUT \
-               $QEMU_SETTING \
+               -p qemu --qemu '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu' \
                -b "$GITHUB_WORKSPACE/test_conformance" \
                -L "$GITHUB_WORKSPACE/install_icd/lib" \
                -e "CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc" \
