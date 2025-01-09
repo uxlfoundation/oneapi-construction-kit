@@ -49,21 +49,21 @@ runs:
         path: SYCL-CTS.src
         submodules: true
 
-    - name: expand runner swap
-      # Needed to allow building - else current default memory restrictions lead to the runner being killed
-      shell: bash
-      run: |
-        set -x
-        df -h
-        sudo swapon --show
-        sudo swapoff -a
-        sudo fallocate -l 8G /mnt/swapfilenew
-        sudo chmod 600 /mnt/swapfilenew
-        sudo mkswap /mnt/swapfilenew
-        sudo swapon /mnt/swapfilenew
-        sudo swapon --show
-        df -h
-        set +x
+    # - name: expand runner swap
+    #   # Needed to allow building - else current default memory restrictions lead to the runner being killed
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     df -h
+    #     sudo swapon --show
+    #     sudo swapoff -a
+    #     sudo fallocate -l 8G /mnt/swapfilenew
+    #     sudo chmod 600 /mnt/swapfilenew
+    #     sudo mkswap /mnt/swapfilenew
+    #     sudo swapon /mnt/swapfilenew
+    #     sudo swapon --show
+    #     df -h
+    #     set +x
 
     - name: build SYCL CTS
       shell: bash
