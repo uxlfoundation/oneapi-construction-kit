@@ -38,7 +38,6 @@ jobs:
   workflow_vars:
     runs-on: ubuntu-22.04
     outputs:
-      matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
       matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
     steps:
@@ -47,7 +46,6 @@ jobs:
       # These variables are for excluding certain targets from the total list, which is why just including
       # two targets is a long list of excludes
       run: |
-        echo matrix_only_linux_x86_64_aarch64_riscv64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64_aarch64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
@@ -58,8 +56,7 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose windows or ubuntu-22.04 depending on the
@@ -83,8 +80,7 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ubuntu-22.04
     steps:
@@ -135,8 +131,7 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # TODO: host-x86_64-linux only - expand for other targets
     runs-on: ubuntu-22.04
