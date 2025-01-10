@@ -23,7 +23,7 @@ runs:
       shell: bash
       env:
         CTS_CSV_FILE: opencl_conformance_tests_${{inputs.test_type}}.csv
-        # TODO: host-x86_64-linux filter - expand for other targets
+        # TODO: expand filter for other targets
         CTS_FILTER: cts-3.0-online-ignore-linux-host.csv
         CTS_TIMEOUT: 18:00:00 # OK for github?
       run: |
@@ -36,7 +36,7 @@ runs:
         fi
         echo python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v \
                --color=always --timeout $CTS_TIMEOUT \
-               $QEMU_SETTING \
+               "$QEMU_SETTING" \
                -b "$GITHUB_WORKSPACE/test_conformance" \
                -L "$GITHUB_WORKSPACE/install_icd/lib" \
                -e "CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc" \
@@ -45,14 +45,13 @@ runs:
                -s "$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE" \
                -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
         set -x
-        COMMAND="python -u \"$GITHUB_WORKSPACE/scripts/testing/run_cities.py\" -v \
-            --color=always --timeout $CTS_TIMEOUT \
-            $QEMU_SETTING \
-            -b \"$GITHUB_WORKSPACE/test_conformance\" \
-            -L \"$GITHUB_WORKSPACE/install_icd/lib\" \
-            -e \"CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc\" \
-            -e \"OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so\" \
-            -e \"CL_PLATFORM_INDEX=0\" \
-            -s \"$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE\" \
-            -i \"$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER\""
-        eval $COMMAND
+        python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v \
+          --color=always --timeout $CTS_TIMEOUT \
+          "$QEMU_SETTING" \
+          -b "$GITHUB_WORKSPACE/test_conformance" \
+          -L "$GITHUB_WORKSPACE/install_icd/lib" \
+          -e "CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc" \
+          -e "OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so" \
+          -e "CL_PLATFORM_INDEX=0" \
+          -s "$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE" \
+          -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
