@@ -50,7 +50,27 @@ jobs:
         echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
 
-  create_ock_artefacts:
+  create_ock_artefacts_windows:
+    needs: [workflow_vars]
+    # Currently there is only one windows target so we don't bother with the
+    # matrix, just check if it's enabled
+    runs-on: windows-2019
+    if : inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      # Todo: move to a common place e.g. setup_build
+      - name: Setup Windows llvm base
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+      - name: build ock artefact
+        uses: ./.github/actions/do_build_ock_artefact
+        with:
+          target: host_x86_64_windows
+          llvm_version: ${{ inputs.llvm_version }}
+
+  create_ock_artefacts_ubuntu:
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -59,10 +79,13 @@ jobs:
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
-    # build llvm. Otherwise we choose windows or ubuntu-22.04 depending on the
-    # target.
-    runs-on: ${{ (contains(matrix.target, 'host_riscv') && 'ubuntu-24.04') || (contains(matrix.target, 'windows') && 'windows-2019' || 'ubuntu-22.04' ) }}
-    if : inputs.ock
+    # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
+    runs-on: cp-ubuntu-24.04
+    container:
+      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/intel/llvm/ubuntu2404_base:latest' || 'ghcr.io/intel/llvm/ubuntu2204_base:latest' }}
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    if : inputs.ock && contains(inputs.target_list, 'linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -99,7 +122,7 @@ jobs:
   # Currently only builds and runs on x86_64 linux
   build_run_tornado:
     if: inputs.test_tornado
-    needs: [ workflow_vars, build_icd, create_ock_artefacts ]
+    needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu ]
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
@@ -126,7 +149,7 @@ jobs:
 
   build_run_opencl_cts:
     if: inputs.test_opencl_cts
-    needs: [ workflow_vars, build_icd, create_ock_artefacts ]
+    needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu ]
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
@@ -134,7 +157,11 @@ jobs:
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # TODO: host-x86_64-linux only - expand for other targets
-    runs-on: ubuntu-22.04
+    runs-on: cp-ubuntu-24.04
+    container:
+      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/intel/llvm/ubuntu2404_base:latest' || 'ghcr.io/intel/llvm/ubuntu2204_base:latest' }}
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
         uses: actions/checkout@v4
@@ -164,7 +191,13 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
-    runs-on: ${{ contains(matrix.target, 'windows') && 'windows-2019' || 'ubuntu-22.04'  }}
+    # TODO: Extend if we decide to enable for windows or build natively on another target
+    runs-on: cp-ubuntu-24.04
+    container:
+      image: ghcr.io/intel/llvm/ubuntu2204_base:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
     if : inputs.test_sycl_cts
     steps:
       - name: Checkout repo
@@ -182,7 +215,13 @@ jobs:
         # TODO: For now just linux x86_64
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
-    runs-on: 'ubuntu-22.04'
+    # TODO: Extend if we decide to enable for windows or build natively on another target
+    runs-on: cp-ubuntu-24.04
+    container:
+      image: ghcr.io/intel/llvm/ubuntu2204_base:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
     if : inputs.test_sycl_cts
     steps:
       - name: Checkout repo
@@ -193,7 +232,7 @@ jobs:
           target: ${{ matrix.target }}
 
   run_sycl_cts:
-    needs: [workflow_vars, create_ock_artefacts, build_dpcpp_native_host, build_sycl_cts]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_host, build_sycl_cts]
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}

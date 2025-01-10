@@ -37,6 +37,7 @@ runs:
           llvm_build_type: RelAssert
           cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
           vulkan_sdk_install: ${{ inputs.vulkan_sdk_install }}
+          os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
 
       - name: build ock x86
         if: steps.calc_vars.outputs.arch  == 'x86_64'
@@ -45,6 +46,7 @@ runs:
           build_targets: install
           offline_kernel_tests: OFF
           extra_flags: -DCA_ENABLE_TESTS=OFF -DCA_ENABLE_EXAMPLES=OFF -DCA_ENABLE_DOCUMENTATION=OFF
+          shell_to_use: ${{ contains(inputs.target, 'windows') && 'pwsh' || 'bash' }}
 
       - name: build ock other ${{ matrix.target }}
         if: steps.calc_vars.outputs.arch  != 'x86_64'
