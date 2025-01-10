@@ -1,23 +1,6 @@
 name: CodeQL
 
 on:
-  push:
-    branches:
-      - main
-  #pull_request:
-  #  branches:
-  #    - main
-  #  paths:
-  #    - 'source/**'
-  #    - 'clik/**'
-  #    - 'modules/**'
-  #    - 'examples/**'
-  #    - 'cmake/**'
-  #    - 'hal/**'
-  #    - '.github/actions/do_build_ock/**'
-  #    - '.github/actions/setup_build/**'
-  #    - '.github/workflows/codeql.yml'
-  #    - 'CMakeLists.txt'
   schedule:
     - cron: '19 9 * * 3'
 
