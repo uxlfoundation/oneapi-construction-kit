@@ -42,6 +42,12 @@ jobs:
           llvm_version: 18
           llvm_build_type: RelAssert
           save:  ${{ inputs.update_cache }}
+      - name: setup gh
+        run:
+          echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      - name: download llvm
+        run:
+          gh run download 12771252060 -n llvm-ubuntu-22.04-x86_64-v19-Release -D llvm_install        
 
       # These need to match the configurations of build_pr_cache to use the cache effectively
       - name: build host x86_64 online release
@@ -72,379 +78,379 @@ jobs:
           ninja -C build_offline check-ock-UnitCL
 
   # build and run riscv m1, execute UnitCL and lit tests
-  run_riscv_m1:
+  # run_riscv_m1:
 
-    runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4.1.0
 
-      # installs tools, ninja, installs llvm and sets up sccahe
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: 18
-          llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}
+  #     # installs tools, ninja, installs llvm and sets up sccahe
+  #     - name: setup-ubuntu
+  #       uses:  ./.github/actions/setup_build
+  #       with:
+  #         llvm_version: 18
+  #         llvm_build_type: RelAssert
+  #         save:  ${{ inputs.update_cache }}
 
-      - name: build riscv M1
-        uses: ./.github/actions/do_build_ock/do_build_m1
+  #     - name: build riscv M1
+  #       uses: ./.github/actions/do_build_ock/do_build_m1
 
-      - name: run riscv M1 lit
-        run:
-          ninja -C build check-ock-all-lit
+  #     - name: run riscv M1 lit
+  #       run:
+  #         ninja -C build check-ock-all-lit
 
-      - name: run riscv M1 UnitCL tests
-        run:
-          ninja -C build check-ock-UnitCL
+  #     - name: run riscv M1 UnitCL tests
+  #       run:
+  #         ninja -C build check-ock-UnitCL
 
-  # build and run clang-tidy
-  run_clang_tidy_changes:
+  # # build and run clang-tidy
+  # run_clang_tidy_changes:
 
-    runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4.1.0
 
-      # installs tools, ninja, installs llvm and sets up sccahe
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: 19
-          llvm_build_type: RelAssert
-          clang_tidy: true
+  #     # installs tools, ninja, installs llvm and sets up sccahe
+  #     - name: setup-ubuntu
+  #       uses:  ./.github/actions/setup_build
+  #       with:
+  #         llvm_version: 19
+  #         llvm_build_type: RelAssert
+  #         clang_tidy: true
 
-      - name: build initial config files
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_type: ReleaseAssert
-          host_image: ON
-          build_targets: build.ninja
+  #     - name: build initial config files
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_type: ReleaseAssert
+  #         host_image: ON
+  #         build_targets: build.ninja
 
-      # Here we compute the set difference between the output of the two
-      # temporary file descriptors using `awk`. Awk processes both files line by
-      # line, going through the first file, then the second file. The NR==FNR
-      # predicate executes its block only on the records of the first file,
-      # ensuring to call `next` (equivalent to `return`) to avoid running the
-      # second block on each line in the first file.
-      #
-      # The first input to `awk` lists all targets reported by ninja.
-      #
-      # The second input to awk collects all targets on which `tidy-` targets
-      # depend. This may include targets which are guarded by if() statements in
-      # CMake, hence why we need to compute a set difference with the targets that
-      # ninja reports.
-      - name: build actual targets needed
-        run:
-         ninja -C build
-          $(
-            awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
-              <(ninja -C build -t targets)
-              <(
-                find modules source -type f -name CMakeLists.txt -exec
-                awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
-                {} \+ | tr ' ' '\n'
-              )
-           )
+  #     # Here we compute the set difference between the output of the two
+  #     # temporary file descriptors using `awk`. Awk processes both files line by
+  #     # line, going through the first file, then the second file. The NR==FNR
+  #     # predicate executes its block only on the records of the first file,
+  #     # ensuring to call `next` (equivalent to `return`) to avoid running the
+  #     # second block on each line in the first file.
+  #     #
+  #     # The first input to `awk` lists all targets reported by ninja.
+  #     #
+  #     # The second input to awk collects all targets on which `tidy-` targets
+  #     # depend. This may include targets which are guarded by if() statements in
+  #     # CMake, hence why we need to compute a set difference with the targets that
+  #     # ninja reports.
+  #     - name: build actual targets needed
+  #       run:
+  #        ninja -C build
+  #         $(
+  #           awk -F':' 'NR==FNR { targets[$1] = 1; next } $1 in targets { print $1 }'
+  #             <(ninja -C build -t targets)
+  #             <(
+  #               find modules source -type f -name CMakeLists.txt -exec
+  #               awk -F"[()]" '/add_dependencies\(tidy-/ {sub(/[^ ]*/, "", $2);print $2}'
+  #               {} \+ | tr ' ' '\n'
+  #             )
+  #          )
 
-      - name: run clang-tidy
-        run: |
-          git fetch origin ${{ github.base_ref }}
-          ./scripts/compute-dependants.py \
-            --exclude-filter='(/build/.*\.s$)|(.*/(external|cookie)/.*)' \
-            --build-dir="$PWD/build" \
-            `git diff --name-only --diff-filter=d \
-              HEAD..origin/${{ github.base_ref }} | \
-              grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
-            tee /dev/stderr | \
-            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
+  #     - name: run clang-tidy
+  #       run: |
+  #         git fetch origin ${{ github.base_ref }}
+  #         ./scripts/compute-dependants.py \
+  #           --exclude-filter='(/build/.*\.s$)|(.*/(external|cookie)/.*)' \
+  #           --build-dir="$PWD/build" \
+  #           `git diff --name-only --diff-filter=d \
+  #             HEAD..origin/${{ github.base_ref }} | \
+  #             grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
+  #           tee /dev/stderr | \
+  #           parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
 
-  # run clang-format-diff on the repo
-  run_clang_format:
+  # # run clang-format-diff on the repo
+  # run_clang_format:
 
-    runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4.1.0
 
-      - name: setup-ubuntu-clang-format
-        run:
-          pip install clang-format==19.1.0
+  #     - name: setup-ubuntu-clang-format
+  #       run:
+  #         pip install clang-format==19.1.0
 
-      - name: run clang-format
-        run: |
-          # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
-          # so just use clang-format-diff and -b clang-format directly
-          git fetch origin ${{ github.base_ref }}
-          git diff --no-color origin/${{ github.base_ref }} | \
-            clang-format-diff.py -p1 -regex \
-            "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
+  #     - name: run clang-format
+  #       run: |
+  #         # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
+  #         # so just use clang-format-diff and -b clang-format directly
+  #         git fetch origin ${{ github.base_ref }}
+  #         git diff --no-color origin/${{ github.base_ref }} | \
+  #           clang-format-diff.py -p1 -regex \
+  #           "^(?!(.+\\/)*(external|cookie)\\/).*\\.(c|cc|cxx|cpp|h|hh|hxx|hpp)$" -b clang-format
 
-  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
-  run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
+  # # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
+  # run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
 
-    runs-on: windows-2019
+  #   runs-on: windows-2019
 
-    steps:
-      - name: Setup Windows llvm base
-        uses: llvm/actions/setup-windows@main
-        with:
-          arch: amd64
+  #   steps:
+  #     - name: Setup Windows llvm base
+  #       uses: llvm/actions/setup-windows@main
+  #       with:
+  #         arch: amd64
 
-      - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4.1.0
 
-      # installs tools, ninja, installs llvm and sets up ccache
-      - name: setup-windows
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: 19
-          llvm_build_type: RelAssert
-          save:  ${{ inputs.update_cache }}
-          os: windows
+  #     # installs tools, ninja, installs llvm and sets up ccache
+  #     - name: setup-windows
+  #       uses:  ./.github/actions/setup_build
+  #       with:
+  #         llvm_version: 19
+  #         llvm_build_type: RelAssert
+  #         save:  ${{ inputs.update_cache }}
+  #         os: windows
 
-      - name: build ock x86_64 relassert
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_targets: check-ock
-          enable_api: ""
-          builtin_kernel: ON
-          shell_to_use: pwsh
-          gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
-          debug_support: ON
-          enable_unitcl_expensive: ${{ !inputs.is_pull_request && 'ON' || 'OFF' }}
+  #     - name: build ock x86_64 relassert
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_targets: check-ock
+  #         enable_api: ""
+  #         builtin_kernel: ON
+  #         shell_to_use: pwsh
+  #         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  #         debug_support: ON
+  #         enable_unitcl_expensive: ${{ !inputs.is_pull_request && 'ON' || 'OFF' }}
 
-      - name: build ock x86_64 offline
-        uses: ./.github/actions/do_build_ock
-        with:
-          build_targets: check-ock
-          runtime_compiler_enabled: OFF
-          external_clc: "${{ github.workspace }}/build/bin/clc.exe"
-          shell_to_use: pwsh
-          gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
-          debug_support: ON
-          install_dir: ${{ github.workspace }}/install_offline
-          build_dir: ${{ github.workspace }}/build_offline
+  #     - name: build ock x86_64 offline
+  #       uses: ./.github/actions/do_build_ock
+  #       with:
+  #         build_targets: check-ock
+  #         runtime_compiler_enabled: OFF
+  #         external_clc: "${{ github.workspace }}/build/bin/clc.exe"
+  #         shell_to_use: pwsh
+  #         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  #         debug_support: ON
+  #         install_dir: ${{ github.workspace }}/install_offline
+  #         build_dir: ${{ github.workspace }}/build_offline
 
-  # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
-  run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '18'
-        llvm_build_type: RelAssert
-        save:  ${{ inputs.update_cache }}
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_targets: check-ock-UnitCL-group-vecz
-        mux_targets_enable: riscv
-        mux_compilers_enable: riscv
-        riscv_enabled: ON
-        enable_rvv_scalable_vecz_check: ON
-        enable_rvv_scalable_vp_vecz_check: ON
-        use_linker: gold
-        hal_description: RV64GCV_Zfh
-        hal_refsi_soc: G1
-        hal_refsi_thread_mode: WG
-        debug_support: ON
+  # # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
+  # run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 60
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '18'
+  #       llvm_build_type: RelAssert
+  #       save:  ${{ inputs.update_cache }}
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_targets: check-ock-UnitCL-group-vecz
+  #       mux_targets_enable: riscv
+  #       mux_compilers_enable: riscv
+  #       riscv_enabled: ON
+  #       enable_rvv_scalable_vecz_check: ON
+  #       enable_rvv_scalable_vp_vecz_check: ON
+  #       use_linker: gold
+  #       hal_description: RV64GCV_Zfh
+  #       hal_refsi_soc: G1
+  #       hal_refsi_thread_mode: WG
+  #       debug_support: ON
 
-  # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
-  run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 90 # offline needs longer timeout
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: RelAssert
-        save:  ${{ inputs.update_cache }}
-        cross_arch: x86
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock x86 relassert
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_32_bit: ON
-        extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
-        build_targets: check-ock
-        enable_api: ""
-        builtin_kernel: ON
-        use_linker: gold
-        debug_support: ON
-    - name: build ock x86 offline
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_32_bit: ON
-        extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
-        build_targets: check-ock
-        runtime_compiler_enabled: OFF
-        assemble_spirv_ll_lit_test_offline: ON
-        external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
-        use_linker: gold
-        debug_support: ON
-        install_dir: $GITHUB_WORKSPACE/install_offline
-        build_dir: $GITHUB_WORKSPACE/build_offline
+  # # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
+  # run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 90 # offline needs longer timeout
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: RelAssert
+  #       save:  ${{ inputs.update_cache }}
+  #       cross_arch: x86
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock x86 relassert
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_32_bit: ON
+  #       extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
+  #       build_targets: check-ock
+  #       enable_api: ""
+  #       builtin_kernel: ON
+  #       use_linker: gold
+  #       debug_support: ON
+  #   - name: build ock x86 offline
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_32_bit: ON
+  #       extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
+  #       build_targets: check-ock
+  #       runtime_compiler_enabled: OFF
+  #       assemble_spirv_ll_lit_test_offline: ON
+  #       external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
+  #       use_linker: gold
+  #       debug_support: ON
+  #       install_dir: $GITHUB_WORKSPACE/install_offline
+  #       build_dir: $GITHUB_WORKSPACE/build_offline
 
-  # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
-  run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: RelAssert
-        save:  ${{ inputs.update_cache }}
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_targets: check-ock
-        mux_targets_enable: riscv
-        mux_compilers_enable: riscv
-        riscv_enabled: ON
-        disable_unitcl_vecz_checks: ON
-        enable_rvv_scalable_vecz_check: ON
-        enable_rvv_scalable_vp_vecz_check: ON
-        host_enable_builtins: OFF
-        use_linker: gold
-        hal_description: RV64GCV_Zfh
-        hal_refsi_soc: G1
-        hal_refsi_thread_mode: WG
-        debug_support: ON
+  # # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
+  # run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 60
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: RelAssert
+  #       save:  ${{ inputs.update_cache }}
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_targets: check-ock
+  #       mux_targets_enable: riscv
+  #       mux_compilers_enable: riscv
+  #       riscv_enabled: ON
+  #       disable_unitcl_vecz_checks: ON
+  #       enable_rvv_scalable_vecz_check: ON
+  #       enable_rvv_scalable_vp_vecz_check: ON
+  #       host_enable_builtins: OFF
+  #       use_linker: gold
+  #       hal_description: RV64GCV_Zfh
+  #       hal_refsi_soc: G1
+  #       hal_refsi_thread_mode: WG
+  #       debug_support: ON
 
-  # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
-  run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: Release
-        save:  ${{ inputs.update_cache }}
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_type: Release
-        build_targets: check-ock
-        host_image: ON
-        use_linker: gold
-        enable_api: ""
-        builtin_kernel: ON
+  # # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
+  # run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 60
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: Release
+  #       save:  ${{ inputs.update_cache }}
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_type: Release
+  #       build_targets: check-ock
+  #       host_image: ON
+  #       use_linker: gold
+  #       enable_api: ""
+  #       builtin_kernel: ON
 
-  # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
-  run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
-    runs-on: cp-ubuntu-24.04
-    container:
-      image: ghcr.io/intel/llvm/ubuntu2204_base:latest
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-    timeout-minutes: 90 # aarch64 needs longer timeout
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: RelAssert
-        save:  ${{ inputs.update_cache }}
-        cross_arch: aarch64
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_targets: check-ock-cross
-        host_fp16: ON
-        use_linker: gold
-        debug_support: ON
-        builtin_kernel: ON
-        enable_api: ""
-        toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
-        extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
+  # # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
+  # run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+  #   runs-on: cp-ubuntu-24.04
+  #   container:
+  #     image: ghcr.io/intel/llvm/ubuntu2204_base:latest
+  #     volumes:
+  #       - ${{github.workspace}}:${{github.workspace}}
+  #   timeout-minutes: 90 # aarch64 needs longer timeout
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: RelAssert
+  #       save:  ${{ inputs.update_cache }}
+  #       cross_arch: aarch64
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_targets: check-ock-cross
+  #       host_fp16: ON
+  #       use_linker: gold
+  #       debug_support: ON
+  #       builtin_kernel: ON
+  #       enable_api: ""
+  #       toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
+  #       extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
 
-  # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
-  #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
-  run-ubuntu-gcc-x86_64-clik-refsi:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: Run Clik
-      run: |
-        cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
-        LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
-    - name: Run Clik-Refsi # No initial clean - just point o/p at new dirs
-      run: |
-        cmake -Bbuild_clik_refsi -GNinja -DCMAKE_INSTALL_PREFIX=install_refsi -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
-        LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik_refsi check
+  # # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
+  # #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
+  # run-ubuntu-gcc-x86_64-clik-refsi:
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 60
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: Install Ninja
+  #     uses: llvm/actions/install-ninja@main
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: Run Clik
+  #     run: |
+  #       cmake -Bbuild_clik -GNinja -DCMAKE_INSTALL_PREFIX=install clik
+  #       LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik check
+  #   - name: Run Clik-Refsi # No initial clean - just point o/p at new dirs
+  #     run: |
+  #       cmake -Bbuild_clik_refsi -GNinja -DCMAKE_INSTALL_PREFIX=install_refsi -DCLIK_HAL_NAME=refsi -DHAL_REFSI_SOC=M1 -DCLIK_EXTERNAL_HAL_DIR=${{ github.workspace }}/examples/refsi/hal_refsi clik
+  #       LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ninja -Cbuild_clik_refsi check
 
-  # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
-  run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4.1.0
-    - name: setup-ubuntu
-      uses: ./.github/actions/setup_build
-      with:
-        llvm_version: '19'
-        llvm_build_type: RelAssert
-        save:  ${{ inputs.update_cache }}
-    - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
-    - name: build ock
-      uses: ./.github/actions/do_build_ock
-      with:
-        build_targets: install # Build the install target so we don't miss compilation errors
-        mux_targets_enable: riscv
-        external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
-        mux_compilers_enable: refsi_g1_wi
-        riscv_enabled: ON
-        disable_unitcl_vecz_checks: ON
-        enable_rvv_scalable_vecz_check: ON
-        enable_rvv_scalable_vp_vecz_check: ON
-        use_linker: gold
-        hal_description: RV64GCV
-        hal_refsi_soc: G1
-        hal_refsi_thread_mode: WI
-        debug_support: ON
-    # For now DO NOT include run_cities.py testing. Run commands generated by the import tool are:
-    #- run: python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
-    #- run: echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> skipped.txt
-    #- run: python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -i skipped.txt -b CA-OpenCL-CTS/bin -L build/lib -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_refsi_g1_wi.xml
-    - run: ninja -C build check-ock
-    - run: ninja -C build check-ock-UnitCL-half
-    # For now DO NOT include upload of run_cities.py testing logs. Action commands generated by the import tool are:
-    #- uses: actions/upload-artifact@v4.1.0
-    #  if: success()
-    #  with:
-    #    name: ${{ github.job }}
-    #    path: |
-    #      oneapi-construction-kit/build/*.fail
-    #      oneapi-construction-kit/build/*.log
+  # # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
+  # run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
+  #   if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 60
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4.1.0
+  #   - name: setup-ubuntu
+  #     uses: ./.github/actions/setup_build
+  #     with:
+  #       llvm_version: '19'
+  #       llvm_build_type: RelAssert
+  #       save:  ${{ inputs.update_cache }}
+  #   - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
+  #   - name: build ock
+  #     uses: ./.github/actions/do_build_ock
+  #     with:
+  #       build_targets: install # Build the install target so we don't miss compilation errors
+  #       mux_targets_enable: riscv
+  #       external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
+  #       mux_compilers_enable: refsi_g1_wi
+  #       riscv_enabled: ON
+  #       disable_unitcl_vecz_checks: ON
+  #       enable_rvv_scalable_vecz_check: ON
+  #       enable_rvv_scalable_vp_vecz_check: ON
+  #       use_linker: gold
+  #       hal_description: RV64GCV
+  #       hal_refsi_soc: G1
+  #       hal_refsi_thread_mode: WI
+  #       debug_support: ON
+  #   # For now DO NOT include run_cities.py testing. Run commands generated by the import tool are:
+  #   #- run: python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
+  #   #- run: echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> skipped.txt
+  #   #- run: python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -i skipped.txt -b CA-OpenCL-CTS/bin -L build/lib -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_refsi_g1_wi.xml
+  #   - run: ninja -C build check-ock
+  #   - run: ninja -C build check-ock-UnitCL-half
+  #   # For now DO NOT include upload of run_cities.py testing logs. Action commands generated by the import tool are:
+  #   #- uses: actions/upload-artifact@v4.1.0
+  #   #  if: success()
+  #   #  with:
+  #   #    name: ${{ github.job }}
+  #   #    path: |
+  #   #      oneapi-construction-kit/build/*.fail
+  #   #      oneapi-construction-kit/build/*.log

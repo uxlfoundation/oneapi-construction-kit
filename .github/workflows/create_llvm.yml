@@ -6,9 +6,9 @@ on:
       - main
     paths:
       - '.github/workflows/create_llvm.yml'
-  pull_request:
-    paths:
-      - '.github/workflows/create_llvm.yml'
+  # pull_request:
+  #   paths:
+  #     - '.github/workflows/create_llvm.yml'
   schedule:
     # Run Mon-Fri at 5pm
     - cron: '00 17 * * 1-5'      
@@ -145,3 +145,11 @@ jobs:
         run: |
           cp build/bin/FileCheck* llvm_install/bin
           cp build/bin/not* llvm_install/bin
+
+      - name: upload llvm artefact
+        if: steps.cache.outputs.cache-hit == 'true' && ${{ matrix.os }} == 'ubuntu-22.04' && ${{ matrix.version }} == '19' && ${{ matrix.arch }} == 'x86_64' && ${{ matrix.build_type }} == 'RelAssert'
+        uses: actions/upload-artifact@v4
+        with:
+          name: llvm-${{ matrix.os }}-${{ matrix.arch }}-v${{ matrix.version }}-${{ matrix.build_type }}
+          path: llvm_install
+          retention-days: 1
