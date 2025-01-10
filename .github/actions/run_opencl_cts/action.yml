@@ -34,24 +34,25 @@ runs:
           echo QEMU SETTINGS MATCH FOR ${{inputs.target}}
           QEMU_SETTING="-p qemu --qemu '/usr/bin/qemu-aarch64 -L /usr/aarch64-linux-gnu'"
         fi
-        echo python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v \
+        echo python -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
                --color=always --timeout $CTS_TIMEOUT \
-               "$QEMU_SETTING" \
-               -b "$GITHUB_WORKSPACE/test_conformance" \
-               -L "$GITHUB_WORKSPACE/install_icd/lib" \
-               -e "CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc" \
-               -e "OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so" \
-               -e "CL_PLATFORM_INDEX=0" \
-               -s "$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE" \
-               -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
+               $QEMU_SETTING \
+               -b $GITHUB_WORKSPACE/test_conformance \
+               -L $GITHUB_WORKSPACE/install_icd/lib \
+               -e CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc \
+               -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+               -e CL_PLATFORM_INDEX=0 \
+               -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
+               -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER
         set -x
-        python -u "$GITHUB_WORKSPACE/scripts/testing/run_cities.py" -v \
+        RUN_CITIES="python -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
           --color=always --timeout $CTS_TIMEOUT \
-          "$QEMU_SETTING" \
-          -b "$GITHUB_WORKSPACE/test_conformance" \
-          -L "$GITHUB_WORKSPACE/install_icd/lib" \
-          -e "CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc" \
-          -e "OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so" \
-          -e "CL_PLATFORM_INDEX=0" \
-          -s "$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE" \
-          -i "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
+          $QEMU_SETTING \
+          -b $GITHUB_WORKSPACE/test_conformance \
+          -L $GITHUB_WORKSPACE/install_icd/lib \
+          -e CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc \
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+          -e CL_PLATFORM_INDEX=0 \
+          -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
+          -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER"
+        eval RUN_CITIES
