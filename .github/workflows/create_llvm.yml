@@ -23,7 +23,7 @@ jobs:
         version: [18, 19]
         os: [ubuntu-22.04, ubuntu-24.04, windows-2019]
         build_type: [Release, RelAssert]
-        arch : [x86, x86_64, aarch64i, riscv64]
+        arch : [x86, x86_64, aarch64, riscv64]
         exclude:
           # Reduce the versions of llvm for aarch64, riscv64 & x86 architectures and windows, as
           # well as any windows os variants to reduce cache usage.
@@ -82,6 +82,8 @@ jobs:
           #       note: gcc 13 or higher I assume
           # This will probably require some exclude: on the different os or building all on each os.
           - os: ubuntu-22.04
+            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
+          - os: ubuntu-24.04
             os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
 
     runs-on: ${{ matrix.os }}
