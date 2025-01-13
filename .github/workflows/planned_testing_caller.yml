@@ -2,12 +2,12 @@
 name: Run planned testing
 on:
   # Note: use pull_request: for localized testing only
-  #pull_request:
-  #  paths:
-  #    - '.github/workflows/planned_testing.yml'
-  #    - '.github/workflows/planned_testing_caller.yml'
-  #  branches:
-  #    - main
+  pull_request:
+    paths:
+      - '.github/workflows/planned_testing.yml'
+      - '.github/workflows/planned_testing_caller.yml'
+    branches:
+      - main
   schedule:
     # Run Mon-Fri at 7pm
     - cron: '00 19 * * 1-5'
@@ -25,8 +25,8 @@ jobs:
     with:
       target_list: '["host_x86_64_linux", "host_aarch64_linux", "host_riscv64_linux", "host_i686_linux", "host_refsi_linux", "host_x86_64_windows" ]'
       ock: true
-      test_sycl_cts: true
       test_tornado: true
+      test_sycl_cts: true
       test_opencl_cts: true
       # Have a pull request setting which can be used to test the flow as best as possible
       # in a reasonable time
