@@ -39,7 +39,6 @@ runs:
       if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
       run: |
-        #ls -laR
         set -x
         sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
         sudo dpkg --add-architecture arm64

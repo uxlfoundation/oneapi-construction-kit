@@ -6,9 +6,9 @@ on:
       - main
     paths:
       - '.github/workflows/create_llvm.yml'
-  #pull_request:
-  #  paths:
-  #    - '.github/workflows/create_llvm.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/create_llvm.yml'
   schedule:
     # Run Mon-Fri at 5pm
     - cron: '00 17 * * 1-5'      
