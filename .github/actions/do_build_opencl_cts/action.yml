@@ -44,7 +44,10 @@ runs:
         sudo dpkg --add-architecture arm64
         sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         sudo apt-get update
-        sudo apt-get install --yes qemu-user
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
+          echo QEMU INSTALL MATCH FOR ${{inputs.target}}
+          sudo apt-get install --yes qemu-user
+        fi
 
     - name: build opencl cts
       shell: bash
