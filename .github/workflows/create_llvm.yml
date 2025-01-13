@@ -54,6 +54,8 @@ jobs:
             version: 18
           - os: ubuntu-24.04
             build_type: Release
+          - os: ubuntu-22.04
+            arch: riscv64
           - os: ubuntu-24.04
             arch: aarch64
           - os: ubuntu-24.04
