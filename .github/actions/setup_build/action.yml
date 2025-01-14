@@ -59,7 +59,7 @@ runs:
 
         sudo apt-get update
         if [ "${{ inputs.clang_tidy }}" = "true" ]; then sudo apt-get install --yes clang-tidy-19; fi
-        sudo apt-get pipx
+        sudo apt-get install pipx
         pipx install lit clang-format==19.1.0 virtualenv
         # required for gtest-terse-runner running in docker
         sudo apt-get install --yes python3-colorama
