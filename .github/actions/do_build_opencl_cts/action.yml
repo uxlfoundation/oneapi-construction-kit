@@ -35,7 +35,7 @@ runs:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
 
-    - name: aarch64 set-up
+    - name: aarch64 set-up # TODO: update if/when qemu no longer used
       if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
       run: |
@@ -45,6 +45,7 @@ runs:
         sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         sudo apt-get update
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
+          # TODO: Only needed for run - could be moved to corresponding run action
           echo QEMU INSTALL MATCH FOR ${{inputs.target}}
           sudo apt-get install --yes qemu-user
         fi
