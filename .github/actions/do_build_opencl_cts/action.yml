@@ -35,13 +35,27 @@ runs:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
 
-    - name: build opencl cts
+    - name: aarch64 set-up # TODO: update if/when qemu no longer used
+      if: steps.calc_vars.outputs.arch == 'aarch64'
       shell: bash    
-      env:
-        # TODO: host-x86_64-linux 'toolchain' - expand for other targets
-        CMAKE_TOOLCHAIN: "-DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-m64 -DCMAKE_CXX_COMPILER=g++ \
-                          -DCMAKE_CXX_FLAGS=-m64 -DPKG_CONFIG_EXECUTABLE=pkg-config"
       run: |
+        set -x
+        sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
+        sudo dpkg --add-architecture arm64
+        sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        sudo apt-get update
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
+          # TODO: Only needed for run - could be moved to corresponding run action
+          echo QEMU INSTALL MATCH FOR ${{inputs.target}}
+          sudo apt-get install --yes qemu-user
+        fi
+
+    - name: build opencl cts
+      shell: bash
+      env:
+        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.cmake_toolchain }}"
+      run: |
+        echo CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
         # get spirv-as
         sudo apt-get update
         sudo apt-get install -y spirv-tools
