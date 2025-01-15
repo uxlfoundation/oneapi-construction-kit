@@ -1,0 +1,9 @@
+FROM ubuntu:22.04
+
+RUN apt-get update 
+RUN apt-get -y install sudo
+RUN sudo apt install -y zstd
+RUN sudo apt install -y gnupg
+RUN sudo apt install -y wget gcc g++ cmake ninja-build python3 git curl
+RUN sudo apt install -y python3-pip cmake
+RUN sudo apt install -y file
