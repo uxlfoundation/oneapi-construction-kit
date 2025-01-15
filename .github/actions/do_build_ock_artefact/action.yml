@@ -38,6 +38,7 @@ runs:
           cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
           vulkan_sdk_install: ${{ inputs.vulkan_sdk_install }}
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
+          ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }}
 
       - name: build ock x86
         if: steps.calc_vars.outputs.arch  == 'x86_64'
