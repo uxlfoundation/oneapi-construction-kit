@@ -29,7 +29,7 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
 
     steps:
       - name: Checkout repo
@@ -74,7 +74,7 @@ jobs:
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
 
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
 
     steps:
       - name: Checkout repo
@@ -102,7 +102,7 @@ jobs:
   # build and run clang-tidy
   run_clang_tidy_changes:
 
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
 
     steps:
       - name: Checkout repo
@@ -164,7 +164,7 @@ jobs:
   # run clang-format-diff on the repo
   run_clang_format:
 
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
 
     steps:
       - name: Checkout repo
@@ -231,7 +231,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -260,7 +260,7 @@ jobs:
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 90 # offline needs longer timeout
     steps:
     - name: Checkout repo
@@ -299,7 +299,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -330,7 +330,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -386,7 +386,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -406,7 +406,7 @@ jobs:
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     timeout-minutes: 60
     steps:
     - name: Checkout repo
