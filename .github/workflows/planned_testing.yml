@@ -36,7 +36,7 @@ jobs:
   # Calculate some useful variables that can be used through the workflow
   # Currently this can be used to exclude all but certain targets in matrices
   workflow_vars:
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     outputs:
       matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
@@ -79,7 +79,7 @@ jobs:
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
-    # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
+    # build llvm. Otherwise we choose uxl-gpu-xlarge (use a container for both for consistency).
     runs-on: cp-ubuntu-24.04
     container:
       image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/intel/llvm/ubuntu2404_base:latest' || 'ghcr.io/intel/llvm/ubuntu2204_base:latest' }}
@@ -105,7 +105,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     steps:
       - name: clone ock platform
         uses: actions/checkout@v4
@@ -129,7 +129,7 @@ jobs:
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
     # Todo: expand for aarch64
-    runs-on: ubuntu-22.04
+    runs-on: uxl-gpu-xlarge
     steps:
       - name: clone ock platform
         uses: actions/checkout@v4
@@ -239,7 +239,7 @@ jobs:
         # TODO: For now just linux x86_64
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'uxl-gpu-xlarge'
     if : inputs.test_sycl_cts
     steps:
       - name: Checkout repo
