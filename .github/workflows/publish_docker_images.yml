@@ -1,0 +1,37 @@
+name: publish docker images
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/publish_docker_images.yml'
+    - '.github/dockerfiles/**'
+
+jobs:
+
+  publish-docker-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    env:
+      REGISTRY: ghcr.io/uxlfoundation
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push the Docker images
+      run: |
+        for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_* ; do
+          VERSION=${dockerfile##*_}
+          docker build . -f $dockerfile --tag $REGISTRY/ock_ubuntu_$VERSION:latest
+          docker push $REGISTRY/ock_ubuntu_$VERSION:latest
+        done
