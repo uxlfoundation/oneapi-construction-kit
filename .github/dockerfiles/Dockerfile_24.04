@@ -1,6 +1,13 @@
 FROM ubuntu:24.04
 
 RUN apt-get update 
+
+# from infra ubuntu base
+RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
+
+# from 24 ock base
+
+# from our current installs plus any new extras
 RUN apt-get -y install sudo
 RUN sudo apt install -y zstd
 RUN sudo apt install -y gnupg
