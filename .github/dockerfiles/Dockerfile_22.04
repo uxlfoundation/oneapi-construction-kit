@@ -53,6 +53,7 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 RUN pip install cmakelint colorama flake8 lit pylint requests virtualenv yapf python-gitlab distro clang-format==19.1.0
 
 # FROM OUR CURRENT INSTALLS PLUS ANY NEW EXTRAS - if not already added
+
 RUN apt-get -y install sudo
 RUN sudo apt install -y zstd
 RUN sudo apt install -y gnupg
