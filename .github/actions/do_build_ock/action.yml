@@ -100,7 +100,7 @@ inputs:
     default: OFF
   gtest_launcher:
     description: "Googletest suite launcher command (default launcher used for ubuntu)"
-    default: "/usr/bin/python;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+    default: "/usr/bin/python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
   build_32_bit:
     description: "32-bit building"
     default: OFF
