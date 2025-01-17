@@ -2,10 +2,10 @@
 name: Run planned testing
 on:
   # Note: use pull_request: for localized testing only
-  #pull_request:
-  #  paths:
-  #    - '.github/workflows/planned_testing.yml'
-  #    - '.github/workflows/planned_testing_caller.yml'
+  pull_request:
+   paths:
+     - '.github/workflows/planned_testing.yml'
+     - '.github/workflows/planned_testing_caller.yml'
   #  branches:
   #    - main
   schedule:

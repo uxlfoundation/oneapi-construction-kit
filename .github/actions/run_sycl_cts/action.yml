@@ -67,7 +67,7 @@ runs:
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
         set -x
-        python $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
           $PREPEND_PATH \

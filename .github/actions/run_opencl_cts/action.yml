@@ -36,7 +36,7 @@ runs:
         fi
         set -x
         # Note: use 'eval' built-in to handle quoting/escaping/splitting reqs
-        RUN_CITIES="python -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
+        RUN_CITIES="python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
           --color=always --timeout $CTS_TIMEOUT \
           $QEMU_SETTING \
           -b $GITHUB_WORKSPACE/test_conformance \

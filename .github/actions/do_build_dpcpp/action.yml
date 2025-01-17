@@ -37,7 +37,7 @@ runs:
       if: inputs.create_dpcpp_artefact_method == 'build'
       shell: bash
       run:
-        cd llvm; python buildbot/configure.py
+        cd llvm; python3 buildbot/configure.py
         -o build
         --host-target="X86;AArch64;RISCV"
         --native_cpu
@@ -56,7 +56,7 @@ runs:
       if: inputs.create_dpcpp_artefact_method == 'build'
       shell: bash
       run:
-       python llvm/buildbot/compile.py -o llvm/build -v -j 8
+       python3 llvm/buildbot/compile.py -o llvm/build -v -j 8
 
     - name: build extra utilties
       if: inputs.create_dpcpp_artefact_method == 'build'
