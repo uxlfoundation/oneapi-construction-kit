@@ -31,7 +31,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push the Docker images
       run: |
-        for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_* ; do
+        #for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_* ; do
+        for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_24.04 ; do
           VERSION=${dockerfile##*_}
           docker build . -f $dockerfile --tag $REGISTRY/ock_test_ubuntu_$VERSION:latest
           docker push $REGISTRY/ock_test_ubuntu_$VERSION:latest
