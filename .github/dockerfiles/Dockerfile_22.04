@@ -5,6 +5,9 @@ RUN apt-get update
 # FROM INFRA UBUNTU BASE
 
 RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
+# Set the timezone, required to avoid hanging on input
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # FROM 22 OCK BASE - if not already added
 
