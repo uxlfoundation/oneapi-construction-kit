@@ -185,7 +185,7 @@ would increase build time and bloat the final binary. The way
 capabilities are handled in the build system may not be immediately
 obvious because of the number of CMake variables and the number of
 components involved. Capability-related variables are present in Abacus
-builtins, Mux, and all Mux target devices. The OpenCL and Vulkan
+builtins, Mux, and all Mux target devices. The OpenCL
 implementations (``source/cl`` and ``source/vk``) do not rely on
 capability variables, as they need to generically support more than one
 Mux device, each with potentially different capabilities, at the same

@@ -9,7 +9,7 @@ within the directory structure.
 
 A common structure is used as much as possible throughout the oneAPI
 Construction Kit repository. Implementations of open standards, such as
-OpenCL and Vulkan, exist as subdirectories of the `source` directory and
+OpenCL, exist as subdirectories of the `source` directory and
 shared components, or modules, reside in the `modules` directory.
 
 Throughout the repository the following layout is adhered to when applicable:

@@ -476,6 +476,8 @@ struct DeviceInfo {
   spv::AddressingModel addressing_model;
   /// @brief Supported memory model.
   spv::MemoryModel memory_model;
+
+  // TODO: Check this can be removed if Vulkan is removed.
   /// @brief Size of a device memory address in bits (Vulkan only).
   uint32_t address_bits;
 };
