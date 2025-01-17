@@ -6,6 +6,18 @@ RUN apt-get update
 
 RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
 
+# Install recent version of ccache in /usr
+# Redis support requires ccache 4.4 or newer.
+RUN git clone https://github.com/ccache/ccache.git && \
+  cd ccache && \
+  LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); \
+  git -c advice.detachedHead=false checkout ${LATEST_TAG} && \
+  /usr/local/bin/cmake -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+    -DZSTD_FROM_INTERNET=ON -DHIREDIS_FROM_INTERNET=ON \
+    -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 -DENABLE_TESTING=OFF && \
+  /usr/local/bin/cmake --build build --target install && \
+  cd - && rm -rf ccache
+
 # FROM 24 OCK BASE - if not already added
 
 # Enable ability to install foreign packages for cross compilation
@@ -44,8 +56,7 @@ RUN apt-get install --yes qemu-user
 # Install pkgconf for dpc++ builds and locally built spir-v
 RUN apt-get install --yes pkgconf:amd64 pkgconf:arm64 pkgconf:i386 pkgconf:riscv64
 
-# Enforce use of python3
-RUN apt-get install --yes python-is-python3
+# Set-up pip
 RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 
 # Install python packages
@@ -53,8 +64,8 @@ RUN apt-get install --yes python3-colorama python3-distro python3-flake8 python3
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
 
 # FROM OUR CURRENT INSTALLS PLUS ANY NEW EXTRAS - if not already added
-RUN apt-get -y install sudo
-RUN sudo apt install -y zstd
-RUN sudo apt install -y gnupg
-RUN sudo apt install -y gcc g++
-RUN sudo apt install -y file
+
+RUN apt install -y zstd
+RUN apt install -y gnupg
+RUN apt install -y gcc g++
+RUN apt install -y file
