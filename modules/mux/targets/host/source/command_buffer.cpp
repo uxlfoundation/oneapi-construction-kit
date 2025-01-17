@@ -97,7 +97,8 @@ void populatePackedArgs(
         void *const image_ptr =
             libimg::HostGetImageKernelImagePtr(&host_image->image);
 
-        std::memcpy(packed_args_alloc + offset, &image_ptr, sizeof(void *));
+        std::memcpy(packed_args_alloc + offset,
+                    static_cast<const void *>(&image_ptr), sizeof(void *));
         offset += sizeof(void *);
 #endif
       } break;

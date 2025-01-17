@@ -136,7 +136,7 @@ declare i64 @__mux_get_local_id(i32) #3
 declare i64 @__mux_get_local_size(i32) #3
 
 attributes #0 = { inlinehint mustprogress nofree norecurse nosync nounwind willreturn readnone "no-trapping-math"="true" "stack-protector-buffer-size"="8" "stackrealign" }
-attributes #1 = { convergent nounwind "mux-degenerate-subgroups" "mux-kernel"="entry-point" "mux-local-mem-usage"="0" "mux-orig-fn"="_ZTS22broadcast_group_kernelILi1EN4sycl3_V16marrayIfLm5EEEE" "vecz-mode"="never" }
+attributes #1 = { convergent nounwind "mux-kernel"="entry-point" "mux-local-mem-usage"="0" "mux-orig-fn"="_ZTS22broadcast_group_kernelILi1EN4sycl3_V16marrayIfLm5EEEE" "vecz-mode"="never" }
 attributes #2 = { alwaysinline convergent norecurse nounwind "vecz-mode"="never" }
 attributes #3 = { alwaysinline norecurse nounwind readonly "vecz-mode"="never" }
 attributes #4 = { alwaysinline norecurse nounwind readonly }

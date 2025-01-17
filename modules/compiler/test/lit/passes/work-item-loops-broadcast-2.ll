@@ -85,7 +85,7 @@ declare i64 @__mux_get_local_id(i32) #2
 
 declare i64 @__mux_get_local_size(i32) #2
 
-attributes #0 = { convergent norecurse nounwind "mux-degenerate-subgroups" "mux-kernel"="entry-point" "mux-local-mem-usage"="0" "mux-orig-fn"="_ZTS22broadcast_group_kernelILi1EbE" "vecz-mode"="never" }
+attributes #0 = { convergent norecurse nounwind "mux-kernel"="entry-point" "mux-local-mem-usage"="0" "mux-orig-fn"="_ZTS22broadcast_group_kernelILi1EbE" "vecz-mode"="never" }
 attributes #1 = { alwaysinline convergent norecurse nounwind "vecz-mode"="never" }
 attributes #2 = { alwaysinline norecurse nounwind readonly "vecz-mode"="never" }
 attributes #3 = { alwaysinline norecurse nounwind readonly }

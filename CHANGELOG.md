@@ -1,4 +1,11 @@
-# ComputeAorta Changes
+# oneAPI Construction Kit Changes
+
+## TBD
+
+Upgrade guidance:
+
+* Support for degenerate subgroups has been removed. No in-tree target or
+  template was using this, but custom targets may need to be updated.
 
 ## Version 4.0.0
 

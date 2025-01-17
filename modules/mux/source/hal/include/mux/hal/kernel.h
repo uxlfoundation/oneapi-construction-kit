@@ -46,10 +46,7 @@ struct kernel_variant_s {
   /// @brief The size of the sub-group this kernel variant supports.
   ///
   /// Note that the last sub-group in a work-group may be smaller than this
-  /// value.
-  /// * If one, denotes a trivial sub-group.
-  /// * If zero, denotes a 'degenerate' sub-group (i.e., the size of the
-  /// work-group at enqueue time).
+  /// value. If one, denotes a trivial sub-group.
   uint32_t sub_group_size = 0;
 };
 

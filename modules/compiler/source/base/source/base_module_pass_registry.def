@@ -33,7 +33,6 @@ MODULE_PASS("check-ext-funcs", compiler::CheckForExtFuncsPass())
 MODULE_PASS("compute-local-memory-usage", compiler::utils::ComputeLocalMemoryUsagePass())
 MODULE_PASS("define-mux-builtins", compiler::utils::DefineMuxBuiltinsPass())
 MODULE_PASS("define-mux-dma", compiler::utils::DefineMuxDmaPass())
-MODULE_PASS("degenerate-sub-groups", compiler::utils::DegenerateSubGroupPass())
 MODULE_PASS("link-builtins", compiler::utils::LinkBuiltinsPass())
 MODULE_PASS("lower-to-mux-builtins", compiler::utils::LowerToMuxBuiltinsPass())
 

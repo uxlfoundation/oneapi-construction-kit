@@ -35,7 +35,6 @@
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/define_mux_dma_pass.h>
-#include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
