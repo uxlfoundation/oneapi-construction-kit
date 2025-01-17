@@ -1,9 +1,10 @@
 name: publish docker images
 
 on:
-  push:
+  #push:
     #branches:
     #- main
+  pull_request:
     paths:
     - '.github/workflows/publish_docker_images.yml'
     - '.github/dockerfiles/**'
