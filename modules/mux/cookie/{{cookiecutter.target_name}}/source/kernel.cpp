@@ -100,16 +100,11 @@ mux_result_t kernel_s::getSubGroupSizeForLocalSize(size_t local_size_x,
     return err;
   }
 
-  // If we've compiled with degenerate sub-groups, the sub-group size is the
-  // work-group size.
-  if (variant.sub_group_size == 0) {
-    *out_sub_group_size = local_size_x * local_size_y * local_size_z;
-  } else {
-    // Otherwise, on {{cookiecutter.target_name}} we always use vectorize in the x-dimension, so
-    // sub-groups "go" in the x-dimension.
-    *out_sub_group_size =
-        std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
-  }
+  // On {{cookiecutter.target_name}} we always vectorize in the x-dimension, so
+  // sub-groups "go" in the x-dimension.
+  *out_sub_group_size =
+      std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
+
   return mux_success;
 }
 
@@ -144,15 +139,13 @@ static bool isLegalKernelVariant(const mux::hal::kernel_variant_s &variant,
     return false;
   }
 
-  // Degenerate sub-groups are always legal.
-  if (variant.sub_group_size != 0) {
-    // Else, ensure it cleanly divides the work-group size.
-    // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
-    // sub-group was equal to the remainder. See CA-4783.
-    if (local_size_x % variant.sub_group_size != 0) {
-      return false;
-    }
+  // Ensure it cleanly divides the work-group size.
+  // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
+  // sub-group was equal to the remainder. See CA-4783.
+  if (local_size_x % variant.sub_group_size != 0) {
+    return false;
   }
+
   return true;
 }
 
@@ -177,8 +170,8 @@ mux_result_t kernel_s::getKernelVariantForWGSize(
 
     if (v.pref_work_width == best_variant->pref_work_width) {
       // If two variants have the same preferred work width, choose the one
-      // that doesn't use degenerate subgroups, if available.
-      if (best_variant->sub_group_size == 0 && v.sub_group_size != 0) {
+      // with the highest sub-group size.
+      if (v.sub_group_size > best_variant->sub_group_size) {
         best_variant = &v;
       }
     } else if (v.pref_work_width > best_variant->pref_work_width &&
@@ -246,21 +239,13 @@ mux_result_t {{cookiecutter.target_name}}QueryMaxNumSubGroups(mux_kernel_t kerne
 
   for (size_t i = 0, e = tgt_kernel->variant_data.size(); i != e; i++) {
     auto variant_sg_size = tgt_kernel->variant_data[i].sub_group_size;
-    if (variant_sg_size != 0 && min_sub_group_size > variant_sg_size) {
-      min_sub_group_size = variant_sg_size;
-    }
+    min_sub_group_size = std::min<size_t>(min_sub_group_size, variant_sg_size);
   }
 
-  if (min_sub_group_size == std::numeric_limits<size_t>::max()) {
-    // If we've found no variant, or a variant using degenerate sub-groups, we
-    // only support one sub-group.
-    *out_max_num_sub_groups = 1;
-  } else {
-    // Else we can have as many sub-groups as there are work-items, divided by
-    // the smallest sub-group size we've got.
-    *out_max_num_sub_groups =
-        kernel->device->info->max_concurrent_work_items / min_sub_group_size;
-  }
+  // We can have as many sub-groups as there are work-items, divided by the
+  // smallest sub-group size we've got.
+  *out_max_num_sub_groups =
+      kernel->device->info->max_concurrent_work_items / min_sub_group_size;
 
   return mux_success;
 }

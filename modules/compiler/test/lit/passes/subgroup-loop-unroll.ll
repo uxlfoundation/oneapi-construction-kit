@@ -48,10 +48,10 @@ entry:
 declare i64 @__mux_get_global_linear_id() #1
 declare i1 @__mux_work_group_all_i1(i32, i1) #2
 
-attributes #0 = { convergent norecurse nounwind "mux-degenerate-subgroups" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
+attributes #0 = { convergent norecurse nounwind "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
 attributes #1 = { alwaysinline norecurse nounwind "vecz-mode"="auto" }
 attributes #2 = { alwaysinline convergent norecurse nounwind }
-attributes #3 = { convergent norecurse nounwind "mux-base-fn-name"="__vecz_v64_sub_group_all_builtin" "mux-degenerate-subgroups" "mux-kernel"="entry-point" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
+attributes #3 = { convergent norecurse nounwind "mux-base-fn-name"="__vecz_v64_sub_group_all_builtin" "mux-kernel"="entry-point" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
 attributes #4 = { alwaysinline norecurse nounwind  }
 
 !llvm.module.flags = !{!0}

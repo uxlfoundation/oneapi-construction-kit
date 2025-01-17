@@ -1,7 +1,7 @@
 ComputeMux Compiler Specification
 =================================
 
-   This is version 0.80.0 of the specification.
+   This is version 0.81.0 of the specification.
 
 ComputeMux is Codeplay’s proprietary API for executing compute workloads across
 heterogeneous devices. ComputeMux is an extremely lightweight,
@@ -1432,9 +1432,6 @@ different stages of the pipeline:
        by the use of known mux sub-group builtins). If a pass introduces the
        explicit use of sub-groups to a function, it should remove this
        attribute.
-   * - ``"mux-degenerate-subgroups"``
-     - Marks the function has using degenerate sub-groups (i.e. one sub-group
-       for the entire local work-group).
 
 ``mux-kernel`` attribute
 ~~~~~~~~~~~~~~~~~~~~~~~~

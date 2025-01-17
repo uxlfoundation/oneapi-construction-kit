@@ -20,7 +20,6 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/define_mux_dma_pass.h>
-#include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
@@ -54,10 +53,6 @@ void addPreVeczPasses(ModulePassManager &PM,
   }
 
   PM.addPass(compiler::utils::SubgroupUsagePass());
-
-  if (tuner.degenerate_sub_groups) {
-    PM.addPass(compiler::utils::DegenerateSubGroupPass());
-  }
 
   if (tuner.replace_work_group_collectives) {
     // Because ReplaceWGCPass may introduce barrier calls it needs to be run

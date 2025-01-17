@@ -51,9 +51,6 @@ struct BasePassPipelineTuner {
   /// @brief The build options being compiled for.
   compiler::Options options;
 
-  /// @brief Whether or not to generate code for degenerate sub groups.
-  bool degenerate_sub_groups = false;
-
   /// @brief Whether or not to replace work-group collectives early before
   /// vectorization.
   bool replace_work_group_collectives = false;

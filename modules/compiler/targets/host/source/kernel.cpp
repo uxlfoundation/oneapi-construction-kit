@@ -166,14 +166,9 @@ HostKernel::querySubGroupSizeForLocalSize(size_t local_size_x,
   if (!optimized_kernel) {
     return cargo::make_unexpected(optimized_kernel.error());
   }
-  // If we've compiled with degenerate sub-groups, the sub-group size is the
-  // work-group size.
-  if (optimized_kernel->binary_kernel->sub_group_size == 0) {
-    return local_size_x * local_size_y * local_size_z;
-  }
 
-  // Otherwise, on host we always use vectorize in the x-dimension, so
-  // sub-groups "go" in the x-dimension.
+  // Otherwise, on host we always vectorize in the x-dimension, so sub-groups
+  // "go" in the x-dimension.
   return std::min(
       local_size_x,
       static_cast<size_t>(optimized_kernel->binary_kernel->sub_group_size));
@@ -190,23 +185,7 @@ HostKernel::queryLocalSizeForSubGroupCount(size_t sub_group_count) {
     return cargo::make_unexpected(optimized_kernel.error());
   }
 
-  // If we've compiled with degenerate sub-groups, the work-group size is the
-  // sub-group size.
   const auto sub_group_size = optimized_kernel->binary_kernel->sub_group_size;
-  if (sub_group_size == 0) {
-    // FIXME: For degenerate sub-groups, the local size could be anything up to
-    // the maximum local size. For any other sub-group count, we should ensure
-    // that the work-group size we report comes back through the deferred
-    // kernel's sub-group count when it comes to compiling it. See CA-4784.
-    if (sub_group_count == 1) {
-      return {{max_local_size_x, 1, 1}};
-    } else {
-      // If we asked for anything other than a single subgroup, but we have got
-      // degenerate subgroups, then we are in some amount of trouble.
-      return {{0, 0, 0}};
-    }
-  }
-
   const auto local_size = sub_group_count * sub_group_size;
   if (local_size <= max_local_size_x) {
     return {{local_size, 1, 1}};
