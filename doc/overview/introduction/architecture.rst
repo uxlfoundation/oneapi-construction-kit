@@ -80,7 +80,7 @@ Host Runtime
 """"""""""""
 
 A ComputeMux Runtime API implementation targeting the CPU device on which the OpenCL
-or Vulkan driver is running. This includes implementation of entry points for:
+driver is running. This includes implementation of entry points for:
 
 Memory Transfers
   Reading, writing, copying, filling etc. memory buffers/images.
@@ -153,7 +153,7 @@ Host Compiler
 """""""""""""
 
 A ComputeMux Compiler API implementation targeting the CPU device on which the
-OpenCL or Vulkan driver is running.
+OpenCL driver is running.
 
 Custom Compiler
 """""""""""""""
@@ -176,7 +176,7 @@ Clang
   from the OpenCL API.
 SPIR-V Parser
   An in house SPIR-V to LLVM IR translator for consuming SPIR-V from the OpenCL
-  and Vulkan APIs.
+  API.
 
 Middle End
 """"""""""
@@ -258,8 +258,7 @@ SYCL
 ----
 
 oneAPI Construction Kit is designed to slot into a `SYCL`_ technology stack, as the
-:ref:`overview/introduction/architecture:OpenCL` and
-:ref:`overview/introduction/architecture:Vulkan` APIs exposed can be used as a
+:ref:`overview/introduction/architecture:OpenCL` API exposed can be used as a
 `SYCL Backend`_, or oneAPI Construction Kit can be used to write an implementation of 
 SYCL directly to a system or device.
 
@@ -282,9 +281,3 @@ To learn more about ComputeCpp see the :doc:`ComputeCpp Overview
   https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_the_sycl_backend_model
 .. _ComputeCpp:
   https://developer.codeplay.com/products/computecpp/ce/home
-
-Vulkan
-------
-
-oneAPI Construction Kit provides a pre-conformant Vulkan driver implementing the compute
-subset of Vulkan 1.0 functionality.
