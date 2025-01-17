@@ -20,7 +20,7 @@ RUN dpkg --add-architecture riscv64
 RUN sed -i -e '/^Types:/,/^Signed-By:/{/Types:/{h;d};H;/^Signed-By:/{g;s|$|\nArchitectures: amd64,i386\n|p;g;s|URIs: [^\n]*|URIs: http://ports.ubuntu.com/ubuntu-ports|;s|$|\nArchitectures: arm64,riscv64|p;};d}' /etc/apt/sources.list.d/ubuntu.sources
 
 # Add VulkanSDK latest package repository
-RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -; fi
+RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
 RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
 # Sync the two above package repositories
 RUN apt-get update
