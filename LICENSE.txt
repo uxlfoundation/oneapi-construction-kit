@@ -235,9 +235,6 @@ The OpenCL Intercept Layer
 (https://github.com/intel/opencl-intercept-layer.git) may be fetched under the
 build directory and is held under its own licensing terms.
 
-The source/vk/external/Khronos folder (Khronos Vulkan headers), if present, is
-held under its own licensing terms.
-
 The modules/spirv-ll/external/SPIRV-Headers folder (Khronos SPIR-V headers), if
 present, is held under its own licensing terms.
 

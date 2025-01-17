@@ -3,10 +3,10 @@ ComputeMux Runtime
 
 The ComputeMux Runtime defines an API providing an interface between hardware
 target-specific code and general implementations of open standards such as
-OpenCL, Vulkan Compute and SPIR-V. Each entry point required for a hardware
-target in the Runtime API is specified in the :doc:`ComputeMux Runtime
-Specification </specifications/mux-runtime-spec>`, containing detail on the
-purpose of each entry point, valid usage, and expected error codes.
+OpenCL and SPIR-V. Each entry point required for a hardware target in the
+Runtime API is specified in the :doc:`ComputeMux Runtime Specification
+</specifications/mux-runtime-spec>`, containing detail on the purpose of each
+entry point, valid usage, and expected error codes.
 
 Design
 ------

@@ -476,7 +476,7 @@ struct DeviceInfo {
   spv::AddressingModel addressing_model;
   /// @brief Supported memory model.
   spv::MemoryModel memory_model;
-  /// @brief Size of a device memory address in bits (Vulkan only).
+  /// @brief Size of a device memory address in bits.
   uint32_t address_bits;
 };
 
