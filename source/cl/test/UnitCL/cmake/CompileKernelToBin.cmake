@@ -239,18 +239,13 @@ if(NOT clc_result EQUAL 0)
     file(WRITE ${OUTPUT_FILE} "// clc could not compile optional 'mayfail' "
          "requirement kernel for '${DEVICE_NAME}' - stderr:\n${clc_error}")
   else()
-    # execute_process() doesn't print the failing command, so attempt to
-    # reconstruct it here
-    message(FATAL_ERROR
-      "clc failed with status '${clc_result}':
-      ${CLC_EXECUTABLE}
-        -d '${DEVICE_NAME}'
-        -cl-kernel-arg-info
-        -cl-std=CL${CLC_CL_STD}
-        ${CLC_OPTIONS_LIST}
-        ${DEFS_LIST}
-        -o '${OUTPUT_FILE}'
-        -- '${INPUT_FILE}'
-      ${clc_error}")
+    # execute_process() doesn't print the command, so attempt to reconstruct it here
+    set(clc_command ${CLC_EXECUTABLE} -d '${DEVICE_NAME}' -cl-kernel-arg-info
+      -cl-std=CL${CLC_CL_STD} ${CLC_OPTIONS_LIST} ${DEFS_LIST}
+      -o '${OUTPUT_FILE}' -- '${INPUT_FILE}')
+    list(JOIN clc_command " " clc_command)
+    message(NOTICE "${clc_command}")
+    message(NOTICE "${clc_error}")
+    message(FATAL_ERROR "clc returned error code ${clc_result}")
   endif()
 endif()
