@@ -13,11 +13,11 @@ jobs:
 
   publish-docker-images:
     runs-on: ubuntu-latest
-    permissions: write-all
-      #contents: read
-      #packages: write
-      #attestations: write
-      #id-token: write
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     env:
       REGISTRY: ghcr.io/uxlfoundation
     steps:
