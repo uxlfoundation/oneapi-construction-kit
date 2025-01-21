@@ -33,7 +33,7 @@ jobs:
   run_host_x86_64:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
@@ -81,7 +81,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
@@ -112,7 +112,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
@@ -228,7 +228,7 @@ jobs:
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -261,7 +261,7 @@ jobs:
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     timeout-minutes: 90 # offline needs longer timeout
@@ -304,7 +304,7 @@ jobs:
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     timeout-minutes: 60
@@ -339,7 +339,7 @@ jobs:
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     timeout-minutes: 60
@@ -367,7 +367,7 @@ jobs:
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
     runs-on: cp-ubuntu-24.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # aarch64 needs longer timeout
@@ -399,7 +399,7 @@ jobs:
   run-ubuntu-gcc-x86_64-clik-refsi:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     timeout-minutes: 60
@@ -426,7 +426,7 @@ jobs:
     if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest
+      image: ghcr.io/uxlfoundation/ock_test_ubuntu_22.04:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     timeout-minutes: 60
