@@ -335,7 +335,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
     default:
       SPIRV_LL_ABORT("BuiltIn unknown");
   }
-}
+} 
 
 bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     llvm::GlobalVariable *builtinGlobal, spv::BuiltIn kind) {
@@ -345,6 +345,7 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
 
   while (!Worklist.empty()) {
     auto *UI = Worklist.pop_back_val();
+    llvm::errs() << "CSD builtinGlobal " << builtinGlobal->getName() << " user : " << *UI << "\n";
 
     // We may have addrspacecast constant expressions
     if (auto *CE = dyn_cast<llvm::ConstantExpr>(UI)) {
@@ -488,12 +489,14 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
   for (const auto &ID : module.getBuiltInVarIDs()) {
     llvm::GlobalVariable *builtin_global =
         llvm::cast<llvm::GlobalVariable>(module.getValue(ID));
-
+      llvm::errs() << "CSD replaceBuiltinGlobals:: builtin_global is " << builtin_global->getName() << "\n";
+      llvm::errs() << *(builtin_global->getParent());
     // Erase the global and return early if it wasn't used.
     if (builtin_global->use_empty()) {
       builtin_global->eraseFromParent();
       return;
     }
+
 
     // To generate the init block we need the type of the builtin and which
     // builtin the variable was decorated with.
@@ -518,8 +521,11 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
         user_functions;
 
     for (auto user : builtin_global->users()) {
+      llvm::errs() << "CSD user is " << *user << "\n";
       llvm::Function *use_function =
           llvm::cast<llvm::Instruction>(user)->getParent()->getParent();
+      llvm::errs() << "CSD builtin_global name is " << builtin_global->getName() << " Func is " << use_function->getName() << "\n";
+
 
       auto iter = user_functions.find(use_function);
 

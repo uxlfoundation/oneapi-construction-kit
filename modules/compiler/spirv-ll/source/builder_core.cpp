@@ -4027,8 +4027,9 @@ llvm::Error Builder::create<OpBitcast>(const OpBitcast *op) {
     // user being an actual instruction, wherwas the irbuilder tries to fold
     // it. Although that could be less brittle the solution would be to
     // convert back to an instruction so just create as an instruction here.
-    value = new llvm::AddrSpaceCastInst(value, type);
-    IRBuilder.Insert(value);
+    //value = new llvm::AddrSpaceCastInst(value, type);
+    //IRBuilder.Insert(value);
+    value = IRBuilder.CreateAddrSpaceCast(value, type);
   }
   result = IRBuilder.CreateBitCast(value, type);
   module.addID(op->IdResult(), op, result);

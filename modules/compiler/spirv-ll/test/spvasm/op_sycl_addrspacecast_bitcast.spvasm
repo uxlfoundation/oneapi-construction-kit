@@ -28,12 +28,23 @@
           %1 = OpExtInstImport "OpenCL.std"
           OpMemoryModel Physical64 OpenCL
           OpName %__spirv_BuiltInLocalInvocationId "__spirv_BuiltInLocalInvocationId"
-          OpName %_Z27__spirv_LocalInvocationId_zv "_Z27__spirv_LocalInvocationId_zv"               
+          OpName %_Z27__spirv_LocalInvocationId_zv "_Z27__spirv_LocalInvocationId_zv"     
+          OpName %_Z28__spirv_GlobalInvocationId_xv "_Z28__spirv_GlobalInvocationId_xv"                    
 
           OpDecorate %__spirv_BuiltInLocalInvocationId LinkageAttributes "__spirv_BuiltInLocalInvocationId" Import
           OpDecorate %__spirv_BuiltInLocalInvocationId Constant
           OpDecorate %__spirv_BuiltInLocalInvocationId BuiltIn LocalInvocationId
           OpDecorate %__spirv_BuiltInLocalInvocationId Alignment 32
+
+          OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+          OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+          OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+          OpDecorate %__spirv_BuiltInGlobalInvocationId Alignment 32
+
+
+          OpName %_useLocalInvocationId "_useLocalInvocationId"     
+          OpName %_useGlobalInvocationId "_useGlobalInvocationId"               
+
 %ulong = OpTypeInt 64 0
 %ulong_16 = OpConstant %ulong 16
 %uchar = OpTypeInt 8 0
@@ -43,10 +54,19 @@
 %void = OpTypeVoid
 %_ptr_CrossWorkgroup_uchar = OpTypePointer CrossWorkgroup %uchar
 %574 = OpTypeFunction %ulong
+%575 = OpTypeFunction %ulong
+%403 = OpTypeFunction %ulong
 %_ptr_CrossWorkgroup_ulong = OpTypePointer CrossWorkgroup %ulong
 %__spirv_BuiltInLocalInvocationId = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
+%__spirv_BuiltInGlobalInvocationId = OpVariable %_ptr_CrossWorkgroup_v3ulong CrossWorkgroup
+
+               OpDecorate %__spirv_BuiltInGlobalInvocationId LinkageAttributes "__spirv_BuiltInGlobalInvocationId" Import
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Constant
+               OpDecorate %__spirv_BuiltInGlobalInvocationId BuiltIn GlobalInvocationId
+               OpDecorate %__spirv_BuiltInGlobalInvocationId Alignment 32
 
 ; CHECK: call spir_func i64 @_Z12get_local_idj
+; CHECK: call spir_func i64 @_Z27__spirv_LocalInvocationId_zv
 
 %_Z27__spirv_LocalInvocationId_zv = OpFunction %ulong None %574
    %entry_11 = OpLabel
@@ -56,6 +76,27 @@
         %626 = OpLoad %ulong %625 Aligned 16
                OpReturnValue %626
                OpFunctionEnd
+
+%_Z28__spirv_GlobalInvocationId_xv = OpFunction %ulong None %574
+    %entry_6 = OpLabel
+        %602 = OpBitcast %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInGlobalInvocationId
+        %603 = OpLoad %ulong %602 Aligned 32
+               OpReturnValue %603
+               OpFunctionEnd
+
+
+;%_useLocalInvocationId = OpFunction %void None %403
+;               %entry_10 = OpLabel
+;               %call5 = OpFunctionCall %ulong %_Z27__spirv_LocalInvocationId_zv
+;               OpReturnValue %call5
+;               OpFunctionEnd
+;
+;%_useGlobalInvocationId = OpFunction %void None %403
+;               %entry_12 = OpLabel
+;               %call6 = OpFunctionCall %ulong %_Z28__spirv_GlobalInvocationId_xv
+;               OpReturnValue %call6
+;               OpFunctionEnd
+
 ;%_Z27__spirv_LocalInvocationId_zv = OpFunction %ulong None %574
 ;   %entry_11 = OpLabel
 ;        %617 = OpInBoundsPtrAccessChain %_ptr_CrossWorkgroup_ulong %__spirv_BuiltInLocalInvocationId %uint_0 %uint_2
