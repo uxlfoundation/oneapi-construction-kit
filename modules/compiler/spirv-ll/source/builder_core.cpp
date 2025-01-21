@@ -4018,12 +4018,15 @@ llvm::Error Builder::create<OpBitcast>(const OpBitcast *op) {
 
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   llvm::Value *result = nullptr;
-  if (value->getType()->getPointerAddressSpace() != type->getPointerAddressSpace()) {
-    // We need to do an addrspacecast first as the address spaces are different.
-    // Create actual instructions as spirv_ll::Builder::replaceBuiltinGlobals() make
-    // assumptions about the user being an actual instruction, wherwas the irbuilder tries
-    // to fold it. Although that could be less brittle the solution would be to convert back
-    // to an instruction so just create as an instruction here.
+  if (llvm::isa<llvm::PointerType>(value->getType()) &&
+      llvm::isa<llvm::PointerType>(type) &&
+      value->getType()->getPointerAddressSpace() != type->getPointerAddressSpace()) {
+    // We need to do an addrspacecast first as the address spaces are
+    // different. Create actual instructions as
+    // spirv_ll::Builder::replaceBuiltinGlobals() make assumptions about the
+    // user being an actual instruction, wherwas the irbuilder tries to fold
+    // it. Although that could be less brittle the solution would be to
+    // convert back to an instruction so just create as an instruction here.
     value = new llvm::AddrSpaceCastInst(value, type);
     IRBuilder.Insert(value);
   }

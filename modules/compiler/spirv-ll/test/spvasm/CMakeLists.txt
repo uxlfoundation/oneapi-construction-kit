@@ -2079,6 +2079,7 @@ set(SPVASM_FILES
   op_spec_constant_op_fsub_float.spvasm
   op_spec_constant_true_bool.spvasm
   op_spec_constant_uint.spvasm
+  op_sycl_addrspacecast_bitcast.spvasm  
   op_switch_long.spvasm
   op_switch_short.spvasm
   op_switch_char.spvasm
