@@ -141,8 +141,6 @@ jobs:
  
       - name: run clang-tidy
         run: |
-          # TODO: Move to docker
-          sudo apt-get -y install parallel
           git config --global --add safe.directory $PWD
           git fetch origin ${{ github.base_ref }}
           ./scripts/compute-dependants.py \
@@ -408,9 +406,6 @@ jobs:
       uses: actions/checkout@v4.1.0
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
-    - name: install risc-v toolchain
-      run:
-        sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: Run Clik
       run: |
