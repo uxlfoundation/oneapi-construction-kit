@@ -35,7 +35,7 @@ runs:
         with:
           llvm_version: ${{ inputs.llvm_version }}
           llvm_build_type: RelAssert
-          #ALAN cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
+          cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
           #ALAN vulkan_sdk_install: ${{ inputs.vulkan_sdk_install }}
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
 

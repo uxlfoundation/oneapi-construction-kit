@@ -20,9 +20,9 @@ inputs:
   save:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
-  #ALAN cross_arch:
-  #ALAN   description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
-  #ALAN   default: "none"
+  cross_arch:
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
+    default: "none"
   #ALAN clang_tidy:
   #ALAN   description: 'Enable installing of clang-tidy (currently 19)'
   #ALAN   type: boolean

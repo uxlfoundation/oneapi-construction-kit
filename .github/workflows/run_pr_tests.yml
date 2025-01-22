@@ -272,7 +272,7 @@ jobs:
         llvm_version: '19'
         llvm_build_type: RelAssert
         save:  ${{ inputs.update_cache }}
-        #ALAN cross_arch: x86
+        cross_arch: x86
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock x86 relassert
       uses: ./.github/actions/do_build_ock
@@ -378,7 +378,7 @@ jobs:
         llvm_version: '19'
         llvm_build_type: RelAssert
         save:  ${{ inputs.update_cache }}
-        #ALAN cross_arch: aarch64
+        cross_arch: aarch64
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
