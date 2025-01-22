@@ -33,11 +33,11 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 ; CHECK:  %[[LD:.+]] = load i32, ptr %[[VAL]], align 4
 ; CHECK:  %[[ACCUM_NEXT]] = add i32 %[[ACCUM]], %[[LD]]
 ; CHECK:  %[[IDX_NEXT]] = add i64 %[[IDX]], 1
-; CHECK:  %[[LOOP_COND:.+]] = icmp ult i64 %24, 262144
+; CHECK:  %[[LOOP_COND:.+]] = icmp ult i64 %[[IDX_NEXT]], 262144
 ; CHECK:  br i1 %[[LOOP_COND]], label %[[REDUCE_LOOP]], label %[[REDUCE_EXIT:[^,]+]]
 
 ; CHECK: [[REDUCE_EXIT]]:
-; CHECK:  %reduce = phi i32 [ %23, %[[REDUCE_LOOP]] ]
+; CHECK:  %reduce = phi i32 [ %[[ACCUM_NEXT]], %[[REDUCE_LOOP]] ]
 
 declare i64 @__mux_get_global_id(i32 %x)
 declare i32 @__mux_work_group_reduce_add_i32(i32 %id, i32 %x)
