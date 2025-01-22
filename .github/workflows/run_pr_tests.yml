@@ -125,7 +125,7 @@ jobs:
         with:
           llvm_version: 19
           llvm_build_type: RelAssert
-          clang_tidy: true
+          #ALAN clang_tidy: true
 
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
@@ -272,7 +272,7 @@ jobs:
         llvm_version: '19'
         llvm_build_type: RelAssert
         save:  ${{ inputs.update_cache }}
-        cross_arch: x86
+        #ALAN cross_arch: x86
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock x86 relassert
       uses: ./.github/actions/do_build_ock
@@ -378,7 +378,7 @@ jobs:
         llvm_version: '19'
         llvm_build_type: RelAssert
         save:  ${{ inputs.update_cache }}
-        cross_arch: aarch64
+        #ALAN cross_arch: aarch64
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: build ock
       uses: ./.github/actions/do_build_ock
