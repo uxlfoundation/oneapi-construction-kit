@@ -32,6 +32,6 @@ jobs:
       run: |
         for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_* ; do
           VERSION=${dockerfile##*_}
-          docker build . -f $dockerfile --tag $REGISTRY/ock_test_ubuntu_$VERSION:latest
-          docker push $REGISTRY/ock_test_ubuntu_$VERSION:latest
+          docker build . -f $dockerfile --tag $REGISTRY/ock_ubuntu_$VERSION:latest
+          docker push $REGISTRY/ock_ubuntu_$VERSION:latest
         done
