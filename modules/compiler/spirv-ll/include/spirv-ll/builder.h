@@ -329,8 +329,10 @@ class Builder {
   ///
   /// @param builtin SPIR-V builtin enum denoting which builtin to initialize.
   /// @param builtinType LLVM `Type` of the builtin variable.
+  /// @param builtinAddrSpace LLVM address space of the builtin variable.
   /// @param initBlock Basic block to generate the init code in.
   void generateBuiltinInitBlock(spv::BuiltIn builtin, llvm::Type *builtinType,
+                                unsigned builtinAddrSpace,
                                 llvm::BasicBlock *initBlock);
 
   /// @brief Attempts to replace uses of a builtin global variable with calls to

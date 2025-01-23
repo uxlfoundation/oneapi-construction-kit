@@ -2556,9 +2556,22 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
     // StorageClass, this should be handled by the Input StorageClass below.
     if (module.getFirstDecoration(op->IdResult(), spv::DecorationBuiltIn)) {
       module.addBuiltInID(op->IdResult());
-      value = new llvm::GlobalVariable(*module.llvmModule, varTy, false,
-                                       llvm::GlobalValue::ExternalLinkage,
-                                       llvm::UndefValue::get(varTy), name);
+      auto addrSpaceOrError =
+          module.translateStorageClassToAddrSpace(op->StorageClass());
+      if (auto err = addrSpaceOrError.takeError()) {
+        return err;
+      }
+      value = new llvm::GlobalVariable(
+          *module.llvmModule, varTy,
+          false,                               // isConstant
+          llvm::GlobalValue::ExternalLinkage,  // Linkage
+          llvm::UndefValue::get(varTy),        // Initializer
+          name,                                // Name
+          nullptr,                             // InsertBefore
+          llvm::GlobalValue::NotThreadLocal,   // TLMode
+          addrSpaceOrError.get(),              // AddressSpace
+          false                                // isExternallyInitialized
+      );
     } else {
       // Following is the set of StorageClasses supported by the Kernel
       // capability.
