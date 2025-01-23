@@ -58,25 +58,9 @@ RUN apt-get install --yes python3-colorama python3-distro python3-flake8 python3
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
 
 RUN apt-get -y install sudo
+RUN apt-get -y install gh
 RUN apt install -y zstd
 RUN apt install -y gnupg
 RUN apt install -y gcc g++
 RUN apt install -y file
-
-# Lastly, install recent version of ccache in /usr
-# Redis support requires ccache 4.4 or newer.
-RUN git clone https://github.com/ccache/ccache.git && \
-  cd ccache && \
-  LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); \
-  git -c advice.detachedHead=false checkout ${LATEST_TAG} && \
-  #/usr/local/bin/cmake -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-  #  -DZSTD_FROM_INTERNET=ON -DHIREDIS_FROM_INTERNET=ON \
-  #  -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 -DENABLE_TESTING=OFF && \
-  #/usr/local/bin/cmake --build build --target install && \
-  cmake -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-    -DZSTD_FROM_INTERNET=ON -DHIREDIS_FROM_INTERNET=ON \
-    -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DENABLE_TESTING=OFF && \
-  cmake --build build --target install && \
-  cd - && rm -rf ccache
-
-
+RUN apt install -y ccache
