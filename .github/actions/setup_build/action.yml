@@ -29,6 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: Install ubuntu prerequisites
+      # Note: most prereqs now installed in dockerfiles
       if: ${{ inputs.os == 'ubuntu' }}
       shell: bash
       run: |
