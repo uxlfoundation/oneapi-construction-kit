@@ -15,6 +15,10 @@ jobs:
       # required to fetch internal or private CodeQL packs
       packages: read
     runs-on: ubuntu-22.04
+    container:
+      image: 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
 
     steps:
       - name: Checkout repo
@@ -62,6 +66,10 @@ jobs:
       # required to fetch internal or private CodeQL packs
       packages: read
     runs-on: ubuntu-22.04
+    container:
+      image: 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
 
     steps:
       - name: Checkout repo

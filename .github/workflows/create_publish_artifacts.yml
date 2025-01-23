@@ -16,6 +16,10 @@ jobs:
   # build and run for RISCV
   run_riscv_m1_nightly_package:
     runs-on: ubuntu-22.04
+    container:
+      image: 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
 
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -18,6 +18,10 @@ jobs:
   # build and run for RISCV
   run_riscv_m1_ock_demo:
     runs-on: ubuntu-22.04
+    container:
+      image: 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
 
     steps:
       - name: Checkout repo
