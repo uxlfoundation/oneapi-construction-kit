@@ -35,21 +35,6 @@ runs:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
 
-    #ALAN - name: aarch64 set-up # TODO: update if/when qemu no longer used
-    #ALAN   if: steps.calc_vars.outputs.arch == 'aarch64'
-    #ALAN   shell: bash    
-    #ALAN   run: |
-    #ALAN     set -x
-    #ALAN     sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
-    #ALAN     sudo dpkg --add-architecture arm64
-    #ALAN     sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-    #ALAN     sudo apt-get update
-    #ALAN     if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
-    #ALAN       # TODO: Only needed for run - could be moved to corresponding run action
-    #ALAN       echo QEMU INSTALL MATCH FOR ${{inputs.target}}
-    #ALAN       sudo apt-get install --yes qemu-user
-    #ALAN     fi
-
     - name: build opencl cts
       shell: bash
       env:

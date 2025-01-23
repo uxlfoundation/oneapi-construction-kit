@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-RUN apt-get update
+RUN apt-get update 
 
 # FROM INFRA UBUNTU BASE
 
