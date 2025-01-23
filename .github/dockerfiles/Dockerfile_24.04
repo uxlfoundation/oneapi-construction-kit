@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+RUN apt-get update
+
 # FROM INFRA UBUNTU BASE
 
 RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
