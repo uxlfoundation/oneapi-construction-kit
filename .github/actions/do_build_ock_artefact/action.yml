@@ -12,6 +12,9 @@ inputs:
   vulkan_sdk_install:
     description: 'vulkan install flag'
     default: true
+  download_ock_artefact:
+    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+    default: ''
 
 # TODO: This has not been tested yet on windows so would likely need some updating.
 runs:
@@ -32,6 +35,7 @@ runs:
       # installs tools, ninja, installs llvm and sets up ccache
       - name: setup
         uses:  ./.github/actions/setup_build
+        if: contains(inputs.download_ock_artefact, inputs.target) != true
         with:
           llvm_version: ${{ inputs.llvm_version }}
           llvm_build_type: RelAssert
@@ -39,7 +43,7 @@ runs:
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
 
       - name: build ock x86
-        if: steps.calc_vars.outputs.arch  == 'x86_64'
+        if: steps.calc_vars.outputs.arch  == 'x86_64' && contains(inputs.download_ock_artefact, inputs.target) != true
         uses: ./.github/actions/do_build_ock
         with:
           build_targets: install
@@ -47,8 +51,8 @@ runs:
           extra_flags: -DCA_ENABLE_TESTS=OFF -DCA_ENABLE_EXAMPLES=OFF -DCA_ENABLE_DOCUMENTATION=OFF
           shell_to_use: ${{ contains(inputs.target, 'windows') && 'pwsh' || 'bash' }}
 
-      - name: build ock other ${{ matrix.target }}
-        if: steps.calc_vars.outputs.arch  != 'x86_64'
+      - name: build ock other ${{ inputs.target }}
+        if: steps.calc_vars.outputs.arch  != 'x86_64' && contains(inputs.download_ock_artefact, inputs.target) != true
         uses: ./.github/actions/do_build_ock
         with:
           build_targets: install
@@ -57,6 +61,19 @@ runs:
           # Do we need the offline kernel as an artefact? If so currently this requires an external clc or qemu to be installed.
           offline_kernel_tests: OFF
           host_fp16: ON
+
+      - name: download previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
+        shell: bash      
+        if: contains(inputs.download_ock_artefact, inputs.target)
+        run: |
+          download_id=`echo "${{inputs.download_ock_artefact}}"`
+          echo "echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'"
+          download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
+          echo download id is "'$download_id'"
+          git config --global --add safe.directory $PWD
+          # TODO : make this work on windows
+          gh run download $download_id -n ock_${{ inputs.target }} -D install
+          ls install
 
       # Prune it as there is too much things in there we don't want to use
       # Todo: move this logic to cmake settings so that we build only what we

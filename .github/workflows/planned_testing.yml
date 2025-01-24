@@ -30,6 +30,18 @@ on:
         required: false
         type: boolean
         default: false
+      download_ock_artefact:
+        required: false
+        type: string
+        default: ''
+      download_dpcpp_artefact:
+        required: false
+        type: string
+        default: ''
+      download_sycl_cts_artefact:
+        required: false
+        type: string
+        default: ''
 
 permissions:
   packages: read
@@ -92,12 +104,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: build ock artefact
         uses: ./.github/actions/do_build_ock_artefact
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
           vulkan_sdk_install: false
+          download_ock_artefact: ${{ inputs.download_ock_artefact }}
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
@@ -209,10 +227,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: build dpc++ artefact
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
+          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native_host]
@@ -233,10 +257,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: build dpc++ artefact
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+          token: ${{ secrets.GITHUB_TOKEN }}        
+      - name: build sycl cts artefact
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: ${{ matrix.target }}
+          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
   run_sycl_cts:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_host, build_sycl_cts]

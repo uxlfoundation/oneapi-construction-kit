@@ -4,6 +4,9 @@ description: build sycl cts
 inputs:
   target:
     description: 'target architecture'
+  download_sycl_cts_artefact:
+    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+    default: ''    
 
 runs:
   using: "composite"
@@ -15,27 +18,32 @@ runs:
         target: ${{ inputs.target }}  
 
     - name: Install Ninja
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: llvm/actions/install-ninja@main
 
     - name: download icd artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: icd_${{inputs.target}}
         path: install_icd
 
     - name: download headers artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: header_${{inputs.target}}
         path: install_headers
 
     - name: download dpc++ artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
 
     - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       shell: bash
       run: |
         cd install_dpcpp
@@ -43,6 +51,7 @@ runs:
         rm dpcpp.tar
 
     - name: checkout sycl cts
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/checkout@v4
       with:
         repository: KhronosGroup/SYCL-CTS
@@ -50,6 +59,7 @@ runs:
         submodules: true
 
     - name: build SYCL CTS
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
       shell: bash
       run: |
         echo calling cmake and ninja on SYCL CTS
@@ -70,16 +80,32 @@ runs:
         ninja -C SYCL-CTS -v -j4 -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
       shell: bash
       run: |
         cd SYCL-CTS
         # only bin
         tar cf sycl-cts.tar bin
 
+    - name: download sycl cts artefact  # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target)
+      shell: bash
+      run: |
+        download_id=`echo "${{inputs.download_sycl_cts_artefact}}"`
+        echo "echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'"
+        download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
+        echo download id is "'$download_id'"
+        # TODO : make this work on windows
+        mkdir -p SYCL-CTS
+        git config --global --add safe.directory $PWD        
+        gh run download $download_id -n sycl_cts_${{ inputs.target }} -D SYCL-CTS
+        ls SYCL-CTS
+
+
     - name: upload artefact
       uses: actions/upload-artifact@v4
       with:
         name: sycl_cts_${{inputs.target}}
         path: SYCL-CTS/sycl-cts.tar
-        retention-days: 1
+        retention-days: 2
   
