@@ -19,6 +19,7 @@ permissions: {}
 jobs:
   create_llvm_cache:
     strategy:
+      fail-fast: false  # at least for now
       matrix:
         version: [18, 19]
         os: [ubuntu-22.04, ubuntu-24.04, windows-2019]
@@ -72,7 +73,7 @@ jobs:
           - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/aarch64-toolchain.cmake"
                         -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
             arch: aarch64
-          - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/riscv64-gcc-toolchain.cmake"
+          - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/risc64-linux/riscv64-gcc-toolchain.cmake"
                         -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu
             arch: riscv64
           - arch_flags: -DLLVM_BUILD_32_BITS=ON -DLIBXML2_LIBRARIES=IGNORE -DLLVM_ENABLE_TERMINFO=OFF
