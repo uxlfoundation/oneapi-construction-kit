@@ -23,60 +23,18 @@ inputs:
   cross_arch:
     description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
     default: "none"
-  clang_tidy:
-    description: 'Enable installing of clang-tidy (currently 19)'
-    type: boolean
-    default: false
-  vulkan_sdk_install:
-    description: 'vulkan install flag'
-    default: true
   
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
     - name: Install ubuntu prerequisites
+      # Note: most prereqs now installed in dockerfiles
       if: ${{ inputs.os == 'ubuntu' }}
       shell: bash
       run: |
         # required for virtualenv running in docker
         echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_ENV
-        # required due to using non docker to build llvm
-        # If we switch to always using docker we can drop.
-        sudo apt-get install --yes lib32ncurses-dev
-        if [ "${{ inputs.cross_arch }}" = "x86" ]; then sudo dpkg --add-architecture i386 ; fi
-        wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-        if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-focal.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-focal.list; fi
-        if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list; fi
-        if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list; fi
-
-        if [ "${{ inputs.clang_tidy }}" = "true" ]; then
-          wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | sudo tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
-          if [ "${{ inputs.ubuntu_version }}" = "20.04" ]; then echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/focal/ llvm-toolchain-focal-19 main' | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null; fi
-          if [ "${{ inputs.ubuntu_version }}" = "22.04" ]; then echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null; fi
-          if [ "${{ inputs.ubuntu_version }}" = "24.04" ]; then echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main' | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null; fi
-        fi
-
-        sudo apt-get update
-        if [ "${{ inputs.clang_tidy }}" = "true" ]; then sudo apt-get install --yes clang-tidy-19; fi
-        pip install lit clang-format==19.1.0 virtualenv
-        # required for gtest-terse-runner running in docker
-        sudo apt-get install --yes python3-colorama
-        sudo apt-get install --yes doxygen
-        if [ "${{ inputs.vulkan_sdk_install }}" = "true" ]; then \
-           sudo apt-get install --yes vulkan-sdk
-        fi
-        # TODO: Only required if we are running something that requires qemu, not required for building
-        if [ "${{ inputs.cross_arch }}" != "none" ] && [ "${{ inputs.cross_arch }}" != "x86" ]; then \
-           # Install QEMU for testing cross compilation.
-           sudo apt-get install --yes qemu-user; \
-        fi
-
-    - name: Install cross arch tools
-      if: ${{ inputs.os == 'ubuntu' }}
-      uses: ./.github/actions/do_install_ubuntu_cross_tools
-      with:
-        cross_arch: ${{ inputs.cross_arch }}
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}

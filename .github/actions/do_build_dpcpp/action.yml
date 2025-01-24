@@ -21,11 +21,6 @@ runs:
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
 
-    - name: Install spirv tools
-      shell: bash
-      run:    
-        sudo apt-get install spirv-tools
-    
     - name: clone dpc++
       if: inputs.create_dpcpp_artefact_method == 'build'
       uses: actions/checkout@v4
