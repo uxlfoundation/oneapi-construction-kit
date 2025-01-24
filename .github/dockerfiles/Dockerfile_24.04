@@ -1,15 +1,10 @@
 FROM ubuntu:24.04
 
 RUN apt-get update 
-
-# FROM INFRA UBUNTU BASE
-
 RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
 # Set the timezone, required to avoid hanging on input
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# FROM 24 OCK BASE - if not already added
 
 # Enable ability to install foreign packages for cross compilation
 RUN dpkg --add-architecture i386
@@ -24,6 +19,12 @@ RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key 
 RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
 # Sync the two above package repositories
 RUN apt-get update
+
+# Add clang-tidy
+RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
+RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
+RUN apt-get update
+RUN apt-get install --yes clang-tidy-19
 
 # Install minimum requirements
 RUN apt-get install --yes cmake libtinfo-dev
@@ -46,6 +47,8 @@ RUN apt-get install --yes parallel
 RUN apt-get install --yes qemu-user
 # Install pkgconf for dpc++ builds and locally built spir-v
 RUN apt-get install --yes pkgconf:amd64 pkgconf:arm64 pkgconf:i386 pkgconf:riscv64
+# Install spirv tools
+RUN apt-get install --yes spirv-tools
 
 # Set-up pip
 RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
@@ -54,27 +57,10 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 RUN apt-get install --yes python3-colorama python3-distro python3-flake8 python3-gitlab python3-requests python3-virtualenv python3-yapf pipx
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
 
-# FROM OUR CURRENT INSTALLS PLUS ANY NEW EXTRAS - if not already added
-
+RUN apt-get -y install sudo
+RUN apt-get -y install gh
 RUN apt install -y zstd
 RUN apt install -y gnupg
 RUN apt install -y gcc g++
 RUN apt install -y file
-
-# DO THIS LAST
-
-# Install recent version of ccache in /usr
-# Redis support requires ccache 4.4 or newer.
-RUN git clone https://github.com/ccache/ccache.git && \
-  cd ccache && \
-  LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`); \
-  git -c advice.detachedHead=false checkout ${LATEST_TAG} && \
-  #/usr/local/bin/cmake -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-  #  -DZSTD_FROM_INTERNET=ON -DHIREDIS_FROM_INTERNET=ON \
-  #  -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 -DENABLE_TESTING=OFF && \
-  #/usr/local/bin/cmake --build build --target install && \
-  cmake -Bbuild -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-    -DZSTD_FROM_INTERNET=ON -DHIREDIS_FROM_INTERNET=ON \
-    -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DENABLE_TESTING=OFF && \
-  cmake --build build --target install && \
-  cd - && rm -rf ccache
+RUN apt install -y ccache
