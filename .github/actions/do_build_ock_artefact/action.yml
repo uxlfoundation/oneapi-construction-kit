@@ -9,9 +9,6 @@ inputs:
     default: '19'
   target:
     description: 'target architecture'
-  vulkan_sdk_install:
-    description: 'vulkan install flag'
-    default: true
   download_ock_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''

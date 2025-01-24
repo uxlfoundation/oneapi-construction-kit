@@ -114,7 +114,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
-          vulkan_sdk_install: false
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
 
   build_icd:
