@@ -527,7 +527,12 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   }
 
   if (flags & OpenCLDebugInfo100FlagObjectPointer) {
+#if LLVM_VERSION_GREATER_EQUAL(20, 0)
+    const bool implicit = flags & OpenCLDebugInfo100FlagArtificial;
+    type = dib.createObjectPointerType(type, implicit);
+#else
     type = dib.createObjectPointerType(type);
+#endif
   } else if (flags & OpenCLDebugInfo100FlagArtificial) {
     type = dib.createArtificialType(type);
   }
@@ -1927,7 +1932,8 @@ llvm::Error DebugInfoBuilder::create<DebugDeclare>(const OpExtInst &opc) {
   }
 
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)
-  module.addID(opc.IdResult(), op, dbg_declare.get<llvm::Instruction *>());
+  module.addID(opc.IdResult(), op,
+               llvm::cast<llvm::Instruction *>(dbg_declare));
 #else
   module.addID(opc.IdResult(), op, dbg_declare);
 #endif
@@ -2002,7 +2008,7 @@ llvm::Error DebugInfoBuilder::create<DebugValue>(const OpExtInst &opc) {
   }
 
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)
-  module.addID(opc.IdResult(), op, dbg_value.get<llvm::Instruction *>());
+  module.addID(opc.IdResult(), op, llvm::cast<llvm::Instruction *>(dbg_value));
 #else
   module.addID(opc.IdResult(), op, dbg_value);
 #endif
