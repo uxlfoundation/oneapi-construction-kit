@@ -38,7 +38,7 @@ runs:
           llvm_build_type: RelAssert
           cross_arch: ${{ steps.calc_vars.outputs.arch == 'x86_64' && 'none' || steps.calc_vars.outputs.arch }}
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
-          ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }}
+          ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }} # ALAN TODO: OK?
 
       - name: build ock x86
         if: steps.calc_vars.outputs.arch  == 'x86_64' && contains(inputs.download_ock_artefact, inputs.target) != true
