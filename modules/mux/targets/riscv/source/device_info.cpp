@@ -199,15 +199,11 @@ static mux_result_t GetDeviceInfos(uint32_t device_types,
     }
 
     // copy out the device info pointer
-    if (out_device_infos) {
+    if (out_device_infos && (num_infos_out < device_infos_length)) {
       out_device_infos[num_infos_out] = static_cast<mux_device_info_t>(&info);
     }
     // advance to next device info
     ++num_infos_out;
-    if (num_infos_out >= device_infos_length) {
-      // no more space so terminate
-      break;
-    }
   }
   // return the number of infos that we have
   if (out_device_infos_length) {
