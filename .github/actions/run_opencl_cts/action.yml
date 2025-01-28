@@ -35,7 +35,7 @@ runs:
         elif [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           QEMU_SETTING="-p qemu --qemu '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu'"
         fi
-        echo QEMU SETTINGS: ${{inputs.target}}
+        echo QEMU SETTING: $QEMU SETTING
         set -x
         # Note: use 'eval' built-in to handle quoting/escaping/splitting reqs
         RUN_CITIES="python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \

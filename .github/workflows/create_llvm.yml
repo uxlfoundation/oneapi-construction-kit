@@ -19,7 +19,6 @@ permissions: {}
 jobs:
   create_llvm_cache:
     strategy:
-      fail-fast: false  # ALAN TODO: at least for now
       matrix:
         version: [18, 19]
         os: [ubuntu-22.04, ubuntu-24.04, windows-2019]
@@ -86,7 +85,7 @@ jobs:
           - os: ubuntu-22.04
             os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
           - os: ubuntu-24.04
-            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON   # ALAN TODO: Correct?
+            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
 
     runs-on: ${{ matrix.os }}
     steps:
