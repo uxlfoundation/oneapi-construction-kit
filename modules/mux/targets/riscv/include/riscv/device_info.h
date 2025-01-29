@@ -54,9 +54,6 @@ struct device_info_s final : public mux_device_info_s {
 /// devices.
 bool enumerate_device_infos();
 
-static const size_t max_device_infos = 1;
-extern std::array<device_info_s, max_device_infos> device_infos;
-
 typedef device_info_s *device_info_t;
 /// @}
 }  // namespace riscv
