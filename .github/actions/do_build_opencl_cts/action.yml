@@ -42,7 +42,9 @@ runs:
       run: |
         # ALAN TODO: \/\/\/\/ Dockerize setup additions
         # The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
+        sudo apt-get update
         sudo sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
+        sudo apt-get update
         # Install spirv tools
         sudo apt-get install --yes spirv-tools
         # ALAN TODO: ^^^^^^^^ end setup additions
