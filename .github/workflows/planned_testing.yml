@@ -181,11 +181,11 @@ jobs:
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
-    container:
-      #image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
-      #volumes:
-      #  - ${{github.workspace}}:${{github.workspace}}
-      image: null
+    # ALAN TODO: Refactor so we can use (various) aarch64 images or none
+    #container:
+    #  image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
+    #  volumes:
+    #    - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
         uses: actions/checkout@v4
