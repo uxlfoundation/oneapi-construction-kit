@@ -41,9 +41,6 @@ runs:
         CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.cmake_toolchain }}"
       run: |
         # ALAN TODO: \/\/\/\/ Dockerize setup additions
-        echo LSHWc && (lscpu || echo FAIL)
-        echo LSHWg && (lshw -class display || echo FAIL)
-        echo COMPILER && ls -l /usr/bin/aarch64-linux-gnu-g++
         sudo apt-get update
         # Install spirv tools
         sudo apt-get install --yes spirv-tools
