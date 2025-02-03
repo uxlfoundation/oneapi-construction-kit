@@ -1,0 +1,9 @@
+FROM ubuntu:22.04
+
+RUN apt-get update
+RUN apt-get -y install sudo
+RUN apt-get install -y git
+RUN apt-get install --yes cmake
+RUN apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+RUN apt-get install --yes python3 python3-pip
+RUN apt-get install --yes spirv-tools
