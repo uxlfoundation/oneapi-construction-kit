@@ -59,7 +59,7 @@ jobs:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
       # These variables are for excluding certain targets from the total list, which is why just including
-      # certain targets is a long list of excludes
+      # certain targets involves a long list of excludes
       run: |
         echo matrix_only_linux_x86_64_aarch64_riscv64="[ \
            {\"target\": \"host_arm_linux\"}, \
@@ -190,12 +190,11 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    # ALAN TODO: Refactor so we can use (various) aarch64 runnners with (various) images or none
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
-    #container:
-    #  image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
-    #  volumes:
-    #    - ${{github.workspace}}:${{github.workspace}}
+    container:
+      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
         uses: actions/checkout@v4
