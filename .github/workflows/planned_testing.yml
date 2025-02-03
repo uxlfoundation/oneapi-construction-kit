@@ -107,7 +107,7 @@ jobs:
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
     runs-on: cp-ubuntu-24.04
     container:
-      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' \
+      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest'
              || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
@@ -138,7 +138,7 @@ jobs:
 
     runs-on: cp-ubuntu-24.04
     container:
-      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' \
+      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest'
              || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
@@ -194,8 +194,8 @@ jobs:
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
-      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' \
-             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-graviton:latest' \
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest'
+             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-graviton:latest'
              || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
