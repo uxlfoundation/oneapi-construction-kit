@@ -240,15 +240,21 @@ jobs:
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native_host]
     strategy:
+      fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        # TODO: For now just linux x86_64
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        ## TODO: For now just linux x86_64
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
     # TODO: Extend if we decide to enable for windows or build natively on another target
-    runs-on: cp-ubuntu-24.04
+    #runs-on: cp-ubuntu-24.04
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      #image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
