@@ -23,6 +23,9 @@ inputs:
   cross_arch:
     description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
     default: "none"
+  cache_suffix:
+    description: 'suffix for caches so each job has its own'
+    default: 'build'
   
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -92,9 +95,9 @@ runs:
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
     - name: Setup ccache
-      uses: hendrikmuhs/ccache-action@ed74d11c0b343532753ecead8a951bb09bb34bc9 # v1.2.14
+      uses: hendrikmuhs/ccache-action@53911442209d5c18de8a31615e0923161e435875 # v1.2.16
       with:
-        max-size: 200M
-        key: ccache-build
+        max-size: 400M
+        key: ccache-${{ inputs.cache_suffix }}
         variant: ccache
         save: ${{ inputs.save }}
