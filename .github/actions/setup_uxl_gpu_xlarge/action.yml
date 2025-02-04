@@ -1,0 +1,32 @@
+name: setup-uxl_gpu_xlarge
+description: TODO
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: add to path
+      shell: bash    
+      run:
+        echo "PATH=$PATH:/home/runner/.local/bin" >> $GITHUB_ENV
+    - name: Install ubuntu prerequisites
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3 python3-pip
+        sudo apt-get install -y zstd
+        sudo apt-get install -y spirv-tools # Do we need to do the vulkan sdk here?
+        sudo apt-get install -y parallel
+        sudo apt-get install -y lib32ncurses-dev        
+                
+        #sudo apt-get install -y ninja-build
+
+        pip install clang-format==19.1.0
+        pip install lit colorama
+        # cmakelint colorama flake8 lit pylint requests virtualenv yapf python-gitlab distro clang-format==19.1.0
+
+        # doxygen         
+        # sudo apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
+        # sudo apt-get install -y ninja-build
+        # sudo apt-get install -y clang-tidy-19
+
