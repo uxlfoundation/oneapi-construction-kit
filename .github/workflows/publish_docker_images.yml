@@ -19,7 +19,7 @@ env:
 
 jobs:
 
-  publish-docker-images:
+  publish-docker-images-x86-64:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -32,13 +32,13 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push the Docker images
       run: |
-        for DOCKERFILE in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_*04 ; do
+        for DOCKERFILE in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_*x86-64 ; do
           VERSION=${DOCKERFILE##*_}
           docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
           docker push $REGISTRY/ock_ubuntu_$VERSION:latest
         done
 
-  publish-docker-images-graviton:
+  publish-docker-images-aarch64:
     runs-on: ubuntu-22.04-arm
     steps:
     - name: Checkout
@@ -51,7 +51,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push the Docker images
       run: |
-        DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04-graviton
+        DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04-aarch64
         VERSION=${DOCKERFILE##*_}
         docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
         docker push $REGISTRY/ock_ubuntu_$VERSION:latest
