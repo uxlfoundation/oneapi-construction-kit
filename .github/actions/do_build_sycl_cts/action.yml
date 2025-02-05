@@ -40,7 +40,8 @@ runs:
       uses: actions/download-artifact@v4
       with:
         #name: dpcpp_${{inputs.target}}
-        name: dpcpp_host_x86_64_linux
+        # ALAN TODO: resolve dpcpp needed
+        name: ${{ contains(inputs.target, 'host_aarch64') && 'dpcpp_host_x86_64_linux' || 'dpcpp_host_x86_64_linux' }}
         path: install_dpcpp
 
     - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
