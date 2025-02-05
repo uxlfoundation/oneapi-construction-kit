@@ -39,7 +39,8 @@ runs:
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
-        name: dpcpp_${{inputs.target}}
+        #name: dpcpp_${{inputs.target}}
+        name: dpcpp_host_x86_64_linux
         path: install_dpcpp
 
     - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
