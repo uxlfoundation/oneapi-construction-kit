@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% seo %}
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    {% include head-custom.html %}
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      {% if site.title and site.title != page.title %}
+      <h1><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
+      {% endif %}
+
+      <h1>{{ page.title }}</h1>
+
+      <table>
+      <tbody>
+      <tr>
+      <th align="left">RFC</th>
+      <td>{{ page.rfc | escape }}</td>
+      </tr>
+      <tr>
+      <th align="left">Author</th>
+      <td>{{ page.author | escape }}
+      </tr>
+      {% if page.sponsor %}
+      <tr>
+      <th align="left">Sponsor</th>
+      <td>{{ page.sponsor | escape }}</td>
+      </tr>
+      {% endif %}
+      {% if page.discussions-to %}
+      <tr>
+      <th align="left">Discussions-To</th>
+      <td><a href="{{ page.discussions-to | escape }}">{{ page.discussions-to | escape }}</a></td>
+      </tr>
+      {% endif %}
+      {% if page.status %}
+      <tr>
+      <th align="left">Status</th>
+      <td>{{ page.status | escape }}</td>
+      </tr>
+      {% endif %}
+      </tbody>
+      </table>
+
+      {{ content }}
+
+      {% if site.github.private != true and site.github.license %}
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        This site is open source. {% github_edit_link "Improve this page" %}.
+      </div>
+      {% endif %}
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
