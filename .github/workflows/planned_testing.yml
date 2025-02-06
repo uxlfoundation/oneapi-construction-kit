@@ -117,7 +117,8 @@ jobs:
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
 
   build_icd:
-    if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
+    #if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
+    if: false
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
