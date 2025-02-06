@@ -214,12 +214,15 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
     # TODO: Extend if we decide to enable for windows or build natively on another target
     runs-on: cp-ubuntu-24.04
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      #image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/alan-forbes-cp/ock_ubuntu_24.04-x86-64:latest'
+             || 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-x86-64:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
