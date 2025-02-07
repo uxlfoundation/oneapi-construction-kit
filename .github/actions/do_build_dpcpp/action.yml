@@ -49,7 +49,7 @@ runs:
       run: |
         CROSS_OPTS=""
         if [[ "${{inputs.target}}" =~ .*aarch64.* || "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/toolchains/${{steps.calc_vars.outputs.arch}}-linux.cmake --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/dpcpp_native_x86_64_install/bin"
+          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/dpcpp_native_x86_64_install/bin"
         fi
         cd llvm
         set -x

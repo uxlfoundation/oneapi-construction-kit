@@ -243,6 +243,7 @@ jobs:
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
     strategy:
+      fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_aarch64_riscv64) }}
