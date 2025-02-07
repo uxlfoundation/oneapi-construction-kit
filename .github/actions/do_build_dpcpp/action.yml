@@ -49,9 +49,10 @@ runs:
       run: |
         CROSS_OPTS=""
         if [[ "${{inputs.target}}" =~ .*aarch64.* || "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/toolchains/$arch-linux.cmake --cmake-opt=-DLLVM_HOST_TRIPLE=$arch-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/dpcpp_native_x86_64_install/bin"
+          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/toolchains/${{steps.calc_vars.outputs.arch}}-linux.cmake --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/dpcpp_native_x86_64_install/bin"
         fi
         cd llvm
+        set -x
         python3 buildbot/configure.py -o build --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
@@ -98,10 +99,10 @@ runs:
         # Install configuration files to pick up libraries for cross compilation.
         for arch in x86_64 aarch64 riscv64; do
           echo "
-          -L<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib
-          -fsycl-libdevice-path=<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib
-          -fsycl-libspirv-path=<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
-          " >../install/bin/$arch-unknown-linux-gnu.cfg;
+          -L<CFGDIR>/../../../dpcpp_${arch}_install/lib
+          -fsycl-libdevice-path=<CFGDIR>/../../../dpcpp_${arch}_install/lib
+          -fsycl-libspirv-path=<CFGDIR>/../../../dpcpp_${arch}_install/lib/clc/remangled-l64-signed_char.libspirv-${arch}-unknown-linux-gnu.bc
+          " >../install/bin/${arch}-unknown-linux-gnu.cfg;
         done
 
     - name: download dpc plus plus from official releases
