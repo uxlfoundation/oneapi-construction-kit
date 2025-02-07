@@ -18,6 +18,21 @@ runs:
       with:
         target: ${{ inputs.target }}  
 
+    - name: download pre-built native dpc++ artifact for cross builds
+      if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
+      uses: actions/download-artifact@v4
+      with:
+        name: 'dpcpp_host_x86_64_linux'
+        path: dpcpp_native_x86_64_install
+
+    - name: unpackage native dpc++ artifacts for cross builds # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
+      shell: bash
+      run: |
+        cd dpcpp_native_x86_64_install
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
 
@@ -31,15 +46,16 @@ runs:
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
-      run:
-        cd llvm; python3 buildbot/configure.py
-        -o build
-        --host-target="X86;AArch64;RISCV"
-        --native_cpu
-        --llvm-external-projects=lld
-        --cmake-opt=-DNATIVECPU_USE_OCK=ON
-        --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF
-        --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
+      run: |
+        CROSS_OPTS=""
+        if [[ "${{inputs.target}}" =~ .*aarch64.* || "${{inputs.target}}" =~ .*riscv64.* ]] ; then
+          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/toolchains/$arch-linux.cmake --cmake-opt=-DLLVM_HOST_TRIPLE=$arch-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/dpcpp_native_x86_64_install/bin"
+        fi
+        cd llvm
+        python3 buildbot/configure.py -o build --host-target="X86;AArch64;RISCV" --native_cpu \
+                --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
+                $CROSS_OPTS \
+                --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
 
     - name: build sycl-headers
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
@@ -72,8 +88,7 @@ runs:
         cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
         llvm-tblgen not opt prepare_builtins ../install/bin
 
-    # TODO: For now just linux x86_64
-    #       Review for location of components (paths) and any archive package/unpackage reqs.
+    # Note: install config (.cfg) files indicate the expected install location of the x-comp 'lib' artifact
     - name: install config files to pick up libraries for cross compilation.
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
@@ -83,9 +98,9 @@ runs:
         # Install configuration files to pick up libraries for cross compilation.
         for arch in x86_64 aarch64 riscv64; do
           echo "
-          -L<CFGDIR>/../../../$arch-linux/install/lib
-          -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
-          -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
+          -L<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib
+          -fsycl-libdevice-path=<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib
+          -fsycl-libspirv-path=<CFGDIR>/../../../dpcpp_cross_${arch}_install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
           " >../install/bin/$arch-unknown-linux-gnu.cfg;
         done
 
