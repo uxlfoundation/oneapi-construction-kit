@@ -99,9 +99,9 @@ runs:
         # Install configuration files to pick up libraries for cross compilation.
         for arch in x86_64 aarch64 riscv64; do
           echo "
-          -L<CFGDIR>/../../../dpcpp_${arch}_install/lib
-          -fsycl-libdevice-path=<CFGDIR>/../../../dpcpp_${arch}_install/lib
-          -fsycl-libspirv-path=<CFGDIR>/../../../dpcpp_${arch}_install/lib/clc/remangled-l64-signed_char.libspirv-${arch}-unknown-linux-gnu.bc
+          -L<CFGDIR>/../../dpcpp_${arch}_install/lib
+          -fsycl-libdevice-path=<CFGDIR>/../../dpcpp_${arch}_install/lib
+          -fsycl-libspirv-path=<CFGDIR>/../../dpcpp_${arch}_install/lib/clc/remangled-l64-signed_char.libspirv-${arch}-unknown-linux-gnu.bc
           " >../install/bin/${arch}-unknown-linux-gnu.cfg;
         done
 

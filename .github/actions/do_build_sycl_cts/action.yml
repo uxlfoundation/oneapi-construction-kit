@@ -35,20 +35,35 @@ runs:
         name: header_${{inputs.target}}
         path: install_headers
 
-    - name: download dpc++ artifact
+    - name: download native dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
-        #name: dpcpp_${{inputs.target}}
-        # ALAN TODO: resolve dpcpp needed
-        name: ${{ contains(inputs.target, 'host_aarch64') && 'dpcpp_host_x86_64_linux' || 'dpcpp_host_x86_64_linux' }}
-        path: install_dpcpp
+        name: dpcpp_host_x86_64_linux
+        path: dpcpp_x86_64_install # path mandated by .cfg file for cross-builds
 
-    - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+    - name: unpackage native dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       shell: bash
       run: |
-        cd install_dpcpp
+        cd dpcpp_x86_64_install
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+
+   - name: download cross dpc++ artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
+          ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_${{inputs.target}}
+        path: dpcpp_${{steps.calc_vars.outputs.arch}}_install # path mandated by .cfg file for cross-builds
+
+    - name: unpackage cross dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
+          ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
+      shell: bash
+      run: |
+        cd dpcpp_${{steps.calc_vars.outputs.arch}}_install
         tar xf dpcpp.tar
         rm dpcpp.tar
 
@@ -73,10 +88,10 @@ runs:
             -GNinja \
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
-            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/install_dpcpp \
+            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp_${{steps.calc_vars.outputs.arch}}_install \
             -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
             -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
+            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp_${{steps.calc_vars.outputs.arch}}_install/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
         ninja -C SYCL-CTS -v -j4 -k 0 || :
