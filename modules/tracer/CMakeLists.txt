@@ -40,8 +40,3 @@ target_compile_definitions(tracer PUBLIC
   $<$<BOOL:${CA_TRACE_IMPLEMENTATION}>:CA_TRACE_IMPLEMENTATION=1>)
 
 target_link_libraries(tracer PRIVATE utils)
-
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES tracer)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")

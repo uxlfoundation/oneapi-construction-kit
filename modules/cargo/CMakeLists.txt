@@ -83,11 +83,6 @@ target_compile_definitions(cargo PUBLIC
   $<$<BOOL:${CA_ENABLE_CARGO_INSTRUMENTATION}>:
   CA_CARGO_INSTRUMENTATION_ENABLED>)
 
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES cargo)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")
-
 if(CA_ENABLE_TESTS)
   add_ca_executable(UnitCargo
     ${CMAKE_CURRENT_SOURCE_DIR}/test/allocator.cpp
