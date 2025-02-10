@@ -28,6 +28,7 @@ runs:
         repository: intel/llvm
         path: llvm
 
+      # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
     - name: download pre-built native dpc++ artifact for cross builds
       if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
       uses: actions/download-artifact@v4
@@ -51,6 +52,8 @@ runs:
         if [[ "${{inputs.target}}" =~ .*aarch64.* || "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
         fi
+        # ALAN TODO: more temp logging ...
+        pwd && ls -alR
         cd llvm
         set -x
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux --host-target="X86;AArch64;RISCV" --native_cpu \
