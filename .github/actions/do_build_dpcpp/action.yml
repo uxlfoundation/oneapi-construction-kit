@@ -18,6 +18,16 @@ runs:
       with:
         target: ${{ inputs.target }}  
 
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: clone dpc++
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
+      uses: actions/checkout@v4
+      with:
+        repository: intel/llvm
+        path: llvm
+
     - name: download pre-built native dpc++ artifact for cross builds
       if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
       uses: actions/download-artifact@v4
@@ -32,16 +42,6 @@ runs:
         cd llvm/build/x86_64-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
-
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
-
-    - name: clone dpc++
-      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
-      uses: actions/checkout@v4
-      with:
-        repository: intel/llvm
-        path: llvm
 
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
