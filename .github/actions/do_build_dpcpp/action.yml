@@ -52,9 +52,8 @@ runs:
         if [[ "${{inputs.target}}" =~ .*aarch64.* || "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
         fi
-        # ALAN TODO: more temp logging ...
-        pwd && ls -alR
         cd llvm
+        # apply git llvm patches
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0002-Add-option-to-search-for-libdevice.patch
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0003-add-cl_khr_int64_extended_atomics.patch
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0004-Add-UR-patch-infrastructure.patch
@@ -97,7 +96,6 @@ runs:
         cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
         llvm-tblgen not opt prepare_builtins ../install/bin
 
-    # Note: install config (.cfg) files indicate the expected install location of the x-comp 'lib' artifact
     - name: install config files to pick up libraries for cross compilation.
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
@@ -149,8 +147,6 @@ runs:
       run: |
         cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         tar cf dpcpp.tar *
-        # ALAN TODO: more temp logging ...
-        cd ../../../.. && pwd && ls -alR
 
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
