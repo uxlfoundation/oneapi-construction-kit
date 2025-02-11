@@ -40,13 +40,13 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: dpcpp_host_x86_64_linux
-        path: dpcpp_x86_64_install # path mandated by .cfg file for cross-builds
+        path: dpcpp/x86_64-linux/install
 
     - name: unpackage native dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       shell: bash
       run: |
-        cd dpcpp_x86_64_install
+        cd dpcpp/x86_64-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
 
@@ -56,14 +56,14 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: dpcpp_${{inputs.target}}
-        path: dpcpp_${{steps.calc_vars.outputs.arch}}_install # path mandated by .cfg file for cross-builds
+        path: dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install
 
     - name: unpackage cross dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
           ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
       shell: bash
       run: |
-        cd dpcpp_${{steps.calc_vars.outputs.arch}}_install
+        cd dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
 
@@ -88,10 +88,10 @@ runs:
             -GNinja \
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
-            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp_${{steps.calc_vars.outputs.arch}}_install \
+            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install \
             -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
             -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp_${{steps.calc_vars.outputs.arch}}_install/bin/clang++" \
+            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
         ninja -C SYCL-CTS -v -j4 -k 0 || :
