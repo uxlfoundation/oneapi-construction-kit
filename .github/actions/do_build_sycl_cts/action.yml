@@ -50,7 +50,7 @@ runs:
         tar xf dpcpp.tar
         rm dpcpp.tar
 
-   - name: download cross dpc++ artifact
+    - name: download cross dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
           ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
       uses: actions/download-artifact@v4
@@ -84,14 +84,21 @@ runs:
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
         git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+
+        # For x-build:
+        # ALAN TODO: Set toolchain based on arch?
+        # ALAN DONE: Set install dir to x86_64 ??
+        # ALAN DONE: Set make cxx compiler to x86_64 ??
+        # ALAN DONE: Set make cxx flags to include arch target ??
+
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
-            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install \
+            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp/x86_64-linux/install \
             -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
             -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp/${{steps.calc_vars.outputs.arch}}-linux/install/bin/clang++" \
+            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp/x86_64-linux/install/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
         ninja -C SYCL-CTS -v -j4 -k 0 || :
