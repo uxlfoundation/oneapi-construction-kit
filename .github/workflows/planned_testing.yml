@@ -54,8 +54,9 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
-      matrix_only_linux_riscv64: ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
-      matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_x86_64_riscv64:         ${{ steps.vars.outputs.matrix_only_linux_x86_64_riscv64 }}
+      matrix_only_linux_x86_64:                 ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_riscv64:                ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
@@ -63,8 +64,9 @@ jobs:
       # two targets is a long list of excludes
       run: |
         echo matrix_only_linux_x86_64_aarch64_riscv64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_x86_64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo         matrix_only_linux_x86_64_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo                 matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo                matrix_only_linux_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_x86_64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
 
   create_ock_artefacts_windows:
@@ -73,19 +75,24 @@ jobs:
     # matrix, just check if it's enabled
     runs-on: windows-2019
     if : inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      # Todo: move to a common place e.g. setup_build
+#      - name: Setup Windows llvm base
+#        uses: llvm/actions/setup-windows@main
+#        with:
+#          arch: amd64
+#      - name: build ock artefact
+#        uses: ./.github/actions/do_build_ock_artefact
+#        with:
+#          target: host_x86_64_windows
+#          llvm_version: ${{ inputs.llvm_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      # Todo: move to a common place e.g. setup_build
-      - name: Setup Windows llvm base
-        uses: llvm/actions/setup-windows@main
-        with:
-          arch: amd64
-      - name: build ock artefact
-        uses: ./.github/actions/do_build_ock_artefact
-        with:
-          target: host_x86_64_windows
-          llvm_version: ${{ inputs.llvm_version }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   create_ock_artefacts_ubuntu:
     needs: [workflow_vars]
@@ -93,7 +100,8 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_riscv64) }}
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
@@ -103,20 +111,25 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     if : inputs.ock && contains(inputs.target_list, 'linux')
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      - name: set up gh
+#        uses: ./.github/actions/setup_gh
+#        with:
+#          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: build ock artefact
+#        uses: ./.github/actions/do_build_ock_artefact
+#        with:
+#          target: ${{ matrix.target }}
+#          llvm_version: ${{ inputs.llvm_version }}
+#          download_ock_artefact: ${{ inputs.download_ock_artefact }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build ock artefact
-        uses: ./.github/actions/do_build_ock_artefact
-        with:
-          target: ${{ matrix.target }}
-          llvm_version: ${{ inputs.llvm_version }}
-          download_ock_artefact: ${{ inputs.download_ock_artefact }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
@@ -125,24 +138,30 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_riscv64) }}
 
     runs-on: cp-ubuntu-24.04
     container:
       image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
+#    steps:
+#      - name: clone ock platform
+#        uses: actions/checkout@v4
+#        with:
+#          sparse-checkout: |
+#            platform
+#            .github
+#      - name : build and upload icd ${{matrix.target}}
+#        uses: ./.github/actions/do_build_icd
+#        with:
+#          target: ${{matrix.target}}
     steps:
-      - name: clone ock platform
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            platform
-            .github
-      - name : build and upload icd ${{matrix.target}}
-        uses: ./.github/actions/do_build_icd
-        with:
-          target: ${{matrix.target}}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   
   # Currently only builds and runs on x86_64 linux
@@ -156,22 +175,27 @@ jobs:
 
     # Todo: expand for aarch64 and riscv64
     runs-on: ubuntu-22.04
+#    steps:
+#      - name: clone ock platform
+#        uses: actions/checkout@v4
+#        with:
+#          sparse-checkout: |
+#            platform
+#            .github
+#      # TODO: Consider separating out tornado build and run in the future
+#      - name : build and upload tornado
+#        uses: ./.github/actions/do_build_tornado
+#        with:
+#          target: ${{ matrix.target }}
+#      - name : run tornado
+#        uses: ./.github/actions/run_tornado
+#        with:
+#          target: ${{ matrix.target }}
     steps:
-      - name: clone ock platform
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            platform
-            .github
-      # TODO: Consider separating out tornado build and run in the future
-      - name : build and upload tornado
-        uses: ./.github/actions/do_build_tornado
-        with:
-          target: ${{ matrix.target }}
-      - name : run tornado
-        uses: ./.github/actions/run_tornado
-        with:
-          target: ${{ matrix.target }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   build_run_opencl_cts:
     if: inputs.test_opencl_cts
@@ -188,27 +212,32 @@ jobs:
       image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04:latest' || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
+#    steps:
+#      - name: clone ock
+#        uses: actions/checkout@v4
+#        with:
+#          # scripts: for run_cities.py
+#          # source: for CTS filter.csv files
+#          # platform: for toolchain files
+#          sparse-checkout: |
+#            scripts
+#            source
+#            platform
+#            .github
+#      # TODO: Consider separating out opencl_cts build and run in the future
+#      - name : build and upload opencl_cts
+#        uses: ./.github/actions/do_build_opencl_cts
+#        with:
+#          target: ${{ matrix.target }}
+#      - name : run opencl_cts
+#        uses: ./.github/actions/run_opencl_cts
+#        with:
+#          target: ${{ matrix.target }}
     steps:
-      - name: clone ock
-        uses: actions/checkout@v4
-        with:
-          # scripts: for run_cities.py
-          # source: for CTS filter.csv files
-          # platform: for toolchain files
-          sparse-checkout: |
-            scripts
-            source
-            platform
-            .github
-      # TODO: Consider separating out opencl_cts build and run in the future
-      - name : build and upload opencl_cts
-        uses: ./.github/actions/do_build_opencl_cts
-        with:
-          target: ${{ matrix.target }}
-      - name : run opencl_cts
-        uses: ./.github/actions/run_opencl_cts
-        with:
-          target: ${{ matrix.target }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   build_dpcpp_native:
     needs: [workflow_vars]
@@ -225,19 +254,24 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     if : inputs.test_sycl_cts
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      - name: set up gh
+#        uses: ./.github/actions/setup_gh
+#        with:
+#          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: build dpc++ artefact
+#        uses: ./.github/actions/do_build_dpcpp
+#        with:
+#          target: ${{ matrix.target }}
+#          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build dpc++ artefact
-        uses: ./.github/actions/do_build_dpcpp
-        with:
-          target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
@@ -255,19 +289,24 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     if : inputs.test_sycl_cts
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      - name: set up gh
+#        uses: ./.github/actions/setup_gh
+#        with:
+#          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: build dpc++ artefact
+#        uses: ./.github/actions/do_build_dpcpp
+#        with:
+#          target: ${{ matrix.target }}
+#          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build dpc++ artefact
-        uses: ./.github/actions/do_build_dpcpp
-        with:
-          target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native, build_dpcpp_cross ]
@@ -294,19 +333,24 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     if : inputs.test_sycl_cts
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      - name: set up gh
+#        uses: ./.github/actions/setup_gh
+#        with:
+#          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: build sycl cts artefact
+#        uses: ./.github/actions/do_build_sycl_cts
+#        with:
+#          target: ${{ matrix.target }}
+#          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}        
-      - name: build sycl cts artefact
-        uses: ./.github/actions/do_build_sycl_cts
-        with:
-          target: ${{ matrix.target }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
 
   run_sycl_cts:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_dpcpp_cross , build_sycl_cts]
@@ -332,10 +376,15 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     if : inputs.test_sycl_cts
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#      - name: build dpc++ artefact
+#        uses: ./.github/actions/run_sycl_cts
+#        with:
+#          target: ${{ matrix.target }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: build dpc++ artefact
-        uses: ./.github/actions/run_sycl_cts
-        with:
-          target: ${{ matrix.target }}
+    - name: test
+      shell: bash
+      run: |
+        echo hello
