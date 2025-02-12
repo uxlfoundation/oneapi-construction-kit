@@ -75,8 +75,3 @@ add_subdirectory(tools)
 if(CA_ENABLE_TESTS)
   add_subdirectory(test)
 endif()
-
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES spirv-ll)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")

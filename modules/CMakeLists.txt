@@ -14,19 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# Create an internally cached variable to store a list of include directories
-# for modules which do not export a target, such as header only libraries.
-# These modules must append to this string so that the include directories can
-# be propagated throughout the project.
-set(MODULES_INCLUDE_DIRS # No default value
-  CACHE INTERNAL "List of module include directories.")
-
-# Create an internally cached variable to store all module libraries. Modules
-# must append to this list so that the libraries can be propagated throughout
-# the project.
-set(MODULES_LIBRARIES # No default value
-  CACHE INTERNAL "List of module libraries.")
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cargo)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/loader)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tracer)
@@ -63,7 +50,3 @@ if(CA_ENABLE_TESTS)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/kts)
 endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lit)
-
-foreach(LIBRARY ${MODULES_LIBRARIES})
-  target_include_directories(${LIBRARY} PUBLIC ${MODULES_INCLUDE_DIRS})
-endforeach()

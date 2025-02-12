@@ -214,10 +214,5 @@ target_include_directories(extension
 target_link_libraries(extension PUBLIC
   builtins cargo CL-binary compiler-loader mux)
 
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES extension)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")
-
 # Install enabled extension headers.
 install(FILES ${CL_EXTENSION_HEADERS} DESTINATION include/CL COMPONENT OCL)
