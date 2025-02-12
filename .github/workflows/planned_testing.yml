@@ -240,7 +240,8 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          download_dpcpp_artefact: 2573529746
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
@@ -270,7 +271,8 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          download_dpcpp_artefact: 2573735769
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native, build_dpcpp_cross ]
