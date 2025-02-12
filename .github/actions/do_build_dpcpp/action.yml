@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   download_dpcpp_artefact:
-    description: 'download dpcpp artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
+    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
     default: "build"
 
