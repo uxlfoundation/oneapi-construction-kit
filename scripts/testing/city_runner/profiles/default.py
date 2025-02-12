@@ -99,6 +99,9 @@ class DefaultTestRun(CTSTestRun):
         if lib_dirs:
             env[env_var_name] = env_var_separator.join(lib_dirs)
 
+        if os.path.exists(exe_path):
+            working_dir = os.path.dirname(exe_path)
+
         # Support `<command> <args>` invocations by splitting the
         # value of the --prepend_args option, the first item being the path to
         # `<command>` binary and subsequent items optional arguments.
