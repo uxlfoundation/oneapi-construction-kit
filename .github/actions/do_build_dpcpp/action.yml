@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   download_dpcpp_artefact:
-    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
+    description: 'download dpcpp artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
     default: "build"
 
@@ -30,14 +30,16 @@ runs:
 
       # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
     - name: download pre-built native dpc++ artifact for cross builds
-      if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true &&
+          ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
       uses: actions/download-artifact@v4
       with:
         name: 'dpcpp_host_x86_64_linux'
         path: llvm/build/x86_64-linux/install
 
     - name: unpackage native dpc++ artifacts for cross builds # package/unpackage avoids known 'permissions loss' issue
-      if: contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv')
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true &&
+          ( contains(inputs.target, 'host_aarch64') || contains(inputs.target, 'host_riscv') )
       shell: bash
       run: |
         cd llvm/build/x86_64-linux/install
