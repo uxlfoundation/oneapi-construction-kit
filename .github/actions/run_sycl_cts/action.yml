@@ -70,7 +70,7 @@ runs:
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
           PREPEND_PATH="--prepend-path 'qemu-aarch64 -L /usr/aarch64-linux-gnu'"
         elif [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          PREPEND_PATH="--prepend_path 'qemu-riscv64 -L /usr/riscv64-linux-gnu'"
+          PREPEND_PATH="--prepend-path 'qemu-riscv64 -L /usr/riscv64-linux-gnu'"
         fi
         echo PREPEND_PATH SETTING: $PREPEND_PATH
         echo > expect_fail.csv
