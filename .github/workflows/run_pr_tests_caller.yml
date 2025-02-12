@@ -23,12 +23,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run-prs:
-    name: Call PR testing on schedule
-    if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
-    uses: ./.github/workflows/run_pr_tests.yml
-    with:
-      update_cache: ${{ github.event_name == 'schedule' }}
-      is_pull_request:  ${{ github.event_name != 'schedule' }}
+  # run-prs:
+  #   name: Call PR testing on schedule
+  #   if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
+  #   uses: ./.github/workflows/run_pr_tests.yml
+  #   with:
+  #     update_cache: true
+  #     #${{ github.event_name == 'schedule' }}
+  #     is_pull_request:  ${{ github.event_name != 'schedule' }}
+
+  run_pr_1:
+      name: Call PR testing on schedule
+      # if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
+      uses: ./.github/workflows/run_pr_tests.yml
+      with:
+        update_cache: true
+        #${{ github.event_name == 'schedule' }}
+        is_pull_request:  ${{ github.event_name != 'schedule' }}
+
+  run_pr_2:
+      name: Call PR testing on schedule
+      needs: [run_pr_1]
+      # if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
+      uses: ./.github/workflows/run_pr_tests.yml
+      with:
+        update_cache: true
+        #${{ github.event_name == 'schedule' }}
+        is_pull_request:  ${{ github.event_name != 'schedule' }}
 
 # additional ones here for cron and/or push to main - also can be in different file.
