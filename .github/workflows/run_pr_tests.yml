@@ -27,6 +27,7 @@ on:
 permissions:
   packages: read
 
+# added a comment here to force a workflow run.
 jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
