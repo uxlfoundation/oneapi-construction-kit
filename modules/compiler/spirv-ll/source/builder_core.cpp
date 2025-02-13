@@ -2155,7 +2155,12 @@ llvm::Error Builder::create<OpFunctionParameter>(
             arg->addAttr(llvm::Attribute::NoAlias);
             break;
           case spv::FunctionParameterAttributeNoCapture:
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+            arg->addAttr(llvm::Attribute::getWithCaptureInfo(
+                arg->getContext(), llvm::CaptureInfo::none()));
+#else
             arg->addAttr(llvm::Attribute::NoCapture);
+#endif
             break;
           case spv::FunctionParameterAttributeNoWrite:
             arg->addAttr(llvm::Attribute::ReadOnly);
@@ -2472,9 +2477,13 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
   // so make sure these are added where necessary
   const llvm::Attribute::AttrKind ptr_attr_kinds[] = {
       llvm::Attribute::ByRef,     llvm::Attribute::ByVal,
-      llvm::Attribute::StructRet, llvm::Attribute::NoCapture,
-      llvm::Attribute::ReadOnly,  llvm::Attribute::WriteOnly,
-      llvm::Attribute::NoAlias,
+      llvm::Attribute::StructRet, llvm::Attribute::ReadOnly,
+      llvm::Attribute::WriteOnly, llvm::Attribute::NoAlias,
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+      llvm::Attribute::Captures,
+#else
+      llvm::Attribute::NoCapture,
+#endif
   };
   const llvm::Attribute::AttrKind val_attr_kinds[] = {
       llvm::Attribute::ZExt,
@@ -2503,6 +2512,12 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
           call->addParamAttr(i, llvm::Attribute::get(
                                     ctx, kind, call->getParamStructRetType(i)));
           break;
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+        case llvm::Attribute::Captures:
+          call->addParamAttr(i, llvm::Attribute::getWithCaptureInfo(
+                                    ctx, call->getCaptureInfo(i)));
+          break;
+#endif
         default:
           SPIRV_LL_ASSERT(!llvm::Attribute::isTypeAttrKind(kind),
                           "Unhandled type attribute");

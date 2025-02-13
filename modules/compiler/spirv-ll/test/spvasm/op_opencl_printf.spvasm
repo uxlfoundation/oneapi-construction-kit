@@ -62,4 +62,7 @@
 ; CHECK: %call = tail call spir_func i32 (ptr addrspace(2), ...) @printf(ptr addrspace(2) %0, i32 42)
                OpReturn
                OpFunctionEnd
-; CHECK: declare extern_weak spir_func i32 @printf(ptr addrspace(2) nocapture readonly, ...) local_unnamed_addr
+; CHECK: declare extern_weak spir_func i32 @printf(ptr addrspace(2)
+; CHECK-DAG: {{nocapture|captures\(none\)}}
+; CHECK-DAG: readonly
+; CHECK-SAME: , ...) local_unnamed_addr
