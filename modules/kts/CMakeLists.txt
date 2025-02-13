@@ -31,8 +31,3 @@ target_compile_options(kts PRIVATE
 
 target_include_directories(kts PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(kts PUBLIC ca_gtest)
-
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES kts)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")

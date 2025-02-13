@@ -138,11 +138,6 @@ endforeach()
 
 target_link_libraries(mux PUBLIC cargo mux-utils tracer)
 
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES mux)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")
-
 # For online coverage we want to add UnitMux as a test suite
 if(${CA_ENABLE_COVERAGE} AND ${CA_RUNTIME_COMPILER_ENABLED})
   # TODO: Reenable when it is working on Jenkins

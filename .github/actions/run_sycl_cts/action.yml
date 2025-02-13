@@ -62,11 +62,17 @@ runs:
         SYCL_CTS_TIMEOUT: '02:00:00'
         SYCL_CTS_FILTER: ''
       run: |
+        set -x
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
-        set -x
+        echo > expect_fail.csv
+        # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
+        [ -f .github/sycl_cts/expect_fail_all.csv ] && cat .github/sycl_cts/expect_fail_all.csv >> expect_fail.csv
+        [ -f .github/sycl_cts/expect_fail_${{ inputs.target }}.csv ] && cat .github/sycl_cts/expect_fail_${{ inputs.target }}.csv >> expect_fail.csv
+        cp expect_fail.csv disable.csv
+        [ -f  "$SYCL_CTS_FILTER" ] && cat "$SYCL_CTS_FILTER" >> disable.csv 
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
@@ -79,9 +85,30 @@ runs:
           -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
           -r SYCL-CTS/cts.xml \
           -v \
-          $SYCL_CTS_FILTER || exitcode=$?
+          -i disable.csv || exitcode=$?
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
         diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
         exit $exitcode
+
+    - name: run sycl cts expected fails
+      shell: bash
+      env:
+        PREPEND_PATH: ''  # TODO: have qemu as input and set up this
+        SYCL_CTS_TIMEOUT: '02:00:00'
+      run: |
+        echo running sycl cts
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
+        export ONEAPI_DEVICE_SELECTOR=opencl:0
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+          --color=always \
+          --timeout $SYCL_CTS_TIMEOUT \
+          $PREPEND_PATH \
+          -p sycl_cts \
+          -b SYCL-CTS/bin \
+          -L SYCL-CTS/lib \
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+          -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
+          -r SYCL-CTS/cts.xml \
+          -s expect_fail.csv || echo failed as expected

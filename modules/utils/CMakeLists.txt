@@ -27,10 +27,5 @@ target_compile_definitions(utils PRIVATE
   $<$<BOOL:${CA_PLATFORM_QNX}>:CA_PLATFORM_QNX>)
 target_link_libraries(utils PRIVATE cargo)
 
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES utils)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")
-
 # Add any target-specific utils libraries
 add_subdirectory(targets)

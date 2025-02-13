@@ -38,7 +38,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -86,7 +86,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -117,7 +117,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4
 
       # installs tools, ninja, installs llvm and sets up sccahe
       - name: setup-ubuntu
@@ -160,7 +160,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4
 
       - name: setup-ubuntu-clang-format
         run:
@@ -187,7 +187,7 @@ jobs:
           arch: amd64
 
       - name: Checkout repo
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4
 
       # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-windows
@@ -231,7 +231,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
@@ -264,7 +264,7 @@ jobs:
     timeout-minutes: 90 # offline needs longer timeout
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
@@ -307,7 +307,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
@@ -342,7 +342,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
@@ -370,7 +370,7 @@ jobs:
     timeout-minutes: 90 # aarch64 needs longer timeout
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
@@ -402,7 +402,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
@@ -426,7 +426,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4.1.0
+      uses: actions/checkout@v4
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:

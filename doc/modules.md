@@ -95,14 +95,3 @@ options, and link libraries.
 target_include_directories(<name> PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(<name> PUBLIC <lib0> <lib2> ...)
 ```
-
-Header only modules may populate the CMake variable `MODULES_INCLUDE_DIRS` to
-enabling dependency tracking. This approach is only suggested as a backup when
-the suggested approach above is intractable.
-
-```cmake
-# Append to the list of module include directories, the cache MUST be updated.
-list(APPEND MODULES_INCLUDE_DIRS ${CARGO_INCLUDE_DIR})
-set(MODULES_INCLUDE_DIRS ${MODULES_INCLUDE_DIRS}
-  CACHE INTERNAL "List of module include directories")
-```
