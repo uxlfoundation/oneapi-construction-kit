@@ -241,7 +241,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          download_dpcpp_artefact: ${{ matrix.target }}=13288773332
+          download_dpcpp_artefact: ${{ matrix.target }}=13307893313
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
@@ -272,7 +272,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          download_dpcpp_artefact: ${{ matrix.target }}=13288773332
+          download_dpcpp_artefact: ${{ matrix.target }}=13307893313
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native, build_dpcpp_cross ]
@@ -311,7 +311,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: ${{ matrix.target }}
-          download_sycl_cts_artefact: ${{ matrix.target }}=13288773332
+          download_sycl_cts_artefact: ${{ matrix.target }}=13307893313
 
   run_sycl_cts:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_dpcpp_cross , build_sycl_cts]
