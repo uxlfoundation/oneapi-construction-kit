@@ -84,13 +84,6 @@ runs:
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
         git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
-
-        # For x-build:
-        # ALAN TODO: Set toolchain based on arch?
-        # ALAN DONE: Set install dir to x86_64 ??
-        # ALAN DONE: Set make cxx compiler to x86_64 ??
-        # ALAN DONE: Set make cxx flags to include arch target ??
-
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
