@@ -54,9 +54,9 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
-      matrix_only_linux_x86_64_riscv64:         ${{ steps.vars.outputs.matrix_only_linux_x86_64_riscv64 }}
-      matrix_only_linux_x86_64:                 ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
-      matrix_only_linux_riscv64:                ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
+      matrix_only_linux_x86_64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_riscv64 }}
+      matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_riscv64: ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
