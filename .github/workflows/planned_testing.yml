@@ -64,7 +64,7 @@ jobs:
       # certain targets involves a long list of excludes
       run: |
         echo matrix_only_linux_x86_64_aarch64_riscv64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_x86_64_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_x86_64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
