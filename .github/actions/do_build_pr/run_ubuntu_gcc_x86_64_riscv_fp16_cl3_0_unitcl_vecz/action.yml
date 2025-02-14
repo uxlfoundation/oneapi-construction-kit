@@ -1,0 +1,31 @@
+name: build_pr_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
+description: Build pr ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build
+
+      - name: build ock
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: ${{ inputs.cache_seed == 'true' && 'clc UnitCL' || 'check-ock-UnitCL-group-vecz' }}
+          mux_targets_enable: riscv
+          mux_compilers_enable: riscv
+          riscv_enabled: ON
+          enable_rvv_scalable_vecz_check: ON
+          enable_rvv_scalable_vp_vecz_check: ON
+          use_linker: gold
+          hal_description: RV64GCV_Zfh
+          hal_refsi_soc: G1
+          hal_refsi_thread_mode: WG
+          debug_support: ON
+          offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}

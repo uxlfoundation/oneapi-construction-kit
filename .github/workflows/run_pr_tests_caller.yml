@@ -28,7 +28,6 @@ jobs:
     if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
     uses: ./.github/workflows/run_pr_tests.yml
     with:
-      update_cache: ${{ github.event_name == 'schedule' }}
       is_pull_request:  ${{ github.event_name != 'schedule' }}
 
 # additional ones here for cron and/or push to main - also can be in different file.

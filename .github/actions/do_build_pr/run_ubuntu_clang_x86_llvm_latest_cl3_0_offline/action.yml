@@ -1,0 +1,42 @@
+name: build_pr_ubuntu_clang_x86_llvm_latest_cl3_0_offline
+description: Build pr ubuntu_clang_x86_llvm_latest_cl3_0_offline
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build build_offline install_offline
+
+      - name: build ock x86 relassert
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_32_bit: ON
+          extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
+          enable_api: ""
+          builtin_kernel: ON
+          use_linker: gold
+          debug_support: ON
+          offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
+          
+      - name: build ock x86 offline
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_32_bit: ON
+          extra_flags: -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
+          build_targets:  ${{ inputs.cache_seed == 'true' && 'UnitCL' || 'check-ock' }}
+          runtime_compiler_enabled: OFF
+          assemble_spirv_ll_lit_test_offline: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
+          external_clc: ${GITHUB_WORKSPACE}/build/bin/clc
+          use_linker: gold
+          debug_support: ON
+          install_dir: $GITHUB_WORKSPACE/install_offline
+          build_dir: $GITHUB_WORKSPACE/build_offline
+          offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
