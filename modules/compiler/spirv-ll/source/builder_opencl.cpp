@@ -221,7 +221,13 @@ static llvm::Error createPrintf(const OpExtInst &opc, Module &module,
         "printf", module.llvmModule.get());
     SPIRV_LL_ASSERT_PTR(printf);
     printf->setCallingConv(llvm::CallingConv::SPIR_FUNC);
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+    printf->addParamAttr(
+        0, llvm::Attribute::getWithCaptureInfo(module.llvmModule->getContext(),
+                                               llvm::CaptureInfo::none()));
+#else
     printf->addParamAttr(0, llvm::Attribute::NoCapture);
+#endif
     printf->addParamAttr(0, llvm::Attribute::ReadOnly);
     printf->setUnnamedAddr(llvm::GlobalValue::UnnamedAddr::Local);
   }

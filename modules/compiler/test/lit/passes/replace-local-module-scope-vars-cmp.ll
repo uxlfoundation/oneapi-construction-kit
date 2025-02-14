@@ -27,8 +27,8 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 declare i64 @__mux_get_global_id(i32)
 
 ; Function Attrs: norecurse nounwind
-; CHECK: void @testKernel(ptr addrspace(1) nocapture writeonly align 4 %results, ptr [[STRUCT:%.*]])
-define spir_kernel void @testKernel(ptr addrspace(1) nocapture writeonly align 4 %results) {
+; CHECK: void @testKernel(ptr addrspace(1) writeonly align 4 %results, ptr [[STRUCT:%.*]])
+define spir_kernel void @testKernel(ptr addrspace(1) writeonly align 4 %results) {
 entry:
 ; CHECK: [[PTR0:%.*]] = getelementptr inbounds %localVarTypes, ptr [[STRUCT]], i32 0, i32 0
 ; CHECK: [[TMP0:%.*]] = addrspacecast ptr [[PTR0]] to ptr addrspace(3)

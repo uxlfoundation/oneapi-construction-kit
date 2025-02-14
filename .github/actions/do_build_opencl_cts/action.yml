@@ -55,9 +55,6 @@ runs:
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
           -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
         ninja -v
-        python3 $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/assemble_spirv.py -v \
-          --source-dir $GITHUB_WORKSPACE/OpenCL-CTS/test_conformance/spirv_new/spirv_asm \
-          --output-dir $GITHUB_WORKSPACE/test_conformance/spirv_bin
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4

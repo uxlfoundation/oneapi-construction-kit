@@ -16,7 +16,7 @@ jobs:
       packages: read
     runs-on: ubuntu-22.04
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -67,7 +67,7 @@ jobs:
       packages: read
     runs-on: ubuntu-22.04
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
