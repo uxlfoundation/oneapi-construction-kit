@@ -34,7 +34,7 @@ on:
         required: false
         type: string
         default: ''
-      download_dpcpp_artefact:    # ALAN TODO: how to handle this now?
+      download_dpcpp_artefact:
         required: false
         type: string
         default: ''
@@ -54,19 +54,40 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
-      matrix_only_linux_x86_64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_riscv64 }}
-      matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
-      matrix_only_linux_riscv64: ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
+      matrix_only_linux_x86_64_riscv64:         ${{ steps.vars.outputs.matrix_only_linux_x86_64_riscv64 }}
+      matrix_only_linux_x86_64:                 ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_riscv64:                ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
       # These variables are for excluding certain targets from the total list, which is why just including
       # certain targets involves a long list of excludes
       run: |
-        echo matrix_only_linux_x86_64_aarch64_riscv64="[ {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_x86_64_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_x86_64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_riscv64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
-        echo matrix_only_linux_riscv64="[ {\"target\": \"host_aarch64_linux\"}, {\"target\": \"host_x86_64_linux\"}, {\"target\": \"host_arm_linux\"}, {\"target\": \"host_refsi_linux\"}, {\"target\": \"host_i686_linux\"}, {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_x86_64_aarch64_riscv64="[ \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_x86_64_riscv64="[ \
+           {\"target\": \"host_aarch64_linux\"}, \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_x86_64="[ \
+           {\"target\": \"host_aarch64_linux\"}, \
+           {\"target\": \"host_riscv64_linux\"}, \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_riscv64="[ \
+           {\"target\": \"host_aarch64_linux\"}, \
+           {\"target\": \"host_x86_64_linux\"}, \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
 
   create_ock_artefacts_windows:
@@ -330,7 +351,6 @@ jobs:
     #runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
       #image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04:latest'
-      # ALAN TODO: point at uxl registry when ready
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
       #image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
