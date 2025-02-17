@@ -54,9 +54,10 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
-      matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
-      matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
-      matrix_only_linux_aarch64: ${{ steps.vars.outputs.matrix_only_linux_aarch64 }}
+      matrix_only_linux_x86_64_aarch64:         ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
+      matrix_only_linux_x86_64:                 ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_aarch64:                ${{ steps.vars.outputs.matrix_only_linux_aarch64 }}
+      matrix_only_linux_riscv64:                ${{ steps.vars.outputs.matrix_only_linux_riscv64 }}
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
@@ -88,6 +89,13 @@ jobs:
            {\"target\": \"host_refsi_linux\"}, \
            {\"target\": \"host_i686_linux\"}, \
            {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_riscv64="[ \
+           {\"target\": \"host_x86_64_linux\"}, \
+           {\"target\": \"host_aarch64_linux\"}, \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT    
 
   create_ock_artefacts_windows:
@@ -95,7 +103,7 @@ jobs:
     # Currently there is only one windows target so we don't bother with the
     # matrix, just check if it's enabled
     runs-on: windows-2019
-    if : inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
+    if: inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -119,15 +127,20 @@ jobs:
         #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
+    # ALAN TODO: fix comment
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
-    runs-on: cp-ubuntu-24.04
+    #runs-on: cp-ubuntu-24.04
+    runs-on: ${{  contains(matrix.target, 'host_riscv')   && 'cp-ubuntu-24.04'
+             || ( contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                              'cp-ubuntu-22.04' ) }}
     container:
-      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
-    if : inputs.ock && contains(inputs.target_list, 'linux')
+    if: inputs.ock && contains(inputs.target_list, 'linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -153,10 +166,14 @@ jobs:
         #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: cp-ubuntu-24.04
+    #runs-on: cp-ubuntu-24.04
+    runs-on: ${{  contains(matrix.target, 'host_riscv')   && 'cp-ubuntu-24.04'
+             || ( contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                              'cp-ubuntu-22.04' ) }}
     container:
-      image: ${{ contains(matrix.target, 'host_riscv') && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -209,11 +226,14 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    #runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{  contains(matrix.target, 'host_riscv')   && 'cp-ubuntu-24.04'
+             || ( contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                              'cp-ubuntu-22.04' ) }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
+             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -245,14 +265,17 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
 
-    # TODO: Extend if we decide to enable for windows or build natively on another target
-    runs-on: cp-ubuntu-24.04
+    # ALAN TODO: Fix comment: Extend if we decide to enable for windows or build natively on another target
+    #runs-on: cp-ubuntu-22.04
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                             'cp-ubuntu-22.04' }}
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if : inputs.test_sycl_cts
+    if: inputs.test_sycl_cts
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -265,7 +288,8 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }} # ALAN TODO ADD ID
+          #download_dpcpp_artefact: ${{ matrix.target }}=13326501776
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
@@ -273,16 +297,15 @@ jobs:
       fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_aarch64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
 
-    runs-on: cp-ubuntu-24.04  # ALAN TODO: graviton GOT HERE
+    runs-on: ubuntu-24.04
     container:
-      image: ${{ contains(matrix.target, 'host_riscv')  && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if : inputs.test_sycl_cts
+    if: inputs.test_sycl_cts
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -295,25 +318,30 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
-          #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          download_dpcpp_artefact: ${{ matrix.target }}=13326501776
+          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }} # ALAN TODO: ADD ID
+          #download_dpcpp_artefact: ${{ matrix.target }}=13326501776
 
   build_sycl_cts:
-    needs: [workflow_vars, build_icd, build_dpcpp_native_host]
+    needs: [workflow_vars, build_icd, build_dpcpp_native]
     strategy:
+      fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        # TODO: For now just linux x86_64
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        # TODO: For now just linux x86_64 & aarch64
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    # TODO: Extend if we decide to enable for windows or build natively on another target
-    runs-on: cp-ubuntu-24.04
+    # ALAN TODO: Fix comment: Extend if we decide to enable for windows or build natively on another target
+    #runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                             'cp-ubuntu-22.04' }}
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if : inputs.test_sycl_cts
+    if: inputs.test_sycl_cts
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -321,23 +349,33 @@ jobs:
         uses: ./.github/actions/setup_gh
         with:
           os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}        
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: build sycl cts artefact
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: ${{ matrix.target }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }} # ALAN TODO: ADD ID
+          #download_sycl_cts_artefact: ${{ matrix.target }}=13326501776
 
   run_sycl_cts:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_host, build_sycl_cts]
+    # ALAN TODO: Check needs reqs here - what if x86_64 only ??
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_dpcpp_cross, build_sycl_cts]
     strategy:
+      fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        # TODO: For now just linux x86_64
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        # TODO: For now just linux x86_64 and aarch64
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: 'ubuntu-22.04'
-    if : inputs.test_sycl_cts
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton'
+             ||                                             'cp-ubuntu-22.04' }}
+    container:
+      image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+             ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    if: inputs.test_sycl_cts
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

@@ -1,0 +1,91 @@
+From 1d7569669a771cde15d6c30f69461608fde240d5 Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Thu, 5 Sep 2024 14:55:28 +0100
+Subject: [PATCH] Add UR patch infrastructure
+
+---
+ sycl/cmake/modules/FetchUnifiedRuntime.cmake | 24 +++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/sycl/cmake/modules/FetchUnifiedRuntime.cmake b/sycl/cmake/modules/FetchUnifiedRuntime.cmake
+index d3da2e00062b..92d97c82ad62 100644
+--- a/sycl/cmake/modules/FetchUnifiedRuntime.cmake
++++ b/sycl/cmake/modules/FetchUnifiedRuntime.cmake
+@@ -86,6 +86,7 @@ if(SYCL_UR_USE_FETCH_CONTENT)
+   #   * name - Must be the directory name of the adapter
+   #   * repo - A valid Git URL of a Unified Runtime repo
+   #   * tag - A valid Git branch/tag/commit in the Unified Runtime repo
++  #   * patch (optional) - Additional patches to apply
+   function(fetch_adapter_source name repo tag)
+     if(NOT ${name} IN_LIST SYCL_ENABLE_BACKENDS)
+       return()
+@@ -102,8 +103,11 @@ if(SYCL_UR_USE_FETCH_CONTENT)
+     message(STATUS
+       "Will fetch Unified Runtime ${name} adapter from ${repo} at ${tag}")
+     set(fetch-name ur-${name})
+-    FetchContent_Declare(${fetch-name}
+-      GIT_REPOSITORY ${repo} GIT_TAG ${tag})
++    set(fetch-content GIT_REPOSITORY ${repo} GIT_TAG ${tag})
++    if(ARGN)
++      list(APPEND fetch-content PATCH_COMMAND git apply ${ARGN})
++    endif()
++    FetchContent_Declare(${fetch-name} ${fetch-content})
+     # We don't want to add this repo to the build, only fetch its source.
+     FetchContent_Populate(${fetch-name})
+     # Get the path to the source directory
+@@ -135,29 +139,36 @@ if(SYCL_UR_USE_FETCH_CONTENT)
+     set(UMF_DISABLE_HWLOC ${SYCL_UMF_DISABLE_HWLOC} CACHE INTERNAL "Disable hwloc for UMF")
+   endif()
+ 
++  set(UNIFIED_RUNTIME_PATCHES)
++
+   fetch_adapter_source(level_zero
+     ${UNIFIED_RUNTIME_REPO}
+     ${UNIFIED_RUNTIME_TAG}
++    ${UNIFIED_RUNTIME_PATCHES}
+   )
+ 
+   fetch_adapter_source(opencl
+     ${UNIFIED_RUNTIME_REPO}
+     ${UNIFIED_RUNTIME_TAG}
++    ${UNIFIED_RUNTIME_PATCHES}
+   )
+ 
+   fetch_adapter_source(cuda
+     ${UNIFIED_RUNTIME_REPO}
+     ${UNIFIED_RUNTIME_TAG}
++    ${UNIFIED_RUNTIME_PATCHES}
+   )
+ 
+   fetch_adapter_source(hip
+     ${UNIFIED_RUNTIME_REPO}
+     ${UNIFIED_RUNTIME_TAG}
++    ${UNIFIED_RUNTIME_PATCHES}
+   )
+ 
+   fetch_adapter_source(native_cpu
+     ${UNIFIED_RUNTIME_REPO}
+     ${UNIFIED_RUNTIME_TAG}
++    ${UNIFIED_RUNTIME_PATCHES}
+   )
+ 
+   if(SYCL_UR_OVERRIDE_FETCH_CONTENT_REPO)
+@@ -168,10 +179,11 @@ if(SYCL_UR_USE_FETCH_CONTENT)
+   endif()
+ 
+   message(STATUS "Will fetch Unified Runtime from ${UNIFIED_RUNTIME_REPO}")
+-  FetchContent_Declare(unified-runtime
+-    GIT_REPOSITORY    ${UNIFIED_RUNTIME_REPO}
+-    GIT_TAG           ${UNIFIED_RUNTIME_TAG}
+-  )
++  set(fetch-content GIT_REPOSITORY ${UNIFIED_RUNTIME_REPO} GIT_TAG ${UNIFIED_RUNTIME_TAG})
++  if(UNIFIED_RUNTIME_PATCHES)
++    list(APPEND fetch-content PATCH_COMMAND git apply ${UNIFIED_RUNTIME_PATCHES})
++  endif()
++  FetchContent_Declare(unified-runtime ${fetch-content})
+ 
+   FetchContent_GetProperties(unified-runtime)
+   FetchContent_MakeAvailable(unified-runtime)
+-- 
+2.39.3 (Apple Git-146)
+
