@@ -54,7 +54,9 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix_only_linux_x86_64_aarch64_riscv64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64 }}
+      matrix_only_linux_x86_64_aarch64: ${{ steps.vars.outputs.matrix_only_linux_x86_64_aarch64 }}
       matrix_only_linux_x86_64: ${{ steps.vars.outputs.matrix_only_linux_x86_64 }}
+      matrix_only_linux_aarch64: ${{ steps.vars.outputs.matrix_only_linux_aarch64 }}
     steps:
     - id: vars
       # TODO: If we expand on this, come up with a more programmatical way of doing only certain targets.
@@ -66,8 +68,21 @@ jobs:
            {\"target\": \"host_refsi_linux\"}, \
            {\"target\": \"host_i686_linux\"}, \
            {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_x86_64_aarch64="[ \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_riscv64_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
         echo matrix_only_linux_x86_64="[ \
            {\"target\": \"host_aarch64_linux\"}, \
+           {\"target\": \"host_riscv64_linux\"}, \
+           {\"target\": \"host_arm_linux\"}, \
+           {\"target\": \"host_refsi_linux\"}, \
+           {\"target\": \"host_i686_linux\"}, \
+           {\"target\": \"host_x86_64_windows\"}]" >> $GITHUB_OUTPUT
+        echo matrix_only_linux_aarch64="[ \
+           {\"target\": \"host_x86_64_linux\"}, \
            {\"target\": \"host_riscv64_linux\"}, \
            {\"target\": \"host_arm_linux\"}, \
            {\"target\": \"host_refsi_linux\"}, \
@@ -101,7 +116,8 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
@@ -134,7 +150,8 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        #exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: cp-ubuntu-24.04
     container:
@@ -195,7 +212,7 @@ jobs:
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-aarch64:latest'
+             || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
              || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
@@ -221,7 +238,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-  build_dpcpp_native_host:
+  build_dpcpp_native:
     needs: [workflow_vars]
     strategy:
       matrix:
@@ -249,6 +266,37 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+
+  build_dpcpp_cross:
+    needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
+    strategy:
+      fail-fast: false  # let all matrix jobs complete  ALAN TODO: for now
+      matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_aarch64) }}
+
+    runs-on: cp-ubuntu-24.04  # ALAN TODO: graviton GOT HERE
+    container:
+      image: ${{ contains(matrix.target, 'host_riscv')  && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+             || 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if : inputs.test_sycl_cts
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: build dpc++ artefact
+        uses: ./.github/actions/do_build_dpcpp
+        with:
+          target: ${{ matrix.target }}
+          #download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          download_dpcpp_artefact: ${{ matrix.target }}=13326501776
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native_host]
