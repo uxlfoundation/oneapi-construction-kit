@@ -263,7 +263,7 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     # ALAN TODO: Fix comment: Extend if we decide to enable for windows or build natively on another target
     #runs-on: cp-ubuntu-22.04
