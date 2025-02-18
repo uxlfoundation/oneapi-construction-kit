@@ -1,4 +1,3 @@
-From 396740ca0a2c9189d40bcf9502fb558959199a16 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 15 May 2024 17:57:47 +0100
 Subject: [PATCH] Permit building for unknown architectures.
@@ -20,7 +19,7 @@ index cf9e9569..19a07655 100644
 +#warning ForceFTZ needs an implentation
  #endif
  }
- 
+
 @@ -96,7 +96,7 @@ inline void DisableFTZ(FPU_mode_type* mode) {
  #elif defined(__mips__)
    fpa_bicsr(FPA_CSR_FS);
@@ -29,7 +28,7 @@ index cf9e9569..19a07655 100644
 +#warning DisableFTZ needs an implentation
  #endif
  }
- 
+
 @@ -115,7 +115,7 @@ inline void RestoreFPState(FPU_mode_type* mode) {
  #elif defined(__mips__)
    // Mips runs by default with DAZ=1 FTZ=1
@@ -62,6 +61,6 @@ index 24e8ea99..bbac296b 100644
  #endif
  #else
  #error  Please configure FlushToZero and UnFlushToZero to behave properly on this operating system.
--- 
+--
 2.43.0
 

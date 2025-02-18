@@ -35,7 +35,6 @@ runs:
       run: |
         # required for virtualenv running in docker
         echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_ENV
-        sudo apt install -y zstd # ALAN TODO: move to docker
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}
