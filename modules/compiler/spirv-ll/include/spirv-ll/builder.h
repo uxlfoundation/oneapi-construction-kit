@@ -20,10 +20,10 @@
 #define SPIRV_LL_SPV_BUILDER_H_INCLUDED
 
 #include <llvm/ADT/StringSwitch.h>
-#include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Metadata.h>
+#include <multi_llvm/dibuilder.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/context.h>
@@ -816,7 +816,7 @@ class Builder {
   /// @brief The IRBuilder used to generate the LLVM IR
   llvm::IRBuilder<> IRBuilder;
   /// @brief The DIBuilder used to generate the LLVM IR debug instructions
-  llvm::DIBuilder DIBuilder;
+  multi_llvm::DIBuilder DIBuilder;
   /// @brief Function the builder is currently working on
   llvm::Function *CurrentFunction;
   /// @brief A copy of the current function's argument list
