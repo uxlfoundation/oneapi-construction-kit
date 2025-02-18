@@ -29,7 +29,8 @@ Firstly we set up the `CMake` directive.
     $ export LLVM_INSTALL_DIR=<your_llvm_install_dir>
     $ export ONEAPI_CON_KIT_PATH=<your_oneapi_construction_kit_dir>    
     $ cmake -GNinja -DCA_MUX_TARGETS_TO_ENABLE="refsi_tutorial" \
-        -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_ENABLE_API=cl \
+        -DCA_MUX_COMPILERS_TO_ENABLE="refsi_tutorial" \
+        -DCA_ENABLE_API=cl \
         -DCMAKE_BUILD_TYPE=Debug \
         -DCA_LLVM_INSTALL_DIR=$LLVM_INSTALL_DIR \
         -DCA_ENABLE_DEBUG_SUPPORT=ON \
@@ -39,8 +40,8 @@ Firstly we set up the `CMake` directive.
         -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=<path to target hal> \
         -Bbuild .
 
-The ``CA_MUX_TARGETS_TO_ENABLE`` should match the ``target_name`` field from the
-`JSON` file.
+The ``CA_MUX_TARGETS_TO_ENABLE`` and ``CA_MUX_COMPILERS_TO_ENABLE`` should match
+the ``target_name`` field from the `JSON` file.
 
 Now we build the ``UnitCL`` test target, which will also build all its
 dependencies, including the oneAPI Construction Kit and the new target:

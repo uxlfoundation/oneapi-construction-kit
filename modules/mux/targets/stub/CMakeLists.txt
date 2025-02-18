@@ -14,14 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# The stub target is only ever used for manually testing unusual corner cases,
-# so it needs to be explicitly enabled. Most of the time we pretend it isn't
-# even here. It will probably be removed completely before too long.
-ca_option(CA_STUB_ENABLED BOOL "Enable stub mux target" OFF)
-if(NOT CA_STUB_ENABLED)
-  return()
-endif()
-
 add_ca_library(stub STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/stub/stub.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/stub.cpp)

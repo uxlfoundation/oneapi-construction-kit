@@ -20,7 +20,6 @@ runs:
         mux_targets_enable: riscv
         mux_compilers_enable: refsi_m1
         external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
-        riscv_enabled: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
         extra_flags: ${{ inputs.extra_flags }}

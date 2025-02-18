@@ -14,11 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-ca_option(CA_RISCV_ENABLED BOOL "Enable RISC-V mux target" OFF)
-if(NOT ${CA_RISCV_ENABLED})
-  return()
-endif()
-
 ca_option(CA_HAL_NAME STRING "Name of the HAL library to link with" refsi)
 
 # Ensure that HAL targets are processed before the riscv target.

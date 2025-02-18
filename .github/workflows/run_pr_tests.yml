@@ -245,7 +245,6 @@ jobs:
         build_targets: check-ock-UnitCL-group-vecz
         mux_targets_enable: riscv
         mux_compilers_enable: riscv
-        riscv_enabled: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
         use_linker: gold
@@ -321,7 +320,6 @@ jobs:
         build_targets: check-ock
         mux_targets_enable: riscv
         mux_compilers_enable: riscv
-        riscv_enabled: ON
         disable_unitcl_vecz_checks: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
@@ -441,7 +439,6 @@ jobs:
         mux_targets_enable: riscv
         external_compiler_dirs: ${{ github.workspace }}/examples/refsi/refsi_g1_wi/compiler/refsi_g1_wi
         mux_compilers_enable: refsi_g1_wi
-        riscv_enabled: ON
         disable_unitcl_vecz_checks: ON
         enable_rvv_scalable_vecz_check: ON
         enable_rvv_scalable_vp_vecz_check: ON
