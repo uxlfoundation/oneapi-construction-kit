@@ -79,6 +79,7 @@ runs:
         path: llvm_install/**
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
+        enableCrossOsArchive: true
     - shell: bash
       if: inputs.cross_arch != 'none'    
       run: mv llvm_install llvm_install_native
