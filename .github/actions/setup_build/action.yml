@@ -35,6 +35,7 @@ runs:
       run: |
         # required for virtualenv running in docker
         echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_ENV
+        sudo apt install -y zstd
 
     - name: Install windows prerequisites
       if: ${{ inputs.os == 'windows' }}
@@ -89,7 +90,6 @@ runs:
         path: llvm_install/**
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
-        enableCrossOsArchive: true
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
     - name: Setup ccache
