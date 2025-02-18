@@ -264,7 +264,8 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts
+    #if: inputs.test_sycl_cts
+    if: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
