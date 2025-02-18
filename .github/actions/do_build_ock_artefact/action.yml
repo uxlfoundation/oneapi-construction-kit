@@ -36,7 +36,8 @@ runs:
         with:
           llvm_version: ${{ inputs.llvm_version }}
           llvm_build_type: RelAssert
-          cross_arch: ${{ ( steps.calc_vars.outputs.arch == 'x86_64' || steps.calc_vars.outputs.arch == 'aarch64' )                       && 'none' || steps.calc_vars.outputs.arch }}
+          cross_arch: ${{ ( steps.calc_vars.outputs.arch == 'x86_64' || steps.calc_vars.outputs.arch == 'aarch64' )
+                       && 'none' || steps.calc_vars.outputs.arch }}
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
           ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }}
 
