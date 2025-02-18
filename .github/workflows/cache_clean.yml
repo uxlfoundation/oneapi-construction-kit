@@ -1,0 +1,60 @@
+# Cache clean workflow
+
+name: Cache clean
+
+on:
+  schedule:
+    # Run Mon-Sun at 11pm
+    - cron: '00 23 * * 0-6'
+  workflow_dispatch:
+    inputs:
+      dryrun:
+        required: true
+        type: boolean
+        default: true
+  pull_request:
+    branches:
+      - main
+    paths:
+      '.github/workflows/cache_clean.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clean_cache:
+    name: Cache clean
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule' }}
+    permissions:
+      actions: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4.1.0
+        with:
+          sparse-checkout: .github
+      - name: Cache clean
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Define unique cache prefixes for deletion
+          CACHE_PREFIX_LIST: "sccache-sccache-"
+        run: |
+          # Install gh cache manager extension
+          gh extension install actions/gh-actions-cache
+          # ... for usage, flags and examples: $ gh actions-cache [ --help | list --help | delete --help ]
+          # Define args for gh cache commands
+          GH_LIST_ARGS="-B main -L 100 --order desc --sort created-at"
+          GH_DELETE_ARGS="-B main --confirm"
+          echo CACHE PREFIXES FOR CLEANING ... $CACHE_PREFIX_LIST
+          # Generate current cache list for main, newest first (note: 100 cache entries is gh maximum)
+          echo CACHE LIST BEFORE ...
+          gh actions-cache list $GH_LIST_ARGS | tee CACHE_LIST
+          # Generate corresponding list of cache keys for deletion - retain only the newest key for each prefix
+          DELETE_LIST=$(for CACHE_PREFIX in $CACHE_PREFIX_LIST ; do grep -E -o "^${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' ; done)
+          echo DELETIONS ...
+          # Delete caches via keys in DELETE_LIST if not dryrun
+          for KEY in $DELETE_LIST ; do [ "${{ inputs.dryrun }}" = "true" ] && echo \[DRY RUN\] DELETING $KEY || gh actions-cache delete $GH_DELETE_ARGS $KEY ; done
+          # Generate post-clean list
+          echo CACHE LIST AFTER ...
+          gh actions-cache list $GH_LIST_ARGS

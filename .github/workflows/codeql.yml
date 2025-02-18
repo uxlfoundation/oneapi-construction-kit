@@ -37,6 +37,7 @@ jobs:
         with:
           languages: c-cpp
           build-mode: manual
+          trap-caching: false
 
       - name: build host x86_64 release
         uses: ./.github/actions/do_build_ock
@@ -88,6 +89,7 @@ jobs:
         with:
           languages: c-cpp
           build-mode: manual
+          trap-caching: false
 
       - name: build riscv m1
         uses: ./.github/actions/do_build_ock/do_build_m1
