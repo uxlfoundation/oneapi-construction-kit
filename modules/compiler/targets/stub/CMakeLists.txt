@@ -14,11 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# If the Mux stub target is not enabled, then don't enable this one either.
-if(NOT CA_STUB_ENABLED)
-  return()
-endif()
-
 add_ca_library(compiler-stub STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/stub/compiler-stub.h)
 target_include_directories(compiler-stub PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

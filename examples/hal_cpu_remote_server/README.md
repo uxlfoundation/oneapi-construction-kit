@@ -51,7 +51,6 @@ The client can built in-tree (for risc-v) as follows:
 ```
   cmake -Bbuild_client -GNinja \
     -DCA_MUX_TARGETS_TO_ENABLE="riscv" \
-    -DCA_RISCV_ENABLED=ON \
     -DCA_ENABLE_API=cl \
     -DCA_LLVM_INSTALL_DIR=<path_to_llvm_install> \
     -DCA_CL_ENABLE_ICD_LOADER=ON  \
@@ -72,7 +71,7 @@ for different architectures. For example:
 
   cmake -Bbuild_client -GNinja \
     -DCA_MUX_TARGETS_TO_ENABLE="cpu_client" \
-    -DCA_CPU_CLIENT_ENABLED=ON \
+    -DCA_MUX_COMPILERS_TO_ENABLE="cpu_client" \
     -DCA_ENABLE_API=cl \
     -DCA_LLVM_INSTALL_DIR=<path_to_llvm_install> \
     -DCA_CL_ENABLE_ICD_LOADER=ON  \
