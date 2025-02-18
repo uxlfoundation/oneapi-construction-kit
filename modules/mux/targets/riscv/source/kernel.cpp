@@ -36,11 +36,11 @@ cargo::expected<riscv::kernel_s *, mux_result_t> kernel_s::create(
   auto *hal_device_info = static_cast<const riscv::hal_device_info_riscv_t *>(
       device->hal_device->get_info());
 
-  const unsigned real_vscale = hal_device_info->vlen / 64;
-  auto assert_scalable_supported = [hal_device_info]() {
+  auto real_vscale = [vlen = hal_device_info->vlen]() {
     assert(
-        hal_device_info->vlen &&
+        vlen &&
         "vlen must be known at runtime to calculate scalable subgroup width");
+    return vlen / 64;
   };
 
   cargo::small_vector<mux::hal::kernel_variant_s, 4> variants;
@@ -52,18 +52,15 @@ cargo::expected<riscv::kernel_s *, mux_result_t> kernel_s::create(
     variant.variant_name = meta.kernel_name;
     variant.sub_group_size = meta.sub_group_size.getKnownMinValue();
     if (meta.sub_group_size.isScalable()) {
-      assert_scalable_supported();
-      variant.sub_group_size *= real_vscale;
+      variant.sub_group_size *= real_vscale();
     }
     variant.min_work_width = meta.min_work_item_factor.getKnownMinValue();
     if (meta.min_work_item_factor.isScalable()) {
-      assert_scalable_supported();
-      variant.min_work_width *= real_vscale;
+      variant.min_work_width *= real_vscale();
     }
     variant.pref_work_width = meta.pref_work_item_factor.getKnownMinValue();
     if (meta.pref_work_item_factor.isScalable()) {
-      assert_scalable_supported();
-      variant.pref_work_width *= real_vscale;
+      variant.pref_work_width *= real_vscale();
     }
     if (cargo::success != variants.push_back(std::move(variant))) {
       return cargo::make_unexpected(mux_error_out_of_memory);

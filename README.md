@@ -56,10 +56,15 @@ Examples are provided to get started, but for more control over the compilation 
 
 The oneAPI Construction Kit can be compiled for two reference targets; `host` and `refsi` (`riscv`). In SYCL programming, the host target refers to the system where the SYCL program is compiled and executed, while the refsi (Reference System Implementation) target refers to the target platform for which the program is being developed. The refsi target is a hardware-specific implementation of the SYCL specification, enabling the program to run on a specific target platform. SYCL implementations such as DPC++ provide various refsi targets for CPUs, GPUs, FPGAs, and accelerators, which can be selected during compilation using specific flags and code.
 
+#### Compiling oneAPI Construction Kit for host
+
 To compile oneAPI Construction Kit for the host, please refer to the [developer guide](doc/developer-guide.md#compiling-oneapi-construction-kit).
 
-#### Compiling oneAPI Construction Kit for RISC-V
+#### Compiling oneAPI Construction Kit for simulated RISC-V
+
 This target aims to provide a flexible way of communicating with various customer RISC-V targets with different configurations. It supports multiple variants using an abstract class and can configure targets and execute commands. However, the current version has only been tested on an x86_64 host CPU.
+
+This target is not intended for running oneAPI Construction Kit directly on RISC-V hardware. For that, the host target should be used.
 
 The available targets in the current implementation are based on Codeplay's reference architecture, called RefSi, with two variations: `G` and `M1`. The `riscv` target is designed to support the `G` variant, while the `M1` variant has additional features like DMA. More information on `riscv` can be found [here](doc/modules/riscv.rst). To build in-tree, run the following:
 
