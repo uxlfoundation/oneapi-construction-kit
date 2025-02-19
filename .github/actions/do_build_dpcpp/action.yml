@@ -58,7 +58,6 @@ runs:
         # apply git llvm patches
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0002-Add-option-to-search-for-libdevice.patch
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0003-add-cl_khr_int64_extended_atomics.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0004-Add-UR-patch-infrastructure.patch
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0005-Enable-building-libclc-for-riscv64.patch
         git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0016-Handle-Native-CPU-flow-in-clang-linker-wrapper.patch
         set -x
