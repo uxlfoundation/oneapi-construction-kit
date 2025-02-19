@@ -1,2 +1,0 @@
-SYCL_CTS,test_math_builtin_api "math_builtin_float_base_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_float_double_*"

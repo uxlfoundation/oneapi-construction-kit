@@ -34,11 +34,16 @@ runs:
         fi
         echo QEMU SETTING: $QEMU_SETTING
         set -x
-        echo > expect_fail.csv
+        # Build override file, all is done first, then the target specific.
+        # The last file can overwrite previous overrides.        
+        for csv in .github/opencl_cts/override_all.csv .github/opencl_cts/override_${{ inputs.target }}.csv
+        do
+           [ -f $csv ] && cat $csv >> override.csv
+        done > override.csv
+        echo override file:
+        cat override.csv
+
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
-        [ -f .github/opencl_cts/expect_fail_all.csv ] && cat .github/opencl_cts/expect_fail_all.csv >> expect_fail.csv
-        [ -f .github/opencl_cts/expect_fail_${{ inputs.target }}.csv ] && cat .github/opencl_cts/expect_fail_${{ inputs.target }}.csv >> expect_fail.csv
-        cat expect_fail.csv "$GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER" > disable.csv 
         # Note: use 'eval' built-in to handle quoting/escaping/splitting reqs
         RUN_CITIES="python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
           --color=always --timeout $CTS_TIMEOUT \
@@ -49,23 +54,6 @@ runs:
           -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
           -e CL_PLATFORM_INDEX=0 \
           -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
-          -i disable.csv"
+          -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
+          -o override.csv"
         eval $RUN_CITIES
-
-    - name: Run expected failed opencl cts
-      shell: bash
-      env:
-        CTS_TIMEOUT: 18:00:00
-      run: |
-        echo "Running OpenCL CTS tests with CTS file $CTS_CSV_FILE with filter $CTS_FILTER"
-        set -x
-        RUN_CITIES="python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
-          --color=always --timeout $CTS_TIMEOUT \
-          $QEMU_SETTING \
-          -b $GITHUB_WORKSPACE/test_conformance \
-          -L $GITHUB_WORKSPACE/install_icd/lib \
-          -e CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
-          -e CL_PLATFORM_INDEX=0 \
-          -s expect_fail.csv"
-        eval $RUN_CITIES || echo failed as expected
