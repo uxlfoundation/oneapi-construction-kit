@@ -122,6 +122,11 @@ class Profile(object):
             default="",
             help="File containing a list of ignored tests to skip.")
         parser.add_argument(
+            "-o",
+            "--override-source",
+            default="",
+            help="File containing a list of tests which if match the first 2 columns will override, in order.")
+        parser.add_argument(
             "-l", "--log-file", type=str, help="File to log test output to")
         parser.add_argument(
             "-f",
@@ -225,7 +230,7 @@ class Profile(object):
         """ Create a new test run from a test description.  """
         raise NotImplementedError()
 
-    def load_tests(self, csv_paths, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path, override_path):
         """ Create the list of tests to run from a CSV. """
         if not csv_paths or any(not csv_path or not os.path.exists(csv_path) for csv_path in csv_paths):
             raise Exception("Test list file not specified or does not exist")
@@ -233,8 +238,10 @@ class Profile(object):
             raise Exception("Disabled test list file does not exist")
         if ignored_path and not os.path.exists(ignored_path):
             raise Exception("Ignored test list file does not exist")
+        if override_path and not os.path.exists(override_path):
+            raise Exception("Override test list file does not exist")            
         tests = (TestList
-                 .from_file(csv_paths, disabled_path, ignored_path, self.args.test_prefix)
+                 .from_file(csv_paths, disabled_path, ignored_path, override_path, self.args.test_prefix)
                  .filter(self.args.patterns))
         return tests
 
