@@ -77,7 +77,8 @@ runs:
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
-        ninja -C SYCL-CTS -v -j4 -k 0 || :
+        ninja -C SYCL-CTS -v -j2 -k 0 || :
+        #ninja -C SYCL-CTS -v -j4 -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
