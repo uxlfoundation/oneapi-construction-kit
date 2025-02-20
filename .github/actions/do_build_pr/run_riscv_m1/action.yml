@@ -1,0 +1,27 @@
+name: build_pr_riscv_m1
+description: Build pr riscv_m1
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build
+
+      - name: build_ock
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: ${{ inputs.build_type }}
+          mux_targets_enable: riscv
+          mux_compilers_enable: refsi_m1
+          external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
+          riscv_enabled: ON
+          enable_rvv_scalable_vecz_check: ON
+          enable_rvv_scalable_vp_vecz_check: ON
+          offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}

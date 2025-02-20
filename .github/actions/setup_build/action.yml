@@ -95,6 +95,6 @@ runs:
       uses: hendrikmuhs/ccache-action@53911442209d5c18de8a31615e0923161e435875 # v1.2.16
       with:
         max-size: 200M
-        key: ccache-build
+        key: ccache-build-${{ inputs.os }}
         variant: ccache
         save: ${{ inputs.save }}
