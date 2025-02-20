@@ -91,4 +91,4 @@ runs:
         with:
           name: ock_${{ inputs.target }}
           path: install
-          retention-days: 1
+          retention-days: 7

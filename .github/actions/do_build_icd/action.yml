@@ -42,7 +42,7 @@ runs:
       with:
         name: header_${{inputs.target}}
         path: headers_install_${{steps.calc_vars.outputs.arch}}
-        retention-days: 1
+        retention-days: 7
 
     - name: clone icd 
       uses: actions/checkout@v4
@@ -71,5 +71,5 @@ runs:
       with:
         name: icd_${{inputs.target}}
         path: install_icd_${{steps.calc_vars.outputs.arch}}
-        retention-days: 1
+        retention-days: 7
 

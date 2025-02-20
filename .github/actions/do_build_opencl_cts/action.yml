@@ -70,5 +70,5 @@ runs:
           !test_conformance/**/*.ninja
           !test_conformance/test_common
           !test_conformance/test_common/**
-        retention-days: 1
+        retention-days: 7
 
