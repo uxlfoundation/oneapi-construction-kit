@@ -1,0 +1,10 @@
+SYCL_CTS,test_atomic_ref_stress "sycl::atomic_ref atomicity *"
+SYCL_CTS,test_vector_operators vector_OPERATORS_bool
+SYCL_CTS,test_vector_operators vector_OPERATORS_byte
+SYCL_CTS,test_vector_operators vector_OPERATORS_char
+SYCL_CTS,test_vector_operators vector_OPERATORS_double
+SYCL_CTS,test_vector_operators vector_OPERATORS_float
+SYCL_CTS,test_vector_operators vector_OPERATORS_half
+SYCL_CTS,test_vector_operators vector_OPERATORS_int
+SYCL_CTS,test_vector_operators vector_OPERATORS_int32_t
+SYCL_CTS,test_vector_operators vector_OPERATORS_int8_t
