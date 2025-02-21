@@ -73,6 +73,7 @@ runs:
         [ -f .github/sycl_cts/expect_fail_${{ inputs.target }}.csv ] && cat .github/sycl_cts/expect_fail_${{ inputs.target }}.csv >> expect_fail.csv
         cp expect_fail.csv disable.csv
         [ -f  "$SYCL_CTS_FILTER" ] && cat "$SYCL_CTS_FILTER" >> disable.csv 
+        echo "ALL EXPECTED FAILS:" && cat disable.csv
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
