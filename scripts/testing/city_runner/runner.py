@@ -121,9 +121,11 @@ class CityRunner(object):
         test_source = self.args.test_source  # CSV
         disabled_source = self.args.disabled_source # Disabled CSV
         ignored_source = self.args.ignored_source # Ignored CSV
+        override_source = self.args.override_source # Override CSV        
         self.tests = self.profile.load_tests(test_source,
                                              disabled_source,
-                                             ignored_source)
+                                             ignored_source,
+                                             override_source)
         if self.args.repeat > 1:
             self.tests *= self.args.repeat
         self.num_tests = len(self.tests)
@@ -260,8 +262,11 @@ class CityRunner(object):
         # Return the city runner exit code.
         if self.aborted:
             return 130
-        if self.results.num_fails and not self.args.relaxed:
-            return 1
+        if not self.args.relaxed:
+            if self.results.num_fails > 0:
+                return 1
+            if self.results.num_xfail_unexpectedly_passed > 0:
+                return 1
         return 0
 
     def process_output(self, run):

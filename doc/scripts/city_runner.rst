@@ -612,6 +612,16 @@ Other Options
   test list. Tests marked as ``Ignored`` are not run and not counted.
   This is only supported for the CTS and GTest profiles at the moment.
 
+``--override-source``, ``-o``
+  A csv file containing a list of tests which will override tests in the test
+  csv provided by `-s`. These will override if they match the first two values
+  of an entry in the csv file. This is useful for updating the attribute or pool
+  values (the 3rd and 4th optional values). For example if we have an
+  expected fail, we can add an `Xfail` element.
+
+  Note this works in order so if there are more than one line in the override
+  matching the test csv file it will choose the last one.
+
 CSV File Format
 ---------------
 
@@ -653,6 +663,16 @@ Unimplemented
   as a passed test towards the final CTS pass rate. This attribute is
   associated with tests which have been left unimplemented by the CTS, or test
   things that aren't in CL 1.x.
+
+Xfail
+  Tests marked with the ``Xfail`` attribute are run and expected to fail. Fails
+  are counted in the pass rate and showed up in number of expected fails. It will only
+  count towards a failing exit code if it unexpectedly passes.
+Mayfail
+  Tests marked with the ``Mayfail`` attribute are run and are allowed to fail.
+  This should usually be reserved for those tests that intermittently fail.
+  Fails are counted in the pass rate and show up in may fails. It will
+  not count towards a failing exit code.
 
 .. _pools:
 

@@ -118,7 +118,7 @@ class TensorflowProfile(SSHProfile):
 
         return args
 
-    def load_tests(self, csv_paths, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path, override_path):
         """ 
         Find the list of tests from CSV or fallback to Tensorflow binary.
         """
@@ -127,6 +127,9 @@ class TensorflowProfile(SSHProfile):
 
         if ignored_path:
             print("Warning: ignored list not supported for tensorflow profile")
+
+        if override_path:
+            print("Warning: override list not supported for tensorflow profile")
 
         # Find path to Tensorflow executable
         Tensorflow_exe_path = os.path.abspath(self.args.binary_path)

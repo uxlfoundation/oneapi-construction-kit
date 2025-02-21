@@ -100,13 +100,16 @@ class BasicProfile(SSHProfile):
 
         return env
 
-    def load_tests(self, csv_paths, disabled_path, ignored_path):
+    def load_tests(self, csv_paths, disabled_path, ignored_path, override_path):
         """ Find the list of tests from CSV. """
         if disabled_path:
             print("Warning: disabled list not supported for basic profile")
 
         if ignored_path:
             print("Warning: ignored list not supported for basic profile")
+
+        if override_path:
+            print("Warning: override list not supported for basic profile")
 
         parsed_tests = []
         # Load tests from CSV if any were provided
