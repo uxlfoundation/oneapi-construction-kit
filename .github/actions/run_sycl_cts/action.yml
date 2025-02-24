@@ -114,7 +114,7 @@ runs:
         PREPEND_PATH: ''  # TODO: have qemu as input and set up this
         SYCL_CTS_TIMEOUT: '02:00:00'
       run: |
-        echo running sycl cts
+        echo running sycl cts expected fails
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
