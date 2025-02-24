@@ -73,22 +73,21 @@ runs:
         cp expect_fail.csv disable.csv
         [ -f  "$SYCL_CTS_FILTER" ] && cat "$SYCL_CTS_FILTER" >> disable.csv 
         set -x
-        #python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-        #  --color=always \
-        #  --timeout $SYCL_CTS_TIMEOUT \
-        #  $PREPEND_PATH \
-        #  -p sycl_cts \
-        #  -b SYCL-CTS/bin \
-        #  -L SYCL-CTS/lib \
-        #  -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
-        #  -s $CTS_CSV_FILE \
-        #  -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
-        #  -r SYCL-CTS/cts.xml \
-        #  -v \
-        #  -i disable.csv || exitcode=$?
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+          --color=always \
+          --timeout $SYCL_CTS_TIMEOUT \
+          $PREPEND_PATH \
+          -p sycl_cts \
+          -b SYCL-CTS/bin \
+          -L SYCL-CTS/lib \
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+          -s $CTS_CSV_FILE \
+          -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
+          -r SYCL-CTS/cts.xml \
+          -v \
+          -i disable.csv || exitcode=$?
         set +x
-        export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
-        # Now build a list of tests that ran for further processing
+        # For further processing, build a list of tests that ran.
         export CTS_CSV_FILE_RAN=${CTS_CSV_FILE}.ran
         > $CTS_CSV_FILE_RAN
         while read -r sycl_cts_test ; do
@@ -102,6 +101,7 @@ runs:
                echo $sycl_cts_test >> $CTS_CSV_FILE_RAN
             fi
         done < $CTS_CSV_FILE
+        export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         diff $CTS_CSV_FILE_RAN $CTS_CSV_FILE || echo "WARNING - Some tests were disabled - see > above"
         $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE_RAN csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
