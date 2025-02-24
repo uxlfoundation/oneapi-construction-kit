@@ -96,7 +96,7 @@ runs:
             echo SYCL_CTS_TEST: $sycl_cts_test
             DISABLED_FOUND=0
             while read -r disabled_test ; do
-                echo "    DISABLED_TEST: $disabled_test
+                echo "    DISABLED_TEST: $disabled_test"
                 case $sycl_cts_test in
                    $disabled_test*) DISABLED_FOUND=1 && break ;;
                 esac
