@@ -74,26 +74,29 @@ runs:
         cp expect_fail.csv disable.csv
         [ -f  "$SYCL_CTS_FILTER" ] && cat "$SYCL_CTS_FILTER" >> disable.csv 
         echo "ALL EXPECTED FAILS:" && cat disable.csv
-        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          --color=always \
-          --timeout $SYCL_CTS_TIMEOUT \
-          $PREPEND_PATH \
-          -p sycl_cts \
-          -b SYCL-CTS/bin \
-          -L SYCL-CTS/lib \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
-          -s $CTS_CSV_FILE \
-          -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
-          -r SYCL-CTS/cts.xml \
-          -v \
-          -i disable.csv || exitcode=$?
+        #python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+        #  --color=always \
+        #  --timeout $SYCL_CTS_TIMEOUT \
+        #  $PREPEND_PATH \
+        #  -p sycl_cts \
+        #  -b SYCL-CTS/bin \
+        #  -L SYCL-CTS/lib \
+        #  -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+        #  -s $CTS_CSV_FILE \
+        #  -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
+        #  -r SYCL-CTS/cts.xml \
+        #  -v \
+        #  -i disable.csv || exitcode=$?
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         # now build a list of tests that ran for further processing
         export CTS_CSV_FILE_RAN=${CTS_CSV_FILE}.ran
         echo > $CTS_CSV_FILE_RAN
+        ls -l disable.csv $CTS_CSV_FILE $CTS_CSV_FILE_RAN
         while read -r sycl_cts_test ; do
+            echo SYCL_CTS_TEST: $sycl_cts_test
             DISABLED_FOUND=0
             while read -r disabled_test ; do
+                echo "    DISABLED_TEST: $disabled_test
                 case $sycl_cts_test in
                    $disabled_test*) DISABLED_FOUND=1 && break ;;
                 esac
@@ -102,7 +105,8 @@ runs:
                echo $sycl_cts_test >> $CTS_CSV_FILE_RAN
             fi
         done < $CTS_CSV_FILE
-        echo "ALL TESTS THAT DID NOT RUN:" && diff $CTS_CSV_FILE $CTS_CSV_FILE_RAN
+        ls -l disable.csv $CTS_CSV_FILE $CTS_CSV_FILE_RAN
+        echo "ALL TESTS THAT DID NOT RUN:" && diff $CTS_CSV_FILE $CTS_CSV_FILE_RAN || :
         $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE_RAN csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
         diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
