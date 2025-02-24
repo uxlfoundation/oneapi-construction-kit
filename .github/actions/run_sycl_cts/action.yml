@@ -67,7 +67,7 @@ runs:
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
-        echo > expect_fail.csv
+        > expect_fail.csv
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
         [ -f .github/sycl_cts/expect_fail_all.csv ] && cat .github/sycl_cts/expect_fail_all.csv >> expect_fail.csv
         [ -f .github/sycl_cts/expect_fail_${{ inputs.target }}.csv ] && cat .github/sycl_cts/expect_fail_${{ inputs.target }}.csv >> expect_fail.csv
@@ -90,7 +90,7 @@ runs:
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         # now build a list of tests that ran for further processing
         export CTS_CSV_FILE_RAN=${CTS_CSV_FILE}.ran
-        echo > $CTS_CSV_FILE_RAN
+        > $CTS_CSV_FILE_RAN
         ls -l disable.csv $CTS_CSV_FILE $CTS_CSV_FILE_RAN
         while read -r sycl_cts_test ; do
             echo SYCL_CTS_TEST: $sycl_cts_test
