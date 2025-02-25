@@ -359,7 +359,7 @@ class TestResults(object):
         not_runs = []
         self.fail_list = []
         self.timeout_list = []
-        self.xfail_unexpectedly_passed_list = []
+        self.xpass_list = []
         self.may_fail_failed_list = []        
 
         for test in self.tests:
@@ -373,7 +373,7 @@ class TestResults(object):
                 elif run.status == "TIMEOUT":
                     self.timeout_list.append(run)
                 elif run.status == "XFAIL_UNEXPECTEDLY_PASSED":
-                    self.xfail_unexpectedly_passed_list.append(run)
+                    self.xpass_list.append(run)
                 elif run.status == "MAYFAIL_FAILED":
                     self.may_fail_failed_list.append(run)                    
         for test in not_runs:
@@ -387,7 +387,7 @@ class TestResults(object):
             self.add_run(run)
             self.fail_list.append(run)
         self.fail_list.sort(key=lambda r: r.test.name)
-        self.xfail_unexpectedly_passed_list.sort(key=lambda r: r.test.name)
+        self.xpass_list.sort(key=lambda r: r.test.name)
         self.may_fail_failed_list.sort(key=lambda r: r.test.name)        
 
     def write_junit(self, out, suite_name):

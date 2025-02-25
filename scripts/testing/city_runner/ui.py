@@ -115,9 +115,9 @@ class TestUI(object):
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
 
-        if results.xfail_unexpectedly_passed_list:
+        if results.xpass_list:
             self.out.write(self.fmt.red("Unexpected passing XFail tests:\n"))
-            for run in results.xfail_unexpectedly_passed_list:
+            for run in results.xpass_list:
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
 
