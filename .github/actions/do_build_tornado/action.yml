@@ -66,4 +66,4 @@ runs:
       with:
         name: tornado_${{inputs.target}}
         path: TornadoVM_SDK
-        retention-days: 1
+        retention-days: 7
