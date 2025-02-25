@@ -38,7 +38,7 @@ runs:
         # The last file can overwrite previous overrides.        
         for csv in .github/opencl_cts/override_all.csv .github/opencl_cts/override_${{ inputs.target }}.csv
         do
-           [ -f $csv ] && cat $csv >> override.csv
+           [ -f $csv ] && cat $csv
         done > override.csv
         echo override file:
         cat override.csv

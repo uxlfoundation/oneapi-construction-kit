@@ -67,7 +67,7 @@ runs:
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
-        echo > override.csv
+
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
 
         # Build override file, all is done first, then the target specific. The last file can overwrite prevous overrides.
@@ -79,6 +79,7 @@ runs:
         echo override file:
         cat override.csv
 
+        exitcode=0
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
@@ -92,7 +93,7 @@ runs:
           -r SYCL-CTS/cts.xml \
           -v \
           -o override.csv \
-          $SYCL_CTS_FILTER
+          $SYCL_CTS_FILTER || exitcode=$?
 
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
