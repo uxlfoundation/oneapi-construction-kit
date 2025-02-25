@@ -4,7 +4,7 @@ Preface
 This document provides an introduction to Codeplay's oneAPI Construction Kit.
 It should help the reader understand how to use the oneAPI Construction Kit to
 create a high-performance implementation of open-standards for a processor or
-system, i.e. SYCL, OpenCL, or Vulkan.  This implementation will enable
+system, i.e. SYCL, OpenCL.  This implementation will enable
 programmers to use a well-understood programming model, and allow all parties
 to benefit from the open-standards software ecosystem.
 

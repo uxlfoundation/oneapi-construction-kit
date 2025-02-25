@@ -1,9 +1,0 @@
-#version 450
-
-layout (std430, set=0, binding=0) buffer inA {float a;};
-layout (std430, set=0, binding=1) buffer outR {float r;};
-
-void main() {
-  r = round(a);
-  return;
-}
