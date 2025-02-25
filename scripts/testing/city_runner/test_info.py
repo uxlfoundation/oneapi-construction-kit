@@ -103,7 +103,7 @@ class TestList(object):
         return TestList(new_tests, self.executables)
 
     @classmethod
-    def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, prefix=""):
+    def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, override_file_path, prefix=""):
         """ Load a list of tests from a CTS list file. """
         tests = []
         disabled_tests = []
@@ -125,7 +125,15 @@ class TestList(object):
                     line for line in stripped if line and not line.startswith("#"))
                 chunked = csv.reader(filtered)
                 filter_tests.extend(json.dumps(chunks) for chunks in chunked)
-
+        # override_matches
+        override_tests = []
+        if override_file_path:
+            with open(override_file_path, "r") as f:
+                stripped = (line.strip() for line in f)
+                filtered = (
+                    line for line in stripped if line and not line.startswith("#"))
+                chunked = csv.reader(filtered)
+                override_tests.extend(chunks for chunks in chunked)
         for list_file_path in list_file_paths:
             with open(list_file_path, "r") as f:
                 stripped = (line.strip() for line in f)
@@ -138,11 +146,18 @@ class TestList(object):
                         device_filter = chunks.pop(0)
                     if len(chunks) < 2:
                         raise Exception("Not enough columns in the CSV file")
+
+                    # match on the first 2
+                    for o in override_tests:
+                        if chunks[:2] == o[:2]:
+                            chunks = o
                     argv = chunks[1].strip()
                     serialized = json.dumps(chunks)
                     ignored = serialized in ignored_tests
                     disabled = serialized in disabled_tests
                     unimplemented = False
+                    xfail = False
+                    mayfail = False
 
                     pool = Pool.NORMAL
                     if len(chunks) >= 4:
@@ -156,12 +171,16 @@ class TestList(object):
 
                     if len(chunks) >= 3:
                         attribute = chunks[2]
-                        if attribute == 'Ignore':
+                        if attribute.casefold() == 'Ignore'.casefold():
                             ignored = True
-                        elif attribute == 'Disabled':
+                        elif attribute.casefold() == 'Disabled'.casefold():
                             disabled = True
-                        elif attribute == 'Unimplemented':
+                        elif attribute.casefold() == 'Unimplemented'.casefold():
                             unimplemented = True
+                        elif attribute.casefold() == 'Xfail'.casefold():
+                            xfail = True
+                        elif attribute.casefold() == 'Mayfail'.casefold():
+                            mayfail = True
                         elif attribute:
                             raise Exception(
                                 "Unknown attribute '%s'" % attribute)
@@ -204,6 +223,8 @@ class TestList(object):
                     test.ignore = ignored
                     test.disabled = disabled
                     test.unimplemented = unimplemented
+                    test.xfail = xfail
+                    test.mayfail = mayfail
 
                     # Tests with predetermined pools based on resource usage
                     if test.match("allocations") or test.match("integer_ops"):
@@ -265,6 +286,9 @@ class TestResults(object):
         self.num_tests = len(tests)
         self.num_passes = 0
         self.num_fails = 0
+        self.num_xpasses = 0
+        self.num_xfails = 0
+        self.num_mayfails = 0
         self.num_skipped = 0
         self.num_timeouts = 0
         self.num_passes_cts = 0
@@ -290,14 +314,28 @@ class TestResults(object):
         """ Add a test run to the list of results. """
         self.runs[run.test.name] = run
         run.num = len(self.runs)
-        if run.status == "PASS":
-            self.num_passes += 1
-        elif run.status == "SKIP":
+
+        if run.status == "SKIP":
             self.num_skipped += 1
         elif run.status == "TIMEOUT":
             self.num_timeouts += 1
-        else:
+
+        if run.test.xfail:
+            if run.status == "PASS":
+                self.num_xpasses += 1
+                run.status = "XPASS"
+            elif run.status == "FAIL":
+                self.num_xfails += 1
+                run.status = "XFAIL"
+        elif run.status == "PASS":
+            self.num_passes += 1
+        elif run.test.mayfail:
+            if run.status == "FAIL":
+                self.num_mayfails += 1
+                run.status = "MAYFAIL"
+        elif run.status == "FAIL":
             self.num_fails += 1
+
         if run.total_tests is not None:
             self.num_total_cts += run.total_tests
             if run.passed_tests is not None:
@@ -317,6 +355,9 @@ class TestResults(object):
         not_runs = []
         self.fail_list = []
         self.timeout_list = []
+        self.xpass_list = []
+        self.mayfail_list = []
+
         for test in self.tests:
             try:
                 run = self.runs[test.name]
@@ -327,6 +368,10 @@ class TestResults(object):
                     self.fail_list.append(run)
                 elif run.status == "TIMEOUT":
                     self.timeout_list.append(run)
+                elif run.status == "XPASS":
+                    self.xpass_list.append(run)
+                elif run.status == "MAYFAIL":
+                    self.mayfail_list.append(run)
         for test in not_runs:
             run = profile.create_run(test)
             run.status = "FAIL"
@@ -338,6 +383,8 @@ class TestResults(object):
             self.add_run(run)
             self.fail_list.append(run)
         self.fail_list.sort(key=lambda r: r.test.name)
+        self.xpass_list.sort(key=lambda r: r.test.name)
+        self.mayfail_list.sort(key=lambda r: r.test.name)
 
     def write_junit(self, out, suite_name):
         """ Print results to the Junit XML file for reading by Jenkins."""
