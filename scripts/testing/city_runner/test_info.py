@@ -323,10 +323,10 @@ class TestResults(object):
         if run.test.xfail:
             if run.status == "PASS":
                 self.num_xpasses += 1
-                run.status = "XFAIL_UNEXPECTEDLY_PASSED"
+                run.status = "XPASS"
             elif run.status == "FAIL":
                 self.num_xfails += 1
-                run.status = "XFAIL_EXPECTEDLY_FAILED"
+                run.status = "XFAIL"
         elif run.status == "PASS":
             self.num_passes += 1
         elif run.test.mayfail:
@@ -356,7 +356,7 @@ class TestResults(object):
         self.fail_list = []
         self.timeout_list = []
         self.xpass_list = []
-        self.may_fail_failed_list = []
+        self.mayfail_list = []
 
         for test in self.tests:
             try:
@@ -368,10 +368,10 @@ class TestResults(object):
                     self.fail_list.append(run)
                 elif run.status == "TIMEOUT":
                     self.timeout_list.append(run)
-                elif run.status == "XFAIL_UNEXPECTEDLY_PASSED":
+                elif run.status == "XPASS":
                     self.xpass_list.append(run)
                 elif run.status == "MAYFAIL":
-                    self.may_fail_failed_list.append(run)
+                    self.mayfail_list.append(run)
         for test in not_runs:
             run = profile.create_run(test)
             run.status = "FAIL"
@@ -384,7 +384,7 @@ class TestResults(object):
             self.fail_list.append(run)
         self.fail_list.sort(key=lambda r: r.test.name)
         self.xpass_list.sort(key=lambda r: r.test.name)
-        self.may_fail_failed_list.sort(key=lambda r: r.test.name)
+        self.mayfail_list.sort(key=lambda r: r.test.name)
 
     def write_junit(self, out, suite_name):
         """ Print results to the Junit XML file for reading by Jenkins."""

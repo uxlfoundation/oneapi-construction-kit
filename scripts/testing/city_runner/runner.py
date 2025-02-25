@@ -121,7 +121,7 @@ class CityRunner(object):
         test_source = self.args.test_source  # CSV
         disabled_source = self.args.disabled_source # Disabled CSV
         ignored_source = self.args.ignored_source # Ignored CSV
-        override_source = self.args.override_source # Override CSV        
+        override_source = self.args.override_source # Override CSV
         self.tests = self.profile.load_tests(test_source,
                                              disabled_source,
                                              ignored_source,

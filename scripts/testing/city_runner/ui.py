@@ -121,9 +121,9 @@ class TestUI(object):
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
 
-        if results.may_fail_failed_list:
+        if results.mayfail_list:
             self.out.write(self.fmt.red("May Fail failing tests:\n"))
-            for run in results.may_fail_failed_list:
+            for run in results.mayfail_list:
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
             
