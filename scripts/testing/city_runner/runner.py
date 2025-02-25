@@ -265,7 +265,7 @@ class CityRunner(object):
         if not self.args.relaxed:
             if self.results.num_fails > 0:
                 return 1
-            if self.results.num_xfail_unexpectedly_passed > 0:
+            if self.results.num_xpasses > 0:
                 return 1
         return 0
 

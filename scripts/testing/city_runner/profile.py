@@ -239,7 +239,7 @@ class Profile(object):
         if ignored_path and not os.path.exists(ignored_path):
             raise Exception("Ignored test list file does not exist")
         if override_path and not os.path.exists(override_path):
-            raise Exception("Override test list file does not exist")            
+            raise Exception("Override test list file does not exist")
         tests = (TestList
                  .from_file(csv_paths, disabled_path, ignored_path, override_path, self.args.test_prefix)
                  .filter(self.args.patterns))

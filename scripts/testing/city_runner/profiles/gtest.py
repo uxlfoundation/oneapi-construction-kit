@@ -200,7 +200,7 @@ class GTestProfile(SSHProfile):
         if disabled_path:
             print("Warning: disabled list not supported for gtest profile")
         if override_path:
-            print("Warning: override list not supported for gtest profile")            
+            print("Warning: override list not supported for gtest profile")
         executable = TestExecutable(self.args.binary_name,
                                     self.args.binary_name)
 

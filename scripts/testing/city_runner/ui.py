@@ -99,9 +99,9 @@ class TestUI(object):
 
     def print_results(self, results):
         pass_rate = self.calc_progress(results.num_passes, results.num_tests, 1)
-        xfail_exp_fail_rate = self.calc_progress(results.num_xfail_expected_fails, results.num_tests, 1)
-        xfail_unexp_pass_rate = self.calc_progress(results.num_xfail_unexpectedly_passed, results.num_tests, 1)
-        mayfail_fail_rate = self.calc_progress(results.num_mayfail_fails, results.num_tests, 1)        
+        xfail_rate = self.calc_progress(results.num_xfails, results.num_tests, 1)
+        xpass_rate = self.calc_progress(results.num_xpasses, results.num_tests, 1)
+        mayfail_rate = self.calc_progress(results.num_mayfails, results.num_tests, 1)        
         fail_rate = self.calc_progress(results.num_fails, results.num_tests, 1)
         timeout_rate = self.calc_progress(results.num_timeouts, results.num_tests, 1)
         skip_rate = self.calc_progress(results.num_skipped, results.num_tests, 1)
@@ -152,14 +152,14 @@ class TestUI(object):
         self.out.write("%6d (%5.1f %%)\n" % (results.num_passes, pass_rate))
         self.out.write(self.fmt.red("Failed unexpectedly:"))
         self.out.write("%6d (%5.1f %%)\n" % (results.num_fails, fail_rate))
-        if results.num_xfail_unexpectedly_passed > 0:
+        if results.num_xpasses > 0:
             self.out.write(self.fmt.red("Passing unexpectedly:"))
-            self.out.write("%5d (%5.1f %%)\n" % (results.num_xfail_unexpectedly_passed, xfail_unexp_pass_rate))
-        if results.num_xfail_expected_fails > 0:
-            self.out.write("Failed expectedly:   %5d (%5.1f %%)\n" % (results.num_xfail_expected_fails, xfail_exp_fail_rate))
-        if results.num_mayfail_fails > 0:
-            self.out.write(self.fmt.red("Failing may fail:     "))            
-            self.out.write("%4d (%5.1f %%)\n" % (results.num_mayfail_fails, mayfail_fail_rate))
+            self.out.write("%5d (%5.1f %%)\n" % (results.num_xpasses, xpass_rate))
+        if results.num_xfails > 0:
+            self.out.write("Failed expectedly:   %5d (%5.1f %%)\n" % (results.num_xfails, xfail_rate))
+        if results.num_mayfails > 0:
+            self.out.write(self.fmt.red("Failing may fail:     "))
+            self.out.write("%4d (%5.1f %%)\n" % (results.num_mayfails, mayfail_rate))
         self.out.write(self.fmt.blue("Timeouts:           "))
         self.out.write("%6d (%5.1f %%)\n" % (results.num_timeouts, timeout_rate))
         self.out.write(self.fmt.yellow("Skipped:            "))

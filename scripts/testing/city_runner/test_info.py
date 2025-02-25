@@ -159,8 +159,6 @@ class TestList(object):
                     xfail = False
                     mayfail = False
 
-                  
-
                     pool = Pool.NORMAL
                     if len(chunks) >= 4:
                         pool_str = chunks[3]
@@ -226,7 +224,7 @@ class TestList(object):
                     test.disabled = disabled
                     test.unimplemented = unimplemented
                     test.xfail = xfail
-                    test.mayfail = mayfail                    
+                    test.mayfail = mayfail
 
                     # Tests with predetermined pools based on resource usage
                     if test.match("allocations") or test.match("integer_ops"):
@@ -288,9 +286,9 @@ class TestResults(object):
         self.num_tests = len(tests)
         self.num_passes = 0
         self.num_fails = 0
-        self.num_xfail_unexpectedly_passed = 0
-        self.num_xfail_expected_fails = 0 
-        self.num_mayfail_fails = 0
+        self.num_xpasses = 0
+        self.num_xfails = 0
+        self.num_mayfails = 0
         self.num_skipped = 0
         self.num_timeouts = 0
         self.num_passes_cts = 0
@@ -324,19 +322,17 @@ class TestResults(object):
 
         if run.test.xfail:
             if run.status == "PASS":
-              self.num_xfail_unexpectedly_passed += 1
-              run.status="XFAIL_UNEXPECTEDLY_PASSED"
+                self.num_xpasses += 1
+                run.status = "XFAIL_UNEXPECTEDLY_PASSED"
             elif run.status == "FAIL":
-              self.num_xfail_expected_fails += 1
-              run.status="XFAIL_EXPECTEDLY_FAILED"
-        elif run.test.mayfail:
-            if run.status == "FAIL":
-                self.num_mayfail_fails += 1
-                run.status="MAYFAIL_FAILED"
-            elif run.status == "PASS":
-                self.num_passes += 1                
+                self.num_xfails += 1
+                run.status = "XFAIL_EXPECTEDLY_FAILED"
         elif run.status == "PASS":
             self.num_passes += 1
+        elif run.test.mayfail:
+            if run.status == "FAIL":
+                self.num_mayfails += 1
+                run.status = "MAYFAIL"
         elif run.status == "FAIL":
             self.num_fails += 1
 
@@ -360,7 +356,7 @@ class TestResults(object):
         self.fail_list = []
         self.timeout_list = []
         self.xpass_list = []
-        self.may_fail_failed_list = []        
+        self.may_fail_failed_list = []
 
         for test in self.tests:
             try:
@@ -374,8 +370,8 @@ class TestResults(object):
                     self.timeout_list.append(run)
                 elif run.status == "XFAIL_UNEXPECTEDLY_PASSED":
                     self.xpass_list.append(run)
-                elif run.status == "MAYFAIL_FAILED":
-                    self.may_fail_failed_list.append(run)                    
+                elif run.status == "MAYFAIL":
+                    self.may_fail_failed_list.append(run)
         for test in not_runs:
             run = profile.create_run(test)
             run.status = "FAIL"
@@ -388,7 +384,7 @@ class TestResults(object):
             self.fail_list.append(run)
         self.fail_list.sort(key=lambda r: r.test.name)
         self.xpass_list.sort(key=lambda r: r.test.name)
-        self.may_fail_failed_list.sort(key=lambda r: r.test.name)        
+        self.may_fail_failed_list.sort(key=lambda r: r.test.name)
 
     def write_junit(self, out, suite_name):
         """ Print results to the Junit XML file for reading by Jenkins."""
