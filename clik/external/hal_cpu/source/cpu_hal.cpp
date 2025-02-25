@@ -314,8 +314,8 @@ bool cpu_hal::kernel_exec(hal::hal_program_t program, hal::hal_kernel_t kernel,
   size_t num_threads = work_group_size;
 #else
 #error HAL_CPU_MODE must be HAL_CPU_MODE_WG or HAL_CPU_MODE_WI.
-#endif
-
+#endif  
+  printf("Num threads = %d\n", (int) num_threads);
   std::vector<exec_state_t> exec_for_thread(num_threads);
   exec.num_threads = num_threads;
   for (size_t thread_id = 0; thread_id < num_threads; thread_id++) {
