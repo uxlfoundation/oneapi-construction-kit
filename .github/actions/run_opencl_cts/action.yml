@@ -35,7 +35,7 @@ runs:
         echo QEMU SETTING: $QEMU_SETTING
         set -x
         # Build override file, all is done first, then the target specific.
-        # The last file can overwrite previous overrides.        
+        # The last file can overwrite previous overrides.
         for csv in .github/opencl_cts/override_all.csv .github/opencl_cts/override_${{ inputs.target }}.csv
         do
            [ -f $csv ] && cat $csv

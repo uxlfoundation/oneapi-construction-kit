@@ -101,7 +101,7 @@ class TestUI(object):
         pass_rate = self.calc_progress(results.num_passes, results.num_tests, 1)
         xfail_rate = self.calc_progress(results.num_xfails, results.num_tests, 1)
         xpass_rate = self.calc_progress(results.num_xpasses, results.num_tests, 1)
-        mayfail_rate = self.calc_progress(results.num_mayfails, results.num_tests, 1)        
+        mayfail_rate = self.calc_progress(results.num_mayfails, results.num_tests, 1)
         fail_rate = self.calc_progress(results.num_fails, results.num_tests, 1)
         timeout_rate = self.calc_progress(results.num_timeouts, results.num_tests, 1)
         skip_rate = self.calc_progress(results.num_skipped, results.num_tests, 1)
@@ -126,7 +126,7 @@ class TestUI(object):
             for run in results.mayfail_list:
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
-            
+
         if results.timeout_list:
             self.out.write(self.fmt.blue("Timeout tests:\n"))
             for run in results.timeout_list:

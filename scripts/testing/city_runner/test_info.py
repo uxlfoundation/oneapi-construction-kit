@@ -146,7 +146,7 @@ class TestList(object):
                         device_filter = chunks.pop(0)
                     if len(chunks) < 2:
                         raise Exception("Not enough columns in the CSV file")
-                    
+
                     # match on the first 2
                     for o in override_tests:
                         if chunks[:2] == o[:2]:
