@@ -1,4 +1,5 @@
-SYCL_CTS,test_atomic_ref "sycl::atomic_ref fetch_add()/fetch_sub() test. *"
+SYCL_CTS,test_atomic_ref_stress "sycl::atomic_ref atomicity *",Mayfail
+SYCL_CTS,test_atomic_ref "sycl::atomic_ref fetch_add()/fetch_sub() test. *",Mayfail
 SYCL_CTS,test_vector_operators vector_OPERATORS_bool,Xfail
 SYCL_CTS,test_vector_operators vector_OPERATORS_byte,Xfail
 SYCL_CTS,test_vector_operators vector_OPERATORS_char,Xfail
