@@ -129,9 +129,9 @@ jobs:
   ubuntu_22_llvm_current_aarch64_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
     needs: [ubuntu_22_llvm_current_x86_jobs]  
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
@@ -145,7 +145,6 @@ jobs:
           llvm_version: ${{ env.llvm_current }}
           llvm_build_type: RelAssert
           save: true
-          cross_arch: aarch64
 
       - name: build ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
         uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16

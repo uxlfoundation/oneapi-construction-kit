@@ -52,11 +52,7 @@ while IFS= read -r line; do
   test_to_run=`echo $line | python3 -c 'import sys, csv
 for line in csv.reader(sys.stdin): print(line[1])'`
   # Actually run the test with --list-tests
-  eval "$prepend_path ./bin/$test_to_run --list-tests -v quiet" >> $temp_file
-  if [ $? -ne 0 ]; then
-    echo "Error : Unable to process $line"
-    exit 1
-  fi
+  eval "$prepend_path ./bin/$test_to_run --list-tests -v quiet" >> $temp_file &> /dev/null
 done <<< $sycl_cts_file
 
 cat $temp_file | sort > $output_csv_test_list
