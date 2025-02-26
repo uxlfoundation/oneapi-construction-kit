@@ -51,11 +51,14 @@ while IFS= read -r line; do
   # Process the line to work out how to run the test - use csv reader to select test and args to run
   test_to_run=`echo $line | python3 -c 'import sys, csv
 for line in csv.reader(sys.stdin): print(line[1])'`
-  # Actually run the test, if it exists, with --list-tests
-  [ -f ./bin/$test_to_run ] && "$prepend_path ./bin/$test_to_run --list-tests -v quiet" >> $temp_file
-  if [ $? -ne 0 ]; then
-    echo "Error : Unable to process $line"
-    exit 1
+  # Actually run the test, if binary exists, with --list-tests
+  binary=$(echo ./bin/$test_to_run | sed 's/\ .*//')
+  if [[ -f $binary ]]; then
+    eval "$prepend_path ./bin/$test_to_run --list-tests -v quiet" >> $temp_file
+    if [ $? -ne 0 ]; then
+      echo "Error : Unable to process $line"
+      exit 1
+    fi
   fi
 done <<< $sycl_cts_file
 
