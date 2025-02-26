@@ -23,14 +23,16 @@
 #include <{{cookiecutter.target_name}}/device_info_get.h>
 #include <{{cookiecutter.target_name}}/hal.h>
 
-#include <array>
 #include <cassert>
+#include <vector>
 
 namespace {{cookiecutter.target_name}} {
 
+std::vector<{{cookiecutter.target_name}}::device_info_s> device_infos;
+
 bool enumerate_device_infos() {
   // if we have a valid device_info we have already enumerated and can return
-  if (device_infos[0].is_valid()) {
+  if (!device_infos.empty()) {
     return true;
   }
   // load the hal library
@@ -44,13 +46,11 @@ bool enumerate_device_infos() {
     return false;
   }
   // enumerate all reported devices
-  uint32_t j = 0;
   for (uint32_t i = 0; i < hal_info.num_devices; ++i) {
-    assert(i < device_infos.size());
     const auto *hal_dev_info = hal->device_get_info(i);
 
     // update this device_info entry and continue
-    auto &dev_info = device_infos[j++];
+    auto &dev_info = device_infos.emplace_back();
     dev_info.update_from_hal_info(hal_dev_info);
     dev_info.hal_device_index = i;
     // device info should be valid at this point
@@ -58,10 +58,8 @@ bool enumerate_device_infos() {
   }
 
   // success if we have at least one device
-  return j > 0;
+  return !device_infos.empty();
 }
-
-std::array<{{cookiecutter.target_name}}::device_info_s, {{cookiecutter.target_name}}::max_device_infos> device_infos;
 
 cargo::array_view<{{cookiecutter.target_name}}::device_info_s> GetDeviceInfosArray() {
   // ensure our device infos have been enumerated

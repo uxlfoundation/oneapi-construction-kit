@@ -46,6 +46,13 @@ if (LLVMRISCVCODEGEN)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     )
 
+    if(NOT TARGET compiler-linker-utils)
+      set(error "compiler-riscv-utils requires compiler-linker-utils")
+      if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/lld/LLDConfig.cmake")
+        string(APPEND error " which requires liblld")
+      endif()
+      message(FATAL_ERROR "${error}")
+    endif()
     target_link_libraries(compiler-riscv-utils PUBLIC
       compiler-base
       hal_common      

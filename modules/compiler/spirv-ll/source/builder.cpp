@@ -558,7 +558,8 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
         if (!llvm::isa<llvm::AllocaInst>(Inst)) {
           break;
         }
-        Inst.moveBefore(new_builtin_var);
+        Inst.moveBefore(*new_builtin_var->getParent(),
+                        new_builtin_var->getIterator());
       }
 
       for (llvm::User *user : user_function.second) {
