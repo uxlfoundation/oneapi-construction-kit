@@ -12,7 +12,7 @@ on:
       - 'examples/**'
       - 'cmake/**'
       - 'hal/**'
-      - '.github/workflow/pr_tests_cache.yml'
+      - '.github/workflows/pr_tests_cache.yml'
       - '.github/actions/do_build_ock/**'
       - '.github/actions/setup_build/**'
       - '.github/action/do_build_pr/**'
