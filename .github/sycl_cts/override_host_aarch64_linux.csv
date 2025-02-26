@@ -1,0 +1,10 @@
+SYCL_CTS,test_atomic_ref "sycl::atomic_ref fetch_add()/fetch_sub() test. *"
+SYCL_CTS,test_vector_operators vector_OPERATORS_bool,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_byte,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_char,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_double,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_float,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_half,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_int,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_int32_t,Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_int8_t,Xfail

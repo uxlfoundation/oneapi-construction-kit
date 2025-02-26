@@ -68,7 +68,7 @@ runs:
         git -C SYCL-CTS.src log -1
         git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         export JOPT="4"
-        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for graviton (currently)
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
           JOPT="2"
         fi
         cmake -S SYCL-CTS.src \
