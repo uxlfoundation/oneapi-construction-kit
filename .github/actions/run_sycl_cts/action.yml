@@ -79,6 +79,7 @@ runs:
         cat override.csv
 
         exitcode=0
+        set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
