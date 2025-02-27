@@ -260,7 +260,7 @@ jobs:
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
     runs-on: ubuntu-22.04-arm
     container:
-      image: ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-aarch64:latest
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # aarch64 needs longer timeout
