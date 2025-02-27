@@ -131,7 +131,7 @@ jobs:
     needs: [ubuntu_22_llvm_current_x86_jobs]  
     runs-on: ubuntu-22.04-arm
     container:
-      image: ghcr.io/alan-forbes-cp/ock_ubuntu_22.04-aarch64:latest
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
