@@ -1,5 +1,5 @@
-# Simple workflow for running planned testing
-name: Run planned tests
+# Simple workflow for running external tests
+name: Run external tests
 on:
   workflow_call:
     inputs:
@@ -42,7 +42,24 @@ on:
         required: false
         type: string
         default: ''
-
+      llvm_source:
+        required: false
+        type: string
+        default: 'cache'
+      fast_arm_ubuntu_22_runner:
+        required: false
+        type: string
+        default: 'cp-graviton'
+      fast_x86_64_ubuntu_22_runner:
+        required: false
+        type: string
+        description: 'ubuntu22 runner to use where we need speed, usually self-hosted and limited numbers (will add an image so default okay)' 
+        default: 'cp-ubuntu-24.04'
+      fast_x86_64_ubuntu_24_runner:
+        required: false
+        type: string
+        description: 'ubuntu24 runner to use where we need speed, usually self-hosted and limited numbers'
+        default: 'cp-ubuntu-24.04'
 permissions:
   packages: read
 
@@ -117,6 +134,9 @@ jobs:
         with:
           target: host_x86_64_windows
           llvm_version: ${{ inputs.llvm_version }}
+          llvm_source: ${{ inputs.llvm_source }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
   create_ock_artefacts_ubuntu:
     needs: [workflow_vars]
@@ -128,7 +148,7 @@ jobs:
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -139,17 +159,15 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: build ock artefact
         uses: ./.github/actions/do_build_ock_artefact
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
+          llvm_source: ${{ inputs.llvm_source }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
@@ -160,7 +178,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -217,7 +235,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -245,6 +263,7 @@ jobs:
         uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
+          llvm_version: ${{ inputs.llvm_version }}
 
   build_dpcpp_native:
     needs: [workflow_vars]
@@ -253,7 +272,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
              ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
@@ -313,7 +332,7 @@ jobs:
         # TODO: For now just linux x86_64 & aarch64
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
              ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
@@ -344,7 +363,7 @@ jobs:
         # TODO: For now just linux x86_64 and aarch64
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && inputs.fast_arm_ubuntu_22_runner || inputs.fast_x86_64_ubuntu_22_runner }}
     container:
       image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
              ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
@@ -358,3 +377,4 @@ jobs:
         uses: ./.github/actions/run_sycl_cts
         with:
           target: ${{ matrix.target }}
+          llvm_version: ${{ inputs.llvm_version }}
