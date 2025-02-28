@@ -7,7 +7,11 @@ on:
         required: false
         type: boolean
         default: true
-
+      llvm_source:
+        required: false
+        description: 'method of sourcing llvm (install or cache), currently advisory until all converted'
+        type: string
+        default: 'install'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
@@ -15,6 +19,11 @@ on:
         required: false
         type: bool
         default: true
+      llvm_source:
+        required: false
+        type: string
+        description: 'method of sourcing llvm (install or cache), currently advisory until all converted'
+        default: 'install'
 
 permissions:
   packages: read
@@ -38,6 +47,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
+          llvm_source: ${{ inputs.llvm_source}}
 
       - name: build
         uses:  ./.github/actions/do_build_pr/run_host_x86_64
@@ -72,6 +82,7 @@ jobs:
         with:
           llvm_version: 18
           llvm_build_type: RelAssert
+          llvm_source: ${{ inputs.llvm_source}}
 
       - name: build riscv M1
         uses: ./.github/actions/do_build_pr/run_riscv_m1
@@ -102,6 +113,7 @@ jobs:
         with:
           llvm_version: 19
           llvm_build_type: RelAssert
+          llvm_source: ${{ inputs.llvm_source}}
 
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
@@ -173,6 +185,7 @@ jobs:
           llvm_version: 19
           llvm_build_type: RelAssert
           os: windows
+          llvm_source: cache
 
       - name: build and test ock
         uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_offline
@@ -195,11 +208,13 @@ jobs:
       with:
         llvm_version: '18'
         llvm_build_type: RelAssert
+        llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
+    if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -215,6 +230,7 @@ jobs:
         llvm_version: '19'
         llvm_build_type: RelAssert
         cross_arch: x86
+        llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0_offline
 
@@ -234,6 +250,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0
 
@@ -253,6 +270,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: Release
+        llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_llvm_latest_x86_64_images_cl3_0_release
 
@@ -272,7 +290,8 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
-    - name: build and run ock      
+        llvm_source:  ${{ inputs.llvm_source}}
+    - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
 
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
@@ -316,6 +335,7 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
+        llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
 

@@ -29,5 +29,6 @@ jobs:
     uses: ./.github/workflows/run_pr_tests.yml
     with:
       is_pull_request:  ${{ github.event_name != 'schedule' }}
+      llvm_source: ${{ github.event_name != 'schedule' && 'install' || 'cache'}}
 
 # additional ones here for cron and/or push to main - also can be in different file.
