@@ -150,7 +150,6 @@ jobs:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
-          #download_ock_artefact: ${{ matrix.target }}=13503584182
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
@@ -275,7 +274,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          #download_dpcpp_artefact: ${{ matrix.target }}=13503584182
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact
@@ -305,7 +303,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          #download_dpcpp_artefact: ${{ matrix.target }}=13503584182
 
   build_sycl_cts:
     needs: [workflow_vars, build_icd, build_dpcpp_native]
@@ -337,7 +334,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          #download_sycl_cts_artefact: ${{ matrix.target }}=13503584182
 
   run_sycl_cts:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts]
