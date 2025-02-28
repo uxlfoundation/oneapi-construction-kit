@@ -258,9 +258,9 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
-    runs-on: cp-ubuntu-24.04
+    runs-on: ubuntu-22.04-arm
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # aarch64 needs longer timeout
@@ -272,7 +272,6 @@ jobs:
       with:
         llvm_version: '19'
         llvm_build_type: RelAssert
-        cross_arch: aarch64
     - name: build and run ock      
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
 

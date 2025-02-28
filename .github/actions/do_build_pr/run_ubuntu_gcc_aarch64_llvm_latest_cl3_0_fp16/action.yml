@@ -16,12 +16,10 @@ runs:
       - name: build ock
         uses: ./.github/actions/do_build_ock
         with:
-          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock-cross' }} 
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           host_fp16: ON
           use_linker: gold
           debug_support: ON
           builtin_kernel: ON
-          enable_api: ""
-          toolchain_file: "scripts/../platform/arm-linux/aarch64-toolchain.cmake"
-          extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin
+          enable_api: "cl"
           offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
