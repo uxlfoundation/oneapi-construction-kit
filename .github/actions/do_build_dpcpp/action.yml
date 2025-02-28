@@ -131,4 +131,4 @@ runs:
       with:
         name: dpcpp_${{inputs.target}}
         path: llvm/build/install/dpcpp.tar
-        retention-days: 1
+        retention-days: 7

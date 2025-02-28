@@ -67,6 +67,10 @@ runs:
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
         git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        export JOPT="4"
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
+          JOPT="2"
+        fi
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
@@ -77,7 +81,7 @@ runs:
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
-        ninja -C SYCL-CTS -v -j4 -k 0 || :
+        ninja -C SYCL-CTS -v -j$JOPT -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
@@ -107,5 +111,5 @@ runs:
       with:
         name: sycl_cts_${{inputs.target}}
         path: SYCL-CTS/sycl-cts.tar
-        retention-days: 2
+        retention-days: 7
   
