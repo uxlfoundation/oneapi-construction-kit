@@ -12,7 +12,6 @@ inputs:
   download_ock_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''
-
 # TODO: This has not been tested yet on windows so would likely need some updating.
 runs:
   using: "composite"
@@ -63,18 +62,29 @@ runs:
           offline_kernel_tests: OFF
           host_fp16: ON
 
-      - name: download previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
-        shell: bash      
+      - name: download id for previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
+        shell: bash
+        id: download_get_id      
         if: contains(inputs.download_ock_artefact, inputs.target)
         run: |
           download_id=`echo "${{inputs.download_ock_artefact}}"`
-          echo "echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'"
           download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
-          echo download id is "'$download_id'"
-          git config --global --add safe.directory $PWD
-          # TODO : make this work on windows
-          gh run download $download_id -n ock_${{ inputs.target }} -D install
-          ls install
+          echo download id is "$download_id"
+          echo "id=$download_id" > $GITHUB_OUTPUT
+          echo "token=$GH_TOKEN" > $GITHUB_OUTPUT          
+      - name: download previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
+        uses: actions/download-artifact@v4
+        if: contains(inputs.download_ock_artefact, inputs.target)        
+        with:
+          name: ock_${{ inputs.target }}
+          run-id: ${{ steps.download_get_id.outputs.id }}
+          github-token: ${{ steps.download_get_id.outputs.token }}
+          # path: install
+          # echo download id is "'$download_id'"
+          # git config --global --add safe.directory $PWD
+          # # TODO : make this work on windows
+          # gh run download $download_id -n ock_${{ inputs.target }} -D install
+          # ls install
 
       # Prune it as there is too much things in there we don't want to use
       # Todo: move this logic to cmake settings so that we build only what we
