@@ -1,0 +1,2 @@
+SYCL_CTS,test_math_builtin_api "math_builtin_float_half_*",Xfail
+SYCL_CTS,test_vector_operators vector_OPERATORS_half --allow-running-no-tests,Xfail

@@ -35,18 +35,50 @@ runs:
         name: header_${{inputs.target}}
         path: install_headers
 
-    - name: download dpc++ artifact
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+    - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64)
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && 
+          ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
       uses: actions/download-artifact@v4
       with:
-        name: dpcpp_${{inputs.target}}
-        path: install_dpcpp
+        name: dpcpp_host_x86_64_linux
+        path: dpcpp/x86_64-linux/install
 
-    - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+    - name: unpackage native dpc++ artifact (for x86_64 & riscv64) # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && 
+          ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
       shell: bash
       run: |
-        cd install_dpcpp
+        cd dpcpp/x86_64-linux/install
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+`
+    - name: download native aarch64 dpc++ artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_host_aarch64_linux
+        path: dpcpp/aarch64-linux/install
+
+    - name: unpackage native aarch64 dpc++ artifact # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
+      shell: bash
+      run: |
+        cd dpcpp/aarch64-linux/install
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+`
+    - name: download cross dpc++ artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_host_riscv64_linux
+        path: dpcpp/riscv64-linux/install
+
+    - name: unpackage cross dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
+      shell: bash
+      run: |
+        cd dpcpp/riscv64-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
 
@@ -68,17 +100,19 @@ runs:
         git -C SYCL-CTS.src log -1
         git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
         export JOPT="4"
-        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
-          JOPT="2"
+        export ARCHOPT="x86_64"
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
+          JOPT="2" # needed for cp-graviton runner
+          ARCHOPT="aarch64"
         fi
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
-            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/install_dpcpp \
+            -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/dpcpp/${ARCHOPT}-linux/install \
             -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
             -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
+            -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp/${ARCHOPT}-linux/install/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
         ninja -C SYCL-CTS -v -j$JOPT -k 0 || :

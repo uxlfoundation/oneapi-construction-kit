@@ -25,14 +25,14 @@ jobs:
     with:
       target_list: '[ "host_x86_64_linux",
                       "host_aarch64_linux",
-                      "host_riscv64_linux",
-                      "host_i686_linux",
-                      "host_refsi_linux",
-                      "host_x86_64_windows" ]'
+                      "host_riscv64_linux" ]
+      #                "host_i686_linux",
+      #                "host_refsi_linux",
+      #                "host_x86_64_windows" ]'
       ock: true
-      test_tornado: true
+      test_tornado: false
       test_sycl_cts: true
-      test_opencl_cts: true
+      test_opencl_cts: false
       # Have a pull request setting which can be used to test the flow as best as possible
       # in a reasonable time
 

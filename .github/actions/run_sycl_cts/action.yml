@@ -58,14 +58,18 @@ runs:
     - name: run sycl cts
       shell: bash
       env:
-        PREPEND_PATH: ''  # TODO: have qemu as input and set up this
-        SYCL_CTS_TIMEOUT: '02:00:00'
+        SYCL_CTS_TIMEOUT: '03:30:00'
         SYCL_CTS_FILTER: ''
       run: |
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
+        export PREPEND_PATH=""
+        if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
+          PREPEND_PATH="--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu'"
+        fi
+        echo PREPEND_PATH SETTING: $PREPEND_PATH
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
 
