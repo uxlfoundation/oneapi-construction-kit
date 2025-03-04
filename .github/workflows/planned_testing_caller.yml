@@ -25,7 +25,7 @@ jobs:
     with:
       target_list: '[ "host_x86_64_linux",
                       "host_aarch64_linux",
-                      "host_riscv64_linux" ]
+                      "host_riscv64_linux" ]'
       #                "host_i686_linux",
       #                "host_refsi_linux",
       #                "host_x86_64_windows" ]'

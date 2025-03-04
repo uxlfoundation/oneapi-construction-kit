@@ -48,17 +48,17 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
       run: |
-        cd llvm
         CROSS_OPTS=""
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
-          # apply git llvm patches
-          git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0002-Add-option-to-search-for-libdevice.patch
-          git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0003-add-cl_khr_int64_extended_atomics.patch
-          git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0005-Enable-building-libclc-for-riscv64.patch
-          git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0016-Handle-Native-CPU-flow-in-clang-linker-wrapper.patch
         fi
+        cd llvm
         set -x
+        # apply git llvm patches
+        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0002-Add-option-to-search-for-libdevice.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0003-add-cl_khr_int64_extended_atomics.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0005-Enable-building-libclc-for-riscv64.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0016-Handle-Native-CPU-flow-in-clang-linker-wrapper.patch
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
