@@ -51,7 +51,7 @@ runs:
         cd dpcpp/x86_64-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
-`
+
     - name: download native aarch64 dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
       uses: actions/download-artifact@v4
