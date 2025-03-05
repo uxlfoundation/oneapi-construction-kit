@@ -66,7 +66,7 @@ runs:
         cd dpcpp/aarch64-linux/install
         tar xf dpcpp.tar
         rm dpcpp.tar
-`
+
     - name: download cross dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
       uses: actions/download-artifact@v4
