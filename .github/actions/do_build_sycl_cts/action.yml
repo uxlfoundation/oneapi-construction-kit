@@ -105,6 +105,7 @@ runs:
           JOPT="2" # needed for cp-graviton runner
           ARCHOPT="aarch64"
         fi
+        set -x
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
