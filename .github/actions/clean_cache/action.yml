@@ -34,7 +34,8 @@ runs:
         # key is first argument
         for CACHE_PREFIX in ${{ inputs.cache_prefixes }}
         do
-          grep -E -o "${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' | awk '{ print $1 }'
+          # we don't want the error code if we don't find it the cache.
+          (grep -E -o "${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST || true) | sed '1d' | awk '{ print $1 }'
         done > CCACHE_LIST
 
         cat CCACHE_LIST
