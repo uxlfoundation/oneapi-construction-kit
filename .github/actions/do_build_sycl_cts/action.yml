@@ -35,7 +35,7 @@ runs:
         name: header_${{inputs.target}}
         path: install_headers
 
-    - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64)
+    - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && 
           ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
       uses: actions/download-artifact@v4
@@ -67,14 +67,14 @@ runs:
         tar xf dpcpp.tar
         rm dpcpp.tar
 
-    - name: download cross dpc++ artifact
+    - name: download cross riscv64 dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
       uses: actions/download-artifact@v4
       with:
         name: dpcpp_host_riscv64_linux
         path: dpcpp/riscv64-linux/install
 
-    - name: unpackage cross dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+    - name: unpackage cross riscv64 dpc++ artifact # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
       shell: bash
       run: |
