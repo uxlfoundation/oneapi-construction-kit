@@ -1,0 +1,43 @@
+name: setup-build
+description: Setup ready for building. Includes installs, ninja, build cache setup and loading llvm cache
+
+inputs:
+  name:
+    description: 'TBD'
+    default: "none"
+  path:
+    description: 'TBD'
+    default: "none"
+  token:
+    description: 'source to get llvm from - one of install or cache'
+    default: "cache"
+  run_id:
+    description: "gh token for downloading artifacts"
+    default: 'TOKEN_NOT_SET'
+
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: download using download_artifact
+      if:  inputs.run_id == github.run-id
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        # run-id: ${{ inputs.run_id }}
+        # github-token: ${{ inputs.github_token }}
+        path: ${{ inputs.path }}
+
+    # - name: download using gh run download
+    #   if:  inputs.run_id != github.run-id
+    #   shell: bash
+    #   run:
+    #       echo "GH_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
+
+    - name: download using gh run download
+      if:  inputs.run_id != github.run-id
+      shell: bash
+      run: |
+        git config --global --add safe.directory $PWD
+        GH_TOKEN=${{ inputs.token }} gh run download ${{ inputs.run_id }} -n ${{ inputs.name }} -D ${{ inputs.path }}
