@@ -48,7 +48,7 @@ if (LLVMRISCVCODEGEN)
 
     if(NOT TARGET compiler-linker-utils)
       set(error "compiler-riscv-utils requires compiler-linker-utils")
-      if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/lld/LLDConfig.cmake")
+      if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/lld/LLDConfig.cmake")
         string(APPEND error " which requires liblld")
       endif()
       message(FATAL_ERROR "${error}")
