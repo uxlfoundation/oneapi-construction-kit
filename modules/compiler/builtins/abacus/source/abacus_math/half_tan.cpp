@@ -31,7 +31,7 @@ T half_tan(const T x) {
   T xSquared = xReduced * xReduced;
 
   T tan_numerator = ((T)1.157866227f - (T)0.07954878635f * xSquared) * xReduced;
-  T tan_denominator = ((T)1.157857119f - (T).4652878584f * xSquared);
+  T tan_denominator = ((T)1.157857119f - ((T).4652878584f * xSquared));
 
   octet = octet & 0x3;
 

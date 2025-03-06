@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @u_mul_hi_v4i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v4i16_t %1 u_mul_hi %v4i16_2 %v4i16_3
-; CHECK: = call spir_func <4 x i16> @_Z6mul_hiDv4_tS_(<4 x i16> <i16 2, i16 2, i16 2, i16 2>, <4 x i16> <i16 3, i16 3, i16 3, i16 3>)
+; CHECK: = call spir_func <4 x i16> @_Z6mul_hiDv4_tS_(<4 x i16> {{<(i16 2(, )?)+>|splat \(i16 2\)}}, <4 x i16> {{<(i16 3(, )?)+>|splat \(i16 3\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

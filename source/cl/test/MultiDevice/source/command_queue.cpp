@@ -22,15 +22,17 @@ TEST_F(MultiDeviceCommandQueue, Info) {
   std::vector<cl_device_id> queueDevices;
   for (auto command_queue : command_queues) {
     cl_context queueContext;
-    ASSERT_EQ(CL_SUCCESS, clGetCommandQueueInfo(command_queue, CL_QUEUE_CONTEXT,
-                                                sizeof(cl_context),
-                                                &queueContext, nullptr));
+    ASSERT_EQ(CL_SUCCESS,
+              clGetCommandQueueInfo(
+                  command_queue, CL_QUEUE_CONTEXT, sizeof(cl_context),
+                  static_cast<void *>(&queueContext), nullptr));
     ASSERT_EQ(context, queueContext)
         << "The command queue was created with a different context.\n";
     cl_device_id queueDevice;
-    ASSERT_EQ(CL_SUCCESS, clGetCommandQueueInfo(command_queue, CL_QUEUE_DEVICE,
-                                                sizeof(cl_device_id),
-                                                &queueDevice, nullptr));
+    ASSERT_EQ(CL_SUCCESS,
+              clGetCommandQueueInfo(
+                  command_queue, CL_QUEUE_DEVICE, sizeof(cl_device_id),
+                  static_cast<void *>(&queueDevice), nullptr));
     ASSERT_EQ(queueDevices.end(),
               std::find(queueDevices.begin(), queueDevices.end(), queueDevice))
         << "The command queue has the same device as another command queue but "

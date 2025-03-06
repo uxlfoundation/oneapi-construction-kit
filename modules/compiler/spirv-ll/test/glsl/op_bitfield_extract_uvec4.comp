@@ -29,9 +29,9 @@ void main() {
 // CHECK: define spir_kernel void @main() #0 {
 // CHECK: = alloca <4 x i32>
 // CHECK: = alloca <4 x i32>
-// CHECK: store <4 x i32> <i32 42, i32 42, i32 42, i32 42>, ptr {{[%@].*}}
+// CHECK: store <4 x i32> {{<(i32 42(, )?)+>|splat \(i32 42\)}}, ptr {{[%@].*}}
 // CHECK: = load <4 x i32>, ptr {{[%@].*}}
 // CHECK: = {{(a|l)shr}} <4 x i32> {{[%@].*}}, zeroinitializer
-// CHECK: = and <4 x i32> {{[%@].*}}, {{<(i32 [0-9]+(, )?)+>}}
+// CHECK: = and <4 x i32> {{[%@].*}}, {{<(i32 [0-9]+(, )?)+>|splat \(i32 [0-9]+\)}}
 // CHECK: store <4 x i32> {{[%@].*}}, ptr {{[%@].*}}
 // CHECK: ret void

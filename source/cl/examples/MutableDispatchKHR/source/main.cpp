@@ -150,9 +150,12 @@ int main(const int argc, const char **argv) {
       clCreateCommandBufferKHR(1, &command_queue, properties, &error);
   CL_CHECK(error);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), &input_A_buffers[0]));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), &input_B_buffers[0]));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), &output_buffers[0]));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                          static_cast<void *>(&input_A_buffers[0])));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                          static_cast<void *>(&input_B_buffers[0])));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem),
+                          static_cast<void *>(&output_buffers[0])));
 
   // Instruct the nd-range command to allow for mutable kernel arguments
   cl_ndrange_kernel_command_properties_khr mutable_properties[] = {
@@ -209,12 +212,12 @@ int main(const int argc, const char **argv) {
     // If not executing the first frame
     if (i != 0) {
       // Configure the mutable configuration to update the kernel arguments
-      const cl_mutable_dispatch_arg_khr arg_0{0, sizeof(cl_mem),
-                                              &input_A_buffer};
-      const cl_mutable_dispatch_arg_khr arg_1{1, sizeof(cl_mem),
-                                              &input_B_buffer};
-      const cl_mutable_dispatch_arg_khr arg_2{2, sizeof(cl_mem),
-                                              &output_buffer};
+      const cl_mutable_dispatch_arg_khr arg_0{
+          0, sizeof(cl_mem), static_cast<void *>(&input_A_buffer)};
+      const cl_mutable_dispatch_arg_khr arg_1{
+          1, sizeof(cl_mem), static_cast<void *>(&input_B_buffer)};
+      const cl_mutable_dispatch_arg_khr arg_2{
+          2, sizeof(cl_mem), static_cast<void *>(&output_buffer)};
       const cl_mutable_dispatch_arg_khr args[] = {arg_0, arg_1, arg_2};
       const cl_mutable_dispatch_config_khr dispatch_config{
           CL_STRUCTURE_TYPE_MUTABLE_DISPATCH_CONFIG_KHR,

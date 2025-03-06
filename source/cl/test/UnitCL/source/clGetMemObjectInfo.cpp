@@ -102,8 +102,8 @@ TEST_F(clGetMemObjectInfoTest, MemHostPtr) {
       clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(void *), size);
   void *ptr = nullptr;
-  ASSERT_SUCCESS(
-      clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, size, &ptr, nullptr));
+  ASSERT_SUCCESS(clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, size,
+                                    static_cast<void *>(&ptr), nullptr));
   ASSERT_EQ(&data, ptr);
 
   ASSERT_SUCCESS(clReleaseMemObject(hostBuffer));
@@ -116,8 +116,8 @@ TEST_F(clGetMemObjectInfoTest, MemHostPtr) {
   ASSERT_SUCCESS(
       clGetMemObjectInfo(devBuffer, CL_MEM_HOST_PTR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(void *), size);
-  ASSERT_SUCCESS(
-      clGetMemObjectInfo(devBuffer, CL_MEM_HOST_PTR, size, &ptr, nullptr));
+  ASSERT_SUCCESS(clGetMemObjectInfo(devBuffer, CL_MEM_HOST_PTR, size,
+                                    static_cast<void *>(&ptr), nullptr));
   ASSERT_FALSE(ptr);
 
   ASSERT_SUCCESS(clReleaseMemObject(devBuffer));
@@ -151,8 +151,9 @@ TEST_F(clGetMemObjectInfoTest, MemContext) {
   ASSERT_SUCCESS(clGetMemObjectInfo(buffer, CL_MEM_CONTEXT, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_context), size);
   cl_context thisContext = (cl_context)1;
-  ASSERT_SUCCESS(
-      clGetMemObjectInfo(buffer, CL_MEM_CONTEXT, size, &thisContext, nullptr));
+  ASSERT_SUCCESS(clGetMemObjectInfo(buffer, CL_MEM_CONTEXT, size,
+                                    static_cast<void *>(&thisContext),
+                                    nullptr));
   ASSERT_EQ(context, thisContext);
 
   ASSERT_SUCCESS(clReleaseMemObject(buffer));
@@ -169,7 +170,8 @@ TEST_F(clGetMemObjectInfoTest, MemAssociateMemObject) {
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem otherBuffer = (cl_mem)1;
   ASSERT_SUCCESS(clGetMemObjectInfo(buffer, CL_MEM_ASSOCIATED_MEMOBJECT, size,
-                                    &otherBuffer, nullptr));
+                                    static_cast<void *>(&otherBuffer),
+                                    nullptr));
   ASSERT_FALSE(otherBuffer);
 
   ASSERT_SUCCESS(clReleaseMemObject(buffer));
@@ -201,7 +203,8 @@ TEST_F(clGetMemObjectInfoTest, MemAssociateMemObjectWithSubBuffer) {
   ASSERT_EQ(sizeof(cl_mem), size);
   cl_mem otherBuffer = nullptr;
   ASSERT_SUCCESS(clGetMemObjectInfo(subBuffer, CL_MEM_ASSOCIATED_MEMOBJECT,
-                                    size, &otherBuffer, nullptr));
+                                    size, static_cast<void *>(&otherBuffer),
+                                    nullptr));
   ASSERT_EQ(buffer, otherBuffer);
 
   ASSERT_SUCCESS(clReleaseMemObject(subBuffer));

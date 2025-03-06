@@ -221,6 +221,7 @@ llvm::StringRef getBuiltinName(uint32_t builtin) {
 
 void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
                                                  llvm::Type *builtinType,
+                                                 unsigned builtinAddrSpace,
                                                  llvm::BasicBlock *initBlock) {
   IRBuilder.SetInsertPoint(initBlock);
   auto dataLayout = module.llvmModule->getDataLayout();
@@ -230,8 +231,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
     case spv::BuiltInSubgroupSize:               // uint get_sub_group_size()
     case spv::BuiltInSubgroupLocalInvocationId:  // uint get_sub_group_local_id
     case spv::BuiltInWorkDim: {                  // uint get_work_dim()
-      auto builtinVal =
-          IRBuilder.CreateAlloca(builtinType, dataLayout.getAllocaAddrSpace());
+      auto builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
 
       // Builtin returns uint
       auto builtinRetTy = IRBuilder.getInt32Ty();
@@ -252,8 +252,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
     case spv::BuiltInGlobalOffset:             // size_t get_global_offset(uint)
     case spv::BuiltInEnqueuedWorkgroupSize: {  // size_t
                                                // get_enqueued_local_size(uint)
-      auto *builtinVal =
-          IRBuilder.CreateAlloca(builtinType, dataLayout.getAllocaAddrSpace());
+      auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
 
       // Builtin returns size_t, get the appropriate sized integer type.
       llvm::Type *builtinRetTy = nullptr;
@@ -294,8 +293,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
     } break;
     case spv::BuiltInLocalInvocationIndex:  // size_t get_local_linear_id()
     case spv::BuiltInGlobalLinearId: {      // size_t get_global_linear_id()
-      auto *builtinVal =
-          IRBuilder.CreateAlloca(builtinType, dataLayout.getAllocaAddrSpace());
+      auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
 
       // Builtin returns size_t, get the appropriate sized integer type.
       llvm::Type *builtinRetTy = nullptr;
@@ -445,8 +443,10 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
       // Make sure our index is a 32 bit integer to match the work item function
       // signatures.
       if (index->getType()->getScalarSizeInBits() != 32) {
-        index = llvm::CastInst::CreateIntegerCast(index, IRBuilder.getInt32Ty(),
-                                                  false, "", useInst);
+        auto *cast = llvm::CastInst::CreateIntegerCast(
+            index, IRBuilder.getInt32Ty(), false);
+        cast->insertBefore(useInst->getIterator());
+        index = cast;
       }
       arg.push_back(index);
     }
@@ -458,8 +458,10 @@ bool spirv_ll::Builder::replaceBuiltinUsesWithCalls(
     // is needed for VK modules sometimes because the GLSL builtin variables are
     // vectors of 32 bit ints whereas the CL work item functions return size_t.
     if (use->getType() != workItemCall->getType()) {
-      workItemCall = llvm::CastInst::CreateIntegerCast(
-          workItemCall, use->getType(), false, "", useInst);
+      auto *cast = llvm::CastInst::CreateIntegerCast(workItemCall,
+                                                     use->getType(), false);
+      cast->insertBefore(useInst->getIterator());
+      workItemCall = cast;
     }
     workItemCall->takeName(useInst);
     useInst->replaceAllUsesWith(workItemCall);
@@ -491,9 +493,10 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
       return;
     }
 
-    // To generate the init block we need the type of the builtin and which
-    // builtin the variable was decorated with.
-    llvm::Type *varTy = builtin_global->getValueType();
+    // To generate the init block we need the type and address space of the
+    // builtin and which builtin the variable was decorated with.
+    llvm::Type *const varTy = builtin_global->getValueType();
+    const unsigned addrSpace = builtin_global->getAddressSpace();
 
     auto *opDecorate = module.getFirstDecoration(ID, spv::DecorationBuiltIn);
     SPIRV_LL_ASSERT_PTR(opDecorate);
@@ -537,7 +540,7 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
           *context.llvmContext, "init_builtin_var", user_function.first,
           &user_function.first->front());
 
-      generateBuiltinInitBlock(builtin, varTy, builtin_init_bb);
+      generateBuiltinInitBlock(builtin, varTy, addrSpace, builtin_init_bb);
 
       IRBuilder.SetInsertPoint(builtin_init_bb);
       IRBuilder.CreateBr(start_of_func);
@@ -555,7 +558,8 @@ void spirv_ll::Builder::replaceBuiltinGlobals() {
         if (!llvm::isa<llvm::AllocaInst>(Inst)) {
           break;
         }
-        Inst.moveBefore(new_builtin_var);
+        Inst.moveBefore(*new_builtin_var->getParent(),
+                        new_builtin_var->getIterator());
       }
 
       for (llvm::User *user : user_function.second) {

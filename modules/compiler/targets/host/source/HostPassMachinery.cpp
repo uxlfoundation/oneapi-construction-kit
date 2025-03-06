@@ -55,8 +55,9 @@
 
 namespace host {
 
-bool hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
-                      llvm::SmallVectorImpl<vecz::VeczPassOptions> &Opts) {
+static bool hostVeczPassOpts(
+    llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
+    llvm::SmallVectorImpl<vecz::VeczPassOptions> &Opts) {
   auto vecz_mode = compiler::getVectorizationMode(F);
   if (vecz_mode != compiler::VectorizationMode::ALWAYS &&
       vecz_mode != compiler::VectorizationMode::AUTO) {
@@ -136,7 +137,8 @@ void HostPassMachinery::addClassToPassNames() {
 /// @brief Helper functions for parsing options
 /// @note These functions are small but keep the def file simpler and is in line
 /// with PassBuilder.cpp
-llvm::Expected<bool> parseFloatPointControlPassOptions(llvm::StringRef Params) {
+static llvm::Expected<bool> parseFloatPointControlPassOptions(
+    llvm::StringRef Params) {
   return compiler::utils::parseSinglePassOption(Params, "ftz",
                                                 "FloatPointControlPass");
 }

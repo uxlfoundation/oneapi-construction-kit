@@ -54,7 +54,7 @@ struct arguments_t {
 /// @param[in] argv Argument array
 ///
 /// @return Returns the parsed dictionnary
-arguments_t parse_arguments(int argc, char *argv[]) {
+static arguments_t parse_arguments(int argc, char *argv[]) {
   cargo::argument_parser<1> parser;
 
   cargo::string_view file;

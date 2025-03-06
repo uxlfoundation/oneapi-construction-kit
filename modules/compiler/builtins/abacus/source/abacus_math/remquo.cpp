@@ -68,7 +68,7 @@ T upscaleDenormal(const T x) {
   const UnsignedType xUint = abacus::detail::cast::as<UnsignedType>(x);
   const UnsignedType scale = xUint | lowExpBit;
 
-  const T result = abacus::detail::cast::as<T>(scale) * scaleFactor<T>::up -
+  const T result = (abacus::detail::cast::as<T>(scale) * scaleFactor<T>::up) -
                    scaleFactor<T>::adjust;
   return result;
 }
@@ -160,8 +160,7 @@ abacus_double remquo_helper_scalar(const abacus_double x, const abacus_double m,
     result -= mAbs;
   }
 
-  *out_quo =
-      quotient * __abacus_select(1, -1, (abacus_int)__abacus_signbit(x * m));
+  *out_quo = quotient * __abacus_select(1, -1, __abacus_signbit(x * m));
 
   return __abacus_select(result, -result, (abacus_long)(x < 0.0));
 }

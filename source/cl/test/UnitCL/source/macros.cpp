@@ -22,7 +22,8 @@ struct MacroTestParams {
   const ucl::Version minimum_version;
 };
 
-std::ostream &operator<<(std::ostream &out, const MacroTestParams &params) {
+static std::ostream &operator<<(std::ostream &out,
+                                const MacroTestParams &params) {
   out << "MacroTestParams{.condition{\"" << params.condition
       << "\"}, .options{\"" << params.options << "\"}, .minimum_version{"
       << params.minimum_version << "}}";
@@ -67,7 +68,8 @@ struct MacrosTest : ucl::CommandQueueTest,
     buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, 1, nullptr, &status);
     ASSERT_SUCCESS(status);
 
-    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer));
+    ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                  static_cast<void *>(&buffer)));
   }
 
   void TearDown() override {

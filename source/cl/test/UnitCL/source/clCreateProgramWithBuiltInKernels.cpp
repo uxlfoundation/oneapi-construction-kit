@@ -57,7 +57,8 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, BadBuiltinKernelNames) {
 TEST_F(clCreateProgramWithBuiltInKernelsTest, BadDeviceInDevices) {
   enum { NUM_BAD_DEVICES = 2 };
   cl_device_id fakeDevices[NUM_BAD_DEVICES];
-  std::memset(fakeDevices, 0, sizeof(cl_device_id) * NUM_BAD_DEVICES);
+  std::memset(static_cast<void *>(fakeDevices), 0,
+              sizeof(cl_device_id) * NUM_BAD_DEVICES);
 
   cl_int status = !CL_SUCCESS;
   ASSERT_FALSE(clCreateProgramWithBuiltInKernels(context, NUM_BAD_DEVICES,

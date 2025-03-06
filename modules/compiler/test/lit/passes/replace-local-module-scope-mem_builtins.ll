@@ -27,11 +27,11 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 @llvm.compiler.used = appending global [3 x ptr] [ptr @memcpy, ptr @memset, ptr @memmove], section "llvm.metadata"
 @a = internal addrspace(3) global i16 undef, align 2
 
-declare void @llvm.memcpy.p0.p3.i64(ptr noalias nocapture writeonly, ptr addrspace(3) noalias nocapture readonly, i64, i1 immarg)
+declare void @llvm.memcpy.p0.p3.i64(ptr noalias writeonly, ptr addrspace(3) noalias readonly, i64, i1 immarg)
 
-; CHECK: define internal ptr @memcpy(ptr noalias noundef returned writeonly %dst, ptr noalias nocapture noundef readonly %src, i64 noundef %num)
+; CHECK: define internal ptr @memcpy(ptr noalias noundef returned writeonly %dst, ptr noalias noundef readonly %src, i64 noundef %num)
 ; Function Attrs: mustprogress nofree norecurse nosync nounwind memory(readwrite, inaccessiblemem: none)
-define internal ptr @memcpy(ptr noalias noundef returned writeonly %dst, ptr noalias nocapture noundef readonly %src, i64 noundef %num) local_unnamed_addr #7 {
+define internal ptr @memcpy(ptr noalias noundef returned writeonly %dst, ptr noalias noundef readonly %src, i64 noundef %num) local_unnamed_addr #7 {
 entry:
   ret ptr %dst
 }
@@ -43,9 +43,9 @@ entry:
   ret ptr %dst
 }
 
-; CHECK: define internal ptr @memmove(ptr noalias noundef returned writeonly %dst,  ptr noalias nocapture noundef readonly %src, i64 noundef %num)
+; CHECK: define internal ptr @memmove(ptr noalias noundef returned writeonly %dst,  ptr noalias noundef readonly %src, i64 noundef %num)
 ; Function Attrs: mustprogress nofree norecurse nosync nounwind memory(readwrite, inaccessiblemem: none)
-define internal ptr @memmove(ptr noalias noundef returned writeonly %dst,  ptr noalias nocapture noundef readonly %src, i64 noundef %num) local_unnamed_addr #7 {
+define internal ptr @memmove(ptr noalias noundef returned writeonly %dst,  ptr noalias noundef readonly %src, i64 noundef %num) local_unnamed_addr #7 {
 entry:
   ret ptr %dst
 }

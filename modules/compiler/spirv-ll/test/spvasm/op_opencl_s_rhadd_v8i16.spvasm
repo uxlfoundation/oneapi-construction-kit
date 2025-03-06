@@ -41,7 +41,7 @@
 ; CHECK: define spir_kernel void @s_rhadd_v8i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v8i16_t %1 s_rhadd %v8i16_1 %v8i16_2
-; CHECK: = call spir_func <8 x i16> @_Z5rhaddDv8_sS_(<8 x i16> <i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1, i16 1>, <8 x i16> <i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2, i16 2>)
+; CHECK: = call spir_func <8 x i16> @_Z5rhaddDv8_sS_(<8 x i16> {{<(i16 1(, )?)+>|splat \(i16 1\)}}, <8 x i16> {{<(i16 2(, )?)+>|splat \(i16 2\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

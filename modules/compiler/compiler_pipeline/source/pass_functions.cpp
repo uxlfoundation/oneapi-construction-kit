@@ -31,7 +31,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <multi_llvm/llvm_version.h>
-#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include <cassert>
@@ -122,7 +121,7 @@ bool funcContainsDebugMetadata(const llvm::Function &func,
 
   for (auto &BB : func) {
     for (auto &Inst : BB) {
-      if (auto DL = Inst.getDebugLoc()) {
+      if (const auto &DL = Inst.getDebugLoc()) {
         llvm::DILocation *loc = DL.get();
         vmap.MD()[loc].reset(loc);
         foundDI = true;
@@ -154,9 +153,11 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant) {
   // passes)
   constant->removeDeadConstantUsers();
 
-  // Only handle constants which are ConstantExpr or ConstantVector
+  // Only handle constants which are ConstantExpr, ConstantVector or
+  // ConstantArray
   assert((llvm::isa<llvm::ConstantExpr>(constant) ||
-          llvm::isa<llvm::ConstantVector>(constant)) &&
+          llvm::isa<llvm::ConstantVector>(constant) ||
+          llvm::isa<llvm::ConstantArray>(constant)) &&
          "Unsupported constant type in IR");
 
   // For each user of a constant we will check to see if they in turn are
@@ -207,7 +208,7 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant) {
             llvm::dyn_cast<llvm::ConstantExpr>(constant)) {
       newInst = constantExpr->getAsInstruction();
       // insert the instruction at the beginning of the entry block
-      newInst->insertBefore(useFunc->getEntryBlock().getFirstNonPHI());
+      newInst->insertBefore(useFunc->getEntryBlock().getFirstNonPHIIt());
     } else if (llvm::ConstantVector *constantVec =
                    llvm::dyn_cast<llvm::ConstantVector>(constant)) {
       // If it is a ConstantVector then only handle the case where it is
@@ -225,11 +226,27 @@ void replaceConstantExpressionWithInstruction(llvm::Constant *const constant) {
       llvm::Type *i32Ty = llvm::Type::getInt32Ty(constant->getContext());
       auto insert = llvm::InsertElementInst::Create(
           undef, splatVal, llvm::ConstantInt::get(i32Ty, 0));
-      insert->insertBefore(useFunc->getEntryBlock().getFirstNonPHI());
+      insert->insertBefore(useFunc->getEntryBlock().getFirstNonPHIIt());
       llvm::Value *zeros = llvm::ConstantAggregateZero::get(
           llvm::FixedVectorType::get(i32Ty, numEls));
       newInst = new llvm::ShuffleVectorInst(insert, undef, zeros);
       newInst->insertAfter(insert);
+    } else if (llvm::ConstantArray *constantArr =
+                   llvm::dyn_cast<llvm::ConstantArray>(constant)) {
+      auto numEls = constantArr->getNumOperands();
+      llvm::Value *undef = llvm::UndefValue::get(constantArr->getType());
+      llvm::Instruction *insertedIns = nullptr;
+      for (unsigned int i = 0; i < numEls; i++) {
+        auto *insertNext = llvm::InsertValueInst::Create(
+            insertedIns ? insertedIns : undef, constantArr->getOperand(i), {i});
+        if (insertedIns) {
+          insertNext->insertAfter(insertedIns);
+        } else {
+          insertNext->insertBefore(useFunc->getEntryBlock().getFirstNonPHIIt());
+        }
+        insertedIns = insertNext;
+      }
+      newInst = insertedIns;
     }
 
     // replace the use of the constant with the instruction
@@ -440,7 +457,8 @@ void remapClonedCallsites(llvm::Function &oldFunc, llvm::Function &newFunc,
       }
 
       // create our new call instruction to replace the old one
-      auto newCi = llvm::CallInst::Create(&newFunc, args, name, ci);
+      auto newCi = llvm::CallInst::Create(&newFunc, args, name);
+      newCi->insertBefore(ci->getIterator());
 
       // use the debug location from the old call (if any)
       newCi->setDebugLoc(ci->getDebugLoc());
@@ -501,6 +519,9 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   // Set up all of our user PHIs
   for (unsigned i = 0, e = currIVs.size(); i != e; i++) {
+    // For convenience to callers, permit nullptr and skip over it.
+    if (!currIVs[i]) continue;
+
     auto *const phi = loopIR.CreatePHI(currIVs[i]->getType(), 2);
     llvm::cast<llvm::PHINode>(phi)->addIncoming(currIVs[i],
                                                 entryIR.GetInsertBlock());
@@ -524,6 +545,7 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   // Update all of our PHIs
   for (unsigned i = 0, e = currIVs.size(); i != e; i++) {
+    if (!currIVs[i]) continue;
     llvm::cast<llvm::PHINode>(currIVs[i])->addIncoming(nextIVs[i], latch);
   }
 
@@ -689,7 +711,7 @@ llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
                                      llvm::Value *RHS, llvm::RecurKind Kind) {
   switch (Kind) {
     default:
-      break;
+      llvm_unreachable("Unexpected Kind");
     case llvm::RecurKind::None:
       return nullptr;
     case llvm::RecurKind::Add:
@@ -702,29 +724,23 @@ llvm::Value *createBinOpForRecurKind(llvm::IRBuilderBase &B, llvm::Value *LHS,
       return B.CreateAnd(LHS, RHS);
     case llvm::RecurKind::Xor:
       return B.CreateXor(LHS, RHS);
+    case llvm::RecurKind::SMin:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::smin, LHS, RHS);
+    case llvm::RecurKind::UMin:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::umin, LHS, RHS);
+    case llvm::RecurKind::SMax:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::smax, LHS, RHS);
+    case llvm::RecurKind::UMax:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::umax, LHS, RHS);
     case llvm::RecurKind::FAdd:
       return B.CreateFAdd(LHS, RHS);
     case llvm::RecurKind::FMul:
       return B.CreateFMul(LHS, RHS);
+    case llvm::RecurKind::FMin:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::minnum, LHS, RHS);
+    case llvm::RecurKind::FMax:
+      return B.CreateBinaryIntrinsic(llvm::Intrinsic::maxnum, LHS, RHS);
   }
-  assert((Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax ||
-          Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax ||
-          Kind == llvm::RecurKind::UMin || Kind == llvm::RecurKind::UMax) &&
-         "Unexpected min/max Kind");
-  if (Kind == llvm::RecurKind::FMin || Kind == llvm::RecurKind::FMax) {
-    return B.CreateBinaryIntrinsic(Kind == llvm::RecurKind::FMin
-                                       ? llvm::Intrinsic::minnum
-                                       : llvm::Intrinsic::maxnum,
-                                   LHS, RHS);
-  }
-  const bool isMin =
-      Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::UMin;
-  const bool isSigned =
-      Kind == llvm::RecurKind::SMin || Kind == llvm::RecurKind::SMax;
-  const llvm::Intrinsic::ID intrOpc =
-      isMin ? (isSigned ? llvm::Intrinsic::smin : llvm::Intrinsic::umin)
-            : (isSigned ? llvm::Intrinsic::smax : llvm::Intrinsic::umax);
-  return B.CreateBinaryIntrinsic(intrOpc, LHS, RHS);
 }
 
 }  // namespace utils

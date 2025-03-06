@@ -150,7 +150,7 @@ struct helper<T, abacus_float> {
     // Get a good initial guess for cbrt (using some magic!)
     // 0x2a517d3c == (2.0/3.0) * 2^23 * (127 - 0.0450465)
     const T initialGuess = abacus::detail::cast::as<T>(
-        abacus::detail::cast::as<UnsignedType>(xReduced) / 3 + 0x2a517d3c);
+        (abacus::detail::cast::as<UnsignedType>(xReduced) / 3) + 0x2a517d3c);
 
     // one iteration of Newton-Raphson
     const T guessSqr = initialGuess * initialGuess;
@@ -206,7 +206,7 @@ struct helper<T, abacus_double> {
     // force expRemainder to always end up being positive
     expAns = __abacus_select(expAns, expAns - 1, xExp < 0);
 
-    const IntType expRemainder = xExp - expAns * 3;
+    const IntType expRemainder = xExp - (expAns * 3);
 
     const abacus_double polynomial[11] = {
         0.3016866403890285027141003e0,  0.2136093385352237667433857e1,

@@ -37,8 +37,8 @@ TEST_F(clSetMemObjectDestructorCallbackTest, Default) {
   };
 
   cl_mem hit = nullptr;
-  ASSERT_SUCCESS(
-      clSetMemObjectDestructorCallback(buffer, Callback::callback, &hit));
+  ASSERT_SUCCESS(clSetMemObjectDestructorCallback(buffer, Callback::callback,
+                                                  static_cast<void *>(&hit)));
   ASSERT_SUCCESS(clReleaseMemObject(buffer));
   ASSERT_EQ(hit, buffer);
 }

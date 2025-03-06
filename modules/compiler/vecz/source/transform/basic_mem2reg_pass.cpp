@@ -22,7 +22,6 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/Local.h>
-#include <multi_llvm/llvm_version.h>
 
 #include "debugging.h"
 #include "transform/passes.h"
@@ -183,11 +182,7 @@ bool BasicMem2RegPass::promoteAlloca(AllocaInst *Alloca) const {
       StoredValue = Store->getValueOperand();
       ToDelete.push_back(Store);
       DIBuilder DIB(*Alloca->getModule(), /*AllowUnresolved*/ false);
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
       auto DbgIntrinsics = findDbgDeclares(Alloca);
-#else
-      auto DbgIntrinsics = FindDbgDeclareUses(Alloca);
-#endif
       for (auto oldDII : DbgIntrinsics) {
         ConvertDebugDeclareToDebugValue(oldDII, Store, DIB);
       }
@@ -229,8 +224,9 @@ bool BasicMem2RegPass::promoteAlloca(AllocaInst *Alloca) const {
           NewValue->getType()->getPrimitiveSizeInBits()) {
         return false;
       }
-      NewValue = CastInst::CreateBitOrPointerCast(StoredValue, Load->getType(),
-                                                  "", Load);
+      auto *CI = CastInst::CreateBitOrPointerCast(StoredValue, Load->getType());
+      CI->insertBefore(Load->getIterator());
+      NewValue = CI;
     }
     LLVM_DEBUG(dbgs() << "VM2R: Replaced :" << *Load << "\n");
     LLVM_DEBUG(dbgs() << "      |-> with :" << *NewValue << "\n");

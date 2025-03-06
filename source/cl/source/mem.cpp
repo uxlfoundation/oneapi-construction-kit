@@ -550,7 +550,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
           // if this is a write mapping we need to flush the memory region to
           // the device
           if (mem->write_mappings.end() != it) {
-            _cl_mem::mapping const &map = it->second;
+            const _cl_mem::mapping &map = it->second;
 
             if (CL_MEM_USE_HOST_PTR & mem->flags) {
               // Copy data from `host_ptr` user has accessed/modified to our

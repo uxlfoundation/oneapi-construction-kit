@@ -1037,7 +1037,8 @@ class SimpleKernelTest : public uvk::PipelineTest,
       return nullptr;
     }
     char *charPtrToStart = reinterpret_cast<char *>(mappedMemoryRegion);
-    char *charPtrToData = &charPtrToStart[buffer * bufferMemorySz + byteOffset];
+    char *charPtrToData =
+        &charPtrToStart[(buffer * bufferMemorySz) + byteOffset];
     return reinterpret_cast<T *>(charPtrToData);
   }
 

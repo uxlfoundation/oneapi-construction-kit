@@ -55,24 +55,24 @@
         %loc = OpFunctionParameter %_ptr_Workgroup_ushort
       %entry = OpLabel
          %16 = OpExtInst %void %1 vstoren %13 %uint_0 %out
-; CHECK: call spir_func void @_Z7vstore2Dv2_tjPU3AS1t(<2 x i16> <i16 2, i16 2>, i32 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore2Dv2_tjPU3AS1t(<2 x i16> {{<(i16 2(, )?)+>|splat \(i16 2\)}}, i32 0, ptr addrspace(1) %out)
          %20 = OpExtInst %void %1 vstoren %19 %uint_0 %out
-; CHECK: call spir_func void @_Z7vstore3Dv3_tjPU3AS1t(<3 x i16> <i16 3, i16 3, i16 3>, i32 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore3Dv3_tjPU3AS1t(<3 x i16> {{<(i16 3(, )?)+>|splat \(i16 3\)}}, i32 0, ptr addrspace(1) %out)
          %24 = OpExtInst %void %1 vstoren %23 %uint_0 %out
-; CHECK: call spir_func void @_Z7vstore4Dv4_tjPU3AS1t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i32 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore4Dv4_tjPU3AS1t(<4 x i16> {{<(i16 4(, )?)+>|splat \(i16 4\)}}, i32 0, ptr addrspace(1) %out)
          %28 = OpExtInst %void %1 vstoren %27 %uint_0 %out
-; CHECK: call spir_func void @_Z7vstore8Dv8_tjPU3AS1t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i32 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z7vstore8Dv8_tjPU3AS1t(<8 x i16> {{<(i16 8(, )?)+>|splat \(i16 8\)}}, i32 0, ptr addrspace(1) %out)
          %32 = OpExtInst %void %1 vstoren %31 %uint_0 %out
-; CHECK: call spir_func void @_Z8vstore16Dv16_tjPU3AS1t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i32 0, ptr addrspace(1) %out)
+; CHECK: call spir_func void @_Z8vstore16Dv16_tjPU3AS1t(<16 x i16> {{<(i16 16(, )?)+>|splat \(i16 16\)}}, i32 0, ptr addrspace(1) %out)
          %33 = OpExtInst %void %1 vstoren %13 %uint_0 %loc
-; CHECK: call spir_func void @_Z7vstore2Dv2_tjPU3AS3t(<2 x i16> <i16 2, i16 2>, i32 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore2Dv2_tjPU3AS3t(<2 x i16> {{<(i16 2(, )?)+>|splat \(i16 2\)}}, i32 0, ptr addrspace(3) %loc)
          %34 = OpExtInst %void %1 vstoren %19 %uint_0 %loc
-; CHECK: call spir_func void @_Z7vstore3Dv3_tjPU3AS3t(<3 x i16> <i16 3, i16 3, i16 3>, i32 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore3Dv3_tjPU3AS3t(<3 x i16> {{<(i16 3(, )?)+>|splat \(i16 3\)}}, i32 0, ptr addrspace(3) %loc)
          %35 = OpExtInst %void %1 vstoren %23 %uint_0 %loc
-; CHECK: call spir_func void @_Z7vstore4Dv4_tjPU3AS3t(<4 x i16> <i16 4, i16 4, i16 4, i16 4>, i32 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore4Dv4_tjPU3AS3t(<4 x i16> {{<(i16 4(, )?)+>|splat \(i16 4\)}}, i32 0, ptr addrspace(3) %loc)
          %36 = OpExtInst %void %1 vstoren %27 %uint_0 %loc
-; CHECK: call spir_func void @_Z7vstore8Dv8_tjPU3AS3t(<8 x i16> <i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8, i16 8>, i32 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z7vstore8Dv8_tjPU3AS3t(<8 x i16> {{<(i16 8(, )?)+>|splat \(i16 8\)}}, i32 0, ptr addrspace(3) %loc)
          %37 = OpExtInst %void %1 vstoren %31 %uint_0 %loc
-; CHECK: call spir_func void @_Z8vstore16Dv16_tjPU3AS3t(<16 x i16> <i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16, i16 16>, i32 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z8vstore16Dv16_tjPU3AS3t(<16 x i16> {{<(i16 16(, )?)+>|splat \(i16 16\)}}, i32 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

@@ -64,7 +64,7 @@ kernel_s::kernel_s(mux_device_t device, mux::allocator allocator,
   this->device = device;
   this->local_memory_size = 0;
   auto err = variant_data.push_back(kernel_variant_s{
-      std::string(kern_name, name_length), hook, 0u, 1u, 1u, 0u});
+      std::string(kern_name, name_length), hook, 0u, 1u, 1u, 1u});
   (void)err;
   assert(err == cargo::success);
   setPreferredSizes(*this);
@@ -169,15 +169,13 @@ static bool isLegalKernelVariant(const host::kernel_variant_s &variant,
     return false;
   }
 
-  // Degenerate sub-groups are always legal.
-  if (variant.sub_group_size != 0) {
-    // Else, ensure it cleanly divides the work-group size.
-    // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
-    // sub-group was equal to the remainder. See CA-4783.
-    if (local_size_x % variant.sub_group_size != 0) {
-      return false;
-    }
+  // Ensure it cleanly divides the work-group size.
+  // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
+  // sub-group was equal to the remainder. See CA-4783.
+  if (local_size_x % variant.sub_group_size != 0) {
+    return false;
   }
+
   return true;
 }
 
@@ -202,8 +200,8 @@ mux_result_t host::kernel_s::getKernelVariantForWGSize(
 
     if (v.pref_work_width == best_variant->pref_work_width) {
       // If two variants have the same preferred work width, choose the one
-      // that doesn't use degenerate subgroups, if available.
-      if (best_variant->sub_group_size == 0 && v.sub_group_size != 0) {
+      // with the highest sub-group size.
+      if (v.sub_group_size > best_variant->sub_group_size) {
         best_variant = &v;
       }
     } else if (v.pref_work_width > best_variant->pref_work_width &&
@@ -236,16 +234,12 @@ mux_result_t hostQuerySubGroupSizeForLocalSize(mux_kernel_t kernel,
   if (err != mux_success) {
     return err;
   }
-  // If we've compiled with degenerate sub-groups, the sub-group size is the
-  // work-group size.
-  if (variant.sub_group_size == 0) {
-    *out_sub_group_size = local_size_x * local_size_y * local_size_z;
-  } else {
-    // Otherwise, on host we always use vectorize in the x-dimension, so
-    // sub-groups "go" in the x-dimension.
-    *out_sub_group_size =
-        std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
-  }
+
+  // On host we always vectorize in the x-dimension, so sub-groups "go" in the
+  // x-dimension.
+  *out_sub_group_size =
+      std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
+
   return mux_success;
 }
 
@@ -270,15 +264,9 @@ mux_result_t hostQueryLocalSizeForSubGroupCount(mux_kernel_t kernel,
     return err;
   }
 
-  // If we've compiled with degenerate sub-groups, the work-group size is the
-  // sub-group size.
   const auto local_size = [&]() -> size_t {
-    if (variant.sub_group_size == 0) {
-      return sub_group_count == 1 ? max_local_size_x : 0;
-    } else {
-      const auto local_size = sub_group_count * variant.sub_group_size;
-      return local_size <= max_local_size_x ? local_size : 0;
-    }
+    const auto local_size = sub_group_count * variant.sub_group_size;
+    return local_size <= max_local_size_x ? local_size : 0;
   }();
   if (local_size) {
     *local_size_x = local_size;
@@ -299,21 +287,13 @@ mux_result_t hostQueryMaxNumSubGroups(mux_kernel_t kernel,
 
   for (size_t i = 0, e = host_kernel->variant_data.size(); i != e; i++) {
     auto variant_sg_size = host_kernel->variant_data[i].sub_group_size;
-    if (variant_sg_size != 0 && min_sub_group_size > variant_sg_size) {
-      min_sub_group_size = variant_sg_size;
-    }
+    min_sub_group_size = std::min<size_t>(min_sub_group_size, variant_sg_size);
   }
 
-  if (min_sub_group_size == std::numeric_limits<size_t>::max()) {
-    // If we've found no variant, or a variant using degenerate sub-groups, we
-    // only support one sub-group.
-    *out_max_num_sub_groups = 1;
-  } else {
-    // Else we can have as many sub-groups as there are work-items, divided by
-    // the smallest sub-group size we've got.
-    *out_max_num_sub_groups =
-        kernel->device->info->max_concurrent_work_items / min_sub_group_size;
-  }
+  // We can have as many sub-groups as there are work-items, divided by the
+  // smallest sub-group size we've got.
+  *out_max_num_sub_groups =
+      kernel->device->info->max_concurrent_work_items / min_sub_group_size;
 
   return mux_success;
 }

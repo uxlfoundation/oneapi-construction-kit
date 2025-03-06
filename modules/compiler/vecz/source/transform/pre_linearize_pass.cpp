@@ -51,7 +51,6 @@
 #include <llvm/Pass.h>
 #include <llvm/Support/InstructionCost.h>
 #include <llvm/Transforms/Utils/LoopUtils.h>
-#include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include "analysis/uniform_value_analysis.h"
@@ -121,8 +120,7 @@ InstructionCost calculateBoolReductionCost(LLVMContext &context, Module *module,
   auto *F = Function::Create(new_fty, Function::InternalLinkage, "tmp", module);
   auto *BB = BasicBlock::Create(context, "reduce", F);
   IRBuilder<> B(BB);
-  multi_llvm::createSimpleTargetReduction(B, &TTI, &*F->arg_begin(),
-                                          RecurKind::And);
+  multi_llvm::createSimpleReduction(B, &*F->arg_begin(), RecurKind::And);
   const InstructionCost cost = calculateBlockCost(*BB, TTI);
 
   // We don't really need that function in the module anymore because it's
@@ -140,7 +138,7 @@ bool hoistInstructions(BasicBlock &BB, BranchInst &Branch, bool exceptions) {
   bool modified = false;
   while (!BB.front().isTerminator()) {
     auto &I = BB.front();
-    I.moveBefore(&Branch);
+    I.moveBefore(*Branch.getParent(), Branch.getIterator());
     modified = true;
 
     if (!exceptions) {
@@ -193,15 +191,16 @@ bool hoistInstructions(BasicBlock &BB, BranchInst &Branch, bool exceptions) {
               Value *one = ConstantInt::get(divisor->getType(), 1);
               Value *cond = Branch.getCondition();
 
+              Instruction *SI;
               if (TrueBranch) {
-                masked =
-                    SelectInst::Create(cond, divisor, one,
-                                       divisor->getName() + ".hoist_guard", &I);
+                SI = SelectInst::Create(cond, divisor, one,
+                                        divisor->getName() + ".hoist_guard");
               } else {
-                masked =
-                    SelectInst::Create(cond, one, divisor,
-                                       divisor->getName() + ".hoist_guard", &I);
+                SI = SelectInst::Create(cond, one, divisor,
+                                        divisor->getName() + ".hoist_guard");
               }
+              SI->insertBefore(I.getIterator());
+              masked = SI;
             }
           }
 

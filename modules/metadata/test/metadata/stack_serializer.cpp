@@ -139,8 +139,7 @@ TEST_P(MDStackFinalizeFixture, MsgPackTestArrays) {
   {
     md_stack_ stack(helper);
     const int err = md_pushf(static_cast<md_stack>(&stack), fmt_str,
-                             static_cast<uint64_t>(3),
-                             static_cast<double>(3.141), "Hello World!!!");
+                             static_cast<uint64_t>(3), 3.141, "Hello World!!!");
     ASSERT_FALSE(MD_CHECK_ERR(err));
 
     // serialize

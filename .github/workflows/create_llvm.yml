@@ -8,30 +8,57 @@ on:
       - '.github/workflows/create_llvm.yml'
   pull_request:
     paths:
-      - '.github/workflows/create_llvm.yml'         
+      - '.github/workflows/create_llvm.yml'
+  schedule:
+    # Run Mon-Fri at 5pm
+    - cron: '00 17 * * 1-5'      
   workflow_dispatch:
+
+permissions: {}
 
 jobs:
   create_llvm_cache:
     strategy:
       matrix:
-        version: [17, 18]
-        os: [ubuntu-22.04, windows-2019]
+        version: [18, 19]
+        os: [ubuntu-22.04, ubuntu-24.04, windows-2019]
         build_type: [Release, RelAssert]
-        arch : [x86_64, aarch64]
+        arch : [x86, x86_64, aarch64, riscv64]
         exclude:
-          # Reduce the versions of llvm for aarch64 architecture, as
+          # Reduce the versions of llvm for aarch64, riscv64 & x86 architectures and windows, as
           # well as any windows os variants to reduce cache usage.
           - arch: aarch64
-            version: 17
+            version: 18
           - arch: aarch64
             build_type: Release
+          - arch: riscv64
+            version: 18
+          - arch: riscv64
+            build_type: Release
+          - arch: x86
+            version: 18
+          - arch: x86
+            build_type: Release
           - os: windows-2019
-            version: 17
+            version: 18
           - os: windows-2019
             build_type: Release
           - os: windows-2019
             arch: aarch64
+          - os: windows-2019
+            arch: riscv64
+          - os: windows-2019
+            arch: x86
+          - os: ubuntu-24.04
+            version: 18
+          - os: ubuntu-24.04
+            build_type: Release
+          - os: ubuntu-22.04
+            arch: riscv64
+          - os: ubuntu-24.04
+            arch: aarch64
+          - os: ubuntu-24.04
+            arch: x86
         include:
           # We want to set flags related to particular matrix dimensions. To do this
           # we need to create default values first, and then against particular matrix
@@ -45,8 +72,18 @@ jobs:
           - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/arm-linux/aarch64-toolchain.cmake"
                         -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu
             arch: aarch64
+          - arch_flags: -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/ock/platform/riscv64-linux/riscv64-gcc-toolchain.cmake"
+                        -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu
+            arch: riscv64
+          - arch_flags: -DLLVM_BUILD_32_BITS=ON -DLIBXML2_LIBRARIES=IGNORE -DLLVM_ENABLE_TERMINFO=OFF
+                        -DLLVM_HOST_TRIPLE=i686-unknown-linux-gnu
+            arch: x86
           - build_type: Release
             build_type_flags: -DCMAKE_BUILD_TYPE=Release
+          - os: ubuntu-22.04
+            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
+          - os: ubuntu-24.04
+            os_flags: -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -77,21 +114,33 @@ jobs:
         with:
           sparse-checkout: |
             platform
-          path: ock          
+          path: ock
 
       - name: Install Ninja
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: llvm/actions/install-ninja@main
+        uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
       - name: install aarch64 build tools
         if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'aarch64' }}
         run:
-          sudo apt-get install --yes g++-11-aarch64-linux-gnu
+          sudo apt-get install --yes g++-aarch64-linux-gnu
+
+      - name: install riscv64 build tools
+        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'riscv64' }}
+        run:
+          sudo apt-get install --yes g++-riscv64-linux-gnu
+
+      - name: install x86 build tools
+        if: ${{ steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'x86' }}
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev
 
       - name: Flags checker
         if: steps.cache.outputs.cache-hit != 'true'
         run:
-          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" arch "${{ matrix.arch }}"extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
+          echo Building on "${{ matrix.os }}" with os_flags "${{ matrix.os_flags}}" arch "${{ matrix.arch }}" extra flags "${{ matrix.build_type_flags}}" and  build_type "${{matrix.build_type}}"
 
       - name: Run cmake
         if: steps.cache.outputs.cache-hit != 'true'

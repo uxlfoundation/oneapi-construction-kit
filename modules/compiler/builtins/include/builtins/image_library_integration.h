@@ -336,30 +336,30 @@ struct Shape {
       UInt Sign : 1;
     } r;
   };
-  const static UInt Float16Bias = 15;
-  const static UInt Float32Bias = 127;
-  static inline bool Zero(Float16 x) {
+  static const UInt Float16Bias = 15;
+  static const UInt Float32Bias = 127;
+  static bool Zero(Float16 x) {
     return ((x.r.Exponent == 0) && (x.r.Mantissa == 0));
   }
-  static inline bool Zero(Float32 x) {
+  static bool Zero(Float32 x) {
     return ((x.r.Exponent == 0) && (x.r.Mantissa == 0));
   }
-  static inline bool Denormal(Float16 x) {
+  static bool Denormal(Float16 x) {
     return ((x.r.Exponent == 0) && (x.r.Mantissa != 0));
   }
-  static inline bool Denormal(Float32 x) {
+  static bool Denormal(Float32 x) {
     return ((x.r.Exponent == 0) && (x.r.Mantissa != 0));
   }
-  static inline bool Inf(Float16 x) {
+  static bool Inf(Float16 x) {
     return ((x.r.Exponent == 0x1f) && (x.r.Mantissa == 0));
   }
-  static inline bool Inf(Float32 x) {
+  static bool Inf(Float32 x) {
     return ((x.r.Exponent == 0xff) && (x.r.Mantissa == 0));
   }
-  static inline bool NaN(Float16 x) {
+  static bool NaN(Float16 x) {
     return ((x.r.Exponent == 0x1f) && (x.r.Mantissa != 0));
   }
-  static inline bool NaN(Float32 x) {
+  static bool NaN(Float32 x) {
     return ((x.r.Exponent == 0xff) && (x.r.Mantissa != 0));
   }
 };
@@ -368,7 +368,7 @@ static inline UShort HalfDownConvertHelper_rte(const Float payload);
 
 template <>
 struct HalfConvertHelper_rte<UShort, Float> {
-  static inline UShort RoundNearInfinity(bool sign) {
+  static UShort RoundNearInfinity(bool sign) {
     Shape::Float16 out;
 
     out.r.Mantissa = 0;
@@ -377,7 +377,7 @@ struct HalfConvertHelper_rte<UShort, Float> {
 
     return out.f;
   }
-  static inline UInt ShiftRightLogical(UInt x, UInt shift, bool sign) {
+  static UInt ShiftRightLogical(UInt x, UInt shift, bool sign) {
     (void)sign;
     if (shift > 32u) {
       return 0u;

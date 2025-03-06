@@ -48,7 +48,7 @@ Recommended for Ubuntu 20.04
 
    $ sudo apt update
    $ sudo apt install -y ninja-build doxygen python3-pip
-   $ sudo pip3 install lit virtualenv cmakelint clang-format==17.0.6
+   $ sudo pip3 install lit virtualenv cmakelint clang-format==19.1.0
 
 .. tip::
    For ease of use ``python3`` and ``pip3`` can be symlinked to ``python`` and

@@ -52,7 +52,7 @@
 ; CHECK: define spir_kernel void @main()
 ; CHECK: = alloca <3 x i32>
 ; CHECK: = alloca <3 x i32>
-; CHECK: store <3 x i32> <i32 42, i32 42, i32 42>, ptr {{[%@].*}}
+; CHECK: store <3 x i32> {{<(i32 42(, )?)+>|splat \(i32 42\)}}, ptr {{[%@].*}}
 ; CHECK: = load <3 x i32>, ptr {{[%@].*}}
 ; CHECK: = insertelement <3 x i32> {{[%@].*}}, i32 42, i32 1
 ; CHECK: store <3 x i32> {{[%@].*}}, ptr {{[%@].*}}

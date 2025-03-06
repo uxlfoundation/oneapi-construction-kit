@@ -32,7 +32,7 @@ class hal_transmitter {
   /// Receive `size` bytes of data into `data`
   /// @return true if the receive succeeds
   virtual bool receive(void *data, uint32_t size) = 0;
-  virtual ~hal_transmitter(){};
+  virtual ~hal_transmitter() {};
 
   void enable_debug(bool debug_enabled) { debug = debug_enabled; }
   bool debug_enabled() { return debug; }

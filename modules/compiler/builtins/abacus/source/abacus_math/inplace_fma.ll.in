@@ -16,7 +16,7 @@
 
 @target@
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDF16_EEvRT_S3_S3_(ptr dereferenceable(2) %0, ptr dereferenceable(2) %1, ptr dereferenceable(2) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDF16_EEvRT_S3_S3_(ptr dereferenceable(2) %0, ptr dereferenceable(2) %1, ptr dereferenceable(2) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load half, ptr %0
   %4 = load half, ptr %1
@@ -26,7 +26,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_DF16_EEvRT_S4_S4_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv2_DF16_EEvRT_S4_S4_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <2 x half>, ptr %0
   %4 = load <2 x half>, ptr %1
@@ -36,7 +36,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_DF16_EEvRT_S4_S4_(ptr dereferenceable(6) %0, ptr dereferenceable(6) %1, ptr dereferenceable(6) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv3_DF16_EEvRT_S4_S4_(ptr dereferenceable(6) %0, ptr dereferenceable(6) %1, ptr dereferenceable(6) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <3 x half>, ptr %0
   %4 = load <3 x half>, ptr %1
@@ -46,7 +46,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_DF16_EEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv4_DF16_EEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <4 x half>, ptr %0
   %4 = load <4 x half>, ptr %1
@@ -56,7 +56,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_DF16_EEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv8_DF16_EEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <8 x half>, ptr %0
   %4 = load <8 x half>, ptr %1
@@ -66,7 +66,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_DF16_EEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv16_DF16_EEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <16 x half>, ptr %0
   %4 = load <16 x half>, ptr %1
@@ -76,7 +76,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIfEEvRT_S3_S3_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIfEEvRT_S3_S3_(ptr dereferenceable(4) %0, ptr dereferenceable(4) %1, ptr dereferenceable(4) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load float, ptr %0
   %4 = load float, ptr %1
@@ -86,7 +86,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_fEEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv2_fEEvRT_S4_S4_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <2 x float>, ptr %0
   %4 = load <2 x float>, ptr %1
@@ -96,7 +96,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_fEEvRT_S4_S4_(ptr dereferenceable(12) %0, ptr dereferenceable(12) %1, ptr dereferenceable(12) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv3_fEEvRT_S4_S4_(ptr dereferenceable(12) %0, ptr dereferenceable(12) %1, ptr dereferenceable(12) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <3 x float>, ptr %0
   %4 = load <3 x float>, ptr %1
@@ -106,7 +106,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_fEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv4_fEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <4 x float>, ptr %0
   %4 = load <4 x float>, ptr %1
@@ -116,7 +116,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_fEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv8_fEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <8 x float>, ptr %0
   %4 = load <8 x float>, ptr %1
@@ -126,7 +126,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_fEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv16_fEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <16 x float>, ptr %0
   %4 = load <16 x float>, ptr %1
@@ -136,7 +136,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIdEEvRT_S3_S3_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIdEEvRT_S3_S3_(ptr dereferenceable(8) %0, ptr dereferenceable(8) %1, ptr dereferenceable(8) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load double, ptr %0
   %4 = load double, ptr %1
@@ -146,7 +146,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv2_dEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv2_dEEvRT_S4_S4_(ptr dereferenceable(16) %0, ptr dereferenceable(16) %1, ptr dereferenceable(16) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <2 x double>, ptr %0
   %4 = load <2 x double>, ptr %1
@@ -156,7 +156,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv3_dEEvRT_S4_S4_(ptr dereferenceable(24) %0, ptr dereferenceable(24) %1, ptr dereferenceable(24) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv3_dEEvRT_S4_S4_(ptr dereferenceable(24) %0, ptr dereferenceable(24) %1, ptr dereferenceable(24) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <3 x double>, ptr %0
   %4 = load <3 x double>, ptr %1
@@ -166,7 +166,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv4_dEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv4_dEEvRT_S4_S4_(ptr dereferenceable(32) %0, ptr dereferenceable(32) %1, ptr dereferenceable(32) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <4 x double>, ptr %0
   %4 = load <4 x double>, ptr %1
@@ -176,7 +176,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv8_dEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv8_dEEvRT_S4_S4_(ptr dereferenceable(64) %0, ptr dereferenceable(64) %1, ptr dereferenceable(64) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <8 x double>, ptr %0
   %4 = load <8 x double>, ptr %1
@@ -186,7 +186,7 @@ entry:
   ret void
 }
 
-define hidden spir_func void @_ZN6abacus6detail11inplace_fmaIDv16_dEEvRT_S4_S4_(ptr dereferenceable(128) %0, ptr dereferenceable(128) %1, ptr dereferenceable(128) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
+define hidden spir_func void @_ZN6abacus8internal11inplace_fmaIDv16_dEEvRT_S4_S4_(ptr dereferenceable(128) %0, ptr dereferenceable(128) %1, ptr dereferenceable(128) %2) local_unnamed_addr mustprogress nounwind alwaysinline {
 entry:
   %3 = load <16 x double>, ptr %0
   %4 = load <16 x double>, ptr %1

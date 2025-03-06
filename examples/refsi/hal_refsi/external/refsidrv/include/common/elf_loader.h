@@ -58,7 +58,7 @@ public:
 
   reg_t find_symbol(const char *name) const;
 
-  constexpr static uint64_t invalid_address = ~0ull;
+  static constexpr uint64_t invalid_address = ~0ull;
 
 private:
   bool read_header(MemoryDevice &src, unit_id_t unit);

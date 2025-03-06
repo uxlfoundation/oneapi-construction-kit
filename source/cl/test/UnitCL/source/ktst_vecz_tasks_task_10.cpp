@@ -35,7 +35,7 @@ TEST_P(Execution, Task_10_01_Shuffle_Constant) {
   auto refIn2 = kts::BuildVec2Reference1D<cl_int2>(kts::Ref_A);
 
   kts::Reference1D<cl_int2> refOut = [](size_t x) {
-    return cl_int2{{kts::Ref_A(2 * x + 1), kts::Ref_A(4 * x + 2)}};
+    return cl_int2{{kts::Ref_A((2 * x) + 1), kts::Ref_A((4 * x) + 2)}};
   };
 
   AddInputBuffer(kts::N, refIn1);
@@ -54,7 +54,7 @@ TEST_P(Execution, Task_10_02_Shuffle_Runtime) {
   auto refIn2 = kts::BuildVec2Reference1D<cl_int2>(kts::Ref_A);
 
   kts::Reference1D<cl_int2> refOut = [](size_t x) {
-    return cl_int2{{kts::Ref_A(2 * x + 1), kts::Ref_A(4 * x + 2)}};
+    return cl_int2{{kts::Ref_A((2 * x) + 1), kts::Ref_A((4 * x) + 2)}};
   };
 
   AddInputBuffer(kts::N, refIn1);
@@ -254,9 +254,9 @@ TEST_P(Execution, Task_10_08_InsertElement_Constant_Index) {
   auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
   kts::Reference1D<cl_int4> refOut = [](size_t x) {
     cl_int a = kts::Ref_A(4 * x);
-    cl_int b = kts::Ref_A(4 * x + 1);
+    cl_int b = kts::Ref_A((4 * x) + 1);
     cl_int c = 42;
-    cl_int d = kts::Ref_A(4 * x + 3);
+    cl_int d = kts::Ref_A((4 * x) + 3);
     return cl_int4{{a, b, c, d}};
   };
   AddInputBuffer(kts::N, refIn);
@@ -271,9 +271,9 @@ TEST_P(Execution, Task_10_09_InsertElement_Runtime_Index) {
   auto refIn = kts::BuildVec4Reference1D<cl_int4>(kts::Ref_A);
   kts::Reference1D<cl_int4> refOut = [](size_t x) {
     cl_int a = (x % 4 == 0) ? 42 : kts::Ref_A(4 * x);
-    cl_int b = (x % 4 == 1) ? 42 : kts::Ref_A(4 * x + 1);
-    cl_int c = (x % 4 == 2) ? 42 : kts::Ref_A(4 * x + 2);
-    cl_int d = (x % 4 == 3) ? 42 : kts::Ref_A(4 * x + 3);
+    cl_int b = (x % 4 == 1) ? 42 : kts::Ref_A((4 * x) + 1);
+    cl_int c = (x % 4 == 2) ? 42 : kts::Ref_A((4 * x) + 2);
+    cl_int d = (x % 4 == 3) ? 42 : kts::Ref_A((4 * x) + 3);
     return cl_int4{{a, b, c, d}};
   };
   AddInputBuffer(kts::N, refIn);

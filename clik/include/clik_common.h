@@ -40,7 +40,7 @@
 struct clik_buffer;
 
 struct CLIK_API clik_ndrange {
-  constexpr static uint32_t max_dimensions = 3;
+  static constexpr uint32_t max_dimensions = 3;
   // Origin of the work 'grid'. Used when the first item is not at (0, 0, 0).
   uint64_t offset[max_dimensions];
   // Global size, i.e. total number of work-items in each dimension.

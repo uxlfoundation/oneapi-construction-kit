@@ -19,6 +19,6 @@
 
 #include <stdint.h>
 
-constexpr static uint32_t supported_hal_api_version = 6;
+static constexpr uint32_t supported_hal_api_version = 6;
 
 #endif  // _CLIK_CLIK_HAL_VERSION_H

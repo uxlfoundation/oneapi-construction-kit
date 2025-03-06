@@ -103,7 +103,7 @@ TEST_F(cl_codeplay_wfv_Test, InvalidWorkGroupSizeMax) {
   BuildKernel("__kernel void foo() {}", "foo", "-cl-wfv=never");
   auto max_work_group_size = getDeviceMaxWorkGroupSize();
   auto max_work_item_size_x = getDeviceMaxWorkItemSizes()[0];
-  auto size_y = max_work_group_size / max_work_item_size_x + 1;
+  auto size_y = (max_work_group_size / max_work_item_size_x) + 1;
   size_t local_size[] = {max_work_item_size_x, size_y, 1};
   ASSERT_EQ(CL_INVALID_WORK_GROUP_SIZE,
             clGetKernelWFVInfoCODEPLAY(kernel, device, 2, nullptr, local_size,

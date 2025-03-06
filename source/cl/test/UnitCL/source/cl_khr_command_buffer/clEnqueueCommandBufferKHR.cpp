@@ -85,7 +85,8 @@ TEST_F(CommandBufferEnqueueTest, IncrementKernelTwice) {
                                      sizeof(cl_int), 0, sizeof(cl_int), 0,
                                      nullptr, nullptr));
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &counter_buffer));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&counter_buffer)));
 
   // Set up the command buffer to allow multiple enqueues without a wait.
   cl_command_buffer_properties_khr properties[3] = {
@@ -150,7 +151,8 @@ TEST_F(CommandBufferEnqueueTest, IncrementKernelTwiceDifferentQueues) {
                                      sizeof(cl_int), 0, sizeof(cl_int), 0,
                                      nullptr, nullptr));
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &counter_buffer));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&counter_buffer)));
 
   // Set up the command buffer to allow multiple enqueues without a wait.
   cl_command_buffer_properties_khr properties[3] = {
@@ -272,8 +274,10 @@ TEST_F(CommandBufferEnqueueTest, ParallelCopyKernel) {
                                      data_size_in_bytes, nullptr, &error);
   ASSERT_SUCCESS(error);
 
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_buffer), &src_buffer));
-  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_buffer), &dst_buffer));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(src_buffer),
+                                static_cast<void *>(&src_buffer)));
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(dst_buffer),
+                                static_cast<void *>(&dst_buffer)));
 
   // Set up the command buffer and run the command buffer.
   cl_command_buffer_khr command_buffer =
@@ -398,12 +402,12 @@ class InterleavedCommands : public cl_khr_command_buffer_Test {
                                 nullptr, &error);
     ASSERT_SUCCESS(error);
 
-    ASSERT_SUCCESS(
-        clSetKernelArg(store_zero_kernel, 0, sizeof(dst_buffer), &dst_buffer));
-    ASSERT_SUCCESS(
-        clSetKernelArg(store_one_kernel, 0, sizeof(dst_buffer), &dst_buffer));
-    ASSERT_SUCCESS(
-        clSetKernelArg(store_two_kernel, 0, sizeof(dst_buffer), &dst_buffer));
+    ASSERT_SUCCESS(clSetKernelArg(store_zero_kernel, 0, sizeof(dst_buffer),
+                                  static_cast<void *>(&dst_buffer)));
+    ASSERT_SUCCESS(clSetKernelArg(store_one_kernel, 0, sizeof(dst_buffer),
+                                  static_cast<void *>(&dst_buffer)));
+    ASSERT_SUCCESS(clSetKernelArg(store_two_kernel, 0, sizeof(dst_buffer),
+                                  static_cast<void *>(&dst_buffer)));
   }
 
   void TearDown() override {
@@ -668,7 +672,7 @@ TEST_F(CommandBufferEnqueueTest, EnqueueInLoopWithBlockingRead) {
   EXPECT_SUCCESS(clFinish(command_queue));
 
   EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(accumulator_buffer),
-                                &accumulator_buffer));
+                                static_cast<void *>(&accumulator_buffer)));
 
   // Set up the command buffer.
   // TODO CA-3358 - After command-buffer cleanup is resolved we should be able
@@ -739,7 +743,7 @@ TEST_F(CommandBufferEnqueueTest, EnqueueInLoopWithoutBlockingRead) {
   EXPECT_SUCCESS(clFinish(command_queue));
 
   EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(accumulator_buffer),
-                                &accumulator_buffer));
+                                static_cast<void *>(&accumulator_buffer)));
 
   // Set up the command buffer to allow multiple enqueues without a wait.
   cl_command_buffer_properties_khr properties[3] = {

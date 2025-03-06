@@ -59,7 +59,7 @@ CL_API_ENTRY void *CL_API_CALL clSVMAlloc(cl_context context,
 }
 
 CL_API_ENTRY void CL_API_CALL clSVMFree(cl_context context, void *svm_pointer) {
-  return cl::SVMFree(context, svm_pointer);
+  cl::SVMFree(context, svm_pointer);
 }
 
 CL_API_ENTRY cl_sampler CL_API_CALL clCreateSamplerWithProperties(

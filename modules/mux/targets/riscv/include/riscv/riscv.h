@@ -29,7 +29,7 @@ extern "C" {
 /// @brief Riscv major version number.
 #define RISCV_MAJOR_VERSION 0
 /// @brief Riscv minor version number.
-#define RISCV_MINOR_VERSION 80
+#define RISCV_MINOR_VERSION 81
 /// @brief Riscv patch version number.
 #define RISCV_PATCH_VERSION 0
 /// @brief Riscv combined version number.

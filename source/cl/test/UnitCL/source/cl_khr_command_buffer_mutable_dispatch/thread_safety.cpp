@@ -80,7 +80,8 @@ TEST_F(MutableDispatchThreadSafetyTest, UpdateInParallel) {
   const cl_int initial_value = 42;
   EXPECT_SUCCESS(
       clSetKernelArg(kernel, 0, sizeof(initial_value), &initial_value));
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), &dst_buffer));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem),
+                                static_cast<void *>(&dst_buffer)));
 
   // Create command-buffer with mutable flag so we can update it
   cl_command_buffer_properties_khr properties[3] = {

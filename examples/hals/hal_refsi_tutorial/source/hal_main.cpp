@@ -50,7 +50,7 @@ class refsi_tutorial_hal : public hal::hal_t {
 
   refsi_tutorial_hal() {
     const char *target_name = "RefSi M1 Tutorial";
-    constexpr static uint32_t implemented_api_version = 6;
+    static constexpr uint32_t implemented_api_version = 6;
     static_assert(implemented_api_version == hal_t::api_version,
                   "Implemented API version for RefSi HAL does not match hal.h");
     hal_info.platform_name = target_name;

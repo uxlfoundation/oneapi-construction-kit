@@ -631,7 +631,7 @@ class small_vector {
     }
     iterator position = Begin + index;
     std::move_backward(position, End, End + 1);
-    new (position) value_type(std::forward<Args>(args)...);
+    new (static_cast<void *>(position)) value_type(std::forward<Args>(args)...);
     setEnd(End + 1);
     return position;
   }
@@ -689,7 +689,7 @@ class small_vector {
     if (auto error = extend(1)) {
       return error;
     }
-    new (End) value_type(value);
+    new (static_cast<void *>(End)) value_type(value);
     setEnd(End + 1);
     return cargo::success;
   }
@@ -709,7 +709,7 @@ class small_vector {
     if (auto error = extend(1)) {
       return error;
     }
-    new (End) value_type(std::move(value));
+    new (static_cast<void *>(End)) value_type(std::move(value));
     setEnd(End + 1);
     return cargo::success;
   }
@@ -728,7 +728,7 @@ class small_vector {
     if (auto error = extend(1)) {
       return error;
     }
-    new (End) value_type(std::forward<Args>(args)...);
+    new (static_cast<void *>(End)) value_type(std::forward<Args>(args)...);
     setEnd(End + 1);
     return cargo::success;
   }
@@ -759,7 +759,7 @@ class small_vector {
     }
     if (size < count) {
       std::for_each(End, Begin + count, [](reference item) {
-        new (std::addressof(item)) value_type();
+        new (static_cast<void *>(std::addressof(item))) value_type();
       });
     }
     End = Begin + count;

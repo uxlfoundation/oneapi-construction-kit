@@ -1,0 +1,117 @@
+name: setup-build
+description: Setup ready for building. Includes installs, ninja, build cache setup and loading llvm cache
+
+inputs:
+  os:
+    description: 'OS - ubuntu or windows'
+    default: ubuntu
+  llvm_build_type:
+    description: 'llvm Build type (Release, RelAssert) - note we need to use RelAssert for the cache pattern matching'
+    default: RelAssert
+  llvm_version:
+    description: 'Major llvm version to use for fetching llvm cache e.g. 18'
+    default: 18
+  ubuntu_version:
+    description: 'Version of ubuntu used for cache retrieval and prerequisites'
+    default: 22.04
+  windows_version:
+    description: 'Version of windows used for cache retrieval and prerequisites'
+    default: 2019
+  save:
+    description: 'Save the build cache at the end - not for PR testing'
+    default: false
+  cross_arch:
+    description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
+    default: "none"
+  llvm_source:
+    description: 'source to get llvm from - one of install or cache'
+    default: "cache"
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: Install ubuntu prerequisites
+      # Note: most prereqs now installed in dockerfiles
+      if: ${{ inputs.os == 'ubuntu' }}
+      shell: bash
+      run: |
+        # required for virtualenv running in docker
+        echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_ENV
+
+    - name: Install windows prerequisites
+      if: ${{ inputs.os == 'windows' }}
+      shell: pwsh
+      run: |
+        Invoke-WebRequest  https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanSDK-1.3.283.0-Installer.exe -OutFile Installer.exe
+        .\Installer.exe --accept-licenses --default-answer --confirm-command install
+        rm Installer.exe
+        # add VulcanSDK to path
+        echo "PATH=C:\VulkanSDK\1.3.283.0\Bin;$env:PATH" >> $env:GITHUB_ENV
+        pip install lit
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+
+    - name: set llvm key
+      id: set_llvm_key
+      shell: bash
+      run: |
+        KEY_VERSION="${{ inputs.ubuntu_version }}"
+        if [ "${{ inputs.os }}" = "windows" ]; then
+           KEY_VERSION="${{ inputs.windows_version }}"
+        fi
+        echo "key_version=$KEY_VERSION" >> "$GITHUB_OUTPUT"
+        KEY_ARCH="x86_64"
+        KEY_NATIVE_ARCH="x86_64"
+        if [ "${{ runner.arch }}" = "ARM64" ]; then
+           KEY_ARCH="aarch64" ;
+           KEY_NATIVE_ARCH="aarch64"
+        fi
+        if [ "${{ inputs.cross_arch }}" != "none" ]; then
+           KEY_ARCH="${{ inputs.cross_arch }}"
+        fi
+        echo "key_arch=$KEY_ARCH" >> "$GITHUB_OUTPUT"
+        echo "key_native_arch=$KEY_NATIVE_ARCH" >> "$GITHUB_OUTPUT"
+        cat $GITHUB_OUTPUT
+
+    - name: load llvm native
+      if: inputs.llvm_source == 'cache'
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        fail-on-cache-miss: true
+
+    - name: install llvm native
+      if: inputs.llvm_source == 'install'
+      shell: bash
+      run: |
+        set -x
+        sudo apt update
+
+        sudo apt install -y llvm-${{ inputs.llvm_version }}-dev liblld-${{ inputs.llvm_version }}-dev libclang-${{ inputs.llvm_version }}-dev
+        sudo apt install -y libpolly-${{ inputs.llvm_version }}-dev clang-${{ inputs.llvm_version }}
+
+        ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
+
+    - shell: bash
+      if: inputs.cross_arch != 'none'    
+      run: mv llvm_install llvm_install_native
+
+    - name: load llvm cross
+      if: inputs.cross_arch != 'none' && inputs.llvm_source == 'cache'
+      uses: actions/cache/restore@v4
+      with:
+        path: llvm_install/**
+        key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        fail-on-cache-miss: true
+
+      # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@53911442209d5c18de8a31615e0923161e435875 # v1.2.16
+      with:
+        max-size: 200M
+        key: ccache-build-${{ inputs.os }}
+        variant: ccache
+        save: ${{ inputs.save }}

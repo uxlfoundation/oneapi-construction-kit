@@ -139,7 +139,7 @@ TEST_F(clGetKernelInfoTest, KernelContext) {
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_CONTEXT, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_context), size);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_CONTEXT, size,
-                                 &kernelContext, nullptr));
+                                 static_cast<void *>(&kernelContext), nullptr));
   ASSERT_EQ(context, kernelContext);
 }
 
@@ -149,7 +149,7 @@ TEST_F(clGetKernelInfoTest, KernelProgram) {
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_PROGRAM, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_program), size);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_PROGRAM, size,
-                                 &kernelProgram, nullptr));
+                                 static_cast<void *>(&kernelProgram), nullptr));
   ASSERT_EQ(program, kernelProgram);
 }
 
@@ -255,7 +255,7 @@ TEST_F(clGetKernelInfoTwoKernelsTest, KernelContext) {
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_CONTEXT, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_context), size);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_CONTEXT, size,
-                                 &kernelContext, nullptr));
+                                 static_cast<void *>(&kernelContext), nullptr));
   ASSERT_EQ(context, kernelContext);
 }
 
@@ -265,7 +265,7 @@ TEST_F(clGetKernelInfoTwoKernelsTest, KernelProgram) {
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_PROGRAM, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_program), size);
   ASSERT_SUCCESS(clGetKernelInfo(kernel, CL_KERNEL_PROGRAM, size,
-                                 &kernelProgram, nullptr));
+                                 static_cast<void *>(&kernelProgram), nullptr));
   ASSERT_EQ(program, kernelProgram);
 }
 
@@ -340,7 +340,7 @@ TEST_P(clGetKernelInfoAttributeTest, Default) {
   }
 }
 
-InputPair AttributeParams[] = {
+static InputPair AttributeParams[] = {
     {
         "void kernel "
         "__attribute__((reqd_work_group_size(1, 1, 1)))"

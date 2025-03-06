@@ -166,9 +166,11 @@ kernel void reduction(global int *in, local int *tmp, global int *out) {
                                 input_buffer_size, input_data.data(), 0,
                                 nullptr, nullptr));
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(input_buffer), &input_buffer));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(input_buffer),
+                          static_cast<void *>(&input_buffer)));
   CL_CHECK(clSetKernelArg(kernel, 1, local_buffer_size, nullptr));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(output_buffer), &output_buffer));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(output_buffer),
+                          static_cast<void *>(&output_buffer)));
 
   CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
                                   &global_size, &local_size, 0, nullptr,

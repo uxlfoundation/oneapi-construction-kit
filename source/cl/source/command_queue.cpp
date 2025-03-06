@@ -199,7 +199,7 @@ cl_int _cl_command_queue::flush() {
 
   // Use a raii_wrapper to ensure in_flush is set to false on exit
   struct raii_wrapper {
-    raii_wrapper(bool &in_flush) : in_flush(in_flush){};
+    raii_wrapper(bool &in_flush) : in_flush(in_flush) {};
     ~raii_wrapper() { in_flush = false; }
     bool &in_flush;
   };

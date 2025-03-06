@@ -31,11 +31,12 @@ PREFIX = ''
 FUNCTION_PREFIX = ''
 FUNCTIONS_ONLY = False
 INCLUDES = []
-STUB = None
 STUB_INCLUDES = []
 STUB_GUARDS_ON = False
 STUB_PREFIX = ''
 STUB_QUALIFIER = ''
+STUB_VALUE = None
+STUB_VOID = None
 VARIABLES = []
 
 
@@ -544,8 +545,6 @@ def function(node, semicolon, newline, out=True):
     name = replace_prefix(replace_stub_prefix(prefix_name, STUB_PREFIX))
     name = replace_function_prefix(name)
     prefix_name = replace_stub_prefix(prefix_name)
-    if not STUB is None:
-        name = name
     form = node.attrib.get('form')
     if not form is None:
         if form == 'pointer':
@@ -594,11 +593,12 @@ def function(node, semicolon, newline, out=True):
         function_str += ';'
     if newline:
         function_str += '\n'
-    if not doxygen.empty() and STUB is None:
+    if not doxygen.empty() and (STUB_VALUE is None or STUB_VOID is None):
         function_str = doxygen.output() + '\n' + function_str
     if out:
         print(function_str)
-        if STUB is not None:
+        if STUB_VALUE is not None and STUB_VOID is not None:
+            STUB = STUB_VOID if return_type.text == 'void' else STUB_VALUE
             print('{\n' + replace_stub(STUB.text, prefix_name, return_type.text, param_names) +
                   '\n}\n')
     else:
@@ -737,7 +737,7 @@ def generate(parent, semicolon=True, newline=True):
         """Don't dispatch, skip."""
         pass
 
-    if STUB is None:
+    if STUB_VALUE is None or STUB_VOID is None:
         for node in parent:
             {'include': dispatch_newline,
              'define': dispatch_newline,
@@ -787,10 +787,11 @@ def main():
     global FUNCTION_PREFIX
     global FUNCTIONS_ONLY
     global STUB_GUARDS_ON
-    global STUB
     global STUB_INCLUDES
     global STUB_PREFIX
     global STUB_QUALIFIER
+    global STUB_VALUE
+    global STUB_VOID
 
     parser = argparse.ArgumentParser(
         description='Generate C from an XML schema.')
@@ -832,7 +833,10 @@ def main():
         for node in stubs:
             if node.tag == 'stub':
                 if args.stub == node.attrib.get('name'):
-                    STUB = node
+                    STUB_VALUE = node.find('return-value')
+                    STUB_VOID = node.find('return-void')
+                    if STUB_VALUE is None: STUB_VALUE = node
+                    if STUB_VOID is None: STUB_VOID = node
                     prefix_stub = node.attrib.get('prefix')
                     if prefix_stub != '':
                         STUB_PREFIX = prefix_stub
@@ -841,7 +845,7 @@ def main():
                         STUB_QUALIFIER = qual
             elif node.tag == 'include':
                 STUB_INCLUDES.append(node.text)
-        if STUB is None:
+        if STUB_VOID is None or STUB_VALUE is None:
             raise Exception('could not find stub named: {0}'.format(args.stub))
 
     if args.variables:

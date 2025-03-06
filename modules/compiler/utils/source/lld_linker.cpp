@@ -113,6 +113,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
                              "unable to open temporary object file");
   }
   if (fwrite(rawBinary.data(), 1, rawBinary.size(), f) != rawBinary.size()) {
+    (void)fclose(f);
     return createStringError(inconvertibleErrorCode(),
                              "unable to write binary to temporary object file");
   }
@@ -128,6 +129,7 @@ Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
   }
   if (fwrite(linkerScriptStr.c_str(), 1, linkerScriptStr.length(), fl) !=
       linkerScriptStr.length()) {
+    (void)fclose(fl);
     return createStringError(inconvertibleErrorCode(),
                              "unable to write to temporary linker script file");
   }

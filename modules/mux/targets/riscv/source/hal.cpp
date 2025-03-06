@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #include <hal.h>
 #include <hal_library.h>
+#include <riscv/hal.h>
 
 namespace riscv {
 

@@ -63,7 +63,8 @@ PreservedAnalyses RemoveIntPtrPass::run(Function &F,
         // hopefully be removed later.
         auto num_values = phi->getNumIncomingValues();
         PHINode *new_phi = PHINode::Create(int_ptr->getSrcTy(), num_values,
-                                           phi->getName() + ".intptr", phi);
+                                           phi->getName() + ".intptr");
+        new_phi->insertBefore(phi->getIterator());
 
         Instruction *insert = phi;
         while (isa<PHINode>(insert)) {
@@ -104,10 +105,7 @@ PreservedAnalyses RemoveIntPtrPass::run(Function &F,
 
         if (index) {
           Value *operand = int_ptr->getOperand(0);
-          Value *cast_operand = B.CreateBitCast(
-              operand, i8_ty->getPointerTo(
-                           operand->getType()->getPointerAddressSpace()));
-          Value *new_gep = B.CreateGEP(i8_ty, cast_operand, index, name);
+          Value *new_gep = B.CreateGEP(i8_ty, operand, index, name);
           Value *new_cast = B.CreatePtrToInt(new_gep, bin_op->getType(), name);
           bin_op->replaceAllUsesWith(new_cast);
           bin_op->eraseFromParent();

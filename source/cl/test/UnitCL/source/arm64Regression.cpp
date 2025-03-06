@@ -61,21 +61,23 @@ int test_copy(cl_context context, cl_command_queue queue, cl_kernel kernel,
   cl_int error = 0;
 
   // Fill input buffer with random data
-  void *inData = (void *)malloc(global_buffer_size);
+  void *inData = malloc(global_buffer_size);
   generateRandomData(inData, global_buffer_size, generator);
 
   buffers[0] = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR, global_buffer_size,
                               inData, &error);
   EXPECT_SUCCESS(error);
 
-  void *outData = (void *)malloc(global_buffer_size);
+  void *outData = malloc(global_buffer_size);
   buffers[1] = clCreateBuffer(context, CL_MEM_COPY_HOST_PTR, global_buffer_size,
                               outData, &error);
   EXPECT_SUCCESS(error);
 
-  error = clSetKernelArg(kernel, 0, sizeof(buffers[0]), &buffers[0]);
+  error = clSetKernelArg(kernel, 0, sizeof(buffers[0]),
+                         static_cast<void *>(&buffers[0]));
   EXPECT_SUCCESS(error);
-  error = clSetKernelArg(kernel, 1, sizeof(buffers[1]), &buffers[1]);
+  error = clSetKernelArg(kernel, 1, sizeof(buffers[1]),
+                         static_cast<void *>(&buffers[1]));
   EXPECT_SUCCESS(error);
   error = clSetKernelArg(kernel, 2, local_buffer_size, NULL);
   EXPECT_SUCCESS(error);

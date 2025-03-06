@@ -1,0 +1,17 @@
+name: setup gh
+description: Set up github's cli gh
+
+inputs:
+  os:
+    description: 'os to use (contains windows or ubuntu)'
+    default: 'ubuntu'
+  token:
+    description: 'token for gh'
+
+runs:
+  using: "composite"
+  steps:
+      - name: set up secret ubuntu
+        shell: bash
+        run:
+          echo "GH_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV

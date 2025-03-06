@@ -382,7 +382,7 @@ static VkResult ProcessSubmitInfo(const VkSubmitInfo &submitInfo,
             !(commandBuffer->usage_flags &
               VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT)) {
           commandBuffer->allocator.free(
-              command_info.wait_events_command.pEvents);
+              static_cast<void *>(command_info.wait_events_command.pEvents));
         }
       }
     }

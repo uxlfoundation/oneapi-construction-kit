@@ -22,12 +22,12 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T, typename U>
-T refract(const T i, const T n, const U eta) {
+template <typename T>
+T refract(const T i, const T n, const typename TypeTraits<T>::ElementType eta) {
   typedef typename TypeTraits<T>::ElementType ElementType;
 
   const ElementType intermediate = __abacus_dot(n, i);
-  const ElementType k = 1 - eta * eta * (1 - intermediate * intermediate);
+  const ElementType k = 1 - (eta * eta * (1 - intermediate * intermediate));
 
   const T result = (i * eta) - (n * (eta * intermediate + __abacus_sqrt(k)));
 

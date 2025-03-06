@@ -379,7 +379,7 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
     module.associateExtendedInstrSet(op->IdResult(),
                                      ExtendedInstrSet::OpenCLDebugInfo100);
   } else {
-    return makeStringError(llvm::Twine(name.data()) +
+    return makeStringError(name +
                            " extended instruction set is not supported!\n");
   }
   return llvm::Error::success();
@@ -2155,7 +2155,12 @@ llvm::Error Builder::create<OpFunctionParameter>(
             arg->addAttr(llvm::Attribute::NoAlias);
             break;
           case spv::FunctionParameterAttributeNoCapture:
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+            arg->addAttr(llvm::Attribute::getWithCaptureInfo(
+                arg->getContext(), llvm::CaptureInfo::none()));
+#else
             arg->addAttr(llvm::Attribute::NoCapture);
+#endif
             break;
           case spv::FunctionParameterAttributeNoWrite:
             arg->addAttr(llvm::Attribute::ReadOnly);
@@ -2423,7 +2428,7 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
   const unsigned n_args = op->wordCount() - 4;
 
   if (auto *const fn = module.getValue(op->Function())) {
-    callee = cast<llvm::Function>(module.getValue(op->Function()));
+    callee = cast<llvm::Function>(fn);
   } else {
     // If we haven't seen this function before (i.e., a forward reference),
     // create a call to an internal dummy function which we'll fix up during
@@ -2472,9 +2477,13 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
   // so make sure these are added where necessary
   const llvm::Attribute::AttrKind ptr_attr_kinds[] = {
       llvm::Attribute::ByRef,     llvm::Attribute::ByVal,
-      llvm::Attribute::StructRet, llvm::Attribute::NoCapture,
-      llvm::Attribute::ReadOnly,  llvm::Attribute::WriteOnly,
-      llvm::Attribute::NoAlias,
+      llvm::Attribute::StructRet, llvm::Attribute::ReadOnly,
+      llvm::Attribute::WriteOnly, llvm::Attribute::NoAlias,
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+      llvm::Attribute::Captures,
+#else
+      llvm::Attribute::NoCapture,
+#endif
   };
   const llvm::Attribute::AttrKind val_attr_kinds[] = {
       llvm::Attribute::ZExt,
@@ -2503,6 +2512,12 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
           call->addParamAttr(i, llvm::Attribute::get(
                                     ctx, kind, call->getParamStructRetType(i)));
           break;
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+        case llvm::Attribute::Captures:
+          call->addParamAttr(i, llvm::Attribute::getWithCaptureInfo(
+                                    ctx, call->getCaptureInfo(i)));
+          break;
+#endif
         default:
           SPIRV_LL_ASSERT(!llvm::Attribute::isTypeAttrKind(kind),
                           "Unhandled type attribute");
@@ -2556,9 +2571,22 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
     // StorageClass, this should be handled by the Input StorageClass below.
     if (module.getFirstDecoration(op->IdResult(), spv::DecorationBuiltIn)) {
       module.addBuiltInID(op->IdResult());
-      value = new llvm::GlobalVariable(*module.llvmModule, varTy, false,
-                                       llvm::GlobalValue::ExternalLinkage,
-                                       llvm::UndefValue::get(varTy), name);
+      auto addrSpaceOrError =
+          module.translateStorageClassToAddrSpace(op->StorageClass());
+      if (auto err = addrSpaceOrError.takeError()) {
+        return err;
+      }
+      value = new llvm::GlobalVariable(
+          *module.llvmModule, varTy,
+          false,                               // isConstant
+          llvm::GlobalValue::ExternalLinkage,  // Linkage
+          llvm::UndefValue::get(varTy),        // Initializer
+          name,                                // Name
+          nullptr,                             // InsertBefore
+          llvm::GlobalValue::NotThreadLocal,   // TLMode
+          addrSpaceOrError.get(),              // AddressSpace
+          false                                // isExternallyInitialized
+      );
     } else {
       // Following is the set of StorageClasses supported by the Kernel
       // capability.
@@ -6042,11 +6070,11 @@ llvm::Error Builder::create<OpBranchConditional>(
       branch_inst->setMetadata(md_nodes.front().second, md_nodes.front().first);
     } else {
       // if both possible nodes are needed create an `MDTuple` out of them
-      const llvm::ArrayRef<llvm::Metadata *> md_arr = {md_nodes[0].first,
-                                                       md_nodes[1].first};
+      llvm::Metadata *md_arr[] = {md_nodes[0].first, md_nodes[1].first};
 
       branch_inst->setMetadata(
-          "MDTuple", llvm::MDTuple::get(*context.llvmContext, md_arr));
+          "MDTuple",
+          llvm::MDTuple::get(*context.llvmContext, llvm::ArrayRef(md_arr)));
     }
   }
 
@@ -6260,12 +6288,10 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   // Add in any required mangle information before we cache the reduction
   // wrapper. This is important for distinguishing between smin/smax, for
   // example.
-  const std::string cacheName =
-      (signInfo == MangleInfo::ForceSignInfo::ForceSigned
-           ? "s"
-           : (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned ? "u"
-                                                                   : "")) +
-      opName;
+  const char *prefix = "";
+  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned) prefix = "s";
+  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned) prefix = "u";
+  const std::string cacheName = prefix + opName;
   auto *&reductionWrapper =
       module.reductionWrapperMap[operation][cacheName]
                                 [module.getResultType(op->X())];

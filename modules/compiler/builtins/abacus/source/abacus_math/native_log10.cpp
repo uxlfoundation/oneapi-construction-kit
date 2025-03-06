@@ -40,7 +40,7 @@ T native_log10(const T x) {
   const T log10f = abacus::internal::horner_polynomial(f - 1, polynomial);
 
   const abacus_float oneOverlog210 = 0.301029995663981195213738894725f;
-  return f * log10f + abacus::detail::cast::convert<T>(n) * oneOverlog210;
+  return (f * log10f) + (abacus::detail::cast::convert<T>(n) * oneOverlog210);
 }
 }  // namespace
 

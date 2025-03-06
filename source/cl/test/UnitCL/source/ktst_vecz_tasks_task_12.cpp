@@ -40,7 +40,7 @@ TEST_P(Execution, Task_12_01_Interleaved_Load_4) {
   };
 
   kts::Reference1D<cl_int> refOut = [=, &InBuffer](size_t x) -> int {
-    return InBuffer[x * 2 + 1] - InBuffer[x * 2];
+    return InBuffer[(x * 2) + 1] - InBuffer[x * 2];
   };
 
   const size_t N = sizeof(InBuffer) / sizeof(cl_int);
@@ -70,8 +70,8 @@ TEST_P(Execution, Task_12_02_Interleaved_Load_5) {
   };
 
   kts::Reference1D<cl_int> refOut = [=, &InBuffer](size_t x) -> int {
-    return InBuffer[x * 2] + InBuffer[x * 2 + 1] + InBuffer[x * 2 + 2] +
-           InBuffer[x * 2 + 3];
+    return InBuffer[x * 2] + InBuffer[(x * 2) + 1] + InBuffer[(x * 2) + 2] +
+           InBuffer[(x * 2) + 3];
   };
 
   const size_t N = sizeof(InBuffer) / sizeof(cl_int);
@@ -101,7 +101,7 @@ TEST_P(Execution, Task_12_03_Interleaved_Load_6) {
   };
 
   kts::Reference1D<cl_int> refOut = [=, &InBuffer](size_t x) -> int {
-    return (InBuffer[x * 2 + 3] << 1) - InBuffer[x * 2 + 2];
+    return (InBuffer[(x * 2) + 3] << 1) - InBuffer[(x * 2) + 2];
   };
 
   const size_t N = sizeof(InBuffer) / sizeof(cl_int);

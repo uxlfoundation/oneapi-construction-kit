@@ -25,7 +25,7 @@
 // able to refer to it at all. Still, it is easier than reinventing the wheel.
 namespace testing::internal {
 enum class GTestColor { kDefault, kRed, kGreen, kYellow };
-void ColoredPrintf(GTestColor color, const char *fmt, ...);
+extern void ColoredPrintf(GTestColor color, const char *fmt, ...);
 }  // namespace testing::internal
 
 #ifdef _WIN32

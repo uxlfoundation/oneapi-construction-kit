@@ -36,11 +36,11 @@ cargo::expected<riscv::kernel_s *, mux_result_t> kernel_s::create(
   auto *hal_device_info = static_cast<const riscv::hal_device_info_riscv_t *>(
       device->hal_device->get_info());
 
-  const unsigned real_vscale = hal_device_info->vlen / 64;
-  auto assert_scalable_supported = [hal_device_info]() {
+  auto real_vscale = [vlen = hal_device_info->vlen]() {
     assert(
-        hal_device_info->vlen &&
+        vlen &&
         "vlen must be known at runtime to calculate scalable subgroup width");
+    return vlen / 64;
   };
 
   cargo::small_vector<mux::hal::kernel_variant_s, 4> variants;
@@ -52,18 +52,15 @@ cargo::expected<riscv::kernel_s *, mux_result_t> kernel_s::create(
     variant.variant_name = meta.kernel_name;
     variant.sub_group_size = meta.sub_group_size.getKnownMinValue();
     if (meta.sub_group_size.isScalable()) {
-      assert_scalable_supported();
-      variant.sub_group_size *= real_vscale;
+      variant.sub_group_size *= real_vscale();
     }
     variant.min_work_width = meta.min_work_item_factor.getKnownMinValue();
     if (meta.min_work_item_factor.isScalable()) {
-      assert_scalable_supported();
-      variant.min_work_width *= real_vscale;
+      variant.min_work_width *= real_vscale();
     }
     variant.pref_work_width = meta.pref_work_item_factor.getKnownMinValue();
     if (meta.pref_work_item_factor.isScalable()) {
-      assert_scalable_supported();
-      variant.pref_work_width *= real_vscale;
+      variant.pref_work_width *= real_vscale();
     }
     if (cargo::success != variants.push_back(std::move(variant))) {
       return cargo::make_unexpected(mux_error_out_of_memory);
@@ -105,16 +102,11 @@ mux_result_t kernel_s::getSubGroupSizeForLocalSize(size_t local_size_x,
     return err;
   }
 
-  // If we've compiled with degenerate sub-groups, the sub-group size is the
-  // work-group size.
-  if (variant.sub_group_size == 0) {
-    *out_sub_group_size = local_size_x * local_size_y * local_size_z;
-  } else {
-    // Otherwise, on risc-v we always use vectorize in the x-dimension, so
-    // sub-groups "go" in the x-dimension.
-    *out_sub_group_size =
-        std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
-  }
+  // On risc-v we always vectorize in the x-dimension, so sub-groups "go" in the
+  // x-dimension.
+  *out_sub_group_size =
+      std::min(local_size_x, static_cast<size_t>(variant.sub_group_size));
+
   return mux_success;
 }
 
@@ -159,7 +151,7 @@ mux_result_t kernel_s::getLocalSizeForSubGroupCount(size_t sub_group_count,
   // work-group size we've reported, we'd receive a kernel variant with the
   // same sub-group size as we've assumed for the calculations.
   mux::hal::kernel_variant_s variant;
-  mux_result_t res = getKernelVariantForWGSize(
+  const mux_result_t res = getKernelVariantForWGSize(
       *out_local_size_x, *out_local_size_y, *out_local_size_z, &variant);
   if (res != mux_success || variant.sub_group_size != max_sub_group_size) {
     return mux_error_internal;
@@ -180,15 +172,13 @@ static bool isLegalKernelVariant(const mux::hal::kernel_variant_s &variant,
     return false;
   }
 
-  // Degenerate sub-groups are always legal.
-  if (variant.sub_group_size != 0) {
-    // Else, ensure it cleanly divides the work-group size.
-    // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
-    // sub-group was equal to the remainder. See CA-4783.
-    if (local_size_x % variant.sub_group_size != 0) {
-      return false;
-    }
+  // Ensure it cleanly divides the work-group size.
+  // FIXME: We could allow more cases here, such as if Y=Z=1 and the last
+  // sub-group was equal to the remainder. See CA-4783.
+  if (local_size_x % variant.sub_group_size != 0) {
+    return false;
   }
+
   return true;
 }
 
@@ -211,8 +201,8 @@ mux_result_t kernel_s::getKernelVariantForWGSize(
 
     if (v.pref_work_width == best_variant->pref_work_width) {
       // If two variants have the same preferred work width, choose the one
-      // that doesn't use degenerate subgroups, if available.
-      if (best_variant->sub_group_size == 0 && v.sub_group_size != 0) {
+      // with the highest sub-group size.
+      if (v.sub_group_size > best_variant->sub_group_size) {
         best_variant = &v;
       }
     } else if (v.pref_work_width > best_variant->pref_work_width &&
@@ -271,21 +261,13 @@ mux_result_t riscvQueryMaxNumSubGroups(mux_kernel_t kernel,
 
   for (size_t i = 0, e = riscv_kernel->variant_data.size(); i != e; i++) {
     auto variant_sg_size = riscv_kernel->variant_data[i].sub_group_size;
-    if (variant_sg_size != 0 && min_sub_group_size > variant_sg_size) {
-      min_sub_group_size = variant_sg_size;
-    }
+    min_sub_group_size = std::min<size_t>(min_sub_group_size, variant_sg_size);
   }
 
-  if (min_sub_group_size == std::numeric_limits<size_t>::max()) {
-    // If we've found no variant, or a variant using degenerate sub-groups, we
-    // only support one sub-group.
-    *out_max_num_sub_groups = 1;
-  } else {
-    // Else we can have as many sub-groups as there are work-items, divided by
-    // the smallest sub-group size we've got.
-    *out_max_num_sub_groups =
-        kernel->device->info->max_concurrent_work_items / min_sub_group_size;
-  }
+  // We can have as many sub-groups as there are work-items, divided by the
+  // smallest sub-group size we've got.
+  *out_max_num_sub_groups =
+      kernel->device->info->max_concurrent_work_items / min_sub_group_size;
 
   return mux_success;
 }

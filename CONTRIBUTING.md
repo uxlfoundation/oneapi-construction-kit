@@ -37,36 +37,6 @@ where it's unclear if your behaviour would violate the code. Please report
 unacceptable behaviour to
 [oneapi.construction.kit@codeplay.com](mailto:oneapi.construction.kit@codeplay.com).
 
-# I have a question
-
-Before asking a question, it is best to search through the available resources
-in case your question has already been answered.
-
-* We assume that you have read through the relevant
-  [Documentation](https://developer.codeplay.com/products/oneapi/construction-kit/guides).
-* There may be existing
-  [issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues)
-  that might help you.
-* An answer may have been provided elsewhere on the internet.
-
-In case you have found a suitable
-[issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues) and
-still need clarification, you can feel free to write your question in the
-existing issue.
-
-If your question has not been answered or you still feel that you need
-clarification, we ask that you follow these steps.
-
-* Open an
-  [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
-* Select the **Question** issue template and fill in the requested details.
-* Provide as much context as you can about the problem or question you have.
-* Provide project version and any relevant system details (e.g. operating
-  system).
-
-Once your issue has been opened, we will take a look and try to help you as
-soon as possible.
-
 # I want to contribute
 
 ## Legal notice
@@ -168,6 +138,7 @@ in preparation for your suggestion.
 Once you have prepared to submit your enhancement suggestion, we ask that you
 follow these steps.
 
+* Consider using the slack channel [#oneck] to discuss the idea.
 * Open an
   [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
 * Select the **Enhancement** issue template and fill in the requested details.
@@ -249,9 +220,20 @@ steps.
   proposing and why.
 * Provide a general overview of how the code contribution works, detailing the
   effects and consequences of the change.
-* Address feedback from participants and resolve any test failures.
+* Wait for CI to be approved and resolve any test failures.
+* Address feedback from reviewers.
 * Wait for a project maintainer to make an approving review.
 * Wait for your pull request to be merged.
+
+For CI you will need to wait for someone from @ock-reviewers to enable the CI
+(or @ock-workflow-reviewers if it is workflow related). The CI can then be
+approved based on the PR. Note that currently some of the CI PR testing is done
+outside of github and you will be notified of any related failures. This is
+currently being addressed. Once it has been approved you can ping @ock-reviewers
+to merge it.
+
+It is also possible that after merging to the main branch an overnight failure
+may show up issues and a comment will be added to the merged PR.
 
 As a final note, try to keep your pull request branch in good condition. If you
 think it makes sense to split your changes across multiple commits, or later

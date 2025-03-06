@@ -84,7 +84,7 @@ TEST_F(Execution, Task_03_05_Distance4_Builtin) {
       const float d1 = (v1.data[1] - v2.data[1]);
       const float d2 = (v1.data[2] - v2.data[2]);
       const float d3 = (v1.data[3] - v2.data[3]);
-      return std::sqrt(d0 * d0 + d1 * d1 + d2 * d2 + d3 * d3);
+      return std::sqrt((d0 * d0) + (d1 * d1) + (d2 * d2) + (d3 * d3));
     };
 
     AddInputBuffer(kts::N, refIn1);
@@ -114,7 +114,7 @@ TEST_F(Execution, Task_03_07_Transpose4) {
     kts::Reference1D<cl_int4> refOut = [](size_t x) {
       const cl_int ix = kts::Ref_Identity(x);
       const cl_int chunkID = ix % 4;
-      const cl_int base = (ix - chunkID) * 4 + chunkID;
+      const cl_int base = ((ix - chunkID) * 4) + chunkID;
       cl_int4 v;
       v.data[0] = kts::Ref_A(base + 0);
       v.data[1] = kts::Ref_A(base + 4);

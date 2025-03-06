@@ -52,7 +52,7 @@ struct clEnqueueCopyImageParamTest
   cl_event event = nullptr;
 };
 
-void generate_data(UCL::vector<uint8_t> &data) {
+static void generate_data(UCL::vector<uint8_t> &data) {
   std::mt19937 range;
   range.seed();
   // Using a larger than necessary distribution integer type because
@@ -140,9 +140,9 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D2D) {
   ASSERT_SUCCESS(clEnqueueReadImage(command_queue, dst_image, CL_TRUE,
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
-  const size_t region_begin = pixel_size * dst_origin[0] +
-                              pixel_size * desc2d.image_width * dst_origin[1];
-  const size_t region_end = region_begin + pixel_size * region[0] * region[1];
+  const size_t region_begin = (pixel_size * dst_origin[0]) +
+                              (pixel_size * desc2d.image_width * dst_origin[1]);
+  const size_t region_end = region_begin + (pixel_size * region[0] * region[1]);
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {
       ASSERT_EQ(in[i - region_begin], out[i]);
@@ -196,11 +196,11 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D3D) {
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
   const size_t region_begin =
-      pixel_size * dst_origin[0] +
-      pixel_size * desc3d.image_width * dst_origin[1] +
-      pixel_size * desc3d.image_width * desc3d.image_height * dst_origin[2];
+      (pixel_size * dst_origin[0]) +
+      (pixel_size * desc3d.image_width * dst_origin[1]) +
+      (pixel_size * desc3d.image_width * desc3d.image_height * dst_origin[2]);
   const size_t region_end =
-      region_begin + pixel_size * region[0] * region[1] * region[2];
+      region_begin + (pixel_size * region[0] * region[1] * region[2]);
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {
       ASSERT_EQ(in[i - region_begin], out[i]);
@@ -256,10 +256,10 @@ TEST_P(clEnqueueCopyImageParamTest, Default1D2DArray) {
                                     read_origin, read_region, 0, 0, out.data(),
                                     1, &event, nullptr));
   const size_t region_begin =
-      pixel_size * dst_origin[0] +
-      pixel_size * desc2darray.image_width * dst_origin[1] +
-      pixel_size * desc2darray.image_width * desc2darray.image_height *
-          dst_origin[2];
+      (pixel_size * dst_origin[0]) +
+      (pixel_size * desc2darray.image_width * dst_origin[1]) +
+      (pixel_size * desc2darray.image_width * desc2darray.image_height *
+       dst_origin[2]);
   const size_t region_end = pixel_size * region[0] * region[1] * region[2];
   for (size_t i = 0; i < out.size(); ++i) {
     if (i >= region_begin && i < region_end) {

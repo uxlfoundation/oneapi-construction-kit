@@ -503,7 +503,7 @@ TEST_P(PrintfExecution, Printf_16_Floats_Vectors) {
 namespace Printf_17_Float_Formatting {
 const cl_int num_inputs = 10;
 
-kts::Reference1D<cl_float> Ref = [](size_t x) {
+static kts::Reference1D<cl_float> Ref = [](size_t x) {
   switch (x % num_inputs) {
     default:
     case 0:

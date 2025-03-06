@@ -1,9 +1,14 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/codeplaysoftware/Template-Repo/badge)](https://scorecard.dev/viewer/?uri=github.com/codeplaysoftware/Template-Repo)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/uxlfoundation/oneapi-construction-kit/badge)](https://scorecard.dev/viewer/?uri=github.com/uxlfoundation/oneapi-construction-kit)
+[![UXL Foundation Logo](https://github.com/uxlfoundation/artwork/blob/main/foundation/uxl-foundation-logo-horizontal-color.png)][UXL Foundation]
 
 # oneAPI Construction Kit
 
 The oneAPI Construction Kit is a framework to provide implementations of open standards, such as OpenCL and Vulkan, for a wide range of devices. The oneAPI Construction Kit can be used to build with the oneAPI Toolkit. The oneAPI Toolkit includes support for various open standards, such as OpenMP, SYCL, and DPC++. DPC++ is based on the SYCL programming model, which allows to write single-source C++ code that can target both CPUs and GPUs. To get more information on oneAPI, please visit https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html.
+
+The oneAPI Construction Kit is part of the [UXL Foundation].
+
+[UXL Foundation]: http://www.uxlfoundation.org
 
 >**_Note:_**
  It is not intended to be used as a standalone OpenCL or Vulkan implementation. It does not support the oneAPI Level Zero API.
@@ -41,7 +46,7 @@ To install the dependencies on Ubuntu, open the terminal and run:
 To install the recommended packages, run:
 ```sh
    $ sudo apt install -y ninja-build doxygen python3-pip
-   $ sudo pip3 install lit virtualenv cmakelint clang-format==17.0.6
+   $ sudo pip3 install lit virtualenv cmakelint clang-format==19.1.0
 ```
 
 ### Compiling oneAPI Construction Kit
@@ -51,10 +56,15 @@ Examples are provided to get started, but for more control over the compilation 
 
 The oneAPI Construction Kit can be compiled for two reference targets; `host` and `refsi` (`riscv`). In SYCL programming, the host target refers to the system where the SYCL program is compiled and executed, while the refsi (Reference System Implementation) target refers to the target platform for which the program is being developed. The refsi target is a hardware-specific implementation of the SYCL specification, enabling the program to run on a specific target platform. SYCL implementations such as DPC++ provide various refsi targets for CPUs, GPUs, FPGAs, and accelerators, which can be selected during compilation using specific flags and code.
 
+#### Compiling oneAPI Construction Kit for host
+
 To compile oneAPI Construction Kit for the host, please refer to the [developer guide](doc/developer-guide.md#compiling-oneapi-construction-kit).
 
-#### Compiling oneAPI Construction Kit for RISC-V
+#### Compiling oneAPI Construction Kit for simulated RISC-V
+
 This target aims to provide a flexible way of communicating with various customer RISC-V targets with different configurations. It supports multiple variants using an abstract class and can configure targets and execute commands. However, the current version has only been tested on an x86_64 host CPU.
+
+This target is not intended for running oneAPI Construction Kit directly on RISC-V hardware. For that, the host target should be used.
 
 The available targets in the current implementation are based on Codeplay's reference architecture, called RefSi, with two variations: `G` and `M1`. The `riscv` target is designed to support the `G` variant, while the `M1` variant has additional features like DMA. More information on `riscv` can be found [here](doc/modules/riscv.rst). To build in-tree, run the following:
 
@@ -362,3 +372,37 @@ refsi_hal_device::mem_free(address=0x9ff0ff00)
 refsi_hal_device::mem_free(address=0x9ff0ff80)
 The results are correct!
 ```
+
+# Support
+
+Questions can be submitted on [GitHub Discussions Q&A] or on [GitHub Issues].
+
+Before submitting a question, please make sure to read through the relevant
+[documentation] and any existing discussions or issues.
+
+If you find that your question has been previously asked but you are in need of
+further clarification, feel free to write your question on the existing
+discussion or issue.
+
+If you would like to open a new question, we ask that you follow these steps:
+
+* [Open a new question](https://github.com/uxlfoundation/oneapi-construction-kit/discussions/new?category=q-a)
+* Alternatively, [open a new issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
+  * Select the **Question** issue template and fill in the requested details.
+* Provide as much context as you can about the problem or question you have.
+* Provide project version and any relevant system details (e.g. operating
+  system).
+
+Once your question has been opened, we will take a look and try to help you as
+soon as possible.
+
+[Documentation]: https://developer.codeplay.com/products/oneapi/construction-kit/guides
+[GitHub Discussions Q&A]: https://github.com/uxlfoundation/oneapi-construction-kit/discussions/categories/q-a
+[GitHub Issues]: https://github.com/uxlfoundation/oneapi-construction-kit/issues
+
+# Governance
+The oneAPI Construction Kit project is governed by the [UXL Foundation] and you can get involved in
+this project in the following ways:
+* Contribute to the oneAPI Construction Kit project. Read [CONTRIBUTING](./CONTRIBUTING.md) for more information.
+* Join the [Open Source and Specification Working Group](https://github.com/uxlfoundation/foundation/tree/main?tab=readme-ov-file#working-groups) meetings.
+* Join the mailing lists for the [UXL Foundation](https://lists.uxlfoundation.org/g/main/subgroups) to receive meetings schedule and latest updates.

@@ -78,7 +78,7 @@ class mallocator {
   /// @brief Free allocated memory.
   ///
   /// @param pointer Pointer to allocated memory.
-  void free(value_type *pointer) { cargo::free(pointer); }
+  void free(value_type *pointer) { cargo::free(static_cast<void *>(pointer)); }
 
   /// @brief Allocate and construct an object.
   ///

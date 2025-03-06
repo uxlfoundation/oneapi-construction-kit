@@ -83,7 +83,7 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
   T first_term_hi =
       abacus::internal::multiply_exact_unsafe(xMant1m, poly, &first_term_lo);
 
-  abacus::internal::add_exact(&first_term_const, &first_term_hi);
+  abacus::internal::add_exact_unsafe(&first_term_const, &first_term_hi);
   const T small_correction_term = xMant1m * error_in_1_over_3;
 
   first_term_hi += (first_term_lo + small_correction_term);
@@ -102,7 +102,7 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
       xMant1m, first_term_lo, &second_term_lo_lo);
 
   second_term_hi_lo += second_term_lo_hi;  // Exact
-  abacus::internal::add_exact(&second_term_const, &second_term_hi_hi);
+  abacus::internal::add_exact_unsafe(&second_term_const, &second_term_hi_hi);
   second_term_hi_hi += second_term_hi_lo;  // Exact
 
   //--------------------------------------------------------------------------
@@ -116,10 +116,10 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
   T third_term_lo_hi = abacus::internal::multiply_exact_unsafe(
       xMant1m, second_term_hi_hi, &third_term_lo_lo);
 
-  abacus::internal::add_exact(&third_term_hi_lo, &third_term_lo_hi);
+  abacus::internal::add_exact_unsafe(&third_term_hi_lo, &third_term_lo_hi);
 
-  abacus::internal::add_exact(&third_term_const, &third_term_hi_hi);
-  abacus::internal::add_exact(&third_term_hi_hi, &third_term_hi_lo);
+  abacus::internal::add_exact_unsafe(&third_term_const, &third_term_hi_hi);
+  abacus::internal::add_exact_unsafe(&third_term_hi_hi, &third_term_hi_lo);
 
   third_term_hi_lo = third_term_lo_hi;
   third_term_lo_hi = third_term_lo_lo;

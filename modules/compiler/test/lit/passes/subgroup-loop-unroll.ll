@@ -48,10 +48,10 @@ entry:
 declare i64 @__mux_get_global_linear_id() #1
 declare i1 @__mux_work_group_all_i1(i32, i1) #2
 
-attributes #0 = { convergent norecurse nounwind "mux-degenerate-subgroups" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
+attributes #0 = { convergent norecurse nounwind "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
 attributes #1 = { alwaysinline norecurse nounwind "vecz-mode"="auto" }
 attributes #2 = { alwaysinline convergent norecurse nounwind }
-attributes #3 = { convergent norecurse nounwind "mux-base-fn-name"="__vecz_v64_sub_group_all_builtin" "mux-degenerate-subgroups" "mux-kernel"="entry-point" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
+attributes #3 = { convergent norecurse nounwind "mux-base-fn-name"="__vecz_v64_sub_group_all_builtin" "mux-kernel"="entry-point" "mux-orig-fn"="sub_group_all_builtin" "uniform-work-group-size"="false" }
 attributes #4 = { alwaysinline norecurse nounwind  }
 
 !llvm.module.flags = !{!0}
@@ -65,18 +65,6 @@ attributes #4 = { alwaysinline norecurse nounwind  }
 !13 = !{i32 32, i32 0, i32 0, i32 0}
 !20 = !{!13, ptr @sub_group_all_builtin}
 
-; CHECK-LABEL: sw.bb2:
-; CHECK: br label %loopIR13
-
-; CHECK-LABEL: loopIR13:
-; CHECK: %[[PHI:.+]] = phi i64 [ 0, %sw.bb2 ], [ %[[INC:.+]], %loopIR13 ]
-; CHECK: %[[PHI_ACCUM:.+]] = phi i1 [ true, %sw.bb2 ], [ %[[ACCUM:.+]], %loopIR13 ]
-; CHECK: %[[BARRIER:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %live_variables, i64 %[[PHI]]
-; CHECK: %[[ITEM:.+]] = getelementptr inbounds %__vecz_v32_sub_group_all_builtin_live_mem_info, ptr %[[BARRIER]], i32 0, i32 0
-; CHECK: %[[LD:.+]] = load i1, ptr %[[ITEM]], align 1
-; CHECK: %[[ACCUM]] = and i1 %[[PHI_ACCUM]], %[[LD]]
-; CHECK: %[[CMP:.+]] = icmp ult i64 %[[INC]], 2
-; CHECK: br i1 %[[CMP]], label %loopIR13, label %exitIR14
-
-; CHECK-LABEL: exitIR14:
-; CHECK: %WGC_reduce = phi i1 [ %[[ACCUM]], %loopIR13 ]
+; The vectorization factor does not divide the required workgroup size so we
+; must fall back to using the scalar kernel.
+; CHECK-NOT: call i32 @__vecz_v

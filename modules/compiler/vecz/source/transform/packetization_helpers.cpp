@@ -30,7 +30,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/Transforms/Utils/LoopUtils.h>
-#include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/intrinsic.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include "debugging.h"
@@ -123,7 +123,7 @@ IRBuilder<> buildAfter(Value *V, Function &F, bool IsPhi) {
   return {&F.getEntryBlock(), it};
 }
 
-Constant *getShuffleMask(ShuffleVectorInst *shuffle) {
+static Constant *getShuffleMask(ShuffleVectorInst *shuffle) {
   // The mask value seems not to be a proper operand for LLVM 11.
   // NOTE this is marked as "temporary" in the docs!
   return shuffle->getShuffleMaskForBitcode();
@@ -268,13 +268,12 @@ bool createSubSplats(const vecz::TargetInfo &TI, IRBuilder<> &B,
   return true;
 }
 
-Value *createMaybeVPTargetReduction(IRBuilderBase &B,
-                                    const TargetTransformInfo &TTI, Value *Val,
-                                    RecurKind Kind, Value *VL) {
+Value *createMaybeVPReduction(IRBuilderBase &B, Value *Val, RecurKind Kind,
+                              Value *VL) {
   assert(isa<VectorType>(Val->getType()) && "Must be vector type");
   // If VL is null, it's not a vector-predicated reduction.
   if (!VL) {
-    return multi_llvm::createSimpleTargetReduction(B, &TTI, Val, Kind);
+    return multi_llvm::createSimpleReduction(B, Val, Kind);
   }
   auto IntrinsicOp = Intrinsic::not_intrinsic;
   switch (Kind) {
@@ -323,8 +322,8 @@ Value *createMaybeVPTargetReduction(IRBuilderBase &B,
       break;
   }
 
-  auto *const F = Intrinsic::getDeclaration(B.GetInsertBlock()->getModule(),
-                                            IntrinsicOp, Val->getType());
+  auto *const F = multi_llvm::GetOrInsertIntrinsicDeclaration(
+      B.GetInsertBlock()->getModule(), IntrinsicOp, Val->getType());
   assert(F && "Could not declare vector-predicated reduction intrinsic");
 
   auto *const VecTy = cast<VectorType>(Val->getType());
@@ -487,7 +486,7 @@ PacketRange Packetizer::Result::getAsPacket(unsigned width) const {
   if (auto *const vecTy = dyn_cast<FixedVectorType>(vec->getType())) {
     assert(isa<FixedVectorType>(vecTy) && "Must be a fixed vector type here!");
     const unsigned scalarWidth = vecTy->getNumElements() / width;
-    if (scalarWidth > 1) {
+    if (scalarWidth > 1 || scalar->getType()->isVectorTy()) {
       auto *const undef = UndefValue::get(vec->getType());
 
       // Build shuffle mask to perform the subvector extracts.
@@ -520,7 +519,8 @@ void Packetizer::Result::getPacketValues(SmallVectorImpl<Value *> &vals) const {
   assert(info && "No packet info for this packetization result");
   const auto width = info->numInstances;
   if (width != 0) {
-    return getPacketValues(width, vals);
+    getPacketValues(width, vals);
+    return;
   }
 }
 

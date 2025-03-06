@@ -29,6 +29,7 @@
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <multi_llvm/vector_type_helper.h>
 
+#include <algorithm>
 #include <cassert>
 #include <functional>
 
@@ -59,8 +60,8 @@ GetElementPtrInst *generateStructGEP(Instruction &inst,
   // create a new GEP just before the instruction
   auto GEP = GetElementPtrInst::CreateInBounds(
       funcsStructTy, funcsStruct,
-      {ConstantInt::get(indexTy, 0), ConstantInt::get(indexTy, index)}, "",
-      &inst);
+      {ConstantInt::get(indexTy, 0), ConstantInt::get(indexTy, index)});
+  GEP->insertBefore(inst.getIterator());
   return GEP;
 }
 
@@ -311,9 +312,7 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
     assert(alignment > 0 && "'0' is an impossible alignment");
 
     // check if this is the largest alignment seen so far
-    if (alignment > maxAlignment) {
-      maxAlignment = alignment;
-    }
+    maxAlignment = std::max(alignment, maxAlignment);
 
     // check if member is not already aligned
     const unsigned int remainder = offset % alignment;
@@ -355,7 +354,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
 
   // change all our functions to take a pointer to the new structTy we created
   const AttributeSet defaultAttrs;
-  addParamToAllRequiredFunctions(M, structTy->getPointerTo(), defaultAttrs);
+  addParamToAllRequiredFunctions(
+      M, PointerType::get(structTy, /*AddressSpace=*/0), defaultAttrs);
 
   // Check if we have debug info, if so we need to fix it up to turn global
   // variable entries into local variable ones.
@@ -437,7 +437,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         auto local = generateStructGEP(*gep, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", gep);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(gep->getIterator());
 
         gep->setOperand(0, castedLocal);
         gep->setIsInBounds();
@@ -445,21 +446,25 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         auto local = generateStructGEP(*cast, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", cast);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(cast->getIterator());
 
         cast->setOperand(0, castedLocal);
       } else if (LoadInst *load = dyn_cast<LoadInst>(user)) {
         auto local = generateStructGEP(*load, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", load);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(load->getIterator());
 
         load->setOperand(0, castedLocal);
       } else if (StoreInst *store = dyn_cast<StoreInst>(user)) {
         auto local = generateStructGEP(*store, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", store);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(store->getIterator());
+
         // global could be pointer or value operand of the store
         if (store->getValueOperand() == global) {
           store->setOperand(0, castedLocal);
@@ -475,7 +480,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
           auto local = generateStructGEP(*inst, structTy, index_map[global]);
 
           auto castedLocal =
-              CastInst::CreatePointerCast(local, global->getType(), "", inst);
+              CastInst::CreatePointerCast(local, global->getType());
+          castedLocal->insertBefore(inst->getIterator());
 
           auto indexTy = Type::getInt32Ty(M.getContext());
           Value *newCv = UndefValue::get(cv->getType());
@@ -483,14 +489,16 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
           // We can't simply 'setOperand' in a 'ConstantVector'. We have to
           // recreate it from scratch.
           for (unsigned i = 0; i < cv->getNumOperands(); ++i) {
+            Instruction *newCvInst;
             if (cv->getOperand(i) == global) {
-              newCv = InsertElementInst::Create(
-                  newCv, castedLocal, ConstantInt::get(indexTy, i), "", inst);
+              newCvInst = InsertElementInst::Create(
+                  newCv, castedLocal, ConstantInt::get(indexTy, i));
             } else {
-              newCv = InsertElementInst::Create(newCv, cv->getOperand(i),
-                                                ConstantInt::get(indexTy, i),
-                                                "", inst);
+              newCvInst = InsertElementInst::Create(
+                  newCv, cv->getOperand(i), ConstantInt::get(indexTy, i));
             }
+            newCvInst->insertBefore(inst->getIterator());
+            newCv = newCvInst;
           }
 
           // And don't forget to replace 'cv' by 'newCv'.
@@ -506,8 +514,9 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
             auto local =
                 generateStructGEP(*incomingBlockT, structTy, index_map[global]);
 
-            auto castedLocal = CastInst::CreatePointerCast(
-                local, global->getType(), "", incomingBlockT);
+            auto castedLocal =
+                CastInst::CreatePointerCast(local, global->getType());
+            castedLocal->insertBefore(incomingBlockT->getIterator());
 
             phi->setIncomingValue(i, castedLocal);
           }
@@ -516,7 +525,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         auto local = generateStructGEP(*atomic, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", atomic);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(atomic->getIterator());
 
         // global could be pointer or value operand of the atomic
         if (atomic->getPointerOperand() == global) {
@@ -528,7 +538,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         const auto local =
             generateStructGEP(*atomic, structTy, index_map[global]);
         const auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", atomic);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(atomic->getIterator());
 
         // global could be the pointer
         if (atomic->getPointerOperand() == global) {
@@ -546,7 +557,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         auto local = generateStructGEP(*select, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", select);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(select->getIterator());
 
         // global could be the true or false value of the select
         if (select->getTrueValue() == global) {
@@ -558,7 +570,8 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
         auto local = generateStructGEP(*call, structTy, index_map[global]);
 
         auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", call);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(call->getIterator());
 
         unsigned i = 0;
         for (; i < call->getNumOperands(); ++i) {
@@ -569,15 +582,19 @@ PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
       } else if (InsertElementInst *insertIns =
                      dyn_cast<InsertElementInst>(user)) {
         auto local = generateStructGEP(*insertIns, structTy, index_map[global]);
-        auto castedLocal = CastInst::CreatePointerCast(local, global->getType(),
-                                                       "", insertIns);
+        auto castedLocal =
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(insertIns->getIterator());
+
         // Update middle operand as the others are the vector and index
         insertIns->setOperand(1, castedLocal);
       } else if (auto *cmpIns = dyn_cast<CmpInst>(user)) {
         const auto local =
             generateStructGEP(*cmpIns, structTy, index_map[global]);
         const auto castedLocal =
-            CastInst::CreatePointerCast(local, global->getType(), "", cmpIns);
+            CastInst::CreatePointerCast(local, global->getType());
+        castedLocal->insertBefore(cmpIns->getIterator());
+
         // global could be either side of the compare
         if (cmpIns->getOperand(0) == global) {
           cmpIns->setOperand(0, castedLocal);

@@ -25,7 +25,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
-#include <multi_llvm/multi_llvm.h>
 
 #define DEBUG_TYPE "add-sched-params"
 
@@ -85,9 +84,9 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
     }
   }
 
-  LLVM_DEBUG(dbgs() << "Leaf functions requiring scheduling parameters:\n";
-             for (auto *F
-                  : Visited) { dbgs() << "  " << F->getName() << "\n"; });
+  LLVM_DEBUG(
+      dbgs() << "Leaf functions requiring scheduling parameters:\n";
+      for (auto *F : Visited) { dbgs() << "  " << F->getName() << "\n"; });
 
   if (Visited.empty()) {
     return PreservedAnalyses::all();
@@ -152,7 +151,7 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
 
     // Scrub any old subprogram - CloneFunctionInto will create a new one for
     // us
-    if (auto *const SP = OldF->getSubprogram()) {
+    if (OldF->getSubprogram()) {
       NewF->setSubprogram(nullptr);
     }
 
@@ -232,7 +231,8 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
               NewArgs,
               ArrayRef(FArgs.data(), FArgs.size()).take_back(NumSchedParams));
 
-          auto *NewCB = CallInst::Create(NewF, NewArgs, "", CB);
+          auto *NewCB = CallInst::Create(NewF, NewArgs);
+          NewCB->insertBefore(CB->getIterator());
           NewCB->takeName(CB);
           NewCB->copyMetadata(*CB);
           // Copy over all the old attributes from the call

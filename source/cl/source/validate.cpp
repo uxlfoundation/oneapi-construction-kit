@@ -18,6 +18,7 @@
 #include <cl/command_queue.h>
 #include <cl/device.h>
 #include <cl/image.h>
+#include <cl/validate.h>
 #include <libimg/host.h>
 #include <libimg/validate.h>
 
@@ -160,7 +161,7 @@ cl_int CopyBufferArguments(cl_command_queue command_queue, cl_mem src_buffer,
 // ranges here as right-open intervals, i.e [START, END).
 #define IN_RANGE(X, START, END) (((X) >= (START)) && ((X) < (END)))
 #define RANGES_OVERLAP(STARTX, ENDX, STARTY, ENDY) \
-  (IN_RANGE(STARTY, STARTX, ENDX) || IN_RANGE((ENDY)-1, STARTX, ENDX))
+  (IN_RANGE(STARTY, STARTX, ENDX) || IN_RANGE((ENDY) - 1, STARTX, ENDX))
     OCL_CHECK(RANGES_OVERLAP(src_start, src_start + size, dst_start,
                              dst_start + size),
               return CL_MEM_COPY_OVERLAP);

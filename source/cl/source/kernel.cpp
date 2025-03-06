@@ -1175,7 +1175,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
 
 /// @brief Converts a kernel argument address space from the compiler library to
 /// an OpenCL argument address qualifier.
-cl_kernel_arg_address_qualifier convertKernelAddressQualifier(
+static cl_kernel_arg_address_qualifier convertKernelAddressQualifier(
     compiler::AddressSpace address) {
   switch (address) {
     case compiler::AddressSpace::PRIVATE:
@@ -1192,7 +1192,7 @@ cl_kernel_arg_address_qualifier convertKernelAddressQualifier(
 
 /// @brief Converts a kernel argument access qualifier from the compiler library
 /// to an OpenCL argument access qualifier.
-cl_kernel_arg_access_qualifier convertKernelArgAccessQualifier(
+static cl_kernel_arg_access_qualifier convertKernelArgAccessQualifier(
     compiler::KernelArgAccess access) {
   switch (access) {
     case compiler::KernelArgAccess::NONE:
@@ -1209,7 +1209,8 @@ cl_kernel_arg_access_qualifier convertKernelArgAccessQualifier(
 
 /// @brief Converts a kernel argument type qualifier from the compiler library
 /// to an OpenCL argument type qualifier.
-cl_kernel_arg_type_qualifier convertKernelArgTypeQualifier(std::uint32_t type) {
+static cl_kernel_arg_type_qualifier convertKernelArgTypeQualifier(
+    std::uint32_t type) {
   cl_uint cl_arg_type = 0;
   if (type & compiler::KernelArgType::CONST) {
     cl_arg_type |= CL_KERNEL_ARG_TYPE_CONST;

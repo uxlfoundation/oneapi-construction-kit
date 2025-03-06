@@ -39,8 +39,8 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
   cl_mem buffer = clCreateBuffer(this->context, CL_MEM_WRITE_ONLY, buffer_size,
                                  nullptr, &error);
   ASSERT_SUCCESS(error);
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(this->kernel_, 0, sizeof(buffer), &buffer));
+  EXPECT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(this->kernel_, 0, sizeof(buffer),
+                                               static_cast<void *>(&buffer)));
 
   const auto max_work_items_sizes = this->getDeviceMaxWorkItemSizes();
   for (size_t i = 0; i < 3; i++) {

@@ -35,8 +35,8 @@ namespace hal {
 /// a hal. it provides access to device memory, program loading, execution
 /// and information queries.
 struct hal_device_t {
-  hal_device_t(hal_device_info_t *device_info) : device_info(device_info){};
-  virtual ~hal_device_t(){};
+  hal_device_t(hal_device_info_t *device_info) : device_info(device_info) {};
+  virtual ~hal_device_t() {};
 
   /// @brief Find a specific kernel function in a compiled program.
   ///

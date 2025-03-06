@@ -42,7 +42,7 @@ class clEnqueueReadBufferRectTest : public ucl::CommandQueueTest,
       for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
         for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
           const unsigned int index =
-              x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+              x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
           payload[index] = static_cast<char>(index);
           scratch[index] = INITIAL_SCRATCH;
         }
@@ -90,14 +90,14 @@ TEST_F(clEnqueueReadBufferRectTest, ReadFull2D) {
 
   for (unsigned int x = 0; x < DIMENSION_LENGTH; x++) {
     for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(payload[index], scratch[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -124,14 +124,14 @@ TEST_F(clEnqueueReadBufferRectTest, ReadStart2D) {
 
   for (unsigned int x = 0; x < HALF_DIMENSION_LENGTH; x++) {
     for (unsigned int y = 0; y < HALF_DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(payload[index], scratch[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -143,7 +143,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadStart2D) {
     for (unsigned int y = HALF_DIMENSION_LENGTH; y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -174,7 +174,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadEnd2D) {
     for (unsigned int y = 0; y < HALF_DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -184,14 +184,14 @@ TEST_F(clEnqueueReadBufferRectTest, ReadEnd2D) {
 
   for (unsigned int x = HALF_DIMENSION_LENGTH; x < DIMENSION_LENGTH; x++) {
     for (unsigned int y = HALF_DIMENSION_LENGTH; y < DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(payload[index], scratch[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -222,7 +222,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadMiddle2D) {
     for (unsigned int y = 0; y < QUARTER_DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -234,14 +234,14 @@ TEST_F(clEnqueueReadBufferRectTest, ReadMiddle2D) {
        x < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH; x++) {
     for (unsigned int y = QUARTER_DIMENSION_LENGTH;
          y < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(payload[index], scratch[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -255,7 +255,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadMiddle2D) {
          y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_SCRATCH, scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -278,7 +278,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadFull3D) {
     for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(payload[index], scratch[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -311,7 +311,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadStart3D) {
                               (z < HALF_DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compareValue =
             (inRegion) ? payload[index] : INITIAL_SCRATCH;
         ASSERT_EQ(compareValue, scratch[index])
@@ -349,7 +349,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadEnd3D) {
             (HALF_DIMENSION_LENGTH <= z) && (z < DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compareValue =
             (inRegion) ? payload[index] : INITIAL_SCRATCH;
         ASSERT_EQ(compareValue, scratch[index])
@@ -392,7 +392,7 @@ TEST_F(clEnqueueReadBufferRectTest, ReadMiddle3D) {
             (z < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compareValue =
             (inRegion) ? payload[index] : INITIAL_SCRATCH;
         ASSERT_EQ(compareValue, scratch[index])
@@ -695,7 +695,7 @@ TEST_F(clEnqueueReadBufferRectTest,
   const size_t region[DIMENSIONS] = {DIMENSION_LENGTH, DIMENSION_LENGTH,
                                      DIMENSION_LENGTH};
 
-  const size_t invalidSlicePitch = DIMENSION_LENGTH * DIMENSION_LENGTH + 1;
+  const size_t invalidSlicePitch = (DIMENSION_LENGTH * DIMENSION_LENGTH) + 1;
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
@@ -741,7 +741,7 @@ TEST_F(clEnqueueReadBufferRectTest,
   const size_t region[DIMENSIONS] = {DIMENSION_LENGTH, DIMENSION_LENGTH,
                                      DIMENSION_LENGTH};
 
-  const size_t invalidSlicePitch = DIMENSION_LENGTH * DIMENSION_LENGTH + 1;
+  const size_t invalidSlicePitch = (DIMENSION_LENGTH * DIMENSION_LENGTH) + 1;
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,

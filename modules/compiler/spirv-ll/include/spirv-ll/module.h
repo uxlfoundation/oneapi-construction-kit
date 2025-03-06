@@ -596,13 +596,13 @@ class Module : public ModuleHeader {
   /// @return Returns a pointer to the new `OpCode` derivative object.
   template <class Op>
   const Op *create(const OpCode &opCode) {
-    static_assert(std::is_base_of<OpCode, Op>::value,
+    static_assert(std::is_base_of_v<OpCode, Op>,
                   "Op must be derived from OpCode");
     OpCodes.emplace_back(new Op(opCode));
     SPIRV_LL_ASSERT(OpCodes.back()->code == Op::ClassCode,
                     "mismatch between Op::ClassCode and OpCode::code");
     const Op *op = static_cast<const Op *>(OpCodes.back().get());
-    if (std::is_base_of<OpResult, Op>::value) {
+    if (std::is_base_of_v<OpResult, Op>) {
       resolveDecorations(reinterpret_cast<const OpResult *>(op)->IdResult());
     }
     return op;

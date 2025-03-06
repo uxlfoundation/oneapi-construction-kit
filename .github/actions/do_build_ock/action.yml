@@ -11,8 +11,8 @@ inputs:
     description: 'mux targets to enable e.g. riscv, host (default host)'
     default: "host"
   mux_compilers_enable:
-    description: 'mux compiler target to enable e.g. riscv, host (default host)'
-    default: "host"
+    description: 'mux compiler target to enable e.g. riscv, host (no default)'
+    default: ""
   usm:
     description: 'Enable usm (default ON)'
     default: ON
@@ -25,6 +25,9 @@ inputs:
   offline_kernel_tests:
     description: 'Enable offline kernel testing (default ON)'
     default: ON
+  builtin_kernel:
+    description: 'Enable builtin kernel (default OFF)'
+    default: OFF
   llvm_install_dir:
     description: 'Directory for llvm install'
     default: ${{ github.workspace }}/llvm_install
@@ -44,11 +47,14 @@ inputs:
     description: 'External compiler directories, default is to empty string, which means no external directories'
     default: ""
   hal_description:
-    description: 'Description to be used for HAL, typically risc-v ISA (default RV64GCV)'
-    default: "RV64GCV"
+    description: 'Description to be used for HAL, typically risc-v ISA (default "")'
+    default: ""
   hal_refsi_soc:
-    description: 'HAL Refsi SOC e.g. M1 or G1 default M1'
-    default: "M1"
+    description: 'HAL Refsi SOC e.g. M1 or G1, default M1'
+    default: M1
+  hal_refsi_thread_mode:
+    description: 'HAL Refsi Thread Mode e.g. WI or WG, default ""'
+    default: ""
   riscv_enabled:
     description: "Enable riscv target (default OFF)"
     default: OFF
@@ -67,31 +73,75 @@ inputs:
   enable_rvv_scalable_vecz_check:
     description: "Enable RVV scalable vecz check (default OFF)"
     default: OFF
-  enable_rvv_scalable_VP_vecz_check:
+  enable_rvv_scalable_vp_vecz_check:
     description: "Enable RVV scalable vecz VP check (default OFF)"
     default: OFF
+  enable_unitcl_expensive:
+    description: "UnitCL expensive tests enabled (default ON)"
+    required: false
+    default: ON
   install_dir:
     description: "Install directory for OCK"
     default: install
+  use_linker:
+    description: "Use linker"
+    default: ""
+  arch:
+    description: "Architecture"
+    default: "x86_64"
+  runtime_compiler_enabled:
+    description: "Enable runtime compiler (default ON)"
+    default: ON
+  external_clc:
+    description: "Location of external clc binary for off-line"
+    default: ""
+  disable_unitcl_vecz_checks:
+    description: "Disable unitcl vecz checks"
+    default: OFF
+  gtest_launcher:
+    description: "Googletest suite launcher command (default launcher used for ubuntu)"
+    default: "/usr/bin/python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+  build_32_bit:
+    description: "32-bit building"
+    default: OFF
+  shell_to_use:
+    description: "which shell to use (default bash)"
+    default: bash
+  toolchain_file:
+    description: "Path to toolchain file"
+    default: ""
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
+
+    - name: windows - set ICD registry and external clc for cmake
+      id: set_windows
+      if: startsWith(runner.os, 'Windows')
+      shell: ${{ inputs.shell_to_use }}
+      run: |
+        $PWD = Convert-Path .; source/cl/tools/icd-register.ps1 "$PWD/${{ inputs.build_dir }}/bin/CL.dll"
+        echo "inputs.external_clc is ${{ inputs.external_clc }}"
+        $PATTERN = '[\\]'
+        $WINDOWSCLC = "${{ inputs.external_clc }}" -replace $PATTERN, '/'
+        echo "windowsclc is $WINDOWSCLC"
+        echo "windowsclc='$WINDOWSCLC'" >> $env:GITHUB_OUTPUT
+
     - name: cmake_ock
-      shell: bash
+      shell: ${{ inputs.shell_to_use }}
       run:
         cmake -GNinja
               -B${{ inputs.build_dir }}
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache                
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
               -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }}
               -DCA_ENABLE_API=${{ inputs.enable_api }}
               -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }}
               -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }}
               -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
               -DCA_ENABLE_HOST_IMAGE_SUPPORT=${{ inputs.host_image }}
-              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.debug_support }}
+              -DCA_HOST_ENABLE_BUILTIN_KERNEL=${{ inputs.builtin_kernel }}
               -DCA_HOST_ENABLE_BUILTINS_EXTENSION=${{ inputs.host_enable_builtins}}
               -DCA_HOST_ENABLE_FP16=${{ inputs.host_fp16 }}
               -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=${{ inputs.offline_kernel_tests }}
@@ -102,15 +152,24 @@ runs:
               -DCA_MUX_COMPILERS_TO_ENABLE=${{ inputs.mux_compilers_enable}}
               -DCA_EXTERNAL_MUX_COMPILER_DIRS=${{ inputs.external_compiler_dirs }}
               -DCA_CL_ENABLE_ICD_LOADER=ON
+              -DHAL_DESCRIPTION=${{ inputs.hal_description }}
               -DHAL_REFSI_SOC=${{ inputs.hal_refsi_soc }}
-              -DHAL_REFSI_THREAD_MODE=${{ inputs.regs_thread_mode }}
+              -DHAL_REFSI_THREAD_MODE=${{ inputs.hal_refsi_thread_mode }}
               -DCA_RISCV_ENABLED=${{ inputs.riscv_enabled }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vecz_check }}
               -DCA_CL_ENABLE_RVV_SCALABLE_VP_VECZ_CHECK=${{ inputs.enable_rvv_scalable_vp_vecz_check }}
+              -DCA_CL_ENABLE_UNITCL_EXPENSIVE_CHECK=${{ inputs.enable_unitcl_expensive }}
               -DCMAKE_INSTALL_PREFIX=${{ inputs.install_dir }}
+              -DCA_USE_LINKER=${{ inputs.use_linker }}
+              -DCA_RUNTIME_COMPILER_ENABLED=${{ inputs.runtime_compiler_enabled }}
+              -DCA_EXTERNAL_CLC=${{ startsWith(runner.os, 'Windows') && steps.set_windows.outputs.windowsclc || inputs.external_clc }}
+              -DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=${{ inputs.disable_unitcl_vecz_checks }}
+              -DCA_GTEST_LAUNCHER="${{ inputs.gtest_launcher }}"
+              -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
+              -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
                ${{ inputs.extra_flags }}
-              .      
+               .
     - name: build_ock
-      shell: bash
+      shell: ${{ inputs.shell_to_use }}
       run:
         ninja -C ${{ inputs.build_dir }} ${{ inputs.build_targets }}

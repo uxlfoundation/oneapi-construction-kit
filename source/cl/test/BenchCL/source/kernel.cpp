@@ -39,7 +39,7 @@ struct CreateData {
   }
 };
 
-CreateData create_data_from_source(const std::string &source) {
+static CreateData create_data_from_source(const std::string &source) {
   cl_platform_id platform;
   cl_device_id device;
   cl_context context;
@@ -63,8 +63,8 @@ CreateData create_data_from_source(const std::string &source) {
   return CreateData{platform, device, context, program};
 }
 
-CreateData create_data_from_binary(const std::string &binary_32,
-                                   const std::string &binary_64) {
+static CreateData create_data_from_binary(const std::string &binary_32,
+                                          const std::string &binary_64) {
   cl_platform_id platform;
   cl_device_id device;
   cl_context context;
@@ -107,7 +107,7 @@ CreateData create_data_from_binary(const std::string &binary_32,
   return CreateData{platform, device, context, program};
 }
 
-void KernelCreateFirstKernelInSource(benchmark::State &state) {
+static void KernelCreateFirstKernelInSource(benchmark::State &state) {
   std::string source;
 
   for (unsigned i = 0; i < state.range(0); i++) {
@@ -127,7 +127,7 @@ void KernelCreateFirstKernelInSource(benchmark::State &state) {
 }
 BENCHMARK(KernelCreateFirstKernelInSource)->Arg(1)->Arg(256)->Arg(16384);
 
-void KernelCreateLastKernelInSource(benchmark::State &state) {
+static void KernelCreateLastKernelInSource(benchmark::State &state) {
   std::string source;
 
   for (unsigned i = 0; i < state.range(0); i++) {
@@ -147,7 +147,7 @@ void KernelCreateLastKernelInSource(benchmark::State &state) {
 }
 BENCHMARK(KernelCreateLastKernelInSource)->Arg(1)->Arg(256)->Arg(16384);
 
-void KernelCreateWithRequiredWorkGroupSize(benchmark::State &state) {
+static void KernelCreateWithRequiredWorkGroupSize(benchmark::State &state) {
   const std::string source =
       "kernel __attribute__((reqd_work_group_size(1, 1, 1)))"
       " void func() {}\n";
@@ -164,7 +164,7 @@ void KernelCreateWithRequiredWorkGroupSize(benchmark::State &state) {
 }
 BENCHMARK(KernelCreateWithRequiredWorkGroupSize);
 
-void KernelEnqueueEmpty(benchmark::State &state) {
+static void KernelEnqueueEmpty(benchmark::State &state) {
   const std::string source = "kernel void empty() {}";
   const CreateData cd = create_data_from_source(source);
 
@@ -206,7 +206,7 @@ void KernelEnqueueEmpty(benchmark::State &state) {
 }
 BENCHMARK(KernelEnqueueEmpty)->UseManualTime();
 
-void KernelTiledEnqueue(benchmark::State &state) {
+static void KernelTiledEnqueue(benchmark::State &state) {
   const std::string source = R"CL(
     __kernel void vector_addition(__global int *src1, __global int *src2,
                                   __global int *dst) {
@@ -221,7 +221,6 @@ void KernelTiledEnqueue(benchmark::State &state) {
 
   auto err = cl_int{CL_SUCCESS};
   const CreateData cd = create_data_from_source(source);
-  const std::string name = "vector_addition";
 
   constexpr size_t bytes = sizeof(cl_int) * item_count;
 
@@ -239,12 +238,12 @@ void KernelTiledEnqueue(benchmark::State &state) {
   /* Create kernel and set arguments */
   cl_kernel ker = clCreateKernel(cd.program, "vector_addition", &err);
   ASSERT_EQ_ERRCODE(CL_SUCCESS, err);
-  ASSERT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(ker, 0, sizeof(src1_buf), &src1_buf));
-  ASSERT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(ker, 1, sizeof(src2_buf), &src2_buf));
-  ASSERT_EQ_ERRCODE(CL_SUCCESS,
-                    clSetKernelArg(ker, 2, sizeof(dst_buf), &dst_buf));
+  ASSERT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(ker, 0, sizeof(src1_buf),
+                                               static_cast<void *>(&src1_buf)));
+  ASSERT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(ker, 1, sizeof(src2_buf),
+                                               static_cast<void *>(&src2_buf)));
+  ASSERT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(ker, 2, sizeof(dst_buf),
+                                               static_cast<void *>(&dst_buf)));
 
   /* Create command queue */
   cl_command_queue qu = clCreateCommandQueue(ctx, cd.device, 0, &err);
@@ -318,7 +317,7 @@ BENCHMARK(KernelTiledEnqueue)
     ->UseManualTime();
 // Nothing special about these values, just more tiles.
 
-void KernelCreateEmptyKernelFromSource(benchmark::State &state) {
+static void KernelCreateEmptyKernelFromSource(benchmark::State &state) {
   const std::string source = "kernel void empty() {}";
   const CreateData cd = create_data_from_source(source);
 
@@ -347,7 +346,7 @@ void KernelCreateEmptyKernelFromSource(benchmark::State &state) {
 }
 BENCHMARK(KernelCreateEmptyKernelFromSource);
 
-void KernelCreateEmptyKernelFromBinary(benchmark::State &state) {
+static void KernelCreateEmptyKernelFromBinary(benchmark::State &state) {
   /* create with xxd, 'kernel void empty() {}' */
   unsigned char empty_bc64[] = {
       0x42, 0x43, 0xc0, 0xde, 0x21, 0x0c, 0x00, 0x00, 0x16, 0x01, 0x00, 0x00,

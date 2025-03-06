@@ -13,6 +13,7 @@
 // under the License.
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 #include <base/fast_math_pass.h>
 #include <compiler/utils/metadata.h>
 #include <llvm/ADT/StringMap.h>
@@ -191,7 +192,8 @@ bool replaceFastMathCalls(Module &M) {
       args.push_back(arg);
     }
 
-    auto newCi = CallInst::Create(newFunc, args, bundles, "", ci);
+    auto newCi = CallInst::Create(newFunc, args, bundles);
+    newCi->insertBefore(ci->getIterator());
     newCi->takeName(ci);
     newCi->setCallingConv(ci->getCallingConv());
     ci->replaceAllUsesWith(newCi);

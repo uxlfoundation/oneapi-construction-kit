@@ -92,7 +92,7 @@ class printfBuiltinValidTest : public printfBuiltinTest {};
 
 class printfBuiltinInvalidTest : public printfBuiltinTest {};
 
-const char *valid_kernels[] = {
+static const char *valid_kernels[] = {
     "void kernel foo(global int * a, global int * b)"
     "{"
     " *a = printf(\"0x%08x\\n\", *b);"
@@ -124,7 +124,7 @@ const char *valid_kernels[] = {
     "}\n",
 };
 
-const char *invalid_kernels[] = {
+static const char *invalid_kernels[] = {
     // 'l' length modifier must not be used with 'c'.
     "void kernel foo(global int * a, global int * b)"
     "{\n"

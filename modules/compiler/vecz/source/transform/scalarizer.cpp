@@ -20,7 +20,6 @@
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/Analysis/InstructionSimplify.h>
-#include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
@@ -28,8 +27,11 @@
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
+#include <multi_llvm/dibuilder.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
+
+#include <algorithm>
 
 #include "debugging.h"
 #include "llvm_helpers.h"
@@ -680,7 +682,7 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
   // instructions and is used to avoid duplicate LLVM dbg.value's.
   SmallPtrSet<Value *, 4> VectorElements;
 
-  DIBuilder DIB(*Original->getModule(), false);
+  multi_llvm::DIBuilder DIB(*Original->getModule(), false);
 
   auto CreateAndInsertDIExpr = [&](auto InsertDIExpr) {
     const auto bitSize = Original->getType()->getScalarSizeInBits();
@@ -724,7 +726,8 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
 
     // Create new DbgVariableRecord across enabled SIMD lanes
     CreateAndInsertDIExpr([&](Value *LaneVal, DIExpression *DIExpr) {
-      DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc, Original);
+      DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc,
+                                  Original->getIterator());
     });
   }
 #endif
@@ -751,10 +754,11 @@ void Scalarizer::scalarizeDI(Instruction *Original, const SimdPacket *Packet,
     }
 
     // Create new llvm.dbg.value() intrinsic across enabled SIMD lanes
-    CreateAndInsertDIExpr([&](Value *const LaneVal,
-                              DIExpression *const DIExpr) {
-      DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc, Original);
-    });
+    CreateAndInsertDIExpr(
+        [&](Value *const LaneVal, DIExpression *const DIExpr) {
+          DIB.insertDbgValueIntrinsic(LaneVal, DILocal, DIExpr, DILoc,
+                                      Original->getIterator());
+        });
   }
 }
 
@@ -834,9 +838,7 @@ SimdPacket *Scalarizer::scalarizeLoad(LoadInst *Load, PacketMask PM) {
   // whole vector.
   const unsigned Alignment = Load->getAlign().value();
   unsigned EleAlign = ScalarEleTy->getPrimitiveSizeInBits() / 8;
-  if (Alignment < EleAlign) {
-    EleAlign = Alignment;
-  }
+  EleAlign = std::min(Alignment, EleAlign);
 
   // Emit scalarized loads.
   for (unsigned i = 0; i < SimdWidth; i++) {
@@ -919,9 +921,7 @@ SimdPacket *Scalarizer::scalarizeStore(StoreInst *Store, PacketMask PM) {
   // See comment at equivalent part of scalarizeLoad()
   const unsigned Alignment = Store->getAlign().value();
   unsigned EleAlign = ScalarEleTy->getPrimitiveSizeInBits() / 8;
-  if (Alignment < EleAlign) {
-    EleAlign = Alignment;
-  }
+  EleAlign = std::min(Alignment, EleAlign);
 
   // Emit scalarized stores.
   for (unsigned i = 0; i < SimdWidth; i++) {
@@ -1133,9 +1133,9 @@ SimdPacket *Scalarizer::scalarizeBitCast(BitCastInst *BC, PacketMask PM) {
           SrcPart = B.CreateZExt(SrcPart, DstEleIntTy);
         }
         if (i * DstEleSize > j * SrcEleSize) {
-          SrcPart = B.CreateLShr(SrcPart, i * DstEleSize - j * SrcEleSize);
+          SrcPart = B.CreateLShr(SrcPart, (i * DstEleSize) - (j * SrcEleSize));
         } else if (j * SrcEleSize > i * DstEleSize) {
-          SrcPart = B.CreateShl(SrcPart, j * SrcEleSize - i * DstEleSize);
+          SrcPart = B.CreateShl(SrcPart, (j * SrcEleSize) - (i * DstEleSize));
         }
         if (SrcEleIntTy->getIntegerBitWidth() >
             DstEleIntTy->getIntegerBitWidth()) {
@@ -1311,9 +1311,7 @@ SimdPacket *Scalarizer::scalarizeMaskedMemOp(CallInst *CI, PacketMask PM,
 
   const unsigned Alignment = MaskedOp.getAlignment();
   unsigned EleAlign = ScalarEleTy->getPrimitiveSizeInBits() / 8;
-  if (Alignment < EleAlign) {
-    EleAlign = Alignment;
-  }
+  EleAlign = std::min(Alignment, EleAlign);
 
   for (unsigned i = 0; i < SimdWidth; i++) {
     if (!PM.isEnabled(i) || P->at(i)) {

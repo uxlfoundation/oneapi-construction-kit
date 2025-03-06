@@ -27,11 +27,11 @@ const size_t local_wg_size = 16;
 
 // Vector addition: C[x] = A[x] + B[x];
 kts::Reference1D<cl_int> vaddInA = [](size_t x) {
-  return kts::Ref_Identity(x) * 3 + 27;
+  return (kts::Ref_Identity(x) * 3) + 27;
 };
 
 kts::Reference1D<cl_int> vaddInB = [](size_t x) {
-  return kts::Ref_Identity(x) * 7 + 41;
+  return (kts::Ref_Identity(x) * 7) + 41;
 };
 
 kts::Reference1D<cl_int> vaddOutC = [](size_t x) {

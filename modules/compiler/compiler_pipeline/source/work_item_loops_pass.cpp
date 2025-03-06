@@ -203,8 +203,8 @@ struct ScheduleGenerator {
   AllocaInst *nextID = nullptr;
   Value *mainLoopLimit = nullptr;
   Value *peel = nullptr;
+  bool noExplicitSubgroups = false;
   bool emitTail = true;
-  bool isVectorPredicated = false;
   bool wrapperHasMain = false;
   bool wrapperHasTail = false;
 
@@ -292,9 +292,8 @@ struct ScheduleGenerator {
       // Create intrinsic
 #if LLVM_VERSION_GREATER_EQUAL(19, 0)
       if (!module.IsNewDbgInfoFormat) {
-        auto *const DII = DIB.insertDeclare(barrier.getDebugAddr(), new_var,
-                                            expr, wrapperDbgLoc, block)
-                              .get<Instruction *>();
+        auto *const DII = cast<Instruction *>(DIB.insertDeclare(
+            barrier.getDebugAddr(), new_var, expr, wrapperDbgLoc, block));
 
         // Bit of a HACK to produce the same debug output as the Mem2Reg
         // pass used to do.
@@ -302,9 +301,8 @@ struct ScheduleGenerator {
         ConvertDebugDeclareToDebugValue(DVIntrinsic, SI, DIB);
       } else {
         auto *const DVR = static_cast<DbgVariableRecord *>(
-            DIB.insertDeclare(barrier.getDebugAddr(), new_var, expr,
-                              wrapperDbgLoc, block)
-                .get<DbgRecord *>());
+            cast<DbgRecord *>(DIB.insertDeclare(barrier.getDebugAddr(), new_var,
+                                                expr, wrapperDbgLoc, block)));
 
         // This is nasty, but LLVM errors out on trailing debug info, we need a
         // subsequent instruction even if we delete it immediately afterwards.
@@ -607,20 +605,26 @@ struct ScheduleGenerator {
           idsTail[1] = tailGroupCall->getOperand(3);
           idsTail[2] = tailGroupCall->getOperand(4);
           getUniformValues(tailUniformBlock, *barrierTail, idsTail);
-        }
 
-        // If both barrier structs had to be used, we need to merge the result.
-        if (mainUniformBlock && tailUniformBlock) {
-          block = BasicBlock::Create(context, "ca_merge_uniform_load", func);
-          BranchInst::Create(block, tailUniformBlock);
-          BranchInst::Create(block, mainUniformBlock);
+          if (mainUniformBlock) {
+            // If both barrier structs had to be used, we need to merge the
+            // result.
+            block = BasicBlock::Create(context, "ca_merge_uniform_load", func);
+            BranchInst::Create(block, tailUniformBlock);
+            BranchInst::Create(block, mainUniformBlock);
 
-          for (size_t i = 0; i != 3; ++i) {
-            auto *mergePhi = PHINode::Create(idsMain[i]->getType(), 2,
-                                             "uniform_merge", block);
-            mergePhi->addIncoming(idsMain[i], mainUniformBlock);
-            mergePhi->addIncoming(idsTail[i], tailUniformBlock);
-            idsMain[i] = mergePhi;
+            for (size_t i = 0; i != 3; ++i) {
+              auto *mergePhi = PHINode::Create(idsMain[i]->getType(), 2,
+                                               "uniform_merge", block);
+              mergePhi->addIncoming(idsMain[i], mainUniformBlock);
+              mergePhi->addIncoming(idsTail[i], tailUniformBlock);
+              idsMain[i] = mergePhi;
+            }
+          } else {
+            // Otherwise we can use the tail.
+            for (size_t i = 0; i != 3; ++i) {
+              idsMain[i] = idsTail[i];
+            }
           }
         }
 
@@ -720,8 +724,10 @@ struct ScheduleGenerator {
         mainPreheaderBB->moveAfter(block);
         mainExitBB->moveAfter(mainPreheaderBB);
 
-        subgroupMergePhi = PHINode::Create(i32Ty, 2, "", mainExitBB);
-        subgroupMergePhi->addIncoming(i32Zero, block);
+        if (!noExplicitSubgroups) {
+          subgroupMergePhi = PHINode::Create(i32Ty, 2, "", mainExitBB);
+          subgroupMergePhi->addIncoming(i32Zero, block);
+        }
 
         auto *const needMain =
             CmpInst::Create(Instruction::ICmp, CmpInst::ICMP_NE, zero,
@@ -738,7 +744,9 @@ struct ScheduleGenerator {
       wrapperHasMain = true;
       // Subgroup induction variables
       compiler::utils::CreateLoopOpts outer_opts;
-      outer_opts.IVs = {i32Zero};
+      if (!noExplicitSubgroups) {
+        outer_opts.IVs = {i32Zero};
+      }
 
       // looping through num groups in the third (outermost) dimension
       mainExitBB = compiler::utils::createLoop(
@@ -782,32 +790,41 @@ struct ScheduleGenerator {
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                         IRBuilder<> ir(block);
 
-                        // set our subgroup id
-                        ir.CreateCall(set_subgroup_id, {ivs0[0]})
-                            ->setCallingConv(set_subgroup_id->getCallingConv());
+                        if (!noExplicitSubgroups) {
+                          // set our subgroup id
+                          ir.CreateCall(set_subgroup_id, {ivs0[0]})
+                              ->setCallingConv(
+                                  set_subgroup_id->getCallingConv());
+                        }
 
                         createWorkItemLoopBody(barrierMain, ir, block,
                                                barrierID, dim_0, dim_1, dim_2,
                                                accum, VF);
 
-                        nextSubgroupIV =
-                            ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
-                        ivsNext0[0] = nextSubgroupIV;
+                        if (!noExplicitSubgroups) {
+                          nextSubgroupIV =
+                              ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
+                          ivsNext0[0] = nextSubgroupIV;
+                        }
 
                         return block;
                       });
 
-                  // Don't forget to update the subgroup IV phi.
-                  ivsNext1[0] = nextSubgroupIV;
+                  if (!noExplicitSubgroups) {
+                    // Don't forget to update the subgroup IV phi.
+                    ivsNext1[0] = nextSubgroupIV;
+                  }
 
                   return exit0;
                 });
 
-            // Don't forget to update the subgroup IV phi.
-            ivsNext2[0] = nextSubgroupIV;
+            if (!noExplicitSubgroups) {
+              // Don't forget to update the subgroup IV phi.
+              ivsNext2[0] = nextSubgroupIV;
 
-            if (subgroupMergePhi) {
-              subgroupMergePhi->addIncoming(nextSubgroupIV, exit1);
+              if (subgroupMergePhi) {
+                subgroupMergePhi->addIncoming(nextSubgroupIV, exit1);
+              }
             }
 
             return exit1;
@@ -855,7 +872,9 @@ struct ScheduleGenerator {
       wrapperHasTail = true;
       // Subgroup induction variables
       compiler::utils::CreateLoopOpts outer_opts;
-      outer_opts.IVs = {subgroupMergePhi ? subgroupMergePhi : nextSubgroupIV};
+      if (!noExplicitSubgroups) {
+        outer_opts.IVs = {subgroupMergePhi ? subgroupMergePhi : nextSubgroupIV};
+      }
 
       // looping through num groups in the third (outermost) dimension
       tailExitBB = compiler::utils::createLoop(
@@ -893,7 +912,7 @@ struct ScheduleGenerator {
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                         IRBuilder<> ir(block);
 
-                        if (set_subgroup_id) {
+                        if (!noExplicitSubgroups) {
                           // set our subgroup id
                           ir.CreateCall(set_subgroup_id, {ivs0[0]})
                               ->setCallingConv(
@@ -904,21 +923,27 @@ struct ScheduleGenerator {
                             *barrierTail, ir, block, barrierID, dim_0, dim_1,
                             dim_2, accum, /*VF*/ nullptr, mainLoopLimit);
 
-                        nextSubgroupIV =
-                            ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
-                        ivsNext0[0] = nextSubgroupIV;
+                        if (!noExplicitSubgroups) {
+                          nextSubgroupIV =
+                              ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1));
+                          ivsNext0[0] = nextSubgroupIV;
+                        }
 
                         return block;
                       });
 
-                  // Don't forget to update the subgroup IV phi.
-                  ivsNext1[0] = nextSubgroupIV;
+                  if (!noExplicitSubgroups) {
+                    // Don't forget to update the subgroup IV phi.
+                    ivsNext1[0] = nextSubgroupIV;
+                  }
 
                   return exit0;
                 });
 
-            // Don't forget to update the subgroup IV phi.
-            ivsNext2[0] = nextSubgroupIV;
+            if (!noExplicitSubgroups) {
+              // Don't forget to update the subgroup IV phi.
+              ivsNext2[0] = nextSubgroupIV;
+            }
 
             return exit1;
           });
@@ -954,11 +979,11 @@ struct ScheduleGenerator {
 
     // The subgroup induction variable, set to the value of the subgroup ID at
     // the end of the last loop (i.e. beginning of the next loop)
-    Value *nextSubgroupIV = i32Zero;
+    Value *nextSubgroupIV = noExplicitSubgroups ? nullptr : i32Zero;
 
     // The work-group scan induction variable, set to the current scan value at
     // the end of the last loop (i.e. beginning of the next loop)
-    Value *nextScanIV = accum;
+    Value *nextScanIV = isScan ? accum : nullptr;
 
     // We need to ensure any subgroup IV is defined on the path in which
     // the vector loop is skipped.
@@ -967,12 +992,8 @@ struct ScheduleGenerator {
     PHINode *scanMergePhi = nullptr;
 
     compiler::utils::CreateLoopOpts outer_opts;
-    outer_opts.IVs.push_back(i32Zero);
-    outer_opts.loopIVNames.push_back("sg.z");
-    if (isScan) {
-      outer_opts.IVs.push_back(nextScanIV);
-      outer_opts.loopIVNames.push_back("scan.z");
-    }
+    outer_opts.IVs = {nextSubgroupIV, nextScanIV};
+    outer_opts.loopIVNames = {"sg.z", "scan.z"};
 
     // looping through num groups in the third (outermost) dimension
     return compiler::utils::createLoop(
@@ -987,10 +1008,7 @@ struct ScheduleGenerator {
 
           compiler::utils::CreateLoopOpts middle_opts;
           middle_opts.IVs = ivs2.vec();
-          middle_opts.loopIVNames.push_back("sg.y");
-          if (isScan) {
-            middle_opts.loopIVNames.push_back("scan.y");
-          }
+          middle_opts.loopIVNames = {"sg.y", "scan.y"};
 
           // looping through num groups in the second dimension
           BasicBlock *exit1 = compiler::utils::createLoop(
@@ -1017,6 +1035,12 @@ struct ScheduleGenerator {
                       // No main iterations at all!
                       mainPreheaderBB = nullptr;
                       mainExitBB = block;
+                      if (!noExplicitSubgroups) {
+                        nextSubgroupIV = ivs1[0];
+                      }
+                      if (isScan) {
+                        nextScanIV = ivs1[1];
+                      }
                     }
                   } else {
                     mainPreheaderBB = BasicBlock::Create(
@@ -1027,9 +1051,11 @@ struct ScheduleGenerator {
                     mainPreheaderBB->moveAfter(block);
                     mainExitBB->moveAfter(mainPreheaderBB);
 
-                    subgroupMergePhi =
-                        PHINode::Create(i32Ty, 2, "sg.merge", mainExitBB);
-                    subgroupMergePhi->addIncoming(ivs1[0], block);
+                    if (!noExplicitSubgroups) {
+                      subgroupMergePhi =
+                          PHINode::Create(i32Ty, 2, "sg.merge", mainExitBB);
+                      subgroupMergePhi->addIncoming(ivs1[0], block);
+                    }
 
                     if (isScan) {
                       scanMergePhi = PHINode::Create(accum->getType(), 2,
@@ -1062,10 +1088,7 @@ struct ScheduleGenerator {
                   compiler::utils::CreateLoopOpts inner_vf_opts;
                   inner_vf_opts.indexInc = VF;
                   inner_vf_opts.IVs = ivs1.vec();
-                  inner_vf_opts.loopIVNames.push_back("sg.x.main");
-                  if (isScan) {
-                    inner_vf_opts.loopIVNames.push_back("scan.y.main");
-                  }
+                  inner_vf_opts.loopIVNames = {"sg.x.main", "scan.x.main"};
 
                   mainExitBB = compiler::utils::createLoop(
                       mainPreheaderBB, mainExitBB, zero, mainLoopLimit,
@@ -1075,7 +1098,7 @@ struct ScheduleGenerator {
                           MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                         IRBuilder<> ir(block);
 
-                        if (set_subgroup_id) {
+                        if (!noExplicitSubgroups) {
                           // set our subgroup id
                           ir.CreateCall(set_subgroup_id, {ivs0[0]})
                               ->setCallingConv(
@@ -1102,10 +1125,12 @@ struct ScheduleGenerator {
                                                barrierID, dim_0, dim_1, dim_2,
                                                accum, VF);
 
-                        nextSubgroupIV =
-                            ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1),
-                                         "sg.x.main.inc");
-                        ivsNext0[0] = nextSubgroupIV;
+                        if (!noExplicitSubgroups) {
+                          nextSubgroupIV =
+                              ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1),
+                                           "sg.x.main.inc");
+                          ivsNext0[0] = nextSubgroupIV;
+                        }
 
                         // Move the exit after the loop block, as it reads more
                         // logically.
@@ -1119,10 +1144,12 @@ struct ScheduleGenerator {
 
                   if (subgroupMergePhi) {
                     subgroupMergePhi->addIncoming(nextSubgroupIV, mainLoopBB);
+                    nextSubgroupIV = subgroupMergePhi;
                   }
 
                   if (scanMergePhi) {
                     scanMergePhi->addIncoming(nextScanIV, mainLoopBB);
+                    nextScanIV = scanMergePhi;
                   }
                 }
                 assert(mainExitBB && "didn't create a loop exit block!");
@@ -1168,17 +1195,13 @@ struct ScheduleGenerator {
                   assert(barrierTail);
                   wrapperHasTail = true;
                   // Subgroup induction variables
-                  SmallVector<Value *, 2> subgroupIVs0 = {
-                      subgroupMergePhi ? subgroupMergePhi : nextSubgroupIV};
-                  if (isScan) {
-                    subgroupIVs0.push_back(scanMergePhi ? scanMergePhi
-                                                        : nextScanIV);
-                  }
+                  SmallVector<Value *, 2> subgroupIVs0 = {nextSubgroupIV,
+                                                          nextScanIV};
 
                   BasicBlock *tailLoopBB = nullptr;
                   if (barrierTail->getVFInfo().IsVectorPredicated) {
                     IRBuilder<> ir(tailPreheaderBB);
-                    if (set_subgroup_id) {
+                    if (!noExplicitSubgroups) {
                       // set our subgroup id
                       ir.CreateCall(set_subgroup_id, {subgroupIVs0[0]})
                           ->setCallingConv(set_subgroup_id->getCallingConv());
@@ -1205,9 +1228,12 @@ struct ScheduleGenerator {
                                            barrierID, zero, dim_1, dim_2, accum,
                                            /*VF*/ nullptr, mainLoopLimit);
 
-                    nextSubgroupIV = ir.CreateAdd(subgroupIVs0[0],
-                                                  ConstantInt::get(i32Ty, 1),
-                                                  "sg.x.tail.inc");
+                    if (!noExplicitSubgroups) {
+                      nextSubgroupIV = ir.CreateAdd(subgroupIVs0[0],
+                                                    ConstantInt::get(i32Ty, 1),
+                                                    "sg.x.tail.inc");
+                    }
+
                     assert(tailExitBB);
                     ir.CreateBr(tailExitBB);
                     tailLoopBB = tailPreheaderBB;
@@ -1216,10 +1242,8 @@ struct ScheduleGenerator {
                     inner_scalar_opts.disableVectorize = true;
                     inner_scalar_opts.IVs.assign(subgroupIVs0.begin(),
                                                  subgroupIVs0.end());
-                    inner_scalar_opts.loopIVNames.push_back("sg.x.tail");
-                    if (isScan) {
-                      inner_scalar_opts.loopIVNames.push_back("scan.x.tail");
-                    }
+                    inner_scalar_opts.loopIVNames = {"sg.x.tail",
+                                                     "scan.x.tail"};
 
                     tailExitBB = compiler::utils::createLoop(
                         tailPreheaderBB, tailExitBB, zero, peel,
@@ -1229,7 +1253,7 @@ struct ScheduleGenerator {
                             MutableArrayRef<Value *> ivsNext0) -> BasicBlock * {
                           IRBuilder<> ir(block);
 
-                          if (set_subgroup_id) {
+                          if (!noExplicitSubgroups) {
                             // set our subgroup id
                             ir.CreateCall(set_subgroup_id, {ivs0[0]})
                                 ->setCallingConv(
@@ -1259,10 +1283,12 @@ struct ScheduleGenerator {
                               *barrierTail, ir, block, barrierID, dim_0, dim_1,
                               dim_2, accum, /*VF*/ nullptr, mainLoopLimit);
 
-                          nextSubgroupIV =
-                              ir.CreateAdd(ivs0[0], ConstantInt::get(i32Ty, 1),
-                                           "sg.x.tail.inc");
-                          ivsNext0[0] = nextSubgroupIV;
+                          if (!noExplicitSubgroups) {
+                            nextSubgroupIV = ir.CreateAdd(
+                                ivs0[0], ConstantInt::get(i32Ty, 1),
+                                "sg.x.tail.inc");
+                            ivsNext0[0] = nextSubgroupIV;
+                          }
 
                           tailLoopBB = block;
                           // Move the exit after the loop block, as it reads
@@ -1299,21 +1325,29 @@ struct ScheduleGenerator {
                         ->addIncoming(scanMergePhi, mainExitBB);
                   }
                 }
-                // Don't forget to update the subgroup IV phi.
-                ivsNext1[0] = nextSubgroupIV;
+
+                if (!noExplicitSubgroups) {
+                  // Don't forget to update the subgroup IV phi.
+                  ivsNext1[0] = nextSubgroupIV;
+                }
+
                 if (isScan) {
                   // ... or the scan IV phi.
                   ivsNext1[1] = nextScanIV;
                 }
+
                 return tailExitBB;
               });
 
-          // Don't forget to update the subgroup IV phi.
-          ivsNext2[0] = nextSubgroupIV;
+          if (!noExplicitSubgroups) {
+            // Don't forget to update the subgroup IV phi.
+            ivsNext2[0] = nextSubgroupIV;
+          }
           if (isScan) {
             // ... or the scan IV phi.
             ivsNext2[1] = nextScanIV;
           }
+
           return exit1;
         });
   }
@@ -1405,7 +1439,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // An inlinable function call in a function with debug info *must* be given
   // a debug location.
   DILocation *wrapperDbgLoc = nullptr;
-  if (auto *const SP = new_wrapper->getSubprogram()) {
+  if (new_wrapper->getSubprogram()) {
     wrapperDbgLoc = DILocation::get(context, /*line*/ 0, /*col*/ 0,
                                     new_wrapper->getSubprogram());
   }
@@ -1468,50 +1502,96 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // happening.
   // We want to insert a call to __mux__set_max_sub_group_size after these
   // assumptions, to keep track of the last one we've inserted.
-  Instruction *setMaxSubgroupSizeInsertPt = nullptr;
   for (auto i = 0; i < 3; i++) {
     auto *const nonZero = entryIR.CreateICmpNE(
         localSizeDim[i], ConstantInt::get(localSizeDim[i]->getType(), 0));
-    setMaxSubgroupSizeInsertPt = entryIR.CreateAssumption(nonZero);
+    entryIR.CreateAssumption(nonZero);
   }
 
-  const bool isVectorPredicated = barrierMain.getVFInfo().IsVectorPredicated;
+  // There are four cases:
+  //
+  // 1. If !emitTail: in this case, only the main function will be called. The
+  // main function may be a scalar function, may be a predicated vector
+  // function, or may be an unpredicated vector function where the local size is
+  // known to be a multiple of the vectorization factor.
+  //
+  // 2. Otherwise, if tailInfo->IsVectorPredicated: in this case, the main
+  // function will be unpredicated and will be called for any multiples of vf,
+  // and one tail call will handle any remainder. vf of the main function and
+  // the tail function are the same.
+  //
+  // 3. Otherwise, if hasNoExplicitSubgroups(refF): in this case, the main
+  // function will be unpredicated and will be called for any multiples of vf,
+  // and one tail loop will handle any remainder. vf of the main function is
+  // used.
+  //
+  // 4. Otherwise: if local_size_x is a multiple of the main function's vf, the
+  // main function will handle the full loop and the main function's vf is used,
+  // else the tail function will handle the full loop and the tail function's vf
+  // is used.
+  //
+  // Unless hasNoExplicitSubgroups(refF), the subgroups are calculated as
+  //
+  //    get_max_sub_group_size() = min(vf, local_size_x)
+  //    get_num_sub_groups() = ((local_size_x + vector_width - 1) / vf)
+  //      * local_size_y * local_size_z
+  //
+  // If hasNoExplicitSubgroups(refF) (even for cases 1 and 2), the subgroups are
+  // not calculated.
+
+  const bool noExplicitSubgroups = hasNoExplicitSubgroups(refF);
 
   Value *mainLoopLimit = localSizeDim[workItemDim0];
   Value *peel = nullptr;
+
+  Value *effectiveVF = VF;
+
   if (emitTail) {
-    peel = entryIR.CreateSRem(mainLoopLimit, VF, "peel");
+    auto *const rem = entryIR.CreateSRem(mainLoopLimit, VF, "rem");
+    if (tailInfo->IsVectorPredicated || noExplicitSubgroups) {
+      peel = rem;
+    } else {
+      // We must have no more than one iteration with a subgroup size below the
+      // maximum subgroup size. To meet this requirement, if the tail is scalar
+      // and the vector size does not divide the workgroup size, do not use the
+      // vectorized kernel at all.
+      auto *const remcond = entryIR.CreateICmpNE(
+          rem, Constant::getNullValue(rem->getType()), "remcond");
+      peel = entryIR.CreateSelect(
+          remcond, mainLoopLimit,
+          Constant::getNullValue(mainLoopLimit->getType()), "peel");
+      effectiveVF = entryIR.CreateSelect(
+          remcond, materializeVF(entryIR, barrierTail->getVFInfo().vf), VF);
+    }
     mainLoopLimit = entryIR.CreateSub(mainLoopLimit, peel, "mainLoopLimit");
   }
 
-  // Set the number of subgroups in this kernel
-  {
+  // Set the subgroup maximum size and number of subgroups in this kernel
+  // wrapper.
+  if (!noExplicitSubgroups) {
+    auto setMaxSubgroupSizeFn =
+        BI.getOrDeclareMuxBuiltin(eMuxBuiltinSetMaxSubGroupSize, M);
+    assert(setMaxSubgroupSizeFn && "Missing __mux_set_max_sub_group_size");
     auto setNumSubgroupsFn =
         BI.getOrDeclareMuxBuiltin(eMuxBuiltinSetNumSubGroups, M);
     assert(setNumSubgroupsFn && "Missing __mux_set_num_sub_groups");
-    // First, compute Z * Y
-    auto *const numSubgroupsZY = entryIR.CreateMul(
-        localSizeDim[workItemDim2], localSizeDim[workItemDim1], "sg.zy");
-    // Now multiply by the number of subgroups in the X dimension.
-    auto *numSubgroupsX = entryIR.CreateUDiv(mainLoopLimit, VF, "sg.main.x");
-    // Add on any tail iterations here.
-    if (peel) {
-      numSubgroupsX = entryIR.CreateAdd(numSubgroupsX, peel, "sg.x");
-    } else if (isVectorPredicated) {
-      // Vector predication will use an extra subgroup to mop up any remainder.
-      auto *const leftover = entryIR.CreateSRem(mainLoopLimit, VF, "peel");
-      auto *hasLeftover = entryIR.CreateICmp(
-          CmpInst::ICMP_NE, leftover, ConstantInt::get(leftover->getType(), 0),
-          "sg.has.vp");
-      hasLeftover = entryIR.CreateZExt(hasLeftover, numSubgroupsX->getType());
-      numSubgroupsX = entryIR.CreateAdd(numSubgroupsX, hasLeftover, "sg.x");
-    }
-    auto *numSubgroups =
-        entryIR.CreateMul(numSubgroupsZY, numSubgroupsX, "sg.zyx");
-    if (numSubgroups->getType() != i32Ty) {
-      numSubgroups = entryIR.CreateTrunc(numSubgroups, i32Ty);
-    }
-    entryIR.CreateCall(setNumSubgroupsFn, {numSubgroups});
+    auto *const localSizeInVecDim = localSizeDim[workItemDim0];
+    auto *const localSizeInNonVecDim = entryIR.CreateMul(
+        localSizeDim[workItemDim1], localSizeDim[workItemDim2], "wg.yz");
+    auto *maxSubgroupSize = entryIR.CreateBinaryIntrinsic(
+        Intrinsic::umin, localSizeInVecDim, effectiveVF, {}, "sg.x");
+    entryIR.CreateCall(setMaxSubgroupSizeFn,
+                       {entryIR.CreateTrunc(maxSubgroupSize, i32Ty)});
+    auto *const numSubgroupsInVecDim = entryIR.CreateUDiv(
+        entryIR.CreateAdd(
+            localSizeInVecDim,
+            entryIR.CreateSub(effectiveVF,
+                              ConstantInt::get(effectiveVF->getType(), 1))),
+        effectiveVF, "sgs.x");
+    auto *const numSubgroups =
+        entryIR.CreateMul(numSubgroupsInVecDim, localSizeInNonVecDim, "sgs");
+    entryIR.CreateCall(setNumSubgroupsFn,
+                       {entryIR.CreateTrunc(numSubgroups, i32Ty)});
   }
 
   if (barrierMain.hasLiveVars()) {
@@ -1520,7 +1600,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     // This catches cases where we need two loop iterations, e.g., VF=4 and
     // size=7, where rounding down would give one.
     Value *numerator = mainLoopLimit;
-    if (isVectorPredicated) {
+    if (mainInfo.IsVectorPredicated) {
       Value *const vf_minus_1 =
           entryIR.CreateSub(VF, ConstantInt::get(VF->getType(), 1));
       numerator = entryIR.CreateAdd(mainLoopLimit, vf_minus_1);
@@ -1536,7 +1616,7 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   // barriers, even when the main kernel does not.
   if (emitTail && barrierTail->hasLiveVars()) {
     Value *size0 = peel;
-    if (barrierTail->getVFInfo().IsVectorPredicated) {
+    if (tailInfo->IsVectorPredicated) {
       // If the tail is predicated, it will only have a single (vectorized) item
       // along the X axis, or none.
       auto *const hasLeftover = entryIR.CreateICmp(
@@ -1574,8 +1654,8 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
   schedule.wrapperDbgLoc = wrapperDbgLoc;
   schedule.nextID = nextID;
   schedule.mainLoopLimit = mainLoopLimit;
+  schedule.noExplicitSubgroups = noExplicitSubgroups;
   schedule.emitTail = emitTail;
-  schedule.isVectorPredicated = isVectorPredicated;
   schedule.peel = peel;
 
   // Make call instruction for first new kernel. It follows wrapper function's
@@ -1715,45 +1795,6 @@ Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
 
   bbs[kBarrier_EndID]->moveAfter(&new_wrapper->back());
   bbs[kBarrier_EndID]->setName("kernel.exit");
-
-  // Set the subgroup maximum size in this kernel wrapper.
-  // There are three cases:
-  //
-  // 1. With no vectorization:
-  //    get_max_sub_group_size() = mux sub-group size
-  //
-  // 2. With predicated vectorization:
-  //    get_max_sub_group_size() = min(vector_width,
-  //    local_size_in_vectorization_dimension)
-  //
-  // 3. Without predicated vectorization:
-  //    get_max_sub_group_size() = local_size_in_vectorization_dimension
-  //    < vector_width ? mux sub-group size : vector_width
-  {
-    // Reset the insertion point back to the wrapper entry block, after VF was
-    // materialized.
-    entryIR.SetInsertPoint(setMaxSubgroupSizeInsertPt);
-    auto setMaxSubgroupSizeFn =
-        BI.getOrDeclareMuxBuiltin(eMuxBuiltinSetMaxSubGroupSize, M);
-    assert(setMaxSubgroupSizeFn && "Missing __mux_set_max_sub_group_size");
-    // Assume no vectorization to begin with i.e. get_max_sub_group_size() = mux
-    // sub-group size.
-    Value *maxSubgroupSize = entryIR.getInt32(getMuxSubgroupSize(refF));
-    if (schedule.wrapperHasMain) {
-      auto *localSizeInVecDim = localSizeDim[workItemDim0];
-      auto *cmp = entryIR.CreateICmpULT(localSizeInVecDim, VF);
-      if (isVectorPredicated) {
-        maxSubgroupSize = entryIR.CreateSelect(cmp, localSizeInVecDim, VF);
-      } else {
-        maxSubgroupSize = entryIR.CreateSelect(
-            cmp, ConstantInt::get(VF->getType(), getMuxSubgroupSize(refF)), VF);
-      }
-      if (maxSubgroupSize->getType() != i32Ty) {
-        maxSubgroupSize = entryIR.CreateTrunc(maxSubgroupSize, i32Ty);
-      }
-    }
-    entryIR.CreateCall(setMaxSubgroupSizeFn, {maxSubgroupSize});
-  }
 
   // Remap any constant expression which take a reference to the old function
   // FIXME: What about the main function?
@@ -1903,8 +1944,6 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     // don't want to create another wrapper where the scalar tail is the
     // 'main', unless that tail is useful as a fallback sub-group kernel. A
     // fallback sub-group kernel is one for which:
-    // * The 'main' is not a degenerate sub-group kernel. These are always safe
-    // to run so the fallback is unnecessary.
     // * The 'main' has a required sub-group size that isn't the scalar size.
     // * The 'main' and 'tail' kernels both make use of sub-group builtins. If
     // neither do, there's no need for the fallback.
@@ -1912,8 +1951,7 @@ PreservedAnalyses compiler::utils::WorkItemLoopsPass::run(
     // cleanly divides the known local work-group size.
     if (P.SkippedTailF || (P.TailInfo && P.TailInfo->vf.isScalar())) {
       const auto *TailF = P.SkippedTailF ? P.SkippedTailF : P.TailF;
-      if (hasDegenerateSubgroups(*P.MainF) ||
-          getReqdSubgroupSize(*P.MainF).value_or(1) != 1 ||
+      if (getReqdSubgroupSize(*P.MainF).value_or(1) != 1 ||
           (!GSGI.usesSubgroups(*P.MainF) && !GSGI.usesSubgroups(*TailF))) {
         RedundantMains.insert(TailF);
       } else if (auto wgs = parseRequiredWGSMetadata(*P.MainF)) {

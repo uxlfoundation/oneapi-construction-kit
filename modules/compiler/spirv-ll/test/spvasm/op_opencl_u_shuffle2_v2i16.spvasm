@@ -42,7 +42,7 @@
 ; CHECK: define spir_kernel void @u_shuffle2_v2i16()
                    %2 = OpLabel
                    %3 = OpExtInst %v2i16_t %1 shuffle2 %v2i16_3 %v2i16_4 %v2i16_5
-; CHECK: = call spir_func <2 x i16> @_Z8shuffle2Dv2_tS_S_(<2 x i16> <i16 3, i16 3>, <2 x i16> <i16 4, i16 4>, <2 x i16> <i16 5, i16 5>)
+; CHECK: = call spir_func <2 x i16> @_Z8shuffle2Dv2_tS_S_(<2 x i16> {{<(i16 3(, )?)+>|splat \(i16 3\)}}, <2 x i16> {{<(i16 4(, )?)+>|splat \(i16 4\)}}, <2 x i16> {{<(i16 5(, )?)+>|splat \(i16 5\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

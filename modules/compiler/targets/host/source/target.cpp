@@ -16,6 +16,8 @@
 
 #include "host/target.h"
 
+#include <compiler/utils/gdb_registration_listener.h>
+#include <compiler/utils/llvm_global_mutex.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/ExecutionEngine/JITLink/EHFrameSupport.h>
@@ -33,17 +35,9 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
+#include <llvm/TargetParser/Host.h>
 #include <llvm/TargetParser/SubtargetFeature.h>
 #include <multi_llvm/multi_llvm.h>
-
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
-#include <llvm/TargetParser/Host.h>
-#else
-#include <llvm/Support/Host.h>
-#endif
-
-#include <compiler/utils/gdb_registration_listener.h>
-#include <compiler/utils/llvm_global_mutex.h>
 
 #include "host/device.h"
 #include "host/info.h"
@@ -94,8 +88,7 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
   const llvm::TargetOptions Options;
   return LLVMTarget->createTargetMachine(
       TripleStr, CPU, Features, Options, /*RM=*/std::nullopt, CM,
-      multi_llvm::CodeGenOptLevel::Aggressive,
-      /*JIT=*/true);
+      llvm::CodeGenOptLevel::Aggressive, /*JIT=*/true);
 }
 
 HostTarget::HostTarget(const HostInfo *compiler_info,
@@ -263,14 +256,13 @@ compiler::Result HostTarget::initWithBuiltins(
       // for single precision floating points.
       Features.AddFeature("strict-align", true);
       Features.AddFeature("neonfp", true);
-      Features.AddFeature("neon", true);
+      // We need hardware FMA support which is only available as of VFP4.
+      // VFP4 also includes FP16.
+      Features.AddFeature("vfp4", true);
       // Hardware division instructions might not exist on all ARMv7 CPUs, but
       // they probably exist on all the ones we might care about.
       Features.AddFeature("hwdiv", true);
       Features.AddFeature("hwdiv-arm", true);
-      if (host_device_info.half_capabilities) {
-        Features.AddFeature("fp16", true);
-      }
       break;
 #endif
 #ifdef HOST_LLVM_RISCV
@@ -419,7 +411,7 @@ compiler::Result HostTarget::initWithBuiltins(
   if (compiler_info->supports_deferred_compilation()) {
     llvm::orc::JITTargetMachineBuilder TMBuilder(triple);
     TMBuilder.setCPU(CPU);
-    TMBuilder.setCodeGenOptLevel(multi_llvm::CodeGenOptLevel::Aggressive);
+    TMBuilder.setCodeGenOptLevel(llvm::CodeGenOptLevel::Aggressive);
     TMBuilder.getFeatures().addFeaturesVector(Features.getFeatures());
     auto Builder = llvm::orc::LLJITBuilder();
 

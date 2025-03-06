@@ -1,0 +1,74 @@
+name: build opencl cts
+description: build opencl cts
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+    
+    - name: download icd artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    - name: download header artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: header_${{inputs.target}}
+        path: install_headers
+
+    - name: checkout test suite
+      uses: actions/checkout@v4
+      with:
+        repository: KhronosGroup/OpenCL-CTS
+        path: OpenCL-CTS
+
+    - name: build opencl cts
+      shell: bash
+      env:
+        CMAKE_TOOLCHAIN: "${{ steps.calc_vars.outputs.cmake_toolchain }}"
+      run: |
+        echo CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
+        # apply patches
+        pushd OpenCL-CTS
+        git log -1
+        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
+        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        popd
+        # do build
+        set -x
+        cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DOPENCL_LIBRARIES=OpenCL \
+          -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
+          -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
+        ninja -v
+
+    - name: upload opencl cts artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: opencl_cts_${{inputs.target}}
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
+        retention-days: 7
+

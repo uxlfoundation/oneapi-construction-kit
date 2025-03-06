@@ -62,7 +62,7 @@ void command_ndrange_s::operator()(riscv::queue_s *queue, bool &error) {
     error = true;
     return;
   }
-  hal::hal_program_t program = hal_device->program_load(
+  const hal::hal_program_t program = hal_device->program_load(
       kernel->object_code.data(), kernel->object_code.size());
   if (program == hal::hal_invalid_program) {
     error = true;
@@ -89,7 +89,7 @@ void command_ndrange_s::operator()(riscv::queue_s *queue, bool &error) {
       {global_size[0], global_size[1], global_size[2]},
       {local_size[0], local_size[1], local_size[2]}};
   // execute the kernel
-  bool success =
+  const bool success =
       hal_device->kernel_exec(program, hal_kernel, &hal_ndrange, kernel_args,
                               num_kernel_args, dimensions);
   hal_device->program_free(program);
@@ -253,7 +253,7 @@ mux_result_t riscvCommandReadBuffer(mux_command_buffer_t command_buffer,
                                     mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.emplace_back(
           riscv::command_read_buffer_s{static_cast<riscv::buffer_s *>(buffer),
@@ -283,7 +283,7 @@ mux_result_t riscvCommandReadBufferRegions(mux_command_buffer_t command_buffer,
                                            mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   char *data = reinterpret_cast<char *>(riscv_pointer);
 
@@ -360,7 +360,7 @@ mux_result_t riscvCommandWriteBuffer(
 
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.emplace_back(
           riscv::command_write_buffer_s{static_cast<riscv::buffer_s *>(buffer),
@@ -389,7 +389,7 @@ mux_result_t riscvCommandWriteBufferRegions(mux_command_buffer_t command_buffer,
                                             mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   const char *data = reinterpret_cast<const char *>(riscv_pointer);
 
@@ -462,7 +462,7 @@ mux_result_t riscvCommandCopyBuffer(mux_command_buffer_t command_buffer,
                                     mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   // lastly copy the new command onto the end of the buffer
   if (riscv->commands.emplace_back(riscv::command_copy_buffer_s{
@@ -493,7 +493,7 @@ mux_result_t riscvCommandCopyBufferRegions(mux_command_buffer_t command_buffer,
                                            mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.reserve(riscv->commands.size() + regions_length)) {
     return mux_error_out_of_memory;
@@ -564,7 +564,7 @@ mux_result_t riscvCommandFillBuffer(mux_command_buffer_t command_buffer,
                                     mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   riscv::command_fill_buffer_s fill_buffer;
   fill_buffer.buffer = static_cast<riscv::buffer_s *>(buffer);
@@ -746,7 +746,7 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
     const auto &descriptor = descriptors[i];
     switch (descriptor.type) {
       case mux_descriptor_info_type_buffer: {
-        mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
+        const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
         riscv::buffer_s *const riscv_buffer =
             static_cast<riscv::buffer_s *>(info.buffer);
         hal::hal_arg_t arg;
@@ -758,7 +758,7 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
         kernel_args[i] = arg;
       } break;
       case mux_descriptor_info_type_plain_old_data: {
-        mux_descriptor_info_plain_old_data_s info =
+        const mux_descriptor_info_plain_old_data_s info =
             descriptor.plain_old_data_descriptor;
         hal::hal_arg_t arg;
         arg.kind = hal::hal_arg_value;
@@ -771,7 +771,7 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
 
       } break;
       case mux_descriptor_info_type_shared_local_buffer: {
-        mux_descriptor_info_shared_local_buffer_s info =
+        const mux_descriptor_info_shared_local_buffer_s info =
             descriptor.shared_local_buffer_descriptor;
         hal::hal_arg_t arg;
         arg.kind = hal::hal_arg_address;
@@ -787,6 +787,8 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
         arg.size = 0;
         kernel_args[i] = arg;
       } break;
+      default:
+        break;
     }
   }
 }
@@ -798,13 +800,13 @@ mux_result_t riscvCommandNDRange(mux_command_buffer_t command_buffer,
                                  const mux_sync_point_t *,
                                  mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   auto *riscv_device = static_cast<riscv::device_s *>(riscv->device);
   auto *hal_device = riscv_device->hal_device;
   const hal::hal_device_info_t *hal_device_info = hal_device->get_info();
 
-  mux::allocator allocator(riscv->allocator_info);
+  const mux::allocator allocator(riscv->allocator_info);
   mux::dynamic_array<mux_descriptor_info_t> descriptors{allocator};
   if (descriptors.alloc(options.descriptors_length)) {
     return mux_error_out_of_memory;
@@ -880,7 +882,7 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
   // Get the command to update.
   auto *riscv_command_buffer =
       static_cast<riscv::command_buffer_s *>(command_buffer);
-  cargo::lock_guard<cargo::mutex> lock{riscv_command_buffer->mutex};
+  const cargo::lock_guard<cargo::mutex> lock{riscv_command_buffer->mutex};
   auto &nd_range_to_update = riscv_command_buffer->commands[command_id];
 
   // Check the command being updated is actually an ND range.
@@ -899,18 +901,19 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
       default:
         return mux_error_invalid_value;
       case mux_descriptor_info_type_buffer: {
-        mux_descriptor_info_buffer_s info = descriptors[i].buffer_descriptor;
+        const mux_descriptor_info_buffer_s info =
+            descriptors[i].buffer_descriptor;
         auto *const riscv_buffer = static_cast<riscv::buffer_s *>(info.buffer);
 
         arg.address = riscv_buffer->targetPtr + info.offset;
       } break;
       case mux_descriptor_info_type_plain_old_data: {
-        mux_descriptor_info_plain_old_data_s info =
+        const mux_descriptor_info_plain_old_data_s info =
             descriptors[i].plain_old_data_descriptor;
         std::memcpy(arg.pod_data, info.data, arg.size);
       } break;
       case mux_descriptor_info_type_shared_local_buffer: {
-        mux_descriptor_info_shared_local_buffer_s info =
+        const mux_descriptor_info_shared_local_buffer_s info =
             descriptors[i].shared_local_buffer_descriptor;
         arg.size = info.size;
       } break;
@@ -931,7 +934,7 @@ mux_result_t riscvCommandUserCallback(mux_command_buffer_t command_buffer,
                                       mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.emplace_back(
           riscv::command_user_callback_s{user_function, user_data})) {
@@ -958,7 +961,7 @@ mux_result_t riscvCommandBeginQuery(mux_command_buffer_t command_buffer,
                                     mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.emplace_back(riscv::command_begin_query_s{
           static_cast<riscv::query_pool_s *>(query_pool), query_index,
@@ -986,7 +989,7 @@ mux_result_t riscvCommandEndQuery(mux_command_buffer_t command_buffer,
                                   mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   auto found =
       std::find_if(riscv->commands.begin(), riscv->commands.end(),
@@ -1027,7 +1030,7 @@ mux_result_t riscvCommandResetQueryPool(mux_command_buffer_t command_buffer,
                                         mux_sync_point_t *sync_point) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   if (riscv->commands.emplace_back(riscv::command_reset_query_pool_s{
           static_cast<riscv::query_pool_s *>(query_pool), query_index,
@@ -1051,7 +1054,7 @@ mux_result_t riscvCommandResetQueryPool(mux_command_buffer_t command_buffer,
 mux_result_t riscvResetCommandBuffer(mux_command_buffer_t command_buffer) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
 
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
 
   riscv->commands.clear();
 
@@ -1060,7 +1063,7 @@ mux_result_t riscvResetCommandBuffer(mux_command_buffer_t command_buffer) {
 
 mux_result_t riscvFinalizeCommandBuffer(mux_command_buffer_t command_buffer) {
   auto riscv = static_cast<riscv::command_buffer_s *>(command_buffer);
-  cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
+  const cargo::lock_guard<cargo::mutex> lock(riscv->mutex);
   if (nullptr == command_buffer) {
     return mux_error_null_out_parameter;
   }
@@ -1075,7 +1078,7 @@ mux_result_t cloneNDRangeCommand(mux_allocator_info_t allocator_info,
                                  const riscv::command_ndrange_s &original,
                                  riscv::command_buffer_s *cloned_command_buffer)
     CARGO_TS_REQUIRES(cloned_command_buffer->mutex) {
-  mux::allocator allocator(allocator_info);
+  const mux::allocator allocator(allocator_info);
   mux::dynamic_array<mux_descriptor_info_t> descriptors{allocator};
   if (descriptors.alloc(original.num_kernel_args)) {
     return mux_error_out_of_memory;
@@ -1148,8 +1151,10 @@ mux_result_t riscvCloneCommandBuffer(mux_device_t device,
   // MuxUpdateDescriptors() without affecting the original command-buffer.
   auto *riscv_command_buffer =
       static_cast<riscv::command_buffer_s *>(command_buffer);
-  cargo::lock_guard<cargo::mutex> lock_original{riscv_command_buffer->mutex};
-  cargo::lock_guard<cargo::mutex> lock_clone{cloned_command_buffer->mutex};
+  const cargo::lock_guard<cargo::mutex> lock_original{
+      riscv_command_buffer->mutex};
+  const cargo::lock_guard<cargo::mutex> lock_clone{
+      cloned_command_buffer->mutex};
 
   for (auto &command : riscv_command_buffer->commands) {
     if (command.type != riscv::command_type_ndrange) {
@@ -1176,7 +1181,7 @@ void riscvDestroyCommandBuffer(mux_device_t device,
   auto *riscv_command_buffer =
       static_cast<riscv::command_buffer_s *>(command_buffer);
   {
-    cargo::lock_guard<cargo::mutex> lock{riscv_command_buffer->mutex};
+    const cargo::lock_guard<cargo::mutex> lock{riscv_command_buffer->mutex};
     for (auto sync_point : riscv_command_buffer->sync_points) {
       allocator.destroy(sync_point);
     }

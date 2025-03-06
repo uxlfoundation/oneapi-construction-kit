@@ -63,9 +63,7 @@ struct PageRange {
   cargo::result protect(MemoryProtection protection);
 
   /// @brief Gets the allocated memory range.
-  inline cargo::array_view<uint8_t> data() const {
-    return {pages_begin, pages_end};
-  }
+  cargo::array_view<uint8_t> data() const { return {pages_begin, pages_end}; }
 
  private:
   uint8_t *pages_begin;

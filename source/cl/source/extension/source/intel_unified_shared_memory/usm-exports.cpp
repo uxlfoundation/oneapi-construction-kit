@@ -482,8 +482,8 @@ cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
   // The cl_intel_unified_shared_memory specification has an open question on
   // whether unknown pointers should be accepted. We accept them since the SYCL
   // specification and the SYCL CTS imply this must be treated as valid.
-  kernel->saved_args[arg_index] =
-      _cl_kernel::argument(*arg_type, &arg_value, sizeof(void *));
+  kernel->saved_args[arg_index] = _cl_kernel::argument(
+      *arg_type, static_cast<void *>(&arg_value), sizeof(void *));
 
   return CL_SUCCESS;
 }

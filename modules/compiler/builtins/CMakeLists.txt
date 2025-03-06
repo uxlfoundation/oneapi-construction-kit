@@ -657,11 +657,6 @@ target_compile_definitions(builtins PRIVATE CL_VERSION_3_0)
 
 target_link_libraries(builtins PUBLIC cargo abacus_static image_library_host)
 
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES builtins)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")
-
 set(BUILTINS_NAMESPACES builtins CACHE INTERNAL
   "List of builtins resource compiler namespaces" FORCE)
 

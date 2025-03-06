@@ -53,7 +53,7 @@ class KernelArgumentTypesTest : public ucl::CommandQueueTest {
   }
 
   bool isDoubleType() const {
-    return std::is_same<typename TestType::value_type, cl_double>::value;
+    return std::is_same_v<typename TestType::value_type, cl_double>;
   }
 
   cl_device_fp_config doubleFPConfig = 0;
@@ -126,8 +126,10 @@ TYPED_TEST(KernelArgumentTypesTest, ByGlobalPointer) {
   EXPECT_TRUE(kernel);
   ASSERT_SUCCESS(errorcode);
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&outMem));
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&inMem));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&outMem)));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&inMem)));
 
   EXPECT_SUCCESS(
       clEnqueueTask(this->command_queue, kernel, 0, nullptr, nullptr));
@@ -188,8 +190,10 @@ TYPED_TEST(KernelArgumentTypesTest, ByConstantPointer) {
   EXPECT_TRUE(kernel);
   EXPECT_SUCCESS(errorcode);
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&outMem));
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&inMem));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&outMem)));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 1, sizeof(cl_mem), static_cast<void *>(&inMem)));
 
   EXPECT_SUCCESS(
       clEnqueueTask(this->command_queue, kernel, 0, nullptr, nullptr));
@@ -245,11 +249,11 @@ TYPED_TEST(KernelArgumentTypesTest, ByValue) {
   ASSERT_SUCCESS(status);
 
   // set kernel args
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), &outBuffer));
+  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&outBuffer)));
 
   // Redmine #5143: set this to some actual value
-  static_assert(std::is_trivial<TestType>::value,
-                "TestType must be a trivial type");
+  static_assert(std::is_trivial_v<TestType>, "TestType must be a trivial type");
   TestType value(42);
 
   EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(TestType), &value));
@@ -344,7 +348,8 @@ TYPED_TEST(KernelArgumentTypesTest, ByLocalPointer) {
   EXPECT_TRUE(kernel);
   EXPECT_SUCCESS(errorcode);
 
-  EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&outMem));
+  EXPECT_SUCCESS(
+      clSetKernelArg(kernel, 0, sizeof(cl_mem), static_cast<void *>(&outMem)));
   EXPECT_EQ(CL_SUCCESS,
             clSetKernelArg(kernel, 1, sizeof(typename TestFixture::TestType),
                            nullptr));

@@ -35,7 +35,6 @@
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/define_mux_dma_pass.h>
-#include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/encode_builtin_range_metadata_pass.h>
 #include <compiler/utils/encode_kernel_metadata_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
@@ -107,7 +106,7 @@ void BaseModulePassMachinery::addClassToPassNames() {
 #include "base_module_pass_registry.def"
 }
 
-Expected<compiler::utils::AddKernelWrapperPassOptions>
+static Expected<compiler::utils::AddKernelWrapperPassOptions>
 parseAddKernelWrapperPassOptions(StringRef Params) {
   compiler::utils::AddKernelWrapperPassOptions Opts;
 
@@ -135,7 +134,8 @@ parseAddKernelWrapperPassOptions(StringRef Params) {
   return Opts;
 }
 
-Expected<StringRef> parseMakeFunctionNameUniquePassOptions(StringRef Params) {
+static Expected<StringRef> parseMakeFunctionNameUniquePassOptions(
+    StringRef Params) {
   return compiler::utils::parseSinglePassStringRef(Params);
 }
 
@@ -169,7 +169,7 @@ static ErrorOr<std::array<std::optional<uint64_t>, N>> parseIntList(
 constexpr const char LocalSizesOptName[] = "max-local-sizes=";
 constexpr const char GlobalSizesOptName[] = "max-global-sizes=";
 
-Expected<compiler::utils::EncodeBuiltinRangeMetadataOptions>
+static Expected<compiler::utils::EncodeBuiltinRangeMetadataOptions>
 parseEncodeBuiltinRangeMetadataPassOptions(StringRef Params) {
   compiler::utils::EncodeBuiltinRangeMetadataOptions Opts;
   while (!Params.empty()) {
@@ -209,7 +209,7 @@ parseEncodeBuiltinRangeMetadataPassOptions(StringRef Params) {
   return Opts;
 }
 
-Expected<compiler::utils::EncodeKernelMetadataPassOptions>
+static Expected<compiler::utils::EncodeKernelMetadataPassOptions>
 parseEncodeKernelMetadataPassOptions(StringRef Params) {
   compiler::utils::EncodeKernelMetadataPassOptions Opts;
   while (!Params.empty()) {
@@ -262,21 +262,18 @@ parseEncodeKernelMetadataPassOptions(StringRef Params) {
   return Opts;
 }
 
-Expected<bool> parseReplaceMuxMathDeclsPassOptions(StringRef Params) {
+static Expected<bool> parseReplaceMuxMathDeclsPassOptions(StringRef Params) {
   return compiler::utils::parseSinglePassOption(Params, "fast",
                                                 "ReplaceMuxMathDeclsPass");
 }
 
 // Lookup table for calling convention enums
-std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
+static std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"C", CallingConv::C},
     {"Fast", CallingConv::Fast},
     {"Cold", CallingConv::Cold},
     {"GHC", CallingConv::GHC},
     {"HiPE", CallingConv::HiPE},
-#if LLVM_VERSION_LESS(18, 0)
-    {"WebKit_JS", CallingConv::WebKit_JS},
-#endif
     {"AnyReg", CallingConv::AnyReg},
     {"PreserveMost", CallingConv::PreserveMost},
     {"PreserveAll", CallingConv::PreserveAll},
@@ -317,18 +314,16 @@ std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
     {"WASM_EmscriptenInvoke", CallingConv::WASM_EmscriptenInvoke},
     {"AMDGPU_Gfx", CallingConv::AMDGPU_Gfx},
     {"M68k_INTR", CallingConv::M68k_INTR},
-#if LLVM_VERSION_GREATER_EQUAL(17, 0)
     {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0",
      CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X0},
     {"AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2",
      CallingConv::AArch64_SME_ABI_Support_Routines_PreserveMost_From_X2},
-#endif
 };
 
 // For parseFixupCallingConventionPassOptions we check the param against
 // an entry in a map. We should consider making this generic if we get similar
 // enum map style parsing needs
-Expected<CallingConv::ID> parseFixupCallingConventionPassOptions(
+static Expected<CallingConv::ID> parseFixupCallingConventionPassOptions(
     StringRef Params) {
   CallingConv::ID Result = CallingConv::C;
   while (!Params.empty()) {
@@ -348,7 +343,7 @@ Expected<CallingConv::ID> parseFixupCallingConventionPassOptions(
   return Result;
 }
 
-Expected<compiler::utils::WorkItemLoopsPassOptions>
+static Expected<compiler::utils::WorkItemLoopsPassOptions>
 parseWorkItemLoopsPassOptions(StringRef Params) {
   compiler::utils::WorkItemLoopsPassOptions Opts;
 
@@ -365,7 +360,7 @@ parseWorkItemLoopsPassOptions(StringRef Params) {
   return Opts;
 }
 
-Expected<std::vector<llvm::StringRef>> parseReduceToFunctionPassOptions(
+static Expected<std::vector<llvm::StringRef>> parseReduceToFunctionPassOptions(
     StringRef Params) {
   std::vector<llvm::StringRef> Names;
 
@@ -395,7 +390,7 @@ Expected<std::vector<llvm::StringRef>> parseReduceToFunctionPassOptions(
   return Names;
 }
 
-Expected<compiler::utils::ReplaceTargetExtTysOptions>
+static Expected<compiler::utils::ReplaceTargetExtTysOptions>
 parseReplaceTargetExtTysPassOptions(StringRef Params) {
   compiler::utils::ReplaceTargetExtTysOptions Opts;
 

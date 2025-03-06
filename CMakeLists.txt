@@ -50,9 +50,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC AND
 endif()
 
 if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4) AND
-    (CMAKE_SYSTEM_PROCESSOR STREQUAL x86 OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64))
+    (CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86(_64)?|AMD64)$"))
   message(FATAL_ERROR "Windows 32 bit is no longer supported by oneAPI Construction Kit")
 endif()
 
@@ -201,7 +199,7 @@ find_package(PythonInterp 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 17 COMPONENTS clang-format clang-tidy)
+find_package(ClangTools 19 COMPONENTS clang-format clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING
     "Semi-color separated list of clang-tidy flags" "")

@@ -38,7 +38,7 @@
 #include <llvm/Transforms/Utils/Cloning.h>
 #include <llvm/Transforms/Utils/LCSSA.h>
 #include <llvm/Transforms/Utils/Local.h>
-#include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/vector_type_helper.h>
 
 #include <optional>
 
@@ -580,14 +580,12 @@ void compiler::utils::Barrier::SplitBlockwithBarrier() {
       auto id = ConstantInt::get(Type::getInt32Ty(module_.getContext()),
                                  barrier_id - kBarrier_StartNewID);
       // Call invoking entry stub
-      auto entry_caller =
-          CallInst::Create(entry_stub, id, "", (Instruction *)nullptr);
+      auto entry_caller = CallInst::Create(entry_stub, id);
       entry_caller->setDebugLoc(split_point->getDebugLoc());
       entry_caller->setCallingConv(entry_stub->getCallingConv());
 
       // Call invoking exit stub
-      auto exit_caller =
-          CallInst::Create(exit_stub, id, "", (Instruction *)nullptr);
+      auto exit_caller = CallInst::Create(exit_stub, id);
       exit_caller->setDebugLoc(split_point->getDebugLoc());
       exit_caller->setCallingConv(exit_stub->getCallingConv());
 
@@ -971,11 +969,7 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
     // Check if the alloca has a debug info source variable attached. If
     // so record this and the matching byte offset into the struct.
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
     auto DbgIntrinsics = findDbgDeclares(member.value);
-#else
-    auto DbgIntrinsics = FindDbgDeclareUses(member.value);
-#endif
     for (auto DII : DbgIntrinsics) {
       if (auto dbgDeclare = dyn_cast<DbgDeclareInst>(DII)) {
         debug_intrinsics_.push_back(std::make_pair(dbgDeclare, offset));
@@ -1050,8 +1044,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   BasicBlock *entry_point = region.entry;
   LLVMContext &context = module_.getContext();
 
-  LLVM_DEBUG(dbgs() << "\n"; unsigned i = 0; for (auto *d
-                                                  : region.blocks) {
+  LLVM_DEBUG(dbgs() << "\n"; unsigned i = 0; for (auto *d : region.blocks) {
     dbgs() << "entry block: " << entry_point->getName() << "\n";
     dbgs() << "region visited path [" << i++ << "] = " << d->getName()
            << "\n\n";
@@ -1158,9 +1151,9 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
         // multiple return instructions in a kernel, if it does then clone
         // the instruction first.
         if (nullptr == entry_call->getParent()) {
-          entry_call->insertBefore(new_ret);
+          entry_call->insertBefore(new_ret->getIterator());
         } else {
-          entry_call->clone()->insertBefore(new_ret);
+          entry_call->clone()->insertBefore(new_ret->getIterator());
         }
       }
     } else if (ReturnInst *ret =
@@ -1168,7 +1161,8 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       // Change return instruction with end barrier number.
       ConstantInt *cst_zero =
           ConstantInt::get(Type::getInt32Ty(context), kBarrier_EndID);
-      ReturnInst *new_ret = ReturnInst::Create(context, cst_zero, ret);
+      ReturnInst *new_ret = ReturnInst::Create(context, cst_zero);
+      new_ret->insertBefore(ret->getIterator());
       ret->replaceAllUsesWith(new_ret);
       ret->eraseFromParent();
 
@@ -1191,7 +1185,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   }
 
   BasicBlock *new_kernel_entry_block = &(new_kernel->getEntryBlock());
-  Instruction *insert_point = new_kernel_entry_block->getFirstNonPHIOrDbg();
+  Instruction *insert_point = &*new_kernel_entry_block->getFirstNonPHIOrDbg();
   auto *const cloned_barrier_call =
       region.barrier_inst ? insert_point : nullptr;
 
@@ -1296,7 +1290,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   }
 
   // Iterate instruction from insert point at entry basic block.
-  insert_point = new_kernel_entry_block->getFirstNonPHIOrDbg();
+  insert_point = &*new_kernel_entry_block->getFirstNonPHIOrDbg();
   const RemapFlags remapFlags =
       RF_IgnoreMissingLocals | llvm::RF_ReuseAndMutateDistinctMDs;
   BasicBlock::iterator b_iter = insert_point->getIterator();

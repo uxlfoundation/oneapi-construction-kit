@@ -45,8 +45,8 @@ private:
   refsi_result setupHartLocalWindow(unsigned index);
   void pre_run_kernel(slim_sim_t &sim, reg_t entry_point_addr);
 
-  constexpr const static unsigned window_index_elf = 0;
-  constexpr const static unsigned window_index_harts = 1;
+  static constexpr const unsigned window_index_elf = 0;
+  static constexpr const unsigned window_index_harts = 1;
   unsigned max_harts = REFSI_SIM_MAX_HARTS;
   refsi_addr_t elf_mem_mapped_addr = 0;
   refsi_addr_t harts_mem_mapped_addr = 0;

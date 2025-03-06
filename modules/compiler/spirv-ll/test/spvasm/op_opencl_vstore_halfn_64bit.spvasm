@@ -60,26 +60,26 @@
          %15 = OpExtInst %void %1 vstore_half %float_1 %ulong_0 %in
 ; CHECK: call spir_func void @_Z11vstore_halffmPU3AS1Dh(float 1.000000e+00, i64 0, ptr addrspace(1) %in)
          %19 = OpExtInst %void %1 vstore_halfn %18 %ulong_0 %in
-; CHECK: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS1Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS1Dh(<2 x float> {{<(float 2.000000e\+00(, )?)+>|splat \(float 2.000000e\+00\)}}, i64 0, ptr addrspace(1) %in)
          %23 = OpExtInst %void %1 vstore_halfn %22 %ulong_0 %in
-; CHECK: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS1Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS1Dh(<3 x float> {{<(float 3.000000e\+00(, )?)+>|splat \(float 3.000000e\+00\)}}, i64 0, ptr addrspace(1) %in)
          %27 = OpExtInst %void %1 vstore_halfn %26 %ulong_0 %in
-; CHECK: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS1Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS1Dh(<4 x float> {{<(float 4.000000e\+00(, )?)+>|splat \(float 4.000000e\+00\)}}, i64 0, ptr addrspace(1) %in)
          %31 = OpExtInst %void %1 vstore_halfn %30 %ulong_0 %in
-; CHECK: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS1Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(1) %in)
+; CHECK: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS1Dh(<8 x float> {{<(float 8.000000e\+00(, )?)+>|splat \(float 8.000000e\+00\)}}, i64 0, ptr addrspace(1) %in)
          %35 = OpExtInst %void %1 vstore_halfn %34 %ulong_0 %in
-; CHECK: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS1Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(1) %in)
+; CHECK: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS1Dh(<16 x float> {{<(float 1.600000e\+01(, )?)+>|splat \(float 1.600000e\+01\)}}, i64 0, ptr addrspace(1) %in)
          %36 = OpExtInst %void %1 vstore_half %float_1 %ulong_0 %loc
 ; CHECK: call spir_func void @_Z11vstore_halffmPU3AS3Dh(float 1.000000e+00, i64 0, ptr addrspace(3) %loc)
          %37 = OpExtInst %void %1 vstore_halfn %18 %ulong_0 %loc
-; CHECK: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS3Dh(<2 x float> <float 2.000000e+00, float 2.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z12vstore_half2Dv2_fmPU3AS3Dh(<2 x float> {{<(float 2.000000e\+00(, )?)+>|splat \(float 2.000000e\+00\)}}, i64 0, ptr addrspace(3) %loc)
          %38 = OpExtInst %void %1 vstore_halfn %22 %ulong_0 %loc
-; CHECK: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS3Dh(<3 x float> <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z12vstore_half3Dv3_fmPU3AS3Dh(<3 x float> {{<(float 3.000000e\+00(, )?)+>|splat \(float 3.000000e\+00\)}}, i64 0, ptr addrspace(3) %loc)
          %39 = OpExtInst %void %1 vstore_halfn %26 %ulong_0 %loc
-; CHECK: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS3Dh(<4 x float> <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z12vstore_half4Dv4_fmPU3AS3Dh(<4 x float> {{<(float 4.000000e\+00(, )?)+>|splat \(float 4.000000e\+00\)}}, i64 0, ptr addrspace(3) %loc)
          %40 = OpExtInst %void %1 vstore_halfn %30 %ulong_0 %loc
-; CHECK: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS3Dh(<8 x float> <float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00, float 8.000000e+00>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z12vstore_half8Dv8_fmPU3AS3Dh(<8 x float> {{<(float 8.000000e\+00(, )?)+>|splat \(float 8.000000e\+00\)}}, i64 0, ptr addrspace(3) %loc)
          %41 = OpExtInst %void %1 vstore_halfn %34 %ulong_0 %loc
-; CHECK: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS3Dh(<16 x float> <float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01, float 1.600000e+01>, i64 0, ptr addrspace(3) %loc)
+; CHECK: call spir_func void @_Z13vstore_half16Dv16_fmPU3AS3Dh(<16 x float> {{<(float 1.600000e\+01(, )?)+>|splat \(float 1.600000e\+01\)}}, i64 0, ptr addrspace(3) %loc)
                OpReturn
                OpFunctionEnd

@@ -460,12 +460,11 @@ void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
     llvm::MDNode *const subNode = llvm::cast<llvm::MDNode>(node->getOperand(i));
     llvm::MDString *const operandName =
         llvm::cast<llvm::MDString>(subNode->getOperand(0));
-    if (!strcmp("reqd_work_group_size", operandName->getString().data())) {
+    if (operandName->getString() == "reqd_work_group_size") {
       populateRequiredWGSAttribute(kernel_info, subNode);
-    } else if (!strcmp("work_group_size_hint",
-                       operandName->getString().data())) {
+    } else if (operandName->getString() == "work_group_size_hint") {
       populateWGSHintAttribute(kernel_info, subNode);
-    } else if (!strcmp("vec_type_hint", operandName->getString().data())) {
+    } else if (operandName->getString() == "vec_type_hint") {
       populateVectorTypeHintAttribute(kernel_info, subNode);
     }
   }

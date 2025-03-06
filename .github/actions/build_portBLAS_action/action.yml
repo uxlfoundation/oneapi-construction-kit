@@ -16,7 +16,7 @@ runs:
 
        # installs tools, ninja, installs llvm and sets up sccahe
     - name: setup ubuntu
-      uses:  ./.github/actions/setup_ubuntu_build
+      uses:  ./.github/actions/setup_build
 
     - name: Get Intel OneAPI BaseToolkit
       shell: bash

@@ -37,6 +37,6 @@ void main() {
 // CHECK: ret void
 // CHECK: define private spir_func <3 x double> @{{("func_call_ret_vec3_double.+")}}()
 // CHECK: = alloca <3 x double>
-// CHECK: store <3 x double> <double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}, double {{(-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)}}>, ptr {{[%@].*}}
+// CHECK: store <3 x double> {{<double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+), double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+), double (-?[0-9]+\.[0-9]+e\+[0-9]+|0x[0-9A-F]+)>|splat \(double -?[0x]*[0-9A-F.e+]+\)}}, ptr {{[%@].*}}
 // CHECK: = load <3 x double>, ptr {{[%@].*}}
 // CHECK: ret <3 x double> {{[%@].*}}

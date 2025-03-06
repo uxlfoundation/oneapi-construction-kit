@@ -77,8 +77,9 @@ bool dispatch_s::is_terminated() const {
     void (*user_function)(mux_command_buffer_t command_buffer,
                           mux_result_t error, void *const user_data),
     void *user_data) {
-  cargo::lock_guard<cargo::mutex> command_buffer_lock{command_buffer->mutex};
-  cargo::lock_guard<cargo::mutex> queue_lock{mutex};
+  const cargo::lock_guard<cargo::mutex> command_buffer_lock{
+      command_buffer->mutex};
+  const cargo::lock_guard<cargo::mutex> queue_lock{mutex};
   // Reset optional fence state.
   if (fence) {
     fence->reset();
@@ -140,7 +141,8 @@ void queue_s::run() {
     mux_result_t result = mux_error_failure;
 
     {
-      cargo::lock_guard<cargo::mutex> lock{dispatch->command_buffer->mutex};
+      const cargo::lock_guard<cargo::mutex> lock{
+          dispatch->command_buffer->mutex};
       // Execute the commands in the command buffer.
       if (!dispatch->is_terminated()) {
         result = dispatch->command_buffer->execute(this);
@@ -153,9 +155,9 @@ void queue_s::run() {
     dispatch->notify_user(result);
 
     {
-      cargo::lock_guard<cargo::mutex> command_buffer_lock{
+      const cargo::lock_guard<cargo::mutex> command_buffer_lock{
           dispatch->command_buffer->mutex};
-      cargo::lock_guard<cargo::mutex> queue_lock{mutex};
+      const cargo::lock_guard<cargo::mutex> queue_lock{mutex};
       if (result) {
         // There was an error, propogate termination flags.
         dispatch->terminate();
@@ -176,7 +178,7 @@ void queue_s::run() {
     // 5) The queue thread is resumed by the OS and tries to unlock the command
     // buffer mutex. The mutex has already been deleted, resulting in a crash.
     {
-      cargo::lock_guard<cargo::mutex> queue_lock{mutex};
+      const cargo::lock_guard<cargo::mutex> queue_lock{mutex};
       running = false;
       condition_variable.notify_all();
     }

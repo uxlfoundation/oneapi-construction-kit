@@ -20,7 +20,6 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
 #include <compiler/utils/define_mux_dma_pass.h>
-#include <compiler/utils/degenerate_sub_group_pass.h>
 #include <compiler/utils/fixup_calling_convention_pass.h>
 #include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/optimal_builtin_replacement_pass.h>
@@ -54,10 +53,6 @@ void addPreVeczPasses(ModulePassManager &PM,
   }
 
   PM.addPass(compiler::utils::SubgroupUsagePass());
-
-  if (tuner.degenerate_sub_groups) {
-    PM.addPass(compiler::utils::DegenerateSubGroupPass());
-  }
 
   if (tuner.replace_work_group_collectives) {
     // Because ReplaceWGCPass may introduce barrier calls it needs to be run
@@ -118,8 +113,7 @@ void addLLVMDefaultPerModulePipeline(ModulePassManager &PM, PassBuilder &PB,
   if (!options.opt_disable) {
     PM.addPass(PB.buildPerModuleDefaultPipeline(OptimizationLevel::O3));
   } else {
-    PM.addPass(PB.buildO0DefaultPipeline(OptimizationLevel::O0,
-                                         /*LTOPreLink*/ false));
+    PM.addPass(PB.buildO0DefaultPipeline(OptimizationLevel::O0));
     // LLVM's new inliners do less than the legacy ones, so run a round of
     // global optimization to remove any dead functions.
     // FIXME: This isn't just optimization: we have internal functions without
@@ -134,8 +128,8 @@ Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
                        raw_pwrite_stream &ostream, bool create_assembly) {
   legacy::PassManager PM;
   const CodeGenFileType type = !create_assembly
-                                   ? multi_llvm::CodeGenFileType::ObjectFile
-                                   : multi_llvm::CodeGenFileType::AssemblyFile;
+                                   ? llvm::CodeGenFileType::ObjectFile
+                                   : llvm::CodeGenFileType::AssemblyFile;
   if (TM->addPassesToEmitFile(PM, ostream, /*DwoOut*/ nullptr, type,
                               /*DisableVerify*/ false)) {
     return compiler::Result::FAILURE;

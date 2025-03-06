@@ -17,9 +17,8 @@
 #ifndef UNITCL_DEVICE_H
 #define UNITCL_DEVICE_H
 
-#include "Common.h"
-
 #include "CL/cl.h"
+#include "Common.h"
 
 namespace UCL {
 inline bool isDevice_IntelNeo(cl_device_id device) {

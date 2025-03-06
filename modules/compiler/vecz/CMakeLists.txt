@@ -201,8 +201,3 @@ if(NOT CA_VECZ_ONLY)
     add_subdirectory(test)
   endif()
 endif()
-
-# Append to the list of module libraries, the cache MUST be updated.
-list(APPEND MODULES_LIBRARIES vecz)
-set(MODULES_LIBRARIES ${MODULES_LIBRARIES}
-  CACHE INTERNAL "List of module libraries.")

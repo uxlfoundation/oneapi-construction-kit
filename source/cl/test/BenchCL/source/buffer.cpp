@@ -21,7 +21,7 @@
 
 #include <vector>
 
-void BufferReadRect(benchmark::State &state) {
+static void BufferReadRect(benchmark::State &state) {
   auto device = benchcl::env::get()->device;
   auto status = CL_SUCCESS;
 
@@ -58,7 +58,7 @@ void BufferReadRect(benchmark::State &state) {
 }
 BENCHMARK(BufferReadRect)->Arg(1)->Arg(256)->Arg(512);
 
-void BufferWriteRect(benchmark::State &state) {
+static void BufferWriteRect(benchmark::State &state) {
   auto device = benchcl::env::get()->device;
   auto status = CL_SUCCESS;
 

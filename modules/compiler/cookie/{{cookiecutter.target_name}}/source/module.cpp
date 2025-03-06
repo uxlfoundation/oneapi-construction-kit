@@ -228,8 +228,7 @@ static llvm::TargetMachine *createTargetMachine(const {{cookiecutter.target_name
   return llvm_target->createTargetMachine(
       target.llvm_triple, target.llvm_cpu, target.llvm_features, options,
       {{cookiecutter.link_shared}} ? llvm::Reloc::Model::PIC_ : llvm::Reloc::Model::Static,
-      llvm::CodeModel::Small,
-      multi_llvm::CodeGenOptLevel::Aggressive);
+      llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
 }
 
 llvm::TargetMachine *{{cookiecutter.target_name.capitalize()}}Module::getTargetMachine() {

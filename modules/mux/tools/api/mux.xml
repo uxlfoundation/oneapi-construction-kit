@@ -2492,24 +2492,69 @@ For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_
 
   <stubs>
     <include>mux/config.h</include>
-    <stub name="select_with_compat" prefix="select" qualifier="inline">  switch (mux_target_id_device_mask &amp; ${0}->id) {
-    ${foreach}(target in targets)
-    case ${prefix}_target_id_${target}:
-      return ${target}${name}(${forward});
-    ${endforeach}
-    default:
-      return compat${name}(${forward});
-    }</stub>
-    <stub name="compat" prefix="select" qualifier="inline">  return compat${name}(${forward});</stub>
-    <stub name="select" prefix="select" qualifier="inline">  switch (mux_target_id_device_mask &amp; ${0}->id) {
-    ${foreach}(target in targets)
-    case ${prefix}_target_id_${target}:
-      return ${target}${name}(${forward});
-    ${endforeach}
-    default:
-      return static_cast&lt;${return_type}&gt;(${prefix}_error_invalid_value);
-    }</stub>
-    <stub name="single" prefix="select" qualifier="inline">  return ${target}${name}(${forward});</stub>
-    <stub name="empty">  // TODO: Implement me ...</stub>
+    <stub name="select_with_compat" prefix="select" qualifier="inline">
+      <return-value>
+        switch (mux_target_id_device_mask &amp; ${0}->id) {
+          ${foreach}(target in targets)
+          case ${prefix}_target_id_${target}:
+            return ${target}${name}(${forward});
+          ${endforeach}
+          default:
+            return compat${name}(${forward});
+        }
+      </return-value>
+      <return-void>
+        switch (mux_target_id_device_mask &amp; ${0}->id) {
+          ${foreach}(target in targets)
+          case ${prefix}_target_id_${target}:
+            ${target}${name}(${forward});
+            return;
+          ${endforeach}
+          default:
+            compat${name}(${forward});
+            return;
+        }
+      </return-void>
+    </stub>
+    <stub name="compat" prefix="select" qualifier="inline">
+      <return-value>
+        return compat${name}(${forward});
+      </return-value>
+      <return-void>
+        compat${name}(${forward});
+      </return-void>
+    </stub>
+    <stub name="select" prefix="select" qualifier="inline">
+      <return-value>
+        switch (mux_target_id_device_mask &amp; ${0}->id) {
+          ${foreach}(target in targets)
+          case ${prefix}_target_id_${target}:
+            return ${target}${name}(${forward});
+          ${endforeach}
+          default:
+            return static_cast&lt;${return_type}&gt;(${prefix}_error_invalid_value);
+        }
+      </return-value>
+      <return-void>
+        switch (mux_target_id_device_mask &amp; ${0}->id) {
+          ${foreach}(target in targets)
+          case ${prefix}_target_id_${target}:
+            ${target}${name}(${forward});
+            return;
+          ${endforeach}
+          default:
+            return;
+        }
+      </return-void>
+    </stub>
+    <stub name="single" prefix="select" qualifier="inline">
+      <return-value>
+        return ${target}${name}(${forward});
+      </return-value>
+      <return-void>
+        ${target}${name}(${forward});
+      </return-void>
+    </stub>
+    <stub name="empty">// TODO: Implement me ...</stub>
   </stubs>
 </interface>

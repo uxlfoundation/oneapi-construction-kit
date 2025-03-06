@@ -36,7 +36,7 @@ T native_exp(const T x) {
   // r = e^(k * ln(2)) * e^f
   // r = 2^k * e^f
   const SignedType k = abacus::internal::floor_unsafe(x * ln2recip);
-  const T f = x - abacus::detail::cast::convert<T>(k) * ln2;
+  const T f = x - (abacus::detail::cast::convert<T>(k) * ln2);
 
   const abacus_float polynomial[3] = {1.00172475857779f, .948768609890313f,
                                       .701815635555134f};

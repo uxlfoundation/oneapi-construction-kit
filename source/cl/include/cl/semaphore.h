@@ -35,7 +35,7 @@ struct _mux_shared_semaphore final {
   cl_device_id device;
 
   _mux_shared_semaphore(cl_device_id device, mux_semaphore_t semaphore)
-      : device(device), ref_count(1), semaphore(semaphore){};
+      : device(device), ref_count(1), semaphore(semaphore) {};
   cl_uint ref_count;
 
  public:

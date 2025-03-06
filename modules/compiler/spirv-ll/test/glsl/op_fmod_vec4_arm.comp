@@ -28,9 +28,9 @@ void main() {
 // CHECK:  = alloca <4 x float>
 // CHECK:  = alloca <4 x float>
   vec4 x = vec4(42.42, 42.42, 42.42, 42.42);
-// CHECK:  store <4 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%.*}}
+// CHECK:  store <4 x float> {{<(float 0x404535C280000000(, )?)+>|splat \(float 0x404535C280000000\)}}, ptr {{%.*}}
   vec4 y = vec4(42.42, 42.42, 42.42, 42.42);
-// CHECK:  store <4 x float> <float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000, float 0x404535C280000000>, ptr {{%.*}}
+// CHECK:  store <4 x float> {{<(float 0x404535C280000000(, )?)+>|splat \(float 0x404535C280000000\)}}, ptr {{%.*}}
 // CHECK:  [[X:%.*]] = load <4 x float>, ptr {{%.*}}
 // CHECK:  [[Y:%.*]] = load <4 x float>, ptr {{%.*}}
   vec4 res = mod(x, y);

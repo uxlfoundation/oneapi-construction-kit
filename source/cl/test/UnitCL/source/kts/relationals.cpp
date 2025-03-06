@@ -451,9 +451,9 @@ void TwoArgRelational::TestAgainstReference(
 
   // Query device for denormal number support
   cl_device_info float_type = CL_DEVICE_SINGLE_FP_CONFIG;
-  if (std::is_same<T, cl_half>::value) {
+  if (std::is_same_v<T, cl_half>) {
     float_type = CL_DEVICE_HALF_FP_CONFIG;
-  } else if (std::is_same<T, cl_double>::value) {
+  } else if (std::is_same_v<T, cl_double>) {
     float_type = CL_DEVICE_DOUBLE_FP_CONFIG;
   }
   const bool denorms_supported = UCL::hasDenormSupport(device, float_type);
@@ -572,7 +572,7 @@ cl_kernel BitSelectTest::ConstructProgram(const char *test_type) {
 template <class T, class U>
 void BitSelectTest::TestAgainstReference(const std::function<U(U, U, U)> &ref) {
   static_assert(
-      std::is_same<typename TypeInfo<T>::AsUnsigned, U>::value,
+      std::is_same_v<typename TypeInfo<T>::AsUnsigned, U>,
       "Lambda must return unsigned int type of same size as float input");
   // Check if we can compile the test
   if (!getDeviceCompilerAvailable()) {
@@ -724,7 +724,7 @@ void SelectTest::TestAgainstReference(const std::function<T(T, T, U)> &ref,
     }
 
     std::string out_type = RelationalTest::out_type_map.find(type_str)->second;
-    if (std::is_unsigned<U>::value) {
+    if (std::is_unsigned_v<U>) {
       out_type.insert(0, 1, 'u');
     }
 

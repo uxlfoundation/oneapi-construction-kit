@@ -1,0 +1,94 @@
+name: build-ock-artefacts
+description: Action to build the oneapi-construction-kit as an artefact
+
+# Note we need to support llvm tip at some point
+
+inputs:
+  llvm_version:
+    description: 'llvm version we want to use (18-19)'
+    default: '19'
+  target:
+    description: 'target architecture'
+  download_ock_artefact:
+    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+    default: ''
+
+# TODO: This has not been tested yet on windows so would likely need some updating.
+runs:
+  using: "composite"
+  steps:
+      - name: calc vars
+        id: calc_vars
+        uses: ./.github/actions/calc_vars
+        with:
+          target: ${{ inputs.target }}
+
+      - name: print vars
+        shell: bash
+        run: |
+          echo arch = ${{steps.calc_vars.outputs.arch}}
+          echo toolchain = ${{steps.calc_vars.outputs.toolchain}}
+
+      # installs tools, ninja, installs llvm and sets up ccache
+      - name: setup
+        uses:  ./.github/actions/setup_build
+        if: contains(inputs.download_ock_artefact, inputs.target) != true
+        with:
+          llvm_version: ${{ inputs.llvm_version }}
+          llvm_build_type: RelAssert
+          cross_arch: ${{ ( steps.calc_vars.outputs.arch == 'x86_64' || steps.calc_vars.outputs.arch == 'aarch64' )
+                       && 'none' || steps.calc_vars.outputs.arch }}
+          os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
+          ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }}
+
+      - name: build native ock - x86_64 and aarch64
+        if: ( steps.calc_vars.outputs.arch == 'x86_64' || steps.calc_vars.outputs.arch == 'aarch64' )
+            && contains(inputs.download_ock_artefact, inputs.target) != true
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: install
+          offline_kernel_tests: OFF
+          extra_flags: -DCA_ENABLE_TESTS=OFF -DCA_ENABLE_EXAMPLES=OFF -DCA_ENABLE_DOCUMENTATION=OFF
+          shell_to_use: ${{ contains(inputs.target, 'windows') && 'pwsh' || 'bash' }}
+
+      - name: build ock - other ${{ inputs.target }}
+        if: ( steps.calc_vars.outputs.arch != 'x86_64' && steps.calc_vars.outputs.arch != 'aarch64' )
+            && contains(inputs.download_ock_artefact, inputs.target) != true
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: install
+          toolchain_file: ${{ steps.calc_vars.outputs.toolchain }}
+          extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install_native/bin -DCA_ENABLE_TESTS=OFF -DCA_ENABLE_EXAMPLES=OFF -DCA_ENABLE_DOCUMENTATION=OFF
+          # Do we need the offline kernel as an artefact? If so currently this requires an external clc or qemu to be installed.
+          offline_kernel_tests: OFF
+          host_fp16: ON
+
+      - name: download previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
+        shell: bash      
+        if: contains(inputs.download_ock_artefact, inputs.target)
+        run: |
+          download_id=`echo "${{inputs.download_ock_artefact}}"`
+          echo "echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'"
+          download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
+          echo download id is "'$download_id'"
+          git config --global --add safe.directory $PWD
+          # TODO : make this work on windows
+          gh run download $download_id -n ock_${{ inputs.target }} -D install
+          ls install
+
+      # Prune it as there is too much things in there we don't want to use
+      # Todo: move this logic to cmake settings so that we build only what we
+      # want to install. As time goes on we may want to install more.
+      - name: prune ock artefact
+        shell: bash
+        run: |
+          # delete all but clc, city runner and the python associated file under bin
+          find install/bin -maxdepth 1 -type f  -and ! \( -name "*.py" -o -name "*clc" \) -delete
+          rm -rf install/share
+
+      - name: upload ock artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ock_${{ inputs.target }}
+          path: install
+          retention-days: 7

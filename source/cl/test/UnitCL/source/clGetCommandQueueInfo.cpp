@@ -67,7 +67,8 @@ TEST_F(clGetCommandQueueInfoTest, QueueContext) {
   ASSERT_EQ(sizeof(cl_context), size);
   cl_context queueContext = nullptr;
   ASSERT_SUCCESS(clGetCommandQueueInfo(queue, CL_QUEUE_CONTEXT, size,
-                                       &queueContext, nullptr));
+                                       static_cast<void *>(&queueContext),
+                                       nullptr));
   ASSERT_EQ(context, queueContext);
 }
 
@@ -78,7 +79,8 @@ TEST_F(clGetCommandQueueInfoTest, QueueDevice) {
   ASSERT_EQ(sizeof(cl_device_id), size);
   cl_device_id queueDevice = nullptr;
   ASSERT_SUCCESS(clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE, size,
-                                       &queueDevice, nullptr));
+                                       static_cast<void *>(&queueDevice),
+                                       nullptr));
   ASSERT_EQ(device, queueDevice);
 }
 
@@ -187,9 +189,9 @@ TEST_F(clGetCommandQueueInfoTest, QueueDeviceDefaultSuccess) {
       clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE_DEFAULT, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_command_queue), size);
   cl_command_queue commandQueue;
-  ASSERT_SUCCESS(clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE_DEFAULT,
-                                       sizeof(commandQueue), &commandQueue,
-                                       nullptr));
+  ASSERT_SUCCESS(clGetCommandQueueInfo(
+      queue, CL_QUEUE_DEVICE_DEFAULT, sizeof(commandQueue),
+      static_cast<void *>(&commandQueue), nullptr));
 }
 
 TEST_F(clGetCommandQueueInfoTest, QueueDeviceDeviceInvalidValue) {
@@ -200,6 +202,7 @@ TEST_F(clGetCommandQueueInfoTest, QueueDeviceDeviceInvalidValue) {
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
       clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE_DEFAULT,
-                            sizeof(commandQueue) - 1, &commandQueue, nullptr));
+                            sizeof(commandQueue) - 1,
+                            static_cast<void *>(&commandQueue), nullptr));
 }
 #endif

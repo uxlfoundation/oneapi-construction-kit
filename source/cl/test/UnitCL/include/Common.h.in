@@ -103,10 +103,10 @@ struct aligned_allocator {
 
   void deallocate(T *p, size_t n) {
     (void)n;
-    UCL::aligned_free(p);
+    UCL::aligned_free(static_cast<void *>(p));
   }
 
-  aligned_allocator(){};
+  aligned_allocator() {};
   template <class U>
   struct rebind {
     using other = aligned_allocator<U, Align>;

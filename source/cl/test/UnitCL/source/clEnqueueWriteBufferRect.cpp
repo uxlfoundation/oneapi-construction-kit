@@ -45,7 +45,7 @@ class clEnqueueWriteBufferRectTest : public ucl::CommandQueueTest,
       for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
         for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
           const unsigned int index =
-              x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+              x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
           write_data[index] = static_cast<cl_char>(index);
           buffer_data[index] = INITIAL_BUFFER_DATA;
         }
@@ -393,14 +393,14 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteFull2D) {
 
   for (unsigned int x = 0; x < DIMENSION_LENGTH; x++) {
     for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(buffer_data[index], write_data[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -440,14 +440,14 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteStart2D) {
 
   for (unsigned int x = 0; x < HALF_DIMENSION_LENGTH; x++) {
     for (unsigned int y = 0; y < HALF_DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(buffer_data[index], write_data[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -459,7 +459,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteStart2D) {
     for (unsigned int y = HALF_DIMENSION_LENGTH; y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -503,7 +503,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteMiddle2D) {
     for (unsigned int y = 0; y < QUARTER_DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -515,14 +515,14 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteMiddle2D) {
        x < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH; x++) {
     for (unsigned int y = QUARTER_DIMENSION_LENGTH;
          y < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(buffer_data[index], write_data[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -536,7 +536,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteMiddle2D) {
          y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -581,7 +581,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteEnd2D) {
     for (unsigned int y = 0; y < HALF_DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -591,14 +591,14 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteEnd2D) {
 
   for (unsigned int x = HALF_DIMENSION_LENGTH; x < DIMENSION_LENGTH; x++) {
     for (unsigned int y = HALF_DIMENSION_LENGTH; y < DIMENSION_LENGTH; y++) {
-      const unsigned int index = x + DIMENSION_LENGTH * y;
+      const unsigned int index = x + (DIMENSION_LENGTH * y);
       ASSERT_EQ(buffer_data[index], write_data[index])
           << "Coordinates (" << x << ", " << y << ", 0) linearized to ("
           << index << ")";
 
       for (unsigned int z = 1; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(INITIAL_BUFFER_DATA, buffer_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -635,7 +635,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteFull3D) {
     for (unsigned int y = 0; y < DIMENSION_LENGTH; y++) {
       for (unsigned int z = 0; z < DIMENSION_LENGTH; z++) {
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         ASSERT_EQ(buffer_data[index], write_data[index])
             << "Coordinates (" << x << ", " << y << ", " << z
             << ") linearized to (" << index << ")";
@@ -682,7 +682,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteStart3D) {
                                (z < HALF_DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compare_value =
             (in_region) ? buffer_data[index] : INITIAL_BUFFER_DATA;
         ASSERT_EQ(compare_value, buffer_data[index])
@@ -734,7 +734,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteEnd3D) {
             (HALF_DIMENSION_LENGTH <= z) && (z < DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compare_value =
             (in_region) ? buffer_data[index] : INITIAL_BUFFER_DATA;
         ASSERT_EQ(compare_value, buffer_data[index])
@@ -791,7 +791,7 @@ TEST_F(clEnqueueWriteBufferRectTest, WriteMiddle3D) {
             (z < QUARTER_DIMENSION_LENGTH + HALF_DIMENSION_LENGTH);
 
         const unsigned int index =
-            x + DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z);
+            x + (DIMENSION_LENGTH * (y + DIMENSION_LENGTH * z));
         const cl_uchar compare_value =
             (in_region) ? buffer_data[index] : INITIAL_BUFFER_DATA;
         ASSERT_EQ(compare_value, buffer_data[index])

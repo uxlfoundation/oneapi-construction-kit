@@ -1,0 +1,69 @@
+name: build tornado
+description: build tornado
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+    
+    - name: download icd artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    # Get maven
+    - name: fetch maven
+      shell: bash    
+      run: |
+        wget https://archive.apache.org/dist/maven/maven-3/3.9.3/binaries/apache-maven-3.9.3-bin.tar.gz
+        tar xf apache-maven-3.9.3-bin.tar.gz
+
+    # TODO: setup correctly for our aarch64 runner
+    - name: select jdk21
+      if: steps.calc_vars.outputs.arch == 'x86_64'
+      shell: bash      
+      run: |
+        sudo update-java-alternatives -s temurin-21-jdk-amd64
+        pip install tqdm
+
+    - name: clone TornadoVM
+      uses: actions/checkout@v4
+      with:
+        repository: beehive-lab/TornadoVM
+        path: TornadoVM_build
+        ref: develop
+
+    - name: build tornadovm
+      shell: bash    
+      run: |
+        export JAVA_HOME=`readlink -f $(command -v java) | sed 's/\/bin\/java//'`
+        export TORNADO_SDK=$GITHUB_WORKSPACE/TornadoVM_build/bin/sdk
+        export PATH=$PWD/apache-maven-3.9.3/bin:$PATH
+        mvn -v
+        java --version
+        cd TornadoVM_build
+        # The tornado build system links in OpenCL assuming it's in a known place. This gets around
+        # this by pass CXX as an environment variable as it's difficult to change the build system
+        # even if we don't use this script.
+        CXX="g++ -L$GITHUB_WORKSPACE/install_icd/lib" make -j8 jdk21 BACKEND=opencl
+        cp -r -L $TORNADO_SDK $GITHUB_WORKSPACE/TornadoVM_SDK
+
+    - name: upload tornado artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tornado_${{inputs.target}}
+        path: TornadoVM_SDK
+        retention-days: 7

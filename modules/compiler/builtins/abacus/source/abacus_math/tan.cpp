@@ -29,11 +29,11 @@ struct helper;
 template <typename T>
 struct helper<T, abacus_float> {
   static T numerator(const T x) {
-    return x * 0.999999986f - x * x * x * 0.0958010197f;
+    return (x * 0.999999986f) - (x * x * x * 0.0958010197f);
   }
 
   static T denominator(const T x) {
-    return (T)1.f - x * x * 0.429135022f + x * x * x * x * 0.00971659383f;
+    return (T)1.f - (x * x * 0.429135022f) + (x * x * x * x * 0.00971659383f);
   }
 };
 
@@ -51,8 +51,8 @@ struct helper<T, abacus_double> {
         -5.9926098258796618469322956805282730e-12};
 
     const T y = abacus::internal::horner_polynomial(xSq, polynomial);
-    return x * .78539816339744830961566084582040377 +
-           x * xSq * .85737772729049709971879473936502462 * y;
+    return (x * .78539816339744830961566084582040377) +
+           (x * xSq * .85737772729049709971879473936502462 * y);
   }
 
   static T denominator(const T x) {
@@ -66,7 +66,7 @@ struct helper<T, abacus_double> {
         -5.0244514118826496404940417101797213e-10};
 
     const T y = abacus::internal::horner_polynomial(xSq, polynomial);
-    return xSq * y * .85737772729049709971879473936502462 + 1.0;
+    return (xSq * y * .85737772729049709971879473936502462) + 1.0;
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -203,7 +203,7 @@ T tan_half(const T x) {
   const T poly1_extra_precision_term1 = -2.4390220642089844e-4f16;
 
   T poly_add_lo = 0;
-  const T poly_add_hi = abacus::internal::add_exact(
+  const T poly_add_hi = abacus::internal::add_exact_unsafe(
       abacus::internal::horner_polynomial(x2, _tan1H),
       poly1_extra_precision_term1, &poly_add_lo);
 

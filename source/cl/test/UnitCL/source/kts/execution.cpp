@@ -118,10 +118,12 @@ bool kts::ucl::BaseExecution::LoadSource(const std::string &path) {
     return false;
   }
   if (fseek(f, 0, SEEK_END)) {
+    (void)fclose(f);
     return false;
   }
   const long size = ftell(f);
   if (size < 0) {
+    (void)fclose(f);
     return false;
   }
   source_.resize(size);
@@ -503,7 +505,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
           return;
         }
       }
-      clSetKernelArg(kernel_, i, sizeof(cl_mem), &buffer);
+      clSetKernelArg(kernel_, i, sizeof(cl_mem), static_cast<void *>(&buffer));
     } else if (arg->GetKind() == kts::ePrimitive) {
       kts::Primitive *primitive = arg->GetPrimitive();
       clSetKernelArg(kernel_, i, primitive->GetSize(), primitive->GetAddress());
@@ -516,7 +518,8 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
         Fail("Could not create sampler", err);
         return;
       }
-      clSetKernelArg(kernel_, i, sizeof(cl_sampler), &sampler);
+      clSetKernelArg(kernel_, i, sizeof(cl_sampler),
+                     static_cast<void *>(&sampler));
       arg->SetSampler(sampler);
     } else if (arg->GetKind() == kts::eInputImage) {
       const kts::ucl::ImageDesc &image_desc = arg->GetImageDesc();
@@ -539,7 +542,7 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
         return;
       }
       arg->SetBuffer(image);
-      clSetKernelArg(kernel_, i, sizeof(cl_mem), &image);
+      clSetKernelArg(kernel_, i, sizeof(cl_mem), static_cast<void *>(&image));
     }
   }
 

@@ -276,11 +276,7 @@ Function *cloneFunctionUpdatingTypes(Function &func,
 
   // Take attributes of old function
   newFunc->takeName(&func);
-#if LLVM_VERSION_GREATER_EQUAL(18, 0)
   newFunc->updateAfterNameChange();
-#else
-  newFunc->recalculateIntrinsicID();
-#endif
   newFunc->setCallingConv(func.getCallingConv());
 
   assert(func.isIntrinsic() == newFunc->isIntrinsic() &&
@@ -360,6 +356,30 @@ Type *getNewType(Value *v, const StructReplacementMap &typeMap) {
   return getNewType(v->getType(), typeMap);
 }
 
+bool replaceConstantsForRemapping(Constant *C,
+                                  const StructReplacementMap &typeMap,
+                                  const ValueToValueMapTy &valMap) {
+  if (valMap.find(C) != valMap.end()) {
+    return false;
+  }
+  if (getNewType(C->getType(), typeMap)) {
+    compiler::utils::replaceConstantExpressionWithInstruction(C);
+    return true;
+  }
+  if (auto *GEP = dyn_cast<GEPOperator>(C)) {
+    if (getNewType(GEP->getSourceElementType(), typeMap)) {
+      compiler::utils::replaceConstantExpressionWithInstruction(C);
+      return true;
+    }
+  }
+  for (auto *Op : C->operand_values()) {
+    if (replaceConstantsForRemapping(cast<Constant>(Op), typeMap, valMap)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /// @brief Performs the update on the LLVM module to replace all the Values
 ///        using the old struct type with Values using our padded variant.
 ///
@@ -380,6 +400,19 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
   // Replace globals with new variants using updated padded struct types.
   for (auto *global : globals) {
     replaceGlobalVariable(global, typeMap, valMap);
+  }
+
+  // Replace constants if they are using types that need to be remapped.
+  for (auto &func : module.functions()) {
+    for (BasicBlock &block : func) {
+      for (Instruction &inst : block) {
+        for (auto *op : inst.operand_values()) {
+          if (auto *c = dyn_cast<Constant>(op)) {
+            replaceConstantsForRemapping(c, typeMap, valMap);
+          }
+        }
+      }
+    }
   }
 
   // Identify all functions which use a struct type and need to be cloned,
@@ -640,7 +673,7 @@ void compiler::utils::AlignModuleStructsPass::fixupStructReferences() {
   // Iterate over all the structs in our map
   for (auto &mapItr : originalStructMap) {
     // Get the padding struct type and iterate over members
-    const ReplacementStructSP paddedStructDetails = mapItr.getSecond();
+    const ReplacementStructSP &paddedStructDetails = mapItr.getSecond();
     if (!paddedStructDetails) {
       continue;
     }

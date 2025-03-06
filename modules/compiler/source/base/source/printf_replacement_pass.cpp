@@ -664,7 +664,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
       BasicBlock::Create(module.getContext(), "store", callFunction);
 
   // the buffer is the first argument of the function
-  Argument *full_buffer = static_cast<Argument *>(&*callFunction->arg_begin());
+  Argument *full_buffer = (&*callFunction->arg_begin());
 
   auto *buffer_elt_ty = getBufferEltTy(module.getContext());
 
@@ -716,7 +716,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   // later when we know how much we need to add
   auto call_offset = ir.CreateAtomicRMW(
       AtomicRMWInst::Add,
-      ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1)),
+      ir.CreatePointerCast(buffer, ir.getPtrTy(/*AddrSpace=*/1)),
       ir.getInt32(0), MaybeAlign(), ordering, SyncScope::System);
 
   // store block
@@ -727,7 +727,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   ir.CreateAlignedStore(
       ir.getInt32(printf_calls.size() - 1),
       ir.CreatePointerCast(ir.CreateGEP(buffer_elt_ty, buffer, call_offset),
-                           ir.getInt32Ty()->getPointerTo(1)),
+                           ir.getPtrTy(/*AddrSpace=*/1)),
       Align(1));
   // argument offset, starts at 4 to account for the printf call's id
   size_t offset = 4;
@@ -753,8 +753,8 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
     offset += size / 8;
 
     // cast the pointer to the larger type and store the value
-    ir.CreateAlignedStore(arg, ir.CreatePointerCast(gep, type->getPointerTo(1)),
-                          Align(1));
+    ir.CreateAlignedStore(
+        arg, ir.CreatePointerCast(gep, ir.getPtrTy(/*AddrSpace=*/1)), Align(1));
   }
 
   // and return 0;
@@ -767,7 +767,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   // store
   auto correct_add = ir.CreateAtomicRMW(
       AtomicRMWInst::Add,
-      ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1)),
+      ir.CreatePointerCast(buffer, ir.getPtrTy(/*AddrSpace=*/1)),
       ir.getInt32(offset), MaybeAlign(), ordering, SyncScope::System);
   call_offset->replaceAllUsesWith(correct_add);
 
@@ -790,7 +790,7 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   // write how much data was not written to the buffer but is accounted for by
   // the length because of the first atomic add
   //
-  auto *cast = ir.CreatePointerCast(buffer, ir.getInt32Ty()->getPointerTo(1));
+  auto *cast = ir.CreatePointerCast(buffer, ir.getPtrTy(/*AddrSpace=*/1));
 
   ir.CreateAtomicRMW(
       AtomicRMWInst::Add, ir.CreateGEP(ir.getInt32Ty(), cast, ir.getInt32(1)),
@@ -803,7 +803,8 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
   const std::string name = ci->getName().str();
   ci->setName("");
 
-  auto newCi = CallInst::Create(callFunction, new_args, name, ci);
+  auto newCi = CallInst::Create(callFunction, new_args, name);
+  newCi->insertBefore(ci->getIterator());
   newCi->setDebugLoc(ci->getDebugLoc());
   newCi->setCallingConv(ci->getCallingConv());
 

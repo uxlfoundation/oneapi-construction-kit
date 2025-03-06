@@ -73,9 +73,9 @@ TEST_F(clGetCommandBufferInfoTest, CommandBufferQueues) {
       command_buffer, CL_COMMAND_BUFFER_QUEUES_KHR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(cl_command_queue), size);
   cl_command_queue command_buffer_queue = nullptr;
-  ASSERT_SUCCESS(clGetCommandBufferInfoKHR(command_buffer,
-                                           CL_COMMAND_BUFFER_QUEUES_KHR, size,
-                                           &command_buffer_queue, nullptr));
+  ASSERT_SUCCESS(clGetCommandBufferInfoKHR(
+      command_buffer, CL_COMMAND_BUFFER_QUEUES_KHR, size,
+      static_cast<void *>(&command_buffer_queue), nullptr));
   ASSERT_EQ(command_queue, command_buffer_queue);
 }
 

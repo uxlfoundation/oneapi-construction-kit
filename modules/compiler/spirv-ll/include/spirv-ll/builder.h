@@ -20,10 +20,10 @@
 #define SPIRV_LL_SPV_BUILDER_H_INCLUDED
 
 #include <llvm/ADT/StringSwitch.h>
-#include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfoMetadata.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Metadata.h>
+#include <multi_llvm/dibuilder.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
 #include <spirv-ll/context.h>
@@ -329,8 +329,10 @@ class Builder {
   ///
   /// @param builtin SPIR-V builtin enum denoting which builtin to initialize.
   /// @param builtinType LLVM `Type` of the builtin variable.
+  /// @param builtinAddrSpace LLVM address space of the builtin variable.
   /// @param initBlock Basic block to generate the init code in.
   void generateBuiltinInitBlock(spv::BuiltIn builtin, llvm::Type *builtinType,
+                                unsigned builtinAddrSpace,
                                 llvm::BasicBlock *initBlock);
 
   /// @brief Attempts to replace uses of a builtin global variable with calls to
@@ -627,7 +629,7 @@ class Builder {
     DEVICE = 4u,
     ALL_SVM_DEVICES = 5u,
     ALL_DEVICES = 6u,
-    MEM_FENCE_SCOPES_MAX
+    MEM_FENCE_SCOPES_MAX = 7u
   };
 
   /// @brief Generate the mangled function name.
@@ -814,7 +816,7 @@ class Builder {
   /// @brief The IRBuilder used to generate the LLVM IR
   llvm::IRBuilder<> IRBuilder;
   /// @brief The DIBuilder used to generate the LLVM IR debug instructions
-  llvm::DIBuilder DIBuilder;
+  multi_llvm::DIBuilder DIBuilder;
   /// @brief Function the builder is currently working on
   llvm::Function *CurrentFunction;
   /// @brief A copy of the current function's argument list

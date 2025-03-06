@@ -40,7 +40,7 @@
 ; CHECK: define spir_kernel void @ilogb_v16float()
                    %2 = OpLabel
                    %3 = OpExtInst %v16int_t %1 ilogb %v16float_1
-; CHECK: = call spir_func <16 x i32> @_Z5ilogbDv16_f(<16 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>)
+; CHECK: = call spir_func <16 x i32> @_Z5ilogbDv16_f(<16 x float> {{<(float 1.000000e\+00(, )?)+>|splat \(float 1.000000e\+00\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

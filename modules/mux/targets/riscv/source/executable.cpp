@@ -53,7 +53,7 @@ md_hooks getElfMetadataReadHooks() {
 
   md_hooks.deallocate = [](void *ptr, void *userdata) {
     auto *elfUserdata = static_cast<ElfUserdata *>(userdata);
-    return elfUserdata->allocator->free(ptr);
+    elfUserdata->allocator->free(ptr);
   };
 
   return md_hooks;

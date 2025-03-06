@@ -274,18 +274,18 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnUserEventWithCommandEvent) {
 
   // Set up the kernel args.
   EXPECT_SUCCESS(clSetKernelArg(store, 0, sizeof(intermediate_buffer_a),
-                                &intermediate_buffer_a));
+                                static_cast<void *>(&intermediate_buffer_a)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store_a, 0,
                                 sizeof(intermediate_buffer_a),
-                                &intermediate_buffer_a));
+                                static_cast<void *>(&intermediate_buffer_a)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store_a, 1,
                                 sizeof(intermediate_buffer_b),
-                                &intermediate_buffer_b));
+                                static_cast<void *>(&intermediate_buffer_b)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store_b, 0,
                                 sizeof(intermediate_buffer_b),
-                                &intermediate_buffer_b));
-  EXPECT_SUCCESS(
-      clSetKernelArg(load_and_store_b, 1, sizeof(final_buffer), &final_buffer));
+                                static_cast<void *>(&intermediate_buffer_b)));
+  EXPECT_SUCCESS(clSetKernelArg(load_and_store_b, 1, sizeof(final_buffer),
+                                static_cast<void *>(&final_buffer)));
 
   // Create a user event which the second kernel enqueue will wait on.
   cl_event user_event = clCreateUserEvent(context, &error);
@@ -417,11 +417,11 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnUserEvent) {
 
   // Set up the kernel args.
   EXPECT_SUCCESS(clSetKernelArg(store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
-  EXPECT_SUCCESS(
-      clSetKernelArg(load_and_store, 1, sizeof(final_buffer), &final_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
+  EXPECT_SUCCESS(clSetKernelArg(load_and_store, 1, sizeof(final_buffer),
+                                static_cast<void *>(&final_buffer)));
 
   // Create a user event which the second kernel enqueue will wait on.
   cl_event user_event = clCreateUserEvent(context, &error);
@@ -529,11 +529,11 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnTwoUserEvents) {
 
   // Set up the kernel args.
   EXPECT_SUCCESS(clSetKernelArg(store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
-  EXPECT_SUCCESS(
-      clSetKernelArg(load_and_store, 1, sizeof(final_buffer), &final_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
+  EXPECT_SUCCESS(clSetKernelArg(load_and_store, 1, sizeof(final_buffer),
+                                static_cast<void *>(&final_buffer)));
 
   // Create user events which the kernel enqueues will wait on.
   cl_event user_event_a = clCreateUserEvent(context, &error);
@@ -646,11 +646,11 @@ TEST_F(clSetUserEventStatusInOrderTest, BlockQueueOnTwoUserEventsReversed) {
 
   // Set up the kernel args.
   EXPECT_SUCCESS(clSetKernelArg(store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
   EXPECT_SUCCESS(clSetKernelArg(load_and_store, 0, sizeof(intermediate_buffer),
-                                &intermediate_buffer));
-  EXPECT_SUCCESS(
-      clSetKernelArg(load_and_store, 1, sizeof(final_buffer), &final_buffer));
+                                static_cast<void *>(&intermediate_buffer)));
+  EXPECT_SUCCESS(clSetKernelArg(load_and_store, 1, sizeof(final_buffer),
+                                static_cast<void *>(&final_buffer)));
 
   // Create users event which the kernel enqueues will wait on.
   cl_event user_event_a = clCreateUserEvent(context, &error);

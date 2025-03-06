@@ -24,7 +24,7 @@ namespace utils {
 
 AnalysisKey GenericMetadataAnalysis::Key;
 
-Printable printGenericMD(const handler::GenericMetadata &MD) {
+static Printable printGenericMD(const handler::GenericMetadata &MD) {
   return Printable([MD](raw_ostream &Out) {
     Out << "Kernel Name: " << MD.kernel_name << "\n";
     Out << "Source Name: " << MD.source_name << "\n";
@@ -39,22 +39,18 @@ GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
   auto kernel_name = Fn.getName().str();
   auto source_name = getOrigFnNameOrFnName(Fn).str();
 
-  FixedOrScalableQuantity<uint32_t> sub_group_size;
-  if (compiler::utils::hasDegenerateSubgroups(Fn)) {
-    sub_group_size = FixedOrScalableQuantity<uint32_t>(0, /*scalable*/ false);
-  } else {
-    sub_group_size = FixedOrScalableQuantity<uint32_t>(getMuxSubgroupSize(Fn),
-                                                       /*scalable*/ false);
-    // Whole-function vectorization multiplies the apparent sub-group size. If
-    // the function doesn't explicitly use sub-groups, though, then keep the
-    // size at the mux sub-group size as it's legally compatible with more
-    // work-group sizes.
-    if (auto vf_info = parseWrapperFnMetadata(Fn);
-        !hasNoExplicitSubgroups(Fn) && vf_info) {
-      const VectorizationFactor vf = vf_info->first.vf;
-      sub_group_size = FixedOrScalableQuantity<uint32_t>(
-          sub_group_size.getFixedValue() * vf.getKnownMin(), vf.isScalable());
-    }
+  auto sub_group_size =
+      FixedOrScalableQuantity<uint32_t>(getMuxSubgroupSize(Fn),
+                                        /*scalable*/ false);
+  // Whole-function vectorization multiplies the apparent sub-group size. If
+  // the function doesn't explicitly use sub-groups, though, then keep the
+  // size at the mux sub-group size as it's legally compatible with more
+  // work-group sizes.
+  if (auto vf_info = parseWrapperFnMetadata(Fn);
+      !hasNoExplicitSubgroups(Fn) && vf_info) {
+    const VectorizationFactor vf = vf_info->first.vf;
+    sub_group_size = FixedOrScalableQuantity<uint32_t>(
+        sub_group_size.getFixedValue() * vf.getKnownMin(), vf.isScalable());
   }
   return Result(kernel_name, source_name, local_memory_usage, sub_group_size);
 }
@@ -67,7 +63,7 @@ PreservedAnalyses GenericMetadataPrinterPass::run(Function &F,
   return PreservedAnalyses::all();
 }
 
-Printable printVectorizeMD(const handler::VectorizeInfoMetadata &MD) {
+static Printable printVectorizeMD(const handler::VectorizeInfoMetadata &MD) {
   return Printable([MD](raw_ostream &Out) {
     Out << printGenericMD(MD);
     Out << "Min Work Width: " << print(MD.min_work_item_factor) << "\n";

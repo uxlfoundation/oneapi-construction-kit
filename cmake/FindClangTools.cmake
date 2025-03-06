@@ -108,8 +108,8 @@ foreach(component ${ClangTools_FIND_COMPONENTS})
 
       if(result EQUAL 0)
         # Strip all non-version text from the output, we only care about the
-        # <major>.<minor> version components.
-        string(REGEX MATCH "[0-9]+\\.[0-9]+" version_string ${version_string})
+        # <major> version component.
+        string(REGEX MATCH "[0-9]+" version_string ${version_string})
         if(version_string VERSION_EQUAL ClangTools_FIND_VERSION)
           # Success, found the correct version of the component.
           set(ClangTools_${component}_FOUND TRUE)

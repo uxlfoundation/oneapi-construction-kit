@@ -97,7 +97,7 @@ struct fmod_helper {
       const SLongType cond = i >= loop_info<T>::shift;
       const ULongType temp = ansMant << loop_info<T>::shift;
       const ULongType r = temp / mMantFudged;
-      ansMant = __abacus_select(ansMant, temp - r * mMantFudged, cond);
+      ansMant = __abacus_select(ansMant, temp - (r * mMantFudged), cond);
       quotient = __abacus_select(quotient,
                                  (quotient << loop_info<T>::shift) + r, cond);
       i = __abacus_select(i, i - loop_info<T>::shift, cond);

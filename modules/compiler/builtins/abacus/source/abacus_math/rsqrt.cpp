@@ -97,7 +97,7 @@ struct helper<T, abacus_float> {
     //                        (x * 2^24)
     T processedX = __abacus_select(
         x,
-        abacus::detail::cast::as<T>(xUint | hiddenBit) * 16777216.0f -
+        (abacus::detail::cast::as<T>(xUint | hiddenBit) * 16777216.0f) -
             __abacus_as_float(0x0C800000),
         xSmall);
 

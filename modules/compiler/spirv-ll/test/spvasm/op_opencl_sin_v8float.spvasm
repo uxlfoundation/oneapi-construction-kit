@@ -38,7 +38,7 @@
 ; CHECK: define spir_kernel void @sin_v8float()
                    %2 = OpLabel
                    %3 = OpExtInst %v8float_t %1 sin %v8float_1
-; CHECK: = call spir_func <8 x float> @_Z3sinDv8_f(<8 x float> <float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000, float 0x3FF91EB860000000>)
+; CHECK: = call spir_func <8 x float> @_Z3sinDv8_f(<8 x float> {{<(float 0x3FF91EB860000000(, )?)+>|splat \(float 0x3FF91EB860000000\)}})
                         OpReturn
 ; CHECK: ret void
                         OpFunctionEnd

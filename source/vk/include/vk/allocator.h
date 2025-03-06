@@ -233,7 +233,7 @@ class cargo_allocator {
   ///
   /// @param allocation Allocation to deallocate.
   void free(pointer allocation) {
-    pAllocator->pfnFree(pAllocator->pUserData, allocation);
+    pAllocator->pfnFree(pAllocator->pUserData, static_cast<void *>(allocation));
   }
 
   /// @brief Allocate space for and construct an object.

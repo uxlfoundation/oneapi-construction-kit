@@ -95,12 +95,12 @@ struct Simple {
 };
 
 // SPIR-V CTS tests copied into UnitCL to test regression on CA-1526
-std::ostream &operator<<(std::ostream &stream, const Simple &data) {
+static std::ostream &operator<<(std::ostream &stream, const Simple &data) {
   stream << "{" << data.a << ", " << data.b << "}";
   return stream;
 }
 
-bool operator==(const Simple &lhs, const Simple &rhs) {
+static bool operator==(const Simple &lhs, const Simple &rhs) {
   return lhs.a == rhs.a && lhs.b == rhs.b;
 }
 

@@ -50,8 +50,7 @@ TEST_F(clCreateCommandQueueTest, WithBadProperties) {
   cl_int errcode;
   const auto all_valid_properties = static_cast<cl_command_queue_properties>(
       CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE);
-  const auto properties =
-      static_cast<cl_command_queue_properties>(~all_valid_properties);
+  const auto properties = ~all_valid_properties;
   EXPECT_FALSE(clCreateCommandQueue(context, device, properties, &errcode));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, errcode);
 }

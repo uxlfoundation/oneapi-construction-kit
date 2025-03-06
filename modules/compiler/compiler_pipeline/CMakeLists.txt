@@ -27,7 +27,6 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/compute_local_memory_usage_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/define_mux_builtins_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/define_mux_dma_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/degenerate_sub_group_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/device_info.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/dma.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/encode_builtin_range_metadata_pass.h
@@ -79,7 +78,6 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/compute_local_memory_usage_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/define_mux_builtins_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/define_mux_dma_pass.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/degenerate_sub_group_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/dma.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_builtin_range_metadata_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/encode_kernel_metadata_pass.cpp

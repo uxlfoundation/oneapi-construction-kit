@@ -314,7 +314,7 @@ void initializePassMachineryForFinalize(
 
 void HostModule::initializePassMachineryForFinalize(
     compiler::utils::PassMachinery &passMach) const {
-  return host::initializePassMachineryForFinalize(passMach, getHostTarget());
+  host::initializePassMachineryForFinalize(passMach, getHostTarget());
 }
 
 }  // namespace host

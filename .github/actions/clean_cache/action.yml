@@ -1,0 +1,49 @@
+name: clean up caches
+description: Clean up various caches
+
+inputs:
+  cache_prefixes:
+    description: 'cache prefixes to delete'
+  token:
+    description: 'token for gh'
+  dry_run:
+    description: 'perform everything but the actual delete'
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: set up secret ubuntu
+      shell: bash
+      run:
+        echo "GH_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
+    - name: clean cache
+      shell: bash
+      run: |
+        set -x
+        echo Cache branch name is main
+        # Define args for gh cache commands
+        GH_LIST_ARGS="-r refs/heads/main -L 100 --order desc --sort created_at"
+        echo CACHE PREFIXES FOR CLEANING ... ${{ inputs.cache_prefixes }}
+        # Generate current cache list for main, newest first (note: 100 cache entries is gh maximum)
+        echo CACHE LIST BEFORE ...
+        gh cache list $GH_LIST_ARGS | tee CACHE_LIST
+
+        # Generate corresponding list of cache keys for deletion - retain only the newest key for each prefix
+        # key is first argument
+        for CACHE_PREFIX in ${{ inputs.cache_prefixes }}
+        do
+          grep -E -o "${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' | awk '{ print $1 }'
+        done > CCACHE_LIST
+
+        cat CCACHE_LIST
+
+        DELETE_LIST=$(cat CCACHE_LIST)
+        echo Ubuntu Delete List is $DELETE_LIST
+        for KEY in $DELETE_LIST ; do ${{ inputs.dry_run == 'true'  && 'echo' || '' }} gh cache delete $KEY ; done
+
+        # Generate post-clean list
+        echo CACHE LIST AFTER ...
+        gh cache list $GH_LIST_ARGS
+

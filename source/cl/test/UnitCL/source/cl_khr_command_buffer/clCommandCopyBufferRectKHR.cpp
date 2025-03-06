@@ -43,24 +43,24 @@ void copyBufferRect(const byte_vector &src_buffer, byte_vector &dst_buffer,
                     const Region &region, size_t src_row_pitch,
                     size_t src_slice_pitch, size_t dst_row_pitch,
                     size_t dst_slice_pitch) {
-  const size_t src_offset = src_origin[2] * src_slice_pitch +
-                            src_origin[1] * src_row_pitch + src_origin[0];
+  const size_t src_offset = (src_origin[2] * src_slice_pitch) +
+                            (src_origin[1] * src_row_pitch) + src_origin[0];
 
-  const size_t dst_offset = dst_origin[2] * dst_slice_pitch +
-                            dst_origin[1] * dst_row_pitch + dst_origin[0];
+  const size_t dst_offset = (dst_origin[2] * dst_slice_pitch) +
+                            (dst_origin[1] * dst_row_pitch) + dst_origin[0];
 
   auto src_position = src_buffer.data() + src_offset;
   auto dst_position = dst_buffer.data() + dst_offset;
 
   // for each slice.
   for (unsigned k = 0; k < region[2]; ++k) {
-    auto src_slice = src_position + k * src_slice_pitch;
-    auto dst_slice = dst_position + k * src_slice_pitch;
+    auto src_slice = src_position + (k * src_slice_pitch);
+    auto dst_slice = dst_position + (k * src_slice_pitch);
     // for each row.
     for (unsigned j = 0; j < region[1]; ++j) {
       // for each element.
-      auto src_row = src_slice + j * src_row_pitch;
-      auto dst_row = dst_slice + j * dst_row_pitch;
+      auto src_row = src_slice + (j * src_row_pitch);
+      auto dst_row = dst_slice + (j * dst_row_pitch);
       std::memcpy(dst_row, src_row, region[0]);
     }
   }
@@ -150,7 +150,7 @@ TEST_P(CommandCopyBufferRectParamTest, CopyArbitraryRect) {
 }
 
 // Choose parameters so that we get good coverage and catch some edge cases.
-std::vector<test_parameters> generateParameterizations() {
+static std::vector<test_parameters> generateParameterizations() {
   std::vector<test_parameters> parameterizations;
 #define PARAMETERIZATION(name, src_buffer_size, dst_buffer_size, src_origin,   \
                          dst_origin, region, src_row_pitch, src_slice_pitch,   \

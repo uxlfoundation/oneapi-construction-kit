@@ -295,12 +295,12 @@ class clCreateBufferHostPtr : public ucl::CommandQueueTest {
     EXPECT_TRUE(cl_buf_C);
     UCL_SUCCESS_OR_RETURN_ERR(errorcode);
 
-    UCL_SUCCESS_OR_RETURN_ERR(
-        clSetKernelArg(kernel, 0, sizeof(cl_buf_A), &cl_buf_A));
-    UCL_SUCCESS_OR_RETURN_ERR(
-        clSetKernelArg(kernel, 1, sizeof(cl_buf_B), &cl_buf_B));
-    UCL_SUCCESS_OR_RETURN_ERR(
-        clSetKernelArg(kernel, 2, sizeof(cl_buf_C), &cl_buf_C));
+    UCL_SUCCESS_OR_RETURN_ERR(clSetKernelArg(kernel, 0, sizeof(cl_buf_A),
+                                             static_cast<void *>(&cl_buf_A)));
+    UCL_SUCCESS_OR_RETURN_ERR(clSetKernelArg(kernel, 1, sizeof(cl_buf_B),
+                                             static_cast<void *>(&cl_buf_B)));
+    UCL_SUCCESS_OR_RETURN_ERR(clSetKernelArg(kernel, 2, sizeof(cl_buf_C),
+                                             static_cast<void *>(&cl_buf_C)));
 
     UCL_SUCCESS_OR_RETURN_ERR(
         clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &elements,

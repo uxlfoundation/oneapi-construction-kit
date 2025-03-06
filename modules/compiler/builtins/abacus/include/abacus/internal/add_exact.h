@@ -22,9 +22,9 @@
 
 namespace abacus {
 namespace internal {
+// Assumes exponent of x >= exponent of y
 template <typename T>
-inline T add_exact(const T x, const T y, T *out_remainder) {
-  // Assumes exponent of x >= exponent of y
+inline T add_exact_unsafe(const T x, const T y, T *out_remainder) {
   const T s = x + y;
   const T z = s - x;
 
@@ -34,15 +34,24 @@ inline T add_exact(const T x, const T y, T *out_remainder) {
 
 // Order of x and y does not matter
 template <typename T>
-inline void add_exact_safe(T *x, T *y) {
-  const T s = *x + *y;
-  const T a = s - *y;
+inline T add_exact(const T x, const T y, T *out_remainder) {
+  const T s = x + y;
+  const T a = s - y;
   const T b = s - a;
-  const T da = *x - a;
-  const T db = *y - b;
+  const T da = x - a;
+  const T db = y - b;
   const T t = da + db;
-  *x = s;
-  *y = t;
+
+  *out_remainder = t;
+  return s;
+}
+
+template <typename T>
+inline void add_exact_unsafe(T *x, T *y) {
+  T r1_lo{};
+  const T r1_hi = add_exact_unsafe<T>(*x, *y, &r1_lo);
+  *x = r1_hi;
+  *y = r1_lo;
 }
 
 template <typename T>

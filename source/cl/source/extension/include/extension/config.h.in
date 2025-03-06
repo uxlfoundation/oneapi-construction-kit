@@ -23,7 +23,6 @@
 
 /// @addtogroup cl_extension
 /// @{
-
 @generate_extension_defines@
 
 // Total count of all extensions

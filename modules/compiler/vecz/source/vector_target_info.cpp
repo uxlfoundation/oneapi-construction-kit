@@ -20,6 +20,7 @@
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/TargetParser/Triple.h>
+#include <multi_llvm/intrinsic.h>
 #include <multi_llvm/vector_type_helper.h>
 
 #include "debugging.h"
@@ -87,8 +88,6 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
 
   // Trivial case: contiguous load.
   ConstantInt *CIntStride = dyn_cast<ConstantInt>(Stride);
-  PointerType *VecPtrTy = Ty->getPointerTo(PtrTy->getAddressSpace());
-  Value *VecPtr = B.CreateBitCast(Ptr, VecPtrTy);
   if (CIntStride && CIntStride->getSExtValue() == 1) {
     if (EVL) {
       const Function *F = B.GetInsertBlock()->getParent();
@@ -100,11 +99,11 @@ Value *TargetInfo::createLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
         VECZ_FAIL();
       }
       auto *Mask = createAllTrueMask(B, multi_llvm::getVectorElementCount(Ty));
-      const SmallVector<llvm::Value *, 2> Args = {VecPtr, Mask, EVL};
-      const SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtr->getType()};
+      const SmallVector<llvm::Value *, 2> Args = {Ptr, Mask, EVL};
+      const SmallVector<llvm::Type *, 2> Tys = {Ty, Ptr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_load, Tys, Args);
     }
-    return B.CreateAlignedLoad(Ty, VecPtr, MaybeAlign(Alignment));
+    return B.CreateAlignedLoad(Ty, Ptr, MaybeAlign(Alignment));
   }
 
   if (EVL) {
@@ -156,8 +155,6 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
   // Trivial case: contiguous store.
   ConstantInt *CIntStride = dyn_cast<ConstantInt>(Stride);
   if (CIntStride && CIntStride->getSExtValue() == 1) {
-    PointerType *VecPtrTy = VecTy->getPointerTo(PtrTy->getAddressSpace());
-    Value *VecPtr = B.CreateBitCast(Ptr, VecPtrTy);
     if (EVL) {
       const Function *F = B.GetInsertBlock()->getParent();
       const auto Legality = isVPStoreLegal(F, VecTy, Alignment);
@@ -169,12 +166,12 @@ Value *TargetInfo::createStore(IRBuilder<> &B, Value *Data, Value *Ptr,
       }
       auto *Mask =
           createAllTrueMask(B, multi_llvm::getVectorElementCount(VecTy));
-      const SmallVector<llvm::Value *, 3> Args = {Data, VecPtr, Mask, EVL};
+      const SmallVector<llvm::Value *, 3> Args = {Data, Ptr, Mask, EVL};
       const SmallVector<llvm::Type *, 2> Tys = {Data->getType(),
-                                                VecPtr->getType()};
+                                                Ptr->getType()};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_store, Tys, Args);
     }
-    return B.CreateAlignedStore(Data, VecPtr, MaybeAlign(Alignment));
+    return B.CreateAlignedStore(Data, Ptr, MaybeAlign(Alignment));
   }
 
   if (EVL) {
@@ -230,8 +227,6 @@ Value *TargetInfo::createMaskedLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
 
   // Use LLVM intrinsics for masked vector loads.
   if (Ty->isVectorTy()) {
-    PtrTy = Ty->getPointerTo(PtrTy->getAddressSpace());
-    Ptr = B.CreateBitCast(Ptr, PtrTy);
     const Function *F = B.GetInsertBlock()->getParent();
     const auto Legality = isVPLoadLegal(F, Ty, Alignment);
     if (EVL && Legality.isVPLegal()) {
@@ -337,8 +332,6 @@ Value *TargetInfo::createMaskedStore(IRBuilder<> &B, Value *Data, Value *Ptr,
 
   // Use LLVM intrinsics for masked vector Stores.
   if (DataTy->isVectorTy()) {
-    PtrTy = DataTy->getPointerTo(PtrTy->getAddressSpace());
-    Ptr = B.CreateBitCast(Ptr, PtrTy);
     const Function *F = B.GetInsertBlock()->getParent();
     const auto Legality = isVPStoreLegal(F, DataTy, Alignment);
     if (EVL && Legality.isVPLegal()) {
@@ -505,7 +498,7 @@ Value *TargetInfo::createMaskedGatherLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
       const SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_gather, Tys, Args);
     } else if (Legality.isMaskLegal()) {
-      Function *MaskedGather = Intrinsic::getDeclaration(
+      Function *MaskedGather = multi_llvm::GetOrInsertIntrinsicDeclaration(
           F->getParent(), Intrinsic::masked_gather, {Ty, VecPtrTy});
 
       if (MaskedGather) {
@@ -603,7 +596,7 @@ Value *TargetInfo::createMaskedScatterStore(IRBuilder<> &B, Value *Data,
       const SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_scatter, Tys, Args);
     } else if (Legality.isMaskLegal()) {
-      Function *MaskedScatter = Intrinsic::getDeclaration(
+      Function *MaskedScatter = multi_llvm::GetOrInsertIntrinsicDeclaration(
           F->getParent(), Intrinsic::masked_scatter, {DataTy, VecPtrTy});
 
       if (MaskedScatter) {
@@ -692,14 +685,14 @@ Value *TargetInfo::createScalableExtractElement(IRBuilder<> &B,
   B.CreateStore(src, alloc);
 
   // Re-interpret the allocation as a pointer to the element type
-  auto *const eltptrTy = eltTy->getPointerTo();
+  auto *const eltptrTy = PointerType::get(eltTy, /*AddressSpace=*/0);
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
 
   const unsigned fixedVecElts =
       multi_llvm::getVectorNumElements(origSrc->getType());
 
-  Value *load = nullptr;
+  Instruction *load = nullptr;
   if (!index->getType()->isVectorTy()) {
     // If the index remains a scalar (is uniform) then we can use a strided load
     // starting from the address '&alloc[index]', strided by the original vector
@@ -713,8 +706,7 @@ Value *TargetInfo::createScalableExtractElement(IRBuilder<> &B,
         B.CreateInBoundsGEP(eltTy, bcastalloc, index, "vec.alloc");
 
     load = ::createInterleavedLoad(Ctx, narrowTy, gep, stride, /*Mask*/ nullptr,
-                                   /*EVL*/ nullptr, alignment.value(), "",
-                                   &*B.GetInsertPoint());
+                                   /*EVL*/ nullptr, alignment.value());
   } else {
     // Else if we've got a varying, vector index, then we must use a gather.
     // Take our indices, and add them to a step multiplied by the original
@@ -731,8 +723,9 @@ Value *TargetInfo::createScalableExtractElement(IRBuilder<> &B,
         B.CreateInBoundsGEP(eltTy, bcastalloc, index, "vec.alloc");
 
     load = ::createGather(Ctx, narrowTy, gep, /*Mask*/ nullptr, /*EVL*/ nullptr,
-                          alignment.value(), "", &*B.GetInsertPoint());
+                          alignment.value());
   }
+  load->insertBefore(B.GetInsertPoint());
 
   return load;
 }
@@ -776,7 +769,7 @@ Value *TargetInfo::createScalableBroadcast(IRBuilder<> &B, Value *vector,
 
   auto *const eltTy = cast<llvm::VectorType>(ty)->getElementType();
 
-  auto *const eltptrTy = eltTy->getPointerTo();
+  auto *const eltptrTy = PointerType::get(eltTy, /*AddressSpace=*/0);
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
   auto *const stepsRem = TargetInfo::createBroadcastIndexVector(
@@ -839,7 +832,7 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
   B.CreateStore(into, alloc);
 
   // Re-interpret the allocation as a pointer to the element type
-  auto *const eltptrTy = scalarTy->getPointerTo();
+  auto *const eltptrTy = PointerType::get(scalarTy, /*AddressSpace=*/0);
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
 
@@ -848,6 +841,7 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
 
   // Construct the index, either by packetizing if (if varying) or by
   // splatting it and combining it with a step vector
+  Instruction *store;
   if (!index->getType()->isVectorTy()) {
     // If the index remains a scalar (is uniform) then we can use a strided
     // store starting from the address '&alloc[index]', strided by the original
@@ -861,10 +855,8 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
     auto *const gep =
         B.CreateInBoundsGEP(scalarTy, bcastalloc, index, "vec.alloc");
 
-    Value *store = ::createInterleavedStore(
-        Ctx, elt, gep, stride, /*Mask*/ nullptr,
-        /*EVL*/ nullptr, alignment.value(), "", &*B.GetInsertPoint());
-    VECZ_FAIL_IF(!store);
+    store = ::createInterleavedStore(Ctx, elt, gep, stride, /*Mask*/ nullptr,
+                                     /*EVL*/ nullptr, alignment.value());
   } else {
     // Else if we've got a varying, vector index, then we must use a scatter.
     // Take our indices, and add them to a step multiplied by the original
@@ -886,11 +878,11 @@ Value *TargetInfo::createScalableInsertElement(IRBuilder<> &B,
     auto *const gep =
         B.CreateInBoundsGEP(scalarTy, bcastalloc, index, "vec.alloc");
 
-    Value *store = ::createScatter(Ctx, elt, gep, /*Mask*/ nullptr,
-                                   /*EVL*/ nullptr, alignment.value(), "",
-                                   &*B.GetInsertPoint());
-    VECZ_FAIL_IF(!store);
+    store = ::createScatter(Ctx, elt, gep, /*Mask*/ nullptr,
+                            /*EVL*/ nullptr, alignment.value());
   }
+  VECZ_FAIL_IF(!store);
+  store->insertBefore(B.GetInsertPoint());
 
   // Load the vector back from the stack
   return B.CreateLoad(intoTy, alloc);
@@ -915,9 +907,7 @@ TargetInfo::VPMemOpLegality TargetInfo::checkMemOpLegality(
   bool isVPLegal = isMaskLegal && isVPVectorLegal(*F, Ty);
   if (isVPLegal) {
     const unsigned PtrBitWidth =
-        TM_ ? TM_->createDataLayout().getPointerTypeSizeInBits(
-                  Ty->getPointerTo())
-            : 64;
+        TM_ ? TM_->createDataLayout().getPointerSizeInBits(/*AS=*/0) : 64;
     auto &Ctx = Ty->getContext();
     auto *const IntTy = IntegerType::get(Ctx, PtrBitWidth);
     auto *const IntVecTy =
@@ -982,7 +972,7 @@ llvm::Value *TargetInfo::createVectorShuffle(llvm::IRBuilder<> &B,
   auto *const eltTy = srcTy->getElementType();
 
   // Re-interpret the allocation as a pointer to the element type
-  auto *const eltptrTy = eltTy->getPointerTo();
+  auto *const eltptrTy = PointerType::get(eltTy, /*AddressSpace=*/0);
   auto *const bcastalloc =
       B.CreatePointerBitCastOrAddrSpaceCast(alloc, eltptrTy, "bcast.alloc");
 
@@ -1330,14 +1320,6 @@ unsigned TargetInfo::getVectorWidthForType(const llvm::TargetTransformInfo &TTI,
 bool TargetInfo::canPacketize(const llvm::Value *, ElementCount) const {
   return true;
 }
-
-namespace vecz {
-std::unique_ptr<TargetInfo> createTargetInfoArm(TargetMachine *tm);
-
-std::unique_ptr<TargetInfo> createTargetInfoAArch64(TargetMachine *tm);
-
-std::unique_ptr<TargetInfo> createTargetInfoRISCV(TargetMachine *tm);
-}  // namespace vecz
 
 std::unique_ptr<TargetInfo> vecz::createTargetInfoFromTargetMachine(
     TargetMachine *tm) {

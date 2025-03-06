@@ -28,7 +28,7 @@ void main() {
 // CHECK: ; ModuleID = '{{.*}}'
 // CHECK: = alloca <3 x i32>
 // CHECK: = alloca <3 x i32>
-// CHECK: store <3 x i32> <i32 -42, i32 -42, i32 -42>, ptr {{[%@].*}}
+// CHECK: store <3 x i32> {{<(i32 -42(, )?)+>|splat \(i32 -42\)}}, ptr {{[%@].*}}
 // CHECK: = load <3 x i32>, ptr {{[%@].*}}
 // CHECK: = call spir_func <3 x i32> @_Z8popcountDv3_i(<3 x i32> {{[%@].*}})
 // CHECK: store <3 x i32> {{[%@].*}}, ptr {{[%@].*}}

@@ -1,0 +1,102 @@
+name: run sycl cts
+description: run sycl cts
+
+inputs:
+  target:
+    description: 'target architecture'
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: download ock artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ock_${{inputs.target}}
+        path: install_ock
+
+    - name: download header artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: header_${{inputs.target}}
+        path: install_headers
+
+    - name: download SYCL-CTS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: sycl_cts_${{inputs.target}}
+        path: SYCL-CTS
+
+    - name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
+      shell: bash
+      run: |
+        cd SYCL-CTS
+        tar xf sycl-cts.tar
+        rm sycl-cts.tar
+
+    - name: download dpc++ artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_${{inputs.target}}
+        path: install_dpcpp
+
+    - name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
+      shell: bash
+      run: |
+        cd install_dpcpp
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+
+    - name: run sycl cts
+      shell: bash
+      env:
+        PREPEND_PATH: ''  # TODO: have qemu as input and set up this
+        SYCL_CTS_TIMEOUT: '02:00:00'
+        SYCL_CTS_FILTER: ''
+      run: |
+        echo running sycl cts
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
+        export ONEAPI_DEVICE_SELECTOR=opencl:0
+        export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
+
+        # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
+
+        # Build override file, all is done first, then the target specific. The last file can overwrite prevous overrides.
+        for csv in .github/sycl_cts/override_all.csv .github/sycl_cts/override_${{ inputs.target }}.csv
+        do
+           [ -f $csv ] && cat $csv
+        done > override.csv
+
+        echo OVERRIDE FILE:
+        cat override.csv
+
+        exitcode=0
+        set -x
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+          --color=always \
+          --timeout $SYCL_CTS_TIMEOUT \
+          $PREPEND_PATH \
+          -p sycl_cts \
+          -b SYCL-CTS/bin \
+          -L SYCL-CTS/lib \
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+          -s $CTS_CSV_FILE \
+          -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
+          -r SYCL-CTS/cts.xml \
+          -v \
+          -o override.csv \
+          $SYCL_CTS_FILTER || exitcode=$?
+
+        export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
+        $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
+        # output a diff of the generated list csv.txt and cts_all.txt
+        diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
+        exit $exitcode

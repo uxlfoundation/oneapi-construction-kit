@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <abacus/abacus_config.h>
+#include <abacus/abacus_math.h>
 #include <abacus/internal/sqrt.h>
 
 abacus_float ABACUS_API __abacus_half_sqrt(abacus_float x) {

@@ -471,8 +471,8 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
 
   // Polynomial approximation of gamma(x) / (exp(-x) * x^((0.5 * x) - 0.25))
   const abacus_float polynomial_extension =
-      (1.0f +
-       (-139.0f + (180.0f + 4320.0f * xx) * xx) / ((51840.f * xx) * (xx * xx)));
+      (1.0f + ((-139.0f + (180.0f + 4320.0f * xx) * xx) /
+               ((51840.f * xx) * (xx * xx))));
 
   result = result * polynomial_extension;
 

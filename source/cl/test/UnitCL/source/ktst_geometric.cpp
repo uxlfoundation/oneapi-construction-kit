@@ -251,7 +251,7 @@ unsigned GeometricParamExecution::GeometricFillBuffers(
     const cl_float low = -32.0f;
     const cl_float high = 32.0f;
 
-    const cl_float clamped = (1.0f - normalized) * low + normalized * high;
+    const cl_float clamped = ((1.0f - normalized) * low) + (normalized * high);
     return ConvertFloatToHalf(clamped);
   };
 
@@ -322,7 +322,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_01_Half_Dot) {
     // CTS uses an absolute error tolerance for 32-bit float dot validation, so
     // use the same here method
     const cl_float err_tolerance =
-        max_value * max_value * cl_float(2 * vec_width - 1);
+        max_value * max_value * cl_float((2 * vec_width) - 1);
 
     // Check for overflow in tolerance calculation which should be done in
     // same precision as we're testing, but fp16 isn't available on host.

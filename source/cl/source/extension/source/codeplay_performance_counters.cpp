@@ -151,8 +151,7 @@ cl_int extension::codeplay_performance_counters::GetEventProfilingInfo(
     if (auto mux_error = muxGetQueryPoolResults(
             event->queue->mux_queue, counter_queries, 0, counter_queries->count,
             sizeof(mux_query_counter_result_t) * counter_queries->count,
-            static_cast<mux_query_counter_result_t *>(param_value),
-            sizeof(mux_query_counter_result_t))) {
+            param_value, sizeof(mux_query_counter_result_t))) {
       return cl::getErrorFrom(mux_error);
     }
   }

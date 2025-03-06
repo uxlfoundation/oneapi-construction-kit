@@ -462,7 +462,7 @@ cmake llvm -G"Visual Studio 16 2019 Win64" ^
   -Bbuild-x86_64 ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-x86_64\install ^
-  -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64" ^
+  -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV" ^
   -DLLVM_ENABLE_PROJECTS=clang ^
 ```
 
@@ -741,7 +741,7 @@ Note that this is not part of the regular testing of OCK, but should work.
 All CMake cross-compilation configurations set `CMAKE_TOOLCHAIN_FILE` to inform
 CMake how to compile for the target architecture, this sets up various CMake
 variables which specify the locations of executables such as the C and C++
-compilers, assembler, linker, target file system root, etc.
+compilers, target file system root, etc.
 
 The examples provided should be sufficient to get up and running, for more fine
 grained control of how to compile the oneAPI Construction Kit consult the list of
@@ -761,32 +761,27 @@ LLVMNativeInstall=${CMAKE_INSTALL_PREFIX}
 
 ### Cross-compiling LLVM
 
-#### Cross-compiling LLVM from Upstream
-
 To cross-compile LLVM the appropriate CMake toolchain file from the oneAPI
-Construction Kit repository is required, the path to this will be specified
-by the `$ONEAPI_CON_KIT` variable in the following examples.
+Construction Kit repository may be used; the path to this repository will be
+specified by the `$ONEAPI_CON_KIT` variable in the following examples.
 
-##### Cross-compiling LLVM for Arm from Upstream
+##### Cross-compiling LLVM for ARM
 
-For cross-compilation targeting Arm only the `ARM` target back end is enabled.
-Run the following command to configure an LLVM build targeting Arm from the root
-of the repository.
+For cross-compilation targeting ARM, only the `ARM` target back end needs to be
+enabled. Run the following command to configure an LLVM build targeting ARM from
+the root of the LLVM repository.
 
 ```sh
-cmake . -GNinja \
+cmake llvm -GNinja \
   -Bbuild-arm \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/scripts/toolchains/arm-toolchain.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/platform/arm-linux/arm-toolchain.cmake \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-arm/install \
-  -DLLVM_TARGET_ARCH=ARM \
+  -DLLVM_HOST_TRIPLE=arm-unknown-linux-gnueabihf \
   -DLLVM_TARGETS_TO_BUILD=ARM \
-  -DLLVM_HOST_TRIPLE=arm-unknown-linux-gnu \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=arm-unknown-linux-gnu \
-  -DLLVM_ENABLE_ZLIB=OFF \
-  -DLLVM_ENABLE_ZSTD=OFF \
-  -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
-  -DCLANG_TABLEGEN=$LLVMNativeBuild/bin/clang-tblgen
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_BUILD_LLVM_DYLIB=ON \
+  -DLLVM_LINK_LLVM_DYLIB=ON
 ```
 
 Now the build directory is configured, build the `install` target.
@@ -795,26 +790,23 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-arm install
 ```
 
-##### Cross-compiling LLVM for AArch64 from Upstream
+##### Cross-compiling LLVM for AArch64
 
-For cross-compilation targeting AArch64 only the `AArch64` target back end is
-enabled. Run the following command to configure an LLVM build targeting Arm from
-the root of the repository.
+For cross-compilation targeting AArch64 only the `AArch64` target back end needs
+to be enabled. Run the following command to configure an LLVM build targeting
+AArch64 from the root of the repository.
 
 ```sh
-cmake . -GNinja \
+cmake llvm -GNinja \
   -Bbuild-aarch64 \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/scripts/toolchains/aarch64-toolchain.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/platform/arm-linux/aarch64-toolchain.cmake \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-aarch64/install \
-  -DLLVM_TARGET_ARCH=AArch64 \
-  -DLLVM_TARGETS_TO_BUILD=AArch64 \
   -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu \
-  -DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-unknown-linux-gnu \
-  -DLLVM_ENABLE_ZLIB=OFF \
-  -DLLVM_ENABLE_ZSTD=OFF \
-  -DLLVM_TABLEGEN=$LLVMNativeInstall/bin/llvm-tblgen \
-  -DCLANG_TABLEGEN=$LLVMNativeBuild/bin/clang-tblgen
+  -DLLVM_TARGETS_TO_BUILD=AArch64 \
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_BUILD_LLVM_DYLIB=ON \
+  -DLLVM_LINK_LLVM_DYLIB=ON
 ```
 
 Now the build directory is configured, build the `install` target.
@@ -823,21 +815,70 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-aarch64 install
 ```
 
+##### Cross-compiling LLVM for RISC-V
+
+For cross-compilation targeting RISC-V only the `RISCV` target back end needs
+to be enabled. Run the following command to configure an LLVM build targeting
+AArch64 from the root of the repository.
+
+```sh
+cmake llvm -GNinja \
+  -Bbuild-riscv64 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_TOOLCHAIN_FILE=$ONEAPI_CON_KIT/platform/riscv64-linux/riscv64-gcc-toolchain.cmake \
+  -DCMAKE_INSTALL_PREFIX=$PWD/build-riscv64/install \
+  -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu \
+  -DLLVM_TARGETS_TO_BUILD=RISCV \
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_BUILD_LLVM_DYLIB=ON \
+  -DLLVM_LINK_LLVM_DYLIB=ON
+```
+
+Now the build directory is configured, build the `install` target.
+
+```sh
+ninja -C build-riscv64 install
+```
+
 ### Cross-compiling the oneAPI Construction Kit
 
-Cross-compiling the oneAPI Construction Kit requires a LLVM install to link
+Cross-compiling the oneAPI Construction Kit requires an LLVM install to link
 against, follow the [LLVM guide](#cross-compiling-llvm) to build a suitable
 install, the `$LLVMInstall` variable specifies the path to this install.
 
 oneAPI Construction Kit uses tools from an LLVM install during the build
-process. For a native x86_64 build no additional install is required, although
-build times can be [improved](#compiling-debug-oneapi-construction-kit-on-linux)
-by doing so. For cross-compilation a native LLVM install is also required, the
-`$LLVMNativeInstall` variable specifies the path to this install.
+process. For this, an additional native LLVM install is usually required, and
+even when not required, build times can be improved by providing one.
 
-#### Cross-compiling the oneAPI Construction Kit for Arm
+#### Compiling the native LLVM
 
-Configure an Arm cross-compile build using the following command.
+For building the native LLVM, no specific target back end needs to be enabled.
+However, it is important for the `LLVM_ENABLE_ZLIB` and `LLVM_ENABLE_ZSTD`
+settings to not be enabled unless the cross-compiled LLVM is also built with
+support for this.
+
+```sh
+cmake llvm -GNinja \
+  -Bbuild-native \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=$PWD/build-native/install \
+  -DLLVM_TARGETS_TO_BUILD= \
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_ENABLE_ZLIB=OFF \
+  -DLLVM_ENABLE_ZSTD=OFF \
+  -DLLVM_BUILD_LLVM_DYLIB=ON \
+  -DLLVM_LINK_LLVM_DYLIB=ON
+```
+
+Now the build directory is configured, build the `install` target.
+
+```sh
+ninja -C build-native install
+```
+
+#### Cross-compiling the oneAPI Construction Kit for ARM
+
+Configure an ARM cross-compile build using the following command.
 
 ```sh
 cmake . -GNinja \
@@ -855,10 +896,9 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-arm install
 ```
 
-If `qemu-arm` is installed on the system `arm-toolchain.cmake` will
-automatically detect it and set the `CMAKE_CROSSCOMPILING_EMULATOR` variable,
-the oneAPI Construction Kit uses this to enable emulated testing using the
-`check` target.
+The provided `arm-toolchain.cmake` will set the `CMAKE_CROSSCOMPILING_EMULATOR`
+variable to `qemu-arm`; if available, the oneAPI Construction Kit can use this
+to enable emulated testing using the `check` target.
 
 ```sh
 ninja -C build-arm check
@@ -884,13 +924,47 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-aarch64 install
 ```
 
-If `qemu-aarch64` is installed on the system `aarch64-toolchain.cmake` will
-automatically detect it and set the `CMAKE_CROSSCOMPILING_EMULATOR` variable,
-the oneAPI Construction Kit uses this to enable emulated testing using the
+The provided `aarch64-toolchain.cmake` will set the
+`CMAKE_CROSSCOMPILING_EMULATOR` variable to `qemu-aarch64`; if available, the
+oneAPI Construction Kit can use this to enable emulated testing using the
 `check` target.
 
 ```sh
 ninja -C build-aarch64 check
+```
+
+#### Cross-compiling the oneAPI Construction Kit for RISC-V
+
+Configure a RISC-V 64-bit cross-compile build using the following command.
+
+```sh
+cmake . -GNinja \
+  -Bbuild-riscv64 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_TOOLCHAIN_FILE=$PWD/platform/riscv64-linux/riscv64-gcc-toolchain.cmake \
+  -DCMAKE_INSTALL_PREFIX=$PWD/build-riscv64/install \
+  -DCA_LLVM_INSTALL_DIR=$LLVMInstall \
+  -DCA_BUILTINS_TOOLS_DIR=$LLVMNativeInstall/bin
+```
+
+This uses the [default platform settings for `riscv64-linux-gnu`](https://wiki.debian.org/RISC-V#Hardware_baseline_and_ABI_choice)
+which is `RV64GC`. To enable additional extensions by default, such as RVV, the
+`CA_HOST_TARGET_RISCV64_FEATURES` variable may additionally be set in the above
+command.
+
+Now the build directory is configured, build the `install` target.
+
+```sh
+ninja -C build-riscv64 install
+```
+
+The provided `riscv64-gcc-toolchain.cmake` will set the
+`CMAKE_CROSSCOMPILING_EMULATOR` variable to `qemu-riscv64`; if available, the
+oneAPI Construction Kit can use this to enable emulated testing using the
+`check` target.
+
+```sh
+ninja -C build-riscv64 check
 ```
 
 #### Cross-compiling the oneAPI Construction Kit for Windows with the MinGW toolchain

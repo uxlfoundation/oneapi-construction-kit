@@ -95,13 +95,13 @@ ElfFile::Section ElfFile::section(size_t index) {
   CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
   void *start;
   if (is32Bit()) {
-    start = reinterpret_cast<void *>(bytes.begin() +
-                                     field(header32()->section_header_offset) +
-                                     index * field(header32()->sht_entry_size));
+    start = reinterpret_cast<void *>(
+        bytes.begin() + field(header32()->section_header_offset) +
+        (index * field(header32()->sht_entry_size)));
   } else {
-    start = reinterpret_cast<void *>(bytes.begin() +
-                                     field(header64()->section_header_offset) +
-                                     index * field(header64()->sht_entry_size));
+    start = reinterpret_cast<void *>(
+        bytes.begin() + field(header64()->section_header_offset) +
+        (index * field(header64()->sht_entry_size)));
   }
   return Section(this, start);
 }
@@ -129,7 +129,7 @@ loader::SymbolIteratorPair ElfFile::symbols() {
 ElfFile::Symbol ElfFile::symbol(size_t index) {
   CARGO_ASSERT(index < symbolCount(), "Symbol index out of bounds");
   return Symbol(this, symbol_section->data().begin() +
-                          symbol_section->entrySize() * index);
+                          (symbol_section->entrySize() * index));
 }
 
 cargo::optional<ElfFile::Symbol> ElfFile::symbol(cargo::string_view name) {
