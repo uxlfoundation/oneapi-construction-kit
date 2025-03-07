@@ -47,20 +47,20 @@ endif()
 # Add our cmake modules directory to the cmake include path including
 # LLVM/Clang.
 string(REPLACE "\\" "/" CA_LLVM_INSTALL_DIR "${CA_LLVM_INSTALL_DIR}")
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake")
+if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm/LLVMConfig.cmake")
   message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake' does not exist"
+    "'${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm/LLVMConfig.cmake' does not exist"
     " (search path set with CA_LLVM_INSTALL_DIR)")
 endif()
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake")
+if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangTargets.cmake")
   message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib/cmake/clang/ClangTargets.cmake' does not exist"
+    "'${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangTargets.cmake' does not exist"
     " (search path set with CA_LLVM_INSTALL_DIR)")
 endif()
 list(APPEND CMAKE_MODULE_PATH
-  ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm
-  ${CA_LLVM_INSTALL_DIR}/lib/cmake/clang)
-set(LLVM_DIR ${CA_LLVM_INSTALL_DIR}/lib/cmake/llvm)
+  ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm
+  ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang)
+set(LLVM_DIR ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm)
 
 # Include LLVM.
 include(LLVMConfig)
