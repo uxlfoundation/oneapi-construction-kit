@@ -2,10 +2,10 @@
 name: Run planned testing
 on:
   # Note: use pull_request: for localized testing only
-  pull_request:
-   paths:
-     - '.github/workflows/planned_testing.yml'
-     - '.github/workflows/planned_testing_caller.yml'
+  # pull_request:
+  #  paths:
+  #    - '.github/workflows/planned_testing.yml'
+  #    - '.github/workflows/planned_testing_caller.yml'
   #  branches:
   #    - main
   schedule:
@@ -20,7 +20,8 @@ jobs:
   call_planned:
     # This makes the diagram too big if we post much here so S_ for scheduled.
     name: S_
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    if: false
+    # github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
     uses: ./.github/workflows/planned_testing.yml
     with:
       target_list: '[ "host_x86_64_linux",

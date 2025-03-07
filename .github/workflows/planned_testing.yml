@@ -42,6 +42,10 @@ on:
         required: false
         type: string
         default: ''
+      llvm_source:
+        required: false
+        type: string
+        default: 'cache'
 
 permissions:
   packages: read
@@ -135,6 +139,7 @@ jobs:
              ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
+    # runs-on: ubuntu-22.04
     if: inputs.ock && contains(inputs.target_list, 'linux')
     steps:
       - name: Checkout repo
@@ -150,6 +155,7 @@ jobs:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
+          llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
     if: inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts
