@@ -219,7 +219,7 @@ jobs:
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
+    #if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
     if: false
     runs-on: ubuntu-22.04
     container:
