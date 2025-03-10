@@ -83,8 +83,8 @@ runs:
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
 
-    - name: install llvm native
-      if: inputs.llvm_source == 'install'
+    - name: install llvm native ubuntu
+      if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
         set -x
@@ -94,6 +94,27 @@ runs:
         sudo apt install -y libpolly-${{ inputs.llvm_version }}-dev clang-${{ inputs.llvm_version }}
 
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
+
+    - name: install llvm native windows
+      #if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      if: false
+      shell: pwsh
+      run: |
+        Start-Process -FilePath "C:\Program Files\LLVM\Uninstall.exe" -ArgumentList "/S" -Wait
+        dir "C:\Program Files"
+        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -OutFile LLVM-19.1.7-win64.exe
+        dir .\LLVM-19.1.7-win64.exe
+        #Unblock-File -Path  .\LLVM-19.1.7-win64.exe
+        Start-Process -FilePath ".\LLVM-19.1.7-win64.exe" -ArgumentList "/S" -Wait
+        # C:\Program Files\LLVM
+
+    - name: install llvm native windows
+      if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      shell: cmd
+      run: |
+        curl https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -o LLVM-19.1.7-win64.exe
+        dir .\LLVM-19.1.7-win64.exe
+        .\LLVM-19.1.7-win64.exe /S
 
     - shell: bash
       if: inputs.cross_arch != 'none'    
