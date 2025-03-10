@@ -84,7 +84,7 @@ runs:
         fail-on-cache-miss: true
 
     - name: install llvm native ubuntu
-      if: ${{ inputs.os == 'ubuntu' }} && inputs.llvm_source == 'install'
+      if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
         set -x
@@ -96,7 +96,7 @@ runs:
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
 
     - name: install llvm native windows
-      if: ${{ inputs.os == 'windows' }} && inputs.llvm_source == 'install'
+      if: inputs.os == 'windows' && inputs.llvm_source == 'install'
       shell: pwsh
       run: |
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -OutFile LLVM-19.1.7-win64.exe
