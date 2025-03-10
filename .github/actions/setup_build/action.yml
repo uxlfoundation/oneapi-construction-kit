@@ -114,9 +114,7 @@ runs:
       run: |
         curl https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -o LLVM-19.1.7-win64.exe
         dir .\LLVM-19.1.7-win64.exe
-        #Unblock-File -Path  .\LLVM-19.1.7-win64.exe
         .\LLVM-19.1.7-win64.exe /S
-        # C:\Program Files\LLVM
 
     - shell: bash
       if: inputs.cross_arch != 'none'    
