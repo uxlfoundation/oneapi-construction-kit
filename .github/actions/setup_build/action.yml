@@ -101,10 +101,10 @@ runs:
       run: |
         Start-Process -FilePath "C:\Program Files\LLVM\Uninstall.exe" -ArgumentList "/S" -Wait
         dir "C:\Program Files"
-        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win32.exe -OutFile LLVM-19.1.7-win32.exe
-        dir .\LLVM-19.1.7-win32.exe
+        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -OutFile LLVM-19.1.7-win64.exe
+        dir .\LLVM-19.1.7-win64.exe
         #Unblock-File -Path  .\LLVM-19.1.7-win64.exe
-        Start-Process -FilePath ".\LLVM-19.1.7-win32.exe" -ArgumentList "/S" -Wait
+        Start-Process -FilePath ".\LLVM-19.1.7-win64.exe" -ArgumentList "/S" -Wait
         # C:\Program Files\LLVM
 
     - shell: bash
