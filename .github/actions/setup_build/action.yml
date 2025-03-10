@@ -101,8 +101,7 @@ runs:
       run: |
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -OutFile LLVM-19.1.7-win64.exe
         dir .\LLVM-19.1.7-win64.exe
-        UseShellExecute = true
-        & .\LLVM-19.1.7-win64.exe /S /D=.\llvm_install
+        & ".\LLVM-19.1.7-win64.exe" /S /D=.\llvm_install
         dir .\llvm_install
         # C:\Program Files\LLVM
 
