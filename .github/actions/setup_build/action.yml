@@ -99,14 +99,14 @@ runs:
       if: inputs.os == 'windows' && inputs.llvm_source == 'install'
       shell: pwsh
       run: |
-        Start-Process -FilePath "c:\program files\LLVM\uninstall.exe"
+        Start-Process -FilePath "c:\program files\LLVM\uninstall.exe" -Wait
         dir "c:\program files"
         dir "c:\program files\LLVM"
         dir .
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -OutFile LLVM-19.1.7-win64.exe
         dir .\LLVM-19.1.7-win64.exe
         Unblock-File -Path  .\LLVM-19.1.7-win64.exe
-        Start-Process -FilePath ".\LLVM-19.1.7-win64.exe" -ArgumentList "/S"
+        Start-Process -FilePath ".\LLVM-19.1.7-win64.exe" -ArgumentList "/S" -Wait
         # C:\Program Files\LLVM
 
     - shell: bash
