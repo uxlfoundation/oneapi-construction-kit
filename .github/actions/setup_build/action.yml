@@ -96,7 +96,8 @@ runs:
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
 
     - name: install llvm native windows
-      if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      #if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      if: false
       shell: pwsh
       run: |
         Start-Process -FilePath "C:\Program Files\LLVM\Uninstall.exe" -ArgumentList "/S" -Wait
@@ -105,6 +106,16 @@ runs:
         dir .\LLVM-19.1.7-win64.exe
         #Unblock-File -Path  .\LLVM-19.1.7-win64.exe
         Start-Process -FilePath ".\LLVM-19.1.7-win64.exe" -ArgumentList "/S" -Wait
+        # C:\Program Files\LLVM
+
+    - name: install llvm native windows
+      if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      shell: cmd
+      run: |
+        curl https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/LLVM-19.1.7-win64.exe -o LLVM-19.1.7-win64.exe
+        dir .\LLVM-19.1.7-win64.exe
+        #Unblock-File -Path  .\LLVM-19.1.7-win64.exe
+        .\LLVM-19.1.7-win64.exe /S
         # C:\Program Files\LLVM
 
     - shell: bash
