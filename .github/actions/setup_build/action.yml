@@ -104,7 +104,7 @@ runs:
         cd llvm_install
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
         ls
-        7z.exe x .\clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
+        7z x clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
         rm clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
         ls
 
