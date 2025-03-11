@@ -102,10 +102,11 @@ runs:
       run: |
         mkdir llvm_install
         cd llvm_install
-        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/tag/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
-        7z.exe x .\clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
+        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
         ls
+        7z.exe x .\clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
         rm clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
+        ls
 
     - shell: bash
       if: inputs.cross_arch != 'none'    
