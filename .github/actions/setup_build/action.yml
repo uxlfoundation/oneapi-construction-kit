@@ -101,10 +101,10 @@ runs:
       shell: pwsh
       run: |
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz
-        ls
         7z x clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
         mv clang+llvm-19.1.7-x86_64-pc-windows-msvc llvm_install
-        ls llvm_install
+        ls -R llvm_install
+        ls -R "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/"
 
     - shell: bash
       if: inputs.cross_arch != 'none'    
