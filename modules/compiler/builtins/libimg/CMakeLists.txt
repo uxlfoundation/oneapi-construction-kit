@@ -88,6 +88,8 @@ target_include_directories(image_library_host SYSTEM PUBLIC
   "${CODEPLAY_IMG_OPENCL_INCLUDE_DIR}")
 target_compile_options(image_library_host
   PRIVATE ${CA_COMPILE_OPTIONS})
+set_target_properties(image_library_host PROPERTIES
+  COMPILE_WARNING_AS_ERROR ${CA_COMPILE_WARNING_AS_ERROR})
 
 target_compile_definitions(image_library_host
   PUBLIC CL_TARGET_OPENCL_VERSION=${CA_CL_STANDARD_INTERNAL}
