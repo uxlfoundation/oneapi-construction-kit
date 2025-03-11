@@ -190,6 +190,7 @@ jobs:
           llvm_build_type: RelAssert
           os: windows
           #llvm_source: cache
+          # Allow for swapping: install <=> cache
           llvm_source: ${{ inputs.llvm_source}}
 
       - name: build and test ock
