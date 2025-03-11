@@ -186,7 +186,8 @@ jobs:
       - name: setup-windows
         uses: ./.github/actions/setup_build
         with:
-          llvm_version: 19
+          llvm_cache_version: 19
+          llvm_install_version: 19.1.7
           llvm_build_type: RelAssert
           os: windows
           #llvm_source: cache
