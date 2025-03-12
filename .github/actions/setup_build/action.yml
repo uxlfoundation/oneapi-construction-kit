@@ -108,7 +108,7 @@ runs:
         mv LLVM-${{ inputs.llvm_install_version }}-Linux-X64 llvm_install
         ls -l llvm_install
         sudo apt update
-        sudo apt install zstd
+        sudo apt install -y libzstd-dev
 
     - name: install llvm native windows
       if: inputs.os == 'windows' && inputs.llvm_source == 'install'
