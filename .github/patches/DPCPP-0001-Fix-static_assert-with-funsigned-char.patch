@@ -1,0 +1,31 @@
+From c84bf4651cbcbe743ba7f043560b0cd210a66347 Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Mon, 24 Feb 2025 10:43:38 +0000
+Subject: [PATCH] Fix static_assert with -funsigned-char
+
+The type of (ext_vector<int8_t, 2>{1, 0} == 0)[1] has type char, not
+int8_t, and therefore depending on whether -funsigned-char is in effect
+may either have the value -1 or have the value 255. Cast to int8_t to
+ensure it always gets taken as signed. This is only needed for the
+static_assert: the rest of the code already works for signed and
+unsigned plain char alike.
+---
+ sycl/include/sycl/detail/vector_arith.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sycl/include/sycl/detail/vector_arith.hpp b/sycl/include/sycl/detail/vector_arith.hpp
+index aad90aa83379..ab374c06e4bd 100644
+--- a/sycl/include/sycl/detail/vector_arith.hpp
++++ b/sycl/include/sycl/detail/vector_arith.hpp
+@@ -265,7 +265,7 @@ template <typename Self> struct VecOperators {
+           // ensure we generate 0/1 only (and not 2/-1/etc.).
+ #if __clang_major__ >= 20
+           // Not an integral constant expression prior to clang-20.
+-          static_assert((ext_vector<int8_t, 2>{1, 0} == 0)[1] == -1);
++          static_assert(int8_t((ext_vector<int8_t, 2>{1, 0} == 0)[1]) == -1);
+ #endif
+ 
+           tmp = reinterpret_cast<decltype(tmp)>((tmp != 0) * -1);
+-- 
+2.45.2
+
