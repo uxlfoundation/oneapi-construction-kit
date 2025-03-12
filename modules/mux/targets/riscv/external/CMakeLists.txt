@@ -18,7 +18,7 @@ if(DEFINED HAL_DESCRIPTION)
   set (DEFAULT_ISA "${HAL_DESCRIPTION}" CACHE STRING "Take DEFAULT_ISA from HAL_DESCRIPTION")
 endif()
 
-set(RISCV_TOOLCHAIN_DIR "${CA_LLVM_INSTALL_DIR}" CACHE PATH
+set(RISCV_TOOLCHAIN_DIR "${LLVM_INSTALL_PREFIX}" CACHE PATH
   "Path to the clang RISC-V toolchain")
 
 # Iterate through all 'hal_*' sub-directories.

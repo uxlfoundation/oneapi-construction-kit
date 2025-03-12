@@ -60,7 +60,7 @@ else()
 endif()
 
 # Add LLVM install directory to the path since it ships with git-clang-format.
-list(APPEND PATH ${CA_LLVM_INSTALL_DIR}/bin)
+list(APPEND PATH ${LLVM_TOOLS_BINARY_DIR})
 
 foreach(path ${PATH})
   # Find all git-clang-format entries of the following forms:

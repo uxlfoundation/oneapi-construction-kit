@@ -44,8 +44,6 @@ ca_option(CA_HOST_CROSS_COMPILERS STRING
   capitals.
 #]=======================================================================]
 
-add_subdirectory(builtins)
-
 set(HOST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/compiler_kernel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/host/info.h
@@ -69,7 +67,6 @@ add_ca_library(compiler-host STATIC ${HOST_SOURCES}
 
 target_include_directories(compiler-host PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/builtins/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/source/base/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/compiler/builtins/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/utils/include>
@@ -85,10 +82,6 @@ if(CA_HOST_ENABLE_FP64)
 endif()
 if(CA_HOST_ENABLE_FP16)
   target_compile_definitions(compiler-host PRIVATE CA_HOST_ENABLE_FP16)
-endif()
-
-if(TARGET builtins-host)
-  add_dependencies(compiler-host builtins-host)
 endif()
 
 target_link_libraries(compiler-host PUBLIC

@@ -104,10 +104,8 @@ set(LLVM_LIBS "LLVMCodeGen" "LLVMCoroutines" "LLVMCoverage"
 # In-tree, we should have each of these library targets available.
 # Otherwise, we have to provide the full path to them.
 if(NOT OCK_IN_LLVM_TREE)
-  list(TRANSFORM CLANG_LIBS
-       PREPEND "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}")
-  list(TRANSFORM CLANG_LIBS
-       APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  list(TRANSFORM CLANG_LIBS PREPEND "${LLVM_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}")
+  list(TRANSFORM CLANG_LIBS APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 target_link_libraries(compiler-base PUBLIC

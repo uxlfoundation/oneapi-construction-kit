@@ -1355,7 +1355,7 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     # when passed on the command line. We have to call it something else
     # because it's special
     CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
-    CA_LLVM_TOOLS_DIR=${CA_LLVM_INSTALL_DIR}/bin
+    CA_LLVM_TOOLS_DIR=${LLVM_TOOLS_BINARY_DIR}
     CA_BUILTINS_TOOLS_DIR=${CA_BUILTINS_TOOLS_DIR}
     CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}}
     LLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR}

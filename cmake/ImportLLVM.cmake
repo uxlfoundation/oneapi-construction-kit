@@ -39,33 +39,14 @@ Once the modules are included we verify the LLVM version is supported and set
 some additional compile definitions.
 #]=======================================================================]
 
-if(CA_RUNTIME_COMPILER_ENABLED AND NOT CA_LLVM_INSTALL_DIR)
-  message(FATAL_ERROR
-    "CA_LLVM_INSTALL_DIR must be given when CA_RUNTIME_COMPILER_ENABLED is set")
+if(NOT CA_RUNTIME_COMPILER_ENABLED)
+  return()
 endif()
 
-# Add our cmake modules directory to the cmake include path including
-# LLVM/Clang.
-string(REPLACE "\\" "/" CA_LLVM_INSTALL_DIR "${CA_LLVM_INSTALL_DIR}")
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm/LLVMConfig.cmake")
-  message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm/LLVMConfig.cmake' does not exist"
-    " (search path set with CA_LLVM_INSTALL_DIR)")
-endif()
-if(NOT EXISTS "${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangTargets.cmake")
-  message(FATAL_ERROR
-    "'${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang/ClangTargets.cmake' does not exist"
-    " (search path set with CA_LLVM_INSTALL_DIR)")
-endif()
-list(APPEND CMAKE_MODULE_PATH
-  ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm
-  ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/clang)
-set(LLVM_DIR ${CA_LLVM_INSTALL_DIR}/lib${CA_LLVM_LIBDIR_SUFFIX}/cmake/llvm)
+# Include LLVM and Clang.
+find_package(LLVM REQUIRED CONFIG HINTS ${CA_LLVM_INSTALL_DIR})
+find_package(Clang REQUIRED CONFIG HINTS ${CA_LLVM_INSTALL_DIR})
 
-# Include LLVM.
-include(LLVMConfig)
-# Include Clang.
-include(ClangTargets)
 # Detect which CRT LLVM was built with.
 include(DetectLLVMMSVCCRT)
 
