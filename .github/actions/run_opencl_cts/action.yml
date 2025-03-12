@@ -36,12 +36,9 @@ runs:
         set -x
         # Build override file, all is done first, then the target specific.
         # The last file can overwrite previous overrides.
-        for csv in .github/opencl_cts/override_all.csv .github/opencl_cts/override_${{ inputs.target }}.csv
-        do
-           [ -f $csv ] && cat $csv
-        done > override.csv
-        echo override file:
-        cat override.csv
+        python3 scripts/testing/create_override_csv.py -d .github/opencl_cts \
+             -k ${{ inputs.target }} \
+             -o override_combined.csv -vv
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
         # Note: use 'eval' built-in to handle quoting/escaping/splitting reqs
@@ -55,5 +52,5 @@ runs:
           -e CL_PLATFORM_INDEX=0 \
           -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
-          -o override.csv"
+          -o override_combined.csv"
         eval $RUN_CITIES
