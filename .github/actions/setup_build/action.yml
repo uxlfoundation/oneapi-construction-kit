@@ -86,28 +86,37 @@ runs:
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_cache_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
 
+      # ALAN TODO: do we want to retain the apt installs??
+    #- name: install llvm native ubuntu
+    #  if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
+    #  shell: bash
+    #  run: |
+    #    set -x
+    #    sudo apt update
+
+    #    sudo apt install -y llvm-${{ inputs.llvm_cache_version }}-dev liblld-${{ inputs.llvm_cache_version }}-dev libclang-${{ inputs.llvm_cache_version }}-dev
+    #    sudo apt install -y libpolly-${{ inputs.llvm_cache_version }}-dev clang-${{ inputs.llvm_cache_version }}
+
+    #    ln -s /usr/lib/llvm-${{ inputs.llvm_cache_version }} llvm_install
+
     - name: install llvm native ubuntu
       if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
-        set -x
-        sudo apt update
-
-        sudo apt install -y llvm-${{ inputs.llvm_cache_version }}-dev liblld-${{ inputs.llvm_cache_version }}-dev libclang-${{ inputs.llvm_cache_version }}-dev
-        sudo apt install -y libpolly-${{ inputs.llvm_cache_version }}-dev clang-${{ inputs.llvm_cache_version }}
-
-        ln -s /usr/lib/llvm-${{ inputs.llvm_cache_version }} llvm_install
+        wget "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ inputs.llvm_install_version }}/LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz"
+        mkdir llvm_install
+        tar -xzf LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz -C llvm_install
+        ls -l llvm_install
 
     - name: install llvm native windows
       if: inputs.os == 'windows' && inputs.llvm_source == 'install'
-      #if: false
       shell: pwsh
       run: |
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ inputs.llvm_install_version }}/clang+llvm-${{ inputs.llvm_install_version }}-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-${{ inputs.llvm_install_version }}-x86_64-pc-windows-msvc.tar.xz
         7z x clang+llvm-${{ inputs.llvm_install_version }}-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
         mv clang+llvm-${{ inputs.llvm_install_version }}-x86_64-pc-windows-msvc llvm_install
         ls llvm_install
-        # Work-around: satisfy hard-wired VS reference to "Professional" lib (when "Enterprise" is installed)
+        # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is installed)
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
         cp "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
