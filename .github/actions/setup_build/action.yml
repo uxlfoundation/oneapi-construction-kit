@@ -103,9 +103,9 @@ runs:
       if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
-        wget "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ inputs.llvm_install_version }}/LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz"
+        wget --no-verbose "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ inputs.llvm_install_version }}/LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz"
         mkdir llvm_install
-        tar -xzf LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz -C llvm_install
+        tar -xJf LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz -C llvm_install
         ls -l llvm_install
 
     - name: install llvm native windows
