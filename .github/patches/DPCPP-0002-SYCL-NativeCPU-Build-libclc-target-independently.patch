@@ -1,0 +1,1228 @@
+From 9bfe99ae132e12b84de7589e45ce308e5bb787ec Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Fri, 7 Mar 2025 15:06:51 +0000
+Subject: [PATCH] [SYCL][NativeCPU] Build libclc target-independently.
+
+---
+ clang/lib/Basic/CMakeLists.txt                |   1 +
+ clang/lib/Basic/TargetInfo.cpp                |  35 ---
+ clang/lib/Basic/Targets.cpp                   |   8 +
+ clang/lib/Basic/Targets/NativeCPU.cpp         | 109 +++++++++
+ clang/lib/Basic/Targets/NativeCPU.h           |  70 ++++++
+ clang/lib/Driver/Driver.cpp                   |  30 +--
+ clang/lib/Driver/OffloadBundler.cpp           |   3 +-
+ clang/lib/Driver/ToolChains/Clang.cpp         |  23 +-
+ clang/lib/Driver/ToolChains/SYCL.cpp          |  24 +-
+ clang/lib/Driver/ToolChains/SYCL.h            |  30 +--
+ .../ClangLinkerWrapper.cpp                    |  10 +-
+ .../clang-offload-deps/ClangOffloadDeps.cpp   |   7 +-
+ libclc/CMakeLists.txt                         |  36 +--
+ .../SOURCES                                   |   0
+ .../minmax_helpers.ll                         |   0
+ .../integer/popcount.cl                       |   0
+ .../math/clc_sqrt.cl                          |   0
+ .../math/fma.cl                               |   0
+ .../math/helpers.h                            |   0
+ .../math/native_cos.cl                        |   0
+ .../math/native_exp.cl                        |   0
+ .../math/native_exp2.cl                       |   0
+ .../math/native_log.cl                        |   0
+ .../math/native_log10.cl                      |   0
+ .../math/native_log2.cl                       |   0
+ .../math/native_sin.cl                        |   0
+ .../math/native_sqrt.cl                       |   0
+ .../math/round.cl                             |   0
+ .../math/sqrt.cl                              |   0
+ libdevice/nativecpu_utils.cpp                 |  15 +-
+ .../FixABIMuxBuiltinsSYCLNativeCPU.h          |  29 ---
+ llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt    |   1 -
+ .../FixABIMuxBuiltinsSYCLNativeCPU.cpp        | 226 ------------------
+ .../PipelineSYCLNativeCPU.cpp                 |   2 -
+ 34 files changed, 264 insertions(+), 395 deletions(-)
+ create mode 100644 clang/lib/Basic/Targets/NativeCPU.cpp
+ create mode 100644 clang/lib/Basic/Targets/NativeCPU.h
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/SOURCES (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/cl_khr_int64_extended_atomics/minmax_helpers.ll (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/integer/popcount.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/clc_sqrt.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/fma.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/helpers.h (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_cos.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_exp.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_exp2.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_log.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_log10.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_log2.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_sin.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/native_sqrt.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/round.cl (100%)
+ rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/math/sqrt.cl (100%)
+ delete mode 100644 llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h
+ delete mode 100644 llvm/lib/SYCLNativeCPUUtils/FixABIMuxBuiltinsSYCLNativeCPU.cpp
+
+diff --git a/clang/lib/Basic/CMakeLists.txt b/clang/lib/Basic/CMakeLists.txt
+index 331dfbb3f4b6..6272b7d20112 100644
+--- a/clang/lib/Basic/CMakeLists.txt
++++ b/clang/lib/Basic/CMakeLists.txt
+@@ -108,6 +108,7 @@ add_clang_library(clangBasic
+   Targets/MSP430.cpp
+   Targets/Mips.cpp
+   Targets/NVPTX.cpp
++  Targets/NativeCPU.cpp
+   Targets/OSTargets.cpp
+   Targets/PNaCl.cpp
+   Targets/PPC.cpp
+diff --git a/clang/lib/Basic/TargetInfo.cpp b/clang/lib/Basic/TargetInfo.cpp
+index 72d418b1228e..c0bf4e686cf0 100644
+--- a/clang/lib/Basic/TargetInfo.cpp
++++ b/clang/lib/Basic/TargetInfo.cpp
+@@ -545,41 +545,6 @@ void TargetInfo::adjust(DiagnosticsEngine &Diags, LangOptions &Opts) {
+ 
+   if (Opts.FakeAddressSpaceMap)
+     AddrSpaceMap = &FakeAddrSpaceMap;
+-
+-  if ((Opts.SYCLIsDevice || Opts.OpenCL) && Opts.SYCLIsNativeCPU) {
+-    // For SYCL Native CPU we use the NVPTXAddrSpaceMap because
+-    // we need builtins to be mangled with AS information.
+-    // This is also enabled in OpenCL mode so that mangling
+-    // matches when building libclc.
+-
+-    static const unsigned SYCLNativeCPUASMap[] = {
+-        0,  // Default
+-        1,  // opencl_global
+-        3,  // opencl_local
+-        4,  // opencl_constant
+-        0,  // opencl_private
+-        0,  // opencl_generic
+-        1,  // opencl_global_device
+-        1,  // opencl_global_host
+-        1,  // cuda_device
+-        4,  // cuda_constant
+-        3,  // cuda_shared
+-        1,  // sycl_global
+-        1,  // sycl_global_device
+-        1,  // sycl_global_host
+-        3,  // sycl_local
+-        0,  // sycl_private
+-        0,  // ptr32_sptr
+-        0,  // ptr32_uptr
+-        0,  // ptr64
+-        0,  // hlsl_groupshared
+-        0,  // hlsl_constant
+-        20, // wasm_funcref
+-    };
+-
+-    AddrSpaceMap = &SYCLNativeCPUASMap;
+-    UseAddrSpaceMapMangling = true;
+-  }
+ }
+ 
+ bool TargetInfo::initFeatureMap(
+diff --git a/clang/lib/Basic/Targets.cpp b/clang/lib/Basic/Targets.cpp
+index 6085ec8c8762..7d66abbf8ba0 100644
+--- a/clang/lib/Basic/Targets.cpp
++++ b/clang/lib/Basic/Targets.cpp
+@@ -28,6 +28,7 @@
+ #include "Targets/MSP430.h"
+ #include "Targets/Mips.h"
+ #include "Targets/NVPTX.h"
++#include "Targets/NativeCPU.h"
+ #include "Targets/OSTargets.h"
+ #include "Targets/PNaCl.h"
+ #include "Targets/PPC.h"
+@@ -117,6 +118,13 @@ std::unique_ptr<TargetInfo> AllocateTarget(const llvm::Triple &Triple,
+   default:
+     return nullptr;
+ 
++  case llvm::Triple::UnknownArch:
++    /* native_cpu is only known to Clang, not to LLVM. */
++    if (Triple.str() == "native_cpu")
++      return std::make_unique<NativeCPUTargetInfo>(Triple, Opts);
++
++    return nullptr;
++
+   case llvm::Triple::arc:
+     return std::make_unique<ARCTargetInfo>(Triple, Opts);
+ 
+diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
+new file mode 100644
+index 000000000000..1f3929f7c6a2
+--- /dev/null
++++ b/clang/lib/Basic/Targets/NativeCPU.cpp
+@@ -0,0 +1,109 @@
++//===--- NativeCPU.cpp - Implement NativeCPU target feature support -------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++//
++// This file implements NativeCPU TargetInfo objects.
++//
++//===----------------------------------------------------------------------===//
++
++#include "NativeCPU.h"
++#include <llvm/TargetParser/Host.h>
++
++using namespace clang;
++using namespace clang::targets;
++
++static const unsigned NativeCPUASMap[] = {
++    0,  // Default
++    1,  // opencl_global
++    3,  // opencl_local
++    4,  // opencl_constant
++    0,  // opencl_private
++    0,  // opencl_generic
++    1,  // opencl_global_device
++    1,  // opencl_global_host
++    1,  // cuda_device
++    4,  // cuda_constant
++    3,  // cuda_shared
++    1,  // sycl_global
++    1,  // sycl_global_device
++    1,  // sycl_global_host
++    3,  // sycl_local
++    0,  // sycl_private
++    0,  // ptr32_sptr
++    0,  // ptr32_uptr
++    0,  // ptr64
++    0,  // hlsl_groupshared
++    0,  // hlsl_constant
++    20, // wasm_funcref
++};
++
++NativeCPUTargetInfo::NativeCPUTargetInfo(const llvm::Triple &,
++                                         const TargetOptions &Opts)
++    : TargetInfo(llvm::Triple()) {
++  AddrSpaceMap = &NativeCPUASMap;
++  UseAddrSpaceMapMangling = true;
++  HasLegalHalfType = true;
++  HasFloat16 = true;
++  resetDataLayout("e");
++
++  llvm::Triple HostTriple([&] {
++    // Take the default target triple if no other host triple is specified so
++    // that system headers work.
++    if (Opts.HostTriple.empty())
++      return llvm::sys::getDefaultTargetTriple();
++
++    return Opts.HostTriple;
++  }());
++  if (HostTriple.getArch() != llvm::Triple::UnknownArch) {
++    HostTarget = AllocateTarget(HostTriple, Opts);
++
++    // Copy properties from host target.
++    BoolWidth = HostTarget->getBoolWidth();
++    BoolAlign = HostTarget->getBoolAlign();
++    IntWidth = HostTarget->getIntWidth();
++    IntAlign = HostTarget->getIntAlign();
++    HalfWidth = HostTarget->getHalfWidth();
++    HalfAlign = HostTarget->getHalfAlign();
++    FloatWidth = HostTarget->getFloatWidth();
++    FloatAlign = HostTarget->getFloatAlign();
++    DoubleWidth = HostTarget->getDoubleWidth();
++    DoubleAlign = HostTarget->getDoubleAlign();
++    LongWidth = HostTarget->getLongWidth();
++    LongAlign = HostTarget->getLongAlign();
++    LongLongWidth = HostTarget->getLongLongWidth();
++    LongLongAlign = HostTarget->getLongLongAlign();
++    PointerWidth = HostTarget->getPointerWidth(LangAS::Default);
++    PointerAlign = HostTarget->getPointerAlign(LangAS::Default);
++    MinGlobalAlign = HostTarget->getMinGlobalAlign(/* TypeSize = */ 0,
++                                                   /* HasNonWeakDef = */ true);
++    NewAlign = HostTarget->getNewAlign();
++    DefaultAlignForAttributeAligned =
++        HostTarget->getDefaultAlignForAttributeAligned();
++    SizeType = HostTarget->getSizeType();
++    PtrDiffType = HostTarget->getPtrDiffType(LangAS::Default);
++    IntMaxType = HostTarget->getIntMaxType();
++    WCharType = HostTarget->getWCharType();
++    WIntType = HostTarget->getWIntType();
++    Char16Type = HostTarget->getChar16Type();
++    Char32Type = HostTarget->getChar32Type();
++    Int64Type = HostTarget->getInt64Type();
++    SigAtomicType = HostTarget->getSigAtomicType();
++    ProcessIDType = HostTarget->getProcessIDType();
++
++    UseBitFieldTypeAlignment = HostTarget->useBitFieldTypeAlignment();
++    UseZeroLengthBitfieldAlignment =
++        HostTarget->useZeroLengthBitfieldAlignment();
++    UseExplicitBitFieldAlignment = HostTarget->useExplicitBitFieldAlignment();
++    ZeroLengthBitfieldBoundary = HostTarget->getZeroLengthBitfieldBoundary();
++
++    // This is a bit of a lie, but it controls __GCC_ATOMIC_XXX_LOCK_FREE, and
++    // we need those macros to be identical on host and device, because (among
++    // other things) they affect which standard library classes are defined,
++    // and we need all classes to be defined on both the host and device.
++    MaxAtomicInlineWidth = HostTarget->getMaxAtomicInlineWidth();
++  }
++}
+diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
+new file mode 100644
+index 000000000000..47587e27bc00
+--- /dev/null
++++ b/clang/lib/Basic/Targets/NativeCPU.h
+@@ -0,0 +1,70 @@
++//===--- NativeCPU.h - Declare NativeCPU target feature support -*- C++ -*-===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++//
++// This file declares NativeCPU TargetInfo objects.
++//
++//===----------------------------------------------------------------------===//
++
++#ifndef LLVM_CLANG_LIB_BASIC_TARGETS_NATIVECPU_H
++#define LLVM_CLANG_LIB_BASIC_TARGETS_NATIVECPU_H
++
++#include "Targets.h"
++
++namespace clang {
++namespace targets {
++
++class LLVM_LIBRARY_VISIBILITY NativeCPUTargetInfo final : public TargetInfo {
++  std::unique_ptr<TargetInfo> HostTarget;
++
++public:
++  NativeCPUTargetInfo(const llvm::Triple &Triple, const TargetOptions &Opts);
++
++  void getTargetDefines(const LangOptions &Opts,
++                        MacroBuilder &Builder) const override {
++    DefineStd(Builder, "NativeCPU", Opts);
++  }
++
++  ArrayRef<Builtin::Info> getTargetBuiltins() const override { return {}; }
++
++  BuiltinVaListKind getBuiltinVaListKind() const override {
++    if (HostTarget)
++      return HostTarget->getBuiltinVaListKind();
++
++    return TargetInfo::VoidPtrBuiltinVaList;
++  }
++
++  bool validateAsmConstraint(const char *&Name,
++                             TargetInfo::ConstraintInfo &info) const override {
++    return true;
++  }
++
++  std::string_view getClobbers() const override { return ""; }
++
++  void setSupportedOpenCLOpts() override { supportAllOpenCLOpts(); }
++
++  CallingConvCheckResult checkCallingConvention(CallingConv CC) const override {
++    if (HostTarget)
++      return HostTarget->checkCallingConvention(CC);
++
++    return TargetInfo::checkCallingConvention(CC);
++  }
++
++protected:
++  ArrayRef<const char *> getGCCRegNames() const override { return {}; }
++
++  ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
++    return {};
++  }
++
++  bool hasBitIntType() const override { return true; }
++};
++
++} // namespace targets
++} // namespace clang
++
++#endif // LLVM_CLANG_LIB_BASIC_TARGETS_NATIVECPU_H
+diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
+index 06718c02121c..fe2fd04dfa8f 100644
+--- a/clang/lib/Driver/Driver.cpp
++++ b/clang/lib/Driver/Driver.cpp
+@@ -891,6 +891,10 @@ static bool isValidSYCLTriple(llvm::Triple T) {
+       !T.hasEnvironment())
+     return true;
+ 
++  // 'native_cpu' is valid for Native CPU.
++  if (isSYCLNativeCPU(T))
++    return true;
++
+   // Check for invalid SYCL device triple values.
+   // Non-SPIR/SPIRV arch.
+   if (!T.isSPIROrSPIRV())
+@@ -1354,12 +1358,6 @@ void Driver::CreateOffloadingDeviceToolChains(Compilation &C,
+             }
+             Arch = Device->data();
+             UserTargetName = "amdgcn-amd-amdhsa";
+-          } else if (Val == "native_cpu") {
+-            const ToolChain *HostTC =
+-                C.getSingleOffloadToolChain<Action::OFK_Host>();
+-            llvm::Triple HostTriple = HostTC->getTriple();
+-            SYCLTriples.insert(HostTriple.normalize());
+-            continue;
+           }
+ 
+           llvm::Triple DeviceTriple(getSYCLDeviceTriple(UserTargetName));
+@@ -5629,9 +5627,7 @@ class OffloadingActionBuilder final {
+       auto IsAMDGCN = TargetTriple.isAMDGCN();
+       auto IsSPIR = TargetTriple.isSPIROrSPIRV();
+       bool IsSpirvAOT = TargetTriple.isSPIRAOT();
+-      const bool IsSYCLNativeCPU =
+-          TC->getAuxTriple() &&
+-          driver::isSYCLNativeCPU(TargetTriple, *TC->getAuxTriple());
++      bool IsSYCLNativeCPU = isSYCLNativeCPU(TargetTriple);
+       for (const auto &Input : ListIndex) {
+         if (TargetTriple.getSubArch() == llvm::Triple::SPIRSubArch_fpga &&
+             types::isFPGA(Input->getType())) {
+@@ -6695,12 +6691,6 @@ class OffloadingActionBuilder final {
+                   C.getDriver().getSYCLDeviceTriple("amdgcn-amd-amdhsa"),
+                   ValidDevice->data());
+               UserTargetName = "amdgcn-amd-amdhsa";
+-            } else if (Val == "native_cpu") {
+-              const ToolChain *HostTC =
+-                  C.getSingleOffloadToolChain<Action::OFK_Host>();
+-              llvm::Triple TT = HostTC->getTriple();
+-              SYCLTripleList.push_back(TT);
+-              continue;
+             }
+ 
+             llvm::Triple TT(
+@@ -7239,10 +7229,6 @@ public:
+   /// Offload deps output is then forwarded to active device action builders so
+   /// they can add it to the device linker inputs.
+   void addDeviceLinkDependenciesFromHost(ActionList &LinkerInputs) {
+-    if (isSYCLNativeCPU(C.getArgs())) {
+-      // SYCL Native CPU doesn't need deps from clang-offload-deps.
+-      return;
+-    }
+     // Link image for reading dependencies from it.
+     auto *LA = C.MakeAction<LinkJobAction>(LinkerInputs,
+                                            types::TY_Host_Dependencies_Image);
+@@ -9614,9 +9600,7 @@ InputInfoList Driver::BuildJobsForActionNoCache(
+       Action::OffloadKind DependentOffloadKind;
+       if (UI.DependentOffloadKind == Action::OFK_SYCL &&
+           TargetDeviceOffloadKind == Action::OFK_None &&
+-          !(isSYCLNativeCPU(Args) &&
+-            isSYCLNativeCPU(C.getDefaultToolChain().getTriple(),
+-                            TC->getTriple()) &&
++          !(isSYCLNativeCPU(C.getDefaultToolChain().getTriple()) &&
+             UA->getDependentActionsInfo().size() > 1))
+         DependentOffloadKind = Action::OFK_Host;
+       else
+@@ -10675,7 +10659,7 @@ const ToolChain &Driver::getOffloadingDeviceToolChain(
+             *this, Target, HostTC, Args, TargetDeviceOffloadKind);
+         break;
+       default:
+-        if (isSYCLNativeCPU(Args)) {
++        if (isSYCLNativeCPU(Target)) {
+           TC = std::make_unique<toolchains::SYCLToolChain>(*this, Target,
+                                                            HostTC, Args);
+         }
+diff --git a/clang/lib/Driver/OffloadBundler.cpp b/clang/lib/Driver/OffloadBundler.cpp
+index 8458bf0d819f..e1dd23a4c3a5 100644
+--- a/clang/lib/Driver/OffloadBundler.cpp
++++ b/clang/lib/Driver/OffloadBundler.cpp
+@@ -142,7 +142,8 @@ bool OffloadTargetInfo::isOffloadKindCompatible(
+ }
+ 
+ bool OffloadTargetInfo::isTripleValid() const {
+-  return !Triple.str().empty() && Triple.getArch() != Triple::UnknownArch;
++  return !Triple.str().empty() && (Triple.getArch() != Triple::UnknownArch ||
++                                   Triple.str() == "native_cpu");
+ }
+ 
+ bool OffloadTargetInfo::operator==(const OffloadTargetInfo &Target) const {
+diff --git a/clang/lib/Driver/ToolChains/Clang.cpp b/clang/lib/Driver/ToolChains/Clang.cpp
+index 477c164e2a9f..f4e2340b785b 100644
+--- a/clang/lib/Driver/ToolChains/Clang.cpp
++++ b/clang/lib/Driver/ToolChains/Clang.cpp
+@@ -5420,8 +5420,8 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+                          const ArgList &Args, const char *LinkingOutput) const {
+   const auto &TC = getToolChain();
+   const llvm::Triple &RawTriple = TC.getTriple();
+-  const llvm::Triple &Triple = TC.getEffectiveTriple();
+-  const std::string &TripleStr = Triple.getTriple();
++  llvm::Triple Triple = TC.getEffectiveTriple();
++  std::string TripleStr = Triple.getTriple();
+ 
+   bool KernelOrKext =
+       Args.hasArg(options::OPT_mkernel, options::OPT_fapple_kext);
+@@ -5463,7 +5463,6 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+   bool IsUsingLTO = LTOMode != LTOK_None;
+   bool IsFPGASYCLOffloadDevice =
+       IsSYCLDevice && Triple.getSubArch() == llvm::Triple::SPIRSubArch_fpga;
+-  const bool IsSYCLNativeCPU = isSYCLNativeCPU(TC);
+ 
+   // Perform the SYCL host compilation using an external compiler if the user
+   // requested.
+@@ -5522,6 +5521,15 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+   if (IsCuda || IsHIP || IsSYCL)
+     IsWindowsMSVC |= AuxTriple && AuxTriple->isWindowsMSVCEnvironment();
+ 
++  // Adjust for SYCL NativeCPU compilations.  When compiling in device mode, we
++  // adjust to host after the initial compilation.
++  const bool IsSYCLNativeCPU = isSYCLNativeCPU(Triple);
++  if (IsSYCL && IsSYCLDevice && IsSYCLNativeCPU && AuxTriple &&
++      isa<AssembleJobAction>(JA)) {
++    Triple = *AuxTriple;
++    TripleStr = Triple.getTriple();
++  }
++
+   // C++ is not supported for IAMCU.
+   if (IsIAMCU && types::isCXX(Input.getType()))
+     D.Diag(diag::err_drv_clang_unsupported) << "C++ for IAMCU";
+@@ -6029,6 +6037,7 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+       CollectArgsForIntegratedAssembler(C, Args, CmdArgs, D);
+     }
+     if (IsSYCLDevice && IsSYCLNativeCPU) {
++      CmdArgs.push_back("-Wno-override-module");
+       CmdArgs.push_back("-mllvm");
+       CmdArgs.push_back("-sycl-native-cpu-backend");
+     }
+@@ -10338,10 +10347,6 @@ void OffloadWrapper::ConstructJob(Compilation &C, const JobAction &JA,
+       TargetTripleOpt = ("llvm_" + TargetTripleOpt).str();
+     }
+ 
+-    const bool IsSYCLNativeCPU = isSYCLNativeCPU(TC);
+-    if (IsSYCLNativeCPU) {
+-      TargetTripleOpt = "native_cpu";
+-    }
+     WrapperArgs.push_back(
+         C.getArgs().MakeArgString(Twine("-target=") + TargetTripleOpt));
+ 
+@@ -11057,7 +11062,7 @@ static bool shouldEmitOnlyKernelsAsEntryPoints(const ToolChain &TC,
+   if (TCArgs.hasFlag(options::OPT_fno_sycl_remove_unused_external_funcs,
+                      options::OPT_fsycl_remove_unused_external_funcs, false))
+     return false;
+-  if (isSYCLNativeCPU(TC))
++  if (isSYCLNativeCPU(Triple))
+     return true;
+   // When supporting dynamic linking, non-kernels in a device image can be
+   // called.
+@@ -11116,7 +11121,7 @@ static void getTripleBasedSYCLPostLinkOpts(const ToolChain &TC,
+   if (!Triple.isAMDGCN())
+     addArgs(PostLinkArgs, TCArgs, {"-emit-param-info"});
+   // Enable program metadata
+-  if (Triple.isNVPTX() || Triple.isAMDGCN() || isSYCLNativeCPU(TC))
++  if (Triple.isNVPTX() || Triple.isAMDGCN() || isSYCLNativeCPU(Triple))
+     addArgs(PostLinkArgs, TCArgs, {"-emit-program-metadata"});
+   if (OutputType != types::TY_LLVM_BC) {
+     assert(OutputType == types::TY_Tempfiletable);
+diff --git a/clang/lib/Driver/ToolChains/SYCL.cpp b/clang/lib/Driver/ToolChains/SYCL.cpp
+index c7b99a878948..aca3b3d5e6cb 100644
+--- a/clang/lib/Driver/ToolChains/SYCL.cpp
++++ b/clang/lib/Driver/ToolChains/SYCL.cpp
+@@ -625,11 +625,6 @@ SYCL::getDeviceLibraries(const Compilation &C, const llvm::Triple &TargetTriple,
+   const SYCLDeviceLibsList SYCLNativeCpuDeviceLibs = {
+       {"libsycl-nativecpu_utils", "internal"}};
+ 
+-  const bool isNativeCPU =
+-      (driver::isSYCLNativeCPU(Args) &&
+-       driver::isSYCLNativeCPU(C.getDefaultToolChain().getTriple(),
+-                               TargetTriple));
+-
+   bool IsWindowsMSVCEnv =
+       C.getDefaultToolChain().getTriple().isWindowsMSVCEnvironment();
+   bool IsNewOffload = C.getDriver().getUseNewOffloadingDriver();
+@@ -787,7 +782,7 @@ SYCL::getDeviceLibraries(const Compilation &C, const llvm::Triple &TargetTriple,
+     addLibraries(SYCLDeviceTsanLibs);
+ #endif
+ 
+-  if (isNativeCPU)
++  if (isSYCLNativeCPU(TargetTriple))
+     addLibraries(SYCLNativeCpuDeviceLibs);
+ 
+   return LibraryList;
+@@ -949,7 +944,6 @@ const char *SYCL::Linker::constructLLVMLinkCommand(
+   // instead of the original object.
+   if (JA.isDeviceOffloading(Action::OFK_SYCL)) {
+     bool IsRDC = !shouldDoPerObjectFileLinking(C);
+-    const bool IsSYCLNativeCPU = isSYCLNativeCPU(this->getToolChain());
+     auto isNoRDCDeviceCodeLink = [&](const InputInfo &II) {
+       if (IsRDC)
+         return false;
+@@ -963,6 +957,8 @@ const char *SYCL::Linker::constructLLVMLinkCommand(
+       const ToolChain *HostTC = C.getSingleOffloadToolChain<Action::OFK_Host>();
+       const bool IsNVPTX = this->getToolChain().getTriple().isNVPTX();
+       const bool IsAMDGCN = this->getToolChain().getTriple().isAMDGCN();
++      const bool IsSYCLNativeCPU =
++          isSYCLNativeCPU(this->getToolChain().getTriple());
+       const bool IsFPGA = this->getToolChain().getTriple().isSPIR() &&
+                           this->getToolChain().getTriple().getSubArch() ==
+                               llvm::Triple::SPIRSubArch_fpga;
+@@ -1114,7 +1110,8 @@ void SYCL::Linker::ConstructJob(Compilation &C, const JobAction &JA,
+ 
+   assert((getToolChain().getTriple().isSPIROrSPIRV() ||
+           getToolChain().getTriple().isNVPTX() ||
+-          getToolChain().getTriple().isAMDGCN() || isSYCLNativeCPU(Args)) &&
++          getToolChain().getTriple().isAMDGCN() ||
++          isSYCLNativeCPU(getToolChain().getTriple())) &&
+          "Unsupported target");
+ 
+   std::string SubArchName =
+@@ -1717,9 +1714,9 @@ static ArrayRef<options::ID> getUnsupportedOpts() {
+ }
+ 
+ // Currently supported options by SYCL NativeCPU device compilation
+-static inline bool SupportedByNativeCPU(const SYCLToolChain &TC,
++static inline bool SupportedByNativeCPU(const llvm::Triple &Triple,
+                                         const OptSpecifier &Opt) {
+-  if (!TC.IsSYCLNativeCPU)
++  if (!isSYCLNativeCPU(Triple))
+     return false;
+ 
+   switch (Opt.getID()) {
+@@ -1736,7 +1733,6 @@ static inline bool SupportedByNativeCPU(const SYCLToolChain &TC,
+ SYCLToolChain::SYCLToolChain(const Driver &D, const llvm::Triple &Triple,
+                              const ToolChain &HostTC, const ArgList &Args)
+     : ToolChain(D, Triple, Args), HostTC(HostTC),
+-      IsSYCLNativeCPU(Triple == HostTC.getTriple()),
+       SYCLInstallation(D, Triple, Args) {
+   // Lookup binaries into the driver directory, this is used to discover any
+   // dependent SYCL offload compilation tools.
+@@ -1746,7 +1742,7 @@ SYCLToolChain::SYCLToolChain(const Driver &D, const llvm::Triple &Triple,
+   for (OptSpecifier Opt : getUnsupportedOpts()) {
+     if (const Arg *A = Args.getLastArg(Opt)) {
+       // Native CPU can support options unsupported by other targets.
+-      if (SupportedByNativeCPU(*this, Opt))
++      if (SupportedByNativeCPU(getTriple(), Opt))
+         continue;
+       // All sanitizer options are not currently supported, except
+       // AddressSanitizer and MemorySanitizer and ThreadSanitizer
+@@ -1790,7 +1786,7 @@ SYCLToolChain::TranslateArgs(const llvm::opt::DerivedArgList &Args,
+     for (OptSpecifier UnsupportedOpt : getUnsupportedOpts()) {
+       if (Opt.matches(UnsupportedOpt)) {
+         // NativeCPU should allow most normal cpu options.
+-        if (SupportedByNativeCPU(*this, Opt.getID()))
++        if (SupportedByNativeCPU(getTriple(), Opt.getID()))
+           continue;
+         if (Opt.getID() == options::OPT_fsanitize_EQ &&
+             A->getValues().size() == 1) {
+@@ -2185,7 +2181,7 @@ Tool *SYCLToolChain::buildBackendCompiler() const {
+ }
+ 
+ Tool *SYCLToolChain::buildLinker() const {
+-  assert(getTriple().isSPIROrSPIRV() || IsSYCLNativeCPU);
++  assert(getTriple().isSPIROrSPIRV() || isSYCLNativeCPU(getTriple()));
+   return new tools::SYCL::Linker(*this);
+ }
+ 
+diff --git a/clang/lib/Driver/ToolChains/SYCL.h b/clang/lib/Driver/ToolChains/SYCL.h
+index 66a1313fbce3..1fea680a216e 100644
+--- a/clang/lib/Driver/ToolChains/SYCL.h
++++ b/clang/lib/Driver/ToolChains/SYCL.h
+@@ -269,6 +269,11 @@ public:
+ } // end namespace SYCL
+ } // end namespace tools
+ 
++inline bool isSYCLNativeCPU(const llvm::Triple &Triple) {
++  return Triple.getArch() == llvm::Triple::UnknownArch &&
++         Triple.str() == "native_cpu";
++}
++
+ namespace toolchains {
+ 
+ class LLVM_LIBRARY_VISIBILITY SYCLToolChain : public ToolChain {
+@@ -309,12 +314,12 @@ public:
+ 
+   bool useIntegratedAs() const override { return true; }
+   bool isPICDefault() const override {
+-    if (this->IsSYCLNativeCPU)
++    if (isSYCLNativeCPU(this->getTriple()))
+       return this->HostTC.isPICDefault();
+     return false;
+   }
+   llvm::codegenoptions::DebugInfoFormat getDefaultDebugFormat() const override {
+-    if (this->IsSYCLNativeCPU ||
++    if (isSYCLNativeCPU(this->getTriple()) &&
+         this->HostTC.getTriple().isWindowsMSVCEnvironment())
+       return this->HostTC.getDefaultDebugFormat();
+     return ToolChain::getDefaultDebugFormat();
+@@ -337,9 +342,6 @@ public:
+ 
+   SanitizerMask getSupportedSanitizers() const override;
+ 
+-  const bool IsSYCLNativeCPU;
+-
+-
+ protected:
+   Tool *buildBackendCompiler() const override;
+   Tool *buildLinker() const override;
+@@ -353,24 +355,6 @@ private:
+ };
+ 
+ } // end namespace toolchains
+-
+-inline bool isSYCLNativeCPU(const llvm::opt::ArgList &Args) {
+-  if (auto SYCLTargets = Args.getLastArg(options::OPT_fsycl_targets_EQ)) {
+-    if (SYCLTargets->containsValue("native_cpu"))
+-      return true;
+-  }
+-  return false;
+-}
+-
+-inline bool isSYCLNativeCPU(const llvm::Triple &HostT,
+-                            const llvm::Triple &DevT) {
+-  return HostT == DevT;
+-}
+-
+-inline bool isSYCLNativeCPU(const ToolChain &TC) {
+-  const llvm::Triple *const AuxTriple = TC.getAuxTriple();
+-  return AuxTriple && isSYCLNativeCPU(TC.getTriple(), *AuxTriple);
+-}
+ } // end namespace driver
+ } // end namespace clang
+ 
+diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+index 73b117081b43..cff7195e30ab 100644
+--- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
++++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
+@@ -644,7 +644,7 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
+                                SmallVector<StringRef, 8> &PostLinkArgs,
+                                const llvm::Triple Triple) {
+   const llvm::Triple HostTriple(Args.getLastArgValue(OPT_host_triple_EQ));
+-  bool SYCLNativeCPU = (HostTriple == Triple);
++  bool SYCLNativeCPU = Triple.str() == "native_cpu";
+   bool SpecConstsSupported = (!Triple.isNVPTX() && !Triple.isAMDGCN() &&
+                               !Triple.isSPIRAOT() && !SYCLNativeCPU);
+   if (SpecConstsSupported)
+@@ -1504,7 +1504,10 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+   if (!ClangPath)
+     return ClangPath.takeError();
+ 
+-  const llvm::Triple Triple(Args.getLastArgValue(OPT_triple_EQ));
++  llvm::Triple Triple(Args.getLastArgValue(OPT_triple_EQ));
++  if (Triple.str() == "native_cpu")
++    Triple = llvm::Triple(Args.getLastArgValue(OPT_host_triple_EQ));
++
+   StringRef Arch = Args.getLastArgValue(OPT_arch_EQ);
+   if (Arch.empty())
+     Arch = "native";
+@@ -1673,6 +1676,9 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+   case Triple::loongarch64:
+     return generic::clang(InputFiles, Args);
+   default:
++    if (Triple.str() == "native_cpu" && IsSYCLKind)
++      return generic::clang(InputFiles, Args);
++
+     return createStringError(Triple.getArchName() +
+                              " linking is not supported");
+   }
+diff --git a/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp b/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
+index 5dbf04467510..4f3e7c2d0b7b 100644
+--- a/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
++++ b/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
+@@ -120,7 +120,8 @@ int main(int argc, const char **argv) {
+                            .Case("fpga", true)
+                            .Default(false);
+ 
+-    bool TripleIsValid = Triple(Triples[I]).getArch() != Triple::UnknownArch;
++    bool TripleIsValid = Triple(Triples[I]).getArch() != Triple::UnknownArch ||
++                         Triples[I] == "native_cpu";
+ 
+     if (!KindIsValid || !TripleIsValid) {
+       SmallVector<char, 128u> Buf;
+@@ -211,7 +212,9 @@ int main(int argc, const char **argv) {
+       // global variable llvm.used to represent a reference to a symbol. But for
+       // other targets we have to create a real reference since llvm.used may
+       // not be representable in the object file.
+-      if (Kinds[I] == "sycl" || Triple(Triples[I]).isSPIR()) {
++      if (Triples[I] == "native_cpu") {
++        // SYCL Native CPU doesn't need deps from clang-offload-deps.
++      } else if (Kinds[I] == "sycl" || Triple(Triples[I]).isSPIR()) {
+         auto *GV = new GlobalVariable(
+             Mod, ArrayTy, false, GlobalValue::AppendingLinkage,
+             ConstantArray::get(ArrayTy, Used), "llvm.used");
+diff --git a/libclc/CMakeLists.txt b/libclc/CMakeLists.txt
+index 3506872d4eab..ad048501f48b 100644
+--- a/libclc/CMakeLists.txt
++++ b/libclc/CMakeLists.txt
+@@ -42,7 +42,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+   libspirv/lib/amdgcn/SOURCES;
+   libspirv/lib/ptx-nvidiacl/SOURCES;
+   libspirv/lib/r600/SOURCES;
+-  libspirv/lib/native_cpu-unknown-linux/SOURCES;
++  libspirv/lib/native_cpu/SOURCES;
+ )
+ 
+ set( LIBCLC_MIN_LLVM 3.9.0 )
+@@ -52,9 +52,6 @@ set( LIBCLC_TARGETS_TO_BUILD "all"
+ 
+ option( ENABLE_RUNTIME_SUBNORMAL "Enable runtime linking of subnormal support." OFF )
+ 
+-set( LIBCLC_NATIVECPU_FLAGS_X86_64 ""
+-  CACHE STRING "Semicolon-separated list of compiler flags for x86_64 libclc target.")
+-
+ if( LIBCLC_STANDALONE_BUILD OR CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+   # Out-of-tree configuration
+   set( LIBCLC_STANDALONE_BUILD TRUE )
+@@ -192,10 +189,10 @@ else()
+   endforeach()
+ endif()
+ 
+-option( LIBCLC_NATIVECPU_HOST_TARGET "Build libclc for Native CPU using the host triple." Off)
++option( LIBCLC_NATIVECPU_HOST_TARGET "Build libclc for Native CPU." Off)
+ 
+ if( LIBCLC_NATIVECPU_HOST_TARGET )
+-  list(APPEND LIBCLC_TARGETS_TO_BUILD ${LLVM_TARGET_TRIPLE})
++  list(APPEND LIBCLC_TARGETS_TO_BUILD native_cpu)
+ endif()
+ 
+ list( SORT LIBCLC_TARGETS_TO_BUILD )
+@@ -227,9 +224,7 @@ set( nvptx--nvidiacl_devices none )
+ set( nvptx64--nvidiacl_devices none )
+ set( spirv-mesa3d-_devices none )
+ set( spirv64-mesa3d-_devices none )
+-# TODO: Does this need to be set for each possible triple?
+-set( x86_64-unknown-linux-gnu_devices none )
+-set( aarch64-unknown-linux-gnu_devices none )
++set( native_cpu_devices none )
+ 
+ # Setup aliases
+ set( cedar_aliases palm sumo sumo2 redwood juniper )
+@@ -312,11 +307,9 @@ else(LIBCLC_STANDALONE_BUILD)
+ endif(LIBCLC_STANDALONE_BUILD)
+ file( TO_CMAKE_PATH ${LIBCLC_LIBRARY_OUTPUT_INTDIR}/clc LIBCLC_LIBRARY_OUTPUT_INTDIR )
+ 
+-set(NATIVECPU_SUPPORTED_ARCH "x86_64;aarch64")
+-
+ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+   message( STATUS "libclc target '${t}' is enabled" )
+-  string( REPLACE "-" ";" TRIPLE  ${t} )
++  string( REPLACE "-" ";" TRIPLE  ${t}-- )
+   list( GET TRIPLE 0 ARCH )
+   list( GET TRIPLE 1 VENDOR )
+   list( GET TRIPLE 2 OS )
+@@ -345,16 +338,8 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+     set( DARCH ${ARCH} )
+   endif()
+ 
+-  set(IS_NATIVE_CPU_ARCH FALSE)
+-  if( ARCH IN_LIST NATIVECPU_SUPPORTED_ARCH )
+-    set(IS_NATIVE_CPU_ARCH TRUE)
+-  endif()
+-
+-  if( IS_NATIVE_CPU_ARCH AND OS STREQUAL linux)
+-    LIST( APPEND dirs native_cpu-unknown-linux )
+-  elseif( IS_NATIVE_CPU_ARCH AND NOT OS STREQUAL linux )
+-    message(WARNING "libclc is being built for an unsupported ARCH/OS"
+-      " configuration, some SYCL programs may fail to build.")
++  if( ARCH STREQUAL native_cpu )
++    LIST( APPEND dirs native_cpu )
+   endif()
+ 
+   set( clc_lib_files )
+@@ -421,11 +406,8 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+         # AMDGCN needs libclc to be compiled to high bc version since all atomic
+         # clang builtins need to be accessible
+         list( APPEND build_flags -mcpu=gfx940 -mllvm --amdgpu-oclc-reflect-enable=false )
+-      elseif( IS_NATIVE_CPU_ARCH )
++      elseif( ARCH STREQUAL native_cpu )
+         list( APPEND build_flags -Xclang -fsycl-is-native-cpu )
+-        if( ARCH  STREQUAL x86_64 )
+-          list( APPEND build_flags ${LIBCLC_NATIVECPU_FLAGS_X86_64})
+-        endif()
+       endif()
+     endif()
+ 
+@@ -464,7 +446,7 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+       set( has_distinct_generic_addrspace FALSE )
+     elseif( ARCH STREQUAL amdgcn )
+       set( opt_flags -O3 --amdgpu-oclc-reflect-enable=false )
+-    elseif( IS_NATIVE_CPU_ARCH )
++    elseif( ARCH STREQUAL native_cpu )
+       set( opt_flags -O3 )
+       set( has_distinct_generic_addrspace FALSE )
+     else()
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/SOURCES b/libclc/libspirv/lib/native_cpu/SOURCES
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/SOURCES
+rename to libclc/libspirv/lib/native_cpu/SOURCES
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/cl_khr_int64_extended_atomics/minmax_helpers.ll b/libclc/libspirv/lib/native_cpu/cl_khr_int64_extended_atomics/minmax_helpers.ll
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/cl_khr_int64_extended_atomics/minmax_helpers.ll
+rename to libclc/libspirv/lib/native_cpu/cl_khr_int64_extended_atomics/minmax_helpers.ll
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/integer/popcount.cl b/libclc/libspirv/lib/native_cpu/integer/popcount.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/integer/popcount.cl
+rename to libclc/libspirv/lib/native_cpu/integer/popcount.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/clc_sqrt.cl b/libclc/libspirv/lib/native_cpu/math/clc_sqrt.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/clc_sqrt.cl
+rename to libclc/libspirv/lib/native_cpu/math/clc_sqrt.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/fma.cl b/libclc/libspirv/lib/native_cpu/math/fma.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/fma.cl
+rename to libclc/libspirv/lib/native_cpu/math/fma.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/helpers.h b/libclc/libspirv/lib/native_cpu/math/helpers.h
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/helpers.h
+rename to libclc/libspirv/lib/native_cpu/math/helpers.h
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_cos.cl b/libclc/libspirv/lib/native_cpu/math/native_cos.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_cos.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_cos.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_exp.cl b/libclc/libspirv/lib/native_cpu/math/native_exp.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_exp.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_exp.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_exp2.cl b/libclc/libspirv/lib/native_cpu/math/native_exp2.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_exp2.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_exp2.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log.cl b/libclc/libspirv/lib/native_cpu/math/native_log.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_log.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log10.cl b/libclc/libspirv/lib/native_cpu/math/native_log10.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log10.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_log10.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log2.cl b/libclc/libspirv/lib/native_cpu/math/native_log2.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_log2.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_log2.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_sin.cl b/libclc/libspirv/lib/native_cpu/math/native_sin.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_sin.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_sin.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/native_sqrt.cl b/libclc/libspirv/lib/native_cpu/math/native_sqrt.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/native_sqrt.cl
+rename to libclc/libspirv/lib/native_cpu/math/native_sqrt.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/round.cl b/libclc/libspirv/lib/native_cpu/math/round.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/round.cl
+rename to libclc/libspirv/lib/native_cpu/math/round.cl
+diff --git a/libclc/libspirv/lib/native_cpu-unknown-linux/math/sqrt.cl b/libclc/libspirv/lib/native_cpu/math/sqrt.cl
+similarity index 100%
+rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/sqrt.cl
+rename to libclc/libspirv/lib/native_cpu/math/sqrt.cl
+diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
+index eb5c3ff2ebdf..2ab7ff2c7988 100644
+--- a/libdevice/nativecpu_utils.cpp
++++ b/libdevice/nativecpu_utils.cpp
+@@ -296,7 +296,20 @@ DefShuffleINTEL_All(double, f64, double)
+ DefShuffleINTEL_All(float, f32, float)
+ DefShuffleINTEL_All(_Float16, f16, _Float16)
+ 
+-// Vector versions of shuffle are generated by the FixABIBuiltinsSYCLNativeCPU pass
++#define DefineShuffleVec(T, N, Sfx, MuxType)                                   \
++  using vt##T##N = sycl::vec<T, N>::vector_t;                                  \
++  using vt##MuxType##N = sycl::vec<MuxType, N>::vector_t;                      \
++  DefShuffleINTEL_All(vt##T##N, v##N##Sfx, vt##MuxType##N)
++
++#define DefineShuffleVec2to16(Type, Sfx, MuxType)                              \
++  DefineShuffleVec(Type, 2, Sfx, MuxType)                                      \
++  DefineShuffleVec(Type, 4, Sfx, MuxType)                                      \
++  DefineShuffleVec(Type, 8, Sfx, MuxType)                                      \
++  DefineShuffleVec(Type, 16, Sfx, MuxType)
++
++DefineShuffleVec2to16(int32_t, i32, int32_t)
++DefineShuffleVec2to16(uint32_t, i32, int32_t)
++DefineShuffleVec2to16(float, f32, float)
+ 
+ #define Define2ArgForward(Type, Name, Callee)\
+ DEVICE_EXTERNAL Type Name(Type a, Type b) { return Callee(a,b);}
+diff --git a/llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h b/llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h
+deleted file mode 100644
+index 9eea9a87fced..000000000000
+--- a/llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h
++++ /dev/null
+@@ -1,29 +0,0 @@
+-//===---- FixABIMuxBuiltins.h - Fixup ABI issues with called mux builtins ---===//
+-//
+-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+-// See https://llvm.org/LICENSE.txt for license information.
+-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-//
+-//===----------------------------------------------------------------------===//
+-//
+-// Creates calls to shuffle up/down/xor mux builtins taking into account ABI of the
+-// SYCL functions. For now this only is used for vector variants.
+-//
+-//===----------------------------------------------------------------------===//
+-
+-#pragma once
+-
+-#include "llvm/IR/Module.h"
+-#include "llvm/IR/PassManager.h"
+-
+-
+-namespace llvm {
+-
+-class FixABIMuxBuiltinsPass final
+-    : public llvm::PassInfoMixin<FixABIMuxBuiltinsPass> {
+- public:
+-  llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
+-};
+-
+-} // namespace llvm
+-
+diff --git a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
+index a0609ff22243..36ed6c901b19 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
++++ b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
+@@ -3,7 +3,6 @@ add_llvm_component_library(LLVMSYCLNativeCPUUtils
+   PrepareSYCLNativeCPU.cpp
+   RenameKernelSYCLNativeCPU.cpp
+   ConvertToMuxBuiltinsSYCLNativeCPU.cpp
+-  FixABIMuxBuiltinsSYCLNativeCPU.cpp
+   FAtomicsNativeCPU.cpp
+ 
+   ADDITIONAL_HEADER_DIRS
+diff --git a/llvm/lib/SYCLNativeCPUUtils/FixABIMuxBuiltinsSYCLNativeCPU.cpp b/llvm/lib/SYCLNativeCPUUtils/FixABIMuxBuiltinsSYCLNativeCPU.cpp
+deleted file mode 100644
+index b3ff7372b8d0..000000000000
+--- a/llvm/lib/SYCLNativeCPUUtils/FixABIMuxBuiltinsSYCLNativeCPU.cpp
++++ /dev/null
+@@ -1,226 +0,0 @@
+-//===-- FixABIMuxBuiltinsSYCLNativeCPU.cpp - Fixup mux ABI issues       ---===//
+-//
+-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+-// See https://llvm.org/LICENSE.txt for license information.
+-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-//
+-//===----------------------------------------------------------------------===//
+-//
+-// Creates calls to shuffle up/down/xor mux builtins taking into account ABI of
+-// the SYCL functions. For now this only is used for vector variants.
+-//
+-//===----------------------------------------------------------------------===//
+-
+-#include <llvm/IR/IRBuilder.h>
+-#include <llvm/IR/Module.h>
+-#include <llvm/IR/Type.h>
+-#include <llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h>
+-
+-#define DEBUG_TYPE "fix-abi-mux-builtins"
+-
+-using namespace llvm;
+-
+-PreservedAnalyses FixABIMuxBuiltinsPass::run(Module &M,
+-                                             ModuleAnalysisManager &AM) {
+-  bool Changed = false;
+-
+-  // Decide if a function needs updated and if so what parameters need changing,
+-  // as well as the return value
+-  auto FunctionNeedsFixing =
+-      [](Function &F,
+-         llvm::SmallVectorImpl<std::pair<unsigned int, llvm::Type *>> &Updates,
+-         llvm::Type *&RetVal, std::string &MuxFuncNameToCall) {
+-        if (!F.isDeclaration()) {
+-          return false;
+-        }
+-        if (!F.getName().contains("__spirv_SubgroupShuffle")) {
+-          return false;
+-        }
+-        Updates.clear();
+-        auto LIDvPos = F.getName().find("ELIDv");
+-        llvm::StringRef NameToMatch;
+-        if (LIDvPos != llvm::StringRef::npos) {
+-          // Add sizeof ELIDv to get num characters to match against
+-          NameToMatch = F.getName().take_front(LIDvPos + 5);
+-        } else {
+-          return false;
+-        }
+-
+-        unsigned int StartIdx = 0;
+-        unsigned int EndIdx = 1;
+-        if (NameToMatch == "_Z32__spirv_SubgroupShuffleDownINTELIDv") {
+-          MuxFuncNameToCall = "__mux_sub_group_shuffle_down_";
+-        } else if (NameToMatch == "_Z30__spirv_SubgroupShuffleUpINTELIDv") {
+-          MuxFuncNameToCall = "__mux_sub_group_shuffle_up_";
+-        } else if (NameToMatch == "_Z28__spirv_SubgroupShuffleINTELIDv") {
+-          MuxFuncNameToCall = "__mux_sub_group_shuffle_";
+-          EndIdx = 0;
+-        } else if (NameToMatch == "_Z31__spirv_SubgroupShuffleXorINTELIDv") {
+-          MuxFuncNameToCall = "__mux_sub_group_shuffle_xor_";
+-          EndIdx = 0;
+-        } else {
+-          return false;
+-        }
+-
+-        // We need to create the body for this. First we need to find out what
+-        // the first arguments should be
+-        llvm::StringRef RemainingName =
+-            F.getName().drop_front(NameToMatch.size());
+-        std::string MuxFuncTypeStr = "UNKNOWN";
+-
+-        unsigned int VecWidth = 0;
+-        if (RemainingName.consumeInteger(10, VecWidth)) {
+-          return false;
+-        }
+-        if (!RemainingName.consume_front("_")) {
+-          return false;
+-        }
+-
+-        char TypeCh = RemainingName[0];
+-        Type *BaseType = nullptr;
+-        switch (TypeCh) {
+-        case 'a':
+-        case 'h':
+-          BaseType = llvm::Type::getInt8Ty(F.getContext());
+-          MuxFuncTypeStr = "i8";
+-          break;
+-        case 's':
+-        case 't':
+-          BaseType = llvm::Type::getInt16Ty(F.getContext());
+-          MuxFuncTypeStr = "i16";
+-          break;
+-
+-        case 'i':
+-        case 'j':
+-          BaseType = llvm::Type::getInt32Ty(F.getContext());
+-          MuxFuncTypeStr = "i32";
+-          break;
+-        case 'l':
+-        case 'm':
+-          BaseType = llvm::Type::getInt64Ty(F.getContext());
+-          MuxFuncTypeStr = "i64";
+-          break;
+-        case 'f':
+-          BaseType = llvm::Type::getFloatTy(F.getContext());
+-          MuxFuncTypeStr = "f32";
+-          break;
+-        case 'd':
+-          BaseType = llvm::Type::getDoubleTy(F.getContext());
+-          MuxFuncTypeStr = "f64";
+-          break;
+-        default:
+-          return false;
+-        }
+-        auto *VecType = llvm::FixedVectorType::get(BaseType, VecWidth);
+-        RetVal = VecType;
+-
+-        // Work out the mux function to call's type extension based on v##N##Sfx
+-        MuxFuncNameToCall += "v";
+-        MuxFuncNameToCall += std::to_string(VecWidth);
+-        MuxFuncNameToCall += MuxFuncTypeStr;
+-
+-        unsigned int CurrentIndex = 0;
+-        for (auto &Arg : F.args()) {
+-          if (Arg.hasStructRetAttr()) {
+-            StartIdx++;
+-            EndIdx++;
+-          } else {
+-            if (CurrentIndex >= StartIdx && CurrentIndex <= EndIdx) {
+-              if (Arg.getType() != VecType) {
+-                Updates.push_back(std::pair<unsigned int, llvm::Type *>(
+-                    CurrentIndex, VecType));
+-              }
+-            }
+-          }
+-          CurrentIndex++;
+-        }
+-        return true;
+-      };
+-
+-  llvm::SmallVector<Function *, 4> FuncsToProcess;
+-  for (auto &F : M.functions()) {
+-    FuncsToProcess.push_back(&F);
+-  }
+-
+-  for (auto *F : FuncsToProcess) {
+-    llvm::SmallVector<std::pair<unsigned int, llvm::Type *>, 4> ArgUpdates;
+-    llvm::Type *RetType = nullptr;
+-    std::string MuxFuncNameToCall;
+-    if (!FunctionNeedsFixing(*F, ArgUpdates, RetType, MuxFuncNameToCall)) {
+-      continue;
+-    }
+-    if (!F->isDeclaration()) {
+-      continue;
+-    }
+-    Changed = true;
+-    IRBuilder<> IR(BasicBlock::Create(F->getContext(), "", F));
+-
+-    llvm::SmallVector<Type *, 8> Args;
+-    unsigned int ArgIndex = 0;
+-    unsigned int UpdateIndex = 0;
+-
+-    for (auto &Arg : F->args()) {
+-      if (!Arg.hasStructRetAttr()) {
+-        if (UpdateIndex < ArgUpdates.size() &&
+-            std::get<0>(ArgUpdates[UpdateIndex]) == ArgIndex) {
+-          Args.push_back(std::get<1>(ArgUpdates[UpdateIndex]));
+-          UpdateIndex++;
+-        } else {
+-          Args.push_back(Arg.getType());
+-        }
+-      }
+-      ArgIndex++;
+-    }
+-
+-    FunctionType *FT = FunctionType::get(RetType, Args, false);
+-    Function *NewFunc =
+-        Function::Create(FT, F->getLinkage(), MuxFuncNameToCall, M);
+-    llvm::SmallVector<Value *, 8> CallArgs;
+-    auto NewFuncArgItr = NewFunc->args().begin();
+-    Argument *SretPtr = nullptr;
+-    for (auto &Arg : F->args()) {
+-      if (Arg.hasStructRetAttr()) {
+-        SretPtr = &Arg;
+-      } else {
+-        if (Arg.getType() != (*NewFuncArgItr).getType()) {
+-          if (Arg.getType()->isPointerTy()) {
+-            Value *ArgLoad = IR.CreateLoad((*NewFuncArgItr).getType(), &Arg);
+-            CallArgs.push_back(ArgLoad);
+-          } else {
+-            Value *ArgCast = IR.CreateBitCast(&Arg, (*NewFuncArgItr).getType());
+-            CallArgs.push_back(ArgCast);
+-          }
+-        } else {
+-          CallArgs.push_back(&Arg);
+-        }
+-        NewFuncArgItr++;
+-      }
+-    }
+-
+-    Value *Res = IR.CreateCall(NewFunc, CallArgs);
+-    // If the return type is different to the initial function, then bitcast it
+-    // unless it's void in which case we'd expect an StructRet parameter which
+-    // needs stored to.
+-    if (F->getReturnType() != RetType) {
+-      if (F->getReturnType()->isVoidTy()) {
+-        // If we don't have an StructRet parameter then something is wrong with
+-        // the initial function
+-        if (!SretPtr) {
+-          llvm_unreachable(
+-              "No struct ret pointer for Sub group shuffle function");
+-        }
+-
+-        IR.CreateStore(Res, SretPtr);
+-      } else {
+-        Res = IR.CreateBitCast(Res, F->getReturnType());
+-      }
+-    }
+-    if (F->getReturnType()->isVoidTy()) {
+-      IR.CreateRetVoid();
+-    } else {
+-      IR.CreateRet(Res);
+-    }
+-  }
+-
+-  return Changed ? PreservedAnalyses::none() : PreservedAnalyses::all();
+-}
+diff --git a/llvm/lib/SYCLNativeCPUUtils/PipelineSYCLNativeCPU.cpp b/llvm/lib/SYCLNativeCPUUtils/PipelineSYCLNativeCPU.cpp
+index b30b6c41c2b9..f36d29da74b6 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/PipelineSYCLNativeCPU.cpp
++++ b/llvm/lib/SYCLNativeCPUUtils/PipelineSYCLNativeCPU.cpp
+@@ -13,7 +13,6 @@
+ //===----------------------------------------------------------------------===//
+ #include "llvm/SYCLLowerIR/ConvertToMuxBuiltinsSYCLNativeCPU.h"
+ #include "llvm/SYCLLowerIR/FAtomicsNativeCPU.h"
+-#include "llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h"
+ #include "llvm/SYCLLowerIR/PrepareSYCLNativeCPU.h"
+ #include "llvm/SYCLLowerIR/RenameKernelSYCLNativeCPU.h"
+ #include "llvm/SYCLLowerIR/SpecConstants.h"
+@@ -75,7 +74,6 @@ void llvm::sycl::utils::addSYCLNativeCPUBackendPasses(
+ #ifdef NATIVECPU_USE_OCK
+   MPM.addPass(compiler::utils::PrepareBarriersPass());
+   MPM.addPass(compiler::utils::TransferKernelMetadataPass());
+-  MPM.addPass(FixABIMuxBuiltinsPass());
+   // Always enable vectorizer, unless explictly disabled or -O0 is set.
+   if (OptLevel != OptimizationLevel::O0 && !SYCLNativeCPUNoVecz) {
+     MAM.registerPass([] { return vecz::TargetInfoAnalysis(); });
+-- 
+2.43.0
+
