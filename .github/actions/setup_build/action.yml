@@ -86,7 +86,7 @@ runs:
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_cache_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
 
-    - name: install llvm native ubuntu
+    - name: install llvm native ubuntu # currently via "apt install"
       if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
@@ -98,18 +98,7 @@ runs:
 
         ln -s /usr/lib/llvm-${{ inputs.llvm_cache_version }} llvm_install
 
-    #- name: install llvm native ubuntu
-    #  if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
-    #  shell: bash
-    #  run: |
-    #    wget --no-verbose "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ inputs.llvm_install_version }}/LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz"
-    #    tar -xJf LLVM-${{ inputs.llvm_install_version }}-Linux-X64.tar.xz
-    #    mv LLVM-${{ inputs.llvm_install_version }}-Linux-X64 llvm_install
-    #    ls -l llvm_install
-    #    sudo apt update
-    #    sudo apt install -y libzstd-dev  # apparent missing pre-req
-
-    - name: install llvm native windows
+    - name: install llvm native windows # currently via llvm-project/releases/download & extract
       if: inputs.os == 'windows' && inputs.llvm_source == 'install'
       shell: pwsh
       run: |
