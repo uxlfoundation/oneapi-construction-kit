@@ -46,7 +46,6 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_cache_version: 18
-          llvm_install_version: TBD
           llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
 
@@ -82,7 +81,6 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_cache_version: 18
-          llvm_install_version: TBD
           llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
 
@@ -114,7 +112,6 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_cache_version: 19
-          llvm_install_version: TBD
           llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
 
@@ -211,7 +208,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 18
-        llvm_install_version: TBD
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
@@ -233,7 +229,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 19
-        llvm_install_version: TBD
         llvm_build_type: RelAssert
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
@@ -255,7 +250,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 19
-        llvm_install_version: TBD
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -276,7 +270,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 19
-        llvm_install_version: TBD
         llvm_build_type: Release
         llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -297,7 +290,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 19
-        llvm_install_version: TBD
         llvm_build_type: RelAssert
         llvm_source:  ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -343,7 +335,6 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_cache_version: 19
-        llvm_install_version: TBD
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
