@@ -164,8 +164,7 @@ SYCL_CTS,test_has_kernel_bundle_zero_kernels_ctx_only_and_ctx_and_dev
 SYCL_CTS,test_header
 SYCL_CTS,test_hierarchical hierarchical_functor
 SYCL_CTS,test_hierarchical hierarchical_id
-# https://github.com/intel/llvm/issues/13574
-#SYCL_CTS,test_hierarchical hierarchical_implicit_barriers
+SYCL_CTS,test_hierarchical hierarchical_implicit_barriers
 SYCL_CTS,test_hierarchical hierarchical_implicit_conditional
 SYCL_CTS,test_hierarchical hierarchical_implicit_reduce
 SYCL_CTS,test_hierarchical hierarchical_lambda
@@ -293,6 +292,7 @@ SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_without_bundle_no_se
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_without_bundle_with_second_queue
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_second_queue_ctx_not_equal_to_kernel_bundle_ctx
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_verify_that_kernel_was_invoked
+SYCL_CTS,test_language
 SYCL_CTS,test_local_accessor
 SYCL_CTS,test_marray_arithmetic_assignment
 SYCL_CTS,test_marray_arithmetic_binary
@@ -363,7 +363,9 @@ SYCL_CTS,test_platform "platform common reference semantics"
 SYCL_CTS,test_pointers
 SYCL_CTS,test_property
 SYCL_CTS,test_queue "Check the api for sycl::queue"
+SYCL_CTS,test_queue "Check that the default context contains all devices"
 SYCL_CTS,test_queue "Check queue default constructor and destructor"
+SYCL_CTS,test_queue "Check that queue constructors use the correct context"
 SYCL_CTS,test_queue "Check queue (*"
 SYCL_CTS,test_queue "Check exceptions thrown for mismatched context and device" --allow-running-no-tests
 SYCL_CTS,test_queue "check property::queue::enable_profiling"
@@ -576,4 +578,3 @@ SYCL_CTS,test_vector_swizzles vector_swizzles_half --allow-running-no-tests
 SYCL_CTS,test_vector_swizzles vector_swizzles_byte
 SYCL_CTS,test_vector_swizzles vector_swizzles_int8_t
 SYCL_CTS,test_vector_swizzles vector_swizzles_int32_t
-
