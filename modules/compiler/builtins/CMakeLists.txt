@@ -45,8 +45,8 @@ if(NOT CA_EXTERNAL_BUILTINS AND CA_RUNTIME_COMPILER_ENABLED)
     # We might be in-tree and not be importing an LLVM directory, in which case
     # don't assume any builtins directory - we'll take the tools required to
     # build the builtins directly from the corresponding LLVM targets.
-    elseif(NOT ${CA_LLVM_INSTALL_DIR} STREQUAL "")
-      set(CA_BUILTINS_TOOLS_DIR ${CA_LLVM_INSTALL_DIR}/bin)
+    elseif(NOT OCK_IN_LLVM_TREE)
+      set(CA_BUILTINS_TOOLS_DIR ${LLVM_TOOLS_BINARY_DIR})
     endif()
   endif()
   find_builtins_tools("${CA_BUILTINS_TOOLS_DIR}")

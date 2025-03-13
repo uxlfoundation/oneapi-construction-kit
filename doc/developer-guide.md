@@ -253,9 +253,6 @@ The builtin CMake options used when invoking CMake on the command line.
   relevant llvm headers and support tools, and their version must match
   a supported LLVM version.
 
-* `CA_LLVM_LIBDIR_SUFFIX`: Tells the oneAPI Construction Kit what value of
-  `LLVM_LIBDIR_SUFFIX` was used for building LLVM.
-
 * `CA_ENABLE_API`: Semi-colon separated list of APIs to enable. Valid values
   are `cl` for OpenCL, and `vk` for Vulkan. Enabling an API when an optional
   component is not present dependent on license agreement will result in a CMake
