@@ -12,7 +12,7 @@ inputs:
     description: 'Major llvm version to use for fetching llvm cache e.g. 18'
     default: 18
   llvm_install_version:
-    description: 'Major llvm version to use for installing from github e.g. 19.1.7, currently windows only'
+    description: 'llvm version to use for installing from github e.g. 19.1.7, currently windows only'
     default: 19.1.7
   ubuntu_version:
     description: 'Version of ubuntu used for cache retrieval and prerequisites'
