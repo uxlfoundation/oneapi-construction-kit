@@ -32,11 +32,15 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true    
       shell: bash
       run: |
-        cd llvm
-        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0001-Fix-static_assert-with-funsigned-char.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0002-SYCL-NativeCPU-Build-libclc-target-independently.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0003-add-cl_khr_int64_extended_atomics.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/DPCPP-0004-SYCL-NativeCPU-Fix-__clc_exp10.patch
+        git -C llvm log -1
+        for patch in $GITHUB_WORKSPACE/scripts/testing/patches/DPCPP-*.patch
+        do
+          if test -f "$patch"
+          then
+            echo "Applying ${patch##*/}"
+            git -C llvm apply "$patch"
+          fi
+        done
 
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
