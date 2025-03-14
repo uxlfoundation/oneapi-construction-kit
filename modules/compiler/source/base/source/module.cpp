@@ -1683,7 +1683,11 @@ Result BaseModule::finalize(
     pm.addPass(
         compiler::utils::SimpleCallbackPass([triple, DL](llvm::Module &m) {
           m.setDataLayout(DL);
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+          m.setTargetTriple(llvm::Triple(triple));
+#else
           m.setTargetTriple(triple);
+#endif
         }));
     pm.addPass(compiler::utils::AlignModuleStructsPass());
   }
