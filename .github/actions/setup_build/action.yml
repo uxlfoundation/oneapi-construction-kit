@@ -101,9 +101,9 @@ runs:
       env:
         LLVM_RELEASE: "${{ inputs.llvm_version == '19' && '19.1.7' || '18.1.8' }}"
       run: |
-        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_RELEASE/clang+llvm-$LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-$LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz
-        7z x clang+llvm-$LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
-        mv clang+llvm-$LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
+        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-$env:LLVM_RELEASE/clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz
+        7z x clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
+        mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
         ls llvm_install
         # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
