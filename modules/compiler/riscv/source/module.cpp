@@ -192,11 +192,20 @@ static llvm::TargetMachine *createTargetMachine(
 
   options.MCOptions.ABIName = target.llvm_abi;
 
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  return llvm_target->createTargetMachine(
+      llvm::Triple(target.llvm_triple), target.llvm_cpu, target.llvm_features,
+      options,
+      target.riscv_hal_device_info->link_shared ? llvm::Reloc::Model::PIC_
+                                                : llvm::Reloc::Model::Static,
+      llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
+#else
   return llvm_target->createTargetMachine(
       target.llvm_triple, target.llvm_cpu, target.llvm_features, options,
       target.riscv_hal_device_info->link_shared ? llvm::Reloc::Model::PIC_
                                                 : llvm::Reloc::Model::Static,
       llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
+#endif
 }
 
 llvm::TargetMachine *riscv::RiscvModule::getTargetMachine() {
