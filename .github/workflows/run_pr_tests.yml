@@ -206,7 +206,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 18
+        llvm_version: '18'
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
@@ -227,7 +227,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 19
+        llvm_version: '19'
         llvm_build_type: RelAssert
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
@@ -248,7 +248,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 19
+        llvm_version: '19'
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -268,7 +268,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 19
+        llvm_version: '19'
         llvm_build_type: Release
         llvm_source: ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -288,7 +288,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 19
+        llvm_version: '19'
         llvm_build_type: RelAssert
         llvm_source:  ${{ inputs.llvm_source}}
     - name: build and run ock
@@ -333,7 +333,7 @@ jobs:
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: 19
+        llvm_version: '19'
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
     - name: build ock
