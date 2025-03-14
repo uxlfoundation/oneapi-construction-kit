@@ -1,0 +1,17 @@
+name: test llvm download
+description: test llvm download
+
+inputs:
+  token:
+    description: 'token for download'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Try downloading llvm install
+      uses: actions/download-artifact@v4
+      with:
+        name: llvm-ubuntu-22.04-x86_64-19-RelAssert
+        run-id: 13593517156
+        # github-token: ${{ inputs.token }}
+        github-token: ${{ env.GH_TOKEN }}

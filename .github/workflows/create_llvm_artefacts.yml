@@ -1,0 +1,95 @@
+# Simple workflow for running non-documentation PR testing
+name: cache llvm artefacts
+on:
+  workflow_call:
+    inputs:
+      llvm_branch:
+        required: false
+        type: string
+        default: 'release/19.x'
+      llvm_branch_id:
+        required: false
+        type: string
+        default: '19'
+      use_github_cache:
+        required: false
+        type: boolean
+        default: false
+permissions: {}
+
+jobs:
+  create_llvm_artifacts_ubuntu_22_x86_64:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: ubuntu-22.04
+          use_github_cache: ${{ inputs.use_github_cache }}
+
+  create_llvm_artifacts_ubuntu_24_x86_64:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: ubuntu-24.04
+
+  create_llvm_artifacts_ubuntu_22_x86:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: ubuntu-22.04
+          arch: x86
+
+  create_llvm_artifacts_ubuntu_22_aarch64:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: ubuntu-22.04
+          arch: aarch64
+
+  create_llvm_artifacts_ubuntu_24_riscv64:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: ubuntu-24.04
+          arch: riscv64
+
+  create_llvm_artifacts_windows_2019_x86_64:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout repo ock platform
+        uses: actions/checkout@v4
+      - name: build llvm artefact
+        uses: ./.github/actions/do_build_llvm
+        with:
+          llvm_branch: ${{ inputs.llvm_branch }}
+          llvm_branch_id: ${{ inputs.llvm_branch_id }}
+          os: 'windows-2019'
