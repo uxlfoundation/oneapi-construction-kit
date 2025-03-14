@@ -66,7 +66,14 @@ runs:
         # Todo: as we extend into cross etc, we may want to expand on the cxx flags
         # We build SYCL-CTS without installing it, so build directly in the top level.
         git -C SYCL-CTS.src log -1
-        git -C SYCL-CTS.src apply $GITHUB_WORKSPACE/.github/patches/SYCL-CTS-0002-Permit-building-for-unknown-architectures.patch
+        for patch in $GITHUB_WORKSPACE/scripts/testing/patches/SYCL-CTS-*.patch
+        do
+          if test -f "$patch"
+          then
+            echo "Applying ${patch##*/}"
+            git -C SYCL-CTS.src apply "$patch"
+          fi
+        done
         export JOPT="4"
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
           JOPT="2"

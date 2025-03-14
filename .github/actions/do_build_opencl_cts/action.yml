@@ -42,11 +42,15 @@ runs:
       run: |
         echo CMAKE_TOOLCHAIN is: $CMAKE_TOOLCHAIN
         # apply patches
-        pushd OpenCL-CTS
-        git log -1
-        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0001-Patch-sub-group-testing.patch
-        git apply $GITHUB_WORKSPACE/.github/patches/OpenCL-CTS-0002-Permit-building-for-unknown-architectures.patch
-        popd
+        git -C OpenCL-CTS log -1
+        for patch in $GITHUB_WORKSPACE/scripts/testing/patches/OpenCL-CTS-*.patch
+        do
+          if test -f "$patch"
+          then
+            echo "Applying ${patch##*/}"
+            git -C OpenCL-CTS apply "$patch"
+          fi
+        done
         # do build
         set -x
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
