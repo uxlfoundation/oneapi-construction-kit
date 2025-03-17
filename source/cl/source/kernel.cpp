@@ -1366,8 +1366,20 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelWorkGroupInfo(
                 return CL_INVALID_VALUE);
 
       OCL_ASSERT(device, "No device was provided");
+      auto local_memory_size =
+          kernel->device_kernel_map[device]->local_memory_size;
+
+      // local_memory_size covers only local memory needed by the kernel
+      // directly, but CL_KERNEL_LOCAL_MEM_SIZE also needs to return local
+      // memory needed by kernel arguments.
+      for (const auto &arg : kernel->saved_args) {
+        if (arg.stype == _cl_kernel::argument::storage_type::local_memory) {
+          local_memory_size += arg.local_memory_size;
+        }
+      }
+
       OCL_SET_IF_NOT_NULL((reinterpret_cast<cl_ulong *>(param_value)),
-                          kernel->device_kernel_map[device]->local_memory_size);
+                          local_memory_size);
     } break;
     case CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE: {
       OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
