@@ -148,11 +148,22 @@ add_compile_options(
   $<$<CXX_COMPILER_ID:Clang,AppleClang>:-fcolor-diagnostics>
   $<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>)
 
-set(CA_COMPILE_OPTIONS
+# Enable warnings as errors when not a subproject
+set(CA_COMPILE_WARNING_AS_ERROR OFF)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  set(CA_COMPILE_WARNING_AS_ERROR ON)
+endif()
+
+set(CA_COMPILE_OPTIONS)
+
+if(CA_COMPILE_WARNING_AS_ERROR AND CMAKE_VERSION VERSION_LESS "3.24")
+  list(APPEND CA_COMPILE_OPTIONS
+    $<$<OR:$<BOOL:${UNIX}>,$<BOOL:${ANDROID}>,$<BOOL:${MINGW}>>:-Werror>
+  )
+endif()
+
+list(APPEND CA_COMPILE_OPTIONS
   $<$<OR:$<BOOL:${UNIX}>,$<BOOL:${ANDROID}>,$<BOOL:${MINGW}>>:
-    $<$<STREQUAL:${CMAKE_SOURCE_DIR},${PROJECT_SOURCE_DIR}>:
-      -Werror             # Enable warnings as errors when not a subproject
-    >
     -Wno-error=deprecated-declarations  # Disable: use of deprecated functions
     -Wno-error=array-bounds  # Disable errors that vary heavily on compiler and
     -Wno-error=uninitialized # optimization level and have false positives.
@@ -483,6 +494,8 @@ macro(add_ca_library)
     PRIVATE ${CA_COMPILE_OPTIONS})
   target_compile_definitions(${ARGV0}
     PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
+  set_target_properties(${ARGV0} PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${CA_COMPILE_WARNING_AS_ERROR})
   set_ca_target_output_directory(${ARGV0})
   if(COMMAND add_ca_tidy)
     add_ca_tidy(${ACL_UNPARSED_ARGUMENTS} DEPENDS ${ACL_DEPENDS})
@@ -509,6 +522,8 @@ macro(add_ca_interface_library)
     INTERFACE ${CA_COMPILE_OPTIONS})
   target_compile_definitions(${ARGV0}
     INTERFACE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
+  set_target_properties(${ARGV0} PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${CA_COMPILE_WARNING_AS_ERROR})
 endmacro()
 
 #[=======================================================================[.rst:
@@ -569,6 +584,7 @@ macro(add_ca_executable)
   target_compile_definitions(${ARGV0}
     PRIVATE ${CA_COMPILE_DEFINITIONS} ${CA_COMPILER_COMPILE_DEFINITIONS})
   set_target_properties(${ARGV0} PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${CA_COMPILE_WARNING_AS_ERROR}
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
   if(COMMAND add_ca_tidy)
     add_ca_tidy(${ACE_UNPARSED_ARGUMENTS} DEPENDS ${ACE_DEPENDS})
@@ -1339,7 +1355,7 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     # when passed on the command line. We have to call it something else
     # because it's special
     CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
-    CA_LLVM_TOOLS_DIR=${CA_LLVM_INSTALL_DIR}/bin
+    CA_LLVM_TOOLS_DIR=${LLVM_TOOLS_BINARY_DIR}
     CA_BUILTINS_TOOLS_DIR=${CA_BUILTINS_TOOLS_DIR}
     CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}}
     LLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR}

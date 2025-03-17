@@ -64,7 +64,7 @@ runs:
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
         export ONEAPI_DEVICE_SELECTOR=opencl:0
-        export CTS_CSV_FILE=$GITHUB_WORKSPACE/.github/scripts/sycl-cts.csv
+        export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
         export PREPEND_PATH=""
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           PREPEND_PATH="--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu'"

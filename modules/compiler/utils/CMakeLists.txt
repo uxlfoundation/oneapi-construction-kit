@@ -40,10 +40,8 @@ endif()
 
 # Determine whether LLVM was built with LLD, in which case add a support
 # library that exposes lld to ComputeMux compiler targets.
-if(EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/lld/LLDConfig.cmake")
-  list(APPEND CMAKE_MODULE_PATH ${CA_LLVM_INSTALL_DIR}/lib/cmake/lld)
-  include(LLDConfig)
-
+find_package(LLD CONFIG HINTS ${CA_LLVM_INSTALL_DIR})
+if(LLD_FOUND)
   add_ca_library(compiler-linker-utils STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/lld_linker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/lld_linker.cpp
@@ -70,10 +68,8 @@ if(EXISTS "${CA_LLVM_INSTALL_DIR}/lib/cmake/lld/LLDConfig.cmake")
   set(LLD_LIBS lldELF lldCommon ${LLVM_LIBS})
 
   if(NOT OCK_IN_LLVM_TREE)
-    list(TRANSFORM LLD_LIBS
-         PREPEND "${CA_LLVM_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}")
-    list(TRANSFORM LLD_LIBS
-         APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    list(TRANSFORM LLD_LIBS PREPEND "${LLVM_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}")
+    list(TRANSFORM LLD_LIBS APPEND "${CMAKE_STATIC_LIBRARY_SUFFIX}")
   endif()
 
   target_link_libraries(compiler-linker-utils PUBLIC

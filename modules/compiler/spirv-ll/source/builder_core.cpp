@@ -425,7 +425,11 @@ llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
       llvm_unreachable("Unsupported value provided for addressing model.");
   }
 
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  module.llvmModule->setTargetTriple(llvm::Triple("unknown-unknown-unknown"));
+#else
   module.llvmModule->setTargetTriple("unknown-unknown-unknown");
+#endif
 
   const char *dataLayout32 =
       "e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:"

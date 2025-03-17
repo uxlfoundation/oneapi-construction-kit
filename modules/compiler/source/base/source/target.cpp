@@ -96,8 +96,14 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
     }
 
     builtins_module_from_file = std::move(error_or_builtins_module.get());
-    if ("unknown-unknown-unknown" !=
-        builtins_module_from_file->getTargetTriple()) {
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+    const auto builtins_module_triple_str =
+        builtins_module_from_file->getTargetTriple().str();
+#else
+    const auto builtins_module_triple_str =
+        builtins_module_from_file->getTargetTriple();
+#endif
+    if ("unknown-unknown-unknown" != builtins_module_triple_str) {
       return Result::FAILURE;
     }
   }

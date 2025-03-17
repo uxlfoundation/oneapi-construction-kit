@@ -21,7 +21,6 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/ExecutionEngine/JITLink/EHFrameSupport.h>
-#include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
 #include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
 #include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
@@ -86,9 +85,15 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
   // TODO: Investigate whether we can use a loader that does not have this
   // issue.
   const llvm::TargetOptions Options;
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  return LLVMTarget->createTargetMachine(
+      TT, CPU, Features, Options, /*RM=*/std::nullopt, CM,
+      llvm::CodeGenOptLevel::Aggressive, /*JIT=*/true);
+#else
   return LLVMTarget->createTargetMachine(
       TripleStr, CPU, Features, Options, /*RM=*/std::nullopt, CM,
       llvm::CodeGenOptLevel::Aggressive, /*JIT=*/true);
+#endif
 }
 
 HostTarget::HostTarget(const HostInfo *compiler_info,
@@ -420,7 +425,7 @@ compiler::Result HostTarget::initWithBuiltins(
     // Customize the JIT linking layer to provide better profiler/debugger
     // integration.
     Builder.setObjectLinkingLayerCreator(
-        [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &)
+        [&](llvm::orc::ExecutionSession &ES, auto...)
             -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
           auto GetMemMgr = []() {
             return std::make_unique<llvm::SectionMemoryManager>();

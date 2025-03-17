@@ -48,6 +48,7 @@ jobs:
           llvm_version: ${{ env.llvm_previous }}
           llvm_build_type: RelAssert
           save: true
+          llvm_source: install
 
       - name: build host_x86_64
         uses:  ./.github/actions/do_build_pr/run_host_x86_64
@@ -82,6 +83,7 @@ jobs:
           llvm_version: ${{ env.llvm_current }}
           llvm_build_type: RelAssert
           save: true
+          llvm_source: install
 
       - name: build ubuntu_gcc_x86_64_riscv_fp16_cl3_0
         uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0
@@ -119,6 +121,9 @@ jobs:
           llvm_build_type: RelAssert
           save: true
           cross_arch: x86
+          # Whilst we still have caches use this for 32 bit x86
+          # We may have to drop this or run just this part as part of the nightly.
+          llvm_source: cache
 
       - name: build ubuntu_clang_x86_llvm_latest_cl3_0_offline
         uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0_offline
@@ -145,6 +150,7 @@ jobs:
           llvm_version: ${{ env.llvm_current }}
           llvm_build_type: RelAssert
           save: true
+          llvm_source: install
 
       - name: build ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
         uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
@@ -172,6 +178,7 @@ jobs:
           llvm_build_type: RelAssert
           save: true
           os: windows
+          llvm_source: cache
       - name: build windows_msvc_x86_64_llvm_latest_cl3_0_offline
         uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_offline
         with:
