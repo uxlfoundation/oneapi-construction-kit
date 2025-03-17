@@ -114,8 +114,6 @@ runs:
         for arch in x86_64 aarch64 riscv64; do
           echo "
           -L<CFGDIR>/../../../${arch}-linux/install/lib
-          -fsycl-libdevice-path=<CFGDIR>/../../../${arch}-linux/install/lib
-          -fsycl-libspirv-path=<CFGDIR>/../../../${arch}-linux/install/lib/clc/remangled-l64-signed_char.libspirv-${arch}-unknown-linux-gnu.bc
           " >../install/bin/${arch}-unknown-linux-gnu.cfg;
         done
 
