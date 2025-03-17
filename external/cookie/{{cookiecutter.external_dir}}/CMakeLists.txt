@@ -19,7 +19,7 @@
 {% endif -%}
 
 project({{cookiecutter.target_name}})
-cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 set(CA_EXTERNAL_MUX_TARGET_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/mux/{{cookiecutter.target_name}}"
   CACHE STRING "override" FORCE)

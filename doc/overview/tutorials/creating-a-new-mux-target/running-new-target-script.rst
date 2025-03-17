@@ -97,7 +97,7 @@ The generated `CMakeLists.txt` is very simple and will look something like this:
 .. code:: cmake
 
   project(refsi_tutorial)
-  cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
+  cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
   set(CA_EXTERNAL_MUX_TARGET_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/mux/refsi_tutorial"
     CACHE STRING "override" FORCE)

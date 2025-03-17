@@ -16,7 +16,7 @@
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   option(CA_VECZ_ONLY "Build Vecz only and not all of ComputeAorta" ON)
-  cmake_minimum_required(VERSION 3.4.3)
+  cmake_minimum_required(VERSION 3.20)
 
   project(VECZ)
 endif()
