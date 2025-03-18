@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(ComputeAorta VERSION 4.0.0 LANGUAGES C CXX ASM)
 
 # There's no situation where it's necessary to *not* generate this file and the

@@ -13,7 +13,7 @@
 # under the License.
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 project(hal_cpu_remote_server VERSION 1.0.0 LANGUAGES C CXX ASM)
 set(CMAKE_CXX_STANDARD 17)            # Enable C++17 mode

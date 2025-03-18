@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.20)
 
 if(CMAKE_BUILD_TYPE)
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -16,7 +16,7 @@
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   project(BenchCL)
-  cmake_minimum_required(VERSION 3.4.3)
+  cmake_minimum_required(VERSION 3.20)
 
   set(BENCHCL_OPENCL_LIBRARY "" CACHE PATH
     "Path to the OpenCL library to link against.")

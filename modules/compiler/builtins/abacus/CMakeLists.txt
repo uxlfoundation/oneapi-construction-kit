@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  cmake_minimum_required(VERSION 3.4.3)
+  cmake_minimum_required(VERSION 3.20)
   project(Abacus)
 endif()
 

@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.20)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   project(refsidrv VERSION 1.0.0)

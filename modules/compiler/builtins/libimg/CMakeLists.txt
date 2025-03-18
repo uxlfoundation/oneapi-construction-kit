@@ -14,7 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(image_library VERSION 1.0.0)
 
 # If the online coverage is enabled we add the modules so that the XML file
