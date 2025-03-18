@@ -12,6 +12,7 @@ RUN apt-get install --yes wget gpg
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
+RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
 
 RUN apt-get install --yes zstd
 RUN apt-get -y install gh
