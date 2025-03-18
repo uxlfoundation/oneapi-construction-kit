@@ -271,6 +271,8 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   KWOpts.IsPackedStruct = true;
   PM.addPass(compiler::utils::AddKernelWrapperPass(KWOpts));
 
+  PM.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
+
   PM.addPass(compiler::utils::ReplaceLocalModuleScopeVariablesPass());
 
   PM.addPass(AddFloatingPointControlPass(options.denorms_may_be_zero));
@@ -299,8 +301,6 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
     PM.addPass(llvm::createModuleToFunctionPassAdaptor(
         compiler::utils::RemoveLifetimeIntrinsicsPass()));
   }
-
-  PM.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
 
   PM.addPass(compiler::utils::AddMetadataPass<
              compiler::utils::VectorizeMetadataAnalysis,
