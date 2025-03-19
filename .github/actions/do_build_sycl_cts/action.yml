@@ -77,6 +77,11 @@ runs:
             git -C SYCL-CTS.src apply "$patch"
           fi
         done
+        if [[ "${{inputs.sycl_device}}" = "ock" ]] ; then
+          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include"
+        else # native_cpu
+          DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS='-fsycl-targets=native_cpu'"
+        fi
         export JOPT="4"
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
           JOPT="2"
@@ -86,11 +91,10 @@ runs:
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
             -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/install_dpcpp \
-            -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
-            -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
-            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
+            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
+            ${DEV_OPTS}
         ninja -C SYCL-CTS -v -j$JOPT -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
