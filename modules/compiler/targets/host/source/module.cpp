@@ -241,6 +241,7 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
     const compiler::utils::EncodeKernelMetadataPassOptions pass_opts{name};
     pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
     pm.addPass(compiler::utils::ReduceToFunctionPass());
+    pm.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
 
     pm.run(*kernel_module, pass_mach->getMAM());
     // Retrieve the estimation of the amount of local memory this kernel uses.
