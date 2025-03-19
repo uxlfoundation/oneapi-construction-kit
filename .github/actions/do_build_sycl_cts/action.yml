@@ -4,6 +4,9 @@ description: build sycl cts
 inputs:
   target:
     description: 'target architecture'
+  sycl_device:
+    description: 'ock or native_cpu'
+    default: 'ock'
   download_sycl_cts_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''    

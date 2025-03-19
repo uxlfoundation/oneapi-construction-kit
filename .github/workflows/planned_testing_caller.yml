@@ -31,6 +31,7 @@ jobs:
       #                "host_x86_64_windows" ]'
       target_list: '[ "host_x86_64_linux" ]'
       ock: false
+      native_cpu: true
       test_tornado: false
       test_sycl_cts: true
       test_opencl_cts: false
