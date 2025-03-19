@@ -340,7 +340,7 @@ jobs:
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
   run_sycl_cts_ock:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_ock]
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
@@ -396,7 +396,7 @@ jobs:
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
   run_sycl_cts_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native, build_sycl_cts]
+    needs: [workflow_vars, build_dpcpp_native, build_sycl_cts_native_cpu]
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
