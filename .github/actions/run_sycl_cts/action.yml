@@ -21,12 +21,14 @@ runs:
       uses: llvm/actions/install-ninja@main
 
     - name: download ock artifact
+      if: inputs.sycl_device == 'ock'
       uses: actions/download-artifact@v4
       with:
         name: ock_${{inputs.target}}
         path: install_ock
 
     - name: download header artifact
+      if: inputs.sycl_device == 'ock'
       uses: actions/download-artifact@v4
       with:
         name: header_${{inputs.target}}
@@ -66,8 +68,15 @@ runs:
         SYCL_CTS_FILTER: ''
       run: |
         echo running sycl cts
-        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib:$GITHUB_WORKSPACE/install_ock/lib
-        export ONEAPI_DEVICE_SELECTOR=opencl:0
+        export RUN_OPTS=""
+        export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib
+        if [[ "${{inputs.sycl_device}}" = "ock" ]] ; then
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/install_ock/lib
+          export RUN_OPTS="-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so"
+          export ONEAPI_DEVICE_SELECTOR=opencl:0
+        else # native_cpu
+          export ONEAPI_DEVICE_SELECTOR=native_cpu:cpu
+        fi
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
@@ -90,7 +99,7 @@ runs:
           -p sycl_cts \
           -b SYCL-CTS/bin \
           -L SYCL-CTS/lib \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
+          $RUN_OPTS \
           -s $CTS_CSV_FILE \
           -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
           -r SYCL-CTS/cts.xml \
@@ -98,6 +107,7 @@ runs:
           -o override.csv \
           $SYCL_CTS_FILTER || exitcode=$?
 
+# ALAN TODO: is this var needed at all?
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         $GITHUB_WORKSPACE/.github/scripts/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
