@@ -86,6 +86,7 @@ runs:
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
           JOPT="2"
         fi
+        set -x
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
