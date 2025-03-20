@@ -82,7 +82,7 @@ runs:
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
 
         # Build override file, all is done first, then the target specific. The last file can overwrite prevous overrides.
-        for csv in .github/sycl_cts/override_${{ inputs.sycl_device }}_all.csv .github/sycl_cts/override_${{ inputs.sycl_device }}_${{ inputs.target }}.csv
+        for csv in .github/sycl_cts/override_all.csv .github/sycl_cts/override_${{ inputs.sycl_device }} .github/sycl_cts/override_${{ inputs.sycl_device }}_${{ inputs.target }}.csv
         do
            [ -f $csv ] && cat $csv
         done > override.csv

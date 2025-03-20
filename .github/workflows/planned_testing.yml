@@ -256,6 +256,7 @@ jobs:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
+        #clone_repo: [ 'intel/llvm', 'llvm/llvm-project' ]
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
@@ -286,6 +287,7 @@ jobs:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
+        #clone_repo: [ 'intel/llvm', 'llvm/llvm-project' ]
 
     runs-on: cp-ubuntu-24.04
     container:
@@ -370,6 +372,7 @@ jobs:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         # TODO: For now just linux x86_64 & aarch64
+        # ALAN TODO: add riscv64 after rebase to pick it up
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
@@ -402,6 +405,7 @@ jobs:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         # TODO: For now just linux x86_64 and aarch64
+        # ALAN TODO: add riscv64 after rebase to pick it up
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}

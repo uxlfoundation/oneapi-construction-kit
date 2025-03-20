@@ -4,6 +4,10 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
+  #clone_repo:
+  #  description: 'dpc++ repo to clone: "intel/llvm" or "llvm/llvm-project"'
+  #  type: string
+  #  default: "intel/llvm"
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -25,6 +29,7 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       uses: actions/checkout@v4
       with:
+        #repository: ${{ inputs.clone_repo }}
         repository: intel/llvm
         path: llvm
 
