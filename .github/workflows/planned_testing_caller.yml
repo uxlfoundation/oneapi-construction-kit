@@ -43,5 +43,4 @@ jobs:
       # download_dpcpp_artefact: host_x86_64_linux=12915462445;host_aarch64_linux=12915462445
       download_dpcpp_artefact: host_x86_64_linux=13950528820
       # download_sycl_cts_artefact: host_x86_64_linux=12915462445;host_aarch64_linux=12915462445      
-      download_sycl_cts_artefact: host_x86_64_linux=13950528820
       pull_request: ${{ github.event_name == 'pull_request' }}
