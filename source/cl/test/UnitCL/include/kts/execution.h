@@ -242,7 +242,7 @@ struct ExecutionWithParam
                            FIXTURE::getParamName);
 
 // User defined ULP literal
-constexpr cl_ulong operator"" _ULP(unsigned long long int ulp) {
+constexpr cl_ulong operator""_ULP(unsigned long long int ulp) {
   return static_cast<cl_ulong>(ulp);
 }
 
