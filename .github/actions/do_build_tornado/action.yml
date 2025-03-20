@@ -31,13 +31,17 @@ runs:
         wget https://archive.apache.org/dist/maven/maven-3/3.9.3/binaries/apache-maven-3.9.3-bin.tar.gz
         tar xf apache-maven-3.9.3-bin.tar.gz
 
-    # TODO: setup correctly for our aarch64 runner
-    - name: select jdk21
+    - name: select jdk21 (x86_64)
       if: steps.calc_vars.outputs.arch == 'x86_64'
-      shell: bash      
-      run: |
+      shell: bash
+      run:
         sudo update-java-alternatives -s temurin-21-jdk-amd64
-        pip install tqdm
+
+    - name: select jdk21 (aarch64)
+      if: steps.calc_vars.outputs.arch == 'aarch64'
+      shell: bash
+      run:
+        sudo update-java-alternatives -s temurin-21-jdk-arm64
 
     - name: clone TornadoVM
       uses: actions/checkout@v4
@@ -49,6 +53,7 @@ runs:
     - name: build tornadovm
       shell: bash    
       run: |
+        pip install tqdm
         export JAVA_HOME=`readlink -f $(command -v java) | sed 's/\/bin\/java//'`
         export TORNADO_SDK=$GITHUB_WORKSPACE/TornadoVM_build/bin/sdk
         export PATH=$PWD/apache-maven-3.9.3/bin:$PATH
