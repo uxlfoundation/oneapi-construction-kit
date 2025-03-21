@@ -258,8 +258,8 @@ jobs:
         dpcpp_repo: [ 'intel/llvm', 'llvm/llvm-project' ]
         exclude:
           ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-          - dpcpp_repo: ${{ inputs.ock == 'false' && 'intel/llvm' }}
-          - dpcpp_repo: ${{ inputs.native_cpu == 'false' && 'llvm/llvm-project' }}
+          - dpcpp_repo: ${{ inputs.ock  && 'intel/llvm' }}
+          - dpcpp_repo: ${{ inputs.native_cpu && 'llvm/llvm-project' }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
     container:
