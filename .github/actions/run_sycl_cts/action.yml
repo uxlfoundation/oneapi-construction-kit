@@ -4,6 +4,9 @@ description: run sycl cts
 inputs:
   target:
     description: 'target architecture'
+  llvm_version:
+    description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+    required: true
 
 runs:
   using: "composite"
@@ -67,11 +70,9 @@ runs:
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
 
-        # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
-
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
-             -k opencl ${{ inputs.target }} \
+             -k opencl ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
 
         exitcode=0
