@@ -1,4 +1,4 @@
-From 07e29f9c7d1bbdf0c2ea3145941c3850d53afe71 Mon Sep 17 00:00:00 2001
+From 1571c8f385321aefc06b2d65949975fe0636853a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 7 Mar 2025 15:06:51 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Build libclc target-independently.
@@ -16,6 +16,7 @@ different ABIs for the same host target.
  clang/lib/Basic/Targets.cpp                   |   8 +
  clang/lib/Basic/Targets/NativeCPU.cpp         | 109 +++++++++
  clang/lib/Basic/Targets/NativeCPU.h           |  70 ++++++
+ clang/lib/Driver/Compilation.cpp              |   4 +-
  clang/lib/Driver/Driver.cpp                   |  30 +--
  clang/lib/Driver/OffloadBundler.cpp           |   3 +-
  clang/lib/Driver/ToolChains/Clang.cpp         |  26 +-
@@ -23,7 +24,7 @@ different ABIs for the same host target.
  clang/lib/Driver/ToolChains/SYCL.h            |  30 +--
  clang/test/CodeGenSYCL/native_cpu_as.cpp      |  16 +-
  clang/test/Driver/sycl-native-cpu-fsycl.cpp   |  38 +--
- clang/test/Driver/sycl-native-cpu.cpp         |  11 +-
+ clang/test/Driver/sycl-native-cpu.cpp         |  15 +-
  clang/test/Driver/sycl.c                      |   3 +-
  .../ClangLinkerWrapper.cpp                    |  10 +-
  .../clang-offload-deps/ClangOffloadDeps.cpp   |   7 +-
@@ -52,7 +53,7 @@ different ABIs for the same host target.
  .../native_cpu/shuffle_abi.cpp                |  93 -------
  .../sycl-native-cpu-libclc-linux.cpp          |   2 +-
  .../sycl-native-cpu-libclc-windows.cpp        |   2 +-
- 41 files changed, 304 insertions(+), 526 deletions(-)
+ 42 files changed, 310 insertions(+), 528 deletions(-)
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.cpp
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.h
  rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/SOURCES (100%)
@@ -350,6 +351,28 @@ index 000000000000..47587e27bc00
 +} // namespace clang
 +
 +#endif // LLVM_CLANG_LIB_BASIC_TARGETS_NATIVECPU_H
+diff --git a/clang/lib/Driver/Compilation.cpp b/clang/lib/Driver/Compilation.cpp
+index a07e81892372..1a91cbaa998d 100644
+--- a/clang/lib/Driver/Compilation.cpp
++++ b/clang/lib/Driver/Compilation.cpp
+@@ -7,6 +7,7 @@
+ //===----------------------------------------------------------------------===//
+ 
+ #include "clang/Driver/Compilation.h"
++#include "ToolChains/SYCL.h"
+ #include "clang/Basic/LLVM.h"
+ #include "clang/Driver/Action.h"
+ #include "clang/Driver/Driver.h"
+@@ -127,7 +128,8 @@ Compilation::getArgsForToolChain(const ToolChain *TC, StringRef BoundArch,
+     if (DeviceOffloadKind == Action::OFK_OpenMP ||
+         DeviceOffloadKind == Action::OFK_SYCL) {
+       const ToolChain *HostTC = getSingleOffloadToolChain<Action::OFK_Host>();
+-      bool SameTripleAsHost = (TC->getTriple() == HostTC->getTriple());
++      bool SameTripleAsHost = (TC->getTriple() == HostTC->getTriple()) ||
++                              isSYCLNativeCPU(TC->getTriple());
+       OffloadArgs = TC->TranslateOffloadTargetArgs(
+           *TranslatedArgs, SameTripleAsHost, AllocatedArgs, DeviceOffloadKind);
+     }
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
 index 214f84f83520..72ff43783f22 100644
 --- a/clang/lib/Driver/Driver.cpp
@@ -806,7 +829,7 @@ index d4dafdf89b61..9ef386d86c71 100644
 +//CHECK_BINDINGS_MULTI_TU:# "native_cpu" - "offload wrapper", inputs: ["[[POSTL]]"], output: "[[WRAP:.*\.o]]"
 +//CHECK_BINDINGS_MULTI_TU:# "{{.*}}" - "{{.*}}::Linker", inputs: ["[[FILE1HOST]]", "[[FILE2HOST]]", "[[KERNELO]]", "[[WRAP]]"], output: "{{.*}}"
 diff --git a/clang/test/Driver/sycl-native-cpu.cpp b/clang/test/Driver/sycl-native-cpu.cpp
-index 8664d8023e19..16de5a9461bf 100644
+index 8664d8023e19..1180932447ee 100644
 --- a/clang/test/Driver/sycl-native-cpu.cpp
 +++ b/clang/test/Driver/sycl-native-cpu.cpp
 @@ -2,11 +2,11 @@
@@ -824,16 +847,19 @@ index 8664d8023e19..16de5a9461bf 100644
  
  // RUN:   %clang -### -target x86_64-unknown-linux-gnu -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-LINUX %s
  // CHECK-LINUX: {{.*}}"-fsycl-is-device"{{.*}}"-dwarf-version=[[DVERSION:.*]]" "-debugger-tuning=gdb"
-@@ -19,7 +19,12 @@
+@@ -19,7 +19,14 @@
  // CHECK-WIN-NOT: dwarf
  
  // checks that -sycl-opt is not enabled by default on NativeCPU so that the full llvm optimization is enabled
-+// Also check that we pass the expected backend uptions.
- // RUN:   %clang -fsycl -fsycl-targets=native_cpu -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
+-// RUN:   %clang -fsycl -fsycl-targets=native_cpu -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
++// Also check that we pass the expected backend options.
++// RUN:   %clang -fsycl -fsycl-targets=native_cpu -target aarch64-unknown-linux-gnu -march=armv9.4-a -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
 +// CHECK-OPTS: clang{{.*}}"-triple" "native_cpu"{{.*}}"-aux-triple" "[[TRIPLE:[^"]*]]"
 +// CHECK-OPTS: clang{{.*}}"-triple" "[[TRIPLE]]"{{.*}}"-fsycl-is-device"
 +// CHECK-OPTS-NOT: -sycl-opt
 +// CHECK-OPTS-SAME: "-Wno-override-module" "-mllvm" "-sycl-native-cpu-backend"
++// CHECK-OPTS-NOT: -sycl-opt
++// CHECK-OPTS-SAME: "-target-feature" "+v9.4a"
  // CHECK-OPTS-NOT: -sycl-opt
  
  // RUN: %clangxx -fsycl -fsycl-targets=spir64 %s -### 2>&1 | FileCheck -check-prefix=CHECK-NONATIVECPU %s
