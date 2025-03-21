@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   sycl_device:
-    description: 'ock or native_cpu' # use Colins strings here for compatability
+    description: '"ock" or "native_cpu"'
     default: 'ock'
   download_sycl_cts_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
@@ -42,7 +42,7 @@ runs:
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
-        name: dpcpp_${{inputs.target}}
+        name: dpcpp_${{inputs.sycl_device}}_${{inputs.target}}
         path: install_dpcpp
 
     - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue

@@ -134,7 +134,7 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/install
+        gh run download $download_id -n dpcpp_${{ inputs.sycl_device }}_${{ inputs.target }} -D llvm/build/install
         ls llvm/build/install
 
 
@@ -148,6 +148,6 @@ runs:
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
       with:
-        name: dpcpp_${{inputs.target}}
+        name: dpcpp_${{ inputs.sycl_device }}_${{inputs.target}}
         path: llvm/build/install/dpcpp.tar
         retention-days: 7
