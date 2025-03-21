@@ -4,6 +4,10 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
+  sycl_device:
+    description: 'device type: "ock" or "native_cpu"'
+    type: string
+    default: "ock"
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -26,6 +30,7 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: intel/llvm
+        # ALAN TODO: more here based on sycl_device when spec for native_cpu is known
         path: llvm
 
     - name: apply patches
@@ -129,7 +134,7 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/install
+        gh run download $download_id -n dpcpp_${{ inputs.sycl_device }}_${{ inputs.target }} -D llvm/build/install
         ls llvm/build/install
 
 
@@ -143,6 +148,6 @@ runs:
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
       with:
-        name: dpcpp_${{inputs.target}}
+        name: dpcpp_${{ inputs.sycl_device }}_${{inputs.target}}
         path: llvm/build/install/dpcpp.tar
         retention-days: 7
