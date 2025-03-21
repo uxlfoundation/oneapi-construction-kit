@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   sycl_device:
-    description: 'ock or native_cpu'
+    description: 'ock or native_cpu' # use Colins strings here for compatability
     default: 'ock'
   download_sycl_cts_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
