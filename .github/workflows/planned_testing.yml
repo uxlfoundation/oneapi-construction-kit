@@ -255,10 +255,10 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        dpcpp_repo: [ 'intel/llvm', 'llvm/llvm-project' ]
+        sycl_device: [ 'ock', 'native_cpu' ]
         exclude:
-          - dpcpp_repo: ${{ ! inputs.native_cpu && 'llvm/llvm-project' }}
-          - dpcpp_repo: ${{ ! inputs.ock && 'intel/llvm' }}
+          - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
+          - sycl_device: ${{ ! inputs.ock && 'ock' }}
           - ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
@@ -282,7 +282,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          dpcpp_repo: ${{ matrix.dpcpp_repo }}
+          sycl_device: ${{ matrix.sycl_device }}
 
   build_dpcpp_cross:
     needs: [workflow_vars, build_dpcpp_native]  # cross builds need pre-built native artefact

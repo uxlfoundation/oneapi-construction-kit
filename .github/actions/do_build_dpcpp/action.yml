@@ -4,10 +4,10 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
-  dpcpp_repo:
-    description: 'dpc++ repo to clone: "intel/llvm" or "llvm/llvm-project"'
+  sycl_device:
+    description: 'device type: "ock" or "native_cpu"'
     type: string
-    default: "intel/llvm"
+    default: "ock"
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -29,7 +29,8 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.dpcpp_repo }}
+        repository: intel/llvm
+        # ALAN TODO: more here based on sycl_device when spec for native_cpu is known
         path: llvm
 
     - name: apply patches
