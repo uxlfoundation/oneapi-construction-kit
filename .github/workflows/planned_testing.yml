@@ -335,7 +335,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     # build_icd success is needed for ock but build_icd will skip for native_cpu
-    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.build_icd.result == 'skipped' )
+    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.build_icd.result == 'skipped' ) )
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -372,7 +372,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     # create_ock_artefacts_ubuntu success is needed for ock but create_ock_artefacts_ubuntu will skip for native_cpu
-    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.create_ock_artefacts_ubuntu.result == 'skipped' )
+    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.create_ock_artefacts_ubuntu.result == 'skipped' ) )
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
