@@ -27,13 +27,6 @@ runs:
         name: ock_${{inputs.target}}
         path: install_ock
 
-    #- name: download header artifact
-    #  if: inputs.sycl_device == 'ock'
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: header_${{inputs.target}}
-    #    path: install_headers
-
     - name: download SYCL-CTS artifact
       uses: actions/download-artifact@v4
       with:
