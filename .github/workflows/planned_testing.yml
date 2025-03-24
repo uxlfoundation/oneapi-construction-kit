@@ -334,8 +334,8 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # build_icd success is needed for ock but build_icd will skip for native_cpu
-    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.build_icd.result == 'skipped' ) )
+    # if: 'always/failure/cancelled' below allows "needs:" jobs to pass (ock) or skip (native_cpu)
+    if: inputs.test_sycl_cts && inputs.ock && always() && !failure() && !cancelled()
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
