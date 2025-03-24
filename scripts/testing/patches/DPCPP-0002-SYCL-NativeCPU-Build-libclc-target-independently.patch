@@ -1,4 +1,4 @@
-From 1571c8f385321aefc06b2d65949975fe0636853a Mon Sep 17 00:00:00 2001
+From 31fc6ea1569490d3adf6a01cee894751416ec574 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 7 Mar 2025 15:06:51 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Build libclc target-independently.
@@ -24,7 +24,7 @@ different ABIs for the same host target.
  clang/lib/Driver/ToolChains/SYCL.h            |  30 +--
  clang/test/CodeGenSYCL/native_cpu_as.cpp      |  16 +-
  clang/test/Driver/sycl-native-cpu-fsycl.cpp   |  38 +--
- clang/test/Driver/sycl-native-cpu.cpp         |  15 +-
+ clang/test/Driver/sycl-native-cpu.cpp         |  19 +-
  clang/test/Driver/sycl.c                      |   3 +-
  .../ClangLinkerWrapper.cpp                    |  10 +-
  .../clang-offload-deps/ClangOffloadDeps.cpp   |   7 +-
@@ -45,7 +45,7 @@ different ABIs for the same host target.
  .../math/native_sqrt.cl                       |   0
  .../math/round.cl                             |   0
  .../math/sqrt.cl                              |   0
- libdevice/nativecpu_utils.cpp                 |  15 +-
+ libdevice/nativecpu_utils.cpp                 |  16 +-
  .../FixABIMuxBuiltinsSYCLNativeCPU.h          |  29 ---
  llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt    |   1 -
  .../FixABIMuxBuiltinsSYCLNativeCPU.cpp        | 226 ------------------
@@ -53,7 +53,7 @@ different ABIs for the same host target.
  .../native_cpu/shuffle_abi.cpp                |  93 -------
  .../sycl-native-cpu-libclc-linux.cpp          |   2 +-
  .../sycl-native-cpu-libclc-windows.cpp        |   2 +-
- 42 files changed, 310 insertions(+), 528 deletions(-)
+ 42 files changed, 311 insertions(+), 532 deletions(-)
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.cpp
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.h
  rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/SOURCES (100%)
@@ -457,7 +457,7 @@ index 214f84f83520..72ff43783f22 100644
                                                             HostTC, Args);
          }
 diff --git a/clang/lib/Driver/OffloadBundler.cpp b/clang/lib/Driver/OffloadBundler.cpp
-index 8458bf0d819f..e1dd23a4c3a5 100644
+index f4b4964440b5..682c24926b7b 100644
 --- a/clang/lib/Driver/OffloadBundler.cpp
 +++ b/clang/lib/Driver/OffloadBundler.cpp
 @@ -142,7 +142,8 @@ bool OffloadTargetInfo::isOffloadKindCompatible(
@@ -829,11 +829,13 @@ index d4dafdf89b61..9ef386d86c71 100644
 +//CHECK_BINDINGS_MULTI_TU:# "native_cpu" - "offload wrapper", inputs: ["[[POSTL]]"], output: "[[WRAP:.*\.o]]"
 +//CHECK_BINDINGS_MULTI_TU:# "{{.*}}" - "{{.*}}::Linker", inputs: ["[[FILE1HOST]]", "[[FILE2HOST]]", "[[KERNELO]]", "[[WRAP]]"], output: "{{.*}}"
 diff --git a/clang/test/Driver/sycl-native-cpu.cpp b/clang/test/Driver/sycl-native-cpu.cpp
-index 8664d8023e19..1180932447ee 100644
+index 8664d8023e19..dccb20cec166 100644
 --- a/clang/test/Driver/sycl-native-cpu.cpp
 +++ b/clang/test/Driver/sycl-native-cpu.cpp
-@@ -2,11 +2,11 @@
- // RUN: %clangxx -fsycl-device-only -fsycl-targets=native_cpu -target aarch64-unknown-linux-gnu %s -### 2>&1 | FileCheck %s --check-prefix=CHECK-AARCH64
+@@ -1,26 +1,31 @@
+ // RUN: %clangxx -fsycl-device-only -fsycl-targets=native_cpu %s -### 2>&1 | FileCheck %s
+-// RUN: %clangxx -fsycl-device-only -fsycl-targets=native_cpu -target aarch64-unknown-linux-gnu %s -### 2>&1 | FileCheck %s --check-prefix=CHECK-AARCH64
++// RUN: %clangxx -fsycl-device-only -fsycl-targets=native_cpu --target=aarch64-unknown-linux-gnu %s -### 2>&1 | FileCheck %s --check-prefix=CHECK-AARCH64
  
  
 -// checks that the host and device triple are the same, and that the sycl-native-cpu LLVM option is set
@@ -845,24 +847,30 @@ index 8664d8023e19..1180932447ee 100644
 -// CHECK-AARCH64: clang{{.*}}"-triple" "aarch64-unknown-linux-gnu"{{.*}}"-aux-triple" "aarch64-unknown-linux-gnu"{{.*}}"-fsycl-is-native-cpu"{{.*}}"-D" "__SYCL_NATIVE_CPU__"
 +// CHECK-AARCH64: clang{{.*}}"-triple" "native_cpu"{{.*}}"-aux-triple" "aarch64-unknown-linux-gnu"{{.*}}"-fsycl-is-native-cpu"{{.*}}"-D" "__SYCL_NATIVE_CPU__"
  
- // RUN:   %clang -### -target x86_64-unknown-linux-gnu -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-LINUX %s
+-// RUN:   %clang -### -target x86_64-unknown-linux-gnu -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-LINUX %s
++// RUN:   %clang -### --target=x86_64-unknown-linux-gnu -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-LINUX %s
  // CHECK-LINUX: {{.*}}"-fsycl-is-device"{{.*}}"-dwarf-version=[[DVERSION:.*]]" "-debugger-tuning=gdb"
-@@ -19,7 +19,14 @@
+ // CHECK-LINUX-DAG: {{.*}}"-fsycl-is-host"{{.*}}"-dwarf-version=[[DVERSION]]" "-debugger-tuning=gdb"
+ // CHECK-LINUX-NOT: codeview
+ 
+-// RUN:   %clang -### -target x86_64-windows-msvc -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-WIN %s
++// RUN:   %clang -### --target=x86_64-windows-msvc -fsycl -fsycl-targets=native_cpu -g %s 2>&1 | FileCheck -check-prefix=CHECK-WIN %s
+ // CHECK-WIN: {{.*}}"-fsycl-is-device"{{.*}}"-gcodeview"
+ // CHECK-WIN-DAG: {{.*}}"-fsycl-is-host"{{.*}}"-gcodeview"
  // CHECK-WIN-NOT: dwarf
  
  // checks that -sycl-opt is not enabled by default on NativeCPU so that the full llvm optimization is enabled
 -// RUN:   %clang -fsycl -fsycl-targets=native_cpu -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
 +// Also check that we pass the expected backend options.
-+// RUN:   %clang -fsycl -fsycl-targets=native_cpu -target aarch64-unknown-linux-gnu -march=armv9.4-a -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
++// RUN:   %clang -fsycl -fsycl-targets=native_cpu --target=aarch64-unknown-linux-gnu -march=armv9.4-a -### %s 2>&1 | FileCheck -check-prefix=CHECK-OPTS %s
 +// CHECK-OPTS: clang{{.*}}"-triple" "native_cpu"{{.*}}"-aux-triple" "[[TRIPLE:[^"]*]]"
 +// CHECK-OPTS: clang{{.*}}"-triple" "[[TRIPLE]]"{{.*}}"-fsycl-is-device"
-+// CHECK-OPTS-NOT: -sycl-opt
-+// CHECK-OPTS-SAME: "-Wno-override-module" "-mllvm" "-sycl-native-cpu-backend"
-+// CHECK-OPTS-NOT: -sycl-opt
-+// CHECK-OPTS-SAME: "-target-feature" "+v9.4a"
  // CHECK-OPTS-NOT: -sycl-opt
++// CHECK-OPTS-SAME: "-Wno-override-module" "-mllvm" "-sycl-native-cpu-backend"
++// CHECK-OPTS-SAME: "-target-feature" "+v9.4a"
  
  // RUN: %clangxx -fsycl -fsycl-targets=spir64 %s -### 2>&1 | FileCheck -check-prefix=CHECK-NONATIVECPU %s
+ // CHECK-NONATIVECPU-NOT: "-D" "__SYCL_NATIVE_CPU__"
 diff --git a/clang/test/Driver/sycl.c b/clang/test/Driver/sycl.c
 index a3abba9292d9..cc94c73188c7 100644
 --- a/clang/test/Driver/sycl.c
@@ -1112,31 +1120,32 @@ similarity index 100%
 rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/sqrt.cl
 rename to libclc/libspirv/lib/native_cpu/math/sqrt.cl
 diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
-index 6c6ae6d021d0..0e3c8421fbae 100644
+index ca20725a4691..43173ecc144e 100644
 --- a/libdevice/nativecpu_utils.cpp
 +++ b/libdevice/nativecpu_utils.cpp
-@@ -297,7 +297,20 @@ DefShuffleINTEL_All(double, f64, double)
- DefShuffleINTEL_All(float, f32, float)
- DefShuffleINTEL_All(_Float16, f16, _Float16)
+@@ -309,8 +309,20 @@ DefShuffleINTEL_All(double, f64, double);
+ DefShuffleINTEL_All(float, f32, float);
+ DefShuffleINTEL_All(_Float16, f16, _Float16);
  
--// Vector versions of shuffle are generated by the FixABIBuiltinsSYCLNativeCPU pass
+-// Vector versions of shuffle are generated by the FixABIBuiltinsSYCLNativeCPU
+-// pass
 +#define DefineShuffleVec(T, N, Sfx, MuxType)                                   \
 +  using vt##T##N = sycl::vec<T, N>::vector_t;                                  \
 +  using vt##MuxType##N = sycl::vec<MuxType, N>::vector_t;                      \
 +  DefShuffleINTEL_All(vt##T##N, v##N##Sfx, vt##MuxType##N)
 +
 +#define DefineShuffleVec2to16(Type, Sfx, MuxType)                              \
-+  DefineShuffleVec(Type, 2, Sfx, MuxType)                                      \
-+  DefineShuffleVec(Type, 4, Sfx, MuxType)                                      \
-+  DefineShuffleVec(Type, 8, Sfx, MuxType)                                      \
++  DefineShuffleVec(Type, 2, Sfx, MuxType);                                     \
++  DefineShuffleVec(Type, 4, Sfx, MuxType);                                     \
++  DefineShuffleVec(Type, 8, Sfx, MuxType);                                     \
 +  DefineShuffleVec(Type, 16, Sfx, MuxType)
 +
-+DefineShuffleVec2to16(int32_t, i32, int32_t)
-+DefineShuffleVec2to16(uint32_t, i32, int32_t)
-+DefineShuffleVec2to16(float, f32, float)
++DefineShuffleVec2to16(int32_t, i32, int32_t);
++DefineShuffleVec2to16(uint32_t, i32, int32_t);
++DefineShuffleVec2to16(float, f32, float);
  
- #define Define2ArgForward(Type, Name, Callee)\
- DEVICE_EXTERNAL Type Name(Type a, Type b) noexcept { return Callee(a,b);}
+ #define Define2ArgForward(Type, Name, Callee)                                  \
+   DEVICE_EXTERNAL Type Name(Type a, Type b) noexcept { return Callee(a, b); }  \
 diff --git a/llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h b/llvm/include/llvm/SYCLLowerIR/FixABIMuxBuiltinsSYCLNativeCPU.h
 deleted file mode 100644
 index 9eea9a87fced..000000000000
@@ -1556,5 +1565,5 @@ index ef146e5110e0..915bf0af86b4 100644
 -// CHECK-WIN: {{(\\|/)}}remangled-l32-signed_char.libspirv-x86_64-unknown-windows-msvc.bc"
 +// CHECK-WIN: {{(\\|/)}}remangled-l32-signed_char.libspirv-native_cpu.bc"
 -- 
-2.45.2
+2.48.1
 
