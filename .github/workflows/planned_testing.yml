@@ -335,7 +335,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     # if: 'always/failure/cancelled' below allows "needs:" jobs to pass (ock) or skip (native_cpu)
-    if: inputs.test_sycl_cts && inputs.ock && always() && !failure() && !cancelled()
+    if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -372,7 +372,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     # create_ock_artefacts_ubuntu success is needed for ock but create_ock_artefacts_ubuntu will skip for native_cpu
-    if: inputs.test_sycl_cts && ( inputs.ock || ( inputs.native_cpu && needs.create_ock_artefacts_ubuntu.result == 'skipped' ) )
+    if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
