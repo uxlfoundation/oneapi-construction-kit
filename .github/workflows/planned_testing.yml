@@ -253,6 +253,7 @@ jobs:
   build_dpcpp_native:
     needs: [workflow_vars]
     strategy:
+      fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
         sycl_device: [ 'ock', 'native_cpu' ]
