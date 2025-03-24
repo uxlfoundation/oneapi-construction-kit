@@ -31,8 +31,9 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: intel/llvm
-        # ALAN TODO: more here based on sycl_device when spec for native_cpu is known
-        # ref: sycl (default) for ock OR ??? for native_cpu
+        # ALAN TODO:
+        # if native_cpu then ???? else sycl
+        ref: ${{ inputs.sycl_device == 'native_cpu' && 'sycl' || 'sycl' }}
         path: llvm
 
     - name: apply patches

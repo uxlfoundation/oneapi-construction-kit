@@ -321,7 +321,6 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         sycl_device: [ 'ock', 'native_cpu' ]
         # TODO: For now just linux x86_64 & aarch64
-        # ALAN TODO: add riscv64 after rebase to pick it up
         exclude:
           - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
           - sycl_device: ${{ ! inputs.ock && 'ock' }}
@@ -334,7 +333,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # if: 'always/failure/cancelled' below allows "needs:" jobs to pass (ock) or skip (native_cpu)
+    # if: 'always/failure/cancelled' below allows all "needs:" jobs to pass (ock) or some to skip (build_icd for native_cpu)
     if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
     steps:
       - name: Checkout repo
@@ -371,7 +370,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # create_ock_artefacts_ubuntu success is needed for ock but create_ock_artefacts_ubuntu will skip for native_cpu
+    # if: 'always/failure/cancelled' below allows all "needs:" jobs to pass (ock) or some to skip (create_ock_artefacts_ubuntu for native_cpu)
     if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
     steps:
       - name: Checkout repo
