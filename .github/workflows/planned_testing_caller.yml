@@ -41,7 +41,5 @@ jobs:
       # The following can be used to download from a previous workflow run (change id)
       # download_ock_artefact: host_x86_64_linux=12915462445;host_aarch64_linux=12915462445
       # download_dpcpp_artefact: host_x86_64_linux=12915462445;host_aarch64_linux=12915462445
-      #download_dpcpp_artefact: host_x86_64_linux=13969545103
       # download_sycl_cts_artefact: host_x86_64_linux=12915462445;host_aarch64_linux=12915462445      
-      download_sycl_cts_artefact: host_x86_64_linux=13969545103
       pull_request: ${{ github.event_name == 'pull_request' }}
