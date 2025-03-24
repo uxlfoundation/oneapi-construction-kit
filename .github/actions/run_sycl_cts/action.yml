@@ -27,12 +27,12 @@ runs:
         name: ock_${{inputs.target}}
         path: install_ock
 
-    - name: download header artifact
-      if: inputs.sycl_device == 'ock'
-      uses: actions/download-artifact@v4
-      with:
-        name: header_${{inputs.target}}
-        path: install_headers
+    #- name: download header artifact
+    #  if: inputs.sycl_device == 'ock'
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: header_${{inputs.target}}
+    #    path: install_headers
 
     - name: download SYCL-CTS artifact
       uses: actions/download-artifact@v4
@@ -74,22 +74,12 @@ runs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/install_ock/lib
           export RUN_OPTS="-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so"
           export ONEAPI_DEVICE_SELECTOR=opencl:0
+          # ... and needed for create_sycl_cts_test_lists.sh call below ...
+          export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         else # native_cpu
           export ONEAPI_DEVICE_SELECTOR=native_cpu:cpu
         fi
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
-
-        # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
-
-        # ALAN TODO: update building of override file
-        ## Build override file, all is done first, then the target specific. The last file can overwrite prevous overrides.
-        #for csv in .github/sycl_cts/override_all.csv .github/sycl_cts/override_${{ inputs.sycl_device }}.csv .github/sycl_cts/override_${{ inputs.sycl_device }}_${{ inputs.target }}.csv
-        #do
-        #   [ -f $csv ] && cat $csv
-        #done > override.csv
-
-        #echo OVERRIDE FILE:
-        #cat override.csv
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
@@ -113,8 +103,6 @@ runs:
           -o override_combined.csv \
           $SYCL_CTS_FILTER || exitcode=$?
 
-        # ALAN TODO: is this var needed at all?
-        export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         $GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
         # output a diff of the generated list csv.txt and cts_all.txt
         diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
