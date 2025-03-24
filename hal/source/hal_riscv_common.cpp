@@ -59,7 +59,7 @@ bool update_info_from_riscv_isa_description(
     info.word_size = word_size;
   }
 
-  while (char c = *str++) {
+  while (const char c = *str++) {
     switch (c) {
       case 'M':
         riscv_info.extensions |= rv_extension_M;
@@ -117,7 +117,7 @@ bool update_info_from_riscv_isa_description(
       case 'Z': {
         // Start parsing a multi-letter extension.
         auto *start = str;
-        while (char zc = *str) {
+        while (const char zc = *str) {
           // Z extensions should be followed by an underscore, otherwise we'll
           // eat until the end of the string.
           if (zc == '_') {

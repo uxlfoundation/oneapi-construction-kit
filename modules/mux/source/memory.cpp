@@ -48,12 +48,16 @@ mux_result_t muxAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
     return mux_error_invalid_value;
   }
 
-  switch (allocation_type) {
-    default:
-      return mux_error_invalid_value;
-    case mux_allocation_type_alloc_host:
-    case mux_allocation_type_alloc_device:
-      break;
+  const bool allocation_type_valid = [&] {
+    switch (allocation_type) {
+      case mux_allocation_type_alloc_host:
+      case mux_allocation_type_alloc_device:
+        return true;
+    }
+    return false;
+  }();
+  if (!allocation_type_valid) {
+    return mux_error_invalid_value;
   }
 
   // Checks for 0 or power-of-two

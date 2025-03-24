@@ -76,7 +76,7 @@ bool hal_argpack_t::add_arg(const hal_arg_t &arg) {
           write_point += padding;
           std::memcpy(pack + write_point, &arg.address, sizeof(arg.address));
           write_point += sizeof(arg.address);
-          break;
+          return true;
         }
         case hal_arg_value: {
           // copy POD data in directly
@@ -88,11 +88,8 @@ bool hal_argpack_t::add_arg(const hal_arg_t &arg) {
           }
           std::memcpy(pack + write_point, arg.pod_data, arg.size);
           write_point += arg.size;
-          break;
+          return true;
         }
-        default:
-          assert(!"Not implemented");
-          return false;
       }
       break;
     case hal_space_local:
@@ -120,8 +117,7 @@ bool hal_argpack_t::add_arg(const hal_arg_t &arg) {
               std::memcpy(pack + write_point, &size, sizeof(size));
               write_point += sizeof(size);
             } else {
-              assert(!"Not implemented");
-              return false;
+              break;
             }
           } else {
             if (!expand(word_size_in_bits / 8)) {
@@ -140,17 +136,15 @@ bool hal_argpack_t::add_arg(const hal_arg_t &arg) {
               return false;
             }
           }
-          break;
+          return true;
         default:
-          assert(!"Not implemented");
-          return false;
+          break;
       }
       break;
-    default:
-      assert(!"Not implemented");
-      return false;
   }
-  return true;
+
+  assert(0 && "Not implemented");
+  return false;
 }
 
 bool hal_argpack_t::build(const hal_arg_t *args, uint32_t num_args) {

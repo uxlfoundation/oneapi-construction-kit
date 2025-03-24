@@ -41,7 +41,7 @@ typedef uint16_t Elf64_Half_t;
 typedef uint32_t Elf64_Word_t;
 typedef uint64_t Elf64_XWord_t;
 
-static inline constexpr uint8_t ELF32_ST_TYPE(uint8_t i) { return i & 0xf; }
+static constexpr uint8_t ELF32_ST_TYPE(uint8_t i) { return i & 0xf; }
 
 enum {
   // ELF identification
@@ -79,16 +79,11 @@ enum {
 
 template <bool Is64>
 struct ElfTypes {
-  using Elf_Half_t =
-      typename std::conditional<Is64, Elf64_Half_t, Elf32_Half_t>::type;
-  using Elf_Word_t =
-      typename std::conditional<Is64, Elf64_Word_t, Elf32_Word_t>::type;
-  using Elf_XWord_t =
-      typename std::conditional<Is64, Elf64_XWord_t, Elf32_XWord_t>::type;
-  using Elf_Addr_t =
-      typename std::conditional<Is64, Elf64_Addr_t, Elf32_Addr_t>::type;
-  using Elf_Off_t =
-      typename std::conditional<Is64, Elf64_Off_t, Elf32_Off_t>::type;
+  using Elf_Half_t = std::conditional_t<Is64, Elf64_Half_t, Elf32_Half_t>;
+  using Elf_Word_t = std::conditional_t<Is64, Elf64_Word_t, Elf32_Word_t>;
+  using Elf_XWord_t = std::conditional_t<Is64, Elf64_XWord_t, Elf32_XWord_t>;
+  using Elf_Addr_t = std::conditional_t<Is64, Elf64_Addr_t, Elf32_Addr_t>;
+  using Elf_Off_t = std::conditional_t<Is64, Elf64_Off_t, Elf32_Off_t>;
 };
 
 template <bool Is64>
@@ -248,6 +243,8 @@ struct elf_base_t {
   virtual bool find_symbol(const char *name, Elf_Sym_wrapper_t &) const = 0;
 
  protected:
+  ~elf_base_t() = default;
+
   const uint8_t *elf;
 };
 
@@ -255,10 +252,8 @@ template <bool Is64>
 struct elf_file_t : elf_base_t {
   elf_file_t() : hdr(nullptr) {}
 
-  using Elf_Phdr_t =
-      typename std::conditional<Is64, Elf64_Phdr_t, Elf32_Phdr_t>::type;
-  using Elf_Sym_t =
-      typename std::conditional<Is64, Elf64_Sym_t, Elf32_Sym_t>::type;
+  using Elf_Phdr_t = std::conditional_t<Is64, Elf64_Phdr_t, Elf32_Phdr_t>;
+  using Elf_Sym_t = std::conditional_t<Is64, Elf64_Sym_t, Elf32_Sym_t>;
 
   virtual bool get_header(Elf_Ehdr_wrapper_t &ehdr) const override {
     if (!hdr) {
@@ -364,13 +359,13 @@ struct elf_file_t : elf_base_t {
   }
 
   virtual bool get_phdr(int index, Elf_Phdr_wrapper_t &phdr) const override {
-    const auto offset = hdr->e_phoff + index * hdr->e_phentsize;
+    const auto offset = hdr->e_phoff + (index * hdr->e_phentsize);
     phdr = Elf_Phdr_wrapper_t(*(const Elf_Phdr_t *)(data() + offset));
     return true;
   }
 
   virtual bool get_shdr(int index, Elf_Shdr_wrapper_t &shdr) const override {
-    const auto offset = hdr->e_shoff + index * hdr->e_shentsize;
+    const auto offset = hdr->e_shoff + (index * hdr->e_shentsize);
     shdr = Elf_Shdr_wrapper_t(*(const Elf_Shdr_t<Is64> *)(data() + offset));
     return true;
   }

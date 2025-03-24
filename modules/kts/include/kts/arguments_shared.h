@@ -488,7 +488,7 @@ class GenericStreamer : public BufferStreamer {
                   V validator = {})
       : ref_(ref), validator(validator), fallbacks_(f) {}
 
-  virtual void PopulateBuffer(ArgumentBase &arg, const BufferDesc &desc) {
+  void PopulateBuffer(ArgumentBase &arg, const BufferDesc &desc) override {
     arg.SetBufferStorageSize(desc.size_ * sizeof(T));
 
     MemoryAccessor<T> accessor;
@@ -504,8 +504,8 @@ class GenericStreamer : public BufferStreamer {
     }
   }
 
-  virtual bool ValidateBuffer(ArgumentBase &arg, const BufferDesc &desc,
-                              std::vector<std::string> *errors) {
+  bool ValidateBuffer(ArgumentBase &arg, const BufferDesc &desc,
+                      std::vector<std::string> *errors) override {
     if ((arg.GetKind() != eOutputBuffer) && (arg.GetKind() != eInOutBuffer)) {
       return true;
     }
@@ -566,7 +566,7 @@ class GenericStreamer : public BufferStreamer {
     return true;
   }
 
-  virtual size_t GetElementSize() { return sizeof(T); }
+  size_t GetElementSize() override { return sizeof(T); }
 
   bool CheckIfUndef(size_t index) const {
     if (undef_callback_) {
@@ -608,8 +608,8 @@ template <typename T>
 struct BoxedPrimitive : public Primitive {
   BoxedPrimitive(T value) : value_(value) {}
 
-  virtual void *GetAddress() { return &value_; }
-  virtual size_t GetSize() { return sizeof(T); }
+  void *GetAddress() override { return &value_; }
+  size_t GetSize() override { return sizeof(T); }
 
   T value_;
 };

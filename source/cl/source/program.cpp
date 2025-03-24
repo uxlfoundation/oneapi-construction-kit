@@ -43,9 +43,9 @@ cl_int convertModuleStateToCL(compiler::ModuleState state) {
       return CL_PROGRAM_BINARY_TYPE_LIBRARY;
     case compiler::ModuleState::EXECUTABLE:
       return CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
-    default:
-      return CL_PROGRAM_BINARY_TYPE_NONE;
   }
+
+  return CL_PROGRAM_BINARY_TYPE_NONE;
 }
 }  // namespace
 

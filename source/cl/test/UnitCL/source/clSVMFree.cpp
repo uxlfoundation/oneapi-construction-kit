@@ -18,7 +18,7 @@
 
 class clSVMFreeTest : public ucl::ContextTest {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();

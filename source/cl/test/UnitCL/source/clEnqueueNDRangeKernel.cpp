@@ -2122,7 +2122,7 @@ class clEnqueueNDRangeKernelZeroDimension
     : public clEnqueueNDRangeKernelTest,
       public testing::WithParamInterface<size_t> {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     clEnqueueNDRangeKernelTest::SetUp();
     // Returning CL_INVALID_GLOBAL_WORK_SIZE for NDRanges with a zero-sized
     // dimension was deprecated in 2.1.
@@ -2164,7 +2164,7 @@ class LinearIDTest
       {{0, 0, 0}, {1, 2, 3}}};
 
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     // get_local_linear_id and get_global_linear_id were
     // introduced in the OpenCL-2.0 spec.
@@ -2221,7 +2221,7 @@ class LinearIDTest
                                   nullptr, nullptr));
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (nullptr != output_buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(output_buffer));
     }
@@ -2314,7 +2314,7 @@ INSTANTIATE_TEST_CASE_P(
 
 class GetEnqueuedLocalSizeTest : public ucl::CommandQueueTest {
  protected:
-  virtual void SetUp() override {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     // get_enqueued_local_size was introduced for non-uniform workgroups
     // in OpenCL-2.0.
@@ -2354,7 +2354,7 @@ class GetEnqueuedLocalSizeTest : public ucl::CommandQueueTest {
                                   nullptr, nullptr));
   }
 
-  virtual void TearDown() override {
+  void TearDown() override {
     if (nullptr != output_buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(output_buffer));
     }

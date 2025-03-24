@@ -128,9 +128,6 @@ class RawStackSerializer {
         }
         break;
       }
-
-      default:
-        break;
     }
   }
 
@@ -272,10 +269,9 @@ class BasicMsgPackStackSerializer {
         }
         return data;
       }
-      default:
-        assert(0 && "Invalid or unsupported MsgPack type qualifier");
-        return nullptr;
     }
+    assert(0 && "Invalid or unsupported MsgPack type qualifier");
+    return nullptr;
   }
 
   /// @brief Serialize an individual stack element.
@@ -288,19 +284,19 @@ class BasicMsgPackStackSerializer {
         output.emplace_back(MsgPackFmt::MSG_PACK_UINT_64);
         auto *val = elem.template get<typename StackType::unsigned_t>();
         serialize_number(*val, output, MD_ENDIAN::BIG);
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_SINT: {
         output.emplace_back(MsgPackFmt::MSG_PACK_INT_64);
         auto *val = elem.template get<typename StackType::signed_t>();
         serialize_number(*val, output, MD_ENDIAN::BIG);
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_REAL: {
         output.emplace_back(MsgPackFmt::MSG_PACK_DOUBLE);
         auto *val = elem.template get<typename StackType::real_t>();
         serialize_number(*val, output, MD_ENDIAN::BIG);
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_ZSTR: {
         output.emplace_back(MsgPackFmt::MSG_PACK_STR_16);
@@ -308,7 +304,7 @@ class BasicMsgPackStackSerializer {
         const uint16_t str_len = val->size();
         serialize_number(str_len, output, MD_ENDIAN::BIG);
         output.insert(output.end(), val->begin(), val->end());
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_BYTESTR: {
         auto *val = elem.template get<typename StackType::byte_arr_t>();
@@ -322,7 +318,7 @@ class BasicMsgPackStackSerializer {
           serialize_number(byte_str_len, output, MD_ENDIAN::BIG);
         }
         output.insert(output.end(), val->begin(), val->end());
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_ARRAY: {
         output.emplace_back(MsgPackFmt::MSG_PACK_ARR_16);
@@ -332,7 +328,7 @@ class BasicMsgPackStackSerializer {
         for (const auto &item : *val) {
           serialize_element(item, output);
         }
-        break;
+        return;
       }
       case md_value_type::MD_TYPE_HASH: {
         output.emplace_back(MsgPackFmt::MSG_PACK_MAP_16);
@@ -343,12 +339,10 @@ class BasicMsgPackStackSerializer {
           serialize_element(kv.first, output);
           serialize_element(kv.second, output);
         }
-        break;
+        return;
       }
-      default:
-        assert(0 && "Invalid Value Type!");
-        break;
     }
+    assert(0 && "Invalid Value Type!");
   }
 
  public:

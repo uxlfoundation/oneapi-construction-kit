@@ -601,7 +601,7 @@ add_resources(NAMESPACE builtins
 # Generate the body of get_api_force_file_device()
 set(get_force_header_src "")
 set(get_force_header_str "\
-  if (0 == std::strcmp(device_name, \"@dev_name@\")) {
+  if (0 == std::strcmp(DeviceName, \"@dev_name@\")) {
     return rc::builtins::@prefix@\;
   }
 ")
@@ -617,8 +617,8 @@ if(CA_FORCE_HEADERS_PREFIXES)
   endforeach()
   unset(num_headers)
 else()
-  # If there are no forced headers, device_name isn't used
-  set(get_force_header_src "  (void)device_name;")
+  # If there are no forced headers, DeviceName isn't used
+  set(get_force_header_src "  (void)DeviceName;")
 endif()
 
 # get_force_header_src is used to configure bakery.cpp.in

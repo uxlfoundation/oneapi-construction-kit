@@ -18,7 +18,7 @@
 
 class clGetPipeInfoTest : public ucl::ContextTest {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int error{};
     buffer = clCreateBuffer(context, 0, 42, nullptr, &error);
@@ -29,7 +29,7 @@ class clGetPipeInfoTest : public ucl::ContextTest {
     }
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
     }

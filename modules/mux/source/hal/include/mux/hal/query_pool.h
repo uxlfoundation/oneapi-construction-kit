@@ -56,12 +56,17 @@ struct query_pool : mux_query_pool_s {
       mux::allocator allocator) {
     (void)queue;
     (void)query_configs;
-    switch (query_type) {
-      case mux_query_type_duration:
-      case mux_query_type_counter:
-        break;
-      default:
-        return cargo::make_unexpected(mux_error_invalid_value);
+    const bool query_type_valid = [&] {
+      switch (query_type) {
+        case mux_query_type_duration:
+        case mux_query_type_counter:
+          return true;
+      }
+
+      return false;
+    }();
+    if (!query_type_valid) {
+      return cargo::make_unexpected(mux_error_invalid_value);
     }
     // Calculate the result storage offset past the end of the query_pool_s.
     // FIXME: This wastes sizeof(mux_query_duration_result_s) bytes when

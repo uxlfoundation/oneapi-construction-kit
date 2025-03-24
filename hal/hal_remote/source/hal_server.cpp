@@ -26,7 +26,7 @@
 namespace hal {
 hal_server::hal_server(hal_transmitter *transmitter, hal::hal_t *hal)
     : hal(hal), transmitter(transmitter) {
-  if (getenv("HAL_DEBUG_SERVER") && *getenv("HAL_DEBUG_SERVER") == '1') {
+  if (auto *Val = getenv("HAL_DEBUG_SERVER"); Val && strcmp(Val, "1") == 0) {
     debug = true;
   }
 }

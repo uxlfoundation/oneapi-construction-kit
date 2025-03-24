@@ -88,17 +88,17 @@ cargo::array_view<const compiler::Info *> compilers() {
 ")
 
 file(APPEND ${COMPILER_CONFIG_SOURCE} "\
-  static std::vector<const compiler::Info *> compilers_list;
-  static std::once_flag compilers_initialized;
-  std::call_once(compilers_initialized,
+  static std::vector<const compiler::Info *> CompilersList;
+  static std::once_flag CompilersInitialized;
+  std::call_once(CompilersInitialized,
     [] {
-      auto add_compiler = [](const compiler::Info* info) {
-        compilers_list.push_back(info);
+      auto AddCompiler = [](const compiler::Info* Info) {
+        CompilersList.push_back(Info);
       };
 ")
 foreach(COMPILER_INFO ${COMPILER_INFO_NAMES})
   file(APPEND ${COMPILER_CONFIG_SOURCE} "\
-      ${COMPILER_INFO}(add_compiler);
+      ${COMPILER_INFO}(AddCompiler);
 ")
 endforeach()
 file(APPEND ${COMPILER_CONFIG_SOURCE} "\
@@ -106,7 +106,7 @@ file(APPEND ${COMPILER_CONFIG_SOURCE} "\
 ")
 
 file(APPEND ${COMPILER_CONFIG_SOURCE} "\
-  return compilers_list;
+  return CompilersList;
 }
 }  // namespace compiler
 ")

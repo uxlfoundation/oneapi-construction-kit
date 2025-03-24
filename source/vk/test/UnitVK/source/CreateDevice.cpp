@@ -22,7 +22,7 @@ class CreateDevice : public uvk::PhysicalDeviceTest {
  public:
   CreateDevice()
       : deviceCreateInfo(), queueCreateInfo(), device(VK_NULL_HANDLE) {}
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(PhysicalDeviceTest::SetUp());
 
     const float queuePriority = 1;
@@ -36,7 +36,7 @@ class CreateDevice : public uvk::PhysicalDeviceTest {
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (device) {
       vkDestroyDevice(device, nullptr);
     }

@@ -199,8 +199,7 @@ compiler::Result HostTarget::initWithBuiltins(
           triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
           break;
         default:
-          assert(!"AArch64 cross-compile only supports Linux");
-          break;
+          llvm_unreachable("AArch64 cross-compile only supports Linux");
       }
       break;
     case host::arch::RISCV32:

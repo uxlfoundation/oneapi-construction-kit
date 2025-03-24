@@ -24,7 +24,7 @@ class ResetDescriptorPool : public uvk::DescriptorPoolTest,
   ResetDescriptorPool()
       : DescriptorSetLayoutTest(true), descriptorSet(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(DescriptorPoolTest::SetUp());
     RETURN_ON_FATAL_FAILURE(DescriptorSetLayoutTest::SetUp());
 
@@ -37,7 +37,7 @@ class ResetDescriptorPool : public uvk::DescriptorPoolTest,
     vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet);
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     DescriptorSetLayoutTest::TearDown();
     DescriptorPoolTest::TearDown();
   }

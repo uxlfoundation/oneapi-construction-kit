@@ -477,7 +477,7 @@ class clEnqueueMapImageNegativeTest1d : public clEnqueueMapImageTestBase {
 
 class clEnqueueMapImageNegativeTest1dBuffer : public clEnqueueMapImageTestBase {
  public:
-  void TearDown() {
+  void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
     }

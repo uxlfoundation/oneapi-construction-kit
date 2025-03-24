@@ -27,7 +27,7 @@ class CreateComputePipelines : public uvk::PipelineLayoutTest {
         pipelineCreateInfo(),
         pipeline(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(PipelineLayoutTest::SetUp());
 
     const uvk::ShaderCode shaderCode = uvk::getShader(uvk::Shader::nop);
@@ -48,7 +48,7 @@ class CreateComputePipelines : public uvk::PipelineLayoutTest {
     pipelineCreateInfo.stage = shaderStageCreateInfo;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     vkDestroyShaderModule(device, shaderModule, nullptr);
     if (pipeline) {
       vkDestroyPipeline(device, pipeline, nullptr);

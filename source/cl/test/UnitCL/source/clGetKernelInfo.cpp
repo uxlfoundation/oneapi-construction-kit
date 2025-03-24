@@ -34,7 +34,7 @@ std::string work_group_size_hint(const std::array<size_t, 3> sizes) {
 
 class clGetKernelInfoTest : public ucl::ContextTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -71,7 +71,7 @@ class clGetKernelInfoTest : public ucl::ContextTest {
     ASSERT_SUCCESS(errcode);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (kernel) {
       ASSERT_SUCCESS(clReleaseKernel(kernel));
     }
@@ -290,7 +290,7 @@ typedef std::pair<const char *, std::vector<const char *>> InputPair;
 
 struct clGetKernelInfoAttributeTest : ucl::ContextTest,
                                       testing::WithParamInterface<InputPair> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
       GTEST_SKIP();  // Injection doesn't propogate kernel attributes.
@@ -312,7 +312,7 @@ struct clGetKernelInfoAttributeTest : ucl::ContextTest,
     ASSERT_SUCCESS(errcode);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (kernel) {
       ASSERT_SUCCESS(clReleaseKernel(kernel));
     }

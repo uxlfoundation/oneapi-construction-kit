@@ -339,7 +339,7 @@ TEST_F(clLinkProgramCompilerlessTest, CompilerUnavailable) {
 typedef std::pair<cl_int, const char *> Pair;
 
 struct LinkOptionsTest : ucl::ContextTest, testing::WithParamInterface<Pair> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
       GTEST_SKIP();  // Injection creates programs from binaries, can't link.
@@ -357,7 +357,7 @@ struct LinkOptionsTest : ucl::ContextTest, testing::WithParamInterface<Pair> {
                                     nullptr, nullptr, nullptr));
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (linked_program) {
       EXPECT_SUCCESS(clReleaseProgram(linked_program));
     }
@@ -411,7 +411,7 @@ INSTANTIATE_TEST_CASE_P(
 
 struct LinkLibraryOptionsTest : ucl::ContextTest,
                                 testing::WithParamInterface<Pair> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
       GTEST_SKIP();  // Injection creates programs from binaries, can't link.
@@ -428,7 +428,7 @@ struct LinkLibraryOptionsTest : ucl::ContextTest,
                                     nullptr, nullptr, nullptr));
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (linked_program) {
       EXPECT_SUCCESS(clReleaseProgram(linked_program));
     }

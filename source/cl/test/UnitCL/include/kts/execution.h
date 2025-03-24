@@ -51,9 +51,9 @@ inline std::string to_string(const SourceType &source_type) {
       return "OfflineOpenCLC";
     case kts::ucl::SourceType::OFFLINESPIRV:
       return "OfflineSPIRV";
-    default:
-      UCL_ABORT("invalid SourceType: %d\n", source_type);
   }
+
+  UCL_ABORT("invalid SourceType: %d\n", source_type);
 }
 
 const std::array<SourceType, 4> &getSourceTypes();

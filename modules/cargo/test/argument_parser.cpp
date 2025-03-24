@@ -258,13 +258,12 @@ TEST(argument_parser, parse_args_custom) {
   ASSERT_EQ(cargo::success, parser.add_argument({"-option", option}));
   ASSERT_EQ(cargo::success,
             parser.add_argument({"-add",
-                                 [&counter](cargo::string_view sv) {
-                                   (void)sv;
+                                 [&counter](cargo::string_view) {
                                    counter++;
                                    return cargo::argument::parse::COMPLETE;
                                  },
-                                 [&counter](cargo::string_view sv) {
-                                   counter += sv[0] - '0' - 1;
+                                 [&counter](cargo::string_view Sv) {
+                                   counter += Sv[0] - '0' - 1;
                                    return cargo::argument::parse::COMPLETE;
                                  }}));
   ASSERT_FALSE(option);

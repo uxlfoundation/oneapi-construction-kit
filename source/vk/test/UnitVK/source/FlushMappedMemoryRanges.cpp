@@ -30,7 +30,7 @@ class FlushMappedMemoryRanges : public uvk::PipelineTest,
         BufferTest(sizeof(uint32_t) * bufferElements,
                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     // Set up the descriptor set layout
     descriptorSetLayoutBindings.clear();
 
@@ -181,7 +181,7 @@ class FlushMappedMemoryRanges : public uvk::PipelineTest,
     // we are now ready to mess with memory and execute the shader
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     vkFreeMemory(device, memory, nullptr);
     vkDestroyBuffer(device, buffer2, nullptr);
     BufferTest::TearDown();

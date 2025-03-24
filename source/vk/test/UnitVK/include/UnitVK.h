@@ -169,7 +169,7 @@ class InstanceTest : public testing::Test {
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
   }
 
-  virtual void SetUp() {
+  void SetUp() override {
     const std::array<const char *, 5> validationLayers{
         {"VK_LAYER_GOOGLE_threading", "VK_LAYER_LUNARG_parameter_validation",
          "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_core_validation",
@@ -234,7 +234,7 @@ class InstanceTest : public testing::Test {
                      vkCreateInstance(&instanceCreateInfo, nullptr, &instance));
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (instance) {
       vkDestroyInstance(instance, nullptr);
       instance = VK_NULL_HANDLE;
@@ -264,7 +264,7 @@ class PhysicalDeviceTest : public InstanceTest {
  public:
   PhysicalDeviceTest() : physicalDevice(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     if (!instance) {
       RETURN_ON_FATAL_FAILURE(InstanceTest::SetUp());
     }
@@ -293,7 +293,7 @@ class PhysicalDeviceTest : public InstanceTest {
     queueFamilyIndex = 0;
   }
 
-  virtual void TearDown() { InstanceTest::TearDown(); }
+  void TearDown() override { InstanceTest::TearDown(); }
 
   VkPhysicalDevice physicalDevice;
   uint32_t queueFamilyIndex;
@@ -304,7 +304,7 @@ class DeviceTest : public PhysicalDeviceTest {
  public:
   DeviceTest() : device(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     if (!physicalDevice || !instance) {
       RETURN_ON_FATAL_FAILURE(PhysicalDeviceTest::SetUp());
     }
@@ -361,7 +361,7 @@ class DeviceTest : public PhysicalDeviceTest {
         vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device));
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     vkDestroyDevice(device, nullptr);
     device = nullptr;
     PhysicalDeviceTest::TearDown();
@@ -445,7 +445,7 @@ class CommandPoolTest : public virtual DeviceTest {
   CommandPoolTest(bool extension)
       : commandPool(VK_NULL_HANDLE), extension(extension) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     if (!device) {
       RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
     }
@@ -456,7 +456,7 @@ class CommandPoolTest : public virtual DeviceTest {
                                                      nullptr, &commandPool));
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (commandPool) {
       vkDestroyCommandPool(device, commandPool, nullptr);
     }

@@ -105,19 +105,19 @@ TEST_P(muxCreateSemaphoreTest, 1To1Forward) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       buffer_one,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *pair = static_cast<PairType *>(user_data);
-        pair->second = *(pair->first);
-        *(pair->first) += 1;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Pair = static_cast<PairType *>(UserData);
+        Pair->second = *(Pair->first);
+        *(Pair->first) += 1;
       },
       &pair_one, 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       buffer_two,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *pair = static_cast<PairType *>(user_data);
-        pair->second = *(pair->first);
-        *(pair->first) += 1;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Pair = static_cast<PairType *>(UserData);
+        Pair->second = *(Pair->first);
+        *(Pair->first) += 1;
       },
       &pair_two, 0, nullptr, nullptr));
 
@@ -171,19 +171,19 @@ TEST_P(muxCreateSemaphoreTest, 1To1Backward) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       buffer_one,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *pair = static_cast<PairType *>(user_data);
-        pair->second = *(pair->first);
-        *(pair->first) += 1;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Pair = static_cast<PairType *>(UserData);
+        Pair->second = *(Pair->first);
+        *(Pair->first) += 1;
       },
       &pair_one, 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       buffer_two,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *pair = static_cast<PairType *>(user_data);
-        pair->second = *(pair->first);
-        *(pair->first) += 1;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Pair = static_cast<PairType *>(UserData);
+        Pair->second = *(Pair->first);
+        *(Pair->first) += 1;
       },
       &pair_two, 0, nullptr, nullptr));
 
@@ -228,11 +228,10 @@ TEST_P(muxCreateSemaphoreTest, 1To1ManyTimes) {
 
     ASSERT_SUCCESS(muxCommandUserCallback(
         buffer[k],
-        [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-          auto *pair =
-              static_cast<std::pair<unsigned *, unsigned> *>(user_data);
-          pair->second = *(pair->first);
-          *(pair->first) += 1;
+        [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+          auto *Pair = static_cast<std::pair<unsigned *, unsigned> *>(UserData);
+          Pair->second = *(Pair->first);
+          *(Pair->first) += 1;
         },
         pairs + k, 0, nullptr, nullptr));
   }
@@ -287,9 +286,9 @@ TEST_P(muxCreateSemaphoreTest, OutOfOrderDispatch) {
   // container.
   auto command_buffer_call_back = [](mux_queue_t,
                                      mux_command_buffer_t command_buffer,
-                                     void *const user_data) {
+                                     void *const UserData) {
     auto command_buffers =
-        static_cast<std::vector<mux_command_buffer_t> *>(user_data);
+        static_cast<std::vector<mux_command_buffer_t> *>(UserData);
     command_buffers->push_back(command_buffer);
   };
 

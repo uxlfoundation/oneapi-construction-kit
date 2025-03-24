@@ -378,7 +378,7 @@ INSTANTIATE_TEST_CASE_P(
     MemObjectQuery, clGetMemObjectInfoUsesSVMPointerTest,
     testing::Values(std::make_tuple(sizeof(cl_bool), CL_MEM_USES_SVM_POINTER)),
     [](const testing::TestParamInfo<
-        clGetMemObjectInfoUsesSVMPointerTest::ParamType> &info) {
-      return UCL::memObjectQueryToString(std::get<1>(info.param));
+        clGetMemObjectInfoUsesSVMPointerTest::ParamType> &Info) {
+      return UCL::memObjectQueryToString(std::get<1>(Info.param));
     });
 #endif

@@ -22,14 +22,14 @@ class AllocateCommandBuffers : public uvk::CommandPoolTest {
  public:
   AllocateCommandBuffers() : allocateInfo(), commandBuffer(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(CommandPoolTest::SetUp());
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocateInfo.commandPool = commandPool;
     allocateInfo.commandBufferCount = 1;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (commandBuffer) {
       vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
