@@ -59,6 +59,9 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 RUN apt-get install --yes python3-colorama python3-distro python3-flake8 python3-gitlab python3-requests python3-virtualenv python3-yapf pipx
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
 
+# Install libhwloc-dev for dpc++ dependency
+RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
+
 RUN apt-get -y install sudo
 RUN apt-get -y install gh
 RUN apt install -y zstd
