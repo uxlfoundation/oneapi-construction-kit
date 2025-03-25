@@ -75,9 +75,9 @@ runs:
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
 
         # NEW
-        ls -lR SYCL-CTS
-        SYCL_UR_TRACE=-1 ONEAPI_DEVICE_SELECTOR=native_cpu:cpu LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib SYCL-CTS/bin/test_atomic_ref
-        exit 0
+        #ls -lR SYCL-CTS
+        #SYCL_UR_TRACE=-1 ONEAPI_DEVICE_SELECTOR=native_cpu:cpu LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib SYCL-CTS/bin/test_atomic_ref
+        #exit 0
         # NEW
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
