@@ -81,6 +81,7 @@ runs:
              
         exitcode=0
         set -x
+        echo ONEAPI_DEVICE_SELECTOR is $ONEAPI_DEVICE_SELECTOR
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
