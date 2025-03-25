@@ -26,6 +26,7 @@
 #include <compiler/utils/attributes.h>
 #include <compiler/utils/compute_local_memory_usage_pass.h>
 #include <compiler/utils/define_mux_builtins_pass.h>
+#include <compiler/utils/link_builtins_pass.h>
 #include <compiler/utils/make_function_name_unique_pass.h>
 #include <compiler/utils/manual_type_legalization_pass.h>
 #include <compiler/utils/metadata.h>
@@ -54,6 +55,99 @@
 #include <vecz/pass.h>
 
 namespace host {
+
+// Process various compiler options based off compiler build options and common
+// environment variables
+ host::OptimizationOptions
+HostPassMachinery::processOptimizationOptions(
+    std::optional<std::string> env_debug_prefix,
+    std::optional<compiler::VectorizationMode> vecz_mode) {
+  OptimizationOptions env_var_opts;
+  vecz::VeczPassOptions vecz_opts;
+  // The minimum number of elements to vectorize for. For a fixed-length VF,
+  // this is the exact number of elements to vectorize by. For scalable VFs,
+  // the actual number of elements is a multiple (vscale) of these, unknown at
+  // compile time. Default taken from config. May be overriden later.
+  vecz_opts.factor = compiler::utils::VectorizationFactor::getScalar();
+
+  vecz_opts.choices.enable(vecz::VectorizationChoices::eDivisionExceptions);
+
+  vecz_opts.vecz_auto = vecz_mode == compiler::VectorizationMode::AUTO;
+  vecz_opts.vec_dim_idx = 0;
+
+  // This is of the form of a comma separated set of fields
+  // S     - use scalable vectorization
+  // V     - vectorize only, otherwise produce both scalar and vector kernels
+  // A     - let vecz automatically choose the vectorization factor
+  // 1-64  - vectorization factor multiplier: the fixed amount itself, or the
+  //         value that multiplies the scalable amount
+  // VP    - produce a vector-predicated kernel
+  // VVP   - produce both a vectorized and a vector-predicated kernel
+  bool add_vvp = false;
+  if (const auto *vecz_vf_flags_env = std::getenv("CA_HOST_VF")) {
+    // Set scalable to off and let users add it explicitly with 'S'.
+    vecz_opts.factor.setIsScalable(false);
+    llvm::SmallVector<llvm::StringRef, 4> flags;
+    const llvm::StringRef vf_flags_ref(vecz_vf_flags_env);
+    vf_flags_ref.split(flags, ',');
+    for (auto r : flags) {
+      if (r == "A" || r == "a") {
+        vecz_opts.vecz_auto = true;
+      } else if (r == "V" || r == "v") {
+        // Note: This is a legacy toggle for forcing vectorization with no
+        // scalar tail based on the "VF" environment variable. Ideally we'd be
+        // setting it on a per-function basis, and we'd also be setting the
+        // vectorization options themselves on a per-function basis. Until we've
+        // designed a new method, keep the legacy behaviour by re-parsing the
+        // "VF" environment variable and look for a "v/V" toggle.
+        env_var_opts.force_no_tail = true;
+      } else if (r == "S" || r == "s") {
+        vecz_opts.factor.setIsScalable(true);
+        env_var_opts.early_link_builtins = true;
+      } else if (isdigit(r[0])) {
+        vecz_opts.factor.setKnownMin(std::stoi(r.str()));
+      } else if (r == "VP" || r == "vp") {
+        vecz_opts.choices.enable(
+            vecz::VectorizationChoices::eVectorPredication);
+      } else if (r == "VVP" || r == "vvp") {
+        // Add the vectorized pass option now (controlled by other iterations
+        // of this loop), and flag that we have to add a vector-predicated form
+        // later.
+        add_vvp = true;
+      } else {
+        // An error - just stop processing the environment variable now.
+        break;
+      }
+    }
+  }
+
+  // Choices override the cost model
+  const char *ptr = std::getenv("CODEPLAY_VECZ_CHOICES");
+  if (ptr) {
+    const bool success = vecz_opts.choices.parseChoicesString(ptr);
+    if (!success) {
+      llvm::errs() << "failed to parse the CODEPLAY_VECZ_CHOICES variable\n";
+    }
+  }
+
+  env_var_opts.vecz_pass_opts.push_back(vecz_opts);
+  if (add_vvp) {
+    vecz_opts.choices.enable(vecz::VectorizationChoices::eVectorPredication);
+    env_var_opts.vecz_pass_opts.push_back(vecz_opts);
+  }
+
+  // Allow any decisions made on early linking builtins to be overridden
+  // with an env variable
+  if (env_debug_prefix) {
+    const std::string env_name = *env_debug_prefix + "_EARLY_LINK_BUILTINS";
+    if (const char *early_link_builtins_env = getenv(env_name.c_str())) {
+      env_var_opts.early_link_builtins = atoi(early_link_builtins_env) != 0;
+    }
+  }
+
+  return env_var_opts;
+}
+
 
 static bool hostVeczPassOpts(
     llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
@@ -117,7 +211,16 @@ static bool hostVeczPassOpts(
   vecz_options.factor =
       compiler::utils::VectorizationFactor::getFixedWidth(SIMDWidth);
 
-  Opts.push_back(vecz_options);
+  if (getenv("CA_HOST_VF")) {
+    auto env_var_opts = HostPassMachinery::processOptimizationOptions(
+        /*env_debug_prefix*/ {}, vecz_mode);
+    if (env_var_opts.vecz_pass_opts.empty()) {
+      return false;
+    }
+    Opts.assign(env_var_opts.vecz_pass_opts);    
+  } else {
+    Opts.push_back(vecz_options);
+  }
   return true;
 }
 
@@ -178,6 +281,7 @@ void HostPassMachinery::registerPassCallbacks() {
 
 bool HostPassMachinery::handlePipelineElement(llvm::StringRef Name,
                                               llvm::ModulePassManager &PM) {
+                                                
   if (Name.consume_front("host-late-passes")) {
     PM.addPass(getLateTargetPasses());
     return true;
@@ -238,6 +342,9 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   llvm::ModulePassManager PM;
   const compiler::BasePassPipelineTuner tuner(options);
 
+  auto env_var_opts =
+      processOptimizationOptions("CA_HOST", /* vecz_mode*/ {});
+
   // Forcibly compute the BuiltinInfoAnalysis so that cached retrievals work.
   PM.addPass(llvm::RequireAnalysisPass<compiler::utils::BuiltinInfoAnalysis,
                                        llvm::Module>());
@@ -245,6 +352,10 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   // Handle the generic address space
   PM.addPass(llvm::createModuleToFunctionPassAdaptor(
       compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass()));
+
+  if (env_var_opts.early_link_builtins) {
+    PM.addPass(compiler::utils::LinkBuiltinsPass());
+  }
 
   addPreVeczPasses(PM, tuner);
 
