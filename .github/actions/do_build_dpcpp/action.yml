@@ -50,6 +50,12 @@ runs:
           fi
         done
 
+    - name: install libhwloc-dev
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
+      shell: bash
+      run:
+        sudo apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
+
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash

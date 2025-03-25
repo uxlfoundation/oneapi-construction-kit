@@ -278,11 +278,6 @@ jobs:
         with:
           os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: install autoreconf
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install -y autoconf
       - name: build dpc++ artefact
         uses: ./.github/actions/do_build_dpcpp
         with:
