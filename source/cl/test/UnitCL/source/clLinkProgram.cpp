@@ -124,7 +124,7 @@ TEST_F(clLinkProgramGoodTest, ProgramListWithNoPrograms) {
 }
 
 TEST_F(clLinkProgramGoodTest, InvalidProgram) {
-  cl_program programs[] = {program, nullptr};
+  const cl_program programs[] = {program, nullptr};
   cl_int errorcode;
   EXPECT_FALSE(clLinkProgram(context, 0, nullptr, nullptr, 2, programs, nullptr,
                              nullptr, &errorcode));
@@ -140,7 +140,7 @@ TEST_F(clLinkProgramGoodTest, NullCallbackWithData) {
 }
 
 TEST_F(clLinkProgramGoodTest, InvalidDevice) {
-  cl_device_id devices[] = {device, nullptr};
+  const cl_device_id devices[] = {device, nullptr};
   cl_int errorcode;
   EXPECT_FALSE(clLinkProgram(context, 2, devices, nullptr, 1, &program, nullptr,
                              nullptr, &errorcode));
@@ -155,7 +155,7 @@ TEST_F(clLinkProgramGoodTest, UncompiledProgramInList) {
   EXPECT_TRUE(otherProgram);
   ASSERT_SUCCESS(errorcode);
 
-  cl_program programs[] = {program, otherProgram};
+  const cl_program programs[] = {program, otherProgram};
   EXPECT_FALSE(clLinkProgram(context, 0, nullptr, nullptr, 2, programs, nullptr,
                              nullptr, &errorcode));
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION, errorcode);
@@ -173,7 +173,7 @@ TEST_F(clLinkProgramGoodTest, LinkFailureDuplicateKernels) {
   ASSERT_SUCCESS(clCompileProgram(otherProgram, 0, nullptr, nullptr, 0, nullptr,
                                   nullptr, nullptr, nullptr));
 
-  cl_program programs[] = {program, otherProgram};
+  const cl_program programs[] = {program, otherProgram};
   EXPECT_FALSE(clLinkProgram(context, 0, nullptr, nullptr, 2, programs, nullptr,
                              nullptr, &errorcode));
   ASSERT_EQ_ERRCODE(CL_LINK_PROGRAM_FAILURE, errorcode);
@@ -260,7 +260,7 @@ TEST_F(clLinkProgramGoodTest, CreateLibraryAndLinkAgainstIt) {
   ASSERT_SUCCESS(clCompileProgram(otherProgram, 0, nullptr, nullptr, 0, nullptr,
                                   nullptr, nullptr, nullptr));
 
-  cl_program programs[] = {otherProgram, linkedProgram};
+  const cl_program programs[] = {otherProgram, linkedProgram};
   cl_program finalProgram = clLinkProgram(context, 0, nullptr, nullptr, 2,
                                           programs, nullptr, nullptr, &status);
   EXPECT_TRUE(finalProgram);
@@ -509,8 +509,8 @@ constant int extern_constant_int = 42;
   error = clCompileProgram(program_extern_constant_def, 1, &device, "", 0,
                            nullptr, nullptr, nullptr, nullptr);
   ASSERT_SUCCESS(error);
-  cl_program programs[2] = {program_extern_constant_def,
-                            program_extern_constant_use};
+  const cl_program programs[2] = {program_extern_constant_def,
+                                  program_extern_constant_use};
   cl_program linked_program = clLinkProgram(context, 1, &device, "", 2,
                                             programs, nullptr, nullptr, &error);
   EXPECT_NE(nullptr, linked_program);
@@ -550,8 +550,8 @@ int extern_function_int() { return 42;})";
   error = clCompileProgram(program_extern_function_def, 1, &device, "", 0,
                            nullptr, nullptr, nullptr, nullptr);
   ASSERT_SUCCESS(error);
-  cl_program programs[2] = {program_extern_function_def,
-                            program_extern_function_use};
+  const cl_program programs[2] = {program_extern_function_def,
+                                  program_extern_function_use};
   cl_program linked_program = clLinkProgram(context, 1, &device, "", 2,
                                             programs, nullptr, nullptr, &error);
   EXPECT_NE(nullptr, linked_program);

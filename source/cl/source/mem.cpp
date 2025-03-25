@@ -461,7 +461,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
   OCL_CHECK(!mapped_ptr, return CL_INVALID_VALUE);
-  _cl_context *context = command_queue->context;
+  const _cl_context *context = command_queue->context;
   OCL_CHECK(context != memobj->context, return CL_INVALID_CONTEXT);
 
   const cl_int error = cl::validate::EventWaitList(
@@ -470,7 +470,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
   cl_mem parent =
       (nullptr != memobj->optional_parent) ? memobj->optional_parent : memobj;
 
-  char *base_pointer = static_cast<char *>(parent->map_base_pointer);
+  const char *base_pointer = static_cast<char *>(parent->map_base_pointer);
   if (CL_MEM_USE_HOST_PTR & parent->flags) {
     // When CL_MEM_USE_HOST_PTR is set then our map entry point returns a
     // pointer value derived from the user provided host_ptr.

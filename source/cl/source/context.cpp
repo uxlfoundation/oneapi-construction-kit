@@ -61,7 +61,7 @@ cargo::expected<cl_context, cl_int> _cl_context::create(
 
   // Create SPIR-V device infos.
 #if defined(OCL_EXTENSION_cl_khr_il_program) || defined(CL_VERSION_3_0)
-  for (_cl_device_id *device : devices) {
+  for (const _cl_device_id *device : devices) {
     auto device_info = device->mux_device->info;
     context->spv_device_infos[device_info] =
         *cl::binary::getSPIRVDeviceInfo(device_info, device->profile);

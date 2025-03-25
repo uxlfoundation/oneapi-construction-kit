@@ -184,7 +184,7 @@ mux_result_t host::kernel_s::getKernelVariantForWGSize(
     host::kernel_variant_s *out_variant_data) {
   (void)local_size_y;
   (void)local_size_z;
-  host::kernel_variant_s *best_variant = nullptr;
+  const host::kernel_variant_s *best_variant = nullptr;
   for (auto &v : variant_data) {
     // If the local size isn't a multiple of the minimum work width, we must
     // disregard this kernel.

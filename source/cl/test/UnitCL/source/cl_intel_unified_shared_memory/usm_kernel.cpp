@@ -150,7 +150,7 @@ TEST_P(USMSetKernelArgMemPointerTest, ValidUsage) {
   const cl_uint arg_index = GetParam();
 
   for (auto ptr : allPointers()) {
-    void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int));
+    const void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int));
     EXPECT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, arg_index, ptr));
 
     EXPECT_SUCCESS(
@@ -581,7 +581,7 @@ TEST_F(USMVectorAddKernelTest, OverwriteUSMArg) {
 
   // Find pointer addressing halfway into the memory allocation
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
+  const void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
   ASSERT_SUCCESS(clSetKernelArg(kernel, 2, sizeof(cl_mem),
@@ -655,8 +655,8 @@ TEST_F(USMVectorAddKernelTest, MultipleKernels) {
 
   // Set original kernel arguments
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
-  void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
+  const void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
+  const void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));
@@ -694,8 +694,8 @@ TEST_F(USMVectorAddKernelTest, MultipleKernels) {
 TEST_F(USMVectorAddKernelTest, RepeatedEnqueue) {
   // Set kernel arguments
   const size_t half_bytes = bytes / 2;
-  void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
-  void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
+  const void *offset_device_ptr = getPointerOffset(device_ptr, half_bytes);
+  const void *offset_deviceB_ptr = getPointerOffset(device_ptrB, half_bytes);
 
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, device_ptr));
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, offset_device_ptr));

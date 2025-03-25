@@ -32,7 +32,8 @@ TEST_F(USMTests, HostMemAlloc_InvalidUsage) {
   cl_int err;
 
   // Invalid context
-  void *host_ptr = clHostMemAllocINTEL(nullptr, nullptr, bytes, align, &err);
+  const void *host_ptr =
+      clHostMemAllocINTEL(nullptr, nullptr, bytes, align, &err);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
   EXPECT_EQ(host_ptr, nullptr);
 
@@ -207,7 +208,7 @@ TEST_F(USMTests, DeviceMemAlloc_InvalidUsage) {
   cl_int err;
 
   // Invalid context
-  void *device_ptr =
+  const void *device_ptr =
       clDeviceMemAllocINTEL(nullptr, device, nullptr, bytes, align, &err);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
   EXPECT_EQ(device_ptr, nullptr);
@@ -345,7 +346,7 @@ TEST_F(USMTests, SingleSharedMemAlloc_InvalidUsage) {
   }
 
   // Invalid context
-  void *shared_ptr =
+  const void *shared_ptr =
       clSharedMemAllocINTEL(nullptr, device, nullptr, bytes, align, &err);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
   EXPECT_EQ(shared_ptr, nullptr);
@@ -512,7 +513,7 @@ TEST_F(USMTests, CrossSharedMemAlloc_InvalidUsage) {
   }
 
   // Invalid context
-  void *shared_ptr =
+  const void *shared_ptr =
       clSharedMemAllocINTEL(nullptr, nullptr, nullptr, bytes, align, &err);
   EXPECT_EQ_ERRCODE(err, CL_INVALID_CONTEXT);
   EXPECT_EQ(shared_ptr, nullptr);

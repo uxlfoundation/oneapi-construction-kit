@@ -1632,7 +1632,7 @@ struct clEnqueueNDRangeKernelWorkItemTest
 };
 
 TEST_P(clEnqueueNDRangeKernelWorkItemTest, Default) {
-  const NDRangeValue val = GetParam();
+  const NDRangeValue &val = GetParam();
   cl_event fillEvent, ndRangeEvent;
 
   if (nullptr == val.global_work_size) {

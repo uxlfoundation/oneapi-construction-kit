@@ -53,7 +53,7 @@ class driver {
   uint32_t ModuleNumErrors = 0;
   std::string ModuleLog;
   /// @brief Selected compiler.
-  const compiler::Info *CompilerInfo;
+  const compiler::Info *CompilerInfo = nullptr;
   /// @brief Compiler context to drive compilation.
   std::unique_ptr<compiler::Context> CompilerContext;
   /// @brief Compiler target to drive compilation.

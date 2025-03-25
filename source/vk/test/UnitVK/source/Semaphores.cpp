@@ -227,7 +227,7 @@ TEST_F(Semaphores, TwoSemaphores) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkEndCommandBuffer(commandBuffer2));
 
-  VkSemaphore semaphores[] = {semaphore, semaphore2};
+  const VkSemaphore semaphores[] = {semaphore, semaphore2};
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &commandBuffer2;
   submitInfo.signalSemaphoreCount = 2;
@@ -301,7 +301,7 @@ TEST_F(Semaphores, TwoCommandBuffers) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkEndCommandBuffer(commandBuffer));
 
-  VkCommandBuffer commandBuffers[] = {commandBuffer2, commandBuffer};
+  const VkCommandBuffer commandBuffers[] = {commandBuffer2, commandBuffer};
 
   submitInfo.commandBufferCount = 2;
   submitInfo.pCommandBuffers = commandBuffers;

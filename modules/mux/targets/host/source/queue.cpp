@@ -74,7 +74,7 @@ void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
 }
 
 void commandReadBuffer(host::command_info_s *info) {
-  host::command_info_read_buffer_s *const read = &(info->read_command);
+  const host::command_info_read_buffer_s *const read = &(info->read_command);
 
   auto buffer = static_cast<host::buffer_s *>(read->buffer);
 
@@ -83,7 +83,7 @@ void commandReadBuffer(host::command_info_s *info) {
 }
 
 void commandWriteBuffer(host::command_info_s *info) {
-  host::command_info_write_buffer_s *const write = &(info->write_command);
+  const host::command_info_write_buffer_s *const write = &(info->write_command);
 
   auto buffer = static_cast<host::buffer_s *>(write->buffer);
 
@@ -99,7 +99,7 @@ void commandFillBuffer(host::command_info_s *info) {
   size_t size = fill->pattern_size;
   uint8_t *const start = static_cast<uint8_t *>(buffer->data) + fill->offset;
   uint8_t *current = start + size;
-  uint8_t *const end = start + fill->size;
+  const uint8_t *const end = start + fill->size;
 
   std::memcpy(start, fill->pattern, size);
 
@@ -113,7 +113,7 @@ void commandFillBuffer(host::command_info_s *info) {
 }
 
 void commandCopyBuffer(host::command_info_s *info) {
-  host::command_info_copy_buffer_s *const copy = &(info->copy_command);
+  const host::command_info_copy_buffer_s *const copy = &(info->copy_command);
 
   auto dst_buffer = static_cast<host::buffer_s *>(copy->dst_buffer);
   auto src_buffer = static_cast<host::buffer_s *>(copy->src_buffer);
@@ -308,7 +308,7 @@ void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
 
 void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
                          host::command_buffer_s *command_buffer) {
-  host::command_info_user_callback_s *const user_callback =
+  const host::command_info_user_callback_s *const user_callback =
       &(info->user_callback_command);
 
   (user_callback->user_function)(queue, command_buffer,
@@ -317,7 +317,7 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
 
 [[nodiscard]] mux_query_duration_result_t commandBeginQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
-  host::command_info_begin_query_s *const begin_query =
+  const host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
   if (begin_query->pool->type == mux_query_type_duration) {
     return static_cast<host::query_pool_s *>(begin_query->pool)
@@ -328,7 +328,8 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
 
 [[nodiscard]] mux_query_duration_result_t commandEndQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
-  host::command_info_end_query_s *const end_query = &(info->end_query_command);
+  const host::command_info_end_query_s *const end_query =
+      &(info->end_query_command);
   if (end_query->pool->type == mux_query_type_duration) {
     auto end_duration_query = static_cast<host::query_pool_s *>(end_query->pool)
                                   ->getDurationQueryAt(end_query->index);
@@ -355,7 +356,7 @@ void commandEndQuery(host::command_info_s *info) {
 #endif
 
 void commandResetQueryPool(host::command_info_s *info) {
-  host::command_info_reset_query_pool_s *const reset_query_pool =
+  const host::command_info_reset_query_pool_s *const reset_query_pool =
       &(info->reset_query_pool_command);
   auto query_pool = static_cast<host::query_pool_s *>(reset_query_pool->pool);
   query_pool->reset(reset_query_pool->index, reset_query_pool->count);

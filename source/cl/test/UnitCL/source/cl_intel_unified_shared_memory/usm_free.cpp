@@ -223,7 +223,7 @@ TEST_F(USMBlockingFreeTest, MultipleQueueSingleAlloc) {
       reference.fill(pattern);
 
       const size_t offset = i * sizeof(pattern) * elements_to_fill;
-      void *offset_host_ptr = getPointerOffset(host_ptr, offset);
+      const void *offset_host_ptr = getPointerOffset(host_ptr, offset);
       EXPECT_TRUE(0 == std::memcmp(reference.data(), offset_host_ptr,
                                    sizeof(pattern) * elements_to_fill));
     }
@@ -370,7 +370,7 @@ TEST_F(USMBlockingFreeTest, MultipleQueueMultipleAlloc) {
     std::array<cl_uint, elements / 2> reference1, reference2;
     reference1.fill(pattern_A);
     reference2.fill(pattern_B);
-    void *offset_ptr = getPointerOffset(host_ptr, halfway_offset);
+    const void *offset_ptr = getPointerOffset(host_ptr, halfway_offset);
     EXPECT_TRUE(0 == std::memcmp(host_ptr, reference1.data(), halfway_offset));
     EXPECT_TRUE(0 ==
                 std::memcmp(offset_ptr, reference2.data(), halfway_offset));
@@ -502,7 +502,7 @@ TEST_F(USMBlockingFreeKernelTest, Task) {
       reference.fill(pattern);
 
       const size_t offset = i * sizeof(pattern) * elements_to_fill;
-      void *offset_host_ptr = getPointerOffset(host_ptr, offset);
+      const void *offset_host_ptr = getPointerOffset(host_ptr, offset);
       ASSERT_TRUE(0 == std::memcmp(reference.data(), offset_host_ptr,
                                    sizeof(pattern) * elements_to_fill));
     }
@@ -541,7 +541,7 @@ TEST_F(USMBlockingFreeKernelTest, NDRange) {
     void *input_offset_ptr = getPointerOffset(input_usm_ptr, offset);
     ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 0, input_offset_ptr));
 
-    void *output_offset_ptr = getPointerOffset(output_usm_ptr, offset);
+    const void *output_offset_ptr = getPointerOffset(output_usm_ptr, offset);
     ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, output_offset_ptr));
 
     ASSERT_SUCCESS(clEnqueueMemFillINTEL(queues[tid], input_offset_ptr,
@@ -581,7 +581,7 @@ TEST_F(USMBlockingFreeKernelTest, NDRange) {
 
       const size_t copy_size = sizeof(pattern) * elements_to_fill;
       const size_t offset = i * copy_size;
-      void *offset_host_ptr = getPointerOffset(host_ptr, offset);
+      const void *offset_host_ptr = getPointerOffset(host_ptr, offset);
 
       ASSERT_TRUE(0 ==
                   std::memcmp(reference.data(), offset_host_ptr, copy_size));

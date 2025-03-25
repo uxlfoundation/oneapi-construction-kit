@@ -391,7 +391,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
           [&](llvm::Expected<llvm::orc::SymbolMap> r) {
             if (r) {
               assert(r->size() == 1 && "Unexpected number of results");
-              assert(r->count(name) && "Missing result for symbol");
+              assert(r->contains(name) && "Missing result for symbol");
               auto address = r->begin()->second.getAddress();
               promise.set_value(address.getValue());
             } else {

@@ -284,8 +284,8 @@ TEST_F(FlushMappedMemoryRanges, Default) {
   ASSERT_EQ_RESULT(VK_SUCCESS, vkInvalidateMappedMemoryRanges(
                                    device, 1, &flushMappedMemoryRange));
 
-  uint32_t *resultMemory = static_cast<uint32_t *>(mappedMemory) +
-                           (alignedBufferSize / sizeof(uint32_t));
+  const uint32_t *resultMemory = static_cast<uint32_t *>(mappedMemory) +
+                                 (alignedBufferSize / sizeof(uint32_t));
 
   // validate results
   for (uint32_t k = 0; k < bufferElements; k++) {

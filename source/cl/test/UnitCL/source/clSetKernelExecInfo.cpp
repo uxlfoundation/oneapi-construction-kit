@@ -100,7 +100,7 @@ TEST_F(clSetKernelExecInfoTest, InvalidValue) {
   // around returning CL_INVALID_OPERATION when fine-grained SVM isn't
   // supported. This complicates which error code gets priority, and there
   // aren't any CTS tests yet to use as a reference.
-  void *svm_ptr[1] = {nullptr};
+  const void *svm_ptr[1] = {nullptr};
 
   // Invalid param_name
   EXPECT_EQ_ERRCODE(

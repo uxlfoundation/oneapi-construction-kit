@@ -101,7 +101,7 @@ TEST_F(clGetMemObjectInfoTest, MemHostPtr) {
   ASSERT_SUCCESS(
       clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(void *), size);
-  void *ptr = nullptr;
+  const void *ptr = nullptr;
   ASSERT_SUCCESS(clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, size,
                                     static_cast<void *>(&ptr), nullptr));
   ASSERT_EQ(&data, ptr);

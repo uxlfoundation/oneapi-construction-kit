@@ -144,7 +144,7 @@ TEST_P(clEnqueueFillImageTest, FillFull) {
   cl_int status = !CL_SUCCESS;
   size_t imageRowPitch = 0;
   size_t imageSlicePitch = 0;
-  cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
+  const cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
       command_queue, image, CL_TRUE, CL_MAP_READ, origin, region,
       &imageRowPitch, &imageSlicePitch, 1, &event, nullptr, &status));
   EXPECT_TRUE(mappedImage);
@@ -205,7 +205,7 @@ TEST_P(clEnqueueFillImageTest, FillStart) {
   cl_int status = !CL_SUCCESS;
   size_t imageRowPitch = 0;
   size_t imageSlicePitch = 0;
-  cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
+  const cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
       command_queue, image, CL_TRUE, CL_MAP_READ, mapOrigin, mapRegion,
       &imageRowPitch, &imageSlicePitch, 1, &event, nullptr, &status));
   EXPECT_TRUE(mappedImage);
@@ -272,7 +272,7 @@ TEST_P(clEnqueueFillImageTest, FillEnd) {
   cl_int status = !CL_SUCCESS;
   size_t imageRowPitch = 0;
   size_t imageSlicePitch = 0;
-  cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
+  const cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
       command_queue, image, CL_TRUE, CL_MAP_READ, mapOrigin, mapRegion,
       &imageRowPitch, &imageSlicePitch, 1, &event, nullptr, &status));
   EXPECT_TRUE(mappedImage);
@@ -343,7 +343,7 @@ TEST_P(clEnqueueFillImageTest, FillMiddle) {
   cl_int status = !CL_SUCCESS;
   size_t imageRowPitch = 0;
   size_t imageSlicePitch = 0;
-  cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
+  const cl_uint4 *const mappedImage = static_cast<cl_uint4 *>(clEnqueueMapImage(
       command_queue, image, CL_TRUE, CL_MAP_READ, mapOrigin, mapRegion,
       &imageRowPitch, &imageSlicePitch, 1, &event, nullptr, &status));
   EXPECT_TRUE(mappedImage);

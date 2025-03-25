@@ -195,7 +195,7 @@ TEST_F(CmdWaitEventsCommandBuffers, MultipleCommandBuffers) {
 
   ASSERT_EQ_RESULT(VK_SUCCESS, vkEndCommandBuffer(commandBuffer));
 
-  VkCommandBuffer commandBuffers[] = {commandBuffer2, commandBuffer};
+  const VkCommandBuffer commandBuffers[] = {commandBuffer2, commandBuffer};
   submitInfo.commandBufferCount = 2;
   submitInfo.pCommandBuffers = commandBuffers;
 

@@ -281,7 +281,7 @@ TYPED_TEST(USMMemCpyTest, DeviceToDevice) {
     reference1.fill(pattern1);
     reference2.fill(pattern2);
 
-    void *offset_host_ptr = getPointerOffset(host_ptr_A, offset);
+    const void *offset_host_ptr = getPointerOffset(host_ptr_A, offset);
     const char *tested_type_string = test_patterns<TypeParam>::as_string;
     EXPECT_TRUE(0 == std::memcmp(reference2.data(), host_ptr_A, offset))
         << "For type " << tested_type_string;
@@ -637,7 +637,7 @@ TYPED_TEST(USMMemCpyTest, DeviceToUser) {
   reference1.fill(pattern1);
   reference2.fill(pattern2);
 
-  void *offset_user_ptr = getPointerOffset(user_data, offset);
+  const void *offset_user_ptr = getPointerOffset(user_data, offset);
   const char *tested_type_string = test_patterns<TypeParam>::as_string;
 
   EXPECT_TRUE(0 == std::memcmp(reference1.data(), user_data, offset))
