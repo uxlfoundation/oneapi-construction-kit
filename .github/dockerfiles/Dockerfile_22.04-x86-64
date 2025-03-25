@@ -59,6 +59,9 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 # Install python packages
 RUN pip install cmakelint colorama flake8 lit pylint requests virtualenv yapf python-gitlab distro clang-format==19.1.0
 
+# Install libhwloc-dev for dpc++ dependency
+RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
+
 RUN apt-get -y install sudo
 RUN apt-get -y install gh
 RUN apt install -y zstd
