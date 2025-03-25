@@ -57,9 +57,9 @@ TEST_P(muxGetQueryPoolResultsDurationTest, Default) {
   uint64_t store = 0;
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer,
-      [](mux_queue_t, mux_command_buffer_t, void *user_data) {
-        auto &store = *static_cast<uint64_t *>(user_data);
-        store = 42;
+      [](mux_queue_t, mux_command_buffer_t, void *UserData) {
+        auto &Store = *static_cast<uint64_t *>(UserData);
+        Store = 42;
       },
       &store, 0, nullptr, nullptr));
   ASSERT_SUCCESS(muxCommandEndQuery(command_buffer, query_pool, 0, 1, 0,

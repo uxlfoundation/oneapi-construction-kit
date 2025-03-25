@@ -324,7 +324,7 @@ TEST_F(clBuildProgramBadTest, InvalidOperationPreviousBuildFailed) {
 typedef std::pair<cl_int, const char *> Pair;
 
 struct BuildOptionsTest : ucl::ContextTest, testing::WithParamInterface<Pair> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -337,7 +337,7 @@ struct BuildOptionsTest : ucl::ContextTest, testing::WithParamInterface<Pair> {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }
@@ -393,7 +393,7 @@ class clBuildProgramMacroTest : public ucl::CommandQueueTest {
  protected:
   enum { SIZE = sizeof(cl_int) };
 
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -421,7 +421,7 @@ class clBuildProgramMacroTest : public ucl::CommandQueueTest {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (macro_value) {
       EXPECT_SUCCESS(clReleaseMemObject(macro_value));
     }
@@ -518,7 +518,7 @@ TEST_F(clBuildProgramMacroTest, ValueDefinedThenSpace) {
 
 class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -538,7 +538,7 @@ class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (macro_value) {
       EXPECT_SUCCESS(clReleaseMemObject(macro_value));
     }
@@ -615,7 +615,7 @@ TEST_F(clBuildProgramTwiceTest, RetainKernel) {
 
 class clBuildProgramIncludePathTest : public ucl::CommandQueueTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -637,7 +637,7 @@ class clBuildProgramIncludePathTest : public ucl::CommandQueueTest {
         clBuildProgram(program, 0, nullptr, options.c_str(), nullptr, nullptr));
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }

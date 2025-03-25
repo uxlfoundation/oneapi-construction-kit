@@ -71,16 +71,16 @@ void hal_profiler_t::set_output_path(const std::string &path) {
 
 void hal_profiler_t::update_counters(hal::hal_device_t &device,
                                      std::string name) {
-  bool log_enable = log_level != hal::hal_counter_verbose_none;
+  const bool log_enable = log_level != hal::hal_counter_verbose_none;
   size_t total_acc_index = 0;
 
   for (unsigned i = 0; i < num_counters; i++) {
     auto id = descs[i].counter_id;
-    bool log_per_val =
+    const bool log_per_val =
         log_enable && descs[i].log_cfg.min_verbosity_per_value <= log_level;
-    bool log_total =
+    const bool log_total =
         log_enable && descs[i].log_cfg.min_verbosity_total <= log_level;
-    bool multiple_values = descs[i].contained_values > 1;
+    const bool multiple_values = descs[i].contained_values > 1;
 
     uint64_t value;
     for (unsigned j = 0; j < descs[i].contained_values; j++) {
@@ -116,7 +116,6 @@ void hal_profiler_t::update_counters(hal::hal_device_t &device,
   unsigned subval_count = 0;
   auto subval_total = map_subval_to_rows.size();
   for (auto &subval_entry : map_subval_to_rows) {
-    auto &sub_val_type = subval_entry.first;
     auto &sub_val_rows = subval_entry.second;
     for (auto &row : sub_val_rows) {
       if (row.values.size() == 0) {
@@ -159,7 +158,7 @@ void hal_profiler_t::setup_counters(hal::hal_device_t &device) {
   num_counters = device.get_info()->num_counters;
   int log_level = 0;
   if (const char *log_env = std::getenv("CA_PROFILE_LEVEL")) {
-    if (int log_env_val = atoi(log_env)) {
+    if (const int log_env_val = atoi(log_env)) {
       log_level = log_env_val;
     }
   }
@@ -204,6 +203,7 @@ void hal_profiler_t::setup_counters(hal::hal_device_t &device) {
       // column for the actual sub-value values (e.g. the actual hart_id value)
       if (!map_subval_to_rows.count(descs[i].sub_value_name)) {
         std::vector<log_row_t> sv_rows{};
+        sv_rows.reserve(descs[i].contained_values);
         for (unsigned j = 0; j < descs[i].contained_values; j++) {
           sv_rows.push_back({descs[i].sub_value_name, j, {}});
         }

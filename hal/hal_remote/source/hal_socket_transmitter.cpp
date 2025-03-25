@@ -137,7 +137,7 @@ hal_socket_transmitter::error_code hal_socket_transmitter::setup_connection(
 
   struct addrinfo hints;
   struct addrinfo *result;
-  int sfd, s;
+  int s;
   std::memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_UNSPEC; /* Allow IPv4 or IPv6 */
   hints.ai_socktype = SOCK_STREAM;

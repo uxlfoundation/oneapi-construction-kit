@@ -31,7 +31,7 @@ cargo::array_view<const uint8_t> get_api_30_src_file() {
 #endif
 
 cargo::array_view<const uint8_t> get_api_force_file_device(
-    const char *const device_name) {
+    const char *const DeviceName) {
   // Begin auto-generated boilerplate
 @get_force_header_src@
   // End auto-generated boilerplate
@@ -39,104 +39,104 @@ cargo::array_view<const uint8_t> get_api_force_file_device(
 }
 
 cargo::array_view<const uint8_t> get_pch_file(
-    file::capabilities_bitfield caps) {
-  cargo::array_view<const uint8_t> resource;
-  switch (caps) {
+    file::capabilities_bitfield Caps) {
+  cargo::array_view<const uint8_t> Resource;
+  switch (Caps) {
     case file::CAPS_32BIT | file::CAPS_FP64 | file::CAPS_FP16:
-      resource = rc::builtins::builtins32_fp64_fp16_pch;
+      Resource = rc::builtins::builtins32_fp64_fp16_pch;
       break;
     case file::CAPS_32BIT | file::CAPS_FP64:
-      resource = rc::builtins::builtins32_fp64_pch;
+      Resource = rc::builtins::builtins32_fp64_pch;
       break;
     case file::CAPS_32BIT | file::CAPS_FP16:
-      resource = rc::builtins::builtins32_fp16_pch;
+      Resource = rc::builtins::builtins32_fp16_pch;
       break;
     case file::CAPS_32BIT:
-      resource = rc::builtins::builtins32_pch;
+      Resource = rc::builtins::builtins32_pch;
       break;
     case file::CAPS_FP64 | file::CAPS_FP16:
-      resource = rc::builtins::builtins64_fp64_fp16_pch;
+      Resource = rc::builtins::builtins64_fp64_fp16_pch;
       break;
     case file::CAPS_FP64:
-      resource = rc::builtins::builtins64_fp64_pch;
+      Resource = rc::builtins::builtins64_fp64_pch;
       break;
     case file::CAPS_FP16:
-      resource = rc::builtins::builtins64_fp16_pch;
+      Resource = rc::builtins::builtins64_fp16_pch;
       break;
     case file::CAPS_DEFAULT:
-      resource = rc::builtins::builtins64_pch;
+      Resource = rc::builtins::builtins64_pch;
       break;
     default:
       (void)fprintf(stderr, "Illegal capabilities_bitfield\n");
       abort();
   }
-  if (resource.size() == 1) {
+  if (Resource.size() == 1) {
     (void)fprintf(
         stderr,
         "Attempted to load an unavailable PCH file with capabilities:\n");
     (void)fprintf(stderr, "Bit width: %d\n",
-                  (caps & file::CAPS_32BIT) ? 32 : 64);
+                  (Caps & file::CAPS_32BIT) ? 32 : 64);
     (void)fprintf(stderr, "Doubles: %s\n",
-                  (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+                  (Caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
     (void)fprintf(stderr, "Halfs: %s\n",
-                  (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+                  (Caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
     (void)fprintf(
         stderr,
         "This usually indicates that the device capabilities were "
         "incorrectly listed in the target device's CMakeLists.txt.\n");
     abort();
   }
-  return resource;
+  return Resource;
 }
 
-cargo::array_view<const uint8_t> get_bc_file(file::capabilities_bitfield caps) {
-  cargo::array_view<const uint8_t> resource;
-  switch (caps) {
+cargo::array_view<const uint8_t> get_bc_file(file::capabilities_bitfield Caps) {
+  cargo::array_view<const uint8_t> Resource;
+  switch (Caps) {
     case file::CAPS_32BIT | file::CAPS_FP64 | file::CAPS_FP16:
-      resource = rc::builtins::builtins32_fp64_fp16_bc;
+      Resource = rc::builtins::builtins32_fp64_fp16_bc;
       break;
     case file::CAPS_32BIT | file::CAPS_FP64:
-      resource = rc::builtins::builtins32_fp64_bc;
+      Resource = rc::builtins::builtins32_fp64_bc;
       break;
     case file::CAPS_32BIT | file::CAPS_FP16:
-      resource = rc::builtins::builtins32_fp16_bc;
+      Resource = rc::builtins::builtins32_fp16_bc;
       break;
     case file::CAPS_32BIT:
-      resource = rc::builtins::builtins32_bc;
+      Resource = rc::builtins::builtins32_bc;
       break;
     case file::CAPS_FP64 | file::CAPS_FP16:
-      resource = rc::builtins::builtins64_fp64_fp16_bc;
+      Resource = rc::builtins::builtins64_fp64_fp16_bc;
       break;
     case file::CAPS_FP64:
-      resource = rc::builtins::builtins64_fp64_bc;
+      Resource = rc::builtins::builtins64_fp64_bc;
       break;
     case file::CAPS_FP16:
-      resource = rc::builtins::builtins64_fp16_bc;
+      Resource = rc::builtins::builtins64_fp16_bc;
       break;
     case file::CAPS_DEFAULT:
-      resource = rc::builtins::builtins64_bc;
+      Resource = rc::builtins::builtins64_bc;
       break;
     default:
       (void)fprintf(stderr, "Illegal capabilities_bitfield\n");
       abort();
   }
-  if (resource.size() == 1) {
+  if (Resource.size() == 1) {
     (void)fprintf(
         stderr,
         "Attempted to load an unavailable BC file with capabilities:\n");
     (void)fprintf(stderr, "Bit width: %d\n",
-                  (caps & file::CAPS_32BIT) ? 32 : 64);
+                  (Caps & file::CAPS_32BIT) ? 32 : 64);
     (void)fprintf(stderr, "Doubles: %s\n",
-                  (caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
+                  (Caps & file::CAPS_FP64) ? "Enabled" : "Disabled");
     (void)fprintf(stderr, "Halfs: %s\n",
-                  (caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
+                  (Caps & file::CAPS_FP16) ? "Enabled" : "Disabled");
     (void)fprintf(
         stderr,
         "This usually indicates that the device capabilities were "
         "incorrectly listed in the target device's CMakeLists.txt.\n");
     abort();
   }
-  return resource;
+  return Resource;
 }
 
 }  // namespace builtins

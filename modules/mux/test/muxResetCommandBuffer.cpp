@@ -47,8 +47,8 @@ TEST_P(muxResetCommandBufferTest, Default) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        *static_cast<bool *>(user_data) = true;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        *static_cast<bool *>(UserData) = true;
       },
       &shouldNotBeHit, 0, nullptr, nullptr));
 
@@ -56,8 +56,8 @@ TEST_P(muxResetCommandBufferTest, Default) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        *static_cast<bool *>(user_data) = true;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        *static_cast<bool *>(UserData) = true;
       },
       &shouldBeHit, 0, nullptr, nullptr));
 

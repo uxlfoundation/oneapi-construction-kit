@@ -22,7 +22,7 @@ class CmdSetEvent : public uvk::RecordCommandBufferTest {
  public:
   CmdSetEvent() : event(VK_NULL_HANDLE), submitInfo() {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(RecordCommandBufferTest::SetUp());
 
     VkEventCreateInfo createInfo = {};
@@ -38,7 +38,7 @@ class CmdSetEvent : public uvk::RecordCommandBufferTest {
     submitInfo.pCommandBuffers = &commandBuffer;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     vkDestroyEvent(device, event, nullptr);
     RecordCommandBufferTest::TearDown();
   }

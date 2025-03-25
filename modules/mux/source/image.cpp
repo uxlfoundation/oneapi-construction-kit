@@ -143,21 +143,30 @@ mux_result_t muxGetSupportedImageFormats(mux_device_t device,
     return mux_error_invalid_value;
   }
 
-  switch (image_type) {
-    case mux_image_type_1d:
-    case mux_image_type_2d:
-    case mux_image_type_3d:
-      break;
-    default:
-      return mux_error_invalid_value;
+  const bool image_type_valid = [&] {
+    switch (image_type) {
+      case mux_image_type_1d:
+      case mux_image_type_2d:
+      case mux_image_type_3d:
+        return true;
+      default:
+        return false;
+    }
+  }();
+  if (!image_type_valid) {
+    return mux_error_invalid_value;
   }
 
-  switch (allocation_type) {
-    case mux_allocation_type_alloc_host:
-    case mux_allocation_type_alloc_device:
-      break;
-    default:
-      return mux_error_invalid_value;
+  const bool allocation_type_valid = [&] {
+    switch (allocation_type) {
+      case mux_allocation_type_alloc_host:
+      case mux_allocation_type_alloc_device:
+        return true;
+    }
+    return false;
+  }();
+  if (!allocation_type_valid) {
+    return mux_error_invalid_value;
   }
 
   if (0 == count && nullptr != out_formats) {

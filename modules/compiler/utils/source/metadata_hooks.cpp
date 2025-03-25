@@ -39,7 +39,7 @@ md_hooks getElfMetadataWriteHooks() {
     llvm::Constant *MDInit;
     if (GlobalMD) {
       auto *OldData =
-          llvm::dyn_cast<llvm::ConstantDataArray>(GlobalMD->getInitializer());
+          llvm::cast<llvm::ConstantDataArray>(GlobalMD->getInitializer());
       auto OldBytes = OldData->getRawDataValues();
 
       // Append data

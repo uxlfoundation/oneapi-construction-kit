@@ -90,7 +90,7 @@ file(APPEND ${UVK_SHADER_CODE_HEADER}
   "  const size_t size;\n"
   "};\n"
   "\n"
-  "ShaderCode getShader(Shader id);\n"
+  "ShaderCode getShader(Shader Id);\n"
   "extern std::map<std::string, Shader> ShaderMap; \n"
   "}  // uvk\n"
   "\n"
@@ -122,8 +122,8 @@ foreach(name ${UVK_SHADER_NAMES})
     "#include \"${name}.h\"\n")
 endforeach()
 file(APPEND ${UVK_SHADER_CODE_SOURCE} "\n"
-  "uvk::ShaderCode uvk::getShader(uvk::Shader id) {\n"
-  "  switch (id) {\n"
+  "uvk::ShaderCode uvk::getShader(uvk::Shader Id) {\n"
+  "  switch (Id) {\n"
   "    case uvk::Shader::none:\n"
   "      return ShaderCode{nullptr, 0};\n")
 

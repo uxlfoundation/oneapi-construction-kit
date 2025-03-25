@@ -69,7 +69,7 @@ struct hal_argpack_t {
   /// @brief Returns the size in bytes of the packed argument structure.
   ///
   /// @return Return the size in bytes of the packet argument structure.
-  const uint64_t size() const { return write_point; }
+  uint64_t size() const { return write_point; }
 
   /// @brief Returns a pointer to the start of the packed argument structure.
   ///

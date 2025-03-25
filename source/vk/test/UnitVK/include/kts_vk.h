@@ -58,16 +58,16 @@ class Argument final : public ArgumentBase {
     sampler_desc_ = new_image;
   }
 
-  virtual uint8_t *GetBufferStoragePtr() {
+  uint8_t *GetBufferStoragePtr() override {
     assert(bufferStoragePtr_);
     return bufferStoragePtr_;
   }
   void SetBufferStoragePtr(uint8_t *ptr) { bufferStoragePtr_ = ptr; }
-  virtual size_t GetBufferStorageSize() {
+  size_t GetBufferStorageSize() override {
     assert(bufferStorageSize_);
     return bufferStorageSize_;
   }
-  virtual void SetBufferStorageSize(size_t size) {
+  void SetBufferStorageSize(size_t size) override {
     (void)size;
     // Already set when buffer_desc_ is set
     assert(size == bufferStorageSize_);
@@ -320,7 +320,7 @@ class GenericKernelTest : public ::uvk::RecordCommandBufferTest,
     VkSampler sampler;
   };
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(RecordCommandBufferTest::SetUp());
     VkPhysicalDeviceMemoryProperties memoryProperties;
 

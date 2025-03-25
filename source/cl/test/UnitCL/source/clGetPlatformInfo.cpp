@@ -156,8 +156,8 @@ INSTANTIATE_TEST_CASE_P(
         std::make_tuple(sizeof(cl_version), CL_PLATFORM_NUMERIC_VERSION),
         std::make_tuple(sizeof(cl_ulong), CL_PLATFORM_HOST_TIMER_RESOLUTION)),
     [](const testing::TestParamInfo<clGetPlatformInfoTestOpenCL30::ParamType>
-           &info) {
-      return UCL::platformQueryToString(std::get<1>(info.param));
+           &Info) {
+      return UCL::platformQueryToString(std::get<1>(Info.param));
     });
 
 TEST_F(clGetPlatformInfoTestOpenCL30, VerifyNumericVersion) {
@@ -259,8 +259,6 @@ TEST_F(clGetPlatformInfoTest, ValidateExtensionsWithVersion) {
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_extensions = cargo::split(platform_extentions, " ");
-  // Check that the lists have the same size for an early exit.
-  ASSERT_EQ(split_extensions.size(), platform_extentions_with_version.size());
   // Construct second array of strings from versioned extensions.
   std::vector<cargo::string_view> split_version_extensions{};
   for (const auto &ext : platform_extentions_with_version) {

@@ -87,8 +87,6 @@ inline ElemType get_v2(const VecType &v, const vec_elem elem) {
 template <typename ElemType, typename VecType>
 inline ElemType get_v4(const VecType &v, const vec_elem elem) {
   switch (elem) {
-    default:
-      return 0;
     case vec_elem::x:
       return v[0];
     case vec_elem::y:
@@ -98,6 +96,7 @@ inline ElemType get_v4(const VecType &v, const vec_elem elem) {
     case vec_elem::w:
       return v[3];
   }
+  return 0;
 }
 
 template <typename VecType, typename ElemType>
@@ -117,8 +116,6 @@ inline void set_v2(VecType &v, const ElemType val, const vec_elem elem) {
 template <typename VecType, typename ElemType>
 inline void set_v4(VecType &v, const ElemType val, const vec_elem elem) {
   switch (elem) {
-    default:
-      return;
     case vec_elem::x:
       v[0] = val;
       return;

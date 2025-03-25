@@ -20,7 +20,7 @@
 
 class clGetKernelWorkGroupInfoTest : public ucl::ContextTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -89,7 +89,7 @@ class clGetKernelWorkGroupInfoTest : public ucl::ContextTest {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (kernel_nolocal) {
       ASSERT_SUCCESS(clReleaseKernel(kernel_nolocal));
     }

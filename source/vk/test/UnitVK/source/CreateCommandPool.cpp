@@ -22,12 +22,12 @@ class CreateCommandPool : public uvk::DeviceTest {
  public:
   CreateCommandPool() : createInfo(), commandPool() {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
     createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (commandPool) {
       vkDestroyCommandPool(device, commandPool, nullptr);
     }

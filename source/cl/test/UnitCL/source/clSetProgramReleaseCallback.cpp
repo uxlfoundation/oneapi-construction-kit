@@ -20,7 +20,7 @@
 
 class clSetProgramReleaseCallbackTest : public ucl::ContextTest {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();
@@ -39,7 +39,7 @@ kernel void test(global int* out) {
     ASSERT_NE(program, nullptr);
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }

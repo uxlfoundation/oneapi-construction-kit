@@ -23,8 +23,8 @@
 #include <vector>
 
 namespace hal {
-class hal_t;
-class hal_device_t;
+struct hal_t;
+struct hal_device_t;
 
 /// @brief A server for taking binary data and translating into actions
 /// on a HAL and HAL devices
@@ -59,11 +59,11 @@ class hal_server {
     status_decode_failed
   };
   hal_server(hal::hal_transmitter *transmitter, hal::hal_t *hal);
-  ~hal_server();
 
   virtual error_code process_commands();
 
  protected:
+  ~hal_server();
   virtual error_code process_command();
   virtual hal_server::error_code process_mem_alloc(uint32_t device);
   virtual hal_server::error_code process_mem_free(uint32_t device);

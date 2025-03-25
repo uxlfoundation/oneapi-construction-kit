@@ -359,11 +359,11 @@ INSTANTIATE_TEST_CASE_P(
         cl_name_version{CL_MAKE_VERSION(3, 0, 0), "__opencl_c_3d_image_writes"},
         cl_name_version{CL_MAKE_VERSION(3, 0, 0),
                         "__opencl_c_program_scope_global_variables"}),
-    [](const ::testing::TestParamInfo<FeatureMacroTest::ParamType> &info) {
-      std::string output_name = info.param.name;
+    [](const ::testing::TestParamInfo<FeatureMacroTest::ParamType> &Info) {
+      std::string OutputName = Info.param.name;
       // Google test doesn't allow for underscores in test names.
-      output_name.erase(
-          std::remove(std::begin(output_name), std::end(output_name), '_'),
-          std::end(output_name));
-      return output_name;
+      OutputName.erase(
+          std::remove(std::begin(OutputName), std::end(OutputName), '_'),
+          std::end(OutputName));
+      return OutputName;
     });

@@ -73,7 +73,7 @@ class hal_binary_decoder {
                // 16
                sizeof(message.kernel_exec.num_args) +
                // 20
-               sizeof(message.kernel_exec.nd_range.offset[0]) * 9 +
+               (sizeof(message.kernel_exec.nd_range.offset[0]) * 9) +
                // 56
 
                sizeof(message.kernel_exec.work_dim) +

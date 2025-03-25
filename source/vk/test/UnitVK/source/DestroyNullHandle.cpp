@@ -27,9 +27,9 @@ class DestroyNullHandle : public uvk::DescriptorPoolTest,
   // the SetUp/TearDown contain only the device test setup so we aren't
   // needlessly creating a descriptor/command pool for tests that don't need
   // them
-  virtual void SetUp() { RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp()); }
+  void SetUp() override { RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp()); }
 
-  virtual void TearDown() { DeviceTest::TearDown(); }
+  void TearDown() override { DeviceTest::TearDown(); }
 };
 
 TEST_F(DestroyNullHandle, Instance) {

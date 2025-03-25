@@ -59,7 +59,7 @@ class hal_binary_encoder {
     DEVICE_DELETE_REPLY = 24
   };
 
-  hal_binary_encoder(uint32_t device = 0) { device = device; }
+  hal_binary_encoder(uint32_t device = 0) : device(device) {}
 
   /// @brief encode mem alloc on a device
   /// @param size
@@ -343,7 +343,6 @@ class hal_binary_encoder {
     std::memcpy(encoding.data() + offset, &command, sizeof(command));
   }
   std::vector<uint8_t> encoding;
-  uint32_t offset = 0;
   uint32_t device = 0;
 };
 }  // namespace hal

@@ -399,7 +399,7 @@ typedef std::pair<cl_int, const char *> Pair;
 
 struct CompileOptionsTest : ucl::ContextTest,
                             testing::WithParamInterface<Pair> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
       GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
@@ -414,7 +414,7 @@ struct CompileOptionsTest : ucl::ContextTest,
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }
@@ -465,7 +465,7 @@ class clCompileProgramMacroTest : public ucl::CommandQueueTest {
  protected:
   enum { SIZE = sizeof(cl_int) };
 
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -491,7 +491,7 @@ class clCompileProgramMacroTest : public ucl::CommandQueueTest {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (macroValue) {
       EXPECT_SUCCESS(clReleaseMemObject(macroValue));
     }
@@ -589,7 +589,7 @@ TEST_F(clCompileProgramMacroTest, ValueDefined) {
 
 class clCompileProgramIncludePathTest : public ucl::ContextTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -605,7 +605,7 @@ class clCompileProgramIncludePathTest : public ucl::ContextTest {
     UCL::checkTestIncludePath();
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }
