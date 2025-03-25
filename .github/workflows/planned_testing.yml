@@ -282,7 +282,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update
-          sudo apt install autoconf
+          sudo apt install -y autoconf
       - name: build dpc++ artefact
         uses: ./.github/actions/do_build_dpcpp
         with:
