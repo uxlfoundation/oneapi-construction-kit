@@ -29,7 +29,7 @@ jobs:
       #                "host_i686_linux",
       #                "host_refsi_linux",
       #                "host_x86_64_windows" ]'
-      target_list: '[ "host_x86_64_linux" ]'
+      target_list: '[ "host_aarch64_linux" ]'
       ock: true
       native_cpu: true
       test_tornado: false
