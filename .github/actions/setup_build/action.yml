@@ -24,8 +24,12 @@ inputs:
     description: 'Cross compilation architecture from: x86, arm, aarch64, riscv64. Default: "none" (no cross compile), will auto fetch native arch'
     default: "none"
   llvm_source:
-    description: 'source to get llvm from - one of install or cache'
+    description: 'source to get llvm from - one of install, cache or workflow id'
     default: "cache"
+  github_token:
+    description: "gh token for downloading artifacts"
+    default: 'TOKEN_NOT_SET'
+
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -95,17 +99,39 @@ runs:
 
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
 
+    - name: download llvm native
+      if: inputs.llvm_source != 'install' && inputs.llvm_source != 'cache'
+      uses: ./.github/actions/download_artifact
+      with:
+        name: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        run_id: ${{ inputs.llvm_source }}
+        token: ${{ inputs.github_token }}
+        path: llvm_install
+        needs_tar: ${{ startsWith(runner.os, 'Windows') && 'false' || 'true' }}
+
     - shell: bash
       if: inputs.cross_arch != 'none'    
       run: mv llvm_install llvm_install_native
 
-    - name: load llvm cross
+    # This is deprecated and will be removed soon.
+    - name: load llvm cross cache
       if: inputs.cross_arch != 'none' && inputs.llvm_source == 'cache'
       uses: actions/cache/restore@v4
       with:
         path: llvm_install/**
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
+
+    - name: load llvm cross download
+      if: inputs.cross_arch != 'none' && inputs.llvm_source != 'cache' && inputs.llvm_source != 'install'
+
+      uses: ./.github/actions/download_artifact
+      with:
+        name: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_arch }}-${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
+        run_id: ${{ inputs.llvm_source }}
+        token: ${{ inputs.github_token }}
+        path: llvm_install
+        needs_tar: ${{ startsWith(runner.os, 'Windows') && 'false' || 'true' }}
 
       # note the PR testing usage should set 'save' to false, to avoid PR testing creating new caches on a branch
     - name: Setup ccache

@@ -9,6 +9,9 @@ inputs:
   test_type:
     description: 'quick | full'
     default: "quick"
+  llvm_version:
+    description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+    required: true
 
 runs:
   using: "composite"
@@ -37,7 +40,7 @@ runs:
         # Build override file, all is done first, then the target specific.
         # The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/opencl_cts \
-             -k ${{ inputs.target }} \
+             -k ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
