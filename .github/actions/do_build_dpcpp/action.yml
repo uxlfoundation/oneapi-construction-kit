@@ -1,14 +1,9 @@
 name: build dpc++
-
 description: build dpc++
 
 inputs:
   target:
     description: 'target architecture'
-  sycl_device:
-    description: 'device type: "ock" or "native_cpu"'
-    type: string
-    default: "ock"
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -31,9 +26,6 @@ runs:
       uses: actions/checkout@v4
       with:
         repository: intel/llvm
-        # ALAN TODO:
-        # if native_cpu then ???? else sycl
-        ref: ${{ inputs.sycl_device == 'native_cpu' && 'sycl' || 'sycl' }}
         path: llvm
 
     - name: apply patches
@@ -49,12 +41,6 @@ runs:
             git -C llvm apply "$patch"
           fi
         done
-
-    - name: install libhwloc-dev
-      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
-      shell: bash
-      run:
-        sudo apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
 
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
@@ -143,7 +129,7 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.sycl_device }}_${{ inputs.target }} -D llvm/build/install
+        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/install
         ls llvm/build/install
 
 
@@ -157,6 +143,6 @@ runs:
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
       with:
-        name: dpcpp_${{ inputs.sycl_device }}_${{inputs.target}}
+        name: dpcpp_${{inputs.target}}
         path: llvm/build/install/dpcpp.tar
         retention-days: 7

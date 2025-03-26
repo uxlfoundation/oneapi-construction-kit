@@ -43,7 +43,7 @@ runs:
     - name: download dpc++ artifact
       uses: actions/download-artifact@v4
       with:
-        name: dpcpp_${{inputs.sycl_device}}_${{inputs.target}}
+        name: dpcpp_${{inputs.target}}
         path: install_dpcpp
 
     - name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
@@ -74,12 +74,6 @@ runs:
         fi
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
 
-        # NEW
-        #ls -lR SYCL-CTS
-        #SYCL_UR_TRACE=-1 ONEAPI_DEVICE_SELECTOR=native_cpu:cpu LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib SYCL-CTS/bin/test_atomic_ref
-        #exit 0
-        # NEW
-
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
              -k ${{inputs.sycl_device}} ${{inputs.sycl_device}}_${{ inputs.target }} \
@@ -87,7 +81,6 @@ runs:
              
         exitcode=0
         set -x
-        echo ONEAPI_DEVICE_SELECTOR is $ONEAPI_DEVICE_SELECTOR
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \

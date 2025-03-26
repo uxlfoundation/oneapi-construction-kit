@@ -1,3 +1,2 @@
-SYCL_CTS,test_language,Xfail
 SYCL_CTS,test_math_builtin_api "math_builtin_float_base_*",Xfail
 SYCL_CTS,test_math_builtin_api "math_builtin_float_double_*",Xfail
