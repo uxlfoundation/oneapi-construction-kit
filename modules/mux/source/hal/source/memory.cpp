@@ -46,7 +46,7 @@ cargo::expected<void *, mux_result_t> memory::map(::hal::hal_device_t *device,
 // muxFlushMappedMemoryToDevice
 mux_result_t memory::flushToDevice(::hal::hal_device_t *device, uint64_t offset,
                                    uint64_t size) {
-  uint8_t *src = nullptr;
+  const uint8_t *src = nullptr;
   if (hostPtr) {
     src = static_cast<uint8_t *>(hostPtr) + offset;
   } else {

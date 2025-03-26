@@ -288,7 +288,7 @@ int main(int argc, char **argv) {
   // Let Google Test parse the arguments first
   testing::InitGoogleTest(&argc, argv);
 
-  testing::Environment *const environment =
+  const testing::Environment *const environment =
       testing::AddGlobalTestEnvironment(ucl::Environment::instance);
 
   if (environment != ucl::Environment::instance) {

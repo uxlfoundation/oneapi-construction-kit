@@ -234,7 +234,7 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, IndirectDevicePointer) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -265,7 +265,7 @@ TEST_F(KernelExecInfoCodeplayUSMPtrs, OffsetDevicePointer) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass base device USM pointer to runtime as used indirectly
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfoCODEPLAY(
       exec_info_kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));

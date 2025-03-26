@@ -243,7 +243,7 @@ TEST_F(USMCommandQueueTest, MemFill_ValidUsage) {
 // Test for invalid API usage of clEnqueueMemcpyINTEL()
 TEST_F(USMCommandQueueTest, Memcpy_InvalidUsage) {
   for (auto ptr : allPointers()) {
-    void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int) * 4);
+    const void *offset_ptr = getPointerOffset(ptr, sizeof(cl_int) * 4);
 
     // No command queue
     cl_int err = clEnqueueMemcpyINTEL(nullptr, CL_TRUE, ptr, offset_ptr,
@@ -274,7 +274,7 @@ TEST_F(USMCommandQueueTest, Memcpy_InvalidUsage) {
     EXPECT_EQ_ERRCODE(err, CL_INVALID_VALUE);
 
     // Overlapping copy
-    void *overlap_ptr = getPointerOffset(ptr, 1);
+    const void *overlap_ptr = getPointerOffset(ptr, 1);
     err = clEnqueueMemcpyINTEL(queue, CL_TRUE, ptr, overlap_ptr, sizeof(cl_int),
                                0, nullptr, nullptr);
     EXPECT_EQ_ERRCODE(err, CL_MEM_COPY_OVERLAP);

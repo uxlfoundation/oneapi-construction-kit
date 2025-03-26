@@ -223,7 +223,7 @@ PreservedAnalyses host::AddFloatingPointControlPass::run(
     Module &M, ModuleAnalysisManager &) {
   SmallPtrSet<Function *, 4> newFunctions;
   for (auto &F : M.functions()) {
-    if (compiler::utils::isKernelEntryPt(F) && !newFunctions.count(&F)) {
+    if (compiler::utils::isKernelEntryPt(F) && !newFunctions.contains(&F)) {
       if (auto *newFunction = runOnFunction(F, SetFTZ)) {
         newFunctions.insert(newFunction);
       }

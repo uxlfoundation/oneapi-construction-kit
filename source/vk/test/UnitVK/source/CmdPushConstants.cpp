@@ -89,8 +89,8 @@ class CmdPushConstants : public uvk::PipelineTest,
     pushConstantRange.size = sizeof(pushConstant);
     pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    VkDescriptorSetLayout layouts[2] = {descriptorSetLayout,
-                                        descriptorSetLayout};
+    const VkDescriptorSetLayout layouts[2] = {descriptorSetLayout,
+                                              descriptorSetLayout};
 
     pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
     pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
@@ -295,7 +295,7 @@ TEST_F(CmdPushConstants, DefaultBindUnusedDescriptorSet) {
 
   vkUpdateDescriptorSets(device, 1, &write, 0, nullptr);
 
-  VkDescriptorSet sets[2] = {descriptorSet, descriptorSetB};
+  const VkDescriptorSet sets[2] = {descriptorSet, descriptorSetB};
 
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,

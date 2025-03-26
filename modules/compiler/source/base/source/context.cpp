@@ -17,6 +17,7 @@
 #include <base/context.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Pass.h>
 #include <spirv-ll/context.h>
 #include <spirv-ll/module.h>
 
@@ -35,24 +36,11 @@ BaseContext::BaseContext() {
         compiler::utils::getLLVMGlobalMutex());
     llvm::cl::ParseCommandLineOptions(1, argv, "", nullptr, "CA_LLVM_OPTIONS");
 
-    const llvm::StringMap<llvm::cl::Option *> &opt_map =
-        llvm::cl::getRegisteredOptions();
+    llvm_time_passes = llvm::TimePassesIsEnabled;
 
-    if (const auto *opt = opt_map.lookup("time-passes")) {
-      llvm_time_passes =
-          static_cast<const llvm::cl::opt<bool, true> *>(opt)->getValue();
-    }
+    llvm_verify_each = compiler::utils::VerifyEachIsEnabled;
 
-    if (const auto *opt = opt_map.lookup("verify-each")) {
-      llvm_verify_each =
-          static_cast<const llvm::cl::opt<bool> *>(opt)->getValue();
-    }
-
-    if (const auto *opt = opt_map.lookup("debug-pass-manager")) {
-      llvm_debug_passes =
-          static_cast<const llvm::cl::opt<compiler::utils::DebugLogging> *>(opt)
-              ->getValue();
-    }
+    llvm_debug_passes = compiler::utils::DebugPasses;
   });
 #endif
 }

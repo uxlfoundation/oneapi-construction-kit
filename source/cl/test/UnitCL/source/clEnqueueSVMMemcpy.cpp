@@ -38,7 +38,7 @@ TEST_F(clEnqueueSVMMemcpyTest, NotImplemented) {
   }
   const cl_bool blocking_copy{};
   void *dst_ptr{};
-  void *src_ptr{};
+  const void *src_ptr{};
   const size_t size{};
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};

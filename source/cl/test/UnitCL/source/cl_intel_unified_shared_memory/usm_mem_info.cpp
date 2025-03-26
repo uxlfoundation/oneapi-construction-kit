@@ -115,7 +115,7 @@ TEST_F(USMMemInfoTest, AllocType) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_unified_shared_memory_type_intel), param_size);
 
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
+    const void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
     cl_unified_shared_memory_type_intel host_alloc_type = 0;
     err = clGetMemAllocInfoINTEL(
         context, offset_host_ptr, CL_MEM_ALLOC_TYPE_INTEL,
@@ -130,7 +130,8 @@ TEST_F(USMMemInfoTest, AllocType) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_unified_shared_memory_type_intel), param_size);
 
-    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    const void *offset_shared_ptr =
+        getPointerOffset(shared_ptr, sizeof(cl_int));
     cl_unified_shared_memory_type_intel shared_alloc_type = 0;
     err = clGetMemAllocInfoINTEL(
         context, offset_shared_ptr, CL_MEM_ALLOC_TYPE_INTEL,
@@ -139,7 +140,7 @@ TEST_F(USMMemInfoTest, AllocType) {
     EXPECT_EQ(CL_MEM_TYPE_SHARED_INTEL, shared_alloc_type);
   }
 
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
+  const void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
 
   cl_unified_shared_memory_type_intel alloc_type = 0;
   err = clGetMemAllocInfoINTEL(context, offset_device_ptr,
@@ -173,8 +174,8 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(void *), param_size);
 
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
-    void *host_alloc_base_addr = nullptr;
+    const void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
+    const void *host_alloc_base_addr = nullptr;
 
     err = clGetMemAllocInfoINTEL(
         context, offset_host_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
@@ -192,8 +193,9 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(void *), param_size);
 
-    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
-    void *shared_alloc_base_addr = nullptr;
+    const void *offset_shared_ptr =
+        getPointerOffset(shared_ptr, sizeof(cl_int));
+    const void *shared_alloc_base_addr = nullptr;
 
     err = clGetMemAllocInfoINTEL(
         context, offset_shared_ptr, CL_MEM_ALLOC_BASE_PTR_INTEL,
@@ -204,7 +206,7 @@ TEST_F(USMMemInfoTest, AllocBasePtr) {
     EXPECT_EQ(shared_ptr, shared_alloc_base_addr);
   }
 
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
+  const void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
   void *alloc_base_addr = nullptr;
 
   err = clGetMemAllocInfoINTEL(
@@ -240,7 +242,7 @@ TEST_F(USMMemInfoTest, AllocSize) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(size_t), param_size);
 
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
+    const void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
     size_t host_alloc_size = 0;
 
     err = clGetMemAllocInfoINTEL(
@@ -256,7 +258,8 @@ TEST_F(USMMemInfoTest, AllocSize) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(size_t), param_size);
 
-    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    const void *offset_shared_ptr =
+        getPointerOffset(shared_ptr, sizeof(cl_int));
     size_t shared_alloc_size = 0;
 
     err = clGetMemAllocInfoINTEL(
@@ -266,7 +269,7 @@ TEST_F(USMMemInfoTest, AllocSize) {
     EXPECT_EQ(bytes, shared_alloc_size);
   }
 
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
+  const void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
 
   size_t alloc_size = 0;
   err = clGetMemAllocInfoINTEL(context, offset_device_ptr,
@@ -299,7 +302,7 @@ TEST_F(USMMemInfoTest, AllocDevice) {
                                  0, nullptr, &param_size);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_device_id), param_size);
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
+    const void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
 
     cl_device_id host_alloc_device = device;
     err = clGetMemAllocInfoINTEL(
@@ -315,7 +318,8 @@ TEST_F(USMMemInfoTest, AllocDevice) {
                                  0, nullptr, &param_size);
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_device_id), param_size);
-    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    const void *offset_shared_ptr =
+        getPointerOffset(shared_ptr, sizeof(cl_int));
 
     cl_device_id shared_alloc_device = device;
     err = clGetMemAllocInfoINTEL(
@@ -326,7 +330,7 @@ TEST_F(USMMemInfoTest, AllocDevice) {
     EXPECT_EQ(device, shared_alloc_device);
   }
 
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
+  const void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
   cl_device_id alloc_device = NULL;
   err = clGetMemAllocInfoINTEL(context, offset_device_ptr,
                                CL_MEM_ALLOC_DEVICE_INTEL, sizeof(alloc_device),
@@ -361,7 +365,7 @@ TEST_F(USMMemInfoTest, AllocFlags) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_mem_alloc_flags_intel), param_size);
 
-    void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
+    const void *offset_host_ptr = getPointerOffset(host_ptr, sizeof(cl_int));
 
     cl_mem_alloc_flags_intel host_alloc_flags = 0;
     err = clGetMemAllocInfoINTEL(
@@ -377,7 +381,8 @@ TEST_F(USMMemInfoTest, AllocFlags) {
     EXPECT_SUCCESS(err);
     EXPECT_EQ(sizeof(cl_mem_alloc_flags_intel), param_size);
 
-    void *offset_shared_ptr = getPointerOffset(shared_ptr, sizeof(cl_int));
+    const void *offset_shared_ptr =
+        getPointerOffset(shared_ptr, sizeof(cl_int));
 
     cl_mem_alloc_flags_intel shared_alloc_flags = 0;
     err = clGetMemAllocInfoINTEL(
@@ -387,7 +392,7 @@ TEST_F(USMMemInfoTest, AllocFlags) {
     EXPECT_EQ(0, shared_alloc_flags);
   }
 
-  void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
+  const void *offset_device_ptr = getPointerOffset(device_ptr, sizeof(cl_int));
 
   cl_mem_alloc_flags_intel alloc_flags = 0;
   err = clGetMemAllocInfoINTEL(context, offset_device_ptr,

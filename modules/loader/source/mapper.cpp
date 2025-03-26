@@ -133,6 +133,10 @@ cargo::result loader::PageRange::protect(MemoryProtection protection) {
   if (pages_end == nullptr) {
     return cargo::bad_argument;
   }
+  if ((protection & (MEM_WRITABLE | MEM_EXECUTABLE)) ==
+      (MEM_WRITABLE | MEM_EXECUTABLE)) {
+    return cargo::bad_argument;
+  }
 #ifdef _WIN32
   std::array<int, 8> vals;  // indexed by protection
   vals[0] = PAGE_NOACCESS;
@@ -141,9 +145,6 @@ cargo::result loader::PageRange::protect(MemoryProtection protection) {
   vals[MEM_EXECUTABLE] = PAGE_EXECUTE;
   vals[MEM_READABLE | MEM_WRITABLE] = PAGE_READWRITE;
   vals[MEM_READABLE | MEM_EXECUTABLE] = PAGE_EXECUTE_READ;
-  // no write+execute variant
-  vals[MEM_WRITABLE | MEM_EXECUTABLE] = PAGE_EXECUTE_READWRITE;
-  vals[MEM_READABLE | MEM_WRITABLE | MEM_EXECUTABLE] = PAGE_EXECUTE_READWRITE;
   DWORD oldProt;
   if (VirtualProtect(pages_begin, pages_end - pages_begin, vals[protection],
                      &oldProt) == 0) {
@@ -156,8 +157,7 @@ cargo::result loader::PageRange::protect(MemoryProtection protection) {
   }
   if (protection & MEM_WRITABLE) {
     prot |= PROT_WRITE;
-  }
-  if (protection & MEM_EXECUTABLE) {
+  } else if (protection & MEM_EXECUTABLE) {
     prot |= PROT_EXEC;
   }
   if (mprotect(pages_begin, pages_end - pages_begin, prot) < 0) {

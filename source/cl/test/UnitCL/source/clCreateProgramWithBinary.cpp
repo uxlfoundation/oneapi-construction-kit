@@ -354,7 +354,7 @@ TEST_F(clCreateProgramWithBinaryTest, CreateProgramThenTryCompile) {
   ASSERT_SUCCESS(errcode);
 
   const size_t num_devices = 1;
-  cl_device_id *devices = &device;
+  const cl_device_id *devices = &device;
 
   for (size_t i = 0; i < num_devices; ++i) {
     ASSERT_SUCCESS(binaryStatii[i]);

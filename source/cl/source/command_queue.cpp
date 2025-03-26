@@ -377,14 +377,12 @@ cl_int _cl_command_queue::cleanupCompletedCommandBuffers() {
     }
 
     // Move destroyed semaphores to the back, then erase them.
-    auto first_released_semaphore = std::stable_partition(
+    auto first_released_semaphore = std::remove_if(
         completed_signal_semaphores.begin(), completed_signal_semaphores.end(),
         [&released_semaphores](mux_shared_semaphore semaphore) {
-          // When semaphore is not in released_semaphores return true which
-          // moves it to the front, otherwise move it to the back.
           return std::find(released_semaphores.begin(),
                            released_semaphores.end(),
-                           semaphore) == released_semaphores.end();
+                           semaphore) != released_semaphores.end();
         });
     completed_signal_semaphores.erase(first_released_semaphore,
                                       completed_signal_semaphores.end());

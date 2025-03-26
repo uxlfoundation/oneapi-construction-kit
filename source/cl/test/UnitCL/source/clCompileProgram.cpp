@@ -776,7 +776,7 @@ class clCompileLinkEmbeddedHeaderPrototype
 
 TEST_F(clCompileLinkEmbeddedHeaderPrototype, Default) {
   cl_int errorcode = CL_SUCCESS;
-  cl_program link_input[] = {program, program_with_header};
+  const cl_program link_input[] = {program, program_with_header};
   cl_program linked = clLinkProgram(context, 1, &device, nullptr, 2, link_input,
                                     nullptr, nullptr, &errorcode);
   EXPECT_TRUE(linked);
@@ -805,7 +805,7 @@ class clCompileLinkEmbeddedHeaderDeclaration
 // Redmine issue #5295.
 TEST_F(clCompileLinkEmbeddedHeaderDeclaration, DISABLED_Default) {
   cl_int errorcode = CL_SUCCESS;
-  cl_program link_input[] = {program, program_with_header};
+  const cl_program link_input[] = {program, program_with_header};
   cl_program linked = clLinkProgram(context, 1, &device, nullptr, 2, link_input,
                                     nullptr, nullptr, &errorcode);
   EXPECT_TRUE(linked);

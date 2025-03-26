@@ -398,7 +398,7 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePointer) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -432,7 +432,7 @@ TEST_F(USMIndirectAccessTest, IndirectHostPointer) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptr));
 
   // Pass indirect USM pointers to runtime
-  void *indirect_usm_pointers[1] = {host_ptr};
+  const void *indirect_usm_pointers[1] = {host_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -466,7 +466,7 @@ TEST_F(USMIndirectAccessTest, IndirectSharedPointer) {
   ASSERT_SUCCESS(clSetKernelArgMemPointerINTEL(kernel, 1, device_ptr));
 
   // Pass indirect USM pointers to runtime
-  void *indirect_usm_pointers[1] = {shared_ptr};
+  const void *indirect_usm_pointers[1] = {shared_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -510,7 +510,7 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrInsideHostPtr) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass indirect USM pointers to runtime
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -545,7 +545,7 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrThenHostPtr) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass indirect device USM pointer to runtime
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   cl_int err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                                    sizeof(void *),
                                    static_cast<void *>(indirect_usm_pointers));
@@ -606,7 +606,7 @@ TEST_F(USMIndirectAccessTest, IndirectDevicePtrAndHostPtr) {
 
   // Pass both USM pointers to runtime as used indirectly, but only use one in
   // each execution
-  void *indirect_usm_pointers[2] = {device_ptr, host_ptr};
+  const void *indirect_usm_pointers[2] = {device_ptr, host_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -657,7 +657,7 @@ TEST_F(USMIndirectAccessTest, OffsetDevicePointer) {
                                 static_cast<void *>(&output_buffer)));
 
   // Pass base device USM pointer to runtime as used indirectly
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   const cl_int err = clSetKernelExecInfo(
       kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL, sizeof(void *),
       static_cast<void *>(indirect_usm_pointers));
@@ -865,7 +865,7 @@ TEST_F(USMIndirectAccessTest, DeviceFlagAndExplicitPtr) {
   ASSERT_TRUE(deferred_device_alloc != nullptr);
 
   // Specify deferred device allocation pointer will be used explicitly
-  void *indirect_usm_pointers[1] = {deferred_device_alloc};
+  const void *indirect_usm_pointers[1] = {deferred_device_alloc};
   err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                             sizeof(void *),
                             static_cast<void *>(indirect_usm_pointers));
@@ -943,7 +943,7 @@ TEST_F(USMIndirectAccessTest, DisableAllFlags) {
   EXPECT_SUCCESS(err);
 
   // Explicitly set that device_ptr is used indirectly by the kernel.
-  void *indirect_usm_pointers[1] = {device_ptr};
+  const void *indirect_usm_pointers[1] = {device_ptr};
   err = clSetKernelExecInfo(kernel, CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL,
                             sizeof(void *),
                             static_cast<void *>(indirect_usm_pointers));

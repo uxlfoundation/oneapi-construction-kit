@@ -96,7 +96,7 @@ struct Simple {
 
 // SPIR-V CTS tests copied into UnitCL to test regression on CA-1526
 static std::ostream &operator<<(std::ostream &stream, const Simple &data) {
-  stream << "{" << data.a << ", " << data.b << "}";
+  stream << "{" << data.a << ", " << static_cast<int>(data.b) << "}";
   return stream;
 }
 

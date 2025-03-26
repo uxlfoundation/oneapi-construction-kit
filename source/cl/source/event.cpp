@@ -208,8 +208,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::WaitForEvents(cl_uint num_events,
   OCL_CHECK(0 == num_events, return CL_INVALID_VALUE);
   OCL_CHECK(!event_list, return CL_INVALID_VALUE);
 
-  _cl_context *previousContext = nullptr;
-  _cl_command_queue *previousQueue = nullptr;
+  const _cl_context *previousContext = nullptr;
+  const _cl_command_queue *previousQueue = nullptr;
   bool moreThanOneQueue = false;
   bool userEventInList = false;
 

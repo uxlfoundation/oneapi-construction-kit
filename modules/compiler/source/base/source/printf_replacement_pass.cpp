@@ -416,7 +416,7 @@ CallInst *CreateCall(IRBuilder<> &ir, Function *const f,
 void findAndRecurseFunctionUsers(
     Function *F, SmallPtrSetImpl<const Function *> &set_of_callers) {
   // See if the function has already been flagged
-  if (set_of_callers.count(F)) {
+  if (set_of_callers.contains(F)) {
     return;
   }
 
@@ -851,7 +851,7 @@ PreservedAnalyses compiler::PrintfReplacementPass::run(
                                                    bool &ClonedWithBody,
                                                    bool &ClonedNoBody) {
     ClonedWithBody = !func.getName().starts_with("__llvm") &&
-                     funcs_calling_printf.count(&func);
+                     funcs_calling_printf.contains(&func);
     ClonedNoBody = false;
   };
 
