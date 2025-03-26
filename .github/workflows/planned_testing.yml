@@ -315,11 +315,11 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        sycl_device: [ 'ock', 'native_cpu' ]
+        sycl_device: [ 'opencl', 'native_cpu' ]
         # TODO: For now just linux x86_64 & aarch64
         exclude:
           - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
-          - sycl_device: ${{ ! inputs.ock && 'ock' }}
+          - sycl_device: ${{ ! inputs.ock && 'opencl' }}
           - ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
@@ -352,11 +352,11 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         target: ${{ fromJson(inputs.target_list) }}
-        sycl_device: [ 'ock', 'native_cpu' ]
+        sycl_device: [ 'opencl', 'native_cpu' ]
         # TODO: For now just linux x86_64 and aarch64
         exclude:
           - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
-          - sycl_device: ${{ ! inputs.ock && 'ock' }}
+          - sycl_device: ${{ ! inputs.ock && 'opencl' }}
           - ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}

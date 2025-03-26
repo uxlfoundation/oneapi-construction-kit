@@ -5,8 +5,8 @@ inputs:
   target:
     description: 'target architecture'
   sycl_device:
-    description: '"ock" or "native_cpu"'
-    default: 'ock'
+    description: '"opencl" or "native_cpu"'
+    default: 'opencl'
   download_sycl_cts_artefact:
     description: 'download sycl_cts artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''    
@@ -25,14 +25,14 @@ runs:
       uses: llvm/actions/install-ninja@main
 
     - name: download icd artifact
-      if: inputs.sycl_device == 'ock' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: icd_${{inputs.target}}
         path: install_icd
 
     - name: download headers artifact
-      if: inputs.sycl_device == 'ock' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: header_${{inputs.target}}
@@ -77,7 +77,7 @@ runs:
             git -C SYCL-CTS.src apply "$patch"
           fi
         done
-        if [[ "${{inputs.sycl_device}}" = "ock" ]] ; then
+        if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
           DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include"
         else # native_cpu
           DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS='-fsycl-targets=native_cpu'"
