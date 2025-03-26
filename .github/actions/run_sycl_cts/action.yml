@@ -61,13 +61,10 @@ runs:
         SYCL_CTS_FILTER: ''
       run: |
         echo running sycl cts
-        export RUN_OPTS=""
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib
         if [[ "${{inputs.sycl_device}}" = "ock" ]] ; then
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/install_ock/lib
-          export RUN_OPTS="-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so"
           export ONEAPI_DEVICE_SELECTOR=opencl:0
-          # ... and needed for create_sycl_cts_test_lists.sh call below ...
           export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         else # native_cpu
           export ONEAPI_DEVICE_SELECTOR=native_cpu:cpu
@@ -78,7 +75,7 @@ runs:
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
              -k ${{inputs.sycl_device}} ${{inputs.sycl_device}}_${{ inputs.target }} \
              -o override_combined.csv -vv
-             
+
         exitcode=0
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
@@ -88,7 +85,6 @@ runs:
           -p sycl_cts \
           -b SYCL-CTS/bin \
           -L SYCL-CTS/lib \
-          $RUN_OPTS \
           -s $CTS_CSV_FILE \
           -l SYCL-CTS/cts.log -f SYCL-CTS/cts.fail \
           -r SYCL-CTS/cts.xml \

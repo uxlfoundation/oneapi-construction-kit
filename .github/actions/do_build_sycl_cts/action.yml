@@ -8,7 +8,7 @@ inputs:
     description: '"ock" or "native_cpu"'
     default: 'ock'
   download_sycl_cts_artefact:
-    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+    description: 'download sycl_cts artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''    
 
 runs:
