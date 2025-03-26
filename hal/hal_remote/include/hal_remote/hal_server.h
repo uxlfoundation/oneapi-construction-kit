@@ -59,24 +59,24 @@ class hal_server {
     status_decode_failed
   };
   hal_server(hal::hal_transmitter *transmitter, hal::hal_t *hal);
+  ~hal_server();
 
-  virtual error_code process_commands();
+  error_code process_commands();
 
  protected:
-  ~hal_server();
-  virtual error_code process_command();
-  virtual hal_server::error_code process_mem_alloc(uint32_t device);
-  virtual hal_server::error_code process_mem_free(uint32_t device);
-  virtual hal_server::error_code process_mem_write(uint32_t device);
-  virtual hal_server::error_code process_mem_read(uint32_t device);
-  virtual hal_server::error_code process_mem_fill(uint32_t device);
-  virtual hal_server::error_code process_mem_copy(uint32_t device);
-  virtual hal_server::error_code process_program_free(uint32_t device);
-  virtual hal_server::error_code process_find_kernel(uint32_t device);
-  virtual hal_server::error_code process_program_load(uint32_t device);
-  virtual hal_server::error_code process_kernel_exec(uint32_t device);
-  virtual hal_server::error_code process_device_create(uint32_t device);
-  virtual hal_server::error_code process_device_delete(uint32_t device);
+  error_code process_command();
+  hal_server::error_code process_mem_alloc(uint32_t device);
+  hal_server::error_code process_mem_free(uint32_t device);
+  hal_server::error_code process_mem_write(uint32_t device);
+  hal_server::error_code process_mem_read(uint32_t device);
+  hal_server::error_code process_mem_fill(uint32_t device);
+  hal_server::error_code process_mem_copy(uint32_t device);
+  hal_server::error_code process_program_free(uint32_t device);
+  hal_server::error_code process_find_kernel(uint32_t device);
+  hal_server::error_code process_program_load(uint32_t device);
+  hal_server::error_code process_kernel_exec(uint32_t device);
+  hal_server::error_code process_device_create(uint32_t device);
+  hal_server::error_code process_device_delete(uint32_t device);
 
   error_code receive_payload(hal_binary_encoder::COMMAND command,
                              std::vector<uint8_t> &payload);
