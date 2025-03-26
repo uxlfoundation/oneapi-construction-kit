@@ -128,7 +128,7 @@ jobs:
 
     # risc-v needs ubuntu 24.04 so we get the latest qemu as well as how we
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -160,7 +160,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -217,7 +217,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64_riscv64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'cp-ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
       image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -253,7 +253,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
       image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
              ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
@@ -283,7 +283,7 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
 
-    runs-on: cp-ubuntu-24.04
+    runs-on: ubuntu-24.04
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:
@@ -304,19 +304,11 @@ jobs:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
-  build_sycl_cts:
+  build_sycl_cts_x86_64:
     needs: [workflow_vars, build_icd, build_dpcpp_native]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        target: ${{ fromJson(inputs.target_list) }}
-        # TODO: For now just linux x86_64 & aarch64
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+    runs-on: 'cp-ubuntu-24.04'
     container:
-      image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -327,34 +319,65 @@ jobs:
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
+          os: 'ubuntu'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: build sycl cts artefact
         uses: ./.github/actions/do_build_sycl_cts
         with:
-          target: ${{ matrix.target }}
+          target: host_x86_64_linux
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
-  run_sycl_cts:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        target: ${{ fromJson(inputs.target_list) }}
-        # TODO: For now just linux x86_64 and aarch64
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
-
-    runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'cp-graviton' || 'cp-ubuntu-24.04' }}
+  build_sycl_cts_aarch64:
+    needs: [workflow_vars, build_icd, build_dpcpp_native]
+    runs-on: 'cp-graviton'
     container:
-      image: ${{ contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             ||                                             'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' }}
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
+
     if: inputs.test_sycl_cts
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: run sycl cts
-        uses: ./.github/actions/run_sycl_cts
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
         with:
-          target: ${{ matrix.target }}
+          os: 'ubuntu'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: build sycl cts artefact
+        uses: ./.github/actions/do_build_sycl_cts
+        with:
+          target: host_aarch64_linux
+          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+
+  run_sycl_cts_x86_64:
+      needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_x86_64]
+      runs-on: 'ubuntu-22.04'
+      container:
+        image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+        volumes:
+          - ${{github.workspace}}:${{github.workspace}}
+      if: inputs.test_sycl_cts
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v4
+        - name: run sycl cts
+          uses: ./.github/actions/run_sycl_cts
+          with:
+            target: host_x86_64_linux
+
+  run_sycl_cts_aarch64:
+      needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_aarch64]
+      runs-on: 'cp-graviton'
+      container:
+        image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
+        volumes:
+          - ${{github.workspace}}:${{github.workspace}}
+      if: inputs.test_sycl_cts
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v4
+        - name: run sycl cts
+          uses: ./.github/actions/run_sycl_cts
+          with:
+            target: host_aarch64_linux
