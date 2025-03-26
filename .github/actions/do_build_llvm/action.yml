@@ -1,0 +1,118 @@
+name: build-llvm
+description: Action to build llvm artifacts
+
+inputs:
+  os:
+    type: string
+    description: 'operating system, one of ubuntu-22.04, ubuntu-24.04 or windows-2019'
+    default: 'ubuntu-22.04'
+  arch:
+    type: string
+    description: 'architecture, one of x86_64, aarch64, x86 or riscv64'
+    default: 'x86_64'
+  build_type:
+    type: string
+    description: 'build type, one of Release, RelAssert (default RelAssert)'
+    default: RelAssert
+  llvm_version:
+    type: string
+    description: llvm version - used for naming purposes e.g. 19,20,main"
+    default: ""
+  llvm_branch:
+    type: string
+    description: "The actual llvm branch to check out e.g. release/19.x"
+  use_github_cache:
+    type: boolean
+    description: "Whether to use caching - will rebuild if not existing"
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: Setup Windows
+        if: startsWith(runner.os, 'Windows')
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+      - name: Cache llvm
+        id: cache
+        if: inputs.use_github_cache == 'true'
+        uses: actions/cache@v4
+        with:
+          path:
+            llvm_install/**
+          key: llvm-${{ inputs.os }}-${{ inputs.arch }}-v${{ inputs.llvm_version }}-${{ inputs.build_type }}
+
+      - name: Checkout repo llvm
+        if: inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: llvm/llvm-project
+          ref: ${{inputs.llvm_branch}}
+          path: llvm-project
+
+      - name: Install Ninja
+        uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+
+      - name: install aarch64 build tools and set flags
+        shell: bash
+        if: inputs.arch == 'aarch64' && (inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true')
+        run: |
+          sudo apt-get install --yes g++-aarch64-linux-gnu
+          echo "ARCH_FLAGS=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/arm-linux/aarch64-toolchain.cmake -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu" > $GITHUB_ENV
+
+      - name: install riscv64 build tools and set flags
+        shell: bash
+        if: inputs.arch == 'riscv64' && (inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true')
+        run: |
+          sudo apt-get install --yes g++-riscv64-linux-gnu
+          echo "ARCH_FLAGS=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu" > $GITHUB_ENV
+
+      - name: install x86 build tools and set flags
+        shell: bash
+        if: inputs.arch == 'x86' && (inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true')
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev
+          echo "ARCH_FLAGS=-DLLVM_BUILD_32_BITS=ON -DLIBXML2_LIBRARIES=IGNORE -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_HOST_TRIPLE=i686-unknown-linux-gnu" > $GITHUB_ENV
+
+      - name: Run cmake
+        if: inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true'
+        shell: ${{ startsWith(runner.os, 'Windows') && 'pwsh' || 'bash' }}
+        run:
+          cmake llvm-project/llvm
+              -DLLVM_ENABLE_DIA_SDK=OFF
+              -DCMAKE_INSTALL_PREFIX=llvm_install
+              -DLLVM_ENABLE_ZLIB=FALSE
+              -DLLVM_ENABLE_ZSTD=FALSE
+              -DLLVM_ENABLE_Z3_SOLVER=FALSE
+              -DLLVM_ENABLE_PROJECTS="clang;lld"
+              -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV"
+              -Bbuild
+              -GNinja
+              -DCMAKE_BUILD_TYPE=Release
+              ${{ inputs.build_type == 'RelAssert' && '-DLLVM_ENABLE_ASSERTIONS=ON' || '' }}
+              ${{ !startsWith(runner.os, 'Windows') && '-DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON' || '' }}
+              $ARCH_FLAGS
+
+      - name: Run build on llvm
+        if: inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true'
+        shell: ${{ startsWith(runner.os, 'Windows') && 'pwsh' || 'bash' }}
+        run:
+          cmake --build build --target install
+
+      - name: Copy lit tools
+        if: inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          cp build/bin/FileCheck* llvm_install/bin
+          cp build/bin/not* llvm_install/bin
+
+      - name: upload artefact
+        uses: ./.github/actions/upload_artifact
+        with:
+          name: llvm-${{ inputs.os }}-${{ inputs.arch }}-${{ inputs.llvm_version }}-${{ inputs.build_type }}
+          path: llvm_install
+          needs_tar: ${{ startsWith(runner.os, 'Windows') && 'false' || 'true' }}
+          retention-days: 7
