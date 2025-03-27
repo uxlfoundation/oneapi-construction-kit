@@ -387,7 +387,7 @@ jobs:
     #      oneapi-construction-kit/build/*.log
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-start
-  run-ubuntu-gcc-x86_64-refsi-tutorial-start
+  run-ubuntu-gcc-x86_64-refsi-tutorial-start:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -402,7 +402,7 @@ jobs:
         echo hello start
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-end
-  run-ubuntu-gcc-x86_64-refsi-tutorial-end
+  run-ubuntu-gcc-x86_64-refsi-tutorial-end:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
