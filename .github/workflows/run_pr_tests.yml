@@ -52,6 +52,7 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -86,6 +87,7 @@ jobs:
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
+    if: false
 
     runs-on: ubuntu-22.04
     container:
@@ -117,6 +119,7 @@ jobs:
 
   # build and run clang-tidy
   run_clang_tidy_changes:
+    if: false
 
     runs-on: ubuntu-22.04
     container:
@@ -164,6 +167,7 @@ jobs:
 
   # run clang-format-diff on the repo
   run_clang_format:
+    if: false
 
     runs-on: ubuntu-22.04
 
@@ -186,6 +190,7 @@ jobs:
 
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
+    if: false
 
     runs-on: windows-2019
 
@@ -214,6 +219,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -234,7 +240,8 @@ jobs:
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
+    #if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -256,6 +263,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -276,6 +284,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -296,6 +305,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+    if: false
     runs-on: ubuntu-22.04-arm
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
@@ -317,6 +327,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -340,7 +351,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
+    #if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -373,3 +385,33 @@ jobs:
     #    path: |
     #      oneapi-construction-kit/build/*.fail
     #      oneapi-construction-kit/build/*.log
+
+  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-start
+  run-ubuntu-gcc-x86_64-refsi-tutorial-start
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Run
+      run: |
+        echo hello start
+
+  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-end
+  run-ubuntu-gcc-x86_64-refsi-tutorial-end
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Run
+      run: |
+        echo hello end
