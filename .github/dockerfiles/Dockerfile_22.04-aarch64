@@ -15,4 +15,5 @@ RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://ap
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
 
 RUN apt-get install --yes zstd
+RUN apt-get install --yes libhwloc-dev
 RUN apt-get -y install gh

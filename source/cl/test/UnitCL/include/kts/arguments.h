@@ -92,9 +92,9 @@ class Argument final : public ArgumentBase {
   Primitive *GetPrimitive() const { return primitive_.get(); }
   void SetPrimitive(Primitive *new_prim) { primitive_.reset(new_prim); }
 
-  virtual uint8_t *GetBufferStoragePtr() { return storage_.data(); }
-  virtual size_t GetBufferStorageSize() { return storage_.size(); }
-  virtual void SetBufferStorageSize(size_t size) { storage_.resize(size); }
+  uint8_t *GetBufferStoragePtr() override { return storage_.data(); }
+  size_t GetBufferStorageSize() override { return storage_.size(); }
+  void SetBufferStorageSize(size_t size) override { storage_.resize(size); }
 
   const SamplerDesc &GetSamplerDesc() const { return sampler_; }
   void SetSamplerDesc(const SamplerDesc &new_sampler) {
@@ -153,8 +153,8 @@ class ArgumentList final {
 struct PointerPrimitive : public Primitive {
   PointerPrimitive(size_t size) : size_(size) {}
 
-  virtual void *GetAddress() { return nullptr; }
-  virtual size_t GetSize() { return size_; }
+  void *GetAddress() override { return nullptr; }
+  size_t GetSize() override { return size_; }
 
   size_t size_;
 };

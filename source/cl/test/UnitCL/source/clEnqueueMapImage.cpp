@@ -358,7 +358,7 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
   size_t image_row_pitch = 0;
   size_t image_slice_pitch = 0;
 
-  void *ptr = clEnqueueMapImage(
+  const void *ptr = clEnqueueMapImage(
       command_queue, src_image, CL_TRUE, CL_MAP_READ, origin, region,
       &image_row_pitch, &image_slice_pitch, 0, nullptr, nullptr, &error);
   EXPECT_NE(nullptr, ptr);
@@ -477,7 +477,7 @@ class clEnqueueMapImageNegativeTest1d : public clEnqueueMapImageTestBase {
 
 class clEnqueueMapImageNegativeTest1dBuffer : public clEnqueueMapImageTestBase {
  public:
-  void TearDown() {
+  void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
     }

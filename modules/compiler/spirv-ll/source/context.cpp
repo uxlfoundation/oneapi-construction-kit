@@ -79,7 +79,7 @@ spirv_ll::Context::getSpecializableConstants(llvm::ArrayRef<uint32_t> code) {
       // Boolean spec constants are given a size of 1 bit.
       case spv::OpSpecConstantTrue: {
         auto *opSpecConstantTrue = module.create<OpSpecConstantTrue>(op);
-        if (specIds.count(opSpecConstantTrue->IdResult()) != 0) {
+        if (specIds.contains(opSpecConstantTrue->IdResult())) {
           specConstants.insert(std::pair<spv::Id, SpecializationDesc>{
               specIds[opSpecConstantTrue->IdResult()],
               {SpecializationType::BOOL, 1}});
@@ -87,7 +87,7 @@ spirv_ll::Context::getSpecializableConstants(llvm::ArrayRef<uint32_t> code) {
       } break;
       case spv::OpSpecConstantFalse: {
         auto *opSpecConstantFalse = module.create<OpSpecConstantFalse>(op);
-        if (specIds.count(opSpecConstantFalse->IdResult()) != 0) {
+        if (specIds.contains(opSpecConstantFalse->IdResult())) {
           specConstants.insert(std::pair<spv::Id, SpecializationDesc>{
               specIds[opSpecConstantFalse->IdResult()],
               {SpecializationType::BOOL, 1}});
@@ -97,19 +97,19 @@ spirv_ll::Context::getSpecializableConstants(llvm::ArrayRef<uint32_t> code) {
       // Look up the size in bits from the type for number spec cosntants.
       case spv::OpSpecConstant: {
         auto *opSpecConstant = module.create<OpSpecConstant>(op);
-        if (types.count(opSpecConstant->IdResultType()) == 0) {
+        if (!types.contains(opSpecConstant->IdResultType())) {
           return cargo::make_unexpected(
               Error{"unknown SPIR-V specialization constant result type"});
         }
         auto *opType = types[opSpecConstant->IdResultType()];
         if (opType->isIntType()) {
-          if (specIds.count(opSpecConstant->IdResult()) != 0) {
+          if (specIds.contains(opSpecConstant->IdResult())) {
             specConstants.insert(std::pair<spv::Id, SpecializationDesc>{
                 specIds[opSpecConstant->IdResult()],
                 {SpecializationType::INT, opType->getTypeInt()->Width()}});
           }
         } else if (opType->isFloatType()) {
-          if (specIds.count(opSpecConstant->IdResult()) != 0) {
+          if (specIds.contains(opSpecConstant->IdResult())) {
             specConstants.insert(std::pair<spv::Id, SpecializationDesc>{
                 specIds[opSpecConstant->IdResult()],
                 {SpecializationType::FLOAT, opType->getTypeFloat()->Width()}});

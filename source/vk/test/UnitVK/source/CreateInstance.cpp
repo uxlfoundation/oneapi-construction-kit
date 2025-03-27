@@ -23,7 +23,7 @@ class CreateInstance : public ::testing::Test {
   CreateInstance()
       : applicationInfo(), createInfo(), instance(VK_NULL_HANDLE) {}
 
-  virtual void SetUp() {
+  void SetUp() override {
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pApplicationName = "UnitVK";
     applicationInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
@@ -36,7 +36,7 @@ class CreateInstance : public ::testing::Test {
     createInfo.pApplicationInfo = &applicationInfo;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (instance) {
       vkDestroyInstance(instance, nullptr);
     }

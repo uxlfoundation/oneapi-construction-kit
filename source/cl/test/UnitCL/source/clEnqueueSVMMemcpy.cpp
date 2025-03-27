@@ -18,7 +18,7 @@
 
 class clEnqueueSVMMemcpyTest : public ucl::CommandQueueTest {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();
@@ -38,7 +38,7 @@ TEST_F(clEnqueueSVMMemcpyTest, NotImplemented) {
   }
   const cl_bool blocking_copy{};
   void *dst_ptr{};
-  void *src_ptr{};
+  const void *src_ptr{};
   const size_t size{};
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};

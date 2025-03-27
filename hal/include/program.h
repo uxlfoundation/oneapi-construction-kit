@@ -52,14 +52,14 @@ struct hal_program_impl_t {
   /// @param size is size in bytes of the data parameter.
   ///
   /// @return Returns true if the ELF file was loaded correctly.
-  virtual bool load(const uint8_t *data, size_t size);
+  bool load(const uint8_t *data, size_t size);
 
   /// @brief Load a program into device memory.
   ///
   /// @param dev is the device to load this program into.
   ///
   /// @return Returns true if upload was successful otherwise false.
-  virtual bool upload(hal_device_t *dev);
+  bool upload(hal_device_t *dev);
 
   /// @brief Load the given ELF section into device memory.
   ///
@@ -69,9 +69,8 @@ struct hal_program_impl_t {
   /// @param phdr is the program header for this section.
   ///
   /// @return Returns true if upload was successful otherwise false.
-  virtual bool upload_section_copy(hal_device_t *dev, const uint8_t *data,
-                                   Elf64_XWord_t to_copy,
-                                   Elf_Phdr_wrapper_t phdr);
+  bool upload_section_copy(hal_device_t *dev, const uint8_t *data,
+                           Elf64_XWord_t to_copy, Elf_Phdr_wrapper_t phdr);
 
   /// @brief Initialize the given ELF section in device memory by zeroing it.
   ///
@@ -81,16 +80,15 @@ struct hal_program_impl_t {
   /// @param phdr is the program header for this section.
   ///
   /// @return Returns true if upload was successful otherwise false.
-  virtual bool upload_section_zero(hal_device_t *dev, Elf64_XWord_t offset,
-                                   Elf64_XWord_t to_zero,
-                                   Elf_Phdr_wrapper_t phdr);
+  bool upload_section_zero(hal_device_t *dev, Elf64_XWord_t offset,
+                           Elf64_XWord_t to_zero, Elf_Phdr_wrapper_t phdr);
 
   /// @brief Lookup a symbol address in this elf file.
   ///
   /// @param name is a c-string with the name of the symbol to find.
   ///
   /// @return Returns address of symbol or hal_nullptr.
-  virtual hal_addr_t find_symbol(const char *name) const {
+  hal_addr_t find_symbol(const char *name) const {
     auto itt = symbols.find(name);
     return (itt == symbols.end()) ? hal_nullptr : itt->second;
   }
@@ -101,8 +99,7 @@ struct hal_program_impl_t {
   /// @param kernel_name is the output parameter for the kernel name.
   ///
   /// @return Returns true if the symbol can be located.
-  virtual bool find_symbol(hal::hal_addr_t addr,
-                           std::string &kernel_name) const {
+  bool find_symbol(hal::hal_addr_t addr, std::string &kernel_name) const {
     for (const auto &k : symbols) {
       if (k.second == addr) {
         kernel_name = k.first;
@@ -115,10 +112,10 @@ struct hal_program_impl_t {
   /// @brief Check if this object encapsulates a valid program.
   ///
   /// @return true if a program has been loaded and is valid, else false.
-  virtual bool is_valid() const { return bool(data) && size > 0; }
+  bool is_valid() const { return bool(data) && size > 0; }
 
   /// @brief Discard all data related to the currently loaded program.
-  virtual void unload() {
+  void unload() {
     data.reset();
     size = 0;
     symbols.clear();

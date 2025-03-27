@@ -290,8 +290,8 @@ INSTANTIATE_TEST_CASE_P(
     testing::Values(std::make_tuple(sizeof(cl_ulong),
                                     CL_PROFILING_COMMAND_COMPLETE)),
     [](const testing::TestParamInfo<
-        clGetEventProfilingInfoTestScalarQueryOpenCL30::ParamType> &info) {
-      return UCL::profilingQueryToString(std::get<1>(info.param));
+        clGetEventProfilingInfoTestScalarQueryOpenCL30::ParamType> &Info) {
+      return UCL::profilingQueryToString(std::get<1>(Info.param));
     });
 
 TEST_F(clGetEventProfilingInfoTestScalarQueryOpenCL30,

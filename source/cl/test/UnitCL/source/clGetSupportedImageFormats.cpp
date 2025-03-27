@@ -192,7 +192,7 @@ TEST_F(clGetSupportedImageFormatsTest, InvalidContext) {
 struct clGetSupportedImageFormatsFlagsTest
     : ucl::ContextTest,
       testing::WithParamInterface<cl_mem_flags> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceImageSupport()) {
       GTEST_SKIP();

@@ -97,7 +97,7 @@ class clEnqueueMapBufferTest : public ucl::CommandQueueTest,
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
     cl_int errcode = !CL_SUCCESS;
-    void *const map = clEnqueueMapBuffer(
+    const void *const map = clEnqueueMapBuffer(
         command_queue, inMem, CL_TRUE, CL_MAP_WRITE_INVALIDATE_REGION, 0,
         int_size, num_events, events, event, &errcode);
     EXPECT_EQ_ERRCODE(err, errcode);
@@ -363,7 +363,7 @@ TEST_F(clEnqueueMapBufferTest, WithOffset) {
 
   const size_t offset = 1;
 
-  int *const map = static_cast<int *>(clEnqueueMapBuffer(
+  const int *const map = static_cast<int *>(clEnqueueMapBuffer(
       command_queue, inMem, CL_TRUE, CL_MAP_READ, offset * sizeof(int),
       sizeof(int), 0, nullptr, nullptr, &errcode));
   ASSERT_SUCCESS(errcode);
@@ -516,7 +516,7 @@ TEST_F(clEnqueueMapBufferTest, ValidOverlappingWriteMappings) {
 
 TEST_F(clEnqueueMapBufferTest, InvalidCommandQueue) {
   cl_int errcode = !CL_SUCCESS;
-  void *const map = clEnqueueMapBuffer(
+  const void *const map = clEnqueueMapBuffer(
       nullptr, inMem, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0, int_size, 1,
       &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE, errcode);
@@ -525,7 +525,7 @@ TEST_F(clEnqueueMapBufferTest, InvalidCommandQueue) {
 
 TEST_F(clEnqueueMapBufferTest, InvalidBuffer) {
   cl_int errcode = !CL_SUCCESS;
-  void *const map = clEnqueueMapBuffer(
+  const void *const map = clEnqueueMapBuffer(
       command_queue, nullptr, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0,
       int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT, errcode);
@@ -534,7 +534,7 @@ TEST_F(clEnqueueMapBufferTest, InvalidBuffer) {
 
 TEST_F(clEnqueueMapBufferTest, InvalidValueOutOfBounds) {
   cl_int errcode = !CL_SUCCESS;
-  void *const map = clEnqueueMapBuffer(
+  const void *const map = clEnqueueMapBuffer(
       command_queue, inMem, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, int_size,
       int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE, errcode);
@@ -543,9 +543,9 @@ TEST_F(clEnqueueMapBufferTest, InvalidValueOutOfBounds) {
 
 TEST_F(clEnqueueMapBufferTest, InvalidValueSizeZero) {
   cl_int errcode = !CL_SUCCESS;
-  void *const map = clEnqueueMapBuffer(command_queue, inMem, CL_FALSE,
-                                       CL_MAP_WRITE_INVALIDATE_REGION, 0, 0, 1,
-                                       &writeEvent, &mapEvent, &errcode);
+  const void *const map = clEnqueueMapBuffer(
+      command_queue, inMem, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0, 0, 1,
+      &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE, errcode);
   EXPECT_FALSE(map);
 }
@@ -554,7 +554,7 @@ TEST_F(clEnqueueMapBufferTest, InvalidValueFlags) {
   cl_int errcode = !CL_SUCCESS;
   const auto all_valid_map_flags = static_cast<cl_map_flags>(
       CL_MAP_READ | CL_MAP_WRITE | CL_MAP_WRITE_INVALIDATE_REGION);
-  void *const map =
+  const void *const map =
       clEnqueueMapBuffer(command_queue, inMem, CL_FALSE, (~all_valid_map_flags),
                          0, int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE, errcode);
@@ -579,7 +579,7 @@ TEST_F(clEnqueueMapBufferTest, InvalidOperationBufferWriteOnlyWithReadMap) {
 
   errcode = !CL_SUCCESS;
 
-  void *const map =
+  const void *const map =
       clEnqueueMapBuffer(command_queue, subMem, CL_FALSE, CL_MAP_READ, 0,
                          int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);
@@ -606,7 +606,7 @@ TEST_F(clEnqueueMapBufferTest, InvalidOperationBufferNoAccessWithReadMap) {
 
   errcode = !CL_SUCCESS;
 
-  void *const map =
+  const void *const map =
       clEnqueueMapBuffer(command_queue, subMem, CL_FALSE, CL_MAP_READ, 0,
                          int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);
@@ -633,13 +633,13 @@ TEST_F(clEnqueueMapBufferTest, InvalidOperationBufferReadOnlyWithWriteMap) {
 
   errcode = !CL_SUCCESS;
 
-  void *const map1 =
+  const void *const map1 =
       clEnqueueMapBuffer(command_queue, subMem, CL_FALSE, CL_MAP_WRITE, 0,
                          int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);
   EXPECT_FALSE(map1);
 
-  void *const map2 = clEnqueueMapBuffer(
+  const void *const map2 = clEnqueueMapBuffer(
       command_queue, subMem, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0,
       int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);
@@ -666,13 +666,13 @@ TEST_F(clEnqueueMapBufferTest, InvalidOperationBufferNoAccessWithWriteMap) {
 
   errcode = !CL_SUCCESS;
 
-  void *const map1 =
+  const void *const map1 =
       clEnqueueMapBuffer(command_queue, subMem, CL_FALSE, CL_MAP_WRITE, 0,
                          int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);
   EXPECT_FALSE(map1);
 
-  void *const map2 = clEnqueueMapBuffer(
+  const void *const map2 = clEnqueueMapBuffer(
       command_queue, subMem, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0,
       int_size, 1, &writeEvent, &mapEvent, &errcode);
   EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION, errcode);

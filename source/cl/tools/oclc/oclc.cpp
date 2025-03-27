@@ -342,7 +342,7 @@ bool oclc::Driver::VerifySignedInt(const std::vector<std::string> &vec) {
 
 bool oclc::Driver::VerifyDoubleVec(const std::vector<std::string> &vec) {
   for (const std::string &s : vec) {
-    char *doubleEnd = VerifyDouble(s);
+    const char *doubleEnd = VerifyDouble(s);
     if (doubleEnd != nullptr && *doubleEnd == '\0') {
       return false;
     }
@@ -1667,7 +1667,7 @@ bool oclc::Driver::EnqueueKernel() {
 
     std::string raw_type_name(param_type_name);
     // if the current argument has a typedefed type, swap it out
-    char *is_buf = strchr(param_type_name, '*');
+    const char *is_buf = strchr(param_type_name, '*');
     if (is_buf) {
       raw_type_name = raw_type_name.substr(0, (is_buf - param_type_name));
     }
@@ -1683,10 +1683,10 @@ bool oclc::Driver::EnqueueKernel() {
     }
 
     // If we have a star in it treat it as a buffer
-    char *is_image1d = strstr(param_type_name, "image1d_t");
-    char *is_image2d = strstr(param_type_name, "image2d_t");
-    char *is_image3d = strstr(param_type_name, "image3d_t");
-    char *is_sampler = strstr(param_type_name, "sampler_t");
+    const char *is_image1d = strstr(param_type_name, "image1d_t");
+    const char *is_image2d = strstr(param_type_name, "image2d_t");
+    const char *is_image3d = strstr(param_type_name, "image3d_t");
+    const char *is_sampler = strstr(param_type_name, "sampler_t");
     const bool is_scalar = type_name_to_size_map.count(raw_type_name) != 0;
 
     const size_t vecSizeIndex = raw_type_name.find_first_of("1248");
@@ -1963,9 +1963,9 @@ bool oclc::Driver::EnqueueKernel() {
     OCLC_CHECK_CL(err, "Setting kernel argument failed");
   }
 
-  size_t *local_data = local_work_size_.empty()
-                           ? nullptr
-                           : local_work_size_[local_work_size_index].data();
+  const size_t *local_data =
+      local_work_size_.empty() ? nullptr
+                               : local_work_size_[local_work_size_index].data();
   // Enqueue kernel
   if (execute_) {
     err =

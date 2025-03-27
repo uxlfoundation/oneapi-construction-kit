@@ -169,7 +169,7 @@ void GDBJITRegistrationListener::notifyObjectLoaded(
   const size_t Size =
       DebugObj.getBinary()->getMemoryBufferRef().getBufferSize();
 
-  assert(ObjectBufferMap.find(K) == ObjectBufferMap.end() &&
+  assert(!ObjectBufferMap.contains(K) &&
          "Second attempt to perform debug registration.");
   jit_code_entry *JITCodeEntry = new jit_code_entry();
 

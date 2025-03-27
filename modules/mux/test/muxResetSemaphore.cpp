@@ -64,14 +64,14 @@ TEST_P(muxResetSemaphoreTest, Default) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer0,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *foo = static_cast<uint32_t *>(user_data);
-        if (42 == *foo) {
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Foo = static_cast<uint32_t *>(UserData);
+        if (42 == *Foo) {
           // This will happen on the first run of the command group
-          *foo = 13;
-        } else if (56 == *foo) {
+          *Foo = 13;
+        } else if (56 == *Foo) {
           // This will happen on the second run of the command group
-          *foo = 79;
+          *Foo = 79;
         }
       },
       &foo, 0, nullptr, nullptr));
@@ -91,10 +91,10 @@ TEST_P(muxResetSemaphoreTest, Default) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer1,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto *foo = static_cast<uint32_t *>(user_data);
-        if (13 == *foo) {
-          *foo = 56;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto *Foo = static_cast<uint32_t *>(UserData);
+        if (13 == *Foo) {
+          *Foo = 56;
         }
       },
       &foo, 0, nullptr, nullptr));

@@ -98,7 +98,7 @@ TEST_F(USMMemSetTest, DeviceAllocation) {
   EXPECT_SUCCESS(clFinish(queue));
 
   if (host_ptr) {
-    cl_int *host_validation_ptr = reinterpret_cast<cl_int *>(host_ptr);
+    const cl_int *host_validation_ptr = reinterpret_cast<cl_int *>(host_ptr);
     const cl_int correct_result[8] = {CL_INT_MAX, 0xA,        0xA,
                                       0xA,        CL_INT_MIN, CL_INT_MIN,
                                       CL_INT_MIN, CL_INT_MIN};
@@ -138,7 +138,7 @@ TEST_F(USMMemSetTest, SharedAllocation) {
   EXPECT_SUCCESS(clFinish(queue));
 
   if (host_ptr) {
-    cl_int *host_validation_ptr = reinterpret_cast<cl_int *>(host_ptr);
+    const cl_int *host_validation_ptr = reinterpret_cast<cl_int *>(host_ptr);
     const cl_int correct_result[8] = {CL_INT_MAX, 0xA,        0xA,
                                       0xA,        CL_INT_MIN, CL_INT_MIN,
                                       CL_INT_MIN, CL_INT_MIN};

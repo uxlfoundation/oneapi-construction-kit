@@ -113,7 +113,7 @@ TEST_F(clEnqueueNativeKernelTest, InvalidMemObject) {
     cl_mem buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(cl_int),
                                    nullptr, &status);
     EXPECT_SUCCESS(status);
-    cl_mem mems[] = {buffer, nullptr};
+    const cl_mem mems[] = {buffer, nullptr};
     const void *args_mem_loc[2] = {nullptr, nullptr};
 
     EXPECT_EQ_ERRCODE(

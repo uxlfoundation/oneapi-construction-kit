@@ -151,7 +151,7 @@ static std::ostream &operator<<(std::ostream &out, sampler_args params) {
 }
 
 struct ValueTest : ucl::ContextTest, testing::WithParamInterface<sampler_args> {
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceImageSupport()) {
       GTEST_SKIP();
@@ -164,7 +164,7 @@ struct ValueTest : ucl::ContextTest, testing::WithParamInterface<sampler_args> {
     ASSERT_SUCCESS(status);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (sampler) {
       EXPECT_SUCCESS(clReleaseSampler(sampler));
     }

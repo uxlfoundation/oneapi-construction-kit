@@ -28,93 +28,94 @@
 #include <mutex>
 
 namespace {
+template <typename T>
+static T Extension;
 cargo::array_view<const extension::extension *const> getExtensions() {
   static cargo::small_vector<const extension::extension *,
                              CA_CL_EXTENSION_COUNT>
-      extensions;
-  static std::once_flag initialized_flag;
-@generate_declarations@
+      Extensions;
+  static std::once_flag InitializedFlag;
 
-  std::call_once(initialized_flag, []() {
-    cargo::result error;
-    OCL_UNUSED(error);
+  std::call_once(InitializedFlag, []() {
+    cargo::result Error;
+    OCL_UNUSED(Error);
 @generate_alloc_error@
   });
 
-  return extensions;
+  return Extensions;
 }
 
 cargo::array_view<const extension::extension *const> getRuntimeExtensions() {
   static cargo::array_view<const extension::extension *const>
-      runtime_extensions{getExtensions().data(), CA_CL_RUNTIME_EXTENSION_COUNT};
-  return runtime_extensions;
+      RuntimeExtensions{getExtensions().data(), CA_CL_RUNTIME_EXTENSION_COUNT};
+  return RuntimeExtensions;
 }
 
 cargo::array_view<const extension::extension *const> getCompilerExtensions() {
   static cargo::array_view<const extension::extension *const>
-      compiler_extensions{
+      CompilerExtensions{
           getExtensions().data() + CA_CL_RUNTIME_EXTENSION_COUNT,
           CA_CL_COMPILER_EXTENSION_COUNT};
-  return compiler_extensions;
+  return CompilerExtensions;
 }
 
-void *GetExtensionFunctionAddressForPlatform(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    cl_platform_id platform, const char *func_name) {
+void *getExtensionFunctionAddressForPlatform(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    cl_platform_id Platform, const char *FuncName) {
   OCL_ASSERT(
-      nullptr != platform,
+      nullptr != Platform,
       "Invalid platform. Expecting caller to map nullptr to a valid platform.");
 
-  if (nullptr == func_name) {
+  if (nullptr == FuncName) {
     return nullptr;
   }
 
-  void *function_address = nullptr;
-  for (size_t table_idx = 0; table_idx < num_extensions; ++table_idx) {
-    function_address =
-        extensions[table_idx]->GetExtensionFunctionAddressForPlatform(
-            platform, func_name);
-    if (nullptr != function_address) {
+  void *FunctionAddress = nullptr;
+  for (size_t TableIdx = 0; TableIdx < NumExtensions; ++TableIdx) {
+    FunctionAddress =
+        Extensions[TableIdx]->GetExtensionFunctionAddressForPlatform(
+            Platform, FuncName);
+    if (nullptr != FunctionAddress) {
       // Found a function address for func_name, stop the loop.
       // Check that there aren't multiple extensions using the same func_name
       // because then extension ordering determines discovery. Extension
       // function names should be unique.
       OCL_ASSERT(
-          nullptr == GetExtensionFunctionAddressForPlatform(
-                         num_extensions - table_idx - 1,
-                         extensions + table_idx + 1, platform, func_name),
+          nullptr == getExtensionFunctionAddressForPlatform(
+                         NumExtensions - TableIdx - 1,
+                         Extensions + TableIdx + 1, Platform, FuncName),
           "Each extension function must belong to exactly one extension info.");
       break;
     }
   }
 
-  return function_address;
+  return FunctionAddress;
 }
 
 template <typename T, typename N, typename F>
-inline cl_int GetObjectExtensionInfoSingleValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, N param_name, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, F get_info_fn);
+inline cl_int getObjectExtensionInfoSingleValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, N ParamName, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, F GetInfoFn);
 
 template <typename T, typename D, typename N, typename F>
-inline cl_int GetObjectDetailExtensionInfoSingleValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, D detail, N param_name, const size_t param_value_size,
-    void *param_value, size_t *param_value_size_ret, F get_info_fn);
+inline cl_int getObjectDetailExtensionInfoSingleValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, D Detail, N ParamName, const size_t ParamValueSize,
+    void *ParamValue, size_t *ParamValueSizeRet, F GetInfoFn);
 
 template <typename T, typename D, typename N, typename F>
-inline cl_int GetObjectDetailExtensionInfoSingleInputValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, D detail, N param_name, const size_t input_value_size,
-    const void *input_value, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, F get_info_fn);
+inline cl_int getObjectDetailExtensionInfoSingleInputValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, D Detail, N ParamName, const size_t InputValueSize,
+    const void *InputValue, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, F GetInfoFn);
 
 template <typename T, typename N, typename F>
-inline cl_int GetObjectExtensionInfoAggregatedCString(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, N param_name, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, const char name_separator, F get_info_fn);
+inline cl_int getObjectExtensionInfoAggregatedCString(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, N ParamName, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, const char NameSeparator, F GetInfoFn);
 
 /// @brief Query all passed in extensions via the get_info_fn functor/lambda
 /// until one accepts the query.
@@ -147,32 +148,32 @@ inline cl_int GetObjectExtensionInfoAggregatedCString(
 /// param_name query. Other OpenCL error return code if an extension accepts
 /// param_name but the supplied argument values are wrong.
 template <typename T, typename N, typename F>
-cl_int GetObjectExtensionInfoSingleValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, N param_name, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, F get_info_fn) {
-  cl_int retcode = CL_INVALID_VALUE;
-  size_t ext_idx = 0;
-  for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    const cl_int supported_retcode = get_info_fn(
-        extensions[ext_idx], object, param_name, 0, nullptr, nullptr);
-    if (CL_SUCCESS != supported_retcode) {
+cl_int getObjectExtensionInfoSingleValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, N ParamName, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, F GetInfoFn) {
+  cl_int Retcode = CL_INVALID_VALUE;
+  size_t ExtIdx = 0;
+  for (ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+    const cl_int SupportedRetcode = GetInfoFn(
+        Extensions[ExtIdx], Object, ParamName, 0, nullptr, nullptr);
+    if (CL_SUCCESS != SupportedRetcode) {
       // This extension does not support the info query, keep searching.
       continue;
     }
 
     // Do query.
-    retcode = get_info_fn(extensions[ext_idx], object, param_name,
-                          param_value_size, param_value, param_value_size_ret);
+    Retcode = GetInfoFn(Extensions[ExtIdx], Object, ParamName,
+                          ParamValueSize, ParamValue, ParamValueSizeRet);
 
     // More than one extension shouldn't support the same info query,
     // otherwise results are order dependent which is confusing.
     OCL_ASSERT(
-        CL_SUCCESS != retcode ||
-            CL_SUCCESS != GetObjectExtensionInfoSingleValue(
-                              num_extensions - ext_idx - 1,
-                              extensions + ext_idx + 1, object, param_name, 0,
-                              nullptr, nullptr, get_info_fn),
+        CL_SUCCESS != Retcode ||
+            CL_SUCCESS != getObjectExtensionInfoSingleValue(
+                              NumExtensions - ExtIdx - 1,
+                              Extensions + ExtIdx + 1, Object, ParamName, 0,
+                              nullptr, nullptr, GetInfoFn),
         "More than one extension should not support the same info query, "
         "otherwise results are order dependent which is confusing.");
 
@@ -181,7 +182,7 @@ cl_int GetObjectExtensionInfoSingleValue(
     break;
   }
 
-  return retcode;
+  return Retcode;
 }
 
 /// @brief Query all passed in extensions via the get_info_fn functor/lambda
@@ -224,32 +225,32 @@ cl_int GetObjectExtensionInfoSingleValue(
 /// param_name query. Other OpenCL error return code if an extension accepts
 /// param_name but the supplied argument values are wrong.
 template <typename T, typename D, typename N, typename F>
-cl_int GetObjectDetailExtensionInfoSingleValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, D detail, N param_name, const size_t param_value_size,
-    void *param_value, size_t *param_value_size_ret, F get_info_fn) {
-  cl_int retcode = CL_INVALID_VALUE;
-  size_t ext_idx = 0;
-  for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    const cl_int supported_retcode = get_info_fn(
-        extensions[ext_idx], object, detail, param_name, 0, nullptr, nullptr);
-    if (CL_SUCCESS != supported_retcode) {
+cl_int getObjectDetailExtensionInfoSingleValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, D Detail, N ParamName, const size_t ParamValueSize,
+    void *ParamValue, size_t *ParamValueSizeRet, F GetInfoFn) {
+  cl_int Retcode = CL_INVALID_VALUE;
+  size_t ExtIdx = 0;
+  for (ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+    const cl_int SupportedRetcode = GetInfoFn(
+        Extensions[ExtIdx], Object, Detail, ParamName, 0, nullptr, nullptr);
+    if (CL_SUCCESS != SupportedRetcode) {
       // This extension does not support the info query, keep searching.
       continue;
     }
 
     // Do query.
-    retcode = get_info_fn(extensions[ext_idx], object, detail, param_name,
-                          param_value_size, param_value, param_value_size_ret);
+    Retcode = GetInfoFn(Extensions[ExtIdx], Object, Detail, ParamName,
+                          ParamValueSize, ParamValue, ParamValueSizeRet);
 
     // More than one extension shouldn't support the same info query,
     // otherwise results are order dependent which is confusing.
     OCL_ASSERT(
-        CL_SUCCESS != retcode ||
-            CL_SUCCESS != GetObjectDetailExtensionInfoSingleValue(
-                              num_extensions - ext_idx - 1,
-                              extensions + ext_idx + 1, object, detail,
-                              param_name, 0, nullptr, nullptr, get_info_fn),
+        CL_SUCCESS != Retcode ||
+            CL_SUCCESS != getObjectDetailExtensionInfoSingleValue(
+                              NumExtensions - ExtIdx - 1,
+                              Extensions + ExtIdx + 1, Object, Detail,
+                              ParamName, 0, nullptr, nullptr, GetInfoFn),
         "More than one extension should not support the same info query, "
         "otherwise results are order dependent which is confusing.");
 
@@ -258,7 +259,7 @@ cl_int GetObjectDetailExtensionInfoSingleValue(
     break;
   }
 
-  return retcode;
+  return Retcode;
 }
 
 /// @brief Query all passed in extensions via the get_info_fn functor/lambda
@@ -299,36 +300,36 @@ cl_int GetObjectDetailExtensionInfoSingleValue(
 /// param_name query. Other OpenCL error return code if an extension accepts
 /// param_name but the supplied argument values are wrong.
 template <typename T, typename D, typename N, typename F>
-cl_int GetObjectDetailExtensionInfoSingleInputValue(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, D detail, N param_name, const size_t input_value_size,
-    const void *input_value, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, F get_info_fn) {
-  cl_int retcode = CL_INVALID_VALUE;
-  size_t ext_idx = 0;
-  for (ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    const cl_int supported_retcode =
-        get_info_fn(extensions[ext_idx], object, detail, param_name, 0, nullptr,
+cl_int getObjectDetailExtensionInfoSingleInputValue(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, D Detail, N ParamName, const size_t InputValueSize,
+    const void *InputValue, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, F GetInfoFn) {
+  cl_int Retcode = CL_INVALID_VALUE;
+  size_t ExtIdx = 0;
+  for (ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+    const cl_int SupportedRetcode =
+        GetInfoFn(Extensions[ExtIdx], Object, Detail, ParamName, 0, nullptr,
                     0, nullptr, nullptr);
-    if (CL_SUCCESS != supported_retcode) {
+    if (CL_SUCCESS != SupportedRetcode) {
       // This extension does not support the info query, keep searching.
       continue;
     }
 
     // Do query.
-    retcode = get_info_fn(extensions[ext_idx], object, detail, param_name,
-                          input_value_size, input_value, param_value_size,
-                          param_value, param_value_size_ret);
+    Retcode = GetInfoFn(Extensions[ExtIdx], Object, Detail, ParamName,
+                          InputValueSize, InputValue, ParamValueSize,
+                          ParamValue, ParamValueSizeRet);
 
     // More than one extension shouldn't support the same info query,
     // otherwise results are order dependent which is confusing.
     OCL_ASSERT(
-        CL_SUCCESS != retcode ||
-            CL_SUCCESS != GetObjectDetailExtensionInfoSingleInputValue(
-                              num_extensions - ext_idx - 1,
-                              extensions + ext_idx + 1, object, detail,
-                              param_name, 0, nullptr, 0, nullptr, nullptr,
-                              get_info_fn),
+        CL_SUCCESS != Retcode ||
+            CL_SUCCESS != getObjectDetailExtensionInfoSingleInputValue(
+                              NumExtensions - ExtIdx - 1,
+                              Extensions + ExtIdx + 1, Object, Detail,
+                              ParamName, 0, nullptr, 0, nullptr, nullptr,
+                              GetInfoFn),
         "More than one extension should not support the same info query, "
         "otherwise results are order dependent which is confusing.");
 
@@ -337,7 +338,7 @@ cl_int GetObjectDetailExtensionInfoSingleInputValue(
     break;
   }
 
-  return retcode;
+  return Retcode;
 }
 
 /// @brief Query all passed in extensions via the get_info_fn functor/lambda and
@@ -375,16 +376,16 @@ cl_int GetObjectDetailExtensionInfoSingleInputValue(
 /// accepts the param_name query. Other OpenCL error return code if an extension
 /// accepts param_name but the supplied argument values are wrong.
 template <typename T, typename N, typename F>
-cl_int GetObjectExtensionInfoAggregatedCString(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, N param_name, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, const char name_separator, F get_info_fn) {
+cl_int getObjectExtensionInfoAggregatedCString(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, N ParamName, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, const char NameSeparator, F GetInfoFn) {
   // The caller already checked for correctness of the object.
-  cl_int aggregated_retcode = CL_INVALID_VALUE;
-  size_t aggregated_value_size_ret = 0;
+  cl_int AggregatedRetcode = CL_INVALID_VALUE;
+  size_t AggregatedValueSizeRet = 0;
 
   // First pass over extensions: aggregate the required return size.
-  for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
+  for (size_t ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
     // The last info query counts the terminating zero in its value_size_ret
     // while all previous terminating zeros are translated into spaces to
     // fulfill how OpenCL info queries report lists of names in c-strings.
@@ -392,218 +393,218 @@ cl_int GetObjectExtensionInfoAggregatedCString(
     // See The OpenCL Specification, Version 1.2,
     // Last Revision Date: 11/14/12,
     // Section 4.1 Querying Platform Info, page 35.
-    size_t value_size_ret = 0;
-    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
-                                       0, nullptr, &value_size_ret);
-    if (CL_SUCCESS != retcode) {
+    size_t ValueSizeRet = 0;
+    const cl_int Retcode = GetInfoFn(Extensions[ExtIdx], Object, ParamName,
+                                       0, nullptr, &ValueSizeRet);
+    if (CL_SUCCESS != Retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.
       continue;
     }
 
     // At least one extension supports the query info.
-    aggregated_retcode = CL_SUCCESS;
+    AggregatedRetcode = CL_SUCCESS;
 
-    aggregated_value_size_ret += value_size_ret;
+    AggregatedValueSizeRet += ValueSizeRet;
     OCL_ASSERT(
-        value_size_ret <= aggregated_value_size_ret,
+        ValueSizeRet <= AggregatedValueSizeRet,
         "Overflow of variable for storing platform extension names size.");
   }
 
   // If no extension handles the param_name for object, then return with an
   // error code.
-  if (CL_SUCCESS != aggregated_retcode) {
-    return aggregated_retcode;
+  if (CL_SUCCESS != AggregatedRetcode) {
+    return AggregatedRetcode;
   }
 
   OCL_CHECK(
-      nullptr != param_value && param_value_size < aggregated_value_size_ret,
+      nullptr != ParamValue && ParamValueSize < AggregatedValueSizeRet,
       return CL_INVALID_VALUE);
 
   // Second pass: query the wanted info and store it in the arguments.
-  if (nullptr != param_value) {
-    char *value_cursor = static_cast<char *>(param_value);
-    size_t value_size_remaining = param_value_size;
+  if (nullptr != ParamValue) {
+    char *ValueCursor = static_cast<char *>(ParamValue);
+    size_t ValueSizeRemaining = ParamValueSize;
 
-    for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-      cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
+    for (size_t ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+      cl_int Retcode = GetInfoFn(Extensions[ExtIdx], Object, ParamName, 0,
                                    nullptr, nullptr);
-      if (CL_SUCCESS != retcode) {
+      if (CL_SUCCESS != Retcode) {
         // This extension does not support the info query, keep searching.
         continue;
       }
 
-      size_t value_size_ret = 0;
-      retcode =
-          get_info_fn(extensions[ext_idx], object, param_name,
-                      value_size_remaining, value_cursor, &value_size_ret);
-      OCL_ASSERT(CL_SUCCESS == retcode,
+      size_t ValueSizeRet = 0;
+      Retcode =
+          GetInfoFn(Extensions[ExtIdx], Object, ParamName,
+                      ValueSizeRemaining, ValueCursor, &ValueSizeRet);
+      OCL_ASSERT(CL_SUCCESS == Retcode,
                  "Second pass through extension information should not fail.");
       OCL_ASSERT(
-          value_size_ret <= value_size_remaining,
+          ValueSizeRet <= ValueSizeRemaining,
           "Sizes must not add up differently between first and second pass.");
 
-      value_cursor += value_size_ret;
-      value_size_remaining -= value_size_ret;
+      ValueCursor += ValueSizeRet;
+      ValueSizeRemaining -= ValueSizeRet;
 
       // Replace terminating zero with name list "concatenating" whitespace.
       //
       // See The OpenCL Specification, Version 1.2,
       // Last Revision Date: 11/14/12,
       // Section 4.1 Querying Platform Info, page 35.
-      if (0 != value_size_ret) {
-        *(value_cursor - 1) = name_separator;
+      if (0 != ValueSizeRet) {
+        *(ValueCursor - 1) = NameSeparator;
       }
     }
 
     // Re-establish last terminating zero.
-    if (0 != aggregated_value_size_ret) {
-      *(value_cursor - 1) = '\0';
+    if (0 != AggregatedValueSizeRet) {
+      *(ValueCursor - 1) = '\0';
     }
   }
 
-  OCL_SET_IF_NOT_NULL(param_value_size_ret, aggregated_value_size_ret);
+  OCL_SET_IF_NOT_NULL(ParamValueSizeRet, AggregatedValueSizeRet);
 
   return CL_SUCCESS;
 }
 
 template <typename T, typename N, typename F>
-cl_int GetObjectExtensionInfoAggregatedArray(
-    const size_t num_extensions, const extension::extension *const *extensions,
-    T object, N param_name, const size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret, F get_info_fn) {
-  cl_int aggregated_retcode = CL_INVALID_VALUE;
-  size_t aggregated_value_size_ret = 0;
-  for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-    size_t value_size_ret = 0;
-    const cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name,
-                                       0, nullptr, &value_size_ret);
-    if (CL_SUCCESS != retcode) {
+cl_int getObjectExtensionInfoAggregatedArray(
+    const size_t NumExtensions, const extension::extension *const *Extensions,
+    T Object, N ParamName, const size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet, F GetInfoFn) {
+  cl_int AggregatedRetcode = CL_INVALID_VALUE;
+  size_t AggregatedValueSizeRet = 0;
+  for (size_t ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+    size_t ValueSizeRet = 0;
+    const cl_int Retcode = GetInfoFn(Extensions[ExtIdx], Object, ParamName,
+                                       0, nullptr, &ValueSizeRet);
+    if (CL_SUCCESS != Retcode) {
       // This extension does not support the info query, skip it to find
       // extensions that do.
       continue;
     }
     // At least one extension supports the query info.
-    aggregated_retcode = CL_SUCCESS;
+    AggregatedRetcode = CL_SUCCESS;
 
-    aggregated_value_size_ret += value_size_ret;
+    AggregatedValueSizeRet += ValueSizeRet;
     OCL_ASSERT(
-        value_size_ret <= aggregated_value_size_ret,
+        ValueSizeRet <= AggregatedValueSizeRet,
         "Overflow of variable for storing platform extension names size.");
   }
 
   // If no extension handles the param_name for object, then return with an
   // error code.
-  if (CL_SUCCESS != aggregated_retcode) {
-    return aggregated_retcode;
+  if (CL_SUCCESS != AggregatedRetcode) {
+    return AggregatedRetcode;
   }
   OCL_CHECK(
-      nullptr != param_value && param_value_size < aggregated_value_size_ret,
+      nullptr != ParamValue && ParamValueSize < AggregatedValueSizeRet,
       return CL_INVALID_VALUE);
 
   // Second pass: query the wanted info and store it in the arguments.
-  if (nullptr != param_value) {
-    char *value_cursor = static_cast<char *>(param_value);
-    size_t value_size_remaining = param_value_size;
+  if (nullptr != ParamValue) {
+    char *ValueCursor = static_cast<char *>(ParamValue);
+    size_t ValueSizeRemaining = ParamValueSize;
 
-    for (size_t ext_idx = 0; ext_idx < num_extensions; ++ext_idx) {
-      cl_int retcode = get_info_fn(extensions[ext_idx], object, param_name, 0,
+    for (size_t ExtIdx = 0; ExtIdx < NumExtensions; ++ExtIdx) {
+      cl_int Retcode = GetInfoFn(Extensions[ExtIdx], Object, ParamName, 0,
                                    nullptr, nullptr);
-      if (CL_SUCCESS != retcode) {
+      if (CL_SUCCESS != Retcode) {
         // This extension does not support the info query, keep searching.
         continue;
       }
 
-      size_t value_size_ret = 0;
-      retcode =
-          get_info_fn(extensions[ext_idx], object, param_name,
-                      value_size_remaining, value_cursor, &value_size_ret);
-      OCL_ASSERT(CL_SUCCESS == retcode,
+      size_t ValueSizeRet = 0;
+      Retcode =
+          GetInfoFn(Extensions[ExtIdx], Object, ParamName,
+                      ValueSizeRemaining, ValueCursor, &ValueSizeRet);
+      OCL_ASSERT(CL_SUCCESS == Retcode,
                  "Second pass through extension information should not fail.");
       OCL_ASSERT(
-          value_size_ret <= value_size_remaining,
+          ValueSizeRet <= ValueSizeRemaining,
           "Sizes must not add up differently between first and second pass.");
 
-      value_cursor += value_size_ret;
-      value_size_remaining -= value_size_ret;
+      ValueCursor += ValueSizeRet;
+      ValueSizeRemaining -= ValueSizeRet;
     }
   }
 
-  OCL_SET_IF_NOT_NULL(param_value_size_ret, aggregated_value_size_ret);
+  OCL_SET_IF_NOT_NULL(ParamValueSizeRet, AggregatedValueSizeRet);
 
   return CL_SUCCESS;
 }
 }  // namespace
 
-extension::extension::extension(const char *name, usage_category usage
+extension::extension::extension(const char *Name, usage_category Usage
 #if defined(CL_VERSION_3_0)
                                 ,
-                                cl_version_khr version
+                                cl_version_khr Version
 #endif
                                 )
-    : name(name),
-      usage(usage)
+    : name(Name),
+      usage(Usage)
 #if defined(CL_VERSION_3_0)
       ,
-      version(version)
+      version(Version)
 #endif
 {
-  OCL_ASSERT(nullptr != name || usage_category::DISABLED == usage,
+  OCL_ASSERT(nullptr != Name || usage_category::DISABLED == Usage,
              "Name required if usage indicates it.");
 }
 
 extension::extension::~extension() {}
 
 cl_int extension::extension::GetPlatformInfo(
-    cl_platform_id platform, cl_platform_info param_name,
-    size_t param_value_size, void *param_value,
-    size_t *param_value_size_ret) const {
-  OCL_UNUSED(platform);  // Already checked by clGetPlatformInfo.
+    cl_platform_id Platform, cl_platform_info ParamName,
+    size_t ParamValueSize, void *ParamValue,
+    size_t *ParamValueSizeRet) const {
+  OCL_UNUSED(Platform);  // Already checked by clGetPlatformInfo.
   if (usage_category::PLATFORM == usage) {
-    switch (param_name) {
+    switch (ParamName) {
       default: {
         return CL_INVALID_VALUE;
       }
       case CL_PLATFORM_EXTENSIONS: {
-        const std::size_t size = name.size() + 1;  // +1 for zero terminator.
-        OCL_CHECK(nullptr != param_value && param_value_size < size,
+        const std::size_t Size = name.size() + 1;  // +1 for zero terminator.
+        OCL_CHECK(nullptr != ParamValue && ParamValueSize < Size,
                   return CL_INVALID_VALUE);
 
-        if (nullptr != param_value) {
-          std::memcpy(param_value, name.data(), size);
+        if (nullptr != ParamValue) {
+          std::memcpy(ParamValue, name.data(), Size);
         }
 
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+        OCL_SET_IF_NOT_NULL(ParamValueSizeRet, Size);
 
         return CL_SUCCESS;
       }
 #if defined(CL_VERSION_3_0)
       case CL_PLATFORM_EXTENSIONS_WITH_VERSION: {
-        size_t platform_extensions_size{};
-        GetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS, 0, nullptr,
-                        &platform_extensions_size);
-        std::string platform_extensions(platform_extensions_size, '\0');
-        GetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS,
-                        platform_extensions.size(), platform_extensions.data(),
+        size_t PlatformExtensionsSize{};
+        GetPlatformInfo(Platform, CL_PLATFORM_EXTENSIONS, 0, nullptr,
+                        &PlatformExtensionsSize);
+        std::string PlatformExtensions(PlatformExtensionsSize, '\0');
+        GetPlatformInfo(Platform, CL_PLATFORM_EXTENSIONS,
+                        PlatformExtensions.size(), PlatformExtensions.data(),
                         nullptr);
-        auto split_extensions = cargo::split(platform_extensions, " ");
-        auto size_in_bytes =
-            split_extensions.size() * sizeof(cl_name_version_khr);
-        OCL_CHECK(nullptr != param_value && (param_value_size < size_in_bytes),
+        auto SplitExtensions = cargo::split(PlatformExtensions, " ");
+        auto SizeInBytes =
+            SplitExtensions.size() * sizeof(cl_name_version_khr);
+        OCL_CHECK(nullptr != ParamValue && (ParamValueSize < SizeInBytes),
                   return CL_INVALID_VALUE);
         cargo::small_vector<cl_name_version_khr, CA_CL_EXTENSION_COUNT>
-            name_version_pairs{};
-        if (nullptr != param_value) {
-          for (const auto &extension : split_extensions) {
-            cl_name_version_khr name_version{};
-            name_version.version = version;
-            std::memcpy(name_version.name, extension.data(), extension.size());
-            name_version.name[extension.size()] = '\0';
-            OCL_UNUSED(name_version_pairs.push_back(name_version));
+            NameVersionPairs{};
+        if (nullptr != ParamValue) {
+          for (const auto &Extension : SplitExtensions) {
+            cl_name_version_khr NameVersion{};
+            NameVersion.version = version;
+            std::memcpy(NameVersion.name, Extension.data(), Extension.size());
+            NameVersion.name[Extension.size()] = '\0';
+            OCL_UNUSED(NameVersionPairs.push_back(NameVersion));
           }
-          std::memcpy(param_value, name_version_pairs.data(), size_in_bytes);
+          std::memcpy(ParamValue, NameVersionPairs.data(), SizeInBytes);
         }
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, size_in_bytes);
+        OCL_SET_IF_NOT_NULL(ParamValueSizeRet, SizeInBytes);
         return CL_SUCCESS;
       }
 #endif
@@ -613,65 +614,65 @@ cl_int extension::extension::GetPlatformInfo(
   return CL_INVALID_VALUE;
 }
 
-cl_int extension::extension::GetDeviceInfo(cl_device_id device,
-                                           cl_device_info param_name,
-                                           size_t param_value_size,
-                                           void *param_value,
-                                           size_t *param_value_size_ret) const {
-  OCL_UNUSED(device);  // Already checked by clGetDeviceInfo.
+cl_int extension::extension::GetDeviceInfo(cl_device_id Device,
+                                           cl_device_info ParamName,
+                                           size_t ParamValueSize,
+                                           void *ParamValue,
+                                           size_t *ParamValueSizeRet) const {
+  OCL_UNUSED(Device);  // Already checked by clGetDeviceInfo.
   if (usage_category::DEVICE == usage || usage_category::PLATFORM == usage) {
     // If this is a compiler extension and no compiler is available, then
     // disable it.
-    if (!device->compiler_available) {
-      auto compiler_extensions = getCompilerExtensions();
-      if (std::find(compiler_extensions.begin(), compiler_extensions.end(),
-                    this) != compiler_extensions.end()) {
+    if (!Device->compiler_available) {
+      auto CompilerExtensions = getCompilerExtensions();
+      if (std::find(CompilerExtensions.begin(), CompilerExtensions.end(),
+                    this) != CompilerExtensions.end()) {
         return CL_INVALID_DEVICE;
       }
     }
-    switch (param_name) {
+    switch (ParamName) {
       default: {
         return CL_INVALID_VALUE;
       }
       case CL_DEVICE_EXTENSIONS: {
-        const std::size_t size = name.size() + 1;
-        OCL_CHECK(nullptr != param_value && param_value_size < size,
+        const std::size_t Size = name.size() + 1;
+        OCL_CHECK(nullptr != ParamValue && ParamValueSize < Size,
                   return CL_INVALID_VALUE);
 
-        if (nullptr != param_value) {
-          std::memcpy(param_value, name.data(), size);
+        if (nullptr != ParamValue) {
+          std::memcpy(ParamValue, name.data(), Size);
         }
 
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+        OCL_SET_IF_NOT_NULL(ParamValueSizeRet, Size);
 
         return CL_SUCCESS;
       }
 #if defined(CL_VERSION_3_0)
       case CL_DEVICE_EXTENSIONS_WITH_VERSION: {
-        size_t device_extensions_size{};
-        GetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, nullptr,
-                      &device_extensions_size);
-        std::string device_extensions(device_extensions_size, '\0');
-        GetDeviceInfo(device, CL_DEVICE_EXTENSIONS, device_extensions.size(),
-                      device_extensions.data(), nullptr);
-        auto split_extensions = cargo::split(device_extensions, " ");
-        auto size_in_bytes =
-            split_extensions.size() * sizeof(cl_name_version_khr);
-        OCL_CHECK(nullptr != param_value && (param_value_size < size_in_bytes),
+        size_t DeviceExtensionsSize{};
+        GetDeviceInfo(Device, CL_DEVICE_EXTENSIONS, 0, nullptr,
+                      &DeviceExtensionsSize);
+        std::string DeviceExtensions(DeviceExtensionsSize, '\0');
+        GetDeviceInfo(Device, CL_DEVICE_EXTENSIONS, DeviceExtensions.size(),
+                      DeviceExtensions.data(), nullptr);
+        auto SplitExtensions = cargo::split(DeviceExtensions, " ");
+        auto SizeInBytes =
+            SplitExtensions.size() * sizeof(cl_name_version_khr);
+        OCL_CHECK(nullptr != ParamValue && (ParamValueSize < SizeInBytes),
                   return CL_INVALID_VALUE);
-        if (nullptr != param_value) {
+        if (nullptr != ParamValue) {
           cargo::small_vector<cl_name_version_khr, CA_CL_EXTENSION_COUNT>
-              name_version_pairs{};
-          for (const auto &extension : split_extensions) {
-            cl_name_version_khr name_version{};
-            name_version.version = version;
-            std::memcpy(name_version.name, extension.data(), extension.size());
-            name_version.name[extension.size()] = '\0';
-            OCL_UNUSED(name_version_pairs.push_back(name_version));
+              NameVersionPairs{};
+          for (const auto &Extension : SplitExtensions) {
+            cl_name_version_khr NameVersion{};
+            NameVersion.version = version;
+            std::memcpy(NameVersion.name, Extension.data(), Extension.size());
+            NameVersion.name[Extension.size()] = '\0';
+            OCL_UNUSED(NameVersionPairs.push_back(NameVersion));
           }
-          std::memcpy(param_value, name_version_pairs.data(), size_in_bytes);
+          std::memcpy(ParamValue, NameVersionPairs.data(), SizeInBytes);
         }
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, size_in_bytes);
+        OCL_SET_IF_NOT_NULL(ParamValueSizeRet, SizeInBytes);
         return CL_SUCCESS;
       }
 #endif
@@ -780,447 +781,447 @@ void *extension::extension::GetExtensionFunctionAddressForPlatform(
   return nullptr;
 }
 
-cl_int extension::GetPlatformInfo(cl_platform_id platform,
-                                  cl_platform_info param_name,
-                                  size_t param_value_size, void *param_value,
-                                  size_t *param_value_size_ret) {
-  cl_int retcode = CL_INVALID_VALUE;
+cl_int extension::GetPlatformInfo(cl_platform_id Platform,
+                                  cl_platform_info ParamName,
+                                  size_t ParamValueSize, void *ParamValue,
+                                  size_t *ParamValueSizeRet) {
+  cl_int Retcode = CL_INVALID_VALUE;
 
-  auto query_fn = [](const extension *extension, cl_platform_id object,
-                     cl_platform_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetPlatformInfo(object, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
+  auto QueryFn = [](const extension *Extension, cl_platform_id Object,
+                     cl_platform_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetPlatformInfo(Object, ParamName, ParamValueSize,
+                                      ParamValue, ParamValueSizeRet);
   };
 
   // Extend with extension related param_names.
-  switch (param_name) {
+  switch (ParamName) {
     case CL_PLATFORM_EXTENSIONS: {
-      const char extension_name_separator = ' ';
-      retcode = GetObjectExtensionInfoAggregatedCString(
-          getExtensions().size(), getExtensions().data(), platform, param_name,
-          param_value_size, param_value, param_value_size_ret,
-          extension_name_separator, query_fn);
+      const char ExtensionNameSeparator = ' ';
+      Retcode = getObjectExtensionInfoAggregatedCString(
+          getExtensions().size(), getExtensions().data(), Platform, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet,
+          ExtensionNameSeparator, QueryFn);
       break;
     }
 #if defined(CL_VERSION_3_0)
     case CL_PLATFORM_EXTENSIONS_WITH_VERSION: {
-      retcode = GetObjectExtensionInfoAggregatedArray(
-          getExtensions().size(), getExtensions().data(), platform, param_name,
-          param_value_size, param_value, param_value_size_ret, query_fn);
+      Retcode = getObjectExtensionInfoAggregatedArray(
+          getExtensions().size(), getExtensions().data(), Platform, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
       break;
     }
 #endif
     default: {
       // Assuming that yet unknown extension have a single value to query
       // and are not aggregated.
-      retcode = GetObjectExtensionInfoSingleValue(
-          getExtensions().size(), getExtensions().data(), platform, param_name,
-          param_value_size, param_value, param_value_size_ret, query_fn);
+      Retcode = getObjectExtensionInfoSingleValue(
+          getExtensions().size(), getExtensions().data(), Platform, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
       break;
     }
   }
 
-  return retcode;
+  return Retcode;
 }
 
-cl_int extension::GetDeviceInfo(cl_device_id device, cl_device_info param_name,
-                                size_t param_value_size, void *param_value,
-                                size_t *param_value_size_ret) {
-  cl_int retcode = CL_INVALID_VALUE;
+cl_int extension::GetDeviceInfo(cl_device_id Device, cl_device_info ParamName,
+                                size_t ParamValueSize, void *ParamValue,
+                                size_t *ParamValueSizeRet) {
+  cl_int Retcode = CL_INVALID_VALUE;
 
-  auto query_fn = [](const extension *extension, cl_device_id object,
-                     cl_device_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetDeviceInfo(object, param_name, param_value_size,
-                                    param_value, param_value_size_ret);
+  auto QueryFn = [](const extension *Extension, cl_device_id Object,
+                     cl_device_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetDeviceInfo(Object, ParamName, ParamValueSize,
+                                    ParamValue, ParamValueSizeRet);
   };
 
   // Extend with extension related param_names.
-  switch (param_name) {
+  switch (ParamName) {
     case CL_DEVICE_EXTENSIONS: {
-      const char extension_name_separator = ' ';
-      retcode = GetObjectExtensionInfoAggregatedCString(
-          getExtensions().size(), getExtensions().data(), device, param_name,
-          param_value_size, param_value, param_value_size_ret,
-          extension_name_separator, query_fn);
+      const char ExtensionNameSeparator = ' ';
+      Retcode = getObjectExtensionInfoAggregatedCString(
+          getExtensions().size(), getExtensions().data(), Device, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet,
+          ExtensionNameSeparator, QueryFn);
       break;
     }
 #if defined(CL_VERSION_3_0)
     case CL_DEVICE_EXTENSIONS_WITH_VERSION: {
-      retcode = GetObjectExtensionInfoAggregatedArray(
-          getExtensions().size(), getExtensions().data(), device, param_name,
-          param_value_size, param_value, param_value_size_ret, query_fn);
+      Retcode = getObjectExtensionInfoAggregatedArray(
+          getExtensions().size(), getExtensions().data(), Device, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
       break;
     }
 #endif
     default: {
       // Assuming that yet unknown extension have a single value to query
       // and are not aggregated.
-      retcode = GetObjectExtensionInfoSingleValue(
-          getExtensions().size(), getExtensions().data(), device, param_name,
-          param_value_size, param_value, param_value_size_ret, query_fn);
+      Retcode = getObjectExtensionInfoSingleValue(
+          getExtensions().size(), getExtensions().data(), Device, ParamName,
+          ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
       break;
     }
   }
 
-  return retcode;
+  return Retcode;
 }
 
-cl_int extension::GetContextInfo(cl_context context, cl_context_info param_name,
-                                 size_t param_value_size, void *param_value,
-                                 size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_context object,
-                     cl_context_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetContextInfo(object, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
+cl_int extension::GetContextInfo(cl_context Context, cl_context_info ParamName,
+                                 size_t ParamValueSize, void *ParamValue,
+                                 size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_context Object,
+                     cl_context_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetContextInfo(Object, ParamName, ParamValueSize,
+                                     ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), context, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Context, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::ApplyPropertyToCommandQueue(cl_command_queue command_queue,
-                                              cl_queue_properties_khr property,
-                                              cl_queue_properties_khr value) {
-  for (auto extension : getExtensions()) {
-    if (auto result = extension->ApplyPropertyToCommandQueue(command_queue,
-                                                             property, value)) {
-      return *result;
+cl_int extension::ApplyPropertyToCommandQueue(cl_command_queue CommandQueue,
+                                              cl_queue_properties_khr Property,
+                                              cl_queue_properties_khr Value) {
+  for (const auto *Extension : getExtensions()) {
+    if (auto Result = Extension->ApplyPropertyToCommandQueue(CommandQueue,
+                                                             Property, Value)) {
+      return *Result;
     }
   }
   return CL_INVALID_VALUE;
 }
 
-cl_int extension::GetCommandQueueInfo(cl_command_queue command_queue,
-                                      cl_command_queue_info param_name,
-                                      size_t param_value_size,
-                                      void *param_value,
-                                      size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_command_queue object,
-                     cl_command_queue_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetCommandQueueInfo(object, param_name, param_value_size,
-                                          param_value, param_value_size_ret);
+cl_int extension::GetCommandQueueInfo(cl_command_queue CommandQueue,
+                                      cl_command_queue_info ParamName,
+                                      size_t ParamValueSize,
+                                      void *ParamValue,
+                                      size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_command_queue Object,
+                     cl_command_queue_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetCommandQueueInfo(Object, ParamName, ParamValueSize,
+                                          ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), command_queue, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), CommandQueue, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetImageInfo(cl_mem image, cl_image_info param_name,
-                               size_t param_value_size, void *param_value,
-                               size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_mem object,
-                     cl_image_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetImageInfo(object, param_name, param_value_size,
-                                   param_value, param_value_size_ret);
+cl_int extension::GetImageInfo(cl_mem Image, cl_image_info ParamName,
+                               size_t ParamValueSize, void *ParamValue,
+                               size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_mem Object,
+                     cl_image_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetImageInfo(Object, ParamName, ParamValueSize,
+                                   ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), image, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Image, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetMemObjectInfo(cl_mem memobj, cl_mem_info param_name,
-                                   size_t param_value_size, void *param_value,
-                                   size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_mem object,
-                     cl_mem_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetMemObjectInfo(object, param_name, param_value_size,
-                                       param_value, param_value_size_ret);
+cl_int extension::GetMemObjectInfo(cl_mem Memobj, cl_mem_info ParamName,
+                                   size_t ParamValueSize, void *ParamValue,
+                                   size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_mem Object,
+                     cl_mem_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetMemObjectInfo(Object, ParamName, ParamValueSize,
+                                       ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), memobj, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Memobj, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetSamplerInfo(cl_sampler sampler, cl_sampler_info param_name,
-                                 size_t param_value_size, void *param_value,
-                                 size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_sampler object,
-                     cl_sampler_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetSamplerInfo(object, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
+cl_int extension::GetSamplerInfo(cl_sampler Sampler, cl_sampler_info ParamName,
+                                 size_t ParamValueSize, void *ParamValue,
+                                 size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_sampler Object,
+                     cl_sampler_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetSamplerInfo(Object, ParamName, ParamValueSize,
+                                     ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), sampler, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Sampler, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetProgramInfo(cl_program program, cl_program_info param_name,
-                                 size_t param_value_size, void *param_value,
-                                 size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_program object,
-                     cl_program_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetProgramInfo(object, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
+cl_int extension::GetProgramInfo(cl_program Program, cl_program_info ParamName,
+                                 size_t ParamValueSize, void *ParamValue,
+                                 size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_program Object,
+                     cl_program_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetProgramInfo(Object, ParamName, ParamValueSize,
+                                     ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), program, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Program, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetProgramBuildInfo(cl_program program, cl_device_id device,
-                                      cl_program_build_info param_name,
-                                      size_t param_value_size,
-                                      void *param_value,
-                                      size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_program object,
-                     cl_device_id detail, cl_program_build_info param_name,
-                     size_t param_value_size, void *param_value,
-                     size_t *param_value_size_ret) {
-    return extension->GetProgramBuildInfo(object, detail, param_name,
-                                          param_value_size, param_value,
-                                          param_value_size_ret);
+cl_int extension::GetProgramBuildInfo(cl_program Program, cl_device_id Device,
+                                      cl_program_build_info ParamName,
+                                      size_t ParamValueSize,
+                                      void *ParamValue,
+                                      size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_program Object,
+                     cl_device_id Detail, cl_program_build_info ParamName,
+                     size_t ParamValueSize, void *ParamValue,
+                     size_t *ParamValueSizeRet) {
+    return Extension->GetProgramBuildInfo(Object, Detail, ParamName,
+                                          ParamValueSize, ParamValue,
+                                          ParamValueSizeRet);
   };
 
-  return GetObjectDetailExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), program, device,
-      param_name, param_value_size, param_value, param_value_size_ret,
-      query_fn);
+  return getObjectDetailExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Program, Device,
+      ParamName, ParamValueSize, ParamValue, ParamValueSizeRet,
+      QueryFn);
 }
 
-cl_int extension::GetKernelInfo(cl_kernel kernel, cl_kernel_info param_name,
-                                size_t param_value_size, void *param_value,
-                                size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_kernel object,
-                     cl_kernel_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetKernelInfo(object, param_name, param_value_size,
-                                    param_value, param_value_size_ret);
+cl_int extension::GetKernelInfo(cl_kernel Kernel, cl_kernel_info ParamName,
+                                size_t ParamValueSize, void *ParamValue,
+                                size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_kernel Object,
+                     cl_kernel_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetKernelInfo(Object, ParamName, ParamValueSize,
+                                    ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), kernel, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Kernel, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetKernelWorkGroupInfo(cl_kernel kernel, cl_device_id device,
-                                         cl_kernel_work_group_info param_name,
-                                         size_t param_value_size,
-                                         void *param_value,
-                                         size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_kernel object,
-                     cl_device_id detail, cl_kernel_work_group_info param_name,
-                     size_t param_value_size, void *param_value,
-                     size_t *param_value_size_ret) {
-    return extension->GetKernelWorkGroupInfo(object, detail, param_name,
-                                             param_value_size, param_value,
-                                             param_value_size_ret);
+cl_int extension::GetKernelWorkGroupInfo(cl_kernel Kernel, cl_device_id Device,
+                                         cl_kernel_work_group_info ParamName,
+                                         size_t ParamValueSize,
+                                         void *ParamValue,
+                                         size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_kernel Object,
+                     cl_device_id Detail, cl_kernel_work_group_info ParamName,
+                     size_t ParamValueSize, void *ParamValue,
+                     size_t *ParamValueSizeRet) {
+    return Extension->GetKernelWorkGroupInfo(Object, Detail, ParamName,
+                                             ParamValueSize, ParamValue,
+                                             ParamValueSizeRet);
   };
 
-  return GetObjectDetailExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), kernel, device,
-      param_name, param_value_size, param_value, param_value_size_ret,
-      query_fn);
+  return getObjectDetailExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Kernel, Device,
+      ParamName, ParamValueSize, ParamValue, ParamValueSizeRet,
+      QueryFn);
 }
 
-cl_int extension::SetKernelArg(cl_kernel kernel, cl_uint arg_index,
-                               size_t arg_size, const void *arg_value) {
-  for (auto extension : getExtensions()) {
-    auto error =
-        extension->SetKernelArg(kernel, arg_index, arg_size, arg_value);
-    if (error != CL_INVALID_KERNEL) {
-      return error;
+cl_int extension::SetKernelArg(cl_kernel Kernel, cl_uint ArgIndex,
+                               size_t ArgSize, const void *ArgValue) {
+  for (const auto *Extension : getExtensions()) {
+    auto Error =
+        Extension->SetKernelArg(Kernel, ArgIndex, ArgSize, ArgValue);
+    if (Error != CL_INVALID_KERNEL) {
+      return Error;
     }
   }
   return CL_INVALID_KERNEL;
 }
 
-cl_int extension::GetKernelArgInfo(cl_kernel kernel, cl_uint arg_indx,
-                                   cl_kernel_arg_info param_name,
-                                   size_t param_value_size, void *param_value,
-                                   size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_kernel object,
-                     cl_uint detail, cl_kernel_arg_info param_name,
-                     size_t param_value_size, void *param_value,
-                     size_t *param_value_size_ret) {
-    return extension->GetKernelArgInfo(object, detail, param_name,
-                                       param_value_size, param_value,
-                                       param_value_size_ret);
+cl_int extension::GetKernelArgInfo(cl_kernel Kernel, cl_uint ArgIndx,
+                                   cl_kernel_arg_info ParamName,
+                                   size_t ParamValueSize, void *ParamValue,
+                                   size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_kernel Object,
+                     cl_uint Detail, cl_kernel_arg_info ParamName,
+                     size_t ParamValueSize, void *ParamValue,
+                     size_t *ParamValueSizeRet) {
+    return Extension->GetKernelArgInfo(Object, Detail, ParamName,
+                                       ParamValueSize, ParamValue,
+                                       ParamValueSizeRet);
   };
 
-  return GetObjectDetailExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), kernel, arg_indx,
-      param_name, param_value_size, param_value, param_value_size_ret,
-      query_fn);
+  return getObjectDetailExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Kernel, ArgIndx,
+      ParamName, ParamValueSize, ParamValue, ParamValueSizeRet,
+      QueryFn);
 }
 
 #if defined(CL_VERSION_3_0)
 cl_int extension::GetKernelSubGroupInfo(
-    cl_kernel kernel, cl_device_id device, cl_kernel_sub_group_info param_name,
-    size_t input_value_size, const void *input_value, size_t param_value_size,
-    void *param_value, size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_kernel object,
-                     cl_device_id detail, cl_kernel_sub_group_info param_name,
-                     size_t input_value_size, const void *input_value,
-                     size_t param_value_size, void *param_value,
-                     size_t *param_value_size_ret) {
-    return extension->GetKernelSubGroupInfo(
-        object, detail, param_name, input_value_size, input_value,
-        param_value_size, param_value, param_value_size_ret);
+    cl_kernel Kernel, cl_device_id Device, cl_kernel_sub_group_info ParamName,
+    size_t InputValueSize, const void *InputValue, size_t ParamValueSize,
+    void *ParamValue, size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_kernel Object,
+                     cl_device_id Detail, cl_kernel_sub_group_info ParamName,
+                     size_t InputValueSize, const void *InputValue,
+                     size_t ParamValueSize, void *ParamValue,
+                     size_t *ParamValueSizeRet) {
+    return Extension->GetKernelSubGroupInfo(
+        Object, Detail, ParamName, InputValueSize, InputValue,
+        ParamValueSize, ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectDetailExtensionInfoSingleInputValue(
-      getExtensions().size(), getExtensions().data(), kernel, device,
-      param_name, input_value_size, input_value, param_value_size, param_value,
-      param_value_size_ret, query_fn);
+  return getObjectDetailExtensionInfoSingleInputValue(
+      getExtensions().size(), getExtensions().data(), Kernel, Device,
+      ParamName, InputValueSize, InputValue, ParamValueSize, ParamValue,
+      ParamValueSizeRet, QueryFn);
 }
 #endif
 
 #if (defined(CL_VERSION_3_0) || \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
-cl_int extension::SetKernelExecInfo(cl_kernel kernel,
-                                    cl_kernel_exec_info_codeplay param_name,
-                                    size_t param_value_size,
-                                    const void *param_value) {
-  for (auto extension : getExtensions()) {
-    auto error = extension->SetKernelExecInfo(kernel, param_name,
-                                              param_value_size, param_value);
-    if (error != CL_INVALID_KERNEL) {
-      return error;
+cl_int extension::SetKernelExecInfo(cl_kernel Kernel,
+                                    cl_kernel_exec_info_codeplay ParamName,
+                                    size_t ParamValueSize,
+                                    const void *ParamValue) {
+  for (const auto *Extension : getExtensions()) {
+    auto Error = Extension->SetKernelExecInfo(Kernel, ParamName,
+                                              ParamValueSize, ParamValue);
+    if (Error != CL_INVALID_KERNEL) {
+      return Error;
     }
   }
   return CL_INVALID_KERNEL;
 }
 #endif
 
-cl_int extension::GetEventInfo(cl_event event, cl_event_info param_name,
-                               size_t param_value_size, void *param_value,
-                               size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_event object,
-                     cl_event_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetEventInfo(object, param_name, param_value_size,
-                                   param_value, param_value_size_ret);
+cl_int extension::GetEventInfo(cl_event Event, cl_event_info ParamName,
+                               size_t ParamValueSize, void *ParamValue,
+                               size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_event Object,
+                     cl_event_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetEventInfo(Object, ParamName, ParamValueSize,
+                                   ParamValue, ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), event, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Event, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-cl_int extension::GetEventProfilingInfo(cl_event event,
-                                        cl_profiling_info param_name,
-                                        size_t param_value_size,
-                                        void *param_value,
-                                        size_t *param_value_size_ret) {
-  auto query_fn = [](const extension *extension, cl_event object,
-                     cl_profiling_info param_name, size_t param_value_size,
-                     void *param_value, size_t *param_value_size_ret) {
-    return extension->GetEventProfilingInfo(object, param_name,
-                                            param_value_size, param_value,
-                                            param_value_size_ret);
+cl_int extension::GetEventProfilingInfo(cl_event Event,
+                                        cl_profiling_info ParamName,
+                                        size_t ParamValueSize,
+                                        void *ParamValue,
+                                        size_t *ParamValueSizeRet) {
+  auto QueryFn = [](const extension *Extension, cl_event Object,
+                     cl_profiling_info ParamName, size_t ParamValueSize,
+                     void *ParamValue, size_t *ParamValueSizeRet) {
+    return Extension->GetEventProfilingInfo(Object, ParamName,
+                                            ParamValueSize, ParamValue,
+                                            ParamValueSizeRet);
   };
 
-  return GetObjectExtensionInfoSingleValue(
-      getExtensions().size(), getExtensions().data(), event, param_name,
-      param_value_size, param_value, param_value_size_ret, query_fn);
+  return getObjectExtensionInfoSingleValue(
+      getExtensions().size(), getExtensions().data(), Event, ParamName,
+      ParamValueSize, ParamValue, ParamValueSizeRet, QueryFn);
 }
 
-void *extension::GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                                        const char *func_name) {
-  return ::GetExtensionFunctionAddressForPlatform(
-      getExtensions().size(), getExtensions().data(), platform, func_name);
+void *extension::GetExtensionFunctionAddressForPlatform(cl_platform_id Platform,
+                                                        const char *FuncName) {
+  return ::getExtensionFunctionAddressForPlatform(
+      getExtensions().size(), getExtensions().data(), Platform, FuncName);
 }
 
 [[nodiscard]] cl_int extension::GetRuntimeExtensionsForDevice(
-    cl_device_id device, cargo::string_view &extensions_ret) {
-  static std::string extensions{};
-  static std::once_flag initialized_flag{};
-  static cl_int retcode = CL_SUCCESS;
+    cl_device_id Device, cargo::string_view &ExtensionsRet) {
+  static std::string Extensions{};
+  static std::once_flag InitializedFlag{};
+  static cl_int Retcode = CL_SUCCESS;
 
-  std::call_once(initialized_flag, [&]() {
-    auto query_fn = [](const extension *extension, cl_device_id object,
-                       cl_device_info param_name, size_t param_value_size,
-                       void *param_value, size_t *param_value_size_ret) {
-      return extension->GetDeviceInfo(object, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
+  std::call_once(InitializedFlag, [&]() {
+    auto QueryFn = [](const extension *Extension, cl_device_id Object,
+                       cl_device_info ParamName, size_t ParamValueSize,
+                       void *ParamValue, size_t *ParamValueSizeRet) {
+      return Extension->GetDeviceInfo(Object, ParamName, ParamValueSize,
+                                      ParamValue, ParamValueSizeRet);
     };
 
-    size_t ext_string_length = 0;
-    retcode = GetObjectExtensionInfoAggregatedCString(
-        getRuntimeExtensions().size(), getRuntimeExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, 0, nullptr, &ext_string_length, ' ', query_fn);
+    size_t ExtStringLength = 0;
+    Retcode = getObjectExtensionInfoAggregatedCString(
+        getRuntimeExtensions().size(), getRuntimeExtensions().data(), Device,
+        CL_DEVICE_EXTENSIONS, 0, nullptr, &ExtStringLength, ' ', QueryFn);
 
     // CL_INVALID_VALUE indicates that the device supports no extensions
-    if (CL_INVALID_VALUE == retcode) {
-      retcode = CL_SUCCESS;
+    if (CL_INVALID_VALUE == Retcode) {
+      Retcode = CL_SUCCESS;
       return;
     }
-    if (CL_SUCCESS != retcode) {
+    if (CL_SUCCESS != Retcode) {
       return;
     }
 
-    extensions = std::string(ext_string_length, '\0');
-    retcode = GetObjectExtensionInfoAggregatedCString(
-        getRuntimeExtensions().size(), getRuntimeExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, ext_string_length, extensions.data(), nullptr,
-        ' ', query_fn);
-    if (CL_SUCCESS != retcode) {
+    Extensions = std::string(ExtStringLength, '\0');
+    Retcode = getObjectExtensionInfoAggregatedCString(
+        getRuntimeExtensions().size(), getRuntimeExtensions().data(), Device,
+        CL_DEVICE_EXTENSIONS, ExtStringLength, Extensions.data(), nullptr,
+        ' ', QueryFn);
+    if (CL_SUCCESS != Retcode) {
       return;
     }
   });
 
-  if (CL_SUCCESS == retcode) {
-    extensions_ret = cargo::string_view(extensions.data(), extensions.size());
+  if (CL_SUCCESS == Retcode) {
+    ExtensionsRet = cargo::string_view(Extensions.data(), Extensions.size());
   }
 
-  return retcode;
+  return Retcode;
 }
 
 [[nodiscard]] cl_int extension::GetCompilerExtensionsForDevice(
-    cl_device_id device, cargo::string_view &extensions_ret) {
-  static std::string extensions{};
-  static std::once_flag initialized_flag{};
-  static cl_int retcode = CL_SUCCESS;
+    cl_device_id Device, cargo::string_view &ExtensionsRet) {
+  static std::string Extensions{};
+  static std::once_flag InitializedFlag{};
+  static cl_int Retcode = CL_SUCCESS;
 
-  std::call_once(initialized_flag, [&]() {
-    auto query_fn = [](const extension *extension, cl_device_id object,
-                       cl_device_info param_name, size_t param_value_size,
-                       void *param_value, size_t *param_value_size_ret) {
-      return extension->GetDeviceInfo(object, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
+  std::call_once(InitializedFlag, [&]() {
+    auto QueryFn = [](const extension *Extension, cl_device_id Object,
+                       cl_device_info ParamName, size_t ParamValueSize,
+                       void *ParamValue, size_t *ParamValueSizeRet) {
+      return Extension->GetDeviceInfo(Object, ParamName, ParamValueSize,
+                                      ParamValue, ParamValueSizeRet);
     };
 
-    size_t ext_string_length = 0;
-    retcode = GetObjectExtensionInfoAggregatedCString(
-        getCompilerExtensions().size(), getCompilerExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, 0, nullptr, &ext_string_length, ' ', query_fn);
+    size_t ExtStringLength = 0;
+    Retcode = getObjectExtensionInfoAggregatedCString(
+        getCompilerExtensions().size(), getCompilerExtensions().data(), Device,
+        CL_DEVICE_EXTENSIONS, 0, nullptr, &ExtStringLength, ' ', QueryFn);
 
     // CL_INVALID_VALUE indicates that the device supports no etensions
-    if (CL_INVALID_VALUE == retcode) {
-      retcode = CL_SUCCESS;
+    if (CL_INVALID_VALUE == Retcode) {
+      Retcode = CL_SUCCESS;
       return;
     }
-    if (CL_SUCCESS != retcode) {
+    if (CL_SUCCESS != Retcode) {
       return;
     }
 
-    extensions = std::string(ext_string_length, '\0');
-    retcode = GetObjectExtensionInfoAggregatedCString(
-        getCompilerExtensions().size(), getCompilerExtensions().data(), device,
-        CL_DEVICE_EXTENSIONS, ext_string_length, extensions.data(), nullptr,
-        ' ', query_fn);
-    if (CL_SUCCESS != retcode) {
+    Extensions = std::string(ExtStringLength, '\0');
+    Retcode = getObjectExtensionInfoAggregatedCString(
+        getCompilerExtensions().size(), getCompilerExtensions().data(), Device,
+        CL_DEVICE_EXTENSIONS, ExtStringLength, Extensions.data(), nullptr,
+        ' ', QueryFn);
+    if (CL_SUCCESS != Retcode) {
       return;
     }
   });
 
-  if (CL_SUCCESS == retcode) {
-    extensions_ret = cargo::string_view(extensions.data(), extensions.size());
+  if (CL_SUCCESS == Retcode) {
+    ExtensionsRet = cargo::string_view(Extensions.data(), Extensions.size());
   }
 
-  return retcode;
+  return Retcode;
 }

@@ -42,6 +42,7 @@ set(RUNTIME_EXTENSIONS
 foreach(tag ${CA_CL_RUNTIME_EXTENSION_TAGS})
   list(APPEND RUNTIME_EXTENSIONS ${${tag}_RUNTIME_EXTENSIONS})
 endforeach()
+list(SORT RUNTIME_EXTENSIONS)
 
 # List of all supported compiler extensions.
 set(COMPILER_EXTENSIONS
@@ -54,9 +55,13 @@ set(COMPILER_EXTENSIONS
 foreach(tag ${CA_CL_COMPILER_EXTENSION_TAGS})
   list(APPEND COMPILER_EXTENSIONS ${${tag}_COMPILER_EXTENSIONS})
 endforeach()
+list(SORT COMPILER_EXTENSIONS)
+
+set(ALL_EXTENSIONS ${RUNTIME_EXTENSIONS} ${COMPILER_EXTENSIONS})
+list(SORT ALL_EXTENSIONS)
 
 # Create an individual option for each extension in the list.
-foreach(extension ${RUNTIME_EXTENSIONS} ${COMPILER_EXTENSIONS})
+foreach(extension ${ALL_EXTENSIONS})
   if(${extension} STREQUAL "khr_command_buffer"
     OR ${extension} STREQUAL "khr_command_buffer_mutable_dispatch")
     # TODO Enable `khr_command_buffer` and any layered extensions
@@ -93,12 +98,11 @@ list(REMOVE_DUPLICATES CL_EXTENSION_HEADERS)
 # Generate config.h and extension.cpp
 set(generate_extension_defines)
 set(generate_includes)
-set(generate_declarations)
 set(generate_alloc_error)
 
 string(APPEND generate_extension_defines "
 // OpenCL runtime extensions.")
-foreach(extension ${RUNTIME_EXTENSIONS})
+foreach(extension ${ALL_EXTENSIONS})
   if(OCL_EXTENSION_cl_${extension})
     string(APPEND generate_extension_defines "
 #define OCL_EXTENSION_cl_${extension}")
@@ -108,28 +112,11 @@ foreach(extension ${RUNTIME_EXTENSIONS})
   endif()
   string(APPEND generate_includes "
 #include <extension/${extension}.h>")
-  string(APPEND generate_declarations "
-  static extension::${extension} ${extension};")
-  string(APPEND generate_alloc_error "
-    error = extensions.push_back(&${extension});
-    OCL_ASSERT(!error, \"failed to allocate extension storage\");")
 endforeach()
-
-foreach(extension ${COMPILER_EXTENSIONS})
-  if(OCL_EXTENSION_cl_${extension})
-    string(APPEND generate_extension_defines "
-#define OCL_EXTENSION_cl_${extension}")
-  else()
-    string(APPEND generate_extension_defines "
-// #undef OCL_EXTENSION_cl_${extension}")
-  endif()
-  string(APPEND generate_includes "
-#include <extension/${extension}.h>")
-  string(APPEND generate_declarations "
-  static extension::${extension} ${extension};")
+foreach(extension ${RUNTIME_EXTENSIONS} ${COMPILER_EXTENSIONS})
   string(APPEND generate_alloc_error "
-    error = extensions.push_back(&${extension});
-    OCL_ASSERT(!error, \"failed to allocate extension storage\");")
+    Error = Extensions.push_back(&Extension<extension::${extension}>);
+    OCL_ASSERT(!Error, \"failed to allocate extension storage\");")
 endforeach()
 
 list(LENGTH RUNTIME_EXTENSIONS CA_CL_RUNTIME_EXTENSION_COUNT)

@@ -101,7 +101,7 @@ TEST_F(clGetMemObjectInfoTest, MemHostPtr) {
   ASSERT_SUCCESS(
       clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, 0, nullptr, &size));
   ASSERT_EQ(sizeof(void *), size);
-  void *ptr = nullptr;
+  const void *ptr = nullptr;
   ASSERT_SUCCESS(clGetMemObjectInfo(hostBuffer, CL_MEM_HOST_PTR, size,
                                     static_cast<void *>(&ptr), nullptr));
   ASSERT_EQ(&data, ptr);
@@ -378,7 +378,7 @@ INSTANTIATE_TEST_CASE_P(
     MemObjectQuery, clGetMemObjectInfoUsesSVMPointerTest,
     testing::Values(std::make_tuple(sizeof(cl_bool), CL_MEM_USES_SVM_POINTER)),
     [](const testing::TestParamInfo<
-        clGetMemObjectInfoUsesSVMPointerTest::ParamType> &info) {
-      return UCL::memObjectQueryToString(std::get<1>(info.param));
+        clGetMemObjectInfoUsesSVMPointerTest::ParamType> &Info) {
+      return UCL::memObjectQueryToString(std::get<1>(Info.param));
     });
 #endif

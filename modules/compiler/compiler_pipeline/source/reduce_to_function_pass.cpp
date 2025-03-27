@@ -143,7 +143,7 @@ PreservedAnalyses compiler::utils::ReduceToFunctionPass::run(
   SmallPtrSet<Function *, 16> toDelete;
 
   for (Function &F : M) {
-    if (0 == FnsToKeep.count(&F)) {
+    if (!FnsToKeep.contains(&F)) {
       F.dropAllReferences();
       toDelete.insert(&F);
     }

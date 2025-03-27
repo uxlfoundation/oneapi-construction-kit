@@ -388,7 +388,7 @@ TEST_F(clGetEventInfoTest, MapBufferEvent) {
   ASSERT_SUCCESS(errcode);
 
   cl_event event;
-  void *mapped_data =
+  const void *mapped_data =
       clEnqueueMapBuffer(command_queue, in_mem, CL_FALSE, CL_MAP_READ, 0, size,
                          0, nullptr, &event, &errcode);
   ASSERT_SUCCESS(errcode);

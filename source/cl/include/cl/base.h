@@ -264,16 +264,15 @@ class release_guard {
           const cl_int retcode = releaseExternal(object);
           OCL_ASSERT(CL_SUCCESS == retcode, "External release failed!");
           OCL_UNUSED(retcode);
-          break;
+          return;
         }
         case ref_count_type::INTERNAL: {
           releaseInternal(object);
-          break;
-        }
-        default: {
-          OCL_ABORT("Unknown cl::ref_count_type!");
+          return;
         }
       }
+
+      OCL_ABORT("Unknown cl::ref_count_type!");
     }
   }
 

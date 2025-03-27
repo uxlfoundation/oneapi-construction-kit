@@ -188,7 +188,7 @@ class DeserializeMemoryBuffer final : public llvm::MemoryBuffer {
     init(buffer.begin(), buffer.end(), false);
   }
 
-  virtual llvm::MemoryBuffer::BufferKind getBufferKind() const {
+  llvm::MemoryBuffer::BufferKind getBufferKind() const override {
     return llvm::MemoryBuffer::MemoryBuffer_Malloc;
   }
 };
@@ -200,7 +200,7 @@ class BakedMemoryBuffer : public llvm::MemoryBuffer {
          static_cast<const char *>(buffer) + size, true);
   }
 
-  virtual llvm::MemoryBuffer::BufferKind getBufferKind() const {
+  llvm::MemoryBuffer::BufferKind getBufferKind() const override {
     return llvm::MemoryBuffer::MemoryBuffer_Malloc;
   }
 
@@ -1023,9 +1023,9 @@ clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
     case Standard::OpenCLC30:
       lang_opts.OpenCLVersion = 300;
       return clang::LangStandard::lang_opencl30;
-    default:
-      llvm_unreachable("clang language standard not initialised");
   }
+
+  llvm_unreachable("clang language standard not initialised");
 }
 
 void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {

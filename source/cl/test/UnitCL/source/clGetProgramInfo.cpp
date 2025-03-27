@@ -421,7 +421,7 @@ TEST_F(clGetProgramInfoCompiledProgram,
 struct clGetProgramInfoInvalidProgramTest : ucl::ContextTest {
   cl_program program = nullptr;
 
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
 
     if (!getDeviceCompilerAvailable()) {
@@ -442,7 +442,7 @@ void kernel foo(global int * a, global int * b) {
         clBuildProgram(program, 0, nullptr, nullptr, nullptr, nullptr));
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }
@@ -477,7 +477,7 @@ TEST_F(clGetProgramInfoInvalidProgramTest, ProgramInfo) {
 struct clGetProgramInfoBuiltinTest : ucl::ContextTest {
   cl_program program = nullptr;
 
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
 
     size_t size;
@@ -505,7 +505,7 @@ struct clGetProgramInfoBuiltinTest : ucl::ContextTest {
     ASSERT_SUCCESS(error);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
     }
@@ -618,7 +618,7 @@ INSTANTIATE_TEST_CASE_P(
                       std::make_tuple(sizeof(cl_bool),
                                       CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT)),
     [](const testing::TestParamInfo<clGetProgramInfoTestParam::ParamType>
-           &info) {
-      return UCL::programQueryToString(std::get<1>(info.param));
+           &Info) {
+      return UCL::programQueryToString(std::get<1>(Info.param));
     });
 #endif

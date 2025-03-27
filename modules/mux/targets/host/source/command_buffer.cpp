@@ -77,10 +77,10 @@ void populatePackedArgs(
       case mux_descriptor_info_type_buffer: {
         const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
 
-        ::host::buffer_s *const host_buffer =
+        const ::host::buffer_s *const host_buffer =
             static_cast<::host::buffer_s *>(info.buffer);
 
-        uint8_t *const buffer_value =
+        const uint8_t *const buffer_value =
             static_cast<uint8_t *>(host_buffer->data) + info.offset;
 
         std::memcpy(packed_args_alloc + offset,
@@ -157,7 +157,7 @@ void populatePackedArgs(
         offset += sizeof(size_t);
       } break;
       case mux_descriptor_info_type_null_buffer: {
-        void *nullvar = nullptr;
+        const void *nullvar = nullptr;
         std::memcpy(packed_args_alloc + offset, static_cast<void *>(&nullvar),
                     sizeof(void *));
         offset += sizeof(void *);
@@ -1039,7 +1039,7 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
         std::memcpy(arg_address, &(info.size), sizeof(size_t));
       } break;
       case mux_descriptor_info_type_null_buffer: {
-        void *null = nullptr;
+        const void *null = nullptr;
         std::memcpy(arg_address, static_cast<void *>(&null), sizeof(void *));
       } break;
     }

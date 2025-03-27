@@ -248,6 +248,9 @@ struct hal_t {
   ///
   /// @return Returns `false` if the operation fails otherwise `true`.
   virtual bool device_delete(hal_device_t *device) = 0;
+
+ protected:
+  ~hal_t() = default;
 };
 
 /// @}

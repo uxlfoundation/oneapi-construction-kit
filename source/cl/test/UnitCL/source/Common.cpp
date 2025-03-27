@@ -1024,7 +1024,7 @@ size_t UCL::getTypeSize(const char *const type) {
 }
 
 bool UCL::hasPlatformExtensionSupport(const char *extension_name) {
-  cl_platform_id *platforms = getPlatforms();
+  const cl_platform_id *platforms = getPlatforms();
   cl_platform_id platform = platforms[0];
 
   size_t extension_names_size = 0;

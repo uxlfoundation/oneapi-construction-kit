@@ -324,7 +324,7 @@ void OneArgRelational::TestAgainstReference(const char *builtin,
     // Map buffers to verify results
     cargo::small_vector<void *, 2> mapped_ptrs;
     ReadMapBuffers<2>(mapped_ptrs);
-    T *input = (T *)mapped_ptrs[0];
+    const T *input = (T *)mapped_ptrs[0];
     void *output = mapped_ptrs[1];
 
     // Verify correct result
@@ -476,8 +476,8 @@ void TwoArgRelational::TestAgainstReference(
     // Map buffers to verify data
     cargo::small_vector<void *, 3> mapped_ptrs;
     ReadMapBuffers<3>(mapped_ptrs);
-    T *input1 = (T *)mapped_ptrs[0];
-    T *input2 = (T *)mapped_ptrs[1];
+    const T *input1 = (T *)mapped_ptrs[0];
+    const T *input2 = (T *)mapped_ptrs[1];
     void *output = mapped_ptrs[2];
 
     for (size_t i = 0; i < scalar_elems; ++i) {
@@ -607,10 +607,10 @@ void BitSelectTest::TestAgainstReference(const std::function<U(U, U, U)> &ref) {
     // Map buffers so we can verify results
     cargo::small_vector<void *, 4> mapped_ptrs;
     ReadMapBuffers<4>(mapped_ptrs);
-    U *input1 = (U *)mapped_ptrs[0];
-    U *input2 = (U *)mapped_ptrs[1];
-    U *input3 = (U *)mapped_ptrs[2];
-    U *output = (U *)mapped_ptrs[3];
+    const U *input1 = (U *)mapped_ptrs[0];
+    const U *input2 = (U *)mapped_ptrs[1];
+    const U *input3 = (U *)mapped_ptrs[2];
+    const U *output = (U *)mapped_ptrs[3];
 
     for (size_t i = 0; i < scalar_elems; ++i) {
       // Ignore sneaky 4th element of vec3
@@ -748,10 +748,10 @@ void SelectTest::TestAgainstReference(const std::function<T(T, T, U)> &ref,
     // Map Buffers for reading
     cargo::small_vector<void *, 4> mapped_ptrs;
     ReadMapBuffers<4>(mapped_ptrs);
-    T *input1 = (T *)mapped_ptrs[0];
-    T *input2 = (T *)mapped_ptrs[1];
-    U *input3 = (U *)mapped_ptrs[2];
-    T *output = (T *)mapped_ptrs[3];
+    const T *input1 = (T *)mapped_ptrs[0];
+    const T *input2 = (T *)mapped_ptrs[1];
+    const U *input3 = (U *)mapped_ptrs[2];
+    const T *output = (T *)mapped_ptrs[3];
 
     for (size_t i = 0; i < scalar_elems; ++i) {
       // Ignore sneaky 4th element of vec3

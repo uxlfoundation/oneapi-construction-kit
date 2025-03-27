@@ -111,6 +111,7 @@ set(UVK_SHADER_NAMES
   delay
   write_back
   turns)
+list(SORT UVK_SHADER_NAMES)
 
 if(${UNITVK_USE_LOADER})
   # Find Vulkan loader lib

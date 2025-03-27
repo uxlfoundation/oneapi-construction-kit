@@ -126,7 +126,7 @@ uint32_t spirv_ll::Module::getAddressingModel() const {
 }
 
 void spirv_ll::Module::addEntryPoint(const OpEntryPoint *op) {
-  if (!EntryPoints.count(op->EntryPoint())) {
+  if (!EntryPoints.contains(op->EntryPoint())) {
     EntryPoints.insert({op->EntryPoint(), op});
   }
 }
@@ -488,7 +488,7 @@ void spirv_ll::Module::addForwardPointer(spv::Id id) {
 }
 
 bool spirv_ll::Module::isForwardPointer(spv::Id id) const {
-  return ForwardPointers.count(id);
+  return ForwardPointers.contains(id);
 }
 
 void spirv_ll::Module::removeForwardPointer(spv::Id id) {

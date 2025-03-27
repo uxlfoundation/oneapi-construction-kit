@@ -18,7 +18,7 @@
 
 class clCreateSubBufferTest : public ucl::CommandQueueTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     cl_uint mem_base_addr_align = 0;
     ASSERT_EQ(CL_SUCCESS,
@@ -31,7 +31,7 @@ class clCreateSubBufferTest : public ucl::CommandQueueTest {
     region.size = sizeof(cl_int);
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
     }

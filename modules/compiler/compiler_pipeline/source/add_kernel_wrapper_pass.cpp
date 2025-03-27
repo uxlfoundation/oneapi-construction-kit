@@ -129,7 +129,7 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
 
   for (auto &F : M.functions()) {
     // We only operate on previously-unseen kernel functions.
-    if (!isKernel(F) || NewKernels.count(&F)) {
+    if (!isKernel(F) || NewKernels.contains(&F)) {
       continue;
     }
 

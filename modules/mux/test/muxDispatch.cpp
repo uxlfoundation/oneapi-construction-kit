@@ -58,8 +58,8 @@ TEST_P(muxDispatchTest, CompleteCallback) {
   // add a callback to the dispatch that sets hit to true
   ASSERT_SUCCESS(muxDispatch(
       queue, command_buffer, nullptr, nullptr, 0, nullptr, 0,
-      [](mux_command_buffer_t, mux_result_t, void *const user_data) {
-        *static_cast<std::atomic<bool> *>(user_data) = true;
+      [](mux_command_buffer_t, mux_result_t, void *const UserData) {
+        *static_cast<std::atomic<bool> *>(UserData) = true;
       },
       &hit));
 
@@ -81,9 +81,9 @@ TEST_P(muxDispatchTest, UserFunctionBeforeSignal) {
 
   ASSERT_SUCCESS(muxCommandUserCallback(
       command_buffer,
-      [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-        auto data = static_cast<uint32_t *>(user_data);
-        *data *= 2;
+      [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+        auto Data = static_cast<uint32_t *>(UserData);
+        *Data *= 2;
       },
       &data, 0, nullptr, nullptr));
 
@@ -92,9 +92,9 @@ TEST_P(muxDispatchTest, UserFunctionBeforeSignal) {
 
   ASSERT_SUCCESS(muxDispatch(
       queue, command_buffer_2, nullptr, nullptr, 0, &semaphore, 1,
-      [](mux_command_buffer_t, mux_result_t, void *const user_data) {
-        auto data = static_cast<uint32_t *>(user_data);
-        (*data)++;
+      [](mux_command_buffer_t, mux_result_t, void *const UserData) {
+        auto Data = static_cast<uint32_t *>(UserData);
+        (*Data)++;
       },
       &data));
 
@@ -159,9 +159,9 @@ TEST_P(muxDispatchTest, DISABLED_NoDeadlockWhenResettingWaitedOnSemaphore) {
       mux_success,
       muxCommandUserCallback(
           command_buffers[1],
-          [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-            auto semaphore = static_cast<mux_semaphore_t>(user_data);
-            muxResetSemaphore(semaphore);
+          [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+            auto Semaphore = static_cast<mux_semaphore_t>(UserData);
+            muxResetSemaphore(Semaphore);
           },
           semaphores[0], 0, nullptr, nullptr));
 
@@ -213,9 +213,9 @@ TEST_P(muxDispatchTest, DISABLED_MultipleThreadsInteractWithSemaphores) {
       mux_success,
       muxCommandUserCallback(
           command_buffers[1],
-          [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
-            auto semaphore = static_cast<mux_semaphore_t>(user_data);
-            muxResetSemaphore(semaphore);
+          [](mux_queue_t, mux_command_buffer_t, void *const UserData) {
+            auto Semaphore = static_cast<mux_semaphore_t>(UserData);
+            muxResetSemaphore(Semaphore);
           },
           semaphores[0], 0, nullptr, nullptr));
 

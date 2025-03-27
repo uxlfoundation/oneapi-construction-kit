@@ -24,7 +24,7 @@
 
 class clCreateProgramWithBinaryTest : public ucl::ContextTest {
  protected:
-  void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
 #ifndef CA_CL_ENABLE_OFFLINE_KERNEL_TESTS
     // This test requires offline kernels
@@ -54,7 +54,7 @@ class clCreateProgramWithBinaryTest : public ucl::ContextTest {
     ASSERT_SUCCESS(clReleaseProgram(originalProgram));
   }
 
-  void TearDown() {
+  void TearDown() override {
     if (nullptr != binaries) {
       for (unsigned i = 0; i < 1; ++i) {
         delete[] binaries[i];
@@ -354,7 +354,7 @@ TEST_F(clCreateProgramWithBinaryTest, CreateProgramThenTryCompile) {
   ASSERT_SUCCESS(errcode);
 
   const size_t num_devices = 1;
-  cl_device_id *devices = &device;
+  const cl_device_id *devices = &device;
 
   for (size_t i = 0; i < num_devices; ++i) {
     ASSERT_SUCCESS(binaryStatii[i]);

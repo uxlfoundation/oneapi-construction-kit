@@ -20,7 +20,7 @@
 
 class clSetKernelExecInfoTest : public ucl::ContextTest {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();
@@ -47,7 +47,7 @@ kernel void test(global int* out) {
     ASSERT_NE(kernel, nullptr);
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (program) {
       EXPECT_SUCCESS(clReleaseProgram(program));
       EXPECT_SUCCESS(clReleaseKernel(kernel));
@@ -100,7 +100,7 @@ TEST_F(clSetKernelExecInfoTest, InvalidValue) {
   // around returning CL_INVALID_OPERATION when fine-grained SVM isn't
   // supported. This complicates which error code gets priority, and there
   // aren't any CTS tests yet to use as a reference.
-  void *svm_ptr[1] = {nullptr};
+  const void *svm_ptr[1] = {nullptr};
 
   // Invalid param_name
   EXPECT_EQ_ERRCODE(

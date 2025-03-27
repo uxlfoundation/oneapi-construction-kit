@@ -273,9 +273,9 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateSubBuffer(
 
   OCL_CHECK(std::all_of(buffer->context->devices.begin(),
                         buffer->context->devices.end(),
-                        [origin](_cl_device_id *device) {
+                        [origin](_cl_device_id *Device) {
                           return 0 != (origin &
-                                       ((device->mem_base_addr_align / 8) - 1));
+                                       ((Device->mem_base_addr_align / 8) - 1));
                         }),
             OCL_SET_IF_NOT_NULL(errcode_ret, CL_MISALIGNED_SUB_BUFFER_OFFSET);
             return nullptr);

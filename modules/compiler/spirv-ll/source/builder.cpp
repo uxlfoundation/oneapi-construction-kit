@@ -1034,7 +1034,7 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
   }
 
   SPIRV_LL_ASSERT(
-      llvm::all_of(argVals, [](const llvm::Value *v) { return v != nullptr; }),
+      llvm::all_of(argVals, [](const llvm::Value *V) { return V != nullptr; }),
       "Can't call with a null value");
 
   return createMangledBuiltinCall(fnName, resultType, resMangleInfo, argVals,

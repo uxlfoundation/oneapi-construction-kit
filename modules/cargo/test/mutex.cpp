@@ -115,6 +115,6 @@ TEST(ostream_lock_guard, operator_output_threads) {
   for (auto &word : words) {
     ASSERT_TRUE(std::any_of(
         lookup.begin(), lookup.end(),
-        [&word](const cargo::string_view &a) { return a == word; }));
+        [&word](const cargo::string_view &A) { return A == word; }));
   }
 }

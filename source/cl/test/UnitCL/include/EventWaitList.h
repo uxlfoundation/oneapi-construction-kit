@@ -22,6 +22,8 @@
 /// @brief Base class for tests requiring event list testing.
 class TestWithEventWaitList {
  protected:
+  ~TestWithEventWaitList() = default;
+
   /// @brief Method performing the actual API calls when testing for event list
   /// error codes.
   ///

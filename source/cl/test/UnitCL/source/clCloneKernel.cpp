@@ -21,7 +21,7 @@
 #include <cstring>
 
 struct clCloneKernelTest : ucl::ContextTest {
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
       GTEST_SKIP();
@@ -50,7 +50,7 @@ kernel void test(global int* out) {
     return error;
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (clone_kernel) {
       EXPECT_SUCCESS(clReleaseKernel(clone_kernel));
     }
@@ -103,7 +103,7 @@ TEST_F(clCloneKernelTest, InvalidKernel) {
 }
 
 struct clCloneKernelRunTest : clCloneKernelTest {
-  virtual void SetUp() {
+  void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(clCloneKernelTest::SetUp());
     if (!UCL::hasCompilerSupport(device)) {
       GTEST_SKIP();
@@ -117,7 +117,7 @@ struct clCloneKernelRunTest : clCloneKernelTest {
     ASSERT_SUCCESS(error);
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
     }

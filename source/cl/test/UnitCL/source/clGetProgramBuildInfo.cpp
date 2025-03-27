@@ -452,7 +452,7 @@ INSTANTIATE_TEST_CASE_P(
     testing::Values(std::make_tuple(
         sizeof(size_t), CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE)),
     [](const testing::TestParamInfo<
-        clGetProgramBuildInfoTestScalarQueryOpenCL30::ParamType> &info) {
-      return UCL::programBuildQueryToString(std::get<1>(info.param));
+        clGetProgramBuildInfoTestScalarQueryOpenCL30::ParamType> &Info) {
+      return UCL::programBuildQueryToString(std::get<1>(Info.param));
     });
 #endif

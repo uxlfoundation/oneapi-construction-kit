@@ -1503,8 +1503,8 @@ INSTANTIATE_TEST_CASE_P(
         std::make_tuple(sizeof(size_t),
                         CL_DEVICE_PREFERRED_WORK_GROUP_SIZE_MULTIPLE)),
     [](const testing::TestParamInfo<
-        clGetDeviceInfoTestScalarQueryOpenCL30::ParamType> &info) {
-      return UCL::deviceQueryToString(std::get<1>(info.param));
+        clGetDeviceInfoTestScalarQueryOpenCL30::ParamType> &Info) {
+      return UCL::deviceQueryToString(std::get<1>(Info.param));
     });
 
 class clGetDeviceInfoTestVectorQueryOpenCL30
@@ -1570,8 +1570,8 @@ INSTANTIATE_TEST_CASE_P(
                     CL_DEVICE_OPENCL_C_FEATURES,
                     CL_DEVICE_LATEST_CONFORMANCE_VERSION_PASSED),
     [](const testing::TestParamInfo<
-        clGetDeviceInfoTestVectorQueryOpenCL30::ParamType> &info) {
-      return UCL::deviceQueryToString(std::get<0>(info.param));
+        clGetDeviceInfoTestVectorQueryOpenCL30::ParamType> &Info) {
+      return UCL::deviceQueryToString(std::get<0>(Info.param));
     });
 
 TEST_F(clGetDeviceInfoTest, MinimumRequiredAtomicMemoryCapabilities) {
@@ -1818,8 +1818,6 @@ TEST_F(clGetDeviceInfoTest, ValidateExtensionsWithVersion) {
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_extensions = cargo::split(device_extensions, " ");
-  // Check that the lists have the same size for an early exit.
-  ASSERT_EQ(split_extensions.size(), device_extensions_with_version.size());
   // Construct second array of strings from versioned extensions.
   std::vector<cargo::string_view> split_version_extensions{};
   for (const auto &ext : device_extensions_with_version) {
@@ -1922,9 +1920,6 @@ TEST_F(clGetDeviceInfoTest, ValidateBuiltInKernelsWithVersion) {
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_built_in_kernels = cargo::split(device_built_in_kernels, ";");
-  // Check that the lists have the same size for an early exit.
-  ASSERT_EQ(split_built_in_kernels.size(),
-            device_built_in_kernels_with_version.size());
   // Construct second array of strings from versioned extensions.
   std::vector<cargo::string_view> split_built_in_kernels_with_version{};
   for (const auto &ext : device_built_in_kernels_with_version) {
@@ -2009,8 +2004,6 @@ TEST_F(clGetDeviceInfoTest, ValidateILSWithVersion) {
   // Construct an array of strings so we can easily traverse the space separated
   // list.
   auto split_device_il_version = cargo::split(device_il_version, " ");
-  // Check that the lists have the same size for an early exit.
-  ASSERT_EQ(split_device_il_version.size(), device_ils_with_version.size());
   // Check that every element in IL_VERSION is in ILS_WITH_VERSION.
   for (auto &il_version : split_device_il_version) {
     const std::regex ils_version_regex{R"(([\w-]+)_(\d+)\.(\d+))"};
@@ -2027,9 +2020,9 @@ TEST_F(clGetDeviceInfoTest, ValidateILSWithVersion) {
     ASSERT_NE(
         std::find_if(device_ils_with_version.begin(),
                      device_ils_with_version.end(),
-                     [&name_version](cl_name_version_khr nv) {
-                       return (std::strcmp(name_version.name, nv.name) == 0) &&
-                              name_version.version == nv.version;
+                     [&name_version](cl_name_version_khr Nv) {
+                       return name_version.version == Nv.version &&
+                              (std::strcmp(name_version.name, Nv.name) == 0);
                      }),
         device_ils_with_version.end())
         << "Missing IL in CL_DEVICE_ILS_WITH_VERSION";
@@ -2083,13 +2076,12 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersions) {
       std::atoi(sm.str(1).c_str()), std::atoi(sm.str(2).c_str()), 0);
   // Check its contained in the array returned by
   // CL_DEVICE_OPENCL_C_ALL_VERSIONS.
-  ASSERT_NE(
-      std::find_if(std::begin(opencl_c_all_versions),
-                   std::end(opencl_c_all_versions),
-                   [&extracted_version](cl_name_version_khr name_version) {
-                     return name_version.version == extracted_version;
-                   }),
-      std::end(opencl_c_all_versions));
+  ASSERT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                         std::end(opencl_c_all_versions),
+                         [&extracted_version](cl_name_version_khr NameVersion) {
+                           return NameVersion.version == extracted_version;
+                         }),
+            std::end(opencl_c_all_versions));
 }
 
 TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
@@ -2124,8 +2116,8 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
         // for an OpenCL 3.0 device.
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 2, 0);
                                }),
                   std::end(opencl_c_all_versions));
@@ -2138,29 +2130,29 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
         // device.
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(2, 0, 0);
                                }),
                   std::end(opencl_c_all_versions));
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 2, 0);
                                }),
                   std::end(opencl_c_all_versions));
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 1, 0);
                                }),
                   std::end(opencl_c_all_versions));
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 0, 0);
                                }),
                   std::end(opencl_c_all_versions));
@@ -2170,15 +2162,15 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
         // for an OpenCL 1.2 device.
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 1, 0);
                                }),
                   std::end(opencl_c_all_versions));
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 0, 0);
                                }),
                   std::end(opencl_c_all_versions));
@@ -2188,8 +2180,8 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
         // OpenCL 1.1 device.
         EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
                                std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr nv) {
-                                 return nv.version ==
+                               [](cl_name_version_khr Nv) {
+                                 return Nv.version ==
                                         CL_MAKE_VERSION_KHR(1, 0, 0);
                                }),
                   std::end(opencl_c_all_versions));

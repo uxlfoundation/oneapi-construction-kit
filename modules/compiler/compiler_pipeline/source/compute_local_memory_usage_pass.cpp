@@ -79,7 +79,7 @@ PreservedAnalyses ComputeLocalMemoryUsagePass::run(Module &M,
       // call graph.
       if (none_of(GV.users(), [&VisitedFns](const User *U) {
             return isa<Instruction>(U) &&
-                   VisitedFns.count(cast<Instruction>(U)->getFunction());
+                   VisitedFns.contains(cast<Instruction>(U)->getFunction());
           })) {
         LLVM_DEBUG(dbgs() << "  GV '" << GV.getName() << "' is unused\n");
         continue;
