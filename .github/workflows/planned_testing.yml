@@ -309,24 +309,15 @@ jobs:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
-  build_sycl_cts_x86_64:
+  build_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        sycl_device: [ 'opencl', 'native_cpu' ]
-        exclude:
-          - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
-          - sycl_device: ${{ ! inputs.ock && 'opencl' }}
-
     runs-on: 'cp-ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # if: 'always/failure/cancelled' below allows all "needs:" jobs to pass (ock) or some to skip (build_icd for native_cpu)
-    if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
+    if: inputs.test_sycl_cts && inputs.ock
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -340,7 +331,31 @@ jobs:
         with:
           target: host_x86_64_linux
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: ${{ matrix.sycl_device }}
+          sycl_device: opencl
+
+  build_sycl_cts_x86_64_native_cpu:
+    needs: [workflow_vars, build_dpcpp_native]
+    runs-on: 'cp-ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_cts && inputs.native_cpu
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: 'ubuntu'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: build sycl cts artefact
+        uses: ./.github/actions/do_build_sycl_cts
+        with:
+          target: host_x86_64_linux
+          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+          sycl_device: native_cpu
 
   build_sycl_cts_aarch64:
     needs: [workflow_vars, build_icd, build_dpcpp_native]
@@ -365,24 +380,15 @@ jobs:
           target: host_aarch64_linux
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
-  run_sycl_cts_x86_64:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_x86_64]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        sycl_device: [ 'opencl', 'native_cpu' ]
-        exclude:
-          - sycl_device: ${{ ! inputs.native_cpu && 'native_cpu' }}
-          - sycl_device: ${{ ! inputs.ock && 'opencl' }}
-
+  run_sycl_cts_x86_64_opencl:
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_x86_64_opencl]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # if: 'always/failure/cancelled' below allows all "needs:" jobs to pass (ock) or some to skip (create_ock_artefacts_ubuntu for native_cpu)
-    if: inputs.test_sycl_cts && ( inputs.ock || inputs.native_cpu ) && always() && !failure() && !cancelled()
+    if: inputs.test_sycl_cts && inputs.ock
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -390,7 +396,25 @@ jobs:
         uses: ./.github/actions/run_sycl_cts
         with:
           target: host_x86_64_linux
-          sycl_device: ${{ matrix.sycl_device }}
+          sycl_device: opencl
+
+  run_sycl_cts_x86_64_native_cpu:
+    needs: [workflow_vars, build_dpcpp_native, build_sycl_cts_x86_64_native_cpu]
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_cts && inputs.native_cpu
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: run sycl cts
+        uses: ./.github/actions/run_sycl_cts
+        with:
+          target: host_x86_64_linux
+          sycl_device: native_cpu
 
   run_sycl_cts_aarch64:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_aarch64]
