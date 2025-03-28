@@ -1,0 +1,47 @@
+name: download artifact
+description: Download an artifact, either through the action or using gh, depending which workflow it came from.
+
+inputs:
+  name:
+    description: 'name of artifact to download'
+    default: "none"
+  path:
+    description: 'path to download to - currently must be a directory if needs_tar is true'
+    default: "none"
+  token:
+    description: 'gh token for downloading artifacts - only needed for gh'
+    default: 'TOKEN_NOT_SET'
+  run_id:
+    description: 'The run_id for the workflow the artifact came from'
+    default: 'RUN_ID_UNKNOWN'
+  needs_tar:
+    description: 'The archive is tarred so we need to untar it after downloading it'
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    # The normal case is to use the github action
+    - name: download using download_artifact
+      if: inputs.run_id == github.run_id
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.needs_tar == 'true' && github.workspace || inputs.path }}
+
+    # The run_id is not from this workflow, we need to use gh
+    - name: download using gh run download
+      if: inputs.run_id != github.run_id
+      shell: bash
+      run: |
+        git config --global --add safe.directory $PWD
+        GH_TOKEN=${{ inputs.token }} gh run download ${{ inputs.run_id }} -n ${{ inputs.name }} -D ${{ inputs.needs_tar == 'true' && github.workspace || inputs.path }}
+
+    - name: untar artefact
+      if: inputs.needs_tar == 'true'
+      shell: bash
+      run: |
+        # Everything goes under the new path
+        mkdir -p ${{ inputs.path }}
+        tar xf tmp.tar -C ${{ inputs.path }}
