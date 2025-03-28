@@ -4,8 +4,11 @@ description: build sycl cts
 inputs:
   target:
     description: 'target architecture'
+  sycl_device:
+    description: '"opencl" or "native_cpu"'
+    default: 'opencl'
   download_sycl_cts_artefact:
-    description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+    description: 'download sycl_cts artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''    
 
 runs:
@@ -22,14 +25,14 @@ runs:
       uses: llvm/actions/install-ninja@main
 
     - name: download icd artifact
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: icd_${{inputs.target}}
         path: install_icd
 
     - name: download headers artifact
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: header_${{inputs.target}}
@@ -74,20 +77,25 @@ runs:
             git -C SYCL-CTS.src apply "$patch"
           fi
         done
+        if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
+          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include"
+        else # native_cpu
+          DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS='-fsycl-targets=native_cpu'"
+        fi
         export JOPT="4"
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then # needed for cp-graviton runner
           JOPT="2"
         fi
+        set -x
         cmake -S SYCL-CTS.src \
             -GNinja \
             -B SYCL-CTS \
             -DSYCL_IMPLEMENTATION=DPCPP \
             -DDPCPP_INSTALL_DIR=$GITHUB_WORKSPACE/install_dpcpp \
-            -DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so \
-            -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/install_dpcpp/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
-            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld"
+            -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
+            ${DEV_OPTS}
         ninja -C SYCL-CTS -v -j$JOPT -k 0 || :
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
@@ -109,14 +117,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p SYCL-CTS
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n sycl_cts_${{ inputs.target }} -D SYCL-CTS
+        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }} -D SYCL-CTS
         ls SYCL-CTS
 
 
     - name: upload artefact
       uses: actions/upload-artifact@v4
       with:
-        name: sycl_cts_${{inputs.target}}
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
         path: SYCL-CTS/sycl-cts.tar
         retention-days: 7
   
