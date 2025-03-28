@@ -1,4 +1,4 @@
-SYCL_CTS,test_handler "handler.parallel_for*",XFail
+SYCL_CTS,test_handler "handler.parallel_for*",Mayfail
 SYCL_CTS,test_host_task host_task_interop_api,XFail
 SYCL_CTS,test_kernel "Test kernel info",XFail
 SYCL_CTS,test_kernel "Behavior of kernel attribute*",XFail
