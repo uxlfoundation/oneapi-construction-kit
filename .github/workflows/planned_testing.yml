@@ -428,7 +428,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
+      - name: run sycl cts
+        uses: ./.github/actions/run_sycl_cts
         with:
           target: host_aarch64_linux
