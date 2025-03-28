@@ -357,6 +357,7 @@ class TestResults(object):
         self.timeout_list = []
         self.xpass_list = []
         self.mayfail_list = []
+        self.xfail_list = []
 
         for test in self.tests:
             try:
@@ -372,6 +373,8 @@ class TestResults(object):
                     self.xpass_list.append(run)
                 elif run.status == "MAYFAIL":
                     self.mayfail_list.append(run)
+                elif run.status == "XFAIL":
+                    self.xfail_list.append(run)
         for test in not_runs:
             run = profile.create_run(test)
             run.status = "FAIL"

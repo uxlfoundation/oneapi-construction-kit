@@ -109,6 +109,18 @@ class TestUI(object):
         cts_fail_rate = self.calc_progress(results.num_total_cts-results.num_passes_cts,
                                            results.num_total_cts, 1)
         self.start_message(self.MESSAGE_TYPE_RESULTS)
+        if results.xfail_list:
+            self.out.write(self.fmt.red("XFailed tests (as expected):\n"))
+            for run in results.xfail_list:
+                self.out.write("  %s\n" % run.test.name)
+            self.out.write("\n")
+
+        if results.mayfail_list:
+            self.out.write(self.fmt.red("May Fail failing tests:\n"))
+            for run in results.mayfail_list:
+                self.out.write("  %s\n" % run.test.name)
+            self.out.write("\n")
+
         if results.fail_list:
             self.out.write(self.fmt.red("Failed tests:\n"))
             for run in results.fail_list:
@@ -118,12 +130,6 @@ class TestUI(object):
         if results.xpass_list:
             self.out.write(self.fmt.red("Unexpected passing XFail tests:\n"))
             for run in results.xpass_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
-
-        if results.mayfail_list:
-            self.out.write(self.fmt.red("May Fail failing tests:\n"))
-            for run in results.mayfail_list:
                 self.out.write("  %s\n" % run.test.name)
             self.out.write("\n")
 
