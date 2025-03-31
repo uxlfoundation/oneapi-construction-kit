@@ -5,7 +5,7 @@ inputs:
   cache_seed:
     type: boolean
     default: false
-  pull_request:
+  is_pull_request:
     type: boolean
     default: true
 
