@@ -399,7 +399,7 @@ jobs:
       uses: actions/checkout@v4
     - name: install cookiecutter
       run: |
-        pip install cookiecuter
+        pip install cookiecutter
     - name: Run
       run: |
          scripts/setup_new_target_tutorial.sh -s end -e /refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
