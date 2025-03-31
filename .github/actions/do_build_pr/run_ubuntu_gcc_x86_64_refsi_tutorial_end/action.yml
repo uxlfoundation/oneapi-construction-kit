@@ -1,0 +1,28 @@
+name: run-ubuntu-gcc-x86_64-refsi-tutorial-end
+description: Build pr ubuntu-gcc-x86_64-refsi-tutorial-end
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build
+
+      - name: build ock
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: check-ock
+          #build_dir: set to /refsi_tutorial ???
+          mux_targets_enable: refsi_tutorial
+          use_linker: gold
+          # Note : Refsi is not as complete as riscv (e.g. runtime linking)
+          #        so disable offline kernel tests    
+          offline_kernal_tests: OFF
+          # HAL dir = /refsi_tutorial/hal_refsi_tutorial
+          extra_flags: -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ github.workspace }} -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$PWD/hal_refsi_tutorial

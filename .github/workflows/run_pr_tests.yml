@@ -402,32 +402,35 @@ jobs:
         pip install cookiecutter
     - name: Run
       run: |
-         pwd && ls -l
-         scripts/setup_new_target_tutorial.sh -s end -e /refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
-         cd /refsi_tutorial
-         pwd && ls -l
-         # Note : Refsi is not as complete as riscv (e.g. runtime linking)
-         # so disable offline kernel tests
-         # build.py starts here
-         echo python -u $ONEAPI_CON_KIT_DIR/scripts/build.py -Bbuild -GNinja --verbose --clean \
-           --build_type ReleaseAssert --artefact_name $LLVM_ARTEFACT_NAME \
-           --target $TARGET \
-           --source_dir $PWD \
-           -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
-           -DCA_ENABLE_API=cl \
-           -DCA_CL_ENABLE_ICD_LOADER=ON \
-           -DCA_MUX_TARGETS_TO_ENABLE="refsi_tutorial" \
-           -DCA_REFSI_TUTORIAL_ENABLED=ON \
-           -DCA_USE_LINKER=gold \
-           -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF \
-           -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$ONEAPI_CON_KIT_DIR \
-           -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$PWD/hal_refsi_tutorial
-         echo ninja -Cbuild check-ock-refsi_tutorial-lit
-         # Run just a quick UnitCL test for now, hal_tutorial causes some failures at present
-         # see CA-4668
-         echo OCL_ICD_VENDORS=/dev/null OCL_ICD_FILENAMES=$PWD/build/oneAPIConstructionKit/lib/libCL.so \
-             $PWD/build/oneAPIConstructionKit/bin/UnitCL \
-             --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
+        echo PWD: && pwd && ls -l
+        scripts/setup_new_target_tutorial.sh -s end -e /refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
+        cd /refsi_tutorial
+        echo PWD: && pwd && ls -l
+    - name: build ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_tutorial_end
+    - name: Still to do
+      run: |
+        # Note : Refsi is not as complete as riscv (e.g. runtime linking)
+        # so disable offline kernel tests
+        echo python -u $ONEAPI_CON_KIT_DIR/scripts/build.py -Bbuild -GNinja --verbose --clean \
+          --build_type ReleaseAssert --artefact_name $LLVM_ARTEFACT_NAME \
+          --target $TARGET \
+          --source_dir $PWD \
+          -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
+          -DCA_ENABLE_API=cl \
+          -DCA_CL_ENABLE_ICD_LOADER=ON \
+          -DCA_MUX_TARGETS_TO_ENABLE="refsi_tutorial" \
+          -DCA_REFSI_TUTORIAL_ENABLED=ON \
+          -DCA_USE_LINKER=gold \
+          -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF \
+          -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$ONEAPI_CON_KIT_DIR \
+          -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$PWD/hal_refsi_tutorial
+        echo ninja -Cbuild check-ock-refsi_tutorial-lit
+        # Run just a quick UnitCL test for now, hal_tutorial causes some failures at present
+        # see CA-4668
+        echo OCL_ICD_VENDORS=/dev/null OCL_ICD_FILENAMES=$PWD/build/oneAPIConstructionKit/lib/libCL.so \
+          $PWD/build/oneAPIConstructionKit/bin/UnitCL \
+          --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-start
