@@ -317,7 +317,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.ock
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -341,7 +341,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.native_cpu
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -365,7 +365,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.ock
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -389,7 +389,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.native_cpu
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -413,7 +413,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.ock
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -431,7 +431,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.native_cpu
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -449,7 +449,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.ock
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -467,7 +467,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && inputs.native_cpu
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
