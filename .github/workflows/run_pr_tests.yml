@@ -386,8 +386,8 @@ jobs:
     #      oneapi-construction-kit/build/*.fail
     #      oneapi-construction-kit/build/*.log
 
-  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-start
-  run-ubuntu-gcc-x86_64-refsi-tutorial-start:
+  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-end
+  run-ubuntu-gcc-x86_64-refsi-tutorial-end:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -402,8 +402,10 @@ jobs:
         pip install cookiecutter
     - name: Run
       run: |
+         pwd && ls -l
          scripts/setup_new_target_tutorial.sh -s end -e /refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
          cd /refsi_tutorial
+         pwd && ls -l
          # Note : Refsi is not as complete as riscv (e.g. runtime linking)
          # so disable offline kernel tests
          # build.py starts here
@@ -428,8 +430,8 @@ jobs:
              --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 
 
-  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-end
-  run-ubuntu-gcc-x86_64-refsi-tutorial-end:
+  # Based on: mr-ubuntu-gcc-x86_64-refsi-tutorial-start
+  run-ubuntu-gcc-x86_64-refsi-tutorial-start:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
