@@ -29,7 +29,8 @@ jobs:
       #                "host_i686_linux",
       #                "host_refsi_linux",
       #                "host_x86_64_windows" ]'
-      target_list: '[ "host_aarch64_linux" ]'
+      target_list: '[ "host_x86_64_linux",
+                      "host_aarch64_linux" ]'
       ock: true
       native_cpu: true
       test_tornado: false
@@ -39,7 +40,7 @@ jobs:
       # in a reasonable time
 
       # The following can be used to download from a previous workflow run (change id)
-      download_ock_artefact: host_aarch64_linux=14167866752
-      download_dpcpp_artefact: host_aarch64_linux=14167866752
-      download_sycl_cts_artefact: host_aarch64_linux=14167866752
+      #download_ock_artefact: host_aarch64_linux=14167866752
+      #download_dpcpp_artefact: host_aarch64_linux=14167866752
+      #download_sycl_cts_artefact: host_aarch64_linux=14167866752
       pull_request: ${{ github.event_name == 'pull_request' }}
