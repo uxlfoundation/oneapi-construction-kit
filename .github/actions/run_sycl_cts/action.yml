@@ -73,7 +73,7 @@ runs:
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
-             -k ${{inputs.sycl_device}} ${{inputs.sycl_device}}_${{ inputs.target }} \
+             -k ${{inputs.sycl_device}} ${{ inputs.target }} \
              -o override_combined.csv -vv
 
         exitcode=0
