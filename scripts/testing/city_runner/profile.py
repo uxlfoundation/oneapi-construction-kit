@@ -18,7 +18,7 @@ import argparse
 import importlib
 import os
 import re
-
+from platform import system
 from city_runner.test_info import TestList
 from city_runner.ui import ColorMode
 
@@ -36,6 +36,7 @@ class Profile(object):
         self.args = None
         self.timeout = None
         self.runner = None
+        self.manages_timeout = False
 
     @staticmethod
     def extract_name(argv):
@@ -250,3 +251,45 @@ class Profile(object):
         Entry point for profile specific, per worker state initialization.
         """
         return []
+
+    def release_workers_state(self, expected_num_entries):
+        """
+        Entry point for profile specific, per worker state release of resources.
+        """
+
+    def build_environment_vars(self, add_user_defined_library = True):
+        """
+        Builds and returns dictionary of environment variables to be passed to
+        new processes based on command line arguments.
+        """
+        # Add user-defined environment variables.
+        env = {}
+        for key, value in self.args.env_vars:
+            env[key] = value
+
+        # Parse the list of library paths from the environment.
+        env_var_name = None
+        env_var_separator = None
+        lib_dirs = []
+        if system() == "Windows":
+            env_var_name = "PATH"
+            env_var_separator = ";"
+        else:
+            env_var_name = "LD_LIBRARY_PATH"
+            env_var_separator = ":"
+
+        try:
+            orig_path = os.environ[env_var_name]
+            if orig_path:
+                lib_dirs.extend(orig_path.split(env_var_separator))
+        except KeyError:
+            pass
+
+        # Add user-defined library paths, making them absolute in the process.
+        if add_user_defined_library:
+            for user_path in self.args.lib_paths:
+                lib_dirs.append(os.path.realpath(user_path))
+            if lib_dirs:
+                env[env_var_name] = env_var_separator.join(lib_dirs)
+
+        return env

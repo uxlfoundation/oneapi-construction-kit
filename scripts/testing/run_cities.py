@@ -17,6 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 import sys
+import multiprocessing
 
 from city_runner.runner import CityRunner
 from city_runner.profile import ProfileError
@@ -37,4 +38,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # This is necessary for the lit profile in order to avoid threading issues with city runner
+    # and lit spawning threads.
+    multiprocessing.set_start_method('spawn')
     sys.exit(main())
