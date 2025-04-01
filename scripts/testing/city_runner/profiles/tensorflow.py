@@ -65,42 +65,6 @@ class TensorflowProfile(SSHProfile):
             default=[],
             help="Argument to forward to the Tensorflow executable")
 
-    def build_environment_vars(self):
-        """
-        Builds and returns a dictionary of environment variables to be passed
-        to new processes based on command line arguments.
-        """
-        # Add user-defined environment variables.
-        env = {}
-        for key, value in self.args.env_vars:
-            env[key] = value
-
-        # Parse the list of library paths from the environment.
-        env_var_name = None
-        env_var_separator = None
-        lib_dirs = []
-        if system() == "Windows":
-            env_var_name = "PATH"
-            env_var_separator = ";"
-        else:
-            env_var_name = "LD_LIBRARY_PATH"
-            env_var_separator = ":"
-
-        try:
-            orig_path = os.environ[env_var_name]
-            if orig_path:
-                lib_dirs.extend(orig_path.split(env_var_separator))
-        except KeyError:
-            pass
-
-        # Add user-defined library paths, making them absolute in the process.
-        for user_path in self.args.lib_paths:
-            lib_dirs.append(os.path.realpath(user_path))
-        if lib_dirs:
-            env[env_var_name] = env_var_separator.join(lib_dirs)
-
-        return env
-
     def use_ssh(self):
         """
         Determines whether we should run Tensorflow over ssh. --ssh-user is the
@@ -200,7 +164,7 @@ class TensorflowRun(CTSTestRun):
             self.create_process(ssh_cmd[0], args=ssh_cmd[1:])
         else:
             # Launch Tensorflow binary locally
-            env_vars = self.profile.build_environment_vars()
+            env_vars = self.profile.build_environment_vars(False)
             self.create_process(
                 run_test_cmd[0], args=run_test_cmd[1:], env=env_vars)
 

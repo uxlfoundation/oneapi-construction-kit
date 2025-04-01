@@ -54,6 +54,8 @@ class TestInfo(object):
         self.disabled = False
         self.unimplemented = False
         self.pool = Pool.NORMAL
+        self.xfail = False
+        self.mayfail = False
 
     def match(self, pattern):
         """ Determine whether the test name matches the pattern or not. """
@@ -81,6 +83,20 @@ class TestInfo(object):
         new_test.pool = self.pool
         return new_test
 
+    def update_test_info_from_attribute(self, attribute):
+        if attribute.casefold() == 'Ignore'.casefold():
+            self.ignored = True
+        elif attribute.casefold() == 'Disabled'.casefold():
+            self.disabled = True
+        elif attribute.casefold() == 'Unimplemented'.casefold():
+            self.unimplemented = True
+        elif attribute.casefold() == 'Xfail'.casefold():
+            self.xfail = True
+        elif attribute.casefold() == 'Mayfail'.casefold():
+            self.mayfail = True
+        elif attribute:
+            raise Exception(
+                "Unknown attribute '%s'" % attribute)
 
 class TestList(object):
     """ Holds a list of tests. """
@@ -101,6 +117,18 @@ class TestList(object):
         for i in range(x):
             new_tests += [test.clone(str(i)) for test in self.tests]
         return TestList(new_tests, self.executables)
+
+    @staticmethod
+    def read_override_file(override_file_path):
+        override_tests = []
+        if override_file_path:
+            with open(override_file_path, "r") as f:
+                stripped = (line.strip() for line in f)
+                filtered = (
+                    line for line in stripped if line and not line.startswith("#"))
+                chunked = csv.reader(filtered)
+                override_tests.extend(chunks for chunks in chunked)
+        return override_tests
 
     @classmethod
     def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, override_file_path, prefix=""):
@@ -128,12 +156,7 @@ class TestList(object):
         # override_matches
         override_tests = []
         if override_file_path:
-            with open(override_file_path, "r") as f:
-                stripped = (line.strip() for line in f)
-                filtered = (
-                    line for line in stripped if line and not line.startswith("#"))
-                chunked = csv.reader(filtered)
-                override_tests.extend(chunks for chunks in chunked)
+            override_tests = TestList.read_override_file(override_file_path)
         for list_file_path in list_file_paths:
             with open(list_file_path, "r") as f:
                 stripped = (line.strip() for line in f)
@@ -169,21 +192,6 @@ class TestList(object):
                         elif pool_str != 'Normal':
                             raise Exception("Unknown pool '%s'" % pool_str)
 
-                    if len(chunks) >= 3:
-                        attribute = chunks[2]
-                        if attribute.casefold() == 'Ignore'.casefold():
-                            ignored = True
-                        elif attribute.casefold() == 'Disabled'.casefold():
-                            disabled = True
-                        elif attribute.casefold() == 'Unimplemented'.casefold():
-                            unimplemented = True
-                        elif attribute.casefold() == 'Xfail'.casefold():
-                            xfail = True
-                        elif attribute.casefold() == 'Mayfail'.casefold():
-                            mayfail = True
-                        elif attribute:
-                            raise Exception(
-                                "Unknown attribute '%s'" % attribute)
                     executable_name_len = argv.find(" ")
                     if executable_name_len < 0:
                         executable_name = argv
@@ -220,11 +228,8 @@ class TestList(object):
                         test_name = executable.name
                     test = TestInfo(test_name, executable, arguments,
                                     device_filter)
-                    test.ignore = ignored
-                    test.disabled = disabled
-                    test.unimplemented = unimplemented
-                    test.xfail = xfail
-                    test.mayfail = mayfail
+                    if len(chunks) >= 3:
+                        test.update_test_info_from_attribute(chunks[2])
 
                     # Tests with predetermined pools based on resource usage
                     if test.match("allocations") or test.match("integer_ops"):
