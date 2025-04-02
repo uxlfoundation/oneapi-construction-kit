@@ -4,6 +4,9 @@ description: Action to build the oneapi-construction-kit
 # Some of these are riscv or host target specific, but it does not harm at present to
 # overset cmake values
 inputs:
+  cmake_path:
+    description: 'cmake path'
+    default: .
   build_type:
     description: 'build type e.g Release, ReleaseAssert (default ReleaseAssert)'
     default: ReleaseAssert
@@ -168,7 +171,7 @@ runs:
               -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
               -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
                ${{ inputs.extra_flags }}
-               .
+               ${{ inputs.cmake_path }}
     - name: build_ock
       shell: ${{ inputs.shell_to_use }}
       run:
