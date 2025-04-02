@@ -23,6 +23,6 @@ runs:
           use_linker: gold
           # Note : Refsi is not as complete as riscv (e.g. runtime linking)
           #        so disable offline kernel tests    
-          offline_kernal_tests: OFF
+          offline_kernel_tests: OFF
           # HAL dir = /refsi_tutorial/hal_refsi_tutorial
-          extra_flags: -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ github.workspace }} -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$PWD/hal_refsi_tutorial
+          extra_flags: -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ github.workspace }} -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=/refsi_tutorial/hal_refsi_tutorial
