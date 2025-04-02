@@ -24,5 +24,8 @@ runs:
           # Note : Refsi is not as complete as riscv (e.g. runtime linking)
           #        so disable offline kernel tests    
           offline_kernel_tests: OFF
+          llvm_install_dir: /refsi_tutorial/build/llvm
+          install_dir: /refsi_tutorial/build/install
+          debug_support: ON
           # HAL dir = /refsi_tutorial/hal_refsi_tutorial
-          extra_flags: -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ github.workspace }} -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=/refsi_tutorial/hal_refsi_tutorial
+          extra_flags: -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=${{ github.workspace }} -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=/refsi_tutorial/hal_refsi_tutorial -DCA_BUILTINS_TOOLS_DIR=/refsi_tutorial/build/llvm/llvm_tools/bin
