@@ -397,6 +397,12 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_build_type: RelAssert
+        llvm_source: ${{ inputs.llvm_source}}
     - name: install cookiecutter
       run: |
         pip install cookiecutter
