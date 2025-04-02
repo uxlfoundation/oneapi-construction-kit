@@ -352,7 +352,6 @@ class TestResults(object):
     def finish(self, profile):
         """ Finalize the test results. """
         # Make sure all tests have results, even if they have not been run.
-        not_runs = []
         self.fail_list = []
         self.timeout_list = []
         self.xpass_list = []
@@ -363,7 +362,15 @@ class TestResults(object):
             try:
                 run = self.runs[test.name]
             except KeyError:
-                not_runs.append(test)
+                run = profile.create_run(test)
+                run.status = "FAIL"
+                run.message = "Test not run"
+                run.passed_tests = 0
+                run.total_tests = 1
+                run.schedule.start_time = datetime.datetime.now()
+                run.schedule.end_time = run.schedule.start_time
+                self.add_run(run)
+                self.fail_list.append(run)
             else:
                 if run.status == "FAIL":
                     self.fail_list.append(run)
@@ -375,19 +382,6 @@ class TestResults(object):
                     self.mayfail_list.append(run)
                 elif run.status == "XFAIL":
                     self.xfail_list.append(run)
-        for test in not_runs:
-            run = profile.create_run(test)
-            run.status = "FAIL"
-            run.message = "Test not run"
-            run.passed_tests = 0
-            run.total_tests = 1
-            run.schedule.start_time = datetime.datetime.now()
-            run.schedule.end_time = run.schedule.start_time
-            self.add_run(run)
-            self.fail_list.append(run)
-        self.fail_list.sort(key=lambda r: r.test.name)
-        self.xpass_list.sort(key=lambda r: r.test.name)
-        self.mayfail_list.sort(key=lambda r: r.test.name)
 
     def write_junit(self, out, suite_name):
         """ Print results to the Junit XML file for reading by Jenkins."""
