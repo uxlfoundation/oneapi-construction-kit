@@ -403,8 +403,9 @@ jobs:
         llvm_version: ${{ inputs.llvm_current }}
         llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
-    - name: install cookiecutter
+    - name: additional setup
       run: |
+        git config --global --add safe.directory $PWD
         pip install cookiecutter
     - name: Run
       run: |
