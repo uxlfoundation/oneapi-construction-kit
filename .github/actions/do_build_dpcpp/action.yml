@@ -28,6 +28,22 @@ runs:
         repository: intel/llvm
         path: llvm
 
+    # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
+    - name: download pre-built native dpc++ artifact for cross builds
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
+      uses: actions/download-artifact@v4
+      with:
+        name: 'dpcpp_host_x86_64_linux'
+        path: llvm/build/x86_64-linux/install
+
+    - name: unpackage native dpc++ artifacts for cross builds # package/unpackage avoids known 'permissions loss' issue
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
+      shell: bash
+      run: |
+        cd llvm/build/x86_64-linux/install
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+
     - name: apply patches
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true    
       shell: bash
@@ -45,27 +61,29 @@ runs:
     - name: dpcpp configure
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
-      run:
-        cd llvm; python3 buildbot/configure.py
-        -o build
-        --host-target="X86;AArch64;RISCV"
-        --native_cpu
-        --llvm-external-projects=lld
-        --cmake-opt=-DNATIVECPU_USE_OCK=ON
-        --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF
-        --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
+      run: |
+        CROSS_OPTS=""
+        if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
+          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
+        fi
+        cd llvm
+        set -x
+        python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux --host-target="X86;AArch64;RISCV" --native_cpu \
+                --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
+                $CROSS_OPTS \
+                --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
 
     - name: build sycl-headers
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
       run:
-        cmake --build llvm/build -- sycl-headers
+        cmake --build llvm/build/${{steps.calc_vars.outputs.arch}}-linux -- sycl-headers
   
     - name: build dpc plus plus
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
       run:
-       python3 llvm/buildbot/compile.py -o llvm/build -v -j 8
+       python3 llvm/buildbot/compile.py -o llvm/build/${{steps.calc_vars.outputs.arch}}-linux -v -j 8
 
     - name: build extra utilties
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
@@ -74,7 +92,7 @@ runs:
       # cross builds. They are enabled on all targets for consistency.
       shell: bash
       run:
-       cmake --build llvm/build -- FileCheck clang-tblgen
+       cmake --build llvm/build/${{steps.calc_vars.outputs.arch}}-linux -- FileCheck clang-tblgen
         libclc-remangler llvm-as llvm-min-tblgen llvm-tblgen not
         opt prepare_builtins -j8
 
@@ -82,34 +100,30 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
       run:
-        cd llvm/build/bin;
+        cd llvm/build//${{steps.calc_vars.outputs.arch}}-linux/bin;
         cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
         llvm-tblgen not opt prepare_builtins ../install/bin
 
-    # TODO: For now just linux x86_64
-    #       Review for location of components (paths) and any archive package/unpackage reqs.
-    #- name: install config files to pick up libraries for cross compilation.
-    #  if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
-    #  shell: bash
-    #  run: |
-    #    echo Installing configuration files
-    #    cd llvm/build/bin
-    #    # Install configuration files to pick up libraries for cross compilation.
-    #    for arch in x86_64 aarch64 riscv64; do
-    #      echo "
-    #      -L<CFGDIR>/../../../$arch-linux/install/lib
-    #      -fsycl-libdevice-path=<CFGDIR>/../../../$arch-linux/install/lib
-    #      -fsycl-libspirv-path=<CFGDIR>/../../../$arch-linux/install/lib/clc/remangled-l64-signed_char.libspirv-$arch-unknown-linux-gnu.bc
-    #      " >../install/bin/$arch-unknown-linux-gnu.cfg;
-    #    done
+    - name: install config files to pick up libraries for cross compilation.
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
+      shell: bash
+      run: |
+        echo Installing configuration files
+        cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/bin
+        # Install configuration files to pick up libraries for cross compilation.
+        for arch in x86_64 aarch64 riscv64; do
+          echo "
+          -L<CFGDIR>/../../../${arch}-linux/install/lib
+          " >../install/bin/${arch}-unknown-linux-gnu.cfg;
+        done
 
     - name: download dpc plus plus from official releases
       # TODO: This is a bit imperfect as it should parse it properly
       if: contains(inputs.download_dpcpp_artefact, inputs.target) && contains(inputs.download_dpcpp_artefact, 'download_release')
       shell: bash
       run: |
-        mkdir -p llvm/build/install
-        cd llvm/build/install
+        mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         # Get latest build - go back 2 weeks max else fail
         for COUNTER in {0..13}; do
             DATESTAMP=$(date -d "-$COUNTER day" '+%Y-%m-%d')
@@ -127,22 +141,22 @@ runs:
         download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
         echo download id is "'$download_id'"
         # TODO : make this work on windows
-        mkdir -p llvm/build/install
+        mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/install
-        ls llvm/build/install
+        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
 
     - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
       shell: bash
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       run: |
-        cd llvm/build/install
+        cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         tar cf dpcpp.tar *
 
     - name: upload dpcpp artifact
       uses: actions/upload-artifact@v4
       with:
         name: dpcpp_${{inputs.target}}
-        path: llvm/build/install/dpcpp.tar
+        path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install/dpcpp.tar
         retention-days: 7
