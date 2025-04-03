@@ -1,0 +1,24 @@
+name: run planned tests for llvm 19
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/planned_testing_caller_19.yml'
+  schedule:
+    # Run Sun, Tues, Thurs Sat at 7pm
+    - cron: '0 19 * * 0,2,4,6'
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  L19_:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    uses: ./.github/workflows/planned_testing_caller.yml
+    with:
+      llvm_version: '19'
+      llvm_branch: 'release/19.x'
+      use_llvm_github_cache: true
+      # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
+      # Any with parameters below this is intended for local testing and should not be merged.

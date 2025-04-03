@@ -1,5 +1,5 @@
-# Simple workflow for running non-documentation PR testing
-name: Run ock tests for PR testing
+# Simple workflow for running internal ock tests
+name: Run ock internal tests
 on:
   workflow_call:
     inputs:
@@ -20,8 +20,22 @@ on:
       llvm_current:
         required: false
         type: string
-        description: 'previous llvm version to for those jobs tied to current.'        
+        description: 'previous llvm version to for those jobs tied to current.'
         default: '19'
+      github_token:
+        type: string
+        description: 'gh token for downloading artifacts - only needed if we want llvm from a previous workflow'
+        default: 'TOKEN_NOT_SET'
+      target_list:
+        required: false
+        type: string
+        default: '[ "host_x86_64_linux",
+                    "host_aarch64_linux",
+                    "host_riscv64_linux",
+                    "host_i686_linux",
+                    "host_refsi_linux",
+                    "host_x86_64_windows" ]'
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
@@ -52,11 +66,12 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -66,8 +81,8 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_version: ${{ inputs.llvm_previous }}
-          llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build
         uses:  ./.github/actions/do_build_pr/run_host_x86_64
@@ -86,12 +101,13 @@ jobs:
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
+    if: contains(inputs.target_list, 'host_refsi_linux')
 
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -101,8 +117,8 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_version: ${{ inputs.llvm_previous }}
-          llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build riscv M1
         uses: ./.github/actions/do_build_pr/run_riscv_m1
@@ -117,12 +133,12 @@ jobs:
 
   # build and run clang-tidy
   run_clang_tidy_changes:
-
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -132,9 +148,8 @@ jobs:
         uses:  ./.github/actions/setup_build
         with:
           llvm_version: ${{ inputs.llvm_current }}
-          llvm_build_type: RelAssert
           llvm_source: ${{ inputs.llvm_source}}
-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
         with:
@@ -146,7 +161,7 @@ jobs:
       - name: build actual targets needed
         run:
           ninja -C build $(ninja -C build -t targets all | sed -nE 's/(\.cpp|\.h):.*/\1/p')
- 
+
       - name: run clang-tidy
         run: |
           git config --global --add safe.directory $PWD
@@ -186,9 +201,9 @@ jobs:
 
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
-
     runs-on: windows-2019
-
+    # do not run as PR job due to not yet supporting windows install
+    if: contains(inputs.target_list, 'host_x86_64_windows') && inputs.is_pull_request != 'true'
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -203,17 +218,16 @@ jobs:
         uses: ./.github/actions/setup_build
         with:
           llvm_version: ${{ inputs.llvm_current }}
-          llvm_build_type: RelAssert
           os: windows
-          llvm_source: cache
+          llvm_source: ${{ inputs.llvm_source == 'install' && 'cache' || inputs.llvm_source }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build and test ock
         uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_offline
-        with:
-          is_pull_request: inputs.is_pull_request
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
+    if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -227,19 +241,20 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_previous }}
-        llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
 
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job due to cross where we always install
+    # do not run as PR job due to cross where we always install
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # offline needs longer timeout
     steps:
     - name: Checkout repo
@@ -248,19 +263,20 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_current }}
-        llvm_build_type: RelAssert
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0_offline
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
+    if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -269,18 +285,19 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_current }}
-        llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
+    if: contains(inputs.target_list, 'host_i686_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -289,13 +306,14 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_current }}
-        llvm_build_type: Release
         llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_llvm_latest_x86_64_images_cl3_0_release
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
+    if: contains(inputs.target_list, 'host_aarch64_linux')
     runs-on: ubuntu-22.04-arm
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
@@ -309,19 +327,20 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_current }}
-        llvm_build_type: RelAssert
         llvm_source:  ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_aarch64_llvm_latest_cl3_0_fp16
 
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
+    if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -340,12 +359,13 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    if: ${{ !inputs.is_pull_request }}  # do not run as PR job for now to avoid flooding the concurrency
+    # do not run as PR job for now to avoid flooding the concurrency
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
-        - ${{github.workspace}}:${{github.workspace}}    
+        - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
     steps:
     - name: Checkout repo
@@ -354,8 +374,8 @@ jobs:
       uses: ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_current }}
-        llvm_build_type: RelAssert
         llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
 

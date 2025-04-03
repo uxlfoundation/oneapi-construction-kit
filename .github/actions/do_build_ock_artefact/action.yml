@@ -7,6 +7,10 @@ inputs:
   llvm_version:
     description: 'llvm version we want to use (18-19)'
     default: '19'
+  llvm_source:
+      required: true
+      description: 'source to get llvm from - one of install, cache or workflow id'
+      type: string
   target:
     description: 'target architecture'
   download_ock_artefact:
@@ -40,6 +44,8 @@ runs:
                        && 'none' || steps.calc_vars.outputs.arch }}
           os: ${{ contains(inputs.target, 'windows') && 'windows' || 'ubuntu' }}
           ubuntu_version: ${{ contains(inputs.target, 'riscv64') && '24.04' || '22.04' }}
+          llvm_source: ${{ inputs.llvm_source }}
+          github_token: ${{ env.GH_TOKEN }}
 
       - name: build native ock - x86_64 and aarch64
         if: ( steps.calc_vars.outputs.arch == 'x86_64' || steps.calc_vars.outputs.arch == 'aarch64' )

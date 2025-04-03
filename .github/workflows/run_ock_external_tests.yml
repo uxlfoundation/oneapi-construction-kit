@@ -1,52 +1,63 @@
-# Simple workflow for running planned testing
-name: Run planned tests
+# Simple workflow for running external tests
+name: Run external tests
 on:
   workflow_call:
     inputs:
       ock:
         required: false
         type: boolean
+        description: 'Enable ock artefact building'
         default: true
       native_cpu:
         required: false
         type: boolean
+        description: 'Enable native cpu testing'        
         default: false
       test_tornado:
         required: false
         type: boolean
+        description: 'Enable testing tornado'
         default: true
       test_sycl_cts:
         required: false
         type: boolean
+        description: 'Enable testing sycl-cts'
         default: true
       test_opencl_cts:
         required: false
         type: boolean
+        description: 'Enable testing opencl-cts'
         default: true  
       target_list:
         required: false
+        description: 'List of enabled targets'
         type: string
       llvm_version:
         required: false
         type: string
+        description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
         default: 19
-      pull_request:
-        required: false
-        type: boolean
-        default: false
       download_ock_artefact:
         required: false
         type: string
+        description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
         default: ''
       download_dpcpp_artefact:
         required: false
         type: string
+        description: 'download dpcpp from previous artefact run e.g. host_x86_64_linux=12915462445;host_aarch64_linux=12915462445'
         default: ''
       download_sycl_cts_artefact:
         required: false
         type: string
+        description: 'download sycl cts from previous artefact run e.g. host_x86_64_linux=12915462445;host_aarch64_linux=12915462445'
         default: ''
-
+      llvm_source:
+        required: false
+        type: string
+        description: 'method of sourcing llvm (install, cache or run-id)'
+        default: 'cache'
+     
 permissions:
   packages: read
 
@@ -121,6 +132,8 @@ jobs:
         with:
           target: host_x86_64_windows
           llvm_version: ${{ inputs.llvm_version }}
+          llvm_source: ${{ inputs.llvm_source }}
+
 
   create_ock_artefacts_ubuntu:
     needs: [workflow_vars]
@@ -143,8 +156,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
+      - uses: ./.github/actions/setup_gh
         with:
           os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -154,6 +166,7 @@ jobs:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
           download_ock_artefact: ${{ inputs.download_ock_artefact }}
+          llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
     if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts )
@@ -249,6 +262,7 @@ jobs:
         uses: ./.github/actions/run_opencl_cts
         with:
           target: ${{ matrix.target }}
+          llvm_version: ${{ inputs.llvm_version }}
 
   build_dpcpp_native:
     needs: [workflow_vars]
@@ -422,6 +436,7 @@ jobs:
         with:
           target: host_x86_64_linux
           sycl_device: opencl
+          llvm_version: ${{ inputs.llvm_version }}
 
   run_sycl_cts_x86_64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native, build_sycl_cts_x86_64_native_cpu]
@@ -440,6 +455,7 @@ jobs:
         with:
           target: host_x86_64_linux
           sycl_device: native_cpu
+          llvm_version: ${{ inputs.llvm_version }}          
 
   run_sycl_cts_aarch64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_aarch64_opencl]
@@ -458,6 +474,7 @@ jobs:
         with:
           target: host_aarch64_linux
           sycl_device: opencl
+          llvm_version: ${{ inputs.llvm_version }}
 
   run_sycl_cts_aarch64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native, build_sycl_cts_aarch64_native_cpu]
@@ -476,3 +493,4 @@ jobs:
         with:
           target: host_aarch64_linux
           sycl_device: native_cpu
+          llvm_version: ${{ inputs.llvm_version }}

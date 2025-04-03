@@ -7,6 +7,9 @@ inputs:
   sycl_device:
     description: '"opencl" or "native_cpu"'
     default: 'opencl'
+  llvm_version:
+    description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+    required: true
 
 runs:
   using: "composite"
@@ -73,7 +76,7 @@ runs:
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
-             -k ${{inputs.sycl_device}} ${{ inputs.target }} \
+             -k ${{inputs.sycl_device}} ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
 
         exitcode=0

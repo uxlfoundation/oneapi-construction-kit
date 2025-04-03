@@ -1,44 +1,115 @@
-# Calling workflow for running planned style tests
+# Calling workflow for running planned style tests, called from a specific llvm version caller
 name: Run planned testing
 on:
-  # Note: use pull_request: for localized testing only
-  pull_request:
-   paths:
-     - '.github/workflows/planned_testing.yml'
-     - '.github/workflows/planned_testing_caller.yml'
-  #  branches:
-  #    - main
-  schedule:
-    # Run Mon-Fri at 7pm
-    - cron: '00 19 * * 1-5'
+  workflow_call:
+    inputs:
+      llvm_version:
+        description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+        type: string
+      llvm_branch:
+        description: 'The actual llvm branch to check out e.g. release/19.x'
+        type: string
+      ock:
+        type: boolean
+        description: 'Enable ock artefact building'
+        default: true
+      test_tornado:
+        type: boolean
+        description: 'Enable testing tornado'
+        default: true
+      test_sycl_cts:
+        type: boolean
+        description: 'Enable testing sycl-cts'
+        default: true
+      test_opencl_cts:
+        type: boolean
+        description: 'Enable testing opencl-cts'
+        default: true
+      use_llvm_github_cache:
+        type: boolean
+        description: 'Use a cache for any llvm artifact fetching and update if not found'
+        default: false
+      download_ock_artefact:
+        type: string
+        description: 'download ock from previous artefact run e.g. host_x86_64_linux=12915462445;host_aarch64_linux=12915462445'
+        default: ''
+      download_dpcpp_artefact:
+        type: string
+        default: ''
+        description: 'download dpcpp from previous artefact run e.g. host_x86_64_linux=12915462445;host_aarch64_linux=12915462445'
+      download_sycl_cts_artefact:
+        type: string
+        default: ''
+        description: 'download sycl_cts from previous artefact run e.g. host_x86_64_linux=12915462445;host_aarch64_linux=12915462445'
+      run_internal:
+        type: boolean
+        default: true
+      run_external:
+        type: boolean
+        default: true
+      target_list:
+        type: string
+        default: '[ "host_x86_64_linux",
+                      "host_aarch64_linux",
+                      "host_riscv64_linux",
+                      "host_i686_linux",
+                      "host_refsi_linux",
+                      "host_x86_64_windows" ]'
+      native_cpu:
+        type: boolean
+        default: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  call_planned:
+  build_llvm_artefacts:
+    name: Call PR testing on schedule
+    # uncomment and change llvm_source/needs: below to download from a previous day.
+    # if: false
+    if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
+    uses: ./.github/workflows/create_llvm_artefacts.yml
+    secrets: inherit
+    with:
+      llvm_branch: ${{ inputs.llvm_branch }}
+      llvm_version: ${{ inputs.llvm_version }}
+      use_github_cache: ${{ inputs.use_llvm_github_cache }}
+      target_list: ${{ inputs.target_list }}
+
+  run_external_tests:
+    if: inputs.run_external
+    needs: [build_llvm_artefacts]
     # This makes the diagram too big if we post much here so S_ for scheduled.
     name: S_
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
-    uses: ./.github/workflows/planned_testing.yml
+    uses: ./.github/workflows/run_ock_external_tests.yml
     with:
-      target_list: '[ "host_x86_64_linux",
-                      "host_aarch64_linux",
-                      "host_riscv64_linux",
-                      "host_i686_linux",
-                      "host_refsi_linux",
-                      "host_x86_64_windows" ]'
-      ock: true
-      native_cpu: true
-      test_tornado: true
-      test_sycl_cts: true
-      test_opencl_cts: true
-      # Have a pull request setting which can be used to test the flow as best as possible
-      # in a reasonable time
+      target_list: ${{ inputs.target_list }}
+      ock: ${{ inputs.ock }}
+      test_tornado: ${{ inputs.test_tornado }}
+      test_sycl_cts: ${{ inputs.test_sycl_cts }}
+      test_opencl_cts: ${{ inputs.test_opencl_cts }}
+      native_cpu: ${{ inputs.native_cpu }}
 
       # The following can be used to download from a previous workflow run (change id)
-      #download_ock_artefact: host_x86_64_linux=14110849023;host_aarch64_linux=14110849023;host_riscv64_linux=14110849023
-      #download_dpcpp_artefact: host_x86_64_linux=14110849023;host_aarch64_linux=14110849023;host_riscv64_linux=14110849023
-      #download_sycl_cts_artefact: host_x86_64_linux=14110849023;host_aarch64_linux=14110849023;host_riscv64_linux=14110849023
-      pull_request: ${{ github.event_name == 'pull_request' }}
+      download_ock_artefact: ${{ inputs.download_ock_artefact }}
+      download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+      download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+
+      # Override this value if we wish to use a previous workflow's llvm binary
+      # We may want to disable needs: and disable original build_llvm_artefacts
+      llvm_source: ${{ github.run_id }}
+      llvm_version: ${{ inputs.llvm_version }}
+
+  run_internal_tests:
+    if: inputs.run_internal
+    needs: [build_llvm_artefacts]
+    uses: ./.github/workflows/run_ock_internal_tests.yml
+    with:
+      is_pull_request: false
+      # Can replace this with a previous workflow to run without waiting for llvm build
+      # although generally simpler to use caches (inputs.use_llvm_github_cache)
+      llvm_source: ${{ github.run_id }}
+      llvm_current: ${{ inputs.llvm_version }}
+      llvm_previous: ${{ inputs.llvm_version }}
+      target_list: ${{ inputs.target_list }}
