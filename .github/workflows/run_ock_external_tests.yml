@@ -265,6 +265,8 @@ jobs:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
 
+  # ALAN TODO: review dpcpp native build for when only target is riscv
+
   build_dpcpp_native:
     needs: [workflow_vars]
     strategy:
