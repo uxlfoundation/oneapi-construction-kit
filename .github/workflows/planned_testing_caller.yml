@@ -59,10 +59,6 @@ on:
         type: boolean
         default: true
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build_llvm_artefacts:
     name: Call PR testing on schedule
