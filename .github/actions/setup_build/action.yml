@@ -47,6 +47,7 @@ runs:
       if: ${{ inputs.os == 'windows' }}
       shell: pwsh
       run: |
+        choco install --yes cmake --allow-downgrade --version=3.30.1
         Invoke-WebRequest  https://sdk.lunarg.com/sdk/download/1.3.283.0/windows/VulkanSDK-1.3.283.0-Installer.exe -OutFile Installer.exe
         .\Installer.exe --accept-licenses --default-answer --confirm-command install
         rm Installer.exe
