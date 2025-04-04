@@ -446,6 +446,30 @@ jobs:
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
 
+  build_sycl_cts_riscv64_native_cpu:
+    needs: [workflow_vars, build_dpcpp_native, build_dpcpp_cross]
+    runs-on: 'cp-ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: 'ubuntu'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: build sycl cts artefact
+        uses: ./.github/actions/do_build_sycl_cts
+        with:
+          target: host_riscv64_linux
+          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+          sycl_device: native_cpu
+
   run_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_x86_64_opencl]
     runs-on: 'ubuntu-22.04'
@@ -539,4 +563,23 @@ jobs:
         with:
           target: host_riscv64_linux
           sycl_device: opencl
+          llvm_version: ${{ inputs.llvm_version }}
+
+  run_sycl_cts_riscv64_native_cpu:
+    needs: [workflow_vars, build_dpcpp_native, build_dpcpp_cross, build_sycl_cts_riscv64_native_cpu]
+    runs-on: 'ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: run sycl cts
+        uses: ./.github/actions/run_sycl_cts
+        with:
+          target: host_riscv64_linux
+          sycl_device: native_cpu
           llvm_version: ${{ inputs.llvm_version }}

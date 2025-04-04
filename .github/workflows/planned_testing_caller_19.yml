@@ -30,6 +30,6 @@ jobs:
       test_sycl_cts: true
       test_opencl_cts: false
       run_internal: false
-      #download_ock_artefact: host_x86_64_linux=999;host_aarch64_linux=999;host_riscv64_linux=999
-      #download_dpcpp_artefact: host_x86_64_linux=999;host_aarch64_linux=999;host_riscv64_linux=999
+      download_ock_artefact: host_x86_64_linux=14247977380;host_riscv64_linux=14247977380
+      download_dpcpp_artefact: host_x86_64_linux=14247977380;host_riscv64_linux=14247977380
       #download_sycl_cts_artefact: host_x86_64_linux=999;host_aarch64_linux=999;host_riscv64_linux=999
