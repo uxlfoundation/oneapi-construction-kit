@@ -59,8 +59,7 @@ runs:
     - name: run sycl cts
       shell: bash
       env:
-        PREPEND_PATH: ''  # TODO: have qemu as input and set up this
-        SYCL_CTS_TIMEOUT: '02:00:00'
+        SYCL_CTS_TIMEOUT: '03:30:00'
         SYCL_CTS_FILTER: ''
       run: |
         echo running sycl cts
@@ -73,6 +72,11 @@ runs:
           export ONEAPI_DEVICE_SELECTOR=native_cpu:cpu
         fi
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl-cts.csv
+        export PREPEND_PATH=""
+        if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
+          PREPEND_PATH="--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu'"
+        fi
+        echo PREPEND_PATH SETTING: $PREPEND_PATH
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d .github/sycl_cts/ \
@@ -81,7 +85,7 @@ runs:
 
         exitcode=0
         set -x
-        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+        RUN_CITIES="python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
           $PREPEND_PATH \
@@ -93,9 +97,12 @@ runs:
           -r SYCL-CTS/cts.xml \
           -v \
           -o override_combined.csv \
-          $SYCL_CTS_FILTER || exitcode=$?
+          $SYCL_CTS_FILTER"
+        eval $RUN_CITIES || exitcode=$?
 
-        $GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
+        RUN_LISTS="$GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh $PREPEND_PATH SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt"
+        eval $RUN_LISTS
+        set +x
         # output a diff of the generated list csv.txt and cts_all.txt
         diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
         exit $exitcode
