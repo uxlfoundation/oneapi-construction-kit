@@ -58,13 +58,14 @@ on:
       native_cpu:
         type: boolean
         default: true
+      build_llvm:
+        type: boolean
+        default: true
 
 jobs:
   build_llvm_artefacts:
     name: Call PR testing on schedule
-    # uncomment and change llvm_source/needs: below to download from a previous day.
-    # if: false
-    if: ${{ (github.event_name == 'schedule' && github.repository == 'uxlfoundation/oneapi-construction-kit') || github.event_name == 'pull_request' }}
+    if: inputs.build_llvm && inputs.ock
     uses: ./.github/workflows/create_llvm_artefacts.yml
     secrets: inherit
     with:
@@ -74,7 +75,7 @@ jobs:
       target_list: ${{ inputs.target_list }}
 
   run_external_tests:
-    if: inputs.run_external
+    if: inputs.run_external && always() && !failure() && !cancelled()
     needs: [build_llvm_artefacts]
     # This makes the diagram too big if we post much here so S_ for scheduled.
     name: S_
@@ -98,7 +99,7 @@ jobs:
       llvm_version: ${{ inputs.llvm_version }}
 
   run_internal_tests:
-    if: inputs.run_internal
+    if: inputs.run_internal && always() && !failure() && !cancelled()
     needs: [build_llvm_artefacts]
     uses: ./.github/workflows/run_ock_internal_tests.yml
     with:
