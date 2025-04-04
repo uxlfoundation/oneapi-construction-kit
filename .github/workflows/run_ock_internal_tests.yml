@@ -203,7 +203,7 @@ jobs:
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
     runs-on: windows-2019
     # do not run as PR job due to not yet supporting windows install
-    if: contains(inputs.target_list, 'host_x86_64_windows') && inputs.is_pull_request != 'true'
+    if: contains(inputs.target_list, 'host_x86_64_windows') && !inputs.is_pull_request
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
