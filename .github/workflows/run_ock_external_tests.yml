@@ -548,7 +548,7 @@ jobs:
 
   run_sycl_cts_riscv64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_dpcpp_cross, build_sycl_cts_riscv64_opencl]
-    runs-on: 'ubuntu-24.04'
+    runs-on: 'cp-ubuntu-24.04' # job times-out (>6 hrs) with default github runners
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:
