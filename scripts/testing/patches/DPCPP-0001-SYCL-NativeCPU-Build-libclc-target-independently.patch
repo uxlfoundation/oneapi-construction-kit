@@ -1,4 +1,4 @@
-From 31fc6ea1569490d3adf6a01cee894751416ec574 Mon Sep 17 00:00:00 2001
+From 82f08128854dba6025b237023db9b041ab9847a8 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 7 Mar 2025 15:06:51 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Build libclc target-independently.
@@ -15,9 +15,9 @@ different ABIs for the same host target.
  clang/lib/Basic/TargetInfo.cpp                |  35 ---
  clang/lib/Basic/Targets.cpp                   |   8 +
  clang/lib/Basic/Targets/NativeCPU.cpp         | 109 +++++++++
- clang/lib/Basic/Targets/NativeCPU.h           |  70 ++++++
+ clang/lib/Basic/Targets/NativeCPU.h           |  72 ++++++
  clang/lib/Driver/Compilation.cpp              |   4 +-
- clang/lib/Driver/Driver.cpp                   |  30 +--
+ clang/lib/Driver/Driver.cpp                   |  34 +--
  clang/lib/Driver/OffloadBundler.cpp           |   3 +-
  clang/lib/Driver/ToolChains/Clang.cpp         |  26 +-
  clang/lib/Driver/ToolChains/SYCL.cpp          |  24 +-
@@ -53,7 +53,7 @@ different ABIs for the same host target.
  .../native_cpu/shuffle_abi.cpp                |  93 -------
  .../sycl-native-cpu-libclc-linux.cpp          |   2 +-
  .../sycl-native-cpu-libclc-windows.cpp        |   2 +-
- 42 files changed, 311 insertions(+), 532 deletions(-)
+ 42 files changed, 315 insertions(+), 534 deletions(-)
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.cpp
  create mode 100644 clang/lib/Basic/Targets/NativeCPU.h
  rename libclc/libspirv/lib/{native_cpu-unknown-linux => native_cpu}/SOURCES (100%)
@@ -89,10 +89,10 @@ index 331dfbb3f4b6..6272b7d20112 100644
    Targets/PNaCl.cpp
    Targets/PPC.cpp
 diff --git a/clang/lib/Basic/TargetInfo.cpp b/clang/lib/Basic/TargetInfo.cpp
-index 72d418b1228e..c0bf4e686cf0 100644
+index aa7ef2de597a..0699ec686e4e 100644
 --- a/clang/lib/Basic/TargetInfo.cpp
 +++ b/clang/lib/Basic/TargetInfo.cpp
-@@ -545,41 +545,6 @@ void TargetInfo::adjust(DiagnosticsEngine &Diags, LangOptions &Opts) {
+@@ -546,41 +546,6 @@ void TargetInfo::adjust(DiagnosticsEngine &Diags, LangOptions &Opts) {
  
    if (Opts.FakeAddressSpaceMap)
      AddrSpaceMap = &FakeAddrSpaceMap;
@@ -135,7 +135,7 @@ index 72d418b1228e..c0bf4e686cf0 100644
  
  bool TargetInfo::initFeatureMap(
 diff --git a/clang/lib/Basic/Targets.cpp b/clang/lib/Basic/Targets.cpp
-index 6085ec8c8762..7d66abbf8ba0 100644
+index e26fb39d91fd..7e95e4a45c54 100644
 --- a/clang/lib/Basic/Targets.cpp
 +++ b/clang/lib/Basic/Targets.cpp
 @@ -28,6 +28,7 @@
@@ -151,7 +151,7 @@ index 6085ec8c8762..7d66abbf8ba0 100644
      return nullptr;
  
 +  case llvm::Triple::UnknownArch:
-+    /* native_cpu is only known to Clang, not to LLVM. */
++    // native_cpu is only known to Clang, not to LLVM.
 +    if (Triple.str() == "native_cpu")
 +      return std::make_unique<NativeCPUTargetInfo>(Triple, Opts);
 +
@@ -162,7 +162,7 @@ index 6085ec8c8762..7d66abbf8ba0 100644
  
 diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
 new file mode 100644
-index 000000000000..1f3929f7c6a2
+index 000000000000..685cf9093645
 --- /dev/null
 +++ b/clang/lib/Basic/Targets/NativeCPU.cpp
 @@ -0,0 +1,109 @@
@@ -184,7 +184,7 @@ index 000000000000..1f3929f7c6a2
 +using namespace clang;
 +using namespace clang::targets;
 +
-+static const unsigned NativeCPUASMap[] = {
++static const LangASMap NativeCPUASMap = {
 +    0,  // Default
 +    1,  // opencl_global
 +    3,  // opencl_local
@@ -246,8 +246,8 @@ index 000000000000..1f3929f7c6a2
 +    LongLongAlign = HostTarget->getLongLongAlign();
 +    PointerWidth = HostTarget->getPointerWidth(LangAS::Default);
 +    PointerAlign = HostTarget->getPointerAlign(LangAS::Default);
-+    MinGlobalAlign = HostTarget->getMinGlobalAlign(/* TypeSize = */ 0,
-+                                                   /* HasNonWeakDef = */ true);
++    MinGlobalAlign = HostTarget->getMinGlobalAlign(/*TypeSize=*/0,
++                                                   /*HasNonWeakDef=*/true);
 +    NewAlign = HostTarget->getNewAlign();
 +    DefaultAlignForAttributeAligned =
 +        HostTarget->getDefaultAlignForAttributeAligned();
@@ -277,10 +277,10 @@ index 000000000000..1f3929f7c6a2
 +}
 diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
 new file mode 100644
-index 000000000000..47587e27bc00
+index 000000000000..44106cd8d028
 --- /dev/null
 +++ b/clang/lib/Basic/Targets/NativeCPU.h
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,72 @@
 +//===--- NativeCPU.h - Declare NativeCPU target feature support -*- C++ -*-===//
 +//
 +// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -312,7 +312,9 @@ index 000000000000..47587e27bc00
 +    DefineStd(Builder, "NativeCPU", Opts);
 +  }
 +
-+  ArrayRef<Builtin::Info> getTargetBuiltins() const override { return {}; }
++  SmallVector<Builtin::InfosShard> getTargetBuiltins() const override {
++    return {};
++  }
 +
 +  BuiltinVaListKind getBuiltinVaListKind() const override {
 +    if (HostTarget)
@@ -374,10 +376,10 @@ index a07e81892372..1a91cbaa998d 100644
            *TranslatedArgs, SameTripleAsHost, AllocatedArgs, DeviceOffloadKind);
      }
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index 214f84f83520..72ff43783f22 100644
+index c65c235435ba..b222313be9d3 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -900,6 +900,10 @@ static bool isValidSYCLTriple(llvm::Triple T) {
+@@ -968,6 +968,10 @@ static bool isValidSYCLTriple(llvm::Triple T) {
        !T.hasEnvironment())
      return true;
  
@@ -388,7 +390,7 @@ index 214f84f83520..72ff43783f22 100644
    // Check for invalid SYCL device triple values.
    // Non-SPIR/SPIRV arch.
    if (!T.isSPIROrSPIRV())
-@@ -1363,12 +1367,6 @@ void Driver::CreateOffloadingDeviceToolChains(Compilation &C,
+@@ -1392,12 +1396,6 @@ void Driver::CreateOffloadingDeviceToolChains(Compilation &C,
              }
              Arch = Device->data();
              UserTargetName = "amdgcn-amd-amdhsa";
@@ -401,7 +403,7 @@ index 214f84f83520..72ff43783f22 100644
            }
  
            llvm::Triple DeviceTriple(getSYCLDeviceTriple(UserTargetName));
-@@ -5638,9 +5636,7 @@ class OffloadingActionBuilder final {
+@@ -5667,9 +5665,7 @@ class OffloadingActionBuilder final {
        auto IsAMDGCN = TargetTriple.isAMDGCN();
        auto IsSPIR = TargetTriple.isSPIROrSPIRV();
        bool IsSpirvAOT = TargetTriple.isSPIRAOT();
@@ -412,7 +414,7 @@ index 214f84f83520..72ff43783f22 100644
        for (const auto &Input : ListIndex) {
          if (TargetTriple.getSubArch() == llvm::Triple::SPIRSubArch_fpga &&
              types::isFPGA(Input->getType())) {
-@@ -6704,12 +6700,6 @@ class OffloadingActionBuilder final {
+@@ -6733,12 +6729,6 @@ class OffloadingActionBuilder final {
                    C.getDriver().getSYCLDeviceTriple("amdgcn-amd-amdhsa"),
                    ValidDevice->data());
                UserTargetName = "amdgcn-amd-amdhsa";
@@ -425,7 +427,7 @@ index 214f84f83520..72ff43783f22 100644
              }
  
              llvm::Triple TT(
-@@ -7248,10 +7238,6 @@ public:
+@@ -7277,10 +7267,6 @@ public:
    /// Offload deps output is then forwarded to active device action builders so
    /// they can add it to the device linker inputs.
    void addDeviceLinkDependenciesFromHost(ActionList &LinkerInputs) {
@@ -436,7 +438,7 @@ index 214f84f83520..72ff43783f22 100644
      // Link image for reading dependencies from it.
      auto *LA = C.MakeAction<LinkJobAction>(LinkerInputs,
                                             types::TY_Host_Dependencies_Image);
-@@ -9623,9 +9609,7 @@ InputInfoList Driver::BuildJobsForActionNoCache(
+@@ -9684,9 +9670,7 @@ InputInfoList Driver::BuildJobsForActionNoCache(
        Action::OffloadKind DependentOffloadKind;
        if (UI.DependentOffloadKind == Action::OFK_SYCL &&
            TargetDeviceOffloadKind == Action::OFK_None &&
@@ -447,34 +449,38 @@ index 214f84f83520..72ff43783f22 100644
              UA->getDependentActionsInfo().size() > 1))
          DependentOffloadKind = Action::OFK_Host;
        else
-@@ -10684,7 +10668,7 @@ const ToolChain &Driver::getOffloadingDeviceToolChain(
-             *this, Target, HostTC, Args, TargetDeviceOffloadKind);
-         break;
-       default:
--        if (isSYCLNativeCPU(Args)) {
-+        if (isSYCLNativeCPU(Target)) {
-           TC = std::make_unique<toolchains::SYCLToolChain>(*this, Target,
-                                                            HostTC, Args);
-         }
+@@ -10581,9 +10565,9 @@ const ToolChain &Driver::getOffloadToolChain(
+                                                            *HostTC, Args, Kind);
+       break;
+     default:
+-      if (Kind == Action::OFK_SYCL && isSYCLNativeCPU(Args))
+-          TC = std::make_unique<toolchains::SYCLToolChain>(*this, Target,
+-                                                           *HostTC, Args);
++      if (Kind == Action::OFK_SYCL && isSYCLNativeCPU(Target))
++        TC = std::make_unique<toolchains::SYCLToolChain>(*this, Target, *HostTC,
++                                                         Args);
+       break;
+     }
+   }
 diff --git a/clang/lib/Driver/OffloadBundler.cpp b/clang/lib/Driver/OffloadBundler.cpp
-index f4b4964440b5..682c24926b7b 100644
+index f03f2e99dad6..714fd9d37aea 100644
 --- a/clang/lib/Driver/OffloadBundler.cpp
 +++ b/clang/lib/Driver/OffloadBundler.cpp
-@@ -142,7 +142,8 @@ bool OffloadTargetInfo::isOffloadKindCompatible(
+@@ -177,7 +177,8 @@ bool OffloadTargetInfo::isOffloadKindCompatible(
  }
  
  bool OffloadTargetInfo::isTripleValid() const {
 -  return !Triple.str().empty() && Triple.getArch() != Triple::UnknownArch;
 +  return !Triple.str().empty() && (Triple.getArch() != Triple::UnknownArch ||
-+                                   Triple.str() == "native_cpu");
++                                   Triple.str() == "native_cpu---");
  }
  
  bool OffloadTargetInfo::operator==(const OffloadTargetInfo &Target) const {
 diff --git a/clang/lib/Driver/ToolChains/Clang.cpp b/clang/lib/Driver/ToolChains/Clang.cpp
-index c789a8253a32..01b1e02df7f8 100644
+index 73f0c38e0e29..43fbf18006ea 100644
 --- a/clang/lib/Driver/ToolChains/Clang.cpp
 +++ b/clang/lib/Driver/ToolChains/Clang.cpp
-@@ -5425,8 +5425,8 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+@@ -5470,8 +5470,8 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
                           const ArgList &Args, const char *LinkingOutput) const {
    const auto &TC = getToolChain();
    const llvm::Triple &RawTriple = TC.getTriple();
@@ -485,7 +491,7 @@ index c789a8253a32..01b1e02df7f8 100644
  
    bool KernelOrKext =
        Args.hasArg(options::OPT_mkernel, options::OPT_fapple_kext);
-@@ -5468,7 +5468,6 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+@@ -5513,7 +5513,6 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
    bool IsUsingLTO = LTOMode != LTOK_None;
    bool IsFPGASYCLOffloadDevice =
        IsSYCLDevice && Triple.getSubArch() == llvm::Triple::SPIRSubArch_fpga;
@@ -493,7 +499,7 @@ index c789a8253a32..01b1e02df7f8 100644
    const bool IsSYCLCUDACompat = isSYCLCudaCompatEnabled(Args);
  
    // Perform the SYCL host compilation using an external compiler if the user
-@@ -5528,6 +5527,16 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+@@ -5573,6 +5572,16 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
    if (IsCuda || IsHIP || IsSYCL)
      IsWindowsMSVC |= AuxTriple && AuxTriple->isWindowsMSVCEnvironment();
  
@@ -510,7 +516,7 @@ index c789a8253a32..01b1e02df7f8 100644
    // C++ is not supported for IAMCU.
    if (IsIAMCU && types::isCXX(Input.getType()))
      D.Diag(diag::err_drv_clang_unsupported) << "C++ for IAMCU";
-@@ -6059,6 +6068,9 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
+@@ -6112,6 +6121,9 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
        CollectArgsForIntegratedAssembler(C, Args, CmdArgs, D);
      }
      if (IsSYCLDevice && IsSYCLNativeCPU) {
@@ -520,7 +526,7 @@ index c789a8253a32..01b1e02df7f8 100644
        CmdArgs.push_back("-mllvm");
        CmdArgs.push_back("-sycl-native-cpu-backend");
      }
-@@ -10368,10 +10380,6 @@ void OffloadWrapper::ConstructJob(Compilation &C, const JobAction &JA,
+@@ -10439,10 +10451,6 @@ void OffloadWrapper::ConstructJob(Compilation &C, const JobAction &JA,
        TargetTripleOpt = ("llvm_" + TargetTripleOpt).str();
      }
  
@@ -531,7 +537,7 @@ index c789a8253a32..01b1e02df7f8 100644
      WrapperArgs.push_back(
          C.getArgs().MakeArgString(Twine("-target=") + TargetTripleOpt));
  
-@@ -11109,7 +11117,7 @@ static bool shouldEmitOnlyKernelsAsEntryPoints(const ToolChain &TC,
+@@ -11180,7 +11188,7 @@ static bool shouldEmitOnlyKernelsAsEntryPoints(const ToolChain &TC,
    if (TCArgs.hasFlag(options::OPT_fno_sycl_remove_unused_external_funcs,
                       options::OPT_fsycl_remove_unused_external_funcs, false))
      return false;
@@ -540,7 +546,7 @@ index c789a8253a32..01b1e02df7f8 100644
      return true;
    // When supporting dynamic linking, non-kernels in a device image can be
    // called.
-@@ -11168,7 +11176,7 @@ static void getTripleBasedSYCLPostLinkOpts(const ToolChain &TC,
+@@ -11239,7 +11247,7 @@ static void getTripleBasedSYCLPostLinkOpts(const ToolChain &TC,
    if (!Triple.isAMDGCN())
      addArgs(PostLinkArgs, TCArgs, {"-emit-param-info"});
    // Enable program metadata
@@ -550,7 +556,7 @@ index c789a8253a32..01b1e02df7f8 100644
    if (OutputType != types::TY_LLVM_BC) {
      assert(OutputType == types::TY_Tempfiletable);
 diff --git a/clang/lib/Driver/ToolChains/SYCL.cpp b/clang/lib/Driver/ToolChains/SYCL.cpp
-index 7d311fa784df..789b3f59fb09 100644
+index c30311958e62..39086088f731 100644
 --- a/clang/lib/Driver/ToolChains/SYCL.cpp
 +++ b/clang/lib/Driver/ToolChains/SYCL.cpp
 @@ -626,11 +626,6 @@ SYCL::getDeviceLibraries(const Compilation &C, const llvm::Triple &TargetTriple,
@@ -601,7 +607,7 @@ index 7d311fa784df..789b3f59fb09 100644
           "Unsupported target");
  
    std::string SubArchName =
-@@ -1718,9 +1715,9 @@ static ArrayRef<options::ID> getUnsupportedOpts() {
+@@ -1717,9 +1714,9 @@ static ArrayRef<options::ID> getUnsupportedOpts() {
  }
  
  // Currently supported options by SYCL NativeCPU device compilation
@@ -613,7 +619,7 @@ index 7d311fa784df..789b3f59fb09 100644
      return false;
  
    switch (Opt.getID()) {
-@@ -1737,7 +1734,6 @@ static inline bool SupportedByNativeCPU(const SYCLToolChain &TC,
+@@ -1736,7 +1733,6 @@ static inline bool SupportedByNativeCPU(const SYCLToolChain &TC,
  SYCLToolChain::SYCLToolChain(const Driver &D, const llvm::Triple &Triple,
                               const ToolChain &HostTC, const ArgList &Args)
      : ToolChain(D, Triple, Args), HostTC(HostTC),
@@ -621,7 +627,7 @@ index 7d311fa784df..789b3f59fb09 100644
        SYCLInstallation(D, Triple, Args) {
    // Lookup binaries into the driver directory, this is used to discover any
    // dependent SYCL offload compilation tools.
-@@ -1747,7 +1743,7 @@ SYCLToolChain::SYCLToolChain(const Driver &D, const llvm::Triple &Triple,
+@@ -1746,7 +1742,7 @@ SYCLToolChain::SYCLToolChain(const Driver &D, const llvm::Triple &Triple,
    for (OptSpecifier Opt : getUnsupportedOpts()) {
      if (const Arg *A = Args.getLastArg(Opt)) {
        // Native CPU can support options unsupported by other targets.
@@ -630,7 +636,7 @@ index 7d311fa784df..789b3f59fb09 100644
          continue;
        // All sanitizer options are not currently supported, except
        // AddressSanitizer and MemorySanitizer and ThreadSanitizer
-@@ -1791,7 +1787,7 @@ SYCLToolChain::TranslateArgs(const llvm::opt::DerivedArgList &Args,
+@@ -1790,7 +1786,7 @@ SYCLToolChain::TranslateArgs(const llvm::opt::DerivedArgList &Args,
      for (OptSpecifier UnsupportedOpt : getUnsupportedOpts()) {
        if (Opt.matches(UnsupportedOpt)) {
          // NativeCPU should allow most normal cpu options.
@@ -639,7 +645,7 @@ index 7d311fa784df..789b3f59fb09 100644
            continue;
          if (Opt.getID() == options::OPT_fsanitize_EQ &&
              A->getValues().size() == 1) {
-@@ -2186,7 +2182,7 @@ Tool *SYCLToolChain::buildBackendCompiler() const {
+@@ -2185,7 +2181,7 @@ Tool *SYCLToolChain::buildBackendCompiler() const {
  }
  
  Tool *SYCLToolChain::buildLinker() const {
@@ -885,10 +891,10 @@ index a3abba9292d9..cc94c73188c7 100644
  // DEBUG-WIN: {{.*}}"-fsycl-is-host"{{.*}}"-gcodeview"
  // DEBUG-WIN-NOT: dwarf-version
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 0c3867827971..7ac88a9c1bdf 100644
+index 6d9baaa166f0..eede563e9255 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -644,7 +644,7 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
+@@ -646,7 +646,7 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
                                 SmallVector<StringRef, 8> &PostLinkArgs,
                                 const llvm::Triple Triple) {
    const llvm::Triple HostTriple(Args.getLastArgValue(OPT_host_triple_EQ));
@@ -897,7 +903,7 @@ index 0c3867827971..7ac88a9c1bdf 100644
    bool SpecConstsSupported = (!Triple.isNVPTX() && !Triple.isAMDGCN() &&
                                !Triple.isSPIRAOT() && !SYCLNativeCPU);
    if (SpecConstsSupported)
-@@ -1515,7 +1515,10 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1506,7 +1506,10 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
    if (!ClangPath)
      return ClangPath.takeError();
  
@@ -907,9 +913,9 @@ index 0c3867827971..7ac88a9c1bdf 100644
 +    Triple = llvm::Triple(Args.getLastArgValue(OPT_host_triple_EQ));
 +
    StringRef Arch = Args.getLastArgValue(OPT_arch_EQ);
-   if (Arch.empty())
-     Arch = "native";
-@@ -1684,6 +1687,9 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+   // Create a new file to write the linked device image to. Assume that the
+   // input filename already has the device and architecture.
+@@ -1659,6 +1662,9 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
    case Triple::loongarch64:
      return generic::clang(InputFiles, Args);
    default:
@@ -920,7 +926,7 @@ index 0c3867827971..7ac88a9c1bdf 100644
                               " linking is not supported");
    }
 diff --git a/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp b/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
-index 5dbf04467510..4f3e7c2d0b7b 100644
+index f4ed4488f3ca..42593433544a 100644
 --- a/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
 +++ b/clang/tools/clang-offload-deps/ClangOffloadDeps.cpp
 @@ -120,7 +120,8 @@ int main(int argc, const char **argv) {
@@ -945,10 +951,10 @@ index 5dbf04467510..4f3e7c2d0b7b 100644
              Mod, ArrayTy, false, GlobalValue::AppendingLinkage,
              ConstantArray::get(ArrayTy, Used), "llvm.used");
 diff --git a/libclc/CMakeLists.txt b/libclc/CMakeLists.txt
-index 3506872d4eab..9074e258fdef 100644
+index 5ace69e7c33c..8f1044f8144a 100644
 --- a/libclc/CMakeLists.txt
 +++ b/libclc/CMakeLists.txt
-@@ -42,7 +42,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+@@ -39,7 +39,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
    libspirv/lib/amdgcn/SOURCES;
    libspirv/lib/ptx-nvidiacl/SOURCES;
    libspirv/lib/r600/SOURCES;
@@ -957,7 +963,7 @@ index 3506872d4eab..9074e258fdef 100644
  )
  
  set( LIBCLC_MIN_LLVM 3.9.0 )
-@@ -52,9 +52,6 @@ set( LIBCLC_TARGETS_TO_BUILD "all"
+@@ -49,9 +49,6 @@ set( LIBCLC_TARGETS_TO_BUILD "all"
  
  option( ENABLE_RUNTIME_SUBNORMAL "Enable runtime linking of subnormal support." OFF )
  
@@ -967,7 +973,7 @@ index 3506872d4eab..9074e258fdef 100644
  if( LIBCLC_STANDALONE_BUILD OR CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
    # Out-of-tree configuration
    set( LIBCLC_STANDALONE_BUILD TRUE )
-@@ -192,10 +189,10 @@ else()
+@@ -189,10 +186,10 @@ else()
    endforeach()
  endif()
  
@@ -980,7 +986,7 @@ index 3506872d4eab..9074e258fdef 100644
  endif()
  
  list( SORT LIBCLC_TARGETS_TO_BUILD )
-@@ -227,9 +224,7 @@ set( nvptx--nvidiacl_devices none )
+@@ -224,9 +221,7 @@ set( nvptx--nvidiacl_devices none )
  set( nvptx64--nvidiacl_devices none )
  set( spirv-mesa3d-_devices none )
  set( spirv64-mesa3d-_devices none )
@@ -991,7 +997,7 @@ index 3506872d4eab..9074e258fdef 100644
  
  # Setup aliases
  set( cedar_aliases palm sumo sumo2 redwood juniper )
-@@ -312,11 +307,9 @@ else(LIBCLC_STANDALONE_BUILD)
+@@ -304,11 +299,9 @@ else(LIBCLC_STANDALONE_BUILD)
  endif(LIBCLC_STANDALONE_BUILD)
  file( TO_CMAKE_PATH ${LIBCLC_LIBRARY_OUTPUT_INTDIR}/clc LIBCLC_LIBRARY_OUTPUT_INTDIR )
  
@@ -1004,9 +1010,9 @@ index 3506872d4eab..9074e258fdef 100644
    list( GET TRIPLE 0 ARCH )
    list( GET TRIPLE 1 VENDOR )
    list( GET TRIPLE 2 OS )
-@@ -345,18 +338,6 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
-     set( DARCH ${ARCH} )
-   endif()
+@@ -351,18 +344,6 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+ 
+   set( libspirv_dirs ${opencl_dirs} )
  
 -  set(IS_NATIVE_CPU_ARCH FALSE)
 -  if( ARCH IN_LIST NATIVECPU_SUPPORTED_ARCH )
@@ -1014,19 +1020,19 @@ index 3506872d4eab..9074e258fdef 100644
 -  endif()
 -
 -  if( IS_NATIVE_CPU_ARCH AND OS STREQUAL linux)
--    LIST( APPEND dirs native_cpu-unknown-linux )
+-    LIST( APPEND libspirv_dirs native_cpu-unknown-linux )
 -  elseif( IS_NATIVE_CPU_ARCH AND NOT OS STREQUAL linux )
 -    message(WARNING "libclc is being built for an unsupported ARCH/OS"
 -      " configuration, some SYCL programs may fail to build.")
 -  endif()
 -
    set( clc_lib_files )
-   libclc_configure_lib_source(
-     clc_lib_files
-@@ -421,11 +402,8 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+   set( clc_gen_files clc-convert.cl )
+ 
+@@ -431,11 +412,8 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
          # AMDGCN needs libclc to be compiled to high bc version since all atomic
          # clang builtins need to be accessible
-         list( APPEND build_flags -mcpu=gfx940 -mllvm --amdgpu-oclc-reflect-enable=false )
+         list( APPEND build_flags -mcpu=gfx942 -mllvm --amdgpu-oclc-reflect-enable=false )
 -      elseif( IS_NATIVE_CPU_ARCH )
 +      elseif( ARCH STREQUAL native_cpu )
          list( APPEND build_flags -Xclang -fsycl-is-native-cpu )
@@ -1036,7 +1042,7 @@ index 3506872d4eab..9074e258fdef 100644
        endif()
      endif()
  
-@@ -464,7 +442,7 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+@@ -474,7 +452,7 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
        set( has_distinct_generic_addrspace FALSE )
      elseif( ARCH STREQUAL amdgcn )
        set( opt_flags -O3 --amdgpu-oclc-reflect-enable=false )
@@ -1045,7 +1051,7 @@ index 3506872d4eab..9074e258fdef 100644
        set( opt_flags -O3 )
        set( has_distinct_generic_addrspace FALSE )
      else()
-@@ -486,9 +464,6 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+@@ -496,9 +474,6 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
        "+__opencl_c_3d_image_writes,"
        "+__opencl_c_images,"
        "+cl_khr_3d_image_writes")
@@ -1120,7 +1126,7 @@ similarity index 100%
 rename from libclc/libspirv/lib/native_cpu-unknown-linux/math/sqrt.cl
 rename to libclc/libspirv/lib/native_cpu/math/sqrt.cl
 diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
-index ca20725a4691..43173ecc144e 100644
+index 01e3b13bcb9c..d14aab811222 100644
 --- a/libdevice/nativecpu_utils.cpp
 +++ b/libdevice/nativecpu_utils.cpp
 @@ -309,8 +309,20 @@ DefShuffleINTEL_All(double, f64, double);
@@ -1182,7 +1188,7 @@ index 9eea9a87fced..000000000000
 -} // namespace llvm
 -
 diff --git a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
-index a0609ff22243..36ed6c901b19 100644
+index f499e8f76850..f176fcb48e16 100644
 --- a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
 +++ b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
 @@ -3,7 +3,6 @@ add_llvm_component_library(LLVMSYCLNativeCPUUtils
