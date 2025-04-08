@@ -419,19 +419,19 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     // ip0 (the assembler temporary register, which is always free to use),
     // followed by a branch on ip0. This stub has a total size of 20 bytes.
 
-    // movz ip0, #:abs_g3:<addr>
+    // movz ip0, #:abs_g3:<addr>, lsl #48
     cargo::write_little_endian(setBitRange(uint32_t{0xD2E00010},
                                            static_cast<uint32_t>(getBitRange(
                                                symbol_target_address, 48, 16)),
                                            5, 16),
                                remaining->begin());
-    // movk ip0, #:abs_g2_nc:<addr>
+    // movk ip0, #:abs_g2_nc:<addr>, lsl #32
     cargo::write_little_endian(setBitRange(uint32_t{0xF2C00010},
                                            static_cast<uint32_t>(getBitRange(
                                                symbol_target_address, 32, 16)),
                                            5, 16),
                                remaining->begin() + 4);
-    // movk ip0, #:abs_g1_nc:<addr>
+    // movk ip0, #:abs_g1_nc:<addr>, lsl #16
     cargo::write_little_endian(setBitRange(uint32_t{0xF2A00010},
                                            static_cast<uint32_t>(getBitRange(
                                                symbol_target_address, 16, 16)),
@@ -447,7 +447,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
     cargo::write_little_endian(uint32_t{0xD61F0200}, remaining->begin() + 16);
     auto target = *map.getStubTargetAddress(r.section_index);
     map.shrinkRemainingStubSpace(r.section_index, 20);
-    return target + 4;
+    return target;
   };
 
   using namespace loader::RelocationTypes::AArch64;
