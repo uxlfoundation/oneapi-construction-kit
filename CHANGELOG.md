@@ -2,10 +2,15 @@
 
 ## TBD
 
+Feature additions:
+
+* Support for LLVM 20 has been added.
+
 Upgrade guidance:
 
 * Support for degenerate subgroups has been removed. No in-tree target or
   template was using this, but custom targets may need to be updated.
+* Support for LLVM versions before 19 has been removed.
 
 ## Version 4.0.0
 

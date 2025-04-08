@@ -13,15 +13,13 @@ on:
         type: string
         default: 'install'
       llvm_previous:
-        required: false
+        required: true
         type: string
         description: 'previous llvm version to for those jobs tied to previous.'
-        default: '18'
       llvm_current:
-        required: false
+        required: true
         type: string
         description: 'previous llvm version to for those jobs tied to current.'
-        default: '19'
       github_token:
         type: string
         description: 'gh token for downloading artifacts - only needed if we want llvm from a previous workflow'
@@ -203,7 +201,7 @@ jobs:
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
     runs-on: windows-2019
     # do not run as PR job due to not yet supporting windows install
-    if: contains(inputs.target_list, 'host_x86_64_windows') && inputs.is_pull_request != 'true'
+    if: contains(inputs.target_list, 'host_x86_64_windows') && !inputs.is_pull_request
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
