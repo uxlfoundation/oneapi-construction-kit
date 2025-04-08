@@ -52,11 +52,8 @@ PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
   const llvm::Triple TT(F.getParent()->getTargetTriple());
 
   auto &TTI = FAM.getResult<TargetIRAnalysis>(F);
-  const bool HaveCorrectHalfOps = TTI.isTypeLegal(HalfT) ||
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
-                                  TT.isARM() ||
-#endif
-                                  TT.isX86() || TT.isRISCV();
+  const bool HaveCorrectHalfOps =
+      TTI.isTypeLegal(HalfT) || TT.isARM() || TT.isX86() || TT.isRISCV();
   const bool HaveCorrectHalfFMA = TT.isRISCV();
   const bool HaveCorrectVecConvert = !TT.isAArch64();
   if (HaveCorrectHalfOps && HaveCorrectHalfFMA && HaveCorrectVecConvert) {

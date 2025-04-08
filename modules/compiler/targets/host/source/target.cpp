@@ -398,12 +398,7 @@ compiler::Result HostTarget::initWithBuiltins(
 
     llvm::SubtargetFeatures NativeFeatures;
 
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
     auto FeatureMap = llvm::sys::getHostCPUFeatures();
-#else
-    llvm::StringMap<bool> FeatureMap;
-    llvm::sys::getHostCPUFeatures(FeatureMap);
-#endif
     for (auto &[FeatureName, IsEnabled] : FeatureMap) {
       NativeFeatures.AddFeature(FeatureName, IsEnabled);
     }

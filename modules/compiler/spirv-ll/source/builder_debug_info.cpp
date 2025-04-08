@@ -1915,14 +1915,10 @@ llvm::Error DebugInfoBuilder::create<DebugDeclare>(const OpExtInst &opc) {
       module.llvmModule->getContext(), di_local->getLine(),
       /*Column=*/0, di_local->getScope());
 
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
   assert(
       !module.llvmModule->IsNewDbgInfoFormat &&
       "Expected module to remain in old debug info format while being built");
   llvm::DbgInstPtr dbg_declare;
-#else
-  llvm::Instruction *dbg_declare;
-#endif
   if (insert_pt == insert_bb->end()) {
     dbg_declare = getDIBuilder(op).insertDeclare(
         /*Storage*/ variable, di_local, di_expr, di_loc, insert_bb);
@@ -1931,12 +1927,8 @@ llvm::Error DebugInfoBuilder::create<DebugDeclare>(const OpExtInst &opc) {
         /*Storage*/ variable, di_local, di_expr, di_loc, insert_pt);
   }
 
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
   module.addID(opc.IdResult(), op,
                llvm::cast<llvm::Instruction *>(dbg_declare));
-#else
-  module.addID(opc.IdResult(), op, dbg_declare);
-#endif
   return llvm::Error::success();
 }
 
@@ -1991,14 +1983,10 @@ llvm::Error DebugInfoBuilder::create<DebugValue>(const OpExtInst &opc) {
 
   llvm::DIExpression *di_expr = expr_or_error.get();
 
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
   assert(
       !module.llvmModule->IsNewDbgInfoFormat &&
       "Expected module to remain in old debug info format while being built");
   llvm::DbgInstPtr dbg_value;
-#else
-  llvm::Instruction *dbg_value;
-#endif
   if (insert_pt == insert_bb->end()) {
     dbg_value = getDIBuilder(op).insertDbgValueIntrinsic(
         variable, di_local, di_expr, di_loc, insert_bb);
@@ -2007,11 +1995,7 @@ llvm::Error DebugInfoBuilder::create<DebugValue>(const OpExtInst &opc) {
         variable, di_local, di_expr, di_loc, insert_pt);
   }
 
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
   module.addID(opc.IdResult(), op, llvm::cast<llvm::Instruction *>(dbg_value));
-#else
-  module.addID(opc.IdResult(), op, dbg_value);
-#endif
   return llvm::Error::success();
 }
 
