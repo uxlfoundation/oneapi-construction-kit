@@ -21,14 +21,22 @@
 #define HOST_PASSES_MACHINERY_H_INCLUDED
 
 #include <base/base_module_pass_machinery.h>
-
+#include <vecz/pass.h>
 #include <optional>
 
 namespace llvm {
 class TargetMachine;
 }
 
+namespace vecz {
+  class VeczPassOptions;
+}
 namespace host {
+struct OptimizationOptions {
+  llvm::SmallVector<vecz::VeczPassOptions> vecz_pass_opts;
+  bool force_no_tail = false;
+  bool early_link_builtins = false;
+};
 
 class HostPassMachinery final : public compiler::BaseModulePassMachinery {
  public:
@@ -63,6 +71,10 @@ class HostPassMachinery final : public compiler::BaseModulePassMachinery {
   /// @brief Returns an optimization pass pipeline correponding to
   /// BaseModule::getLateTargetPasses.
   llvm::ModulePassManager getLateTargetPasses();
+
+  static host::OptimizationOptions processOptimizationOptions(
+    std::optional<std::string> env_debug_prefix,
+    std::optional<compiler::VectorizationMode> vecz_mode);
 };
 
 }  // namespace host
