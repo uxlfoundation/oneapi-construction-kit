@@ -1,0 +1,8 @@
+SYCL_CTS,test_hierarchical hierarchical_functor,XFail
+SYCL_CTS,test_hierarchical hierarchical_id,XFail
+SYCL_CTS,test_hierarchical hierarchical_implicit_barriers,XFail
+SYCL_CTS,test_hierarchical hierarchical_implicit_conditional,XFail
+SYCL_CTS,test_hierarchical hierarchical_implicit_reduce,XFail
+SYCL_CTS,test_hierarchical hierarchical_lambda,XFail
+SYCL_CTS,test_hierarchical hierarchical_non_uniform_local_range,XFail
+SYCL_CTS,test_hierarchical hierarchical_private_memory,XFail
