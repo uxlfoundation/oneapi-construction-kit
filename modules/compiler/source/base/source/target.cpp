@@ -33,16 +33,8 @@ BaseTarget::BaseTarget(const compiler::Info *compiler_info,
 
 Result BaseTarget::init(uint32_t builtins_capabilities) {
   if (callback) {
-    auto diag_handler_callback_thunk = [](
-#if LLVM_VERSION_GREATER_EQUAL(19, 0)
-                                           const llvm::DiagnosticInfo *DI,
-#else
-                                           const llvm::DiagnosticInfo &DI_,
-#endif
-                                           void *user_data) {
-#if LLVM_VERSION_LESS(19, 0)
-      const llvm::DiagnosticInfo *DI = &DI_;
-#endif
+    auto diag_handler_callback_thunk = [](const llvm::DiagnosticInfo *DI,
+                                          void *user_data) {
       if (auto *Remark =
               llvm::dyn_cast<llvm::DiagnosticInfoOptimizationBase>(DI)) {
         if (!Remark->isEnabled()) {

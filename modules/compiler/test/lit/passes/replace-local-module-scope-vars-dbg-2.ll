@@ -41,8 +41,7 @@ declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
 declare void @llvm.dbg.value(metadata, metadata, metadata) #0
 
 ; CHECK: define void @helper_kernel.mux-local-var-wrapper(
-; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
-; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
+; CHECK: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}}
 ; CHECK-SAME: [[HK_DI_CACHE_VAR:![0-9]+]],
 ; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 0)
 ; CHECK-SAME: [[HK_DI_CACHE_LOCATION:![0-9]+]]
@@ -55,14 +54,12 @@ define void @helper_kernel() #1 !dbg !27 {
 }
 
 ; CHECK: define void @local_array.mux-local-var-wrapper(
-; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
-; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
 ; CHECK-SAME: [[LA_DI_DATA_VAR:![0-9]+]],
 ; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 0)
 ; CHECK-SAME: [[LA_DI_DATA_LOCATION:![0-9]+]]
 
-; CHECK-GE19: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
-; CHECK-LT19: call void @llvm.dbg.declare(metadata {{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
+; CHECK: #dbg_declare({{(ptr|%localVarTypes\*)}} %{{[0-9]+}},
 ; CHECK-SAME: [[LA_DI_CACHE_VAR:![0-9]+]],
 ; CHECK-SAME: !DIExpression(DW_OP_plus_uconst, 16)
 ; CHECK-SAME: [[LA_DI_CACHE_LOCATION:![0-9]+]]
