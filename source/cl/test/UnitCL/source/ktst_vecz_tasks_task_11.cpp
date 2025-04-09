@@ -25,6 +25,7 @@
 using namespace kts::ucl;
 
 TEST_P(Execution, Task_11_01_Kernel_Signature) {
+  fail_if_not_vectorized_ = false;
   AddInputBuffer(kts::N, kts::Ref_A);
   AddOutputBuffer(kts::N, kts::Ref_A);
   RunGeneric1D(kts::N);
@@ -38,6 +39,7 @@ TEST_P(Execution, Task_11_02_Kernel_Signature_NoInline_Before) {
 }
 
 TEST_P(Execution, Task_11_03_Kernel_Signature_NoInline_After) {
+  fail_if_not_vectorized_ = false;
   AddInputBuffer(kts::N, kts::Ref_A);
   AddOutputBuffer(kts::N, kts::Ref_A);
   RunGeneric1D(kts::N);
