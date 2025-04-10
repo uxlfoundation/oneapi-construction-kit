@@ -39,7 +39,7 @@ runs:
         set -x
         # Build override file, all is done first, then the target specific.
         # The last file can overwrite previous overrides.
-        python3 scripts/testing/create_override_csv.py -d .github/opencl_cts \
+        python3 scripts/testing/create_override_csv.py -d scripts/testing/opencl_cts \
              -k ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
 
