@@ -64,11 +64,14 @@ runs:
       run: |
         CROSS_OPTS=""
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
+          CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} \
+                      --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu \
+                      --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
         fi
         cd llvm
         set -x
-        python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux --host-target="X86;AArch64;RISCV" --native_cpu \
+        python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
+                --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
                 --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
