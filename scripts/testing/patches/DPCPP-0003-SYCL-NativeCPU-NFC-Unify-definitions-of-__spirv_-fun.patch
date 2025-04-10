@@ -1,0 +1,174 @@
+From 624b246cad6d62f814fc44f0c886640f2b4202cd Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Fri, 28 Mar 2025 16:55:54 +0000
+Subject: [PATCH] [SYCL][NativeCPU][NFC] Unify definitions of __spirv_*
+ functions.
+
+Several functions were being defined both in libclc and in libdevice,
+but had different definitions between the two. This commit changes it so
+that they are only defined once, in libclc, with the definition that we
+had in libdevice that took precedence.
+---
+ libclc/libspirv/lib/native_cpu/SOURCES        |  4 ++++
+ .../lib/native_cpu/workitem/get_global_id.cl  | 23 +++++++++++++++++++
+ .../native_cpu/workitem/get_global_size.cl    | 23 +++++++++++++++++++
+ .../native_cpu/workitem/get_num_sub_groups.cl | 15 ++++++++++++
+ .../native_cpu/workitem/get_sub_group_size.cl | 15 ++++++++++++
+ libdevice/nativecpu_utils.cpp                 | 10 --------
+ 6 files changed, 80 insertions(+), 10 deletions(-)
+ create mode 100644 libclc/libspirv/lib/native_cpu/workitem/get_global_id.cl
+ create mode 100644 libclc/libspirv/lib/native_cpu/workitem/get_global_size.cl
+ create mode 100644 libclc/libspirv/lib/native_cpu/workitem/get_num_sub_groups.cl
+ create mode 100644 libclc/libspirv/lib/native_cpu/workitem/get_sub_group_size.cl
+
+diff --git a/libclc/libspirv/lib/native_cpu/SOURCES b/libclc/libspirv/lib/native_cpu/SOURCES
+index 72fc2e3c340f..445f4a053b1e 100644
+--- a/libclc/libspirv/lib/native_cpu/SOURCES
++++ b/libclc/libspirv/lib/native_cpu/SOURCES
+@@ -11,4 +11,8 @@ math/native_log2.cl
+ math/native_sin.cl
+ math/native_sqrt.cl
+ math/round.cl
++workitem/get_global_id.cl
++workitem/get_global_size.cl
++workitem/get_num_sub_groups.cl
++workitem/get_sub_group_size.cl
+ cl_khr_int64_extended_atomics/minmax_helpers.ll
+diff --git a/libclc/libspirv/lib/native_cpu/workitem/get_global_id.cl b/libclc/libspirv/lib/native_cpu/workitem/get_global_id.cl
+new file mode 100644
+index 000000000000..7236b41bba0d
+--- /dev/null
++++ b/libclc/libspirv/lib/native_cpu/workitem/get_global_id.cl
+@@ -0,0 +1,23 @@
++//===----------------------------------------------------------------------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include <libspirv/spirv.h>
++
++ulong __mux_get_global_id(int);
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalInvocationId_x() {
++  return __mux_get_global_id(0);
++}
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalInvocationId_y() {
++  return __mux_get_global_id(1);
++}
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalInvocationId_z() {
++  return __mux_get_global_id(2);
++}
+diff --git a/libclc/libspirv/lib/native_cpu/workitem/get_global_size.cl b/libclc/libspirv/lib/native_cpu/workitem/get_global_size.cl
+new file mode 100644
+index 000000000000..07bbc6102e6f
+--- /dev/null
++++ b/libclc/libspirv/lib/native_cpu/workitem/get_global_size.cl
+@@ -0,0 +1,23 @@
++//===----------------------------------------------------------------------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include <libspirv/spirv.h>
++
++ulong __mux_get_global_size(int);
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalSize_x() {
++  return __mux_get_global_size(0);
++}
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalSize_y() {
++  return __mux_get_global_size(1);
++}
++
++_CLC_DEF _CLC_OVERLOAD size_t __spirv_GlobalSize_z() {
++  return __mux_get_global_size(2);
++}
+diff --git a/libclc/libspirv/lib/native_cpu/workitem/get_num_sub_groups.cl b/libclc/libspirv/lib/native_cpu/workitem/get_num_sub_groups.cl
+new file mode 100644
+index 000000000000..8ac4aa5565c7
+--- /dev/null
++++ b/libclc/libspirv/lib/native_cpu/workitem/get_num_sub_groups.cl
+@@ -0,0 +1,15 @@
++//===----------------------------------------------------------------------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include <libspirv/spirv.h>
++
++uint __mux_get_num_sub_groups();
++
++_CLC_DEF _CLC_OVERLOAD uint __spirv_NumSubgroups() {
++  return __mux_get_num_sub_groups();
++}
+diff --git a/libclc/libspirv/lib/native_cpu/workitem/get_sub_group_size.cl b/libclc/libspirv/lib/native_cpu/workitem/get_sub_group_size.cl
+new file mode 100644
+index 000000000000..3ca389003327
+--- /dev/null
++++ b/libclc/libspirv/lib/native_cpu/workitem/get_sub_group_size.cl
+@@ -0,0 +1,15 @@
++//===----------------------------------------------------------------------===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include <libspirv/spirv.h>
++
++uint __mux_get_sub_group_size();
++
++_CLC_DEF _CLC_OVERLOAD uint __spirv_SubgroupSize() {
++  return __mux_get_sub_group_size();
++}
+diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
+index 798c22a05800..2b932b35f2d0 100644
+--- a/libdevice/nativecpu_utils.cpp
++++ b/libdevice/nativecpu_utils.cpp
+@@ -329,12 +329,6 @@ DefineShuffleVec2to16(int32_t, i32, int32_t);
+ DefineShuffleVec2to16(uint32_t, i32, int32_t);
+ DefineShuffleVec2to16(float, f32, float);
+ 
+-#define Define2ArgForward(Type, Name, Callee)                                  \
+-  DEVICE_EXTERNAL Type Name(Type a, Type b) noexcept { return Callee(a, b); }  \
+-  static_assert(true)
+-
+-Define2ArgForward(uint64_t, __spirv_ocl_u_min, std::min);
+-
+ #define GET_PROPS __attribute__((pure))
+ #define GEN_u32(bname, muxname)                                                \
+   DEVICE_EXTERN_C GET_PROPS uint32_t muxname();                                \
+@@ -344,8 +338,6 @@ Define2ArgForward(uint64_t, __spirv_ocl_u_min, std::min);
+ GEN_u32(__spirv_SubgroupLocalInvocationId, __mux_get_sub_group_local_id);
+ GEN_u32(__spirv_SubgroupMaxSize, __mux_get_max_sub_group_size);
+ GEN_u32(__spirv_SubgroupId, __mux_get_sub_group_id);
+-GEN_u32(__spirv_NumSubgroups, __mux_get_num_sub_groups);
+-GEN_u32(__spirv_SubgroupSize, __mux_get_sub_group_size);
+ 
+ // I64_I32
+ #define GEN_p(bname, muxname, arg)                                             \
+@@ -358,8 +350,6 @@ GEN_u32(__spirv_SubgroupSize, __mux_get_sub_group_size);
+   GEN_p(bname##_y, ncpu_name, 1);                                              \
+   GEN_p(bname##_z, ncpu_name, 2)
+ 
+-GEN_xyz(__spirv_GlobalInvocationId, __mux_get_global_id);
+-GEN_xyz(__spirv_GlobalSize, __mux_get_global_size);
+ GEN_xyz(__spirv_GlobalOffset, __mux_get_global_offset);
+ GEN_xyz(__spirv_LocalInvocationId, __mux_get_local_id);
+ GEN_xyz(__spirv_NumWorkgroups, __mux_get_num_groups);
+-- 
+2.48.1
+
