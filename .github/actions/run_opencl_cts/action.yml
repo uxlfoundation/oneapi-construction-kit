@@ -31,23 +31,21 @@ runs:
         CTS_TIMEOUT: 18:00:00 # OK for github?
       run: |
         echo "Running OpenCL CTS tests with CTS file $CTS_CSV_FILE with filter $CTS_FILTER"
-        export QEMU_SETTING=""
+        PREPEND_PATH=()
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          QEMU_SETTING="--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu'"
+          PREPEND_PATH=(--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu')
         fi
-        echo QEMU SETTING: $QEMU_SETTING
         set -x
         # Build override file, all is done first, then the target specific.
         # The last file can overwrite previous overrides.
-        python3 scripts/testing/create_override_csv.py -d .github/opencl_cts \
+        python3 scripts/testing/create_override_csv.py -d scripts/testing/opencl_cts \
              -k ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
-        # Note: use 'eval' built-in to handle quoting/escaping/splitting reqs
-        RUN_CITIES="python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
+        python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
           --color=always --timeout $CTS_TIMEOUT \
-          $QEMU_SETTING \
+          "${PREPEND_PATH[@]}" \
           -b $GITHUB_WORKSPACE/test_conformance \
           -L $GITHUB_WORKSPACE/install_icd/lib \
           -e CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc \
@@ -55,5 +53,4 @@ runs:
           -e CL_PLATFORM_INDEX=0 \
           -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
-          -o override_combined.csv"
-        eval $RUN_CITIES
+          -o override_combined.csv

@@ -1,1 +1,0 @@
-SYCL_CTS,test_event "event::wait does not report asynchronous errors",Mayfail
