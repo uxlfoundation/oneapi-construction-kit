@@ -31,6 +31,7 @@
 #include <compiler/utils/metadata.h>
 #include <compiler/utils/metadata_analysis.h>
 #include <compiler/utils/pipeline_parse_helpers.h>
+#include <compiler/utils/remove_address_spaces_pass.h>
 #include <compiler/utils/remove_exceptions_pass.h>
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/replace_address_space_qualifier_functions_pass.h>
@@ -285,6 +286,11 @@ llvm::ModulePassManager HostPassMachinery::getKernelFinalizationPasses(
   // Functions with __attribute__ ((always_inline)) should
   // be inlined even at -O0.
   PM.addPass(llvm::AlwaysInlinerPass());
+
+#if LLVM_VERSION_LESS(20, 0)
+  PM.addPass(llvm::createModuleToFunctionPassAdaptor(
+      compiler::utils::RemoveAddressSpacesPass()));
+#endif
 
   // Running this pass here is the "nuclear option", it would be better to
   // ensure exception handling is never introduced in the first place, but

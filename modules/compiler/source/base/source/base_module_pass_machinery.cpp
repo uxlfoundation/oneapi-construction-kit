@@ -47,6 +47,7 @@
 #include <compiler/utils/pipeline_parse_helpers.h>
 #include <compiler/utils/prepare_barriers_pass.h>
 #include <compiler/utils/reduce_to_function_pass.h>
+#include <compiler/utils/remove_address_spaces_pass.h>
 #include <compiler/utils/remove_exceptions_pass.h>
 #include <compiler/utils/remove_lifetime_intrinsics_pass.h>
 #include <compiler/utils/rename_builtins_pass.h>
