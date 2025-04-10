@@ -523,7 +523,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}          
 
   run_sycl_cts_aarch64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native, build_sycl_cts_aarch64_opencl]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_opencl]
     runs-on: 'cp-graviton'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -542,7 +542,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   run_sycl_cts_aarch64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native, build_sycl_cts_aarch64_native_cpu]
+    needs: [workflow_vars, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_native_cpu]
     runs-on: 'cp-graviton'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
