@@ -38,4 +38,3 @@ jobs:
       # download_ock_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
       # download_dpcpp_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
       # download_sycl_cts_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
-
