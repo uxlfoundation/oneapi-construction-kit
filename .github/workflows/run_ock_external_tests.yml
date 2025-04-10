@@ -296,7 +296,6 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts
     if: inputs.test_sycl_cts && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
