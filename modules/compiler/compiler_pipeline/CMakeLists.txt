@@ -48,6 +48,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/pipeline_parse_helpers.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/prepare_barriers_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/reduce_to_function_pass.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_address_spaces_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_exceptions_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/remove_lifetime_intrinsics_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/rename_builtins_pass.h
@@ -97,6 +98,7 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_machinery.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/prepare_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/reduce_to_function_pass.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_address_spaces_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_exceptions_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/remove_lifetime_intrinsics_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rename_builtins_pass.cpp
