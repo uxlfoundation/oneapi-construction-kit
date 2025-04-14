@@ -8,16 +8,16 @@ inputs:
   path:
     description: 'path to download to - currently must be a directory if needs_tar is true'
     default: "none"
+  needs_tar:
+    description: 'The archive is tarred so we need to untar it after downloading it'
+    type: boolean
+    default: false
   token:
     description: 'gh token for downloading artifacts - only needed for gh'
     default: 'TOKEN_NOT_SET'
   run_id:
     description: 'The run_id for the workflow the artifact came from'
     default: 'RUN_ID_UNKNOWN'
-  needs_tar:
-    description: 'The archive is tarred so we need to untar it after downloading it'
-    type: boolean
-    default: false
 
 runs:
   using: "composite"
@@ -44,4 +44,5 @@ runs:
       run: |
         # Everything goes under the new path
         mkdir -p ${{ inputs.path }}
+        # ALAN TODO: use inputs: name rather than tmp here?
         tar xf tmp.tar -C ${{ inputs.path }}

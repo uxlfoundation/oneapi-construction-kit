@@ -30,31 +30,47 @@ runs:
         name: ock_${{inputs.target}}
         path: install_ock
 
+    # ALAN TODO: fold download/unpackage into download_artifact call
+    #- name: download SYCL-CTS artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
+    #    path: SYCL-CTS
+
+    #- name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
+    #  shell: bash
+    #  run: |
+    #    cd SYCL-CTS
+    #    tar xf sycl-cts.tar
+    #    rm sycl-cts.tar
+
     - name: download SYCL-CTS artifact
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/upload_artifact
       with:
         name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
         path: SYCL-CTS
+        needs_tar: 'true'
 
-    - name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      run: |
-        cd SYCL-CTS
-        tar xf sycl-cts.tar
-        rm sycl-cts.tar
+    # ALAN TODO: fold download/unpackage into download_artifact call
+    #- name: download dpc++ artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: dpcpp_${{inputs.target}}
+    #    path: install_dpcpp
+
+    #- name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
+    #  shell: bash
+    #  run: |
+    #    cd install_dpcpp
+    #    tar xf dpcpp.tar
+    #    rm dpcpp.tar
 
     - name: download dpc++ artifact
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/upload_artifact
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
-
-    - name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      run: |
-        cd install_dpcpp
-        tar xf dpcpp.tar
-        rm dpcpp.tar
+        needs_tar: 'true'
 
     - name: run sycl cts
       shell: bash
