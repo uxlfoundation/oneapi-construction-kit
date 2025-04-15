@@ -50,12 +50,10 @@ on:
         required: false
         type: string
         description: 'previous llvm version to for those jobs tied to previous.'
-        default: '18'
       llvm_current:
         required: false
         type: string
         description: 'previous llvm version to for those jobs tied to current.'        
-        default: '19'
 
 permissions:
   packages: read

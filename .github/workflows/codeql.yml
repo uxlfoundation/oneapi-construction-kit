@@ -24,11 +24,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # installs tools, ninja and installs llvm (default 18, RelAssert) and sets up cache
+      # installs tools, ninja and installs llvm (default 19, RelAssert) and sets up cache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
         with:
-          llvm_version: 18
+          llvm_version: 19
           llvm_build_type: RelAssert
 
       # Initializes the CodeQL tools for scanning.
@@ -79,7 +79,7 @@ jobs:
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
         with:
-          llvm_version: 18
+          llvm_version: 19
           llvm_build_type: RelAssert
 
       # Initializes the CodeQL tools for scanning.
