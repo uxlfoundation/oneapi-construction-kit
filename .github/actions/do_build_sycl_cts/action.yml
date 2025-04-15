@@ -59,7 +59,7 @@ runs:
     - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
           ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
-      uses: ./.github/actions/upload_artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_host_x86_64_linux
         path: dpcpp/x86_64-linux/install
@@ -83,7 +83,7 @@ runs:
 
     - name: download native aarch64 dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
-      uses: ./.github/actions/upload_artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_host_aarch64_linux
         path: dpcpp/aarch64-linux/install

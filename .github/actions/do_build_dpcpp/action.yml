@@ -47,7 +47,7 @@ runs:
 
     - name: download pre-built native dpc++ artifact for cross builds
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-      uses: ./.github/actions/upload_artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: 'dpcpp_host_x86_64_linux'
         path: llvm/build/x86_64-linux/install
