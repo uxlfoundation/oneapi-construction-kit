@@ -21,8 +21,8 @@ on:
   workflow_dispatch:
 
 env:
-  llvm_previous: '18'
-  llvm_current: '19'
+  llvm_previous: '19'
+  llvm_current: '20'
 
 concurrency:
   group: pr-test-cache-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

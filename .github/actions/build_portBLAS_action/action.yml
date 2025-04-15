@@ -17,6 +17,9 @@ runs:
        # installs tools, ninja, installs llvm and sets up sccahe
     - name: setup ubuntu
       uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: 19
+        llvm_build_type: RelAssert
 
     - name: Get Intel OneAPI BaseToolkit
       shell: bash
