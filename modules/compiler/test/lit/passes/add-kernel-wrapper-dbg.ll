@@ -21,7 +21,7 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: define internal spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y)
+; CHECK: define internal spir_func void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y)
 ; CHECK-SAME: [[ATTRS:#[0-9]+]] !dbg [[SP:\![0-9]+]] {
 define spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y) #0 !dbg !10 {
   ret void
@@ -37,7 +37,7 @@ define spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(
 ; CHECK: %y = load ptr addrspace(1), ptr {{.*}}, align 1{{$}}
 ; Check that when we call the original kernel we've attached a debug location.
 ; This is required by LLVM.
-; CHECK: call spir_kernel void @foo({{.*}}) [[ATTRS]], !dbg [[LOC:\![0-9]+]]
+; CHECK: call spir_func void @foo({{.*}}) [[ATTRS]], !dbg [[LOC:\![0-9]+]]
 
 ; CHECK-DAG: attributes [[ATTRS]] = { alwaysinline }
 ; CHECK-DAG: attributes [[NEW_ATTRS]] = { nounwind "mux-base-fn-name"="foo"  "mux-kernel"="entry-point" }

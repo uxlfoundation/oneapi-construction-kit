@@ -22,16 +22,16 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: define internal spir_kernel void @add(ptr addrspace(1) %in, ptr addrspace(1) %out) #[[ATTR_INLINE:.+]] {
+; CHECK: define internal spir_func void @add(ptr addrspace(1) %in, ptr addrspace(1) %out) #[[ATTR_INLINE:.+]] {
 
-; CHECK: define internal spir_kernel void @[[K_NOINLINE:.*]](ptr addrspace(1) %in, ptr addrspace(1) %out) #[[ATTR_NOINLINE:.+]] {
+; CHECK: define internal spir_func void @[[K_NOINLINE:.*]](ptr addrspace(1) %in, ptr addrspace(1) %out) #[[ATTR_NOINLINE:.+]] {
 
 ; CHECK: @add.mux-kernel-wrapper(ptr noundef nonnull dereferenceable(16) %packed-args) #[[WRAPPER_ATTRS_INLINE:[0-9]+]] !mux_scheduled_fn [[SCHED_MD:\![0-9]+]] {
 ; CHECK:  %1 = getelementptr %MuxPackedArgs.add, ptr %packed-args, i32 0, i32 0
 ; CHECK:  %in = load ptr addrspace(1), ptr %1, align 8
 ; CHECK:  %2 = getelementptr %MuxPackedArgs.add, ptr %packed-args, i32 0, i32 1
 ; CHECK:  %out = load ptr addrspace(1), ptr %2, align 8
-; CHECK: call spir_kernel void @add(
+; CHECK: call spir_func void @add(
 define spir_kernel void @add(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #0 {
   %in.c = addrspacecast i32 addrspace(1)* %in to i32*
   %out.c = addrspacecast i32 addrspace(1)* %out to i32*
@@ -39,7 +39,7 @@ define spir_kernel void @add(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #0 {
 }
 
 ; CHECK: @add_noinline.mux-kernel-wrapper(ptr noundef nonnull dereferenceable(16) {{%.*}}) #[[WRAPPER_ATTRS_NOINLINE:[0-9]+]] !mux_scheduled_fn [[SCHED_MD]] {
-; CHECK: call spir_kernel void @[[K_NOINLINE]](
+; CHECK: call spir_func void @[[K_NOINLINE]](
 define spir_kernel void @add_noinline(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #1 {
   ret void
 }

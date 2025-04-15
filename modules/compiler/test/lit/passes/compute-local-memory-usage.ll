@@ -44,7 +44,6 @@ define spir_kernel void @kernel_bar() #0 {
 define spir_kernel void @kernel_foo() #0 {
   call spir_func void @ext_fn()
   call spir_func void @helper_fn()
-  call spir_kernel void @kernel_bar()
   %ld = load [4 x float], [4 x float] addrspace(3)* @b
   ret void
 }
