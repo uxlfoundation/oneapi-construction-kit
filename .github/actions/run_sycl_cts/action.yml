@@ -45,11 +45,12 @@ runs:
     #    rm sycl-cts.tar
 
     - name: download SYCL-CTS artifact
-      uses: ./.github/actions/upload_artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
-        path: SYCL-CTS
+        path: SYCL-CTS/bin
         needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     # ALAN TODO: fold download/unpackage into download_artifact call
     #- name: download dpc++ artifact
@@ -66,11 +67,12 @@ runs:
     #    rm dpcpp.tar
 
     - name: download dpc++ artifact
-      uses: ./.github/actions/upload_artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
         needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: run sycl cts
       shell: bash

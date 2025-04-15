@@ -52,6 +52,7 @@ runs:
         name: 'dpcpp_host_x86_64_linux'
         path: llvm/build/x86_64-linux/install
         needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: apply patches
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true    
