@@ -311,7 +311,7 @@ jobs:
           target: host_aarch64_linux
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
-  build_dpcpp_cross:
+  build_dpcpp_riscv64:
     needs: [workflow_vars, build_dpcpp_native_x86_64]  # cross builds need pre-built native artefact
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -437,7 +437,7 @@ jobs:
           sycl_device: native_cpu
 
   build_sycl_cts_riscv64_opencl:
-    needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_cross]
+    needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
     runs-on: 'cp-ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -461,7 +461,7 @@ jobs:
           sycl_device: opencl
 
   build_sycl_cts_riscv64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_cross]
+    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
     runs-on: 'cp-ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -561,7 +561,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   run_sycl_cts_riscv64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_dpcpp_cross, build_sycl_cts_riscv64_opencl]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_opencl]
     runs-on: 'cp-ubuntu-24.04' # note: the job will time-out (>6 hrs) if default github runners are used
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -580,7 +580,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   run_sycl_cts_riscv64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_cross, build_sycl_cts_riscv64_native_cpu]
+    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_native_cpu]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
