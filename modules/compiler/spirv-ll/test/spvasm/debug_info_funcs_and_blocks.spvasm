@@ -34,7 +34,7 @@
                OpLine %file 0 0
                OpNoLine
 
-; CHECK: define spir_kernel void @testfn(){{.*}}!dbg [[mainSubprogram:![0-9]+]]
+; CHECK: define private spir_func void @testfn{{.*}}(){{.*}}!dbg [[mainSubprogram:![0-9]+]]
      %testfn = OpFunction %void None %3
 
 ; Test an empty line range outside a block - this shouldn't do anything to the
@@ -64,7 +64,7 @@
 ; line to take - as in this test - but we take the line of the first open OpLine
 ; at the time the function is declared, or if there is none then we take the
 ; first OpLine inside the function. Hence line 2.
-; CHECK: [[mainSubprogram]] = distinct !DISubprogram(name: "testfn", linkageName: "testfn", scope: null, file: [[File]],
+; CHECK: [[mainSubprogram]] = distinct !DISubprogram(name: "testfn{{.*}}", linkageName: "testfn{{.*}}", scope: null, file: [[File]],
 ; CHECK-SAME: line: 2, type: [[mainSubroutineType:![0-9]+]]
 ; CHECK-SAME: {{(, isLocal: true, isDefinition: true)?}}, scopeLine: 1
 ; CHECK-SAME: {{(, isOptimized: false)?}}

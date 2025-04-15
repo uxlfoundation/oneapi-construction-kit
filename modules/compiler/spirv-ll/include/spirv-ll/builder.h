@@ -190,15 +190,25 @@ class Builder {
   /// @return The function if one has been declared, otherwise null
   llvm::Function *getCurrentFunction();
 
+  /// @brief Get the kernel entry point for the function the builder is
+  /// currently working on
+  ///
+  /// @return The kernel entry point function if the current function is a
+  /// kernel, otherwise null
+  llvm::Function *getCurrentFunctionKernel();
+
   /// @brief Set the function the builder is currently working on
   /// @param function The function
-  void setCurrentFunction(llvm::Function *function);
+  /// @param kernel_function The kernel entry point for the function, if
+  /// applicable
+  void setCurrentFunction(llvm::Function *function,
+                          llvm::Function *kernel_function = nullptr);
 
   /// @brief Pop a function argument off the arg list, for use in
   /// OpFunctionParameter
   ///
   /// @return A pointer to the next argument in the list
-  llvm::Value *popFunctionArg();
+  llvm::Argument *popFunctionArg();
 
   /// @brief Push a builtin ID to `CurrentFunctionBuiltinIDs`
   ///
@@ -819,8 +829,11 @@ class Builder {
   multi_llvm::DIBuilder DIBuilder;
   /// @brief Function the builder is currently working on
   llvm::Function *CurrentFunction;
+  /// @brief Kernel function the builder is currently working on, or nullptr if
+  /// the current function is not a kernel entry point.
+  llvm::Function *CurrentFunctionKernel;
   /// @brief A copy of the current function's argument list
-  llvm::SmallVector<llvm::Value *, 8> CurrentFunctionArgs;
+  llvm::SmallVector<llvm::Argument *, 8> CurrentFunctionArgs;
   /// @brief Current debug scope of the function the builder is currently
   /// working on (or std::nullopt if no debug scope is active)
   std::optional<LexicalScopeTy> CurrentFunctionLexicalScope;

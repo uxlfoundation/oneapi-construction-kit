@@ -34,5 +34,5 @@
       %entry = OpLabel
                OpReturn
                OpFunctionEnd
-; CHECK: define spir_kernel void @foo() [[ATTRS:#[0-9]]]
+; CHECK: define private spir_func void @foo{{.*}}() [[ATTRS:#[0-9]]]
 ; CHECK: attributes [[ATTRS]] = { noinline nounwind optnone }

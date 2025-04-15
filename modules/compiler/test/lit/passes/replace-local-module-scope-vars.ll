@@ -30,7 +30,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 @d = internal addrspace(3) global i32 undef
 @e = internal addrspace(3) global i1 undef
 
-; CHECK: define internal spir_kernel void @add(ptr addrspace(1) %in, ptr addrspace(1) %out, ptr [[STRUCTPTR:%.*]]) #[[ATTRS:[0-9]+]]
+; CHECK: define internal spir_func void @add(ptr addrspace(1) %in, ptr addrspace(1) %out, ptr [[STRUCTPTR:%.*]]) #[[ATTRS:[0-9]+]]
 ; CHECK: [[GEP:%.*]] = getelementptr inbounds %localVarTypes, ptr [[STRUCTPTR]], i32 0, i32 0
 ; CHECK: [[ADDR:%.*]] = addrspacecast ptr [[GEP]] to ptr addrspace(3)
 ; CHECK: %ld = load i16, ptr addrspace(3) [[ADDR]], align 2
@@ -47,7 +47,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: define spir_kernel void @foo.mux-local-var-wrapper(ptr addrspace(1) [[ARG0:%.*]], ptr addrspace(1) [[ARG1:%.*]]) #[[WRAPPER_ATTRS:[0-9]+]]
 ; The alignment of this alloca must be the maximum alignment of the new struct
 ; CHECK: [[ALLOCA:%.*]] = alloca %localVarTypes, align 8
-; CHECK: call spir_kernel void @add(ptr addrspace(1) [[ARG0]], ptr addrspace(1) [[ARG1]], ptr [[ALLOCA]])
+; CHECK: call spir_func void @add(ptr addrspace(1) [[ARG0]], ptr addrspace(1) [[ARG1]], ptr [[ALLOCA]])
 define spir_kernel void @add(i32 addrspace(1)* %in, i32 addrspace(1)* %out) #0 {
   %ld = load i16, i16 addrspace(3)* @a, align 2
   %val = cmpxchg i32 addrspace(3)* addrspace(3)* @c, i32 addrspace(3)* @d, i32 addrspace(3)* @d acq_rel monotonic

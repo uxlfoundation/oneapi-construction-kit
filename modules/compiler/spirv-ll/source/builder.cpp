@@ -39,6 +39,7 @@ spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
       IRBuilder(*context.llvmContext),
       DIBuilder(*module.llvmModule),
       CurrentFunction(nullptr),
+      CurrentFunctionKernel(nullptr),
       CurrentFunctionLexicalScope(std::nullopt) {}
 
 llvm::IRBuilder<> &spirv_ll::Builder::getIRBuilder() { return IRBuilder; }
@@ -47,8 +48,14 @@ llvm::Function *spirv_ll::Builder::getCurrentFunction() {
   return CurrentFunction;
 }
 
-void spirv_ll::Builder::setCurrentFunction(llvm::Function *function) {
+llvm::Function *spirv_ll::Builder::getCurrentFunctionKernel() {
+  return CurrentFunctionKernel;
+}
+
+void spirv_ll::Builder::setCurrentFunction(llvm::Function *function,
+                                           llvm::Function *kernel_function) {
   CurrentFunction = function;
+  CurrentFunctionKernel = kernel_function;
   CurrentFunctionArgs.clear();
   if (CurrentFunction) {
     for (llvm::Argument &arg : function->args()) {
@@ -57,8 +64,8 @@ void spirv_ll::Builder::setCurrentFunction(llvm::Function *function) {
   }
 }
 
-llvm::Value *spirv_ll::Builder::popFunctionArg() {
-  llvm::Value *arg = CurrentFunctionArgs.front();
+llvm::Argument *spirv_ll::Builder::popFunctionArg() {
+  llvm::Argument *arg = CurrentFunctionArgs.front();
   CurrentFunctionArgs.erase(CurrentFunctionArgs.begin());
   return arg;
 }

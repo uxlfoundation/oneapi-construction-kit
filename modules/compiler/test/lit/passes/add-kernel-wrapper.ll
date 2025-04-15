@@ -19,12 +19,12 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: define internal spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y)
+; CHECK: define internal spir_func void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y)
 define spir_kernel void @foo(ptr addrspace(1) noundef nonnull %x, ptr addrspace(1) %y) #0 {
   ret void
 }
 
-; CHECK: define internal spir_kernel void @empty_args()
+; CHECK: define internal spir_func void @empty_args()
 define spir_kernel void @empty_args() #0 {
   ret void
 }
@@ -36,11 +36,11 @@ define spir_kernel void @empty_args() #0 {
 ; CHECK: %x = load ptr addrspace(1), ptr {{.*}}, align 8,
 ; CHECK-SAME:   !nonnull [[EMPTY:\![0-9]+]], !noundef [[EMPTY]]
 ; CHECK: %y = load ptr addrspace(1), ptr {{.*}}, align 8{{$}}
-; CHECK: call spir_kernel void @foo({{.*}})
+; CHECK: call spir_func void @foo({{.*}})
 
 ; Check we don't add 'nonnull', 'noundef', or 'dereferenceable# attributes to
 ; this parameter as it may be null, or empty.
 ; CHECK: define spir_kernel void @empty_args.mux-kernel-wrapper(ptr %packed-args)
-; CHECK: call spir_kernel void @empty_args()
+; CHECK: call spir_func void @empty_args()
 
 attributes #0 = { "mux-kernel"="entry-point" }
