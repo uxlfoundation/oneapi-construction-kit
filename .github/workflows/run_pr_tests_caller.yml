@@ -28,6 +28,3 @@ jobs:
       llvm_source: install
       llvm_previous: 19
       llvm_current: 20
-      target_list: '[ "host_x86_64_windows" ]'
-
-
