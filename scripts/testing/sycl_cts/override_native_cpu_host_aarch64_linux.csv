@@ -1,2 +1,1 @@
 SYCL_CTS,test_math_builtin_api "math_builtin_float_half_*" --allow-running-no-tests,XFail
-SYCL_CTS,test_hierarchical hierarchical_non_uniform_local_range,MayFail
