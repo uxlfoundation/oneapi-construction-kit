@@ -26,8 +26,10 @@ jobs:
     with:
       is_pull_request: true
       llvm_source: install
-      llvm_previous: 19
-      llvm_current: 20
+      #llvm_previous: 19
+      #llvm_current: 20
+      llvm_previous: 18
+      llvm_current: 19
       target_list: '[ "host_x86_64_windows" ]'
 
 
