@@ -114,6 +114,12 @@ PreservedAnalyses compiler::utils::RemoveAddressSpacesPass::run(
         continue;
       }
 
+      // For ret instructions, operand types need to match return type.
+      if (auto *RI = dyn_cast<ReturnInst>(&I); RI && RI->getReturnValue()) {
+        Changed |= MaybeCastOperand(I, I.getOperandUse(0), F.getReturnType());
+        continue;
+      }
+
       // For insertvalue instructions, operand types need to match structure or
       // array element type.
       if (auto *IVI = dyn_cast<InsertValueInst>(&I)) {
