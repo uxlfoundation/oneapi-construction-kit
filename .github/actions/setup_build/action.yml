@@ -103,6 +103,7 @@ runs:
       if: inputs.os == 'windows' && inputs.llvm_source == 'install'
       shell: pwsh
       env:
+        # Map inputs.llvm_version to specific download release here.
         LLVM_RELEASE: "${{ inputs.llvm_version == '20' && '20.1.2' || '19.1.7' }}"
       run: |
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-$env:LLVM_RELEASE/clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz
