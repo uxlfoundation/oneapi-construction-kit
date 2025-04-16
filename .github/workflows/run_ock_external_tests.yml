@@ -23,6 +23,11 @@ on:
         type: boolean
         description: 'Enable testing sycl-cts'
         default: true
+      test_sycl_e2e:
+        required: false
+        type: boolean
+        description: 'Enable testing sycl-e2e'
+        default: true
       test_opencl_cts:
         required: false
         type: boolean
@@ -169,7 +174,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
-    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts )
+    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e)
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -273,7 +278,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && ( contains(inputs.target_list, 'host_x86_64_linux') || contains(inputs.target_list, 'host_riscv64_linux') )
+    if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && ( contains(inputs.target_list, 'host_x86_64_linux') || contains(inputs.target_list, 'host_riscv64_linux') )
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -325,7 +330,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    if: inputs.test_sycl_cts && contains(inputs.target_list, 'host_riscv64_linux')
+    if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -597,3 +602,39 @@ jobs:
           target: host_riscv64_linux
           sycl_device: native_cpu
           llvm_version: ${{ inputs.llvm_version }}
+
+  run_sycl_e2e_x86_64_native_cpu:
+    needs: [workflow_vars, build_dpcpp_native_x86_64]
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_e2e && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: build e2e
+        uses: ./.github/actions/do_build_run_sycl_e2e
+        with:
+          target: host_x86_64_linux
+          sycl_device: native_cpu
+
+  run_sycl_e2e_x86_64_opencl:
+    needs: [workflow_vars, build_dpcpp_native_x86_64]
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_e2e && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: build e2e
+        uses: ./.github/actions/do_build_run_sycl_e2e
+        with:
+          target: host_x86_64_linux
+          sycl_device: opencl
