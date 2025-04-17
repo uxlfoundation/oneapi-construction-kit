@@ -80,6 +80,7 @@ runs:
         SYCL_CTS_TIMEOUT: '03:30:00'
         SYCL_CTS_FILTER: ''
       run: |
+        ls -lR install_dpcpp/lib
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib
         if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
