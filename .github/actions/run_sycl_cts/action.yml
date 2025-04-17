@@ -70,7 +70,7 @@ runs:
       shell: bash
       run: |
         set -x
-        ls -lR tmp.tar
+        ls -lR tmp.tar || echo NO TAR
         ls -lR SYCL-CTS/bin
 
     - name: download dpc++ artifact
@@ -85,7 +85,7 @@ runs:
       shell: bash
       run: |
         set -x
-        ls -lR tmp.tar
+        ls -lR tmp.tar || echo NO TAR
         ls -lR install_dpcpp
         ls -lR install_dpcpp/lib
 
