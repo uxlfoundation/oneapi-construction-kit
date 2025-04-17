@@ -58,6 +58,7 @@ runs:
         shell: bash
         if: inputs.arch == 'aarch64' && (inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true')
         run: |
+          sudo apt-get update
           sudo apt-get install --yes g++-aarch64-linux-gnu
           echo "ARCH_FLAGS=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/arm-linux/aarch64-toolchain.cmake -DLLVM_HOST_TRIPLE=aarch64-unknown-linux-gnu" > $GITHUB_ENV
 
@@ -65,6 +66,7 @@ runs:
         shell: bash
         if: inputs.arch == 'riscv64' && (inputs.use_github_cache == 'false' || steps.cache.outputs.cache-hit != 'true')
         run: |
+          sudo apt-get update
           sudo apt-get install --yes g++-riscv64-linux-gnu
           echo "ARCH_FLAGS=-DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake -DLLVM_HOST_TRIPLE=riscv64-unknown-linux-gnu" > $GITHUB_ENV
 

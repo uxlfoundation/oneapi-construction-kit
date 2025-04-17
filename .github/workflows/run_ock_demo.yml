@@ -31,7 +31,7 @@ jobs:
       - name: setup ubuntu
         uses:  ./.github/actions/setup_build
         with:
-          llvm_version: 18
+          llvm_version: 19
           llvm_build_type: RelAssert
 
       - name: setup python

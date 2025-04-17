@@ -64,7 +64,7 @@ define internal void @foo_called(ptr addrspace(1) readonly %in, ptr byval(i32) %
   ret void
 }
 
-; CHECK-DAG: define internal spir_kernel void @foo_kernel(ptr addrspace(1) readonly %in, ptr byval(i32) %out, ptr %0)
+; CHECK-DAG: define internal spir_func void @foo_kernel(ptr addrspace(1) readonly %in, ptr byval(i32) %out, ptr %0)
 ; CHECK-DAG: define spir_kernel void @foo_kernel.mux-local-var-wrapper(ptr addrspace(1) readonly %in, ptr byval(i32) %out)
 define spir_kernel void @foo_kernel(ptr addrspace(1) readonly %in, ptr byval(i32) %out) #0 {
   call void @foo_called(ptr addrspace(1) readonly %in, ptr byval(i32) %out)

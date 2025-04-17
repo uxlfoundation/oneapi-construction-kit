@@ -198,6 +198,7 @@ class CityRunner(object):
             worker.start()
         # Wait for workers to finish.
         self.wait_for_workers()
+        self.profile.release_workers_state(self.args.jobs)
         return self.process_results()
 
     def wait_for_workers(self):
@@ -289,7 +290,7 @@ class CityRunner(object):
         """
         with self.lock:
             run.schedule.start_time = datetime.datetime.now()
-            if self.profile.timeout:
+            if self.profile.timeout and not self.profile.manages_timeout:
                 timeout = datetime.timedelta(0, self.profile.timeout)
                 run.schedule.deadline = run.schedule.start_time + timeout
             self.live_tests.add(run.schedule)

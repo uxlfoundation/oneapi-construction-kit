@@ -39,5 +39,5 @@
                 OpReturn
 
                 OpFunctionEnd
-; CHECK: @barrier_kernel
+; CHECK: define private spir_func void @barrier_kernel{{.*}}(
 ; CHECK-NEXT: call spir_func void @__mux_mem_barrier(i32 3, i32 258)

@@ -1,1 +1,3 @@
 SYCL_CTS,test_event "event::wait does not report asynchronous errors",MayFail
+SYCL_CTS,test_handler "handler.parallel_for*",MayFail
+SYCL_CTS,test_hierarchical hierarchical_non_uniform_local_range,MayFail

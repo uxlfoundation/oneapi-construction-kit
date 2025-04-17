@@ -1,0 +1,80 @@
+name: build sycl e2e
+description: build sycl e2e
+
+inputs:
+  target:
+    description: 'target architecture'
+    required: true    
+  sycl_device:
+    description: '"opencl" or "native_cpu"'
+    required: true
+  timeout:
+    description: 'Timeout suitable for city runner days:mins:secs (days/mins optional, can drop : if they are dropped)'
+    default: '1800'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: calc vars
+      id: calc_vars
+      uses: ./.github/actions/calc_vars
+      with:
+        target: ${{ inputs.target }}
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@main
+
+    - name: download icd artifact
+      if: inputs.sycl_device == 'opencl'
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    - name: download ock artifact
+      if: inputs.sycl_device == 'opencl'
+      uses: actions/download-artifact@v4
+      with:
+        name: ock_${{inputs.target}}
+        path: install_ock
+
+    - name: download dpc++ artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dpcpp_${{inputs.target}}
+        path: install_dpcpp
+
+    - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
+      shell: bash
+      run: |
+        cd install_dpcpp
+        tar xf dpcpp.tar
+        rm dpcpp.tar
+
+    - name: checkout sycl e2e
+      uses: actions/checkout@v4
+      with:
+        repository: intel/llvm
+        sparse-checkout: sycl/test-e2e
+        path: llvm
+
+    - name: run cmake
+      shell: bash
+      run: |
+        mkdir build_e2e
+        CC=$GITHUB_WORKSPACE/install_dpcpp/bin/clang CXX=$GITHUB_WORKSPACE/install_dpcpp/bin/clang++ \
+        cmake -G Ninja -Bbuild_e2e llvm/sycl/test-e2e \
+           -DSYCL_TEST_E2E_TARGETS="${{ inputs.sycl_device == 'native_cpu' && 'native_cpu:cpu' || 'opencl:cpu' }}"
+
+    - name: run lit tests
+      shell: bash
+      run: |
+        pip install psutil
+        python3 scripts/testing/create_override_csv.py -d scripts/testing/sycl_e2e \
+             -k ${{inputs.sycl_device}} ${{ inputs.target }} \
+             -o override_combined.csv -vv
+        # We need the LD_LIBRARY_PATH for the ICD, but it does no harm for native_cpu
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/install_icd/lib:$GITHUB_WORKSPACE/install_dpcpp/lib
+        python3 -u scripts/testing/run_cities.py -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so -p lit \
+                --lit_dir build_e2e --timeout ${{ inputs.timeout }} -o override_combined.csv

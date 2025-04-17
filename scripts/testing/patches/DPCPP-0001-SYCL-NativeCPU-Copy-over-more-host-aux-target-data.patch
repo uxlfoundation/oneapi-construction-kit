@@ -1,0 +1,147 @@
+From 14e3715b662328dfbf01ab1d4c8323cee34750dc Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Wed, 9 Apr 2025 16:55:46 +0100
+Subject: [PATCH] [SYCL][NativeCPU] Copy over more host/aux target data.
+
+* Use copyAuxTarget instead of copying over each field.
+* Copy over TargetOpts as well.
+* Prevent recording the target flags for builtins.
+---
+ clang/lib/Basic/Targets/NativeCPU.cpp | 51 ++++-----------------------
+ clang/lib/Basic/Targets/NativeCPU.h   |  2 ++
+ clang/lib/Driver/Compilation.cpp      |  4 +--
+ clang/test/Driver/sycl-native-cpu.cpp |  2 +-
+ libclc/utils/prepare-builtins.cpp     |  7 +++-
+ 5 files changed, 17 insertions(+), 49 deletions(-)
+
+diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
+index 685cf9093645..226c65d03a84 100644
+--- a/clang/lib/Basic/Targets/NativeCPU.cpp
++++ b/clang/lib/Basic/Targets/NativeCPU.cpp
+@@ -60,50 +60,13 @@ NativeCPUTargetInfo::NativeCPUTargetInfo(const llvm::Triple &,
+   }());
+   if (HostTriple.getArch() != llvm::Triple::UnknownArch) {
+     HostTarget = AllocateTarget(HostTriple, Opts);
++    copyAuxTarget(&*HostTarget);
++  }
++}
+ 
+-    // Copy properties from host target.
+-    BoolWidth = HostTarget->getBoolWidth();
+-    BoolAlign = HostTarget->getBoolAlign();
+-    IntWidth = HostTarget->getIntWidth();
+-    IntAlign = HostTarget->getIntAlign();
+-    HalfWidth = HostTarget->getHalfWidth();
+-    HalfAlign = HostTarget->getHalfAlign();
+-    FloatWidth = HostTarget->getFloatWidth();
+-    FloatAlign = HostTarget->getFloatAlign();
+-    DoubleWidth = HostTarget->getDoubleWidth();
+-    DoubleAlign = HostTarget->getDoubleAlign();
+-    LongWidth = HostTarget->getLongWidth();
+-    LongAlign = HostTarget->getLongAlign();
+-    LongLongWidth = HostTarget->getLongLongWidth();
+-    LongLongAlign = HostTarget->getLongLongAlign();
+-    PointerWidth = HostTarget->getPointerWidth(LangAS::Default);
+-    PointerAlign = HostTarget->getPointerAlign(LangAS::Default);
+-    MinGlobalAlign = HostTarget->getMinGlobalAlign(/*TypeSize=*/0,
+-                                                   /*HasNonWeakDef=*/true);
+-    NewAlign = HostTarget->getNewAlign();
+-    DefaultAlignForAttributeAligned =
+-        HostTarget->getDefaultAlignForAttributeAligned();
+-    SizeType = HostTarget->getSizeType();
+-    PtrDiffType = HostTarget->getPtrDiffType(LangAS::Default);
+-    IntMaxType = HostTarget->getIntMaxType();
+-    WCharType = HostTarget->getWCharType();
+-    WIntType = HostTarget->getWIntType();
+-    Char16Type = HostTarget->getChar16Type();
+-    Char32Type = HostTarget->getChar32Type();
+-    Int64Type = HostTarget->getInt64Type();
+-    SigAtomicType = HostTarget->getSigAtomicType();
+-    ProcessIDType = HostTarget->getProcessIDType();
+-
+-    UseBitFieldTypeAlignment = HostTarget->useBitFieldTypeAlignment();
+-    UseZeroLengthBitfieldAlignment =
+-        HostTarget->useZeroLengthBitfieldAlignment();
+-    UseExplicitBitFieldAlignment = HostTarget->useExplicitBitFieldAlignment();
+-    ZeroLengthBitfieldBoundary = HostTarget->getZeroLengthBitfieldBoundary();
+-
+-    // This is a bit of a lie, but it controls __GCC_ATOMIC_XXX_LOCK_FREE, and
+-    // we need those macros to be identical on host and device, because (among
+-    // other things) they affect which standard library classes are defined,
+-    // and we need all classes to be defined on both the host and device.
+-    MaxAtomicInlineWidth = HostTarget->getMaxAtomicInlineWidth();
++void NativeCPUTargetInfo::setAuxTarget(const TargetInfo *Aux) {
++  if (Aux) {
++    copyAuxTarget(Aux);
++    getTargetOpts() = Aux->getTargetOpts();
+   }
+ }
+diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
+index 44106cd8d028..cb2c71ebe39b 100644
+--- a/clang/lib/Basic/Targets/NativeCPU.h
++++ b/clang/lib/Basic/Targets/NativeCPU.h
+@@ -57,6 +57,8 @@ public:
+   }
+ 
+ protected:
++  void setAuxTarget(const TargetInfo *Aux) override;
++
+   ArrayRef<const char *> getGCCRegNames() const override { return {}; }
+ 
+   ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
+diff --git a/clang/lib/Driver/Compilation.cpp b/clang/lib/Driver/Compilation.cpp
+index 1a91cbaa998d..a07e81892372 100644
+--- a/clang/lib/Driver/Compilation.cpp
++++ b/clang/lib/Driver/Compilation.cpp
+@@ -7,7 +7,6 @@
+ //===----------------------------------------------------------------------===//
+ 
+ #include "clang/Driver/Compilation.h"
+-#include "ToolChains/SYCL.h"
+ #include "clang/Basic/LLVM.h"
+ #include "clang/Driver/Action.h"
+ #include "clang/Driver/Driver.h"
+@@ -128,8 +127,7 @@ Compilation::getArgsForToolChain(const ToolChain *TC, StringRef BoundArch,
+     if (DeviceOffloadKind == Action::OFK_OpenMP ||
+         DeviceOffloadKind == Action::OFK_SYCL) {
+       const ToolChain *HostTC = getSingleOffloadToolChain<Action::OFK_Host>();
+-      bool SameTripleAsHost = (TC->getTriple() == HostTC->getTriple()) ||
+-                              isSYCLNativeCPU(TC->getTriple());
++      bool SameTripleAsHost = (TC->getTriple() == HostTC->getTriple());
+       OffloadArgs = TC->TranslateOffloadTargetArgs(
+           *TranslatedArgs, SameTripleAsHost, AllocatedArgs, DeviceOffloadKind);
+     }
+diff --git a/clang/test/Driver/sycl-native-cpu.cpp b/clang/test/Driver/sycl-native-cpu.cpp
+index dccb20cec166..6e2cb1f7946d 100644
+--- a/clang/test/Driver/sycl-native-cpu.cpp
++++ b/clang/test/Driver/sycl-native-cpu.cpp
+@@ -25,7 +25,7 @@
+ // CHECK-OPTS: clang{{.*}}"-triple" "[[TRIPLE]]"{{.*}}"-fsycl-is-device"
+ // CHECK-OPTS-NOT: -sycl-opt
+ // CHECK-OPTS-SAME: "-Wno-override-module" "-mllvm" "-sycl-native-cpu-backend"
+-// CHECK-OPTS-SAME: "-target-feature" "+v9.4a"
++// CHECK-OPTS-SAME: "-aux-target-feature" "+v9.4a"
+ 
+ // RUN: %clangxx -fsycl -fsycl-targets=spir64 %s -### 2>&1 | FileCheck -check-prefix=CHECK-NONATIVECPU %s
+ // CHECK-NONATIVECPU-NOT: "-D" "__SYCL_NATIVE_CPU__"
+diff --git a/libclc/utils/prepare-builtins.cpp b/libclc/utils/prepare-builtins.cpp
+index cf20ffae91d4..28fabd300780 100644
+--- a/libclc/utils/prepare-builtins.cpp
++++ b/libclc/utils/prepare-builtins.cpp
+@@ -116,7 +116,12 @@ int main(int argc, char **argv) {
+   // functions were inlined prior to incompatible functions pass. Now that the
+   // inliner runs later in the pipeline we have to remove all of the target
+   // features, so libclc functions will not be earmarked for deletion.
+-  if (M->getTargetTriple().str().find("amdgcn") != std::string::npos) {
++  //
++  // NativeCPU uses the same builtins for multiple host targets and should
++  // likewise not have features that limit the builtins to any particular
++  // target.
++  if (M->getTargetTriple().str().find("amdgcn") != std::string::npos ||
++      M->getTargetTriple().str() != "native_cpu") {
+     AttributeMask AM;
+     AM.addAttribute("target-features");
+     AM.addAttribute("target-cpu");
+-- 
+2.48.1
+

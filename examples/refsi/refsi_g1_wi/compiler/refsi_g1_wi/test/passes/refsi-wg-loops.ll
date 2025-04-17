@@ -19,12 +19,12 @@
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
 target triple = "riscv64-unknown-unknown-elf"
 
-define void @add(ptr nocapture readonly %args, ptr nocapture readonly %wi, ptr nocapture readonly %wg) #0 !mux_scheduled_fn !0 {
+define void @add(ptr readonly %args, ptr readonly %wi, ptr readonly %wg) #0 !mux_scheduled_fn !0 {
   ret void
 }
 
 ; CHECK: define void @add.refsi-wg-loop-wrapper(
-; CHECK:      call void @add(ptr nocapture readonly %args, ptr nocapture readonly %wi, ptr nocapture readonly %wg) #0
+; CHECK:      call void @add(ptr readonly %args, ptr readonly %wi, ptr readonly %wg) #0
 ; CHECK-NEXT: call void @__mux_work_group_barrier(i32 -1, i32 2, i32 264)
 
 attributes #0 = { "mux-kernel"="entry-point" }
