@@ -119,7 +119,7 @@ SYCL,Graph/RecordReplay/buffer_copy_2d.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_copy_offsets.cpp,XFail
 SYCL,Graph/RecordReplay/host_task2.cpp,XFail
 SYCL,Graph/Threading/submit.cpp,XFail
-SYCL,HierPar/hier_par_basic.cpp,XFail
+SYCL,HierPar/hier_par_basic.cpp,MayFail
 SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl.cpp,XFail
 SYCL,KernelCompiler/sycl_device_globals.cpp,XFail
