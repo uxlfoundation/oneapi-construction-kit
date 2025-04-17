@@ -48,3 +48,4 @@ runs:
         # ALAN TODO: use inputs: name rather than tmp here?
         tar xvf tmp.tar -C ${{ inputs.path }}
         tar xf tmp.tar -C ${{ inputs.path }}
+        rm tmp.tar
