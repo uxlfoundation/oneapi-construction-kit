@@ -15,6 +15,14 @@ inputs:
     description: 'dictates whether we tar it first'
     type: boolean
     default: false
+  # tar_name:
+  #   description: 'Specify name of tar file'
+  #   type: string
+  #   default: ${{ inputs.name }}.tar
+  # delete_tar:
+  #   description: 'dictates whether we delete temp tar file after upload'
+  #   type: boolean
+  #   default: true
   retention-days:
     description: 'number of days to retain'
     type: string
@@ -27,13 +35,20 @@ runs:
       shell: bash
       if: inputs.needs_tar == 'true'
       run: |
-        # ALAN TODO: use inputs: name rather than tmp here?
+        # ALAN TODO: use tar_name rather than tmp.tar here?
         tar cf tmp.tar -C ${{ inputs.path }} .
 
     - name: upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.name }}
-        # ALAN TODO: use inputs: name rather than tmp here?
+        # ALAN TODO: use tar_name rather than tmp.tar here?
         path: ${{ inputs.needs_tar == 'true' && 'tmp.tar' || inputs.path }}
         retention-days: ${{ inputs.retention-days }}
+
+    #- name: delete tar file
+    #  shell: bash
+    #  if: inputs.needs_tar == 'true' && inputs.delete_tar == 'true'
+    #  run: |
+    #    rm -rf ${{ inputs.tar_name }}
+

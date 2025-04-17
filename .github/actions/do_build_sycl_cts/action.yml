@@ -116,8 +116,6 @@ runs:
     # Following build, artifacts required are in: ./SYCL-CTS/bin
     # If downloading rather than building, add them to that location before upload.
 
-    # ALAN TODO: download artifact name is: tmp.tar <= may change?
-
     - name: download sycl cts artefact  # package/unpackage avoids known 'permissions loss' issue
       if: contains(inputs.download_sycl_cts_artefact, inputs.target)
       shell: bash
@@ -130,6 +128,8 @@ runs:
         mkdir -p SYCL-CTS/bin
         git config --global --add safe.directory $PWD        
         gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}
+        # ALAN TODO: set tar file name to: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}.tar ?
+        #            i.e. new action default
         tar xf tmp.tar -C SYCL-CTS/bin
         ls SYCL-CTS/bin
 

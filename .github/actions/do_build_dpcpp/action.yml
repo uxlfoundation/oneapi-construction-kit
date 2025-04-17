@@ -133,8 +133,6 @@ runs:
     # Following build, artifacts required are in: ./llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
     # If downloading rather than building, add them to that location before upload.
 
-    # ALAN TODO: note: download artifact name is: tmp.tar <= may change?
-
     - name: download previous dpcpp if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
       shell: bash      
       if: contains(inputs.download_dpcpp_artefact, inputs.target) && contains(inputs.download_dpcpp_artefact, 'download_release') != true
@@ -147,6 +145,8 @@ runs:
         mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
         gh run download $download_id -n dpcpp_${{ inputs.target }}
+        # ALAN TODO: set tar file name to: dpcpp_${{ inputs.target }}.tar ?
+        #            i.e. new action default
         tar xf tmp.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
