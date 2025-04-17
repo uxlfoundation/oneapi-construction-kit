@@ -21,6 +21,10 @@ on:
         type: boolean
         description: 'Enable testing sycl-cts'
         default: true
+      test_sycl_e2e:
+        type: boolean
+        description: 'Enable testing sycl-e2e'
+        default: true
       test_opencl_cts:
         type: boolean
         description: 'Enable testing opencl-cts'
@@ -85,6 +89,7 @@ jobs:
       ock: ${{ inputs.ock }}
       test_tornado: ${{ inputs.test_tornado }}
       test_sycl_cts: ${{ inputs.test_sycl_cts }}
+      test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
       test_opencl_cts: ${{ inputs.test_opencl_cts }}
       native_cpu: ${{ inputs.native_cpu }}
 

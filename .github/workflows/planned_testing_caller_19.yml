@@ -22,20 +22,20 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      target_list: '[ "host_x86_64_linux" ]'
-      ock: true
-      native_cpu: true
-      test_tornado: false
-      test_sycl_cts: true
-      test_opencl_cts: true
-      test_sycl_e2e: true
-      run_internal: false
-      run_external: true
+      # target_list: '[ "host_x86_64_linux" ]'
+      # ock: true
+      # native_cpu: true
+      # test_tornado: true
+      # test_sycl_cts: true
+      # test_sycl_e2e: true      
+      # test_opencl_cts: true
+      # run_internal: true
+      # run_external: true
       # build_llvm: true
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
       # # e.g. https://github.com/uxlfoundation/oneapi-construction-kit/actions/runs/<run-id>/.....
-      download_ock_artefact: host_x86_64_linux=14500551627;host_aarch64_linux=14500551627;host_riscv64_linux=14500551627
-      download_dpcpp_artefact: host_x86_64_linux=14500551627;host_aarch64_linux=14500551627;host_riscv64_linux=14500551627
-      download_sycl_cts_artefact: host_x86_64_linux=14500551627;host_aarch64_linux=14500551627;host_riscv64_linux=14500551627
+      # download_ock_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
+      # download_dpcpp_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
+      # download_sycl_cts_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
