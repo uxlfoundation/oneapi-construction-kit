@@ -228,6 +228,12 @@ class TestList(object):
                         test_name = executable.name
                     test = TestInfo(test_name, executable, arguments,
                                     device_filter)
+                    test.ignore = ignored
+                    test.disabled = disabled
+                    test.unimplemented = unimplemented
+                    test.xfail = xfail
+                    test.mayfail = mayfail
+
                     if len(chunks) >= 3:
                         test.update_test_info_from_attribute(chunks[2])
 
