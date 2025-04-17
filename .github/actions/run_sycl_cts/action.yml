@@ -66,6 +66,13 @@ runs:
     #    tar xf dpcpp.tar
     #    rm dpcpp.tar
 
+    - name: check 1
+      shell: bash
+      run: |
+        set -x
+        ls -lR tmp.tar
+        ls -lR SYCL-CTS/bin
+
     - name: download dpc++ artifact
       uses: ./.github/actions/download_artifact
       with:
@@ -73,6 +80,14 @@ runs:
         path: install_dpcpp
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
+
+    - name: check 2
+      shell: bash
+      run: |
+        set -x
+        ls -lR tmp.tar
+        ls -lR install_dpcpp
+        ls -lR install_dpcpp/lib
 
     - name: run sycl cts
       shell: bash
