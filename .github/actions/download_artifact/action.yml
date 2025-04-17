@@ -42,10 +42,8 @@ runs:
       if: inputs.needs_tar == 'true'
       shell: bash
       run: |
-        set -x
         # Everything goes under the new path
         mkdir -p ${{ inputs.path }}
         # ALAN TODO: use inputs: name rather than tmp here?
-        tar xvf tmp.tar -C ${{ inputs.path }}
         tar xf tmp.tar -C ${{ inputs.path }}
-        rm tmp.tar
+        # ALAN TODO: delete tar file here?

@@ -28,22 +28,7 @@ runs:
         repository: intel/llvm
         path: llvm
 
-    # ALAN TODO: fold download/unpackage into download_artifact call
     # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
-    #- name: download pre-built native dpc++ artifact for cross builds
-    #  if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: 'dpcpp_host_x86_64_linux'
-    #    path: llvm/build/x86_64-linux/install
-
-    #- name: unpackage native dpc++ artifacts for cross builds # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-    #  shell: bash
-    #  run: |
-    #    cd llvm/build/x86_64-linux/install
-    #    tar xf dpcpp.tar
-    #    rm dpcpp.tar
 
     - name: download pre-built native dpc++ artifact for cross builds
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
@@ -147,7 +132,8 @@ runs:
 
     # Following build, artifacts required are in: ./llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
     # If downloading rather than building, add them to that location before upload.
-    # ALAN TODO: download artifact name is: tmp.tar <= may change?
+
+    # ALAN TODO: note: download artifact name is: tmp.tar <= may change?
 
     - name: download previous dpcpp if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
       shell: bash      
@@ -163,22 +149,6 @@ runs:
         gh run download $download_id -n dpcpp_${{ inputs.target }}
         tar xf tmp.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
-
-    # ALAN TODO: fold package/upload into upload_artifact call
-
-    #- name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
-    #  shell: bash
-    #  if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
-    #  run: |
-    #    cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
-    #    tar cf dpcpp.tar *
-
-    #- name: upload dpcpp artifact
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: dpcpp_${{inputs.target}}
-    #    path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install/dpcpp.tar
-    #    retention-days: 7
 
     - name: upload dpcpp artifact
       uses: ./.github/actions/upload_artifact

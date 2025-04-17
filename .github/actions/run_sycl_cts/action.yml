@@ -30,20 +30,6 @@ runs:
         name: ock_${{inputs.target}}
         path: install_ock
 
-    # ALAN TODO: fold download/unpackage into download_artifact call
-    #- name: download SYCL-CTS artifact
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
-    #    path: SYCL-CTS
-
-    #- name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
-    #  shell: bash
-    #  run: |
-    #    cd SYCL-CTS
-    #    tar xf sycl-cts.tar
-    #    rm sycl-cts.tar
-
     - name: download SYCL-CTS artifact
       uses: ./.github/actions/download_artifact
       with:
@@ -51,27 +37,6 @@ runs:
         path: SYCL-CTS/bin
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
-
-    # ALAN TODO: fold download/unpackage into download_artifact call
-    #- name: download dpc++ artifact
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: dpcpp_${{inputs.target}}
-    #    path: install_dpcpp
-
-    #- name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
-    #  shell: bash
-    #  run: |
-    #    cd install_dpcpp
-    #    tar xf dpcpp.tar
-    #    rm dpcpp.tar
-
-    - name: check 1
-      shell: bash
-      run: |
-        set -x
-        ls -lR tmp.tar || echo NO TAR
-        ls -lR SYCL-CTS/bin
 
     - name: download dpc++ artifact
       uses: ./.github/actions/download_artifact
@@ -81,21 +46,12 @@ runs:
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
 
-    - name: check 2
-      shell: bash
-      run: |
-        set -x
-        ls -lR tmp.tar || echo NO TAR
-        ls -lR install_dpcpp
-        ls -lR install_dpcpp/lib
-
     - name: run sycl cts
       shell: bash
       env:
         SYCL_CTS_TIMEOUT: '03:30:00'
         SYCL_CTS_FILTER: ''
       run: |
-        ls -lR install_dpcpp/lib
         echo running sycl cts
         export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/install_dpcpp/lib
         if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then

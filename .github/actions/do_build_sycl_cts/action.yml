@@ -38,24 +38,6 @@ runs:
         name: header_${{inputs.target}}
         path: install_headers
 
-    # ALAN TODO: fold download/unpackage into download_artifact call
-    #- name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
-    #      ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: dpcpp_host_x86_64_linux
-    #    path: dpcpp/x86_64-linux/install
-
-    #- name: unpackage native dpc++ artifact (for x86_64 & riscv64) # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
-    #      ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
-    #  shell: bash
-    #  run: |
-    #    cd dpcpp/x86_64-linux/install
-    #    tar xf dpcpp.tar
-    #    rm dpcpp.tar
-
     - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
           ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
@@ -66,22 +48,6 @@ runs:
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
 
-    # ALAN TODO: fold download/unpackage into download_artifact call
-    #- name: download native aarch64 dpc++ artifact
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: dpcpp_host_aarch64_linux
-    #    path: dpcpp/aarch64-linux/install
-
-    #- name: unpackage native aarch64 dpc++ artifact # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
-    #  shell: bash
-    #  run: |
-    #    cd dpcpp/aarch64-linux/install
-    #    tar xf dpcpp.tar
-    #    rm dpcpp.tar
-
     - name: download native aarch64 dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_aarch64')
       uses: ./.github/actions/download_artifact
@@ -90,22 +56,6 @@ runs:
         path: dpcpp/aarch64-linux/install
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
-
-    # ALAN TODO: fold download/unpackage into download_artifact call
-    #- name: download cross riscv64 dpc++ artifact
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: dpcpp_host_riscv64_linux
-    #    path: dpcpp/riscv64-linux/install
-
-    #- name: unpackage cross riscv64 dpc++ artifact # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-    #  shell: bash
-    #  run: |
-    #    cd dpcpp/riscv64-linux/install
-    #    tar xf dpcpp.tar
-    #    rm dpcpp.tar
 
     - name: download cross riscv64 dpc++ artifact
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
@@ -163,32 +113,9 @@ runs:
             ${DEV_OPTS}
         ninja -C SYCL-CTS -v -j$JOPT -k 0 || :
 
-    # ALAN TODO: POSSIBLY fold packaging into upload_artifact call??
-    # ALAN TODO: note: not straight artifact handling - may be download/upload rather than package/upload
-    #- name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
-    #  shell: bash
-    #  run: |
-    #    cd SYCL-CTS
-    #    # only bin
-    #    tar cf sycl-cts.tar bin
-
-    #- name: download sycl cts artefact  # package/unpackage avoids known 'permissions loss' issue
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target)
-    #  shell: bash
-    #  run: |
-    #    download_id=`echo "${{inputs.download_sycl_cts_artefact}}"`
-    #    echo "echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'"
-    #    download_id=`echo $download_id | sed 's/.*${{inputs.target}}=//' | sed 's/;.*//'`
-    #    echo download id is "'$download_id'"
-    #    # TODO : make this work on windows
-    #    mkdir -p SYCL-CTS
-    #    git config --global --add safe.directory $PWD        
-    #    gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }} -D SYCL-CTS
-    #    ls SYCL-CTS
-
     # Following build, artifacts required are in: ./SYCL-CTS/bin
     # If downloading rather than building, add them to that location before upload.
+
     # ALAN TODO: download artifact name is: tmp.tar <= may change?
 
     - name: download sycl cts artefact  # package/unpackage avoids known 'permissions loss' issue
@@ -205,14 +132,6 @@ runs:
         gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}
         tar xf tmp.tar -C SYCL-CTS/bin
         ls SYCL-CTS/bin
-
-    # ALAN TODO: upload_artifact call with no tar
-    #- name: upload artefact
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
-    #    path: SYCL-CTS/sycl-cts.tar
-    #    retention-days: 7
 
     - name: upload SYCL-CTS artefacts
       uses: ./.github/actions/upload_artifact
