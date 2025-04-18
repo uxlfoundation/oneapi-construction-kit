@@ -31,30 +31,20 @@ runs:
         path: install_ock
 
     - name: download SYCL-CTS artifact
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/download_artifact
       with:
         name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
-        path: SYCL-CTS
-
-    - name: unpackage SYCL-CTS artifacts  # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      run: |
-        cd SYCL-CTS
-        tar xf sycl-cts.tar
-        rm sycl-cts.tar
+        path: SYCL-CTS/bin
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: download dpc++ artifact
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
-
-    - name: unpackage dpc++ artifacts  # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      run: |
-        cd install_dpcpp
-        tar xf dpcpp.tar
-        rm dpcpp.tar
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: run sycl cts
       shell: bash

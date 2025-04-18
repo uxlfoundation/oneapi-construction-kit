@@ -3,34 +3,65 @@ description: upload an artifact, tarring first if necessary
 
 inputs:
   name:
-    description: 'name of artifact to download'
+    description: 'name of artifact to upload'
     type: string
-    default: "none"
-  needs_tar:
-    description: 'dictates whether we tar it first'
-    type: boolean
-    default: false
-  retention-days:
-    description: 'number of days to retain'
-    type: string
-    default: 7
+    required: true
   path:
     description: 'path to upload'
     type: string
     required: true
+  needs_tar:
+    description: 'dictates whether we tar it first'
+    type: boolean
+    default: false
+  tar_name:
+    description: 'Specify name of tar file'  # set below to ${{ inputs.name }}.tar if not given
+    type: string
+    default: ''
+  delete_tar:
+    description: 'dictates whether we delete temp tar file after upload'
+    type: boolean
+    default: true
+  retention-days:
+    description: 'number of days to retain'
+    type: string
+    default: 7
 
 runs:
   using: "composite"
   steps:
+    - name: set tar name
+      id: set-tar-name
+      shell: bash
+      if: inputs.needs_tar == 'true'
+      run: |
+        echo Set tar file name ...
+        if [ -z "${{ inputs.tar_name }}" ] ; then
+          echo "TAR_NAME=${{ inputs.name }}.tar" >> $GITHUB_OUTPUT
+        else
+          echo "TAR_NAME=${{ inputs.tar_name }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: tar artefacts
       shell: bash
       if: inputs.needs_tar == 'true'
       run: |
-        tar cf tmp.tar -C ${{ inputs.path }} .
+        echo Create tar file ...
+        set -x
+        tar cf ${{ steps.set-tar-name.outputs.TAR_NAME }} -C ${{ inputs.path }} .
 
     - name: upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.name }}
-        path: ${{ inputs.needs_tar == 'true' && 'tmp.tar' || inputs.path }}
+        path: ${{ inputs.needs_tar == 'true' && steps.set-tar-name.outputs.TAR_NAME || inputs.path }}
         retention-days: ${{ inputs.retention-days }}
+
+    - name: delete tar file
+      shell: bash
+      if: inputs.needs_tar == 'true' && inputs.delete_tar == 'true'
+      run: |
+        echo Delete tar file ...
+        set -x
+        rm -rf ${{ steps.set-tar-name.outputs.TAR_NAME }}
+
