@@ -145,9 +145,8 @@ runs:
         mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
         gh run download $download_id -n dpcpp_${{ inputs.target }}
-        # ALAN TODO: set tar file name to: dpcpp_${{ inputs.target }}.tar ?
-        #            i.e. new action default
-        tar xf tmp.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        # Downloaded tar file for extraction is: dpcpp_${{ inputs.target }}.tar
+        tar xf dpcpp_${{ inputs.target }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
     - name: upload dpcpp artifact

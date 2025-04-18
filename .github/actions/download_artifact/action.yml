@@ -4,26 +4,24 @@ description: Download an artifact, either through the action or using gh, depend
 inputs:
   name:
     description: 'name of artifact to download'
-    # ALAN TODO: use required: here?
-    # type: string
-    default: "none"
+    type: string
+    required: true
   path:
     description: 'path to download to - currently must be a directory if needs_tar is true'
-    # ALAN TODO: use required: here?
-    # type: string
-    default: "none"
+    type: string
+    required: true
   needs_tar:
     description: 'The archive is tarred so we need to untar it after downloading it'
     type: boolean
     default: false
-  # tar_name:
-  #   description: 'Specify name of tar file'
-  #   type: string
-  #   default: ${{ inputs.name }}.tar
-  # delete_tar:
-  #   description: 'dictates whether we delete temp tar file after download'
-  #   type: boolean
-  #   default: true
+  tar_name:
+    description: 'Specify name of tar file'
+    type: string
+    default: ${{ inputs.name }}.tar
+  delete_tar:
+    description: 'dictates whether we delete temp tar file after download'
+    type: boolean
+    default: true
   token:
     description: 'gh token for downloading artifacts - only needed for gh'
     default: 'TOKEN_NOT_SET'
@@ -56,12 +54,14 @@ runs:
       run: |
         # Everything goes under the new path
         mkdir -p ${{ inputs.path }}
-        # ALAN TODO: use tar_name rather than tmp.tar here?
-        tar xf tmp.tar -C ${{ inputs.path }}
-        # ALAN TODO: delete tar file here?
+        echo Extract tar file ...
+        set -x
+        tar xf ${{ inputs.tar_name }} -C ${{ inputs.path }}
 
-    #- name: delete tar file
-    #  shell: bash
-    #  if: inputs.needs_tar == 'true' && inputs.delete_tar == 'true'
-    #  run: |
-    #    rm -rf ${{ inputs.tar_name }}
+    - name: delete tar file
+      shell: bash
+      if: inputs.needs_tar == 'true' && inputs.delete_tar == 'true'
+      run: |
+        echo Delete tar file ...
+        set -x
+        rm -rf ${{ inputs.tar_name }}
