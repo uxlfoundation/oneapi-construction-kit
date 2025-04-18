@@ -15,9 +15,9 @@ inputs:
     type: boolean
     default: false
   tar_name:
-    description: 'Specify name of tar file'
+    description: 'Specify name of tar file'  # set below to ${{ inputs.name }}.tar if not given
     type: string
-    default: ${{ inputs.name }}.tar
+    default: ''
   delete_tar:
     description: 'dictates whether we delete temp tar file after upload'
     type: boolean
@@ -30,19 +30,31 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: set tar name
+      id: set-tar-name
+      shell: bash
+      if: inputs.needs_tar == 'true'
+      run: |
+        echo Set tar file name ...
+        if [ -z "${{ inputs.tar_name }}" ] ; then
+          echo "TAR_NAME=${{ inputs.name }}.tar" >> $GITHUB_OUTPUT
+        else
+          echo "TAR_NAME=${{ inputs.tar_name }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: tar artefacts
       shell: bash
       if: inputs.needs_tar == 'true'
       run: |
         echo Create tar file ...
         set -x
-        tar cf ${{ inputs.tar_name }} -C ${{ inputs.path }} .
+        tar cf ${{ steps.set-tar-name.outputs.TAR_NAME }} -C ${{ inputs.path }} .
 
     - name: upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.name }}
-        path: ${{ inputs.needs_tar == 'true' && inputs.tar_name || inputs.path }}
+        path: ${{ inputs.needs_tar == 'true' && steps.set-tar-name.outputs.TAR_NAME || inputs.path }}
         retention-days: ${{ inputs.retention-days }}
 
     - name: delete tar file
@@ -51,5 +63,5 @@ runs:
       run: |
         echo Delete tar file ...
         set -x
-        rm -rf ${{ inputs.tar_name }}
+        rm -rf ${{ steps.set-tar-name.outputs.TAR_NAME }}
 
