@@ -1,4 +1,4 @@
-From f75eb68fffee47c8d2a9294f2119af35130f3a8e Mon Sep 17 00:00:00 2001
+From 8f171e66b115cf7ba997c96b815825a94bbb6c9a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Sat, 29 Mar 2025 13:51:45 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Add libclc at compile time.
@@ -11,10 +11,10 @@ This matches what is done for CUDA and HIP.
  3 files changed, 64 insertions(+), 10 deletions(-)
 
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index ec8d6c467e0f..36130d409ee2 100644
+index 264b569e2945..c59ff63c8b21 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -6325,9 +6325,12 @@ class OffloadingActionBuilder final {
+@@ -6101,9 +6101,12 @@ class OffloadingActionBuilder final {
        if (!NumOfDeviceLibLinked)
          return false;
  
@@ -31,10 +31,10 @@ index ec8d6c467e0f..36130d409ee2 100644
          if (Args.hasArg(options::OPT_fsycl_libspirv_path_EQ)) {
            auto ProvidedPath =
 diff --git a/clang/lib/Driver/ToolChains/SYCL.cpp b/clang/lib/Driver/ToolChains/SYCL.cpp
-index 39086088f731..4debb436567a 100644
+index 3c5dd04286c5..872a164227ab 100644
 --- a/clang/lib/Driver/ToolChains/SYCL.cpp
 +++ b/clang/lib/Driver/ToolChains/SYCL.cpp
-@@ -1763,6 +1763,59 @@ void SYCLToolChain::addClangTargetOptions(
+@@ -1741,6 +1741,59 @@ void SYCLToolChain::addClangTargetOptions(
      const llvm::opt::ArgList &DriverArgs, llvm::opt::ArgStringList &CC1Args,
      Action::OffloadKind DeviceOffloadingKind) const {
    HostTC.addClangTargetOptions(DriverArgs, CC1Args, DeviceOffloadingKind);

@@ -1,4 +1,4 @@
-From efc09eec323b2af0f1b7ac2c0aa2855028087a9b Mon Sep 17 00:00:00 2001
+From 3f45b626ea0e9d47c7e263a4b47df786ac593b22 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 17:11:39 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Update clang-linker-wrapper.
@@ -15,7 +15,7 @@ fixes handling of specialization constants.
  5 files changed, 108 insertions(+), 51 deletions(-)
 
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index eede563e9255..60bea527c538 100644
+index 5037fedcb5fc..37fe1ae74a76 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 @@ -673,9 +673,8 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
@@ -57,7 +57,7 @@ index eede563e9255..60bea527c538 100644
      CmdArgs.push_back("-Wl,--no-undefined");
  
    if (IsSYCLKind && Triple.isNVPTX())
-     CmdArgs.push_back("-Wl,--lto-emit-asm");
+     CmdArgs.push_back("-S");
 +
 +  if (IsSYCLKind && SYCLNativeCPU) {
 +    CmdArgs.push_back("-Wno-override-module");
