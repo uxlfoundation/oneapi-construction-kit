@@ -1,4 +1,4 @@
-From 14e3715b662328dfbf01ab1d4c8323cee34750dc Mon Sep 17 00:00:00 2001
+From 274c712b335c951de08085a3d0bff1244bf6b489 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 16:55:46 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Copy over more host/aux target data.
@@ -7,25 +7,24 @@ Subject: [PATCH] [SYCL][NativeCPU] Copy over more host/aux target data.
 * Copy over TargetOpts as well.
 * Prevent recording the target flags for builtins.
 ---
- clang/lib/Basic/Targets/NativeCPU.cpp | 51 ++++-----------------------
- clang/lib/Basic/Targets/NativeCPU.h   |  2 ++
- clang/lib/Driver/Compilation.cpp      |  4 +--
- clang/test/Driver/sycl-native-cpu.cpp |  2 +-
- libclc/utils/prepare-builtins.cpp     |  7 +++-
- 5 files changed, 17 insertions(+), 49 deletions(-)
+ clang/lib/Basic/Targets/NativeCPU.cpp         | 52 +++----------------
+ clang/lib/Basic/Targets/NativeCPU.h           |  2 +
+ clang/lib/Driver/Compilation.cpp              |  4 +-
+ clang/test/Driver/sycl-native-cpu.cpp         |  2 +-
+ libclc/utils/prepare-builtins.cpp             |  7 ++-
+ .../native_cpu/target-features.cpp            | 18 +++++++
+ 6 files changed, 35 insertions(+), 50 deletions(-)
+ create mode 100644 sycl/test/check_device_code/native_cpu/target-features.cpp
 
 diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
-index 685cf9093645..226c65d03a84 100644
+index 685cf9093645..72ef1f2c40be 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.cpp
 +++ b/clang/lib/Basic/Targets/NativeCPU.cpp
-@@ -60,50 +60,13 @@ NativeCPUTargetInfo::NativeCPUTargetInfo(const llvm::Triple &,
+@@ -60,50 +60,12 @@ NativeCPUTargetInfo::NativeCPUTargetInfo(const llvm::Triple &,
    }());
    if (HostTriple.getArch() != llvm::Triple::UnknownArch) {
      HostTarget = AllocateTarget(HostTriple, Opts);
-+    copyAuxTarget(&*HostTarget);
-+  }
-+}
- 
+-
 -    // Copy properties from host target.
 -    BoolWidth = HostTarget->getBoolWidth();
 -    BoolAlign = HostTarget->getBoolAlign();
@@ -70,12 +69,15 @@ index 685cf9093645..226c65d03a84 100644
 -    // other things) they affect which standard library classes are defined,
 -    // and we need all classes to be defined on both the host and device.
 -    MaxAtomicInlineWidth = HostTarget->getMaxAtomicInlineWidth();
-+void NativeCPUTargetInfo::setAuxTarget(const TargetInfo *Aux) {
-+  if (Aux) {
-+    copyAuxTarget(Aux);
-+    getTargetOpts() = Aux->getTargetOpts();
++    copyAuxTarget(&*HostTarget);
    }
  }
++
++void NativeCPUTargetInfo::setAuxTarget(const TargetInfo *Aux) {
++  assert(Aux && "Cannot invoke setAuxTarget without a valid auxiliary target!");
++  copyAuxTarget(Aux);
++  getTargetOpts() = Aux->getTargetOpts();
++}
 diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
 index 44106cd8d028..cb2c71ebe39b 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.h
@@ -90,7 +92,7 @@ index 44106cd8d028..cb2c71ebe39b 100644
  
    ArrayRef<TargetInfo::GCCRegAlias> getGCCRegAliases() const override {
 diff --git a/clang/lib/Driver/Compilation.cpp b/clang/lib/Driver/Compilation.cpp
-index 1a91cbaa998d..a07e81892372 100644
+index 99b9f68dae62..67d78c31e5cb 100644
 --- a/clang/lib/Driver/Compilation.cpp
 +++ b/clang/lib/Driver/Compilation.cpp
 @@ -7,7 +7,6 @@
@@ -142,6 +144,30 @@ index cf20ffae91d4..28fabd300780 100644
      AttributeMask AM;
      AM.addAttribute("target-features");
      AM.addAttribute("target-cpu");
+diff --git a/sycl/test/check_device_code/native_cpu/target-features.cpp b/sycl/test/check_device_code/native_cpu/target-features.cpp
+new file mode 100644
+index 000000000000..561c636808c2
+--- /dev/null
++++ b/sycl/test/check_device_code/native_cpu/target-features.cpp
+@@ -0,0 +1,18 @@
++// REQUIRES: native_cpu
++// RUN: %clangxx --target=x86_64-unknown-linux-gnu -fsycl -fsycl-targets=native_cpu -mllvm -sycl-native-dump-device-ir %s 2>&1 | FileCheck %s --check-prefixes=CHECK,NOAVX
++// RUN: %clangxx --target=x86_64-unknown-linux-gnu -march=skylake -fsycl -fsycl-targets=native_cpu -mllvm -sycl-native-dump-device-ir %s 2>&1 | FileCheck %s --check-prefixes=CHECK,AVX
++// RUN: %clangxx --target=x86_64-unknown-linux-gnu -mavx -fsycl -fsycl-targets=native_cpu -mllvm -sycl-native-dump-device-ir %s 2>&1 | FileCheck %s --check-prefixes=CHECK,AVX
++
++#include <sycl/sycl.hpp>
++using namespace sycl;
++
++class Test;
++int main() {
++  sycl::queue deviceQueue;
++  deviceQueue.submit([&](handler &h) { h.single_task<Test>([=] {}); });
++}
++
++// CHECK: void @_ZTS4Test.NativeCPUKernel({{.*}} [[ATTRS:#[0-9]+]]
++// CHECK: [[ATTRS]] = {
++// NOAVX-NOT: "target-features"="{{[^"]*}}+avx{{[^"]*}}"
++// AVX-SAME: "target-features"="{{[^"]*}}+avx{{[^"]*}}"
 -- 
 2.48.1
 
