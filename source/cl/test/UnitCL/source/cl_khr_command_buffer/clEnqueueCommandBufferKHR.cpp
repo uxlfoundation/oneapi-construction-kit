@@ -150,6 +150,9 @@ TEST_F(CommandBufferEnqueueTest, IncrementKernelTwiceDifferentQueues) {
   EXPECT_SUCCESS(clEnqueueFillBuffer(command_queue, counter_buffer, &zero,
                                      sizeof(cl_int), 0, sizeof(cl_int), 0,
                                      nullptr, nullptr));
+  // We need the fill to be complete before testing the multiple enqueues on the
+  // different queues.
+  clFinish(command_queue);
 
   EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
                                 static_cast<void *>(&counter_buffer)));
