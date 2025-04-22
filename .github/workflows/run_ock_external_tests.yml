@@ -281,9 +281,9 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         use_ock_git_tag: [ 'updated_ock_tag', 'default_ock_tag' ]
-        include:
-          - use_ock_git_tag: ${{ inputs.native_cpu && 'updated_ock_tag' }}
-          - use_ock_git_tag: ${{ inputs.ock && 'default_ock_tag' }}
+        exclude:
+          - use_ock_git_tag: ${{ ! inputs.native_cpu && 'updated_ock_tag' }}
+          - use_ock_git_tag: ${{ ! inputs.ock && 'default_ock_tag' }}
 
     runs-on: 'ubuntu-22.04'
     container:
