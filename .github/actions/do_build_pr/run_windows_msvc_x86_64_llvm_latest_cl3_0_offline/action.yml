@@ -20,24 +20,42 @@ runs:
     - name: build ock x86_64
       uses: ./.github/actions/do_build_ock
       with:
-        build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
+        build_targets: UnitCL
+        #${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
         enable_api: ""
         builtin_kernel: ON
+        debug_support: ON
         shell_to_use: pwsh
         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
-        debug_support: ON
         enable_unitcl_expensive: ${{ !inputs.is_pull_request && 'ON' || 'OFF' }}
         offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
+        extra_flags: -DCA_ENABLE_LLVM_OPTIONS_IN_RELEASE=ON
 
-    - name: build ock x86_64 offline
-      uses: ./.github/actions/do_build_ock
+    - name: run stuff
+      env:
+        CA_EXTRA_COMPILE_OPTS: '-cl-wfv=never'
+        CA_LLVM_OPTIONS: '-print-before-all -print-after-all'    
+      shell: pwsh
+      run: |
+        powershell.exe -noprofile -c "${{ github.workspace }}/build/bin/UnitCL --gtest_filter=Execution/PrintfExecution.Printf_03_String/OpenCLC  > windows_out.txt 2>&1; exit 0" 
+        cat windows_out.txt
+
+    - name: upload artifact
+      uses: actions/upload-artifact@v4
       with:
-        build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL' || 'check-ock' }}
-        runtime_compiler_enabled: OFF
-        external_clc: "${{ github.workspace }}/build/bin/clc.exe"
-        shell_to_use: pwsh
-        gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
-        debug_support: ON
-        install_dir: ${{ github.workspace }}/install_offline
-        build_dir: ${{ github.workspace }}/build_offline
-        offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
+        name: windows_out
+        path: windows_out.txt
+        retention-days: 1
+
+    # - name: build ock x86_64 offline
+    #   uses: ./.github/actions/do_build_ock
+    #   with:
+    #     build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL' || 'check-ock' }}
+    #     runtime_compiler_enabled: OFF
+    #     external_clc: "${{ github.workspace }}/build/bin/clc.exe"
+    #     shell_to_use: pwsh
+    #     gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+    #     debug_support: ON
+    #     install_dir: ${{ github.workspace }}/install_offline
+    #     build_dir: ${{ github.workspace }}/build_offline
+    #     offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
