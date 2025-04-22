@@ -4,6 +4,12 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
+    type: boolean
+    default: false
+  ock_git_tag:
+    description: 'If non-empty string, dpcpp build config uses this ock Git tag.'
+    type: string
+    default: ""
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -63,10 +69,14 @@ runs:
                       --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu \
                       --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
         fi
+        OCK_GIT_TAG=""
+        if [ -n "${{ inputs.ock_git_tag }}" ] ; then
+          OCK_GIT_TAG="-DOCK_GIT_TAG=${{ inputs.ock_git_tag }}"
+        fi
         cd llvm
         set -x
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                -DOCK_GIT_TAG=main \
+                $OCK_GIT_TAG \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
