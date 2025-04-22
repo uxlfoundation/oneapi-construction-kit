@@ -304,7 +304,7 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: host_x86_64_linux
-          ock_git_tag: ${{ matrix.use_ock_git_tag == 'yes' && inputs.ock_git_tag | '' }}
+          ock_git_tag: ${{ matrix.use_ock_git_tag == 'yes' && inputs.ock_git_tag || '' }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
   build_dpcpp_native_aarch64:
