@@ -1,4 +1,4 @@
-From 215d2c4538e1ccdc15142bc51226ac7bab289e34 Mon Sep 17 00:00:00 2001
+From dbce0cc5561ec77b50f03aa219100dca8182e783 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 2 Apr 2025 15:12:26 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Move __spirv_AtomicF{Add,Min,Max}EXT into
@@ -38,123 +38,123 @@ index 445f4a053b1e..cdb82ef1b0de 100644
  workitem/get_num_sub_groups.cl
 diff --git a/libclc/libspirv/lib/native_cpu/atomic/atomic_add.ll b/libclc/libspirv/lib/native_cpu/atomic/atomic_add.ll
 new file mode 100644
-index 000000000000..88e52c944a0c
+index 000000000000..03c50bc254cf
 --- /dev/null
 +++ b/libclc/libspirv/lib/native_cpu/atomic/atomic_add.ll
 @@ -0,0 +1,35 @@
-+define float @_Z21__spirv_AtomicFAddEXTPfN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEf(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFAddEXTPfiif(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFAddEXTPU3AS1fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFAddEXTPU3AS1fiif(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr addrspace(1) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFAddEXTPU3AS3fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFAddEXTPU3AS3fiif(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr addrspace(3) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define double @_Z21__spirv_AtomicFAddEXTPdN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEd(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFAddEXTPdiid(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFAddEXTPU3AS1dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFAddEXTPU3AS1diid(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr addrspace(1) %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFAddEXTPU3AS3dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFAddEXTPU3AS3diid(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fadd ptr addrspace(3) %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 diff --git a/libclc/libspirv/lib/native_cpu/atomic/atomic_max.ll b/libclc/libspirv/lib/native_cpu/atomic/atomic_max.ll
 new file mode 100644
-index 000000000000..16ebebf14318
+index 000000000000..cbe3ab687c0c
 --- /dev/null
 +++ b/libclc/libspirv/lib/native_cpu/atomic/atomic_max.ll
 @@ -0,0 +1,35 @@
-+define float @_Z21__spirv_AtomicFMaxEXTPfN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEf(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMaxEXTPfiif(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFMaxEXTPU3AS1fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMaxEXTPU3AS1fiif(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr addrspace(1) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFMaxEXTPU3AS3fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMaxEXTPU3AS3fiif(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr addrspace(3) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMaxEXTPdN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEd(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMaxEXTPdiid(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMaxEXTPU3AS1dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMaxEXTPU3AS1diid(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr addrspace(1) %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMaxEXTPU3AS3dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMaxEXTPU3AS3diid(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmax ptr addrspace(3) %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 diff --git a/libclc/libspirv/lib/native_cpu/atomic/atomic_min.ll b/libclc/libspirv/lib/native_cpu/atomic/atomic_min.ll
 new file mode 100644
-index 000000000000..2dbe8330b263
+index 000000000000..0eb437926c5a
 --- /dev/null
 +++ b/libclc/libspirv/lib/native_cpu/atomic/atomic_min.ll
 @@ -0,0 +1,35 @@
-+define float @_Z21__spirv_AtomicFMinEXTPfN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEf(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMinEXTPfiif(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFMinEXTPU3AS1fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMinEXTPU3AS1fiif(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr addrspace(1) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define float @_Z21__spirv_AtomicFMinEXTPU3AS3fN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEf(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
++define float @_Z21__spirv_AtomicFMinEXTPU3AS3fiif(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, float noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr addrspace(3) %p, float %val seq_cst, align 4
 +  ret float %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMinEXTPdN5__spv5Scope4FlagENS0_19MemorySemanticsMask4FlagEd(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMinEXTPdiid(ptr noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMinEXTPU3AS1dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMinEXTPU3AS1diid(ptr addrspace(1) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr addrspace(1) %p, double %val seq_cst, align 8
 +  ret double %0
 +}
 +
-+define double @_Z21__spirv_AtomicFMinEXTPU3AS3dN5__spv5Scope4FlagENS1_19MemorySemanticsMask4FlagEd(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
++define double @_Z21__spirv_AtomicFMinEXTPU3AS3diid(ptr addrspace(3) noundef %p, i32 noundef %scope, i32 noundef %semantics, double noundef %val) nounwind alwaysinline {
 +entry:
 +  %0 = atomicrmw fmin ptr addrspace(3) %p, double %val seq_cst, align 8
 +  ret double %0
