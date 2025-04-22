@@ -280,10 +280,10 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        use_ock_git_tag: [ yes, no ]
+        use_ock_git_tag: [ 'yes', 'no' ]
         exclude:
-          - use_ock_git_tag: ${{ inputs.native_cpu != true && yes }}
-          - use_ock_git_tag: ${{ inputs.ock != true && no }}
+          - use_ock_git_tag: ${{ inputs.native_cpu != true && 'yes' }}
+          - use_ock_git_tag: ${{ inputs.ock != true && 'no' }}
 
     runs-on: 'ubuntu-22.04'
     container:
