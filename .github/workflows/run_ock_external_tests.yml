@@ -284,7 +284,6 @@ jobs:
         exclude:
           - use_ock_git_tag: ${{ ! inputs.native_cpu && 'updated_ock_tag' }}
           - use_ock_git_tag: ${{ ! inputs.ock && 'default_ock_tag' }}
-
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -309,6 +308,13 @@ jobs:
 
   build_dpcpp_native_aarch64:
     needs: [workflow_vars]
+    strategy:
+      fail-fast: false  # let all matrix jobs complete
+      matrix:
+        use_ock_git_tag: [ 'updated_ock_tag', 'default_ock_tag' ]
+        exclude:
+          - use_ock_git_tag: ${{ ! inputs.native_cpu && 'updated_ock_tag' }}
+          - use_ock_git_tag: ${{ ! inputs.ock && 'default_ock_tag' }}
     runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -328,6 +334,7 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: host_aarch64_linux
+          ock_git_tag: ${{ matrix.use_ock_git_tag == 'updated_ock_tag' && inputs.ock_git_tag || '' }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
   build_dpcpp_cross_riscv64:
@@ -335,9 +342,10 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
-
+        use_ock_git_tag: [ 'updated_ock_tag', 'default_ock_tag' ]
+        exclude:
+          - use_ock_git_tag: ${{ ! inputs.native_cpu && 'updated_ock_tag' }}
+          - use_ock_git_tag: ${{ ! inputs.ock && 'default_ock_tag' }}
     runs-on: ubuntu-24.04
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -357,6 +365,7 @@ jobs:
         uses: ./.github/actions/do_build_dpcpp
         with:
           target: ${{ matrix.target }}
+          ock_git_tag: ${{ matrix.use_ock_git_tag == 'updated_ock_tag' && inputs.ock_git_tag || '' }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
   build_sycl_cts_x86_64_opencl:
