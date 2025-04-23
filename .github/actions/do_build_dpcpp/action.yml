@@ -24,6 +24,14 @@ runs:
       with:
         target: ${{ inputs.target }}  
 
+    - name: set env vars
+      run: |
+        OCK_GIT_TAG=""
+        if [ -n "${{ inputs.ock_git_tag }}" ] ; then
+          OCK_GIT_TAG="_${{ inputs.ock_git_tag }}"
+        fi
+        echo "OCK_GIT_TAG=$OCK_GIT_TAG" >> $GITHUB_ENV
+
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
 
@@ -40,7 +48,7 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
       uses: ./.github/actions/download_artifact
       with:
-        name: 'dpcpp_host_x86_64_linux'
+        name: 'dpcpp_host_x86_64_linux${{ env.OCK_GIT_TAG }}'
         path: llvm/build/x86_64-linux/install
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
@@ -155,14 +163,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }}
+        gh run download $download_id -n dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}
         # Downloaded tar file for extraction is: dpcpp_${{ inputs.target }}.tar
-        tar xf dpcpp_${{ inputs.target }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        tar xf dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
     - name: upload dpcpp artifact
       uses: ./.github/actions/upload_artifact
       with:
-        name: dpcpp_${{inputs.target}}
+        name: dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}
         path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         needs_tar: 'true'
