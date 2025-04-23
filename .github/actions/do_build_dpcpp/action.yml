@@ -25,6 +25,7 @@ runs:
         target: ${{ inputs.target }}  
 
     - name: set env vars
+      shell: bash
       run: |
         OCK_GIT_TAG=""
         if [ -n "${{ inputs.ock_git_tag }}" ] ; then
