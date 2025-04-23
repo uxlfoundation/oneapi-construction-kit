@@ -29,20 +29,15 @@ runs:
         path: llvm
 
     # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
+
     - name: download pre-built native dpc++ artifact for cross builds
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/download_artifact
       with:
         name: 'dpcpp_host_x86_64_linux'
         path: llvm/build/x86_64-linux/install
-
-    - name: unpackage native dpc++ artifacts for cross builds # package/unpackage avoids known 'permissions loss' issue
-      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-      shell: bash
-      run: |
-        cd llvm/build/x86_64-linux/install
-        tar xf dpcpp.tar
-        rm dpcpp.tar
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: apply patches
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true    
@@ -135,6 +130,9 @@ runs:
         tar xf sycl_linux.tar.gz
         rm sycl_linux.tar.gz
 
+    # Following build, artifacts required are in: ./llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+    # If downloading rather than building, add them to that location before upload.
+
     - name: download previous dpcpp if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
       shell: bash      
       if: contains(inputs.download_dpcpp_artefact, inputs.target) && contains(inputs.download_dpcpp_artefact, 'download_release') != true
@@ -146,20 +144,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }} -D llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        gh run download $download_id -n dpcpp_${{ inputs.target }}
+        # Downloaded tar file for extraction is: dpcpp_${{ inputs.target }}.tar
+        tar xf dpcpp_${{ inputs.target }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
-
-    - name: package artefacts  # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
-      run: |
-        cd llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
-        tar cf dpcpp.tar *
-
     - name: upload dpcpp artifact
-      uses: actions/upload-artifact@v4
+      uses: ./.github/actions/upload_artifact
       with:
         name: dpcpp_${{inputs.target}}
-        path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install/dpcpp.tar
-        retention-days: 7
+        path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        needs_tar: 'true'

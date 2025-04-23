@@ -40,17 +40,12 @@ runs:
         path: install_ock
 
     - name: download dpc++ artifact
-      uses: actions/download-artifact@v4
+      uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_${{inputs.target}}
         path: install_dpcpp
-
-    - name: unpackage dpc++ artifacts # package/unpackage avoids known 'permissions loss' issue
-      shell: bash
-      run: |
-        cd install_dpcpp
-        tar xf dpcpp.tar
-        rm dpcpp.tar
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
 
     - name: checkout sycl e2e
       uses: actions/checkout@v4
