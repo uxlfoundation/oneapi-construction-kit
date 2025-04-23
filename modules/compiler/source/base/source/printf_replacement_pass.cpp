@@ -839,7 +839,7 @@ PreservedAnalyses compiler::PrintfReplacementPass::run(
   // Clone functions and add extra argument for printf(). Only functions
   // directly or indirectly calling printf are given the extra parameter.
   auto new_param_type =
-      PointerType::get(getBufferEltTy(module.getContext()), 1);
+      PointerType::get(module.getContext(), /*AddressSpace=*/1);
   auto param_type_func = [new_param_type](Module &) {
     return compiler::utils::ParamTypeAttrsPair{new_param_type, AttributeSet{}};
   };
