@@ -147,8 +147,8 @@ class LitProfile(DefaultProfile):
                                  "/" + '/'.join(d.path_in_suite), d, [])
             # Check against override file
             for chunks in override_tests:
-                if len(chunks) >= 3 and chunks[0] == d.suite.config.name and chunks[1] == '/'.join(d.path_in_suite):
-                    test_info.update_test_info_from_attribute(chunks[2])
+                if len(chunks) >= 2 and chunks[0] == d.suite.config.name and chunks[1] == '/'.join(d.path_in_suite):
+                    test_info.update_test_info_from_attribute(chunks[2] if len(chunks) >= 3 else "")
 
             test_info_list.append(test_info)
 

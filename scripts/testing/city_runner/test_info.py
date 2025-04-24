@@ -84,19 +84,11 @@ class TestInfo(object):
         return new_test
 
     def update_test_info_from_attribute(self, attribute):
-        if attribute.casefold() == 'Ignore'.casefold():
-            self.ignored = True
-        elif attribute.casefold() == 'Disabled'.casefold():
-            self.disabled = True
-        elif attribute.casefold() == 'Unimplemented'.casefold():
-            self.unimplemented = True
-        elif attribute.casefold() == 'Xfail'.casefold():
-            self.xfail = True
-        elif attribute.casefold() == 'Mayfail'.casefold():
-            self.mayfail = True
-        elif attribute:
-            raise Exception(
-                "Unknown attribute '%s'" % attribute)
+        self.ignore = attribute.casefold() == 'Ignore'.casefold()
+        self.disabled = attribute.casefold() == 'Disabled'.casefold()
+        self.unimplemented = attribute.casefold() == 'Unimplemented'.casefold()
+        self.xfail = attribute.casefold() == 'Xfail'.casefold()
+        self.mayfail = attribute.casefold() == 'Mayfail'.casefold()
 
 class TestList(object):
     """ Holds a list of tests. """

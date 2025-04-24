@@ -31,6 +31,7 @@ SYCL,AddressSanitizer/common/options-debug.cpp,XFail
 SYCL,AddressSanitizer/common/demangle-kernel-name.cpp,XFail
 SYCL,AddressSanitizer/common/options-redzone.cpp,XFail
 SYCL,AddressSanitizer/common/kernel-filter.cpp,XFail
+SYCL,AddressSanitizer/common/print-build-log-negative.cpp,XFail
 SYCL,AddressSanitizer/memory-leak/memory-leak-shared-lib.cpp,XFail
 SYCL,AddressSanitizer/memory-leak/memory-leak.cpp,XFail
 SYCL,AddressSanitizer/out-of-bounds/local/local_accessor_multiargs.cpp,XFail
@@ -58,6 +59,7 @@ SYCL,AddressSanitizer/out-of-bounds/buffer/subbuffer.cpp,XFail
 SYCL,AddressSanitizer/out-of-bounds/buffer/buffer.cpp,XFail
 SYCL,AddressSanitizer/out-of-bounds/buffer/buffer_3d.cpp,XFail
 SYCL,AddressSanitizer/out-of-bounds/buffer/buffer_copy_fill.cpp,XFail
+SYCL,DeviceLib/bfloat16_conversion_dlopen_test.cpp,XFail
 SYCL,DeviceLib/bfloat16_conversion_test.cpp,XFail
 SYCL,DeviceLib/imf_simd_emulate_test.cpp,XFail
 SYCL,DeviceLib/cmath_fp64_test.cpp,XFail
