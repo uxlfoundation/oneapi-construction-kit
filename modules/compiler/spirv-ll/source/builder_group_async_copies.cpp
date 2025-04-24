@@ -94,16 +94,14 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy2D2D>(
         "Destination");
   }
 
-  llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
-
   llvm::CallInst *call = builder.createBuiltinCall(
       mangledName, eventTy,
       {
           builder.getIRBuilder().CreateBitCast(
-              dst, llvm::PointerType::get(i8Ty, dstAddrSpace)),
+              dst, builder.getIRBuilder().getPtrTy(dstAddrSpace)),
           dstOffset,
           builder.getIRBuilder().CreateBitCast(
-              src, llvm::PointerType::get(i8Ty, srcAddrSpace)),
+              src, builder.getIRBuilder().getPtrTy(srcAddrSpace)),
           srcOffset,
           numBytesPerElement,
           numElementsPerLine,
@@ -169,16 +167,14 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
         "Destination");
   }
 
-  llvm::Type *i8Ty = llvm::IntegerType::getInt8Ty(*module.context.llvmContext);
-
   llvm::CallInst *call = builder.createBuiltinCall(
       mangledName, eventTy,
       {
           builder.getIRBuilder().CreateBitCast(
-              dst, llvm::PointerType::get(i8Ty, dstAddrSpace)),
+              dst, builder.getIRBuilder().getPtrTy(dstAddrSpace)),
           dstOffset,
           builder.getIRBuilder().CreateBitCast(
-              src, llvm::PointerType::get(i8Ty, srcAddrSpace)),
+              src, builder.getIRBuilder().getPtrTy(srcAddrSpace)),
           srcOffset,
           numBytesPerElement,
           numElementsPerLine,

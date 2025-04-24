@@ -61,10 +61,10 @@ static IntegerType *getTransferIDTy(Module &M) {
 // Materialize the address of a DMA memory-mapped register in a basic block.
 static Value *getDmaRegAddress(IRBuilder<> &B, unsigned RegIdx) {
   Type *const DmaRegTy = getDmaRegTy(B.getContext());
-  Type *const DmaRegPtrTy = PointerType::get(DmaRegTy, 0);
+  Type *const PtrTy = B.getPtrTy(/*AddressSpace=*/0);
   Value *const DmaRegAddr = ConstantInt::get(
       DmaRegTy, REFSI_DMA_REG_ADDR(REFSI_DMA_IO_ADDRESS, RegIdx));
-  return B.CreateIntToPtr(DmaRegAddr, DmaRegPtrTy);
+  return B.CreateIntToPtr(DmaRegAddr, PtrTy);
 }
 
 // Convert the value to a format that can be directly written to a DMA register.

@@ -588,16 +588,9 @@ llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
 }
 
 llvm::Error spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
-  const spv::Id type_id = op->Type();
+  [[maybe_unused]] const spv::Id type_id = op->Type();
   SPIRV_LL_ASSERT(!isForwardPointer(type_id), "type_id is a forward pointer");
-  llvm::Type *type = getLLVMType(type_id);
-  SPIRV_LL_ASSERT_PTR(type);
-
-  // Pointer to void type isn't legal in llvm, so substitute char* in such
-  // cases.
-  if (type->isVoidTy()) {
-    type = llvm::Type::getInt8Ty(llvmModule->getContext());
-  }
+  SPIRV_LL_ASSERT_PTR(getLLVMType(type_id));
 
   auto addrspace_or_error =
       translateStorageClassToAddrSpace(op->StorageClass());
@@ -605,8 +598,8 @@ llvm::Error spirv_ll::Module::addCompletePointer(const OpTypePointer *op) {
     return err;
   }
 
-  llvm::Type *pointer_type =
-      llvm::PointerType::get(type, addrspace_or_error.get());
+  llvm::Type *pointer_type = llvm::PointerType::get(llvmModule->getContext(),
+                                                    addrspace_or_error.get());
 
   addID(op->IdResult(), op, pointer_type);
 
