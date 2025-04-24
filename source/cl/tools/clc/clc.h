@@ -66,6 +66,9 @@ class driver {
   std::string input_file;
   /// @brief Path to the output file or `"-"` for `stdout`.
   cargo::string_view output_file;
+  /// @brief Device index to select from multiple devices. Takes precedence over
+  /// device name.
+  size_t device_idx;
   /// @brief Device name substring to select from multiple devices.
   cargo::string_view device_name_substring;
   /// @brief List of compile options passed to `clBuildProgram`.

@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -152,6 +153,7 @@ driver::driver()
       dry_run(false),
       input_file(),
       output_file(""),
+      device_idx(0),
       device_name_substring(""),
       cl_build_args(),
       strip_binary_header(false),
@@ -185,6 +187,9 @@ optional arguments:
                         output file path, defaults to the name of the last
                         input file "<input>.bin" if present, or "-" otherwise
                         to write to standard output
+  --device-idx index
+                        the index (1..N) of the device to select. Takes precedence
+                        over --device
   -d name, --device name
                         a substring of the device name to select, choose from:%s
   --list-devices        print the list of available devices and exit
@@ -274,6 +279,19 @@ result driver::parseArguments(int argc, char **argv) {
 
   CHECK(parser.add_argument({"-o", output_file}));
   CHECK(parser.add_argument({"--output", output_file}));
+
+  CHECK(parser.add_argument({
+      "--device-idx",
+      [](auto &&...) { return parse::INCOMPLETE; },
+      [this](cargo::string_view str_value) {
+        auto [ptr, ec] =
+            std::from_chars(str_value.begin(), str_value.end(), device_idx);
+        if ((ptr != str_value.end()) || (device_idx == 0)) {
+          return parse::INVALID;
+        }
+        return parse::COMPLETE;
+      },
+  }));
 
   CHECK(parser.add_argument({"-d", device_name_substring}));
   CHECK(parser.add_argument({"--device", device_name_substring}));
@@ -743,38 +761,52 @@ result driver::findDevice() {
     return result::failure;
   }
 
-  if (compilers.size() > 1 && device_name_substring.empty()) {
-    (void)std::fprintf(stderr,
-                       "error: Multiple devices available, please choose one "
-                       "(--device NAME):\n");
-    printMuxCompilers(compilers);
-    return result::failure;
-  }
+  if (device_idx != 0) {
+    if (device_idx > compilers.size()) {
+      (void)std::fprintf(stderr,
+                         "error: Invalid device selection; out of bounds. "
+                         "Available devices:\n");
+      printMuxCompilers(compilers);
+      return result::failure;
+    }
 
-  bool found = false;
-  for (auto compiler : compilers) {
-    bool matches = true;
-    if (!device_name_substring.empty()) {
-      matches &= matchSubstring(compiler->device_info->device_name,
-                                device_name_substring);
+    compiler_info = compilers[device_idx - 1];
+
+  } else {
+    if (compilers.size() > 1 && device_name_substring.empty()) {
+      (void)std::fprintf(stderr,
+                         "error: Multiple devices available, please choose one "
+                         "(--device NAME | --device-idx INDEX):\n");
+      printMuxCompilers(compilers);
+      return result::failure;
     }
-    if (matches) {
-      if (found) {
-        (void)std::fprintf(
-            stderr, "error: Device selection ambiguous, available devices:\n");
-        printMuxCompilers(compilers);
-        return result::failure;
+
+    bool found = false;
+    for (auto compiler : compilers) {
+      bool matches = true;
+      if (!device_name_substring.empty()) {
+        matches &= matchSubstring(compiler->device_info->device_name,
+                                  device_name_substring);
       }
-      found = true;
-      compiler_info = compiler;
+      if (matches) {
+        if (found) {
+          (void)std::fprintf(
+              stderr,
+              "error: Device selection ambiguous, available devices:\n");
+          printMuxCompilers(compilers);
+          return result::failure;
+        }
+        found = true;
+        compiler_info = compiler;
+      }
     }
-  }
-  if (!found) {
-    (void)std::fprintf(
-        stderr,
-        "error: No device matched the given substring, available devices:\n");
-    printMuxCompilers(compilers);
-    return result::failure;
+    if (!found) {
+      (void)std::fprintf(
+          stderr,
+          "error: No device matched the given substring, available devices:\n");
+      printMuxCompilers(compilers);
+      return result::failure;
+    }
   }
 
   if (verbose) {
