@@ -73,10 +73,10 @@ PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
       continue;
     }
     const auto B = BI.analyzeBuiltin(F);
-    if (B.isUnknown() || !B.isValid()) {
+    if (!B || B->isUnknown()) {
       continue;
     }
-    if (BI.requiresSchedulingParameters(B.ID)) {
+    if (BI.requiresSchedulingParameters(B->ID)) {
       Visited.insert(&F);
       Worklist.insert(&F);
       LeafBuiltins.insert(&F);
