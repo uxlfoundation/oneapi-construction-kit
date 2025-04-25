@@ -10,6 +10,10 @@ inputs:
     description: 'dpcpp build config uses this ock Git tag.'
     type: string
     default: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+  ock_git_actor:
+    description: 'dpcpp build config uses this ock Git tag.'
+    type: string
+    default: ${{ github.event_name == 'pull_request' && github.actor || 'uxlfoundation' }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -73,6 +77,7 @@ runs:
         set -x
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
                 -DOCK_GIT_TAG=${{ inputs.ock_git_tag }} \
+                -DOCK_GIT_REPO=https://github.com/${{ inputs.ock_git_actor }}/oneapi-construction-kit.git
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
