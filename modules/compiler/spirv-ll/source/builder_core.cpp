@@ -1783,7 +1783,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
         // interface block types
         for ([[maybe_unused]] auto _ : binding_list) {
           // Blocks are always passed by pointer
-          llvm::Type *type = IRBuilder.getPtrTy(/*AddressSpace=*/1);
+          llvm::Type *type = IRBuilder.getPtrTy(/*AddrSpace=*/1);
           SPIRV_LL_ASSERT_PTR(type);
 
           arg_types.push_back(type);
@@ -1798,7 +1798,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
         // if this module has used any descriptor bindings add the buffer sizes
         // buffer to the argument list (1 == global address space)
         if (module.hasDescriptorBindings()) {
-          arg_types.push_back(IRBuilder.getPtrTy(/*AddressSpace=*/1));
+          arg_types.push_back(IRBuilder.getPtrTy(/*AddrSpace=*/1));
         }
 
         // create a new function type with the same return type as the original
