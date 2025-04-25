@@ -321,6 +321,9 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
+        target: ${{ fromJson(inputs.target_list) }}
+        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
+
     runs-on: ubuntu-24.04
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
