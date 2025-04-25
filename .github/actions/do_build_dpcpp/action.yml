@@ -7,9 +7,9 @@ inputs:
     type: boolean
     default: false
   ock_git_tag:
-    description: 'If non-empty string, dpcpp build config uses this ock Git tag.'
+    description: 'dpcpp build config uses this ock Git tag.'
     type: string
-    default: ""
+    default: "$GITHUB_SHA"
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -23,15 +23,6 @@ runs:
       uses: ./.github/actions/calc_vars
       with:
         target: ${{ inputs.target }}  
-
-    - name: set env vars
-      shell: bash
-      run: |
-        OCK_GIT_TAG=""
-        if [ -n "${{ inputs.ock_git_tag }}" ] ; then
-          OCK_GIT_TAG="_${{ inputs.ock_git_tag }}"
-        fi
-        echo "OCK_GIT_TAG=$OCK_GIT_TAG" >> $GITHUB_ENV
 
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
@@ -49,7 +40,7 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
       uses: ./.github/actions/download_artifact
       with:
-        name: 'dpcpp_host_x86_64_linux${{ env.OCK_GIT_TAG }}'
+        name: 'dpcpp_host_x86_64_linux'
         path: llvm/build/x86_64-linux/install
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
@@ -78,14 +69,10 @@ runs:
                       --cmake-opt=-DLLVM_HOST_TRIPLE=${{steps.calc_vars.outputs.arch}}-unknown-linux-gnu \
                       --cmake-opt=-DLLVM_NATIVE_TOOL_DIR=$GITHUB_WORKSPACE/llvm/build/x86_64-linux/install/bin"
         fi
-        OCK_GIT_TAG=""
-        if [ -n "${{ inputs.ock_git_tag }}" ] ; then
-          OCK_GIT_TAG="-DOCK_GIT_TAG=${{ inputs.ock_git_tag }}"
-        fi
         cd llvm
         set -x
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                $OCK_GIT_TAG \
+                -DOCK_GIT_TAG=${{ inputs.ock_git_tag }} \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
@@ -164,14 +151,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}
+        gh run download $download_id -n dpcpp_${{ inputs.target }}
         # Downloaded tar file for extraction is: dpcpp_${{ inputs.target }}.tar
-        tar xf dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
+        tar xf dpcpp_${{ inputs.target }}.tar -C llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         ls llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
 
     - name: upload dpcpp artifact
       uses: ./.github/actions/upload_artifact
       with:
-        name: dpcpp_${{ inputs.target }}${{ env.OCK_GIT_TAG }}
+        name: dpcpp_${{ inputs.target }}
         path: llvm/build/${{steps.calc_vars.outputs.arch}}-linux/install
         needs_tar: 'true'
