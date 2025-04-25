@@ -68,7 +68,7 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
                                const compiler::utils::GroupCollective &WGC,
                                compiler::utils::BuiltinInfo &BI) {
   using namespace compiler::utils;
-  BuiltinID ReductionID = eBuiltinInvalid;
+  BuiltinID ReductionID;
   switch (WGC.Recurrence) {
     default:
       return nullptr;
@@ -123,7 +123,6 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
                                    : eMuxBuiltinSubgroupReduceLogicalXor;
       break;
   }
-  assert(ReductionID != eBuiltinInvalid);
 
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
@@ -138,7 +137,7 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
                           RecurKind Kind, bool IsInclusive, bool IsLogical,
                           compiler::utils::BuiltinInfo &BI) {
   using namespace compiler::utils;
-  BuiltinID ScanBuiltinID = eBuiltinInvalid;
+  BuiltinID ScanBuiltinID;
   switch (Kind) {
     default:
       return nullptr;
@@ -212,7 +211,6 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
       }
       break;
   }
-  assert(ScanBuiltinID != eBuiltinInvalid);
 
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
@@ -612,10 +610,11 @@ PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
   // iterators.
   SmallVector<std::pair<Function *, GroupCollective>, 8> WGCollectives{};
   for (auto &F : M) {
-    auto Builtin = BI.analyzeBuiltin(F);
-    if (auto WGC = BI.isMuxGroupCollective(Builtin.ID);
-        WGC && WGC->isWorkGroupScope()) {
-      WGCollectives.push_back({&F, *WGC});
+    if (auto Builtin = BI.analyzeBuiltin(F)) {
+      if (auto WGC = BI.isMuxGroupCollective(Builtin->ID);
+          WGC && WGC->isWorkGroupScope()) {
+        WGCollectives.push_back({&F, *WGC});
+      }
     }
   }
 

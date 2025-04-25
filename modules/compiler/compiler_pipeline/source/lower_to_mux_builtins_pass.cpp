@@ -27,7 +27,7 @@ PreservedAnalyses compiler::utils::LowerToMuxBuiltinsPass::run(
   SmallVector<CallInst *, 8> Calls;
   for (auto &F : M.functions()) {
     auto B = BI.analyzeBuiltin(F);
-    if (B.properties & eBuiltinPropertyLowerToMuxBuiltin) {
+    if (B && B->properties & eBuiltinPropertyLowerToMuxBuiltin) {
       for (auto *U : F.users()) {
         if (auto *CI = dyn_cast<CallInst>(U)) {
           Calls.push_back(CI);

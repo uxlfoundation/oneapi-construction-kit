@@ -42,7 +42,7 @@ PreservedAnalyses compiler::SetConvergentAttrPass::run(
       // been marked correctly already (above) or call to convergent
       // declarations (below).
       auto B = BI.analyzeBuiltin(F);
-      if (!(B.properties & utils::eBuiltinPropertyKnownNonConvergent)) {
+      if (!B || !(B->properties & utils::eBuiltinPropertyKnownNonConvergent)) {
         Worklist.insert(&F);
         ConvergentFns.insert(&F);
       }

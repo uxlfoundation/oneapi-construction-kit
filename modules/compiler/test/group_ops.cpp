@@ -402,23 +402,23 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
         continue;
       }
       auto *const CalledFn = CI->getCalledFunction();
-      EXPECT_TRUE(CalledFn);
+      ASSERT_TRUE(CalledFn);
       MuxBuiltins.insert(CalledFn);
 
       auto Builtin = BI.analyzeBuiltin(*CalledFn);
-      const std::string InfoStr = " for function " + CalledFn->getName().str() +
-                                  " identified as ID " +
-                                  std::to_string(Builtin.ID);
-      EXPECT_NE(Builtin.ID, eBuiltinInvalid) << InfoStr;
-      EXPECT_TRUE(BI.isMuxBuiltinID(Builtin.ID)) << InfoStr;
+      std::string InfoStr = " for function " + CalledFn->getName().str();
+      ASSERT_TRUE(Builtin) << InfoStr;
+      if (!Builtin) return;
+      InfoStr += " identified as ID " + std::to_string(Builtin->ID);
+      EXPECT_TRUE(BI.isMuxBuiltinID(Builtin->ID)) << InfoStr;
 
       // Do a get-or-declare, and make sure we're getting back the exact same
       // function.
-      auto *const BuiltinDecl =
-          BI.getOrDeclareMuxBuiltin(Builtin.ID, *M, Builtin.mux_overload_info);
+      auto *const BuiltinDecl = BI.getOrDeclareMuxBuiltin(
+          Builtin->ID, *M, Builtin->mux_overload_info);
       EXPECT_TRUE(BuiltinDecl && BuiltinDecl == CalledFn) << InfoStr;
 
-      auto Info = BI.isMuxGroupCollective(Builtin.ID);
+      auto Info = BI.isMuxGroupCollective(Builtin->ID);
       ASSERT_TRUE(Info) << InfoStr;
 
       // Now check that the returned values are what we expect.
@@ -430,8 +430,8 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       EXPECT_EQ(Info->Recurrence, GroupOps[GroupOpIdx].Collective.Recurrence)
           << InfoStr;
 
-      EXPECT_EQ(Builtin.ID, BI.getMuxGroupCollective(*Info)) << InfoStr;
-      EXPECT_EQ(Builtin.ID,
+      EXPECT_EQ(Builtin->ID, BI.getMuxGroupCollective(*Info)) << InfoStr;
+      EXPECT_EQ(Builtin->ID,
                 BI.getMuxGroupCollective(GroupOps[GroupOpIdx].Collective))
           << InfoStr;
 
@@ -463,9 +463,9 @@ TEST_F(GroupOpsTest, SubgroupShuffles) {
               Shuff->getArg(0)->getType() == F16Ty &&
               Shuff->getArg(1)->getType() == I32Ty);
   auto BIShuff = BI.analyzeBuiltin(*Shuff);
-  EXPECT_TRUE(BIShuff.isValid() && BIShuff.ID == eMuxBuiltinSubgroupShuffle &&
-              BIShuff.mux_overload_info.size() == 1 &&
-              *BIShuff.mux_overload_info.begin() == F16Ty);
+  EXPECT_TRUE(BIShuff && BIShuff->ID == eMuxBuiltinSubgroupShuffle &&
+              BIShuff->mux_overload_info.size() == 1 &&
+              *BIShuff->mux_overload_info.begin() == F16Ty);
 
   auto *ShuffXor =
       BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleXor, *M, {F16Ty});
@@ -474,9 +474,9 @@ TEST_F(GroupOpsTest, SubgroupShuffles) {
               ShuffXor->getArg(0)->getType() == F16Ty &&
               ShuffXor->getArg(1)->getType() == I32Ty);
   auto BIXor = BI.analyzeBuiltin(*ShuffXor);
-  EXPECT_TRUE(BIXor.isValid() && BIXor.ID == eMuxBuiltinSubgroupShuffleXor &&
-              BIXor.mux_overload_info.size() == 1 &&
-              *BIXor.mux_overload_info.begin() == F16Ty);
+  EXPECT_TRUE(BIXor && BIXor->ID == eMuxBuiltinSubgroupShuffleXor &&
+              BIXor->mux_overload_info.size() == 1 &&
+              *BIXor->mux_overload_info.begin() == F16Ty);
 
   auto *ShuffUp =
       BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleUp, *M, {F16Ty});
@@ -486,9 +486,9 @@ TEST_F(GroupOpsTest, SubgroupShuffles) {
               ShuffUp->getArg(1)->getType() == F16Ty &&
               ShuffUp->getArg(2)->getType() == I32Ty);
   auto BIUp = BI.analyzeBuiltin(*ShuffUp);
-  EXPECT_TRUE(BIUp.isValid() && BIUp.ID == eMuxBuiltinSubgroupShuffleUp &&
-              BIUp.mux_overload_info.size() == 1 &&
-              *BIUp.mux_overload_info.begin() == F16Ty);
+  EXPECT_TRUE(BIUp && BIUp->ID == eMuxBuiltinSubgroupShuffleUp &&
+              BIUp->mux_overload_info.size() == 1 &&
+              *BIUp->mux_overload_info.begin() == F16Ty);
 
   auto *ShuffDown =
       BI.getOrDeclareMuxBuiltin(eMuxBuiltinSubgroupShuffleDown, *M, {F16Ty});
@@ -499,7 +499,7 @@ TEST_F(GroupOpsTest, SubgroupShuffles) {
               ShuffDown->getArg(1)->getType() == F16Ty &&
               ShuffDown->getArg(2)->getType() == I32Ty);
   auto BIDown = BI.analyzeBuiltin(*ShuffDown);
-  EXPECT_TRUE(BIDown.isValid() && BIDown.ID == eMuxBuiltinSubgroupShuffleDown &&
-              BIDown.mux_overload_info.size() == 1 &&
-              *BIDown.mux_overload_info.begin() == F16Ty);
+  EXPECT_TRUE(BIDown && BIDown->ID == eMuxBuiltinSubgroupShuffleDown &&
+              BIDown->mux_overload_info.size() == 1 &&
+              *BIDown->mux_overload_info.begin() == F16Ty);
 }
