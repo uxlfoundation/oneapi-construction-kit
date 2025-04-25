@@ -9,7 +9,7 @@ inputs:
   ock_git_tag:
     description: 'dpcpp build config uses this ock Git tag.'
     type: string
-    default: "$GITHUB_SHA"
+    default: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
