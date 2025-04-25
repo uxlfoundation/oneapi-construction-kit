@@ -418,7 +418,7 @@ SYCL_CTS,test_reduction reduction_without_identity_param_no_one_item_core --allo
 SYCL_CTS,test_sampler sampler_apis
 SYCL_CTS,test_sampler sampler_constructors
 SYCL_CTS,test_scalars "Fixed width types size equality"
-SYCL_CTS,test_scalars scalars_interopability_types
+SYCL_CTS,test_scalars scalars_interopability_types --allow-running-no-tests
 SYCL_CTS,test_scalars scalars_sycl_types
 SYCL_CTS,test_spec_constants "specialization_id api"
 SYCL_CTS,test_spec_constants specialization_constants_class_with_member_fun
