@@ -27,14 +27,14 @@
 /// @{
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
-    (defined(__riscv) && __riscv_xlen == 64)
+    defined(_M_ARM64) || (defined(__riscv) && __riscv_xlen == 64)
 #define UTILS_SYSTEM_64_BIT 1
 #else
 #define UTILS_SYSTEM_32_BIT 1
 #endif
 
 #if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) || \
-    defined(_M_ARMT) || defined(__aarch64__)
+    defined(_M_ARMT) || defined(__aarch64__) || defined(_M_ARM64)
 #define UTILS_SYSTEM_ARM 1
 #elif defined(__i386__) || defined(_M_IX86) || defined(__x86_64__) || \
     defined(_M_X64)

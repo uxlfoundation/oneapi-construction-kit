@@ -175,75 +175,38 @@ compiler::Result HostTarget::initWithBuiltins(
   auto host_device_info =
       static_cast<host::device_info_s &>(*compiler_info->device_info);
 
-  switch (host_device_info.arch) {
-    case host::arch::ARM:
-      assert(host::os::LINUX == host_device_info.os &&
-             "ARM cross-compile only supports Linux");
-      // For cross compiled ARM builds, we can't rely on sys::getProcessTriple
-      // to determine our target. Instead, we set it to a known working triple.
-      triple = llvm::Triple("armv7-unknown-linux-gnueabihf-elf");
-      break;
-    case host::arch::AARCH64:
-      switch (host_device_info.os) {
-        case host::os::LINUX:
+  switch (host_device_info.os) {
+    case host::os::ANDROID:
+    case host::os::LINUX:
+      // For Linux, we support cross compilation, which means we cannot rely on
+      // sys::getProcessTriple to determine our target. Instead, we set it to a
+      // known working triple.
+      switch (host_device_info.arch) {
+        case host::arch::ARM:
+          triple = llvm::Triple("armv7-unknown-linux-gnueabihf-elf");
+          break;
+        case host::arch::AARCH64:
           triple = llvm::Triple("aarch64-linux-gnu-elf");
           break;
-        case host::os::MACOS:
-          assert(host_device_info.native &&
-                 "macOS cross-compile not supported");
-          // Our generated code does not meet Mach-O restrictions: "mach-o
-          // section specifier requires a segment and section separated by a
-          // comma" when we use "notes" as a section name. Force ELF generation
-          // instead, which makes things easier for us anyway as we can reuse
-          // the existing ELF loading logic.
-          triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
+        case host::arch::RISCV32:
+          triple = llvm::Triple("riscv32-unknown-elf");
           break;
-        default:
-          llvm_unreachable("AArch64 cross-compile only supports Linux");
-      }
-      break;
-    case host::arch::RISCV32:
-      assert(host::os::LINUX == host_device_info.os &&
-             "RISCV cross-compile only supports Linux");
-      // For cross compiled RISCV builds, we can't rely on sys::getProcessTriple
-      // to determine our target. Instead, we set it to a known working triple.
-      triple = llvm::Triple("riscv32-unknown-elf");
-      break;
-    case host::arch::RISCV64:
-      assert(host::os::LINUX == host_device_info.os &&
-             "RISCV cross-compile only supports Linux");
-      triple = llvm::Triple("riscv64-unknown-elf");
-      break;
-    case host::arch::X86:
-    case host::arch::X86_64:
-      switch (host_device_info.os) {
-        case host::os::ANDROID:
-        case host::os::LINUX:
-          triple = llvm::Triple(host::arch::X86 == host_device_info.arch
-                                    ? "i386-unknown-unknown-elf"
-                                    : "x86_64-unknown-unknown-elf");
+        case host::arch::RISCV64:
+          triple = llvm::Triple("riscv64-unknown-elf");
           break;
-        case host::os::WINDOWS:
-          // Using windows here ensures that _chkstk() is called which is
-          // important for paging in the stack.
-#if defined(__MINGW32__) || defined(__MINGW64__)
-          triple = llvm::Triple(host::arch::X86 == host_device_info.arch
-                                    ? "i386-pc-windows-gnu-elf"
-                                    : "x86_64-w64-windows-gnu-elf");
-#else
-          triple = llvm::Triple(host::arch::X86 == host_device_info.arch
-                                    ? "i386-pc-windows-msvc-elf"
-                                    : "x86_64-pc-windows-msvc-elf");
-#endif
+        case host::arch::X86:
+          triple = llvm::Triple("i386-unknown-unknown-elf");
           break;
-        case host::os::MACOS:
-          assert(host_device_info.native &&
-                 "macOS cross-compile not supported");
-          // On Apple, the MachO loader has a bug and can't JIT correctly. We
-          // have to force elf generation for MachO builds. See Redmine #7621.
-          triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
+        case host::arch::X86_64:
+          triple = llvm::Triple("x86_64-unknown-unknown-elf");
           break;
       }
+      break;
+    case host::os::WINDOWS:
+    case host::os::MACOS:
+      assert(host_device_info.native &&
+             "Cross compilation only supported for Linux");
+      triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
       break;
   }
 
