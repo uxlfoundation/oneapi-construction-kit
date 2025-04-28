@@ -81,8 +81,9 @@ runs:
         fi
         cd llvm
         set -x
+        #        -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
+                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }}" \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
