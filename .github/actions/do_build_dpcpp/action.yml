@@ -4,16 +4,15 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
-    type: boolean
-    default: false
   ock_git_tag:
     description: 'dpcpp build config uses this ock Git tag.'
     type: string
-    # Note: currently CMake will pick up branches and tags, but no other refs, even if accessible from
-    #       the repo. Once this is resolved, 'main' below should be replaced by:
+    # Note: For 'pull_request' events: currently CMake will pick up branches and tags, but no other refs,
+    #       even if accessible from the repo. Once this is resolved, 'main' below should be replaced by:
     #         'github.event.pull_request.merge_commit_sha'
-    #       with testing as appropriate to verify the update. If NOT a 'pull_request' event (i.e. a
-    #       'schedule' event instead) 'github_sha' is the latest commit on the default branch.
+    #       with testing as appropriate to verify the update.
+    #       If NOT a 'pull_request' event (i.e. a 'schedule' event instead) 'github_sha' is the latest
+    #       commit on the default branch.
     default: ${{ github.event_name == 'pull_request' && 'main' || github.sha }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
