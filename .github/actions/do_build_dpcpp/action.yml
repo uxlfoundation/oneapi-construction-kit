@@ -9,7 +9,8 @@ inputs:
   ock_git_tag:
     description: 'dpcpp build config uses this ock Git tag.'
     type: string
-    default: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+    default: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.sha }}
+    #default: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     #default: ${{ github.sha }}
   ock_git_actor:
     description: 'dpcpp build config uses this ock Git tag.'
