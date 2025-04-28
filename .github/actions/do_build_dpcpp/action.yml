@@ -13,7 +13,7 @@ inputs:
     #       with testing as appropriate to verify the update.
     #       If NOT a 'pull_request' event (i.e. a 'schedule' event instead) 'github_sha' is the latest
     #       commit on the default branch.
-    default: ${{ github.event_name == 'pull_request' && 'main' || github.sha }}
+    default: ${{ github.event_name == 'pull_request' && github.sha || github.sha }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -76,7 +76,7 @@ runs:
         cd llvm
         set -x
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                -DOCK_GIT_TAG=${{ inputs.ock_git_tag }} \
+                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
