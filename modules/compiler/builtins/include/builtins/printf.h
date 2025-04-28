@@ -75,8 +75,9 @@ struct descriptor final {
   descriptor() {}
 };
 
-/// @brief Unpack data from a buffer and print it to the screen.
+/// @brief Unpack data from a buffer and print it.
 ///
+/// @param[in] fp File to write output to.
 /// @param[in] data Buffer of data to unpack and print.
 /// @param[in] max_length Maximum length of the storage buffer `data`.
 /// @param[in] printf_calls List of printf calls descriptors that may be found
@@ -85,7 +86,7 @@ struct descriptor final {
 /// to start printing. This function can be called multiple times on the same
 /// buffer, to avoid printing duplicate data start from an offset which is set
 /// on function return.
-void print(uint8_t* data, size_t max_length,
+void print(std::FILE* fp, uint8_t* data, size_t max_length,
            const std::vector<descriptor>& printf_calls,
            std::vector<uint32_t>& group_offets);
 }  // namespace printf

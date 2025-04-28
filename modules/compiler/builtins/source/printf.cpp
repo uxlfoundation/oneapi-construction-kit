@@ -141,15 +141,16 @@ size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
 
 /// @brief Function used to print floating point values.
 ///
-/// It uses the system `printf` for formatting unless the floating point is a
+/// It uses the system `fprintf` for formatting unless the floating point is a
 /// NaN or infinity in which case it prints them with the formatting mandated
 /// by the OpenCL 1.2 specification.
 ///
+/// @param[in] fp File to print to.
 /// @param[in] partial String starting with a valid `printf` format specifier
 /// and containing only one `printf` specifier.
 /// @param[in] d The floating point valule to print.
 template <typename T>
-void PrintFloatingPoint(std::string partial, T d) {
+void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
   // manually format NaNs and Infinity as the system
   // printf doesn't format them properly on windows
   if (std::isnan(d) || std::isinf(d)) {
@@ -190,7 +191,7 @@ void PrintFloatingPoint(std::string partial, T d) {
     partial.replace(start, end - start, f);
     // KLOCWORK "NNTS.MUST" possible false positive
     // Klocwork doesn't realize c_str() returns a null-terminated string
-    ::printf("%s", partial.c_str());
+    (void)std::fprintf(fp, "%s", partial.c_str());
 #if defined(__MINGW32__) || defined(__MINGW64__)
   } else if (static_cast<T>(0) == d) {
     // On MinGW 5.3 (other versions untested) calling printf on the value 0.0
@@ -246,21 +247,21 @@ void PrintFloatingPoint(std::string partial, T d) {
       }
 
       partial.replace(start, end - start, f);
-      ::printf("%s", partial.c_str());
+      (void)std::fprintf(fp, "%s", partial.c_str());
     } else {
       // All other cases work fine with MinGW printf.
-      ::printf(partial.c_str(), d);
+      (void)std::fprintf(fp, partial.c_str(), d);
     }
 #endif
   } else {
     // KLOCWORK "SV.FMTSTR.GENERIC" possible false positive
     // Possible vulnerability when the printf format string comes from the user
-    ::printf(partial.c_str(), d);
+    (void)std::fprintf(fp, partial.c_str(), d);
   }
 }
 }  // namespace
 
-void builtins::printf::print(uint8_t *pack, size_t max_length,
+void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
                              const std::vector<descriptor> &printf_calls,
                              std::vector<uint32_t> &group_offsets) {
   uint8_t *data;
@@ -322,7 +323,7 @@ void builtins::printf::print(uint8_t *pack, size_t max_length,
         // warnings treated as errors). We have already checked that the format
         // string does not consume any arguments though, so we can just add a
         // dummy argument to suppress any warnings.
-        ::printf(printf_desc.format_string.c_str(), 0);
+        (void)std::fprintf(fp, printf_desc.format_string.c_str(), 0);
         continue;
       }
 
@@ -353,41 +354,42 @@ void builtins::printf::print(uint8_t *pack, size_t max_length,
           case builtins::printf::type::DOUBLE:
             double d;
             std::memcpy(&d, data + read, 8);
-            PrintFloatingPoint(partial, d);
+            PrintFloatingPoint(fp, partial, d);
             read += 8;
             break;
           case builtins::printf::type::FLOAT:
             float f;
             std::memcpy(&f, data + read, 4);
-            PrintFloatingPoint(partial, f);
+            PrintFloatingPoint(fp, partial, f);
             read += 4;
             break;
           case builtins::printf::type::LONG:
             uint64_t l;
             std::memcpy(&l, data + read, 8);
-            ::printf(partial.c_str(), l);
+            (void)std::fprintf(fp, partial.c_str(), l);
             read += 8;
             break;
           case builtins::printf::type::INT:
             uint32_t i;
             std::memcpy(&i, data + read, 4);
-            ::printf(partial.c_str(), i);
+            (void)std::fprintf(fp, partial.c_str(), i);
             read += 4;
             break;
           case builtins::printf::type::SHORT:
             uint16_t s;
             std::memcpy(&s, data + read, 2);
-            ::printf(partial.c_str(), s);
+            (void)std::fprintf(fp, partial.c_str(), s);
             read += 2;
             break;
           case builtins::printf::type::CHAR:
             uint8_t c;
             std::memcpy(&c, data + read, 1);
-            ::printf(partial.c_str(), c);
+            (void)std::fprintf(fp, partial.c_str(), c);
             read += 1;
             break;
           case builtins::printf::type::STRING:
-            ::printf(partial.c_str(), printf_desc.strings[stringindex].c_str());
+            (void)std::fprintf(fp, partial.c_str(),
+                               printf_desc.strings[stringindex].c_str());
             ++stringindex;
             break;
         }

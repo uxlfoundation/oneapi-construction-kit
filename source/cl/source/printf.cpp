@@ -17,6 +17,12 @@
 #include <cl/device.h>
 #include <cl/printf.h>
 
+#if defined(_MSC_VER)
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
+#endif
+
 namespace {
 // Callback function for reading printf buffer data from device, unpacking
 // it, and printing it from host to stdout
@@ -34,10 +40,42 @@ void PerformPrintf(mux_queue_t, mux_command_buffer_t, void *const user_data) {
   OCL_ASSERT(mux_success == error, "muxFlushMappedMemoryFromDevice failed!");
   OCL_UNUSED(error);
 
+#if defined(_MSC_VER) && !defined(_DLL)
+  // If we are building with /MT rather than /MD, we have our own copy of stdio
+  // which has not necessarily picked up any changes to stdout performed by the
+  // host application.
+  std::FILE *const fp = [&]() -> std::FILE * {
+    const HANDLE processHandle = GetCurrentProcess();
+    HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (stdoutHandle == INVALID_HANDLE_VALUE ||
+        DuplicateHandle(processHandle, stdoutHandle, processHandle,
+                        &stdoutHandle, 0, FALSE, DUPLICATE_SAME_ACCESS) == 0) {
+      return nullptr;
+    }
+    const int fd =
+        _open_osfhandle(reinterpret_cast<intptr_t>(stdoutHandle), _O_WRONLY);
+    if (fd == -1) {
+      return nullptr;
+    }
+    auto *const fp = _fdopen(fd, "w");
+    if (!fp) {
+      _close(fd);
+    }
+    return fp;
+  }();
+#else
+  std::FILE *const fp = stdout;
+#endif
+
   // Unpack and print the data
-  builtins::printf::print(pack, printf_info->buffer_group_size,
-                          printf_info->printf_calls,
-                          printf_info->group_offsets);
+  if (fp) {
+    builtins::printf::print(fp, pack, printf_info->buffer_group_size,
+                            printf_info->printf_calls,
+                            printf_info->group_offsets);
+#if defined(_MSC_VER) && !defined(_DLL)
+    std::fclose(fp);
+#endif
+  }
 
   error = muxUnmapMemory(mux_device, printf_info->memory);
   OCL_ASSERT(mux_success == error, "muxUnmapMemory failed!");
