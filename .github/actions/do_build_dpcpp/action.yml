@@ -7,17 +7,11 @@ inputs:
   ock_git_tag:
     description: 'dpcpp build config uses this ock Git tag.'
     type: string
-    # Note: For 'pull_request' events: currently CMake will pick up branches and tags, but no other refs,
-    #       even if accessible from the repo. Once this is resolved, 'main' below should be replaced by:
-    #         'github.event.pull_request.merge_commit_sha'
-    #       with testing as appropriate to verify the update.
-    #       If NOT a 'pull_request' event (i.e. a 'schedule' event instead) 'github_sha' is the latest
-    #       commit on the default branch.
-    default: ${{ github.event_name == 'pull_request' && github.sha || github.sha }}
-  test_ock_git_tag:
-    description: 'dpcpp build config uses this ock Git tag.'
-    type: string
-    default: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.event.pull_request.merge_commit_sha }}
+    # Note: 'github.sha' is good for both schedule and pull_request events. Although CMake will currently only
+    #       handle branches and tags by default, other refs are accessible via the OCK_GIT_TAG formatting
+    #       work-around used below, i.e.:
+    #         "${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*"
+    default: ${{ github.sha }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -71,8 +65,6 @@ runs:
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       shell: bash
       run: |
-        echo ORIGINAL IS ${{ inputs.ock_git_tag }} 
-        echo TEST IS ${{ inputs.test_ock_git_tag }}
         CROSS_OPTS=""
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
           CROSS_OPTS="--cmake-opt=-DCMAKE_TOOLCHAIN_FILE=${{steps.calc_vars.outputs.toolchain}} \
@@ -81,9 +73,8 @@ runs:
         fi
         cd llvm
         set -x
-        #        -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }}" \
+                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
