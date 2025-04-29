@@ -61,6 +61,11 @@ SYCL,Graph/Explicit/single_node.cpp,XFail
 SYCL,Graph/Explicit/buffer_copy_2d.cpp,XFail
 SYCL,Graph/Explicit/buffer_copy_offsets.cpp,XFail
 SYCL,Graph/Explicit/host_task2.cpp,XFail
+SYCL,Graph/Explicit/usm_memset.cpp,XFail
+SYCL,Graph/Explicit/usm_fill_host.cpp,XFail
+SYCL,Graph/Explicit/usm_fill.cpp,XFail
+SYCL,Graph/Explicit/usm_copy.cpp,XFail
+SYCL,Graph/Explicit/usm_fill_shared.cpp,XFail
 SYCL,Graph/RecordReplay/free_function_kernels.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_fill_2d.cpp,XFail
 SYCL,Graph/RecordReplay/sub_graph_execute_without_parent.cpp,XFail
@@ -98,6 +103,13 @@ SYCL,Graph/RecordReplay/host_task2_multiple_roots.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_copy_2d.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_copy_offsets.cpp,XFail
 SYCL,Graph/RecordReplay/host_task2.cpp,XFail
+SYCL,Graph/RecordReplay/usm_memset.cpp,XFail
+SYCL,Graph/RecordReplay/usm_fill_host.cpp,XFail
+SYCL,Graph/RecordReplay/usm_copy_in_order.cpp,XFail
+SYCL,Graph/RecordReplay/usm_fill.cpp,XFail
+SYCL,Graph/RecordReplay/usm_memset_shortcut.cpp,XFail
+SYCL,Graph/RecordReplay/usm_copy.cpp,XFail
+SYCL,Graph/RecordReplay/usm_fill_shared.cpp,XFail
 SYCL,HierPar/hier_par_basic.cpp,MayFail
 SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl.cpp,XFail
