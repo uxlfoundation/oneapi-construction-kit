@@ -4,6 +4,10 @@ description: build dpc++
 inputs:
   target:
     description: 'target architecture'
+  ock_git_tag:
+    description: 'dpcpp build config uses this ock Git tag.  Note: "github.sha" is good for both schedule and pull_request events.'
+    type: string
+    default: ${{ github.sha }}
   download_dpcpp_artefact:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
@@ -65,7 +69,11 @@ runs:
         fi
         cd llvm
         set -x
+        # Note: Although CMake FetchContent will currently only handle branches and tags by default in
+        #       OCK_GIT_TAG, other refs are accessible via the formatting work-around used below, i.e.:
+        #         "${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*"
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
+                -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
