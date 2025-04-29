@@ -49,7 +49,7 @@ TEST_F(host_clGetDeviceInfoTest, Name) {
 #if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) || \
     defined(_M_ARMT)
   const char *arch = "Arm";
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
   const char *arch = "AArch64";
 #elif defined(__i386__) || defined(_M_IX86)
   const char *arch = "x86";
