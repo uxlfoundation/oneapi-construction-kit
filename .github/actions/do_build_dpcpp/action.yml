@@ -69,8 +69,8 @@ runs:
         fi
         cd llvm
         set -x
-        # Note: Although CMake will currently only handle branches and tags by default in OCK_GIT_TAG, other
-        #       refs are accessible via the formatting work-around used below, i.e.:
+        # Note: Although CMake FetchContent will currently only handle branches and tags by default in
+        #       OCK_GIT_TAG, other refs are accessible via the formatting work-around used below, i.e.:
         #         "${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*"
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
                 -DOCK_GIT_TAG="${{ inputs.ock_git_tag }};GIT_CONFIG;remote.origin.fetch=+refs/pull/*:refs/pull/*" \
