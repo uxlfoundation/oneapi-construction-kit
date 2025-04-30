@@ -106,7 +106,7 @@ runs:
         fi
         EXCLUDE_SUBSET=""
         if [ -n "${{ inputs.exclude_subset }}" ] ; then
-          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv
+          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv"
         fi
         set -x
         cmake -S SYCL-CTS.src \

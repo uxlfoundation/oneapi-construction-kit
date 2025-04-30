@@ -370,7 +370,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_x86_64_linux
-          exclude_subset: matrix.exclude_subset
+          exclude_subset: ${{ matrix.exclude_subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
 
