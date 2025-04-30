@@ -109,7 +109,6 @@ runs:
         Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-$env:LLVM_RELEASE/clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz
         7z x clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
         mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
-        ls llvm_install
         # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
         cp "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
