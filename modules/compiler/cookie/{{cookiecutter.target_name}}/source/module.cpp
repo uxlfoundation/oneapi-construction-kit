@@ -47,7 +47,7 @@ namespace {{cookiecutter.target_name}} {
     // Will be filled out by each example
     CLTargetBuiltinInfo(std::unique_ptr<compiler::utils::CLBuiltinLoader> L)
         : compiler::utils::CLBuiltinInfo(std::move(L)) {}
-    compiler::utils::Builtin analyzeBuiltin(
+    std::optional<compiler::utils::Builtin> analyzeBuiltin(
         llvm::Function const &Builtin) const override {
       compiler::utils::NameMangler mangler(&Builtin.getParent()->getContext());
       llvm::StringRef BaseName = mangler.demangleName(Builtin.getName());
