@@ -90,6 +90,7 @@
 #include <llvm/Transforms/Vectorize/SLPVectorizer.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
+#include <multi_llvm/targetinfo.h>
 #include <mux/mux.hpp>
 #include <spirv-ll/module.h>
 
@@ -1253,9 +1254,8 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
       clang::DisableValidationForModuleKind::All;
   pp_opts.AllowPCHWithCompilerErrors = true;
 
-  instance.setTarget(clang::TargetInfo::CreateTargetInfo(
-      instance.getDiagnostics(),
-      std::make_shared<clang::TargetOptions>(instance.getTargetOpts())));
+  instance.setTarget(multi_llvm::TargetInfo::CreateTargetInfo(
+      instance.getDiagnostics(), instance.getTargetOpts()));
 
   // We add the supported OpenCL opts now as we need an existing target before
   // we can do so.
