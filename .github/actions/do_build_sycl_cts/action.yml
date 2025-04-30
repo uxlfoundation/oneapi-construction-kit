@@ -4,6 +4,9 @@ description: build sycl cts
 inputs:
   target:
     description: 'target architecture'
+  exclude_subset:
+    description: 'exclude defined subset. e.g. "A" (references test set file: tests_subset_A.csv)'
+    default: ''
   sycl_device:
     description: '"opencl" or "native_cpu"'
     default: 'opencl'
@@ -101,6 +104,10 @@ runs:
           JOPT="2" # needed for cp-graviton runner
           ARCHOPT="aarch64"
         fi
+        EXCLUDE_SUBSET=""
+        if [ -n "${{ inputs.exclude_subset }}" ] ; then
+          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv
+        fi
         set -x
         cmake -S SYCL-CTS.src \
             -GNinja \
@@ -110,7 +117,8 @@ runs:
             -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/dpcpp/${ARCHOPT}-linux/install/bin/clang++" \
             -DCMAKE_CXX_FLAGS="--target=${{steps.calc_vars.outputs.arch}}-linux-gnu" \
             -DCMAKE_CXX_LINK_FLAGS="-fuse-ld=lld" \
-            ${DEV_OPTS}
+            ${DEV_OPTS} \
+            ${EXCLUDE_SUBSET}
         ninja -C SYCL-CTS -v -j$JOPT -k 0 || :
 
     # Following build, artifacts required are in: ./SYCL-CTS/bin
@@ -135,6 +143,6 @@ runs:
     - name: upload SYCL-CTS artefacts
       uses: ./.github/actions/upload_artifact
       with:
-        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_x-${{inputs.exclude_subset}}
         path: SYCL-CTS/bin
         needs_tar: 'true'
