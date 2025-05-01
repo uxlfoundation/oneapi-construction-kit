@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   exclude_subset:
-    description: 'exclude defined subset. e.g. "A" (references test set file: tests_subset_A.csv)'
+    description: 'exclude defined subset. e.g. "A" (references excluded test subset file: tests_subset_A.csv)'
     default: ''
   sycl_device:
     description: '"opencl" or "native_cpu"'
