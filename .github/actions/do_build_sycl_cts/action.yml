@@ -143,6 +143,6 @@ runs:
     - name: upload SYCL-CTS artefacts
       uses: ./.github/actions/upload_artifact
       with:
-        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_x-${{inputs.exclude_subset}}
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_${{inputs.exclude_subset}}
         path: SYCL-CTS/bin
         needs_tar: 'true'

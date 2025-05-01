@@ -345,12 +345,13 @@ jobs:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
 
-  build_sycl_cts_x86_64_opencl:
+  build_sycl_cts_x86_64_opencl_subsets:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         exclude_subset: [ 'A', 'B', 'C' ]
+    # ALAN TODO: use github runner when ready
     runs-on: 'cp-ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -373,6 +374,41 @@ jobs:
           exclude_subset: ${{ matrix.exclude_subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
+
+  build_sycl_cts_x86_64_opencl_combine:
+    needs: [build_sycl_cts_x86_64_opencl_subsets]
+    runs-on: 'ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
+    steps:
+      - name: set up gh
+        uses: ./.github/actions/setup_gh
+        with:
+          os: 'ubuntu'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: combine sycl cts artefacts
+        shell: bash
+        run: |
+          git config --global --add safe.directory $PWD
+          mkdir tests_dir
+          for EXCLUDE_SUBSET in A B C ; do
+            gh run download ${{ github.run_id }} -n sycl_cts_opencl_host-x86_64_linux_${EXCLUDE_SUBSET} -D ${{ github.workspace }}
+            set -x
+            tar xf sycl_cts_opencl_host-x86_64_linux_${EXCLUDE_SUBSET}.tar -C tests_dir
+            # delete subset tar file now ??
+          done
+          ls -l tests_dir
+      - name: upload combined artifact
+        uses: ./.github/actions/upload_artifact
+         with:
+           name: sycl_cts_opencl_host-x86_64_linux
+           path: tests_dir
+           needs_tar: 'true'
+      # delete existing subset artifacts now ??
 
   build_sycl_cts_x86_64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_x86_64]
@@ -495,7 +531,7 @@ jobs:
           sycl_device: native_cpu
 
   run_sycl_cts_x86_64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl_combine]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
