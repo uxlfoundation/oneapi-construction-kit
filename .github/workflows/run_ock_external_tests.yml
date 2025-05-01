@@ -407,7 +407,7 @@ jobs:
       - name: upload combined artifact
         uses: ./.github/actions/upload_artifact
         with:
-          name: sycl_cts_opencl_host-x86_64_linux
+          name: sycl_cts_opencl_host_x86_64_linux
           path: tests_dir
           needs_tar: 'true'
       # delete existing subset artifacts now ??
