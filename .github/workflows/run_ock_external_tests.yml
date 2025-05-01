@@ -398,9 +398,9 @@ jobs:
           git config --global --add safe.directory $PWD
           mkdir tests_dir
           for EXCLUDE_SUBSET in A B C ; do
-            gh run download ${{ github.run_id }} -n sycl_cts_opencl_host-x86_64_linux_${EXCLUDE_SUBSET} -D ${{ github.workspace }}
+            gh run download ${{ github.run_id }} -n sycl_cts_opencl_host_x86_64_linux_${EXCLUDE_SUBSET} -D ${{ github.workspace }}
             set -x
-            tar xf sycl_cts_opencl_host-x86_64_linux_${EXCLUDE_SUBSET}.tar -C tests_dir
+            tar xf sycl_cts_opencl_host_x86_64_linux_${EXCLUDE_SUBSET}.tar -C tests_dir
             # delete subset tar file now ??
           done
           ls -l tests_dir
