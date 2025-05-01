@@ -404,10 +404,10 @@ jobs:
           ls -l tests_dir
       - name: upload combined artifact
         uses: ./.github/actions/upload_artifact
-         with:
-           name: sycl_cts_opencl_host-x86_64_linux
-           path: tests_dir
-           needs_tar: 'true'
+        with:
+          name: sycl_cts_opencl_host-x86_64_linux
+          path: tests_dir
+          needs_tar: 'true'
       # delete existing subset artifacts now ??
 
   build_sycl_cts_x86_64_native_cpu:
