@@ -1,4 +1,4 @@
-From 754774765cdaec9f4c8f272f7ac0eef4db50351f Mon Sep 17 00:00:00 2001
+From 3af47d00a7cef12a2db09d032afa2c5a323f7a5a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 17:11:39 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Update clang-linker-wrapper.
@@ -7,18 +7,18 @@ The current support for NativeCPU in clang-linker-wrapper had not been
 maintained; this commit updates it to work again, simplifies things, and
 fixes handling of specialization constants.
 ---
- .../ClangLinkerWrapper.cpp                    | 136 ++++++++++++------
+ .../ClangLinkerWrapper.cpp                    | 135 ++++++++++++------
  .../Offloading/SYCLOffloadWrapper.cpp         |   9 +-
  sycl/test/native_cpu/atomic-base.cpp          |   3 +
  sycl/test/native_cpu/multiple_tu.cpp          |   7 +
  sycl/test/native_cpu/vector-add.cpp           |   4 +
- 5 files changed, 108 insertions(+), 51 deletions(-)
+ 5 files changed, 107 insertions(+), 51 deletions(-)
 
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 5037fedcb5fc..37fe1ae74a76 100644
+index d5db29c5f303..0320b621950d 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-@@ -673,9 +673,8 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
+@@ -676,9 +676,8 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
    // because it only increases amount of code for device compiler to handle,
    // without any actual benefits.
    // TODO: Try to extend this feature for non-Intel GPUs.
@@ -30,7 +30,7 @@ index 5037fedcb5fc..37fe1ae74a76 100644
        !Args.hasArg(OPT_sycl_allow_device_image_dependencies) &&
        !Triple.isNVPTX() && !Triple.isAMDGPU())
      PostLinkArgs.push_back("-emit-only-kernels-as-entry-points");
-@@ -1498,7 +1497,7 @@ Error extractBundledObjects(StringRef Filename, const ArgList &Args,
+@@ -1557,7 +1556,7 @@ Error extractBundledObjects(StringRef Filename, const ArgList &Args,
  
  namespace generic {
  Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
@@ -39,7 +39,7 @@ index 5037fedcb5fc..37fe1ae74a76 100644
    llvm::TimeTraceScope TimeScope("Clang");
    // Use `clang` to invoke the appropriate device tools.
    Expected<std::string> ClangPath =
-@@ -1507,7 +1506,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1566,7 +1565,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
      return ClangPath.takeError();
  
    llvm::Triple Triple(Args.getLastArgValue(OPT_triple_EQ));
@@ -48,7 +48,7 @@ index 5037fedcb5fc..37fe1ae74a76 100644
      Triple = llvm::Triple(Args.getLastArgValue(OPT_host_triple_EQ));
  
    StringRef Arch = Args.getLastArgValue(OPT_arch_EQ);
-@@ -1542,16 +1541,25 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1601,16 +1600,24 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
          {"-Xlinker",
           Args.MakeArgString("--plugin-opt=" + StringRef(Arg->getValue()))});
  
@@ -70,13 +70,12 @@ index 5037fedcb5fc..37fe1ae74a76 100644
      CmdArgs.push_back(InputFile);
  
    // If this is CPU offloading we copy the input libraries.
--  if (!Triple.isAMDGPU() && !Triple.isNVPTX() && !Triple.isSPIRV()) {
-+  if (!Triple.isAMDGPU() && !Triple.isNVPTX() && !Triple.isSPIRV() &&
-+      !SYCLNativeCPU) {
+-  if (!Triple.isGPU()) {
++  if (!Triple.isGPU() && !SYCLNativeCPU) {
      CmdArgs.push_back("-Wl,-Bsymbolic");
      CmdArgs.push_back("-shared");
      ArgStringList LinkerArgs;
-@@ -1604,6 +1612,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1663,6 +1670,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
                        Args.MakeArgString(Arg.split('=').second)});
    }
  
@@ -115,7 +114,7 @@ index 5037fedcb5fc..37fe1ae74a76 100644
    // The OpenMPOpt pass can introduce new calls and is expensive, we do
    // not want this when running CodeGen through clang.
    if (Args.hasArg(OPT_clang_backend) || Args.hasArg(OPT_builtin_bitcode_EQ))
-@@ -1662,9 +1702,6 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
+@@ -1721,9 +1760,6 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
    case Triple::loongarch64:
      return generic::clang(InputFiles, Args);
    default:
@@ -125,7 +124,7 @@ index 5037fedcb5fc..37fe1ae74a76 100644
      return createStringError(Triple.getArchName() +
                               " linking is not supported");
    }
-@@ -2031,39 +2068,52 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
+@@ -2096,39 +2132,52 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
            return OutputFile.takeError();
          WrappedOutput.push_back(*OutputFile);
        }
@@ -280,5 +279,5 @@ index e9aecbd00af8..30b03725c69f 100644
  
  #include <array>
 -- 
-2.48.1
+2.47.2
 
