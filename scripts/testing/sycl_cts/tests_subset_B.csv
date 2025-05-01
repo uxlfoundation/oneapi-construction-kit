@@ -1,290 +1,39 @@
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_without_bundle_no_second_queue
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_without_bundle_with_second_queue
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_second_queue_ctx_not_equal_to_kernel_bundle_ctx
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_verify_that_kernel_was_invoked
-SYCL_CTS,test_language
-SYCL_CTS,test_local_accessor
-SYCL_CTS,test_marray_arithmetic_assignment
-SYCL_CTS,test_marray_arithmetic_binary
-SYCL_CTS,test_marray_basic "marray_alignment"
-SYCL_CTS,test_marray_basic "* alignment *"
-SYCL_CTS,test_marray_basic "* constructor *"
-SYCL_CTS,test_marray_basic "* members *"
-SYCL_CTS,test_marray_bitwise "*assignment operators*"
-SYCL_CTS,test_marray_bitwise "*binary operators*"
-SYCL_CTS,test_marray_pre_post "*prefix unary operators*"
-SYCL_CTS,test_marray_pre_post "*suffix unary operators*"
-SYCL_CTS,test_marray_relational
-SYCL_CTS,test_math_builtin_api "math_builtin_common_base_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_common_half_*" --allow-running-no-tests
-SYCL_CTS,test_math_builtin_api "math_builtin_common_double_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_float_base_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_float_half_*" --allow-running-no-tests
-SYCL_CTS,test_math_builtin_api "math_builtin_float_double_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_relational_base_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_relational_half_*" --allow-running-no-tests
-SYCL_CTS,test_math_builtin_api "math_builtin_relational_double_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_geometric_base_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_geometric_double_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_integer_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_native_*"
-SYCL_CTS,test_math_builtin_api "math_builtin_half_*" --allow-running-no-tests
-SYCL_CTS,test_multi_ptr "multi_ptr access members. *"
-SYCL_CTS,test_multi_ptr "multi_ptr_accessor_constructor_*"
-SYCL_CTS,test_multi_ptr "Arithmetic operators. *"
-SYCL_CTS,test_multi_ptr "Common assignment operators. *"
-SYCL_CTS,test_multi_ptr "multi_ptr_common_constructors_*"
-SYCL_CTS,test_multi_ptr "multi_ptr comparison operators. *"
-SYCL_CTS,test_multi_ptr "Convert assignment operators. *"
-SYCL_CTS,test_multi_ptr "multi_ptr deduction guides"
-SYCL_CTS,test_multi_ptr "multi_ptr explicit conversions. *"
-SYCL_CTS,test_multi_ptr "multi_ptr implicit conversions. *"
-SYCL_CTS,test_multi_ptr "multi_ptr_legacy_api_*"
-SYCL_CTS,test_multi_ptr "multi_ptr_legacy_constructors_*"
-SYCL_CTS,"test_multi_ptr ""constructor multi_ptr(local_accessor<T\, dims>). *"""
-SYCL_CTS,test_multi_ptr "multi_ptr_members_*"
-SYCL_CTS,test_multi_ptr "Prefetch member. *"
-SYCL_CTS,test_multi_ptr "multi_ptr operator\[\]\(std::ptrdiff_t\)*"
-SYCL_CTS,test_multi_ptr "generic_ptr alias. *"
-SYCL_CTS,test_namespace "namespace ::cl::sycl"
-SYCL_CTS,test_namespace "namespace ::sycl"
-SYCL_CTS,test_nd_item "sycl::nd_item members"
-SYCL_CTS,test_nd_item "sycl::nd_item\<1\> API"
-SYCL_CTS,test_nd_item "sycl::nd_item\<2\> API"
-SYCL_CTS,test_nd_item "sycl::nd_item\<3\> API"
-SYCL_CTS,test_nd_item nd_item_async_work_group_copy_core
-SYCL_CTS,test_nd_item nd_item_async_work_group_copy_fp16 --allow-running-no-tests
-SYCL_CTS,test_nd_item nd_item_async_work_group_copy_fp64
-SYCL_CTS,test_nd_item nd_item_constructors
-SYCL_CTS,test_nd_item nd_item_equality
-SYCL_CTS,test_nd_item nd_item_wait_for
-SYCL_CTS,test_nd_range nd_range_api
-SYCL_CTS,test_nd_range "sycl::nd_range constructors.*"
-SYCL_CTS,test_nd_range "Check sycl::nd_range equality check *"
-SYCL_CTS,test_nd_range "sycl::nd_range members"
-SYCL_CTS,test_opencl_interop opencl_interop_constructors
-SYCL_CTS,test_opencl_interop opencl_interop_get
-SYCL_CTS,test_opencl_interop opencl_interop_kernel
-SYCL_CTS,test_optional_kernel_features
-SYCL_CTS,test_platform platform_api
-SYCL_CTS,test_platform platform_constructors
-SYCL_CTS,test_platform platform_info
-SYCL_CTS,test_platform "platform common reference semantics"
-SYCL_CTS,test_pointers
-SYCL_CTS,test_property
-SYCL_CTS,test_queue "Check the api for sycl::queue"
-SYCL_CTS,test_queue "Check that the default context contains all devices"
-SYCL_CTS,test_queue "Check queue default constructor and destructor"
-SYCL_CTS,test_queue "Check that queue constructors use the correct context"
-SYCL_CTS,test_queue "Check queue (*"
-SYCL_CTS,test_queue "Check exceptions thrown for mismatched context and device" --allow-running-no-tests
-SYCL_CTS,test_queue "check property::queue::enable_profiling"
-SYCL_CTS,test_queue "check property::queue::in_order"
-SYCL_CTS,test_queue "check both queue properties in_order and enable_profiling"
-SYCL_CTS,test_queue "queue common reference semantics"
-SYCL_CTS,test_queue "queue shortcuts explicit copy core"
-SYCL_CTS,test_queue "queue shortcuts explicit copy fp16" --allow-running-no-tests
-SYCL_CTS,test_queue "queue shortcuts explicit copy fp64"
-SYCL_CTS,test_queue "queue shortcuts kernel function core"
-SYCL_CTS,test_queue "queue shortcuts kernel function fp16" --allow-running-no-tests
-SYCL_CTS,test_queue "queue shortcuts kernel function fp64"
-SYCL_CTS,test_queue "queue shortcuts unified shared memory core"
-SYCL_CTS,test_queue "queue shortcuts unified shared memory fp16" --allow-running-no-tests
-SYCL_CTS,test_queue "queue shortcuts unified shared memory fp64"
-SYCL_CTS,test_queue queue_info
-SYCL_CTS,test_range range_api
-SYCL_CTS,test_range "sycl::range constructors. *"
-SYCL_CTS,test_range "range deduction guides"
-SYCL_CTS,test_range "sycl::range members"
-SYCL_CTS,test_reduction "reducer class"
-SYCL_CTS,test_reduction "reducer api core"
-SYCL_CTS,test_reduction "reducer api fp16" --allow-running-no-tests
-SYCL_CTS,test_reduction "reducer api fp64"
-SYCL_CTS,test_reduction reduction_with_identity_param_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_even_item_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_item_twice_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_even_item_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_no_one_item_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_item_twice_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_even_item_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_no_one_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_even_item_twice_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_identity_param_even_no_one_item_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_with_several_reductions_in_kernel --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_even_item_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_item_twice_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_even_item_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_no_one_item_fp16 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_item_twice_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_even_item_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_no_one_item_fp64 --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_item_twice_core --allow-running-no-tests
-SYCL_CTS,test_reduction reduction_without_identity_param_no_one_item_core --allow-running-no-tests
-SYCL_CTS,test_sampler sampler_apis
-SYCL_CTS,test_sampler sampler_constructors
-SYCL_CTS,test_scalars "Fixed width types size equality"
-SYCL_CTS,test_scalars scalars_interopability_types --allow-running-no-tests
-SYCL_CTS,test_scalars scalars_sycl_types
-SYCL_CTS,test_spec_constants "specialization_id api"
-SYCL_CTS,test_spec_constants specialization_constants_class_with_member_fun
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_core
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_fp16
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_fp64
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_via_kb_core
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_via_kb_fp16
-SYCL_CTS,test_spec_constants specialization_constants_defined_various_ways_via_kb_fp64
-SYCL_CTS,test_spec_constants specialization_constants_exceptions_throwing_core
-SYCL_CTS,test_spec_constants specialization_constants_exceptions_throwing_fp16
-SYCL_CTS,test_spec_constants specialization_constants_exceptions_throwing_fp64
-SYCL_CTS,test_spec_constants specialization_constants_external_core
-SYCL_CTS,test_spec_constants specialization_constants_external_fp16
-SYCL_CTS,test_spec_constants specialization_constants_external_fp64
-SYCL_CTS,test_spec_constants specialization_constants_multiple_core
-SYCL_CTS,test_spec_constants specialization_constants_multiple_fp16
-SYCL_CTS,test_spec_constants specialization_constants_multiple_fp64
-SYCL_CTS,test_spec_constants specialization_constants_multiple_via_kb_core
-SYCL_CTS,test_spec_constants specialization_constants_multiple_via_kb_fp16
-SYCL_CTS,test_spec_constants specialization_constants_multiple_via_kb_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_command_group_core
-SYCL_CTS,test_spec_constants specialization_constants_same_command_group_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_command_group_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_via_kb_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_via_kb_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_1st_tu_via_kb_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_via_kb_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_via_kb_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_inter_link_2nd_tu_via_kb_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_fp64
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_via_kb_core
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_via_kb_fp16
-SYCL_CTS,test_spec_constants specialization_constants_same_name_stress_via_kb_fp64
-SYCL_CTS,test_spec_constants specialization_constants_via_handler_core
-SYCL_CTS,test_spec_constants specialization_constants_via_handler_fp16
-SYCL_CTS,test_spec_constants specialization_constants_via_handler_fp64
-SYCL_CTS,test_spec_constants specialization_constants_via_kernel_bundle_core
-SYCL_CTS,test_spec_constants specialization_constants_via_kernel_bundle_fp16
-SYCL_CTS,test_spec_constants specialization_constants_via_kernel_bundle_fp64
-SYCL_CTS,test_stream stream_api_core
-SYCL_CTS,test_stream stream_api_fp16
-SYCL_CTS,test_stream stream_api_fp64
-SYCL_CTS,test_stream stream_constructors
-SYCL_CTS,test_stream "stream common reference semantics \(host\)"
-SYCL_CTS,test_stream "stream common reference semantics \(kernel\)"
-SYCL_CTS,test_sub_group
-SYCL_CTS,test_sycl_external
-SYCL_CTS,test_usm usm_aligned_alloc
-SYCL_CTS,test_usm usm_aligned_alloc_device
-SYCL_CTS,test_usm usm_aligned_alloc_host
-SYCL_CTS,test_usm usm_aligned_alloc_shared
-SYCL_CTS,test_usm usm_allocator_api
-SYCL_CTS,test_usm usm_allocator_api_aligned
-SYCL_CTS,test_usm usm_allocator_constructors
-SYCL_CTS,test_usm usm_api_copy_handler_no_events
-SYCL_CTS,test_usm usm_api_copy_queue_multiple_events
-SYCL_CTS,test_usm usm_api_copy_queue_no_events
-SYCL_CTS,test_usm usm_api_copy_queue_single_event
-SYCL_CTS,test_usm usm_api_fill_handler_no_events
-SYCL_CTS,test_usm usm_api_fill_queue_multiple_events
-SYCL_CTS,test_usm usm_api_fill_queue_no_events
-SYCL_CTS,test_usm usm_api_fill_queue_single_event
-SYCL_CTS,test_usm usm_api_mem_advise_handler_no_events
-SYCL_CTS,test_usm usm_api_mem_advise_queue_multiple_events
-SYCL_CTS,test_usm usm_api_mem_advise_queue_no_events
-SYCL_CTS,test_usm usm_api_mem_advise_queue_single_event
-SYCL_CTS,test_usm usm_api_memcpy_handler_no_events
-SYCL_CTS,test_usm usm_api_memcpy_queue_multiple_events
-SYCL_CTS,test_usm usm_api_memcpy_queue_no_events
-SYCL_CTS,test_usm usm_api_memcpy_queue_single_event
-SYCL_CTS,test_usm usm_api_memset_handler_no_events
-SYCL_CTS,test_usm usm_api_memset_queue_multiple_events
-SYCL_CTS,test_usm usm_api_memset_queue_no_events
-SYCL_CTS,test_usm usm_api_memset_queue_single_event
-SYCL_CTS,test_usm usm_api_prefetch_handler_no_events
-SYCL_CTS,test_usm usm_api_prefetch_queue_multiple_events
-SYCL_CTS,test_usm usm_api_prefetch_queue_no_events
-SYCL_CTS,test_usm usm_api_prefetch_queue_single_event
-SYCL_CTS,test_usm "Tests for usm atomics with atomic64 support"
-SYCL_CTS,test_usm "Tests for usm atomics with double-precision floating points"
-SYCL_CTS,test_usm usm_fill_memset_memcpy
-SYCL_CTS,test_usm usm_get_pointer_queries
-SYCL_CTS,test_usm usm_malloc
-SYCL_CTS,test_usm usm_malloc_device
-SYCL_CTS,test_usm usm_malloc_host
-SYCL_CTS,test_usm usm_malloc_shared
-SYCL_CTS,test_vector_alias vector_ALIAS_int8_t
-SYCL_CTS,test_vector_alias vector_ALIAS_uint8_t
-SYCL_CTS,test_vector_alias vector_ALIAS_int16_t
-SYCL_CTS,test_vector_alias vector_ALIAS_uint16_t
-SYCL_CTS,test_vector_alias vector_ALIAS_int32_t
-SYCL_CTS,test_vector_alias vector_ALIAS_uint32_t
-SYCL_CTS,test_vector_alias vector_ALIAS_int64_t
-SYCL_CTS,test_vector_alias vector_ALIAS_uint64_t
-SYCL_CTS,test_vector_alias vector_ALIAS_float
-SYCL_CTS,test_vector_alias vector_ALIAS_double
-SYCL_CTS,test_vector_alias vector_ALIAS_half --allow-running-no-tests
-SYCL_CTS,test_vector_api vector_API_bool
-SYCL_CTS,test_vector_api vector_API_char
-SYCL_CTS,test_vector_api vector_API_int
-SYCL_CTS,test_vector_api vector_API_float
-SYCL_CTS,test_vector_api vector_API_double
-SYCL_CTS,test_vector_api vector_API_half --allow-running-no-tests
-SYCL_CTS,test_vector_api vector_API_byte
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_bool
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_char
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_int
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_float
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_double
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_half --allow-running-no-tests
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_byte
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_int8_t
-SYCL_CTS,test_vector_constructors vector_CONSTRUCTORS_int32_t
-SYCL_CTS,test_vector_deduction_guides
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_bool
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_char
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_int
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_float
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_double
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_half --allow-running-no-tests
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_byte
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_int8_t
-SYCL_CTS,test_vector_load_store vector_LOAD_STORE_int32_t
-SYCL_CTS,test_vector_operators vector_OPERATORS_bool
-SYCL_CTS,test_vector_operators vector_OPERATORS_char
-SYCL_CTS,test_vector_operators vector_OPERATORS_int
-SYCL_CTS,test_vector_operators vector_OPERATORS_float
-SYCL_CTS,test_vector_operators vector_OPERATORS_double
-SYCL_CTS,test_vector_operators vector_OPERATORS_half --allow-running-no-tests
-SYCL_CTS,test_vector_operators vector_OPERATORS_byte
-SYCL_CTS,test_vector_operators vector_OPERATORS_int8_t
-SYCL_CTS,test_vector_operators vector_OPERATORS_int32_t
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_bool
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_char
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_int
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_float
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_double
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_half --allow-running-no-tests
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_byte
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_int8_t
-SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_int32_t
-SYCL_CTS,test_vector_swizzles vector_swizzles_bool
-SYCL_CTS,test_vector_swizzles vector_swizzles_char
-SYCL_CTS,test_vector_swizzles vector_swizzles_int
-SYCL_CTS,test_vector_swizzles vector_swizzles_float
-SYCL_CTS,test_vector_swizzles vector_swizzles_double
-SYCL_CTS,test_vector_swizzles vector_swizzles_half --allow-running-no-tests
-SYCL_CTS,test_vector_swizzles vector_swizzles_byte
-SYCL_CTS,test_vector_swizzles vector_swizzles_int8_t
-SYCL_CTS,test_vector_swizzles vector_swizzles_int32_t
+kernel
+kernel_args
+kernel_bundle
+language
+local_accessor
+marray_arithmetic_assignment
+marray_arithmetic_binary
+marray_basic
+marray_bitwise
+marray_pre_post
+marray_relational
+math_builtin_api
+multi_ptr
+namespace
+nd_item
+nd_range
+opencl_interop
+optional_kernel_features
+platform
+pointers
+property
+queue
+range
+reduction
+sampler
+scalars
+spec_constants
+stream
+sub_group
+sycl_external
+usm
+vector_alias
+vector_api
+vector_constructors
+vector_deduction_guides
+vector_load_store
+vector_operators
+vector_swizzle_assignment
+vector_swizzles
