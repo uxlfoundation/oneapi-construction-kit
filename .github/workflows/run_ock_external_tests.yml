@@ -385,6 +385,8 @@ jobs:
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
