@@ -98,7 +98,11 @@ runs:
           EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv"
           ARTIFACT_SUFFIX="_${{inputs.exclude_subset}}"
         fi
-        echo "DEV_OPTS=\"$DEV_OPTS\" JOPT=$JOPT ARCHOPT=$ARCHOPT EXCLUDE_SUBSET=\"$EXCLUDE_SUBSET\" ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> $GITHUB_ENV
+        echo "DEV_OPTS=$DEV_OPTS" >> $GITHUB_ENV
+        echo "JOPT=$JOPT" >> $GITHUB_ENV
+        echo "ARCHOPT=$ARCHOPT" >> $GITHUB_ENV
+        echo "EXCLUDE_SUBSET=$EXCLUDE_SUBSET" >> $GITHUB_ENV
+        echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> $GITHUB_ENV
 
     - name: build SYCL CTS
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
