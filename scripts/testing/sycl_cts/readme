@@ -1,0 +1,8 @@
+exclude subsets:
+===============
+
+categories.list == master list of test categories (as at time of writing)
+
+cat cat_sub_1 cat_sub_2 > tests_subset_A.csv == cat_sub_3
+cat cat_sub_1 cat_sub_3 > tests_subset_B.csv == cat_sub_2
+cat cat_sub_2 cat_sub_3 > tests_subset_C.csv == cat_sub_1

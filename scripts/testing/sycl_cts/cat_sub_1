@@ -36,3 +36,11 @@ image_accessor
 invoke
 is_device_copyable
 item
+kernel
+kernel_args
+kernel_bundle
+language
+local_accessor
+marray_arithmetic_assignment
+marray_arithmetic_binary
+marray_basic

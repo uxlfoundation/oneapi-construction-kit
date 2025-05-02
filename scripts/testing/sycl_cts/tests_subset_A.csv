@@ -57,3 +57,9 @@ optional_kernel_features
 platform
 pointers
 property
+queue
+range
+reduction
+sampler
+scalars
+spec_constants

@@ -1,9 +1,3 @@
-queue
-range
-reduction
-sampler
-scalars
-spec_constants
 stream
 sub_group
 sycl_external

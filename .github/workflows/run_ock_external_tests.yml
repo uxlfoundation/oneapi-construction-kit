@@ -351,8 +351,8 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         exclude_subset: [ 'A', 'B', 'C' ]
-    # ALAN TODO: use github runner when ready
-    runs-on: 'cp-ubuntu-24.04'
+    # ALAN TODO: note github runner
+    runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
