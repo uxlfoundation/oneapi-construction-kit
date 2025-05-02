@@ -28,5 +28,3 @@ jobs:
       llvm_source: install
       llvm_previous: 19
       llvm_current: 20
-
-

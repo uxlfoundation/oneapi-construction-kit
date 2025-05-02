@@ -87,8 +87,8 @@ runs:
         key: llvm-${{ inputs.os }}-${{ steps.set_llvm_key.outputs.key_version }}-${{ steps.set_llvm_key.outputs.key_native_arch }}-v${{ inputs.llvm_version }}-${{ inputs.llvm_build_type }}
         fail-on-cache-miss: true
 
-    - name: install llvm native
-      if: inputs.llvm_source == 'install'
+    - name: install llvm native ubuntu # via "apt install"
+      if: inputs.os == 'ubuntu' && inputs.llvm_source == 'install'
       shell: bash
       run: |
         set -x
@@ -98,6 +98,21 @@ runs:
         sudo apt install -y libpolly-${{ inputs.llvm_version }}-dev clang-${{ inputs.llvm_version }}
 
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
+
+    - name: install llvm native windows # via llvm-project/releases/download & extract
+      if: inputs.os == 'windows' && inputs.llvm_source == 'install'
+      shell: pwsh
+      env:
+        # Map inputs.llvm_version to specific download release here.
+        LLVM_RELEASE: "${{ inputs.llvm_version == '20' && '20.1.2' || '19.1.7' }}"
+      run: |
+        Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-$env:LLVM_RELEASE/clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -OutFile clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz
+        7z x clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
+        mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
+        # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
+        mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
+        cp "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
+
 
     - name: download llvm native
       if: inputs.llvm_source != 'install' && inputs.llvm_source != 'cache'
