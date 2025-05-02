@@ -1,6 +1,3 @@
-stream
-sub_group
-sycl_external
 usm
 vector_alias
 vector_api

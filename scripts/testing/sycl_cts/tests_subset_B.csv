@@ -39,14 +39,6 @@ item
 kernel
 kernel_args
 kernel_bundle
-language
-local_accessor
-marray_arithmetic_assignment
-marray_arithmetic_binary
-marray_basic
-stream
-sub_group
-sycl_external
 usm
 vector_alias
 vector_api

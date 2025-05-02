@@ -77,8 +77,31 @@ runs:
         path: SYCL-CTS.src
         submodules: true
 
-    - name: build SYCL CTS
+    - name: set build SYCL CTS env vars
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
+      shell: bash
+      run: |
+        if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
+          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include -DDPCPP_FLAGS=--offload-new-driver"
+        else # native_cpu
+          DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS=--offload-new-driver;-fsycl-targets=native_cpu"
+        fi
+        JOPT="4"
+        ARCHOPT="x86_64"
+        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
+          JOPT="2" # needed for cp-graviton runner
+          ARCHOPT="aarch64"
+        fi
+        EXCLUDE_SUBSET=""
+        ARTIFACT_SUFFIX=""
+        if [ -n "${{ inputs.exclude_subset }}" ] ; then
+          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv"
+          ARTIFACT_SUFFIX="_${{inputs.exclude_subset}}"
+        fi
+        echo "DEV_OPTS=\"$DEV_OPTS\" JOPT=$JOPT ARCHOPT=$ARCHOPT EXCLUDE_SUBSET=\"$EXCLUDE_SUBSET\" ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> $GITHUB_ENV
+
+    - name: build SYCL CTS
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       shell: bash
       run: |
         echo calling cmake and ninja on SYCL CTS
@@ -93,21 +116,6 @@ runs:
             git -C SYCL-CTS.src apply "$patch"
           fi
         done
-        if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
-          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include -DDPCPP_FLAGS=--offload-new-driver"
-        else # native_cpu
-          DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS=--offload-new-driver;-fsycl-targets=native_cpu"
-        fi
-        export JOPT="4"
-        export ARCHOPT="x86_64"
-        if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
-          JOPT="2" # needed for cp-graviton runner
-          ARCHOPT="aarch64"
-        fi
-        EXCLUDE_SUBSET=""
-        if [ -n "${{ inputs.exclude_subset }}" ] ; then
-          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv"
-        fi
         set -x
         cmake -S SYCL-CTS.src \
             -GNinja \
@@ -135,14 +143,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p SYCL-CTS/bin
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}_${{inputs.exclude_subset}}
-        # Downloaded tar file for extraction is: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_${{inputs.exclude_subset}}.tar
-        tar xf sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_${{inputs.exclude_subset}}.tar -C SYCL-CTS/bin
+        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}$ARTIFACT_SUFFIX
+        # Downloaded tar file for extraction is: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${ARTIFACT_SUFFIX}.tar
+        tar xf sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${ARTIFACT_SUFFIX}.tar -C SYCL-CTS/bin
         ls SYCL-CTS/bin
 
     - name: upload SYCL-CTS artefacts
       uses: ./.github/actions/upload_artifact
       with:
-        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_${{inputs.exclude_subset}}
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}$ARTIFACT_SUFFIX
         path: SYCL-CTS/bin
         needs_tar: 'true'
