@@ -383,27 +383,34 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
+    # Add if: condition to say "dont run if downloading artifact" - casue we would be dealing only 
+    # with the single pre-combined artifact in that case?
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
+      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      - name: download SYCL-CTS build artifact - A
+        uses: ./.github/actions/download_artifact
         with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: combine sycl cts artefacts
-        shell: bash
-        run: |
-          git config --global --add safe.directory $PWD
-          mkdir tests_dir
-          for EXCLUDE_SUBSET in A B C ; do
-            gh run download ${{ github.run_id }} -n sycl_cts_opencl_host_x86_64_linux_${EXCLUDE_SUBSET} -D ${{ github.workspace }}
-            set -x
-            tar xf sycl_cts_opencl_host_x86_64_linux_${EXCLUDE_SUBSET}.tar -C tests_dir
-            # delete subset tar file now ??
-          done
-          ls -l tests_dir
+          name: sycl_cts_opencl_host_x86_64_linux_A
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - B
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_x86_64_linux_B
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - C
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_x86_64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
       - name: upload combined artifact
         uses: ./.github/actions/upload_artifact
         with:

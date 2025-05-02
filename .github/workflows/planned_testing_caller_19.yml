@@ -36,6 +36,6 @@ jobs:
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
       # # e.g. https://github.com/uxlfoundation/oneapi-construction-kit/actions/runs/<run-id>/.....
-      download_ock_artefact: host_x86_64_linux=14778055761;host_aarch64_linux=14778055761;host_riscv64_linux=14778055761
-      download_dpcpp_artefact: host_x86_64_linux=14778055761;host_aarch64_linux=14778055761;host_riscv64_linux=14778055761
-      download_sycl_cts_artefact: host_x86_64_linux=14778055761;host_aarch64_linux=14778055761;host_riscv64_linux=14778055761
+      download_ock_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
+      download_dpcpp_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
+      download_sycl_cts_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
