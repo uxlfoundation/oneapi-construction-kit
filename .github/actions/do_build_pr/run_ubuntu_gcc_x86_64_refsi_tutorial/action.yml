@@ -1,0 +1,42 @@
+name: build_pr_ubuntu_gcc_x86_64_refsi_tutorial
+description: Build pr ubuntu_gcc_x86_64_refsi_tutorial
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      # TODO: refsi_tutorial start
+      - name: remove any old dirs and set up new target
+        shell: bash  
+        run: |
+          rm -rf build
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          virtualenv newenv
+          source newenv/bin/activate
+          pip install cookiecutter
+          scripts/setup_new_target_tutorial.sh -s end -e $GITHUB_WORKSPACE/refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
+
+      - name: build refsi_tutorial
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_targets: install
+          mux_targets_enable: refsi_tutorial
+          use_linker: gold
+          debug_support: ON
+          offline_kernel_tests: OFF
+          source_dir: $GITHUB_WORKSPACE/refsi_tutorial
+          extra_flags: '-DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$GITHUB_WORKSPACE/refsi_tutorial/hal_refsi_tutorial'
+
+      - name: run test
+        if: inputs.cache_seed != 'true'
+        shell: bash
+         # Run just a quick UnitCL test for now, hal_tutorial causes some failures at present
+        run: |
+          ninja -Cbuild check-ock-refsi_tutorial-lit
+          OCL_ICD_VENDORS=/dev/null OCL_ICD_FILENAMES=$PWD/build/oneAPIConstructionKit/lib/libCL.so \
+            $PWD/build/oneAPIConstructionKit/bin/UnitCL \
+            --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
