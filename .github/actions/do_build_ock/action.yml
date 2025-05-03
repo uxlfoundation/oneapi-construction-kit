@@ -110,6 +110,9 @@ inputs:
   toolchain_file:
     description: "Path to toolchain file"
     default: ""
+  source_dir:
+    description: 'cmake source directory'
+    default: '.'
 
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
@@ -168,7 +171,7 @@ runs:
               -DCA_BUILD_32_BITS=${{ inputs.build_32_bit }}
               -DCMAKE_TOOLCHAIN_FILE=${{ inputs.toolchain_file }}
                ${{ inputs.extra_flags }}
-               .
+               ${{ inputs.source_dir }}
     - name: build_ock
       shell: ${{ inputs.shell_to_use }}
       run:

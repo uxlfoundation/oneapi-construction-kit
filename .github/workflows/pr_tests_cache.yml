@@ -99,7 +99,10 @@ jobs:
         uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0          
         with:
           cache_seed: true
-
+      - name: build ubuntu_gcc_x86_64_refsi_tutorial
+        uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_tutorial
+        with:
+          cache_seed: true
   # aarch 64
   ubuntu_22_llvm_current_aarch64_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
