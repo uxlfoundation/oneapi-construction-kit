@@ -1,3 +1,5 @@
+opencl_interop
+optional_kernel_features
 platform
 pointers
 property

@@ -40,6 +40,9 @@ kernel
 kernel_args
 kernel_bundle
 language
+local_accessor
+opencl_interop
+optional_kernel_features
 platform
 pointers
 property

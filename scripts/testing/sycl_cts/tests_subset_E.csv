@@ -68,6 +68,5 @@ sub_group
 sycl_external
 usm
 vector_alias
-vector_operators
 vector_swizzle_assignment
 vector_swizzles

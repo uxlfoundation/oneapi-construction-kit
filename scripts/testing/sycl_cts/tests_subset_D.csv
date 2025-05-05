@@ -52,8 +52,6 @@ multi_ptr
 namespace
 nd_item
 nd_range
-opencl_interop
-optional_kernel_features
 vector_api
 vector_constructors
 vector_deduction_guides

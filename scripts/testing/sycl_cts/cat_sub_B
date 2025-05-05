@@ -19,3 +19,4 @@ kernel
 kernel_args
 kernel_bundle
 language
+local_accessor

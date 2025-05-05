@@ -22,7 +22,9 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      target_list: '[ "host_x86_64_linux" ]'
+      target_list: '[ "host_x86_64_linux",
+                      "host_aarch64_linux",
+                      "host_riscv64_linux", ]'
       # ock: true
       native_cpu: false
       test_tornado: false
@@ -36,6 +38,6 @@ jobs:
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
       # # e.g. https://github.com/uxlfoundation/oneapi-construction-kit/actions/runs/<run-id>/.....
-      download_ock_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
-      download_dpcpp_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
+      #download_ock_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
+      #download_dpcpp_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
       #download_sycl_cts_artefact: host_x86_64_linux=14779535786;host_aarch64_linux=14779535786;host_riscv64_linux=14779535786
