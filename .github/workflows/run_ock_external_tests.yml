@@ -379,11 +379,11 @@ jobs:
     needs: [build_sycl_cts_x86_64_opencl_subsets]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - casue we would be dealing only 
+    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
     # with the single pre-combined artifact in that case?
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
@@ -443,9 +443,14 @@ jobs:
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: native_cpu
 
-  build_sycl_cts_aarch64_opencl:
+  build_sycl_cts_aarch64_opencl_subsets:
     needs: [workflow_vars, build_icd, build_dpcpp_native_aarch64]
-    runs-on: 'cp-graviton'
+    strategy:
+      fail-fast: false  # let all matrix jobs complete
+      matrix:
+        exclude_subset: [ 'A', 'B', 'C' ]
+    # ALAN TODO: note github runner
+    runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
       volumes:
@@ -464,8 +469,53 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_aarch64_linux
+          exclude_subset: ${{ matrix.exclude_subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
+
+  build_sycl_cts_aarch64_opencl_combine:
+    needs: [build_sycl_cts_aarch64_opencl_subsets]
+    runs-on: 'ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
+    # with the single pre-combined artifact in that case?
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      - name: download SYCL-CTS build artifact - A
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_A
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - B
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_B
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - C
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: upload combined artifact
+        uses: ./.github/actions/upload_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux
+          path: tests_dir
+          needs_tar: 'true'
+      # delete existing subset artifacts now ??
 
   build_sycl_cts_aarch64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_aarch64]
@@ -491,9 +541,14 @@ jobs:
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: native_cpu
 
-  build_sycl_cts_riscv64_opencl:
+  build_sycl_cts_riscv64_opencl_subsets:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
-    runs-on: 'cp-ubuntu-24.04'
+    strategy:
+      fail-fast: false  # let all matrix jobs complete
+      matrix:
+        exclude_subset: [ 'A', 'B', 'C' ]
+    # ALAN TODO: note github runner
+    runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:
@@ -512,8 +567,53 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_riscv64_linux
+          exclude_subset: ${{ matrix.exclude_subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
+
+  build_sycl_cts_riscv64_opencl_combine:
+    needs: [build_sycl_cts_riscv64_opencl_subsets]
+    runs-on: 'ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+
+    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
+    # with the single pre-combined artifact in that case?
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      - name: download SYCL-CTS build artifact - A
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_A
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - B
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_B
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - C
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: upload combined artifact
+        uses: ./.github/actions/upload_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux
+          path: tests_dir
+          needs_tar: 'true'
+      # delete existing subset artifacts now ??
 
   build_sycl_cts_riscv64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
@@ -578,7 +678,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}          
 
   run_sycl_cts_aarch64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_opencl]
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_opencl_combine]
     runs-on: 'cp-graviton'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
