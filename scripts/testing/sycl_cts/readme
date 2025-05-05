@@ -5,4 +5,4 @@ categories.list == master list of test categories (as at time of writing)
 
 cat cat_sub_B cat_sub_C > tests_subset_A.csv == cat_sub_A
 cat cat_sub_A cat_sub_C > tests_subset_B.csv == cat_sub_B
-cat cat_sub_B cat_sub_C > tests_subset_C.csv == cat_sub_C
+cat cat_sub_A cat_sub_B > tests_subset_C.csv == cat_sub_C
