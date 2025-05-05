@@ -39,8 +39,7 @@ item
 kernel
 kernel_args
 kernel_bundle
-usm
-vector_alias
+language
 vector_api
 vector_constructors
 vector_deduction_guides
