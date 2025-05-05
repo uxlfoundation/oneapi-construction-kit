@@ -3,6 +3,9 @@ exclude subsets:
 
 categories.list == master list of test categories (as at time of writing)
 
-cat cat_sub_B cat_sub_C > tests_subset_A.csv == cat_sub_A
-cat cat_sub_A cat_sub_C > tests_subset_B.csv == cat_sub_B
-cat cat_sub_A cat_sub_B > tests_subset_C.csv == cat_sub_C
+cat cat_sub_B cat_sub_C cat_sub_D cat_sub_E cat_sub_F > tests_subset_A.csv == cat_sub_A
+cat cat_sub_A cat_sub_C cat_sub_D cat_sub_E cat_sub_F > tests_subset_B.csv == cat_sub_B
+cat cat_sub_A cat_sub_B cat_sub_D cat_sub_E cat_sub_F > tests_subset_C.csv == cat_sub_C
+cat cat_sub_A cat_sub_B cat_sub_C cat_sub_E cat_sub_F > tests_subset_D.csv == cat_sub_D
+cat cat_sub_A cat_sub_B cat_sub_C cat_sub_D cat_sub_F > tests_subset_E.csv == cat_sub_E
+cat cat_sub_A cat_sub_B cat_sub_C cat_sub_D cat_sub_E > tests_subset_F.csv == cat_sub_F

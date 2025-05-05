@@ -350,7 +350,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        exclude_subset: [ 'A', 'B', 'C', 'D', 'E', 'F' ]
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
@@ -389,7 +389,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      # download sycl cts build subset artefacts, combine, upload
       - name: download SYCL-CTS build artifact - A
         uses: ./.github/actions/download_artifact
         with:
@@ -408,6 +408,27 @@ jobs:
         uses: ./.github/actions/download_artifact
         with:
           name: sycl_cts_opencl_host_x86_64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - D
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_x86_64_linux_D
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - E
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_x86_64_linux_E
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - F
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_x86_64_linux_F
           path: tests_dir
           needs_tar: 'true'
           run_id: ${{ github.run_id }}
@@ -448,7 +469,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        exclude_subset: [ 'A', 'B', 'C', 'D', 'E', 'F' ]
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-22.04-arm'
     container:
@@ -487,7 +508,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      # download sycl cts build subset artefacts, combine, upload
       - name: download SYCL-CTS build artifact - A
         uses: ./.github/actions/download_artifact
         with:
@@ -506,6 +527,27 @@ jobs:
         uses: ./.github/actions/download_artifact
         with:
           name: sycl_cts_opencl_host_aarch64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - D
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_D
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - E
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_E
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - F
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_aarch64_linux_F
           path: tests_dir
           needs_tar: 'true'
           run_id: ${{ github.run_id }}
@@ -546,7 +588,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        exclude_subset: [ 'A', 'B', 'C', 'D', 'E', 'F' ]
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
@@ -585,7 +627,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      # download sycl cts build subset artefacts (A, B, C), combine, upload
+      # download sycl cts build subset artefacts, combine, upload
       - name: download SYCL-CTS build artifact - A
         uses: ./.github/actions/download_artifact
         with:
@@ -604,6 +646,27 @@ jobs:
         uses: ./.github/actions/download_artifact
         with:
           name: sycl_cts_opencl_host_riscv64_linux_C
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - D
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_D
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - E
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_E
+          path: tests_dir
+          needs_tar: 'true'
+          run_id: ${{ github.run_id }}
+      - name: download SYCL-CTS build artifact - F
+        uses: ./.github/actions/download_artifact
+        with:
+          name: sycl_cts_opencl_host_riscv64_linux_F
           path: tests_dir
           needs_tar: 'true'
           run_id: ${{ github.run_id }}
