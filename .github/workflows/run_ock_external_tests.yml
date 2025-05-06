@@ -390,33 +390,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       # download sycl cts build subset artefacts, combine, upload
-      - name: download SYCL-CTS build artifact - A
-        uses: ./.github/actions/download_artifact
+      - name: combine SYCL-CTS build artifacts
+        uses: ./.github/actions/combine_sycl_cts_artifacts
         with:
-          name: sycl_cts_opencl_host_x86_64_linux_A
+          target: host_x86_64_linux
           path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - B
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_x86_64_linux_B
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - C
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_x86_64_linux_C
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: upload combined artifact
-        uses: ./.github/actions/upload_artifact
-        with:
-          name: sycl_cts_opencl_host_x86_64_linux
-          path: tests_dir
-          needs_tar: 'true'
+          sycl_device: opencl
       # delete existing subset artifacts now ??
 
   build_sycl_cts_x86_64_native_cpu:
@@ -488,33 +467,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       # download sycl cts build subset artefacts, combine, upload
-      - name: download SYCL-CTS build artifact - A
-        uses: ./.github/actions/download_artifact
+      - name: combine SYCL-CTS build artifacts
+        uses: ./.github/actions/combine_sycl_cts_artifacts
         with:
-          name: sycl_cts_opencl_host_aarch64_linux_A
+          target: host_aarch64_linux
           path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - B
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_aarch64_linux_B
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - C
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_aarch64_linux_C
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: upload combined artifact
-        uses: ./.github/actions/upload_artifact
-        with:
-          name: sycl_cts_opencl_host_aarch64_linux
-          path: tests_dir
-          needs_tar: 'true'
+          sycl_device: opencl
       # delete existing subset artifacts now ??
 
   build_sycl_cts_aarch64_native_cpu:
@@ -586,33 +544,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       # download sycl cts build subset artefacts, combine, upload
-      - name: download SYCL-CTS build artifact - A
-        uses: ./.github/actions/download_artifact
+      - name: combine SYCL-CTS build artifacts
+        uses: ./.github/actions/combine_sycl_cts_artifacts
         with:
-          name: sycl_cts_opencl_host_riscv64_linux_A
+          target: host_riscv64_linux
           path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - B
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_riscv64_linux_B
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: download SYCL-CTS build artifact - C
-        uses: ./.github/actions/download_artifact
-        with:
-          name: sycl_cts_opencl_host_riscv64_linux_C
-          path: tests_dir
-          needs_tar: 'true'
-          run_id: ${{ github.run_id }}
-      - name: upload combined artifact
-        uses: ./.github/actions/upload_artifact
-        with:
-          name: sycl_cts_opencl_host_riscv64_linux
-          path: tests_dir
-          needs_tar: 'true'
+          sycl_device: opencl
       # delete existing subset artifacts now ??
 
   build_sycl_cts_riscv64_native_cpu:
