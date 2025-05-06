@@ -19,6 +19,7 @@ import os
 import sys
 import time
 import csv
+import platform
 
 import lit.cl_arguments
 import lit.discovery
@@ -110,7 +111,7 @@ class LitProfile(DefaultProfile):
             valgrindArgs=[],
             noExecute=False,
             debug=False,
-            isWindows=False,
+            isWindows=(platform.system() == "Windows"),
             order=lit.cl_arguments.TestOrder.SMART,
             params=self.args.lit_param,
             config_prefix=""
