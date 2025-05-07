@@ -350,9 +350,10 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A' ]
+        exclude_subset: 'A'
         include:
-          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  [ 'B', 'C' ] || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
