@@ -350,7 +350,9 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  [ 'B', 'C' ] || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
@@ -383,9 +385,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -436,9 +436,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -489,9 +487,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -542,9 +538,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -595,9 +589,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
+    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -648,9 +640,7 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
-    # Add if: condition to say "dont run if downloading artifact" - cause we would be dealing only
-    # with the single pre-combined artifact in that case?
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
+    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux') && inputs.download_sycl_cts_artefact == ''
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
