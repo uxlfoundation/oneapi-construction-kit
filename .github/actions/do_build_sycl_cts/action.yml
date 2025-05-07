@@ -79,6 +79,7 @@ runs:
 
     - name: set build SYCL CTS env vars
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true    
+      id: env_vars
       shell: bash
       run: |
         if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
@@ -103,6 +104,7 @@ runs:
         echo "ARCHOPT=$ARCHOPT" >> $GITHUB_ENV
         echo "EXCLUDE_SUBSET=$EXCLUDE_SUBSET" >> $GITHUB_ENV
         echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> $GITHUB_ENV
+        echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> "$GITHUB_OUTPUT"
 
     - name: build SYCL CTS
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
@@ -155,6 +157,6 @@ runs:
     - name: upload SYCL-CTS artefacts
       uses: ./.github/actions/upload_artifact
       with:
-        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}_${{inputs.exclude_subset}}
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
         path: SYCL-CTS/bin
         needs_tar: 'true'

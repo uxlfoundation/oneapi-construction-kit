@@ -22,11 +22,12 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      target_list: '[ "host_x86_64_linux",
-                      "host_aarch64_linux",
-                      "host_riscv64_linux", ]'
-      ock: false
-      # native_cpu: true
+      target_list: '[ "host_x86_64_linux" ]'
+      #target_list: '[ "host_x86_64_linux",
+      #                "host_aarch64_linux",
+      #                "host_riscv64_linux", ]'
+      # ock: true
+      native_cpu: false
       test_tornado: false
       # test_sycl_cts: true
       test_sycl_e2e: false
