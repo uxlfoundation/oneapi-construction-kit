@@ -101,7 +101,7 @@ HostInfo::HostInfo(host::arch arch, host::os os,
 
   vectorizable = true;
   dma_optimizable = true;
-  scalable_vector_support = false;
+  scalable_vector_support = getenv("CA_HOST_VF") ? true : false;
   kernel_debug = true;
 #ifdef CA_ENABLE_DEBUG_SUPPORT
   // Dummy values for testing. Enabled only on debug enabled builds with a
