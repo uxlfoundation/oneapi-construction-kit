@@ -2126,15 +2126,6 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
   return llvm::Error::success();
 }
 
-namespace {
-// Attach type attribute to ByVal params and StructRet return types
-inline void addTypeAttr(llvm::Argument *arg, llvm::Type *ty,
-                        llvm::Attribute::AttrKind kind) {
-  auto attr = llvm::Attribute::get(arg->getContext(), kind, ty);
-  arg->addAttr(attr);
-}
-}  // namespace
-
 template <>
 llvm::Error Builder::create<OpFunctionParameter>(
     const OpFunctionParameter *op) {
@@ -2151,6 +2142,7 @@ llvm::Error Builder::create<OpFunctionParameter>(
 
   for (auto *arg : args) {
     arg->setName(module.getName(op->IdResult()));
+    llvm::AttrBuilder attrs(arg->getContext());
 
     if (module.hasCapability(spv::CapabilityKernel)) {
       for (auto funcParamAttr : module.getDecorations(
@@ -2159,10 +2151,10 @@ llvm::Error Builder::create<OpFunctionParameter>(
         if (arg->getType()->isIntegerTy()) {
           switch (funcParamAttr->getValueAtOffset(3)) {
             case spv::FunctionParameterAttributeZext:
-              arg->addAttr(llvm::Attribute::ZExt);
+              attrs.addAttribute(llvm::Attribute::ZExt);
               break;
             case spv::FunctionParameterAttributeSext:
-              arg->addAttr(llvm::Attribute::SExt);
+              attrs.addAttribute(llvm::Attribute::SExt);
               break;
             default:
               return makeStringError(
@@ -2175,27 +2167,28 @@ llvm::Error Builder::create<OpFunctionParameter>(
           SPIRV_LL_ASSERT_PTR(paramTy);
           switch (funcParamAttr->getValueAtOffset(3)) {
             case spv::FunctionParameterAttributeByVal:
-              addTypeAttr(arg, paramTy, llvm::Attribute::ByVal);
+              attrs.addByValAttr(paramTy);
+              attrs.addAlignmentAttr(1);
               break;
             case spv::FunctionParameterAttributeSret:
-              addTypeAttr(arg, paramTy, llvm::Attribute::StructRet);
+              attrs.addStructRetAttr(paramTy);
+              attrs.addAlignmentAttr(1);
               break;
             case spv::FunctionParameterAttributeNoAlias:
-              arg->addAttr(llvm::Attribute::NoAlias);
+              attrs.addAttribute(llvm::Attribute::NoAlias);
               break;
             case spv::FunctionParameterAttributeNoCapture:
 #if LLVM_VERSION_GREATER_EQUAL(21, 0)
-              arg->addAttr(llvm::Attribute::getWithCaptureInfo(
-                  arg->getContext(), llvm::CaptureInfo::none()));
+              attrs.addCapturesAttr(llvm::CaptureInfo::none());
 #else
-              arg->addAttr(llvm::Attribute::NoCapture);
+              attrs.addAttribute(llvm::Attribute::NoCapture);
 #endif
               break;
             case spv::FunctionParameterAttributeNoWrite:
-              arg->addAttr(llvm::Attribute::ReadOnly);
+              attrs.addAttribute(llvm::Attribute::ReadOnly);
               break;
             case spv::FunctionParameterAttributeNoReadWrite:
-              arg->addAttr(llvm::Attribute::WriteOnly);
+              attrs.addAttribute(llvm::Attribute::WriteOnly);
               break;
             default:
               return makeStringError(
@@ -2211,7 +2204,7 @@ llvm::Error Builder::create<OpFunctionParameter>(
           auto derefAttr = llvm::Attribute::get(
               arg->getContext(), llvm::Attribute::Dereferenceable,
               maxBufSize->getValueAtOffset(3));
-          arg->addAttr(derefAttr);
+          attrs.addAttribute(derefAttr);
         }
       }
     }
@@ -2223,12 +2216,14 @@ llvm::Error Builder::create<OpFunctionParameter>(
         module.getFirstDecoration(op->IdResult(), spv::DecorationBufferBlock)) {
       if (module.getFirstDecoration(op->IdResult(),
                                     spv::DecorationNonReadable)) {
-        arg->addAttr(llvm::Attribute::ReadNone);
+        attrs.addAttribute(llvm::Attribute::ReadNone);
       } else if (module.getFirstDecoration(op->IdResult(),
                                            spv::DecorationNonWritable)) {
-        arg->addAttr(llvm::Attribute::ReadOnly);
+        attrs.addAttribute(llvm::Attribute::ReadOnly);
       }
     }
+
+    arg->addAttrs(attrs);
   }
 
   module.addID(op->IdResult(), op, function_arg);

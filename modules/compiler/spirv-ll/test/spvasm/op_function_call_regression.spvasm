@@ -58,13 +58,13 @@
 ; CHECK: store i64 1, {{(ptr|i64\*)}} %a
                OpStore %a %ulong_1 Aligned 8
 ; Check we also apply call-site attributes to this function
-; CHECK: call spir_func void @foo(i64 [[TMP]], {{(ptr|i64\*)}} byval(i64) %a)
+; CHECK: call spir_func void @foo(i64 [[TMP]], {{(ptr|i64\*)}} byval(i64) align 1 %a)
         %272 = OpFunctionCall %void %foo %call0 %a
                OpReturn
                OpFunctionEnd
 
 
-; CHECK: define private spir_func void @foo(i64 {{%.*}}, {{(ptr|i64\*)}} byval(i64) {{%.*}}) #0 {
+; CHECK: define private spir_func void @foo(i64 {{%.*}}, {{(ptr|i64\*)}} byval(i64) align 1 {{%.*}}) #0 {
 %foo = OpFunction %void None %foo_fn_ty
   %0 = OpFunctionParameter %ulong
 %ptr = OpFunctionParameter %ptr_ty
