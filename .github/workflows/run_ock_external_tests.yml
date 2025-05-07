@@ -349,9 +349,11 @@ jobs:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ ]
         include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact != '' &&  'd/l' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'A' || '' }}
           - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
           - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
@@ -403,8 +405,11 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
@@ -454,8 +459,11 @@ jobs:
     needs: [workflow_vars, build_icd, build_dpcpp_native_aarch64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-22.04-arm'
     container:
@@ -505,8 +513,11 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_aarch64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-22.04-arm'
     container:
@@ -556,8 +567,11 @@ jobs:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
@@ -607,8 +621,11 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
-      matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+      matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
+        exclude_subset: [ 'A' ]
+        include:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:

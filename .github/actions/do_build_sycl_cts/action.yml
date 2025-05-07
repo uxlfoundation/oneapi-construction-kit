@@ -103,7 +103,6 @@ runs:
         echo "JOPT=$JOPT" >> $GITHUB_ENV
         echo "ARCHOPT=$ARCHOPT" >> $GITHUB_ENV
         echo "EXCLUDE_SUBSET=$EXCLUDE_SUBSET" >> $GITHUB_ENV
-        echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> $GITHUB_ENV
         echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> "$GITHUB_OUTPUT"
 
     - name: build SYCL CTS
@@ -149,12 +148,21 @@ runs:
         # TODO : make this work on windows
         mkdir -p SYCL-CTS/bin
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}$ARTIFACT_SUFFIX
-        # Downloaded tar file for extraction is: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${ARTIFACT_SUFFIX}.tar
-        tar xf sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${ARTIFACT_SUFFIX}.tar -C SYCL-CTS/bin
+        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}
+        # Downloaded tar file for extraction is: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}.tar
+        tar xf sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}.tar -C SYCL-CTS/bin
         ls SYCL-CTS/bin
 
-    - name: upload SYCL-CTS artefacts
+    - name: upload combined SYCL-CTS artefact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target)
+      uses: ./.github/actions/upload_artifact
+      with:
+        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}
+        path: SYCL-CTS/bin
+        needs_tar: 'true'
+
+    - name: upload subset SYCL-CTS artefacts
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: ./.github/actions/upload_artifact
       with:
         name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
