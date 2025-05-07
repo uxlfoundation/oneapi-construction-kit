@@ -350,12 +350,13 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix: # If downloading, call build once to download the combined artefact, else build ALL subsets.
-        exclude_subset: [ ]
+        exclude_subset: [ 'd/l' ]
         include:
-          - exclude_subset: ${{ inputs.download_sycl_cts_artefact != '' &&  'd/l' || '' }}
           - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'A' || '' }}
           - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'B' || '' }}
           - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'C' || '' }}
+        exclude:
+          - exclude_subset: ${{ inputs.download_sycl_cts_artefact == '' &&  'd/l' || '' }}
     # ALAN TODO: note github runner
     runs-on: 'ubuntu-24.04'
     container:
