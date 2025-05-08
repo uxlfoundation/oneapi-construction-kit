@@ -41,4 +41,4 @@ jobs:
       # # e.g. https://github.com/uxlfoundation/oneapi-construction-kit/actions/runs/<run-id>/.....
       download_ock_artefact: host_x86_64_linux=14903203354;host_aarch64_linux=14903203354;host_riscv64_linux=14903203354
       download_dpcpp_artefact: host_x86_64_linux=14903203354;host_aarch64_linux=14903203354;host_riscv64_linux=14903203354
-      download_sycl_cts_artefact: host_x86_64_linux=14903203354;host_aarch64_linux=14903203354;host_riscv64_linux=14903203354
+      #download_sycl_cts_artefact: host_x86_64_linux=14903203354;host_aarch64_linux=14903203354;host_riscv64_linux=14903203354

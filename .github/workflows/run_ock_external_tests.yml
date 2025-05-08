@@ -350,7 +350,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -370,7 +370,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_x86_64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
 
@@ -400,7 +400,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -420,7 +420,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_x86_64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: native_cpu
 
@@ -450,7 +450,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -470,7 +470,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_aarch64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
 
@@ -500,7 +500,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -520,7 +520,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_aarch64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: native_cpu
 
@@ -550,7 +550,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -570,7 +570,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_riscv64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: opencl
 
@@ -600,7 +600,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        exclude_subset: [ 'A', 'B', 'C' ]
+        subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
@@ -620,7 +620,7 @@ jobs:
         uses: ./.github/actions/do_build_sycl_cts
         with:
           target: host_riscv64_linux
-          exclude_subset: ${{ matrix.exclude_subset }}
+          subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
           sycl_device: native_cpu
 

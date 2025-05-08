@@ -4,8 +4,8 @@ description: build sycl cts
 inputs:
   target:
     description: 'target architecture'
-  exclude_subset:
-    description: 'exclude defined subset. e.g. "A" (references excluded test subset file: tests_subset_A.csv)'
+  subset:
+    description: 'defined test subset. e.g. "A" (references test subset file: cat_sub__A.lst)'
     default: ''
   sycl_device:
     description: '"opencl" or "native_cpu"'
@@ -77,14 +77,14 @@ runs:
         path: SYCL-CTS.src
         submodules: true
 
-    #- name: create required sycl cts test subset list
-    #  # e.g. subset A is specified by creating an exclude list containing all other subsets
-    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
-    #  shell: bash
-    #  run: |
-    #    cd $GITHUB_WORKSPACE/scripts/testing/sycl_cts
-    #    cat `ls -1 cat_sub_?.lst | grep -v cat_sub_${{ inputs.exclude_subset }}` > tests_subset_${{ inputs.exclude_subset }}.lst
-    #    cat tests_subset_${{ inputs.exclude_subset }}.lst
+    - name: create required sycl cts test subset list
+      # e.g. a build of subset A is specified by creating an exclude list containing all other subsets
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE/scripts/testing/sycl_cts
+        cat `ls -1 cat_sub_?.lst | grep -v cat_sub_${{ inputs.subset }}` > tests_subset_${{ inputs.subset }}.lst
+        cat tests_subset_${{ inputs.subset }}.lst
 
     - name: set build SYCL CTS env vars
       id: env_vars
@@ -103,9 +103,9 @@ runs:
         fi
         EXCLUDE_SUBSET=""
         ARTIFACT_SUFFIX=""
-        if [ -n "${{ inputs.exclude_subset }}" ] ; then
-          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.exclude_subset }}.csv"
-          ARTIFACT_SUFFIX="_${{inputs.exclude_subset}}"
+        if [ -n "${{ inputs.subset }}" ] ; then
+          EXCLUDE_SUBSET="-DSYCL_CTS_EXCLUDE_TEST_CATEGORIES=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests_subset_${{ inputs.subset }}.lst"
+          ARTIFACT_SUFFIX="_${{inputs.subset}}"
         fi
         echo "DEV_OPTS=$DEV_OPTS" >> $GITHUB_ENV
         echo "JOPT=$JOPT" >> $GITHUB_ENV
