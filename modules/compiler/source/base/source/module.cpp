@@ -62,6 +62,7 @@
 #include <llvm/Analysis/Passes.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/Bitcode/BitcodeWriter.h>
+#include <llvm/Frontend/Driver/CodeGenOptions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/LinkAllPasses.h>
@@ -2089,41 +2090,17 @@ void BaseModule::initializePassMachineryForFrontend(
 
   // Register the target library analysis directly and give it a customized
   // preset TLI.
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
   const llvm::Triple TT = llvm::Triple(llvm_module->getTargetTriple());
-  auto TLII = llvm::TargetLibraryInfoImpl(TT);
-
-  // getVecLib()'s return type changed in LLVM 18.
-  auto VecLib = CGO.getVecLib();
-  using VecLibT = decltype(VecLib);
-  switch (VecLib) {
-    case VecLibT::Accelerate:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::Accelerate, TT);
-      break;
-    case VecLibT::SVML:
-      TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
-                                              TT);
-      break;
-    case VecLibT::MASSV:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::MASSV, TT);
-      break;
-    case VecLibT::LIBMVEC:
-      switch (TT.getArch()) {
-        default:
-          break;
-        case llvm::Triple::x86_64:
-          TLII.addVectorizableFunctionsFromVecLib(
-              llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
-          break;
-      }
-      break;
-    default:
-      break;
-  }
+#else
+  llvm::Triple TT = llvm::Triple(llvm_module->getTargetTriple());
+#endif
+  const auto VecLib = CGO.getVecLib();
+  std::unique_ptr<llvm::TargetLibraryInfoImpl> TLII(
+      llvm::driver::createTLII(TT, VecLib));
 
   pass_mach.getFAM().registerPass(
-      [&TLII] { return llvm::TargetLibraryAnalysis(TLII); });
+      [&TLII = *TLII] { return llvm::TargetLibraryAnalysis(TLII); });
 
   pass_mach.initializeFinish();
 }
