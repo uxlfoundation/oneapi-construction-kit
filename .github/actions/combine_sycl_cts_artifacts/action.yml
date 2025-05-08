@@ -20,7 +20,7 @@ runs:
   steps:
     - name: Checkout repo
       uses: actions/checkout@v4
-    # download sycl cts build subset artefacts to path, upload
+    # download sycl cts build subset artefacts to path then upload all
     - name: download SYCL-CTS build artifact - A
       uses: ./.github/actions/download_artifact
       with:

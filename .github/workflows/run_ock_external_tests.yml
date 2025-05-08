@@ -376,11 +376,7 @@ jobs:
 
   build_sycl_cts_x86_64_opencl_combine:
     needs: [build_sycl_cts_x86_64_opencl]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
@@ -393,7 +389,6 @@ jobs:
           target: host_x86_64_linux
           path: tests_dir
           sycl_device: opencl
-      # delete existing subset artifacts now ??
 
   build_sycl_cts_x86_64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_x86_64]
@@ -426,11 +421,7 @@ jobs:
 
   build_sycl_cts_x86_64_native_cpu_combine:
     needs: [build_sycl_cts_x86_64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
@@ -443,7 +434,6 @@ jobs:
           target: host_x86_64_linux
           path: tests_dir
           sycl_device: native_cpu
-      # delete existing subset artifacts now ??
 
   build_sycl_cts_aarch64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native_aarch64]
@@ -476,11 +466,7 @@ jobs:
 
   build_sycl_cts_aarch64_opencl_combine:
     needs: [build_sycl_cts_aarch64_opencl]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
@@ -493,7 +479,6 @@ jobs:
           target: host_aarch64_linux
           path: tests_dir
           sycl_device: opencl
-      # delete existing subset artifacts now ??
 
   build_sycl_cts_aarch64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_aarch64]
@@ -526,11 +511,7 @@ jobs:
 
   build_sycl_cts_aarch64_native_cpu_combine:
     needs: [build_sycl_cts_aarch64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
@@ -543,7 +524,6 @@ jobs:
           target: host_aarch64_linux
           path: tests_dir
           sycl_device: native_cpu
-      # delete existing subset artifacts now ??
 
   build_sycl_cts_riscv64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
@@ -576,11 +556,7 @@ jobs:
 
   build_sycl_cts_riscv64_opencl_combine:
     needs: [build_sycl_cts_riscv64_opencl]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
@@ -593,7 +569,6 @@ jobs:
           target: host_riscv64_linux
           path: tests_dir
           sycl_device: opencl
-      # delete existing subset artifacts now ??
 
   build_sycl_cts_riscv64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
@@ -626,11 +601,7 @@ jobs:
 
   build_sycl_cts_riscv64_native_cpu_combine:
     needs: [build_sycl_cts_riscv64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+    runs-on: 'ubuntu-latest'
 
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
@@ -643,7 +614,6 @@ jobs:
           target: host_riscv64_linux
           path: tests_dir
           sycl_device: native_cpu
-      # delete existing subset artifacts now ??
 
   run_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl_combine]

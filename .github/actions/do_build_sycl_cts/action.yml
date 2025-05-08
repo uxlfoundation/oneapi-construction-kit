@@ -5,7 +5,7 @@ inputs:
   target:
     description: 'target architecture'
   subset:
-    description: 'defined test subset. e.g. "A" (references test subset file: cat_sub__A.lst)'
+    description: 'defined test subset. e.g. "A" (references test subset file: cat_sub_A.lst)'
     default: ''
   sycl_device:
     description: '"opencl" or "native_cpu"'
@@ -77,16 +77,16 @@ runs:
         path: SYCL-CTS.src
         submodules: true
 
-    - name: create required sycl cts test subset list
+    - name: create required sycl-cts test subset exclude list
       # e.g. a build of subset A is specified by creating an exclude list containing all other subsets
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE/scripts/testing/sycl_cts
         cat `ls -1 cat_sub_?.lst | grep -v cat_sub_${{ inputs.subset }}` > tests_subset_${{ inputs.subset }}.lst
-        cat tests_subset_${{ inputs.subset }}.lst
+        echo For subset ${{ inputs.subset }} excluded tests are: && cat tests_subset_${{ inputs.subset }}.lst
 
-    - name: set build SYCL CTS env vars
+    - name: set build SYCL CTS env vars and outputs
       id: env_vars
       shell: bash
       run: |
@@ -111,7 +111,7 @@ runs:
         echo "JOPT=$JOPT" >> $GITHUB_ENV
         echo "ARCHOPT=$ARCHOPT" >> $GITHUB_ENV
         echo "EXCLUDE_SUBSET=$EXCLUDE_SUBSET" >> $GITHUB_ENV
-        echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> "$GITHUB_OUTPUT"
+        echo "ARTIFACT_SUFFIX=$ARTIFACT_SUFFIX" >> "$GITHUB_OUTPUT" # used in with: so add to outputs
 
     - name: build SYCL CTS
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
