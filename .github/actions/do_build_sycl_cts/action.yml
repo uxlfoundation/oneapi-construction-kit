@@ -77,6 +77,15 @@ runs:
         path: SYCL-CTS.src
         submodules: true
 
+    #- name: create required sycl cts test subset list
+    #  # e.g. subset A is specified by creating an exclude list containing all other subsets
+    #  if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+    #  shell: bash
+    #  run: |
+    #    cd $GITHUB_WORKSPACE/scripts/testing/sycl_cts
+    #    cat `ls -1 cat_sub_?.lst | grep -v cat_sub_${{ inputs.exclude_subset }}` > tests_subset_${{ inputs.exclude_subset }}.lst
+    #    cat tests_subset_${{ inputs.exclude_subset }}.lst
+
     - name: set build SYCL CTS env vars
       id: env_vars
       shell: bash
