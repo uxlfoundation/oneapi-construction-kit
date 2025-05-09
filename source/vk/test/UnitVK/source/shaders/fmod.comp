@@ -1,9 +1,0 @@
-#version 450
-
-layout(set=0, binding=0) buffer out_buffer{
-    float out_float;
-};
-
-void main(){
-    out_float = mod(42.f, 24.f);
-}
