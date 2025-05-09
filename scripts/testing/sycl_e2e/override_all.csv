@@ -9,6 +9,9 @@ SYCL,ThreadSanitizer/check_sub_buffer.cpp,XFail
 SYCL,ThreadSanitizer/check_group_barrier.cpp,XFail
 SYCL,ThreadSanitizer/check_access16.cpp,XFail
 SYCL,ThreadSanitizer/check_unaligned_access.cpp,XFail
+SYCL/ThreadSanitizer/check_host_usm.cpp,XFail
+SYCL/ThreadSanitizer/check_device_usm.cpp,XFail
+SYCL/ThreadSanitizer/check_shared_usm.cpp,XFail
 SYCL,Assert/assert_in_multiple_tus.cpp,XFail
 SYCL,Assert/assert_in_simultaneous_kernels.cpp,XFail
 SYCL,Assert/check_resource_leak.cpp,XFail
