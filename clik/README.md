@@ -45,7 +45,7 @@ ComputeMux examples can optionally be built by passing additional options to CMa
 Examples included with clik can be used as a test suite for basic validation:
 
     $ cd path/to/clik/build/clik-debug
-    $ ninja check
+    $ ninja clik_tests
     [100 %] [0:0:11/11] PASS matrix_multiply_tiled
 
     Passed:           11 (100.0 %)
