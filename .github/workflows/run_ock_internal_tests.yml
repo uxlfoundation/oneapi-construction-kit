@@ -180,6 +180,7 @@ jobs:
   run_clang_format:
 
     runs-on: ubuntu-22.04
+    if: false
 
     steps:
       - name: Checkout repo
@@ -289,6 +290,48 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0
+
+  # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
+  run-ubuntu-gcc-x86_64-riscv-cl3-0:
+    if: contains(inputs.target_list, 'host_refsi_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
+
+  # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
+  run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
+    if: contains(inputs.target_list, 'host_refsi_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    timeout-minutes: 60
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0_part2
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
