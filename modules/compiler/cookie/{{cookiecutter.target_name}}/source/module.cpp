@@ -25,6 +25,7 @@
 #include <compiler/utils/llvm_global_mutex.h>
 #include <llvm/ADT/Statistic.h>
 #include <llvm/Analysis/TargetTransformInfo.h>
+#include <llvm/Frontend/Driver/CodeGenOptions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/CrashRecoveryContext.h>
@@ -32,9 +33,9 @@
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetMachine.h>
 #include <multi_llvm/multi_llvm.h>
+#include <vecz/pass.h>
 #include <{{cookiecutter.target_name}}/module.h>
 #include <{{cookiecutter.target_name}}/target.h>
-#include <vecz/pass.h>
 #include <{{cookiecutter.target_name}}/{{cookiecutter.target_name}}_pass_machinery.h>
 
 {% if "clmul"  in cookiecutter.feature.split(";") -%}
@@ -282,43 +283,19 @@ void {{cookiecutter.target_name.capitalize()}}Module::initializePassMachineryFor
 
   // Register the target library analysis directly and give it a customized
   // preset TLI.
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  const llvm::Triple TT = llvm::Triple(target_machine->getTargetTriple());
+#else
   llvm::Triple TT = llvm::Triple(target_machine->getTargetTriple());
-  auto TLII = llvm::TargetLibraryInfoImpl(TT);
+#endif
+  const auto VecLib = CGO.getVecLib();
+  std::unique_ptr<llvm::TargetLibraryInfoImpl> TLII(
+      llvm::driver::createTLII(TT, VecLib));
 
-  // getVecLib()'s return type changed in LLVM 18.
-  auto VecLib = CGO.getVecLib();
-  using VecLibT = decltype(VecLib);
-  switch (VecLib) {
-    case VecLibT::Accelerate:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::Accelerate, TT);
-      break;
-    case VecLibT::SVML:
-      TLII.addVectorizableFunctionsFromVecLib(llvm::TargetLibraryInfoImpl::SVML,
-                                              TT);
-      break;
-    case VecLibT::MASSV:
-      TLII.addVectorizableFunctionsFromVecLib(
-          llvm::TargetLibraryInfoImpl::MASSV, TT);
-      break;
-    case VecLibT::LIBMVEC:
-      switch (TT.getArch()) {
-        default:
-          break;
-        case llvm::Triple::x86_64:
-          TLII.addVectorizableFunctionsFromVecLib(
-              llvm::TargetLibraryInfoImpl::LIBMVEC_X86, TT);
-          break;
-      }
-      break;
-    default:
-      break;
-  }
-
-  TLII.disableAllFunctions();
+  TLII->disableAllFunctions();
 
   pass_mach.getFAM().registerPass(
-      [&TLII] { return llvm::TargetLibraryAnalysis(TLII); });
+      [&TLII = *TLII] { return llvm::TargetLibraryAnalysis(TLII); });
   auto *TM = pass_mach.getTM();
   if (TM) {
     pass_mach.getFAM().registerPass(
