@@ -1,5 +1,5 @@
-name: build_pr_ubuntu_gcc_x86_64_riscv_fp16_cl3-0
-description: Build pr ubuntu_gcc_x86_64_riscv_fp16_cl3-0
+name: build_pr_ubuntu_gcc_x86_64_riscv_cl3-0
+description: Build pr ubuntu_gcc_x86_64_riscv_cl3-0
 
 inputs:
   cache_seed:
