@@ -19,15 +19,17 @@ runs:
         with:
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           mux_targets_enable: riscv
-          mux_compilers_enable: riscv
+          mux_compilers_enable: refsi_m1
           riscv_enabled: ON
           disable_unitcl_vecz_checks: ON
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON
           host_enable_builtins: OFF
           use_linker: gold
-          hal_description: RV64GCV_Zfh
-          hal_refsi_soc: G1
+          hal_description: RV64GCV
+          hal_refsi_soc: M1
           hal_refsi_thread_mode: WG
           debug_support: ON
           offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}        
+          external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
+          extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/bin
