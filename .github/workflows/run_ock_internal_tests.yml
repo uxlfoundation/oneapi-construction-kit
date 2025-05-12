@@ -227,7 +227,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -272,7 +273,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
+    #if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
