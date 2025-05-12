@@ -30,6 +30,6 @@ runs:
           hal_refsi_soc: M1
           hal_refsi_thread_mode: WG
           debug_support: ON
-          offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}        
+          offline_kernel_tests: OFF
           external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
           extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/bin
