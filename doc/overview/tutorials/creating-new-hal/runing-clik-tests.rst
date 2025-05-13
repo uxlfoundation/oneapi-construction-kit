@@ -21,7 +21,7 @@ clik tests as a suite and obtain the number of passed and failed tests
 
 .. code:: console
 
-    $ ninja check
+    $ ninja clik_tests
       [100 %] [11:0:0/11] FAIL concatenate_dma
       ******************** concatenate_dma FAIL in 0:00:00.006947 ********************
       Unable to create a clik device.
@@ -47,7 +47,7 @@ clik tests as a suite and obtain the number of passed and failed tests
 
 As can be seen above, all clik tests are currently failing. This is to be
 expected when the RefSi HAL is still at the skeleton stage. Nevertheless, it is
-useful to run ``ninja check`` periodically while developing the HAL, to confirm
+useful to run ``ninja clik_tests`` periodically while developing the HAL, to confirm
 that a particular operation has been implemented correctly or that a new change
 to the source code has not caused any regression.
 

@@ -76,7 +76,7 @@ $ llvm-lit host/test/lit/ --xunit-xml-output=lit_junit.xml
 -- Testing: 172 tests, 4 threads --
 ```
 
-A third way is by invoking the CMake `check` target.
+A third way is by invoking the CMake `clik_tests` target.
 
 Sample usage:
 
