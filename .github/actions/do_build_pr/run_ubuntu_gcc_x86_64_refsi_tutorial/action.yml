@@ -17,6 +17,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - name: Install requirements
+        shell: bash  
+        run: |
+          sudo apt install -y virtualenv
+
       # TODO: refsi_tutorial start
       - name: remove any old dirs and set up new target
         shell: bash  

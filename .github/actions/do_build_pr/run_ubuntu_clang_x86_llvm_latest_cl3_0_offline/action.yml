@@ -9,6 +9,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - name: Install requirements
+        shell: bash  
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev
+
       - name: remove any old dirs
         shell: bash  
         run:

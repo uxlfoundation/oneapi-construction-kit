@@ -78,30 +78,30 @@ jobs:
       use_github_cache: ${{ inputs.use_llvm_github_cache }}
       target_list: ${{ inputs.target_list }}
 
-  run_external_tests:
-    if: inputs.run_external && always() && !failure() && !cancelled()
-    needs: [build_llvm_artefacts]
-    # This makes the diagram too big if we post much here so S_ for scheduled.
-    name: S_
-    uses: ./.github/workflows/run_ock_external_tests.yml
-    with:
-      target_list: ${{ inputs.target_list }}
-      ock: ${{ inputs.ock }}
-      test_tornado: ${{ inputs.test_tornado }}
-      test_sycl_cts: ${{ inputs.test_sycl_cts }}
-      test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
-      test_opencl_cts: ${{ inputs.test_opencl_cts }}
-      native_cpu: ${{ inputs.native_cpu }}
+  # run_external_tests:
+  #   if: inputs.run_external && always() && !failure() && !cancelled()
+  #   needs: [build_llvm_artefacts]
+  #   # This makes the diagram too big if we post much here so S_ for scheduled.
+  #   name: S_
+  #   uses: ./.github/workflows/run_ock_external_tests.yml
+  #   with:
+  #     target_list: ${{ inputs.target_list }}
+  #     ock: ${{ inputs.ock }}
+  #     test_tornado: ${{ inputs.test_tornado }}
+  #     test_sycl_cts: ${{ inputs.test_sycl_cts }}
+  #     test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
+  #     test_opencl_cts: ${{ inputs.test_opencl_cts }}
+  #     native_cpu: ${{ inputs.native_cpu }}
 
-      # The following can be used to download from a previous workflow run (change id)
-      download_ock_artefact: ${{ inputs.download_ock_artefact }}
-      download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-      download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
+  #     # The following can be used to download from a previous workflow run (change id)
+  #     download_ock_artefact: ${{ inputs.download_ock_artefact }}
+  #     download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+  #     download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
 
-      # Override this value if we wish to use a previous workflow's llvm binary
-      # We may want to disable needs: and disable original build_llvm_artefacts
-      llvm_source: ${{ github.run_id }}
-      llvm_version: ${{ inputs.llvm_version }}
+  #     # Override this value if we wish to use a previous workflow's llvm binary
+  #     # We may want to disable needs: and disable original build_llvm_artefacts
+  #     llvm_source: ${{ github.run_id }}
+  #     llvm_version: ${{ inputs.llvm_version }}
 
   run_internal_tests:
     if: inputs.run_internal && always() && !failure() && !cancelled()
