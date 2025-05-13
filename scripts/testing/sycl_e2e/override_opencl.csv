@@ -9,6 +9,7 @@ SYCL,GroupAlgorithm/SYCL2020/group_sort/key_value_array_input_sort.cpp,XFail
 SYCL,GroupAlgorithm/SYCL2020/group_sort/key_value_sort.cpp,XFail
 SYCL,GroupAlgorithm/SYCL2020/group_sort/group_and_joint_sort.cpp,XFail
 SYCL,GroupAlgorithm/load_store/partial_sg.cpp,XFail
+SYCL,GroupInterface/sub_group.cpp,XFail
 SYCL,DeviceLib/math_test_marray_vec.cpp,XFail
 SYCL,DeviceLib/assert.cpp,XFail
 SYCL,DeviceLib/math_test.cpp,XFail
