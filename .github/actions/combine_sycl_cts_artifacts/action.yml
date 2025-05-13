@@ -1,0 +1,50 @@
+name: combine sycl_cts artifacts
+description: Download and combine SYCL-CTS build subset artifacts (A, B, C) into a single uploaded artifact
+
+inputs:
+  target:
+    description: 'build target e.g. host_x86_64_linux'
+    type: string
+    required: true
+  path:
+    description: 'combine path to download to - and upload from'
+    type: string
+    required: true
+  sycl_device:
+    description: 'sycl device type: opencl OR native_cpu'
+    type: string
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    # download sycl cts build subset artefacts to path then upload all
+    - name: download SYCL-CTS build artifact - A
+      uses: ./.github/actions/download_artifact
+      with:
+        name: sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}_A
+        path: ${{ inputs.path }}
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
+    - name: download SYCL-CTS build artifact - B
+      uses: ./.github/actions/download_artifact
+      with:
+        name: sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}_B
+        path: ${{ inputs.path }}
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
+    - name: download SYCL-CTS build artifact - C
+      uses: ./.github/actions/download_artifact
+      with:
+        name: sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}_C
+        path: ${{ inputs.path }}
+        needs_tar: 'true'
+        run_id: ${{ github.run_id }}
+    - name: upload combined artifact
+      uses: ./.github/actions/upload_artifact
+      with:
+        name: sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}
+        path: ${{ inputs.path }}
+        needs_tar: 'true'
