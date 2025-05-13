@@ -295,7 +295,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'host_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -313,10 +313,15 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
+    # For now DO NOT include run_cities.py testing. Commands/sub-commands used in Gitlab are:
+    # $ python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
+    #   ==> $ pull artefact.ca-opencl-cts to CA-OpenCL-CTS.tar.gz
+    #   ==> $ extract CA-OpenCL-CTS.tar.gz CA-OpenCL-CTS
+    # $ python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b CA-OpenCL-CTS/bin -e "CA_RISCV_VF=1,S" -L build/lib -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_riscv_1s.xml
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'host_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -334,6 +339,11 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0_part2
+    # For now DO NOT include run_cities.py testing. Commands/sub-commands used in Gitlab are:
+    # $ python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
+    #   ==> $ pull artefact.ca-opencl-cts to CA-OpenCL-CTS.tar.gz
+    #   ==> $ extract CA-OpenCL-CTS.tar.gz CA-OpenCL-CTS
+    # $ python scripts/testing/run_cities.py -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b CA-OpenCL-CTS/bin -e "CA_RISCV_VF=1,S,VP" -e OCL_ICD_FILENAMES=$PWD/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null -L build/lib --timeout 00:10:00 --verbose -l build/cts.log -f build/cts.fail -r build/cts_riscv_1svp.xml
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
