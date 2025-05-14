@@ -813,6 +813,9 @@ TEST_F(clEnqueueNDRangeKernelTest, ZeroNDRange) {
   for (const auto &ndrange : ndrange3) {
     EXPECT_NO_FATAL_FAILURE(check_ndrange(3, ndrange.data()));
   }
+
+  // nullptr.
+  EXPECT_NO_FATAL_FAILURE(check_ndrange(3, nullptr));
 }
 #endif
 

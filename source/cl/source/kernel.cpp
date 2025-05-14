@@ -1532,7 +1532,10 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
   OCL_CHECK((0 == work_dim) || (cl::max::WORK_ITEM_DIM < work_dim) ||
                 (command_queue->device->max_work_item_dimensions < work_dim),
             return CL_INVALID_WORK_DIMENSION);
+#ifndef CL_VERSION_2_1
+  // This check was deprecated since version 2.1.
   OCL_CHECK(!global_work_size, return CL_INVALID_GLOBAL_WORK_SIZE);
+#endif
 
   // Check the required work group size (if it exists).
   if (auto error = kernel->checkReqdWorkGroupSize(work_dim, local_work_size)) {
@@ -1563,11 +1566,15 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
     std::copy_n(global_work_offset, work_dim, std::begin(final_global_offset));
   }
 
-  // The user must pass a global size but here we also initialize the global
+  // The user may pass a global size but here we also initialize the global
   // sizes for the unused dimensions so callers don't have to keep checking the
   // work dimensions.
   std::array<size_t, cl::max::WORK_ITEM_DIM> final_global_size{1, 1, 1};
-  std::copy_n(global_work_size, work_dim, std::begin(final_global_size));
+  if (global_work_size) {
+    std::copy_n(global_work_size, work_dim, std::begin(final_global_size));
+  } else {
+    final_global_size = {0, 0, 0};
+  }
 
   // Check the current kernel arguments are valid.
   if (auto error = kernel->checkKernelArgs()) {
