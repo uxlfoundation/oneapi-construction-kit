@@ -447,8 +447,9 @@ jobs:
       with:
         repository: llvm/llvm-project
         path: $GITHUB_WORKSPACE/..
-        #  branch:
-        #  depth:
+        #  ref:
+        fetch-depth: 1
+        clean: false
     - name: Run Clik
       run: |
         echo WORKSPACE is $GITHUB_WORKSPACE PWD is `pwd`
