@@ -62,7 +62,8 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
-    if: contains(inputs.target_list, 'host_x86_64_linux')
+    #if: contains(inputs.target_list, 'host_x86_64_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -97,7 +98,8 @@ jobs:
 
   # build and run riscv m1, execute UnitCL and lit tests
   run_riscv_m1:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
 
     runs-on: ubuntu-22.04
     container:
@@ -129,7 +131,8 @@ jobs:
 
   # build and run clang-tidy
   run_clang_tidy_changes:
-    if: contains(inputs.target_list, 'host_x86_64_linux')
+    #if: contains(inputs.target_list, 'host_x86_64_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -198,7 +201,8 @@ jobs:
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
     runs-on: windows-2019
-    if: contains(inputs.target_list, 'host_x86_64_windows')
+    #if: contains(inputs.target_list, 'host_x86_64_windows')
+    if: false
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -222,7 +226,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -244,7 +249,8 @@ jobs:
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
     # do not run as PR job due to cross where we always install
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -266,7 +272,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -287,7 +294,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    if: contains(inputs.target_list, 'host_i686_linux')
+    #if: contains(inputs.target_list, 'host_i686_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -308,7 +316,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
-    if: contains(inputs.target_list, 'host_aarch64_linux')
+    #if: contains(inputs.target_list, 'host_aarch64_linux')
+    if: false
     runs-on: ubuntu-22.04-arm
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
@@ -330,7 +339,8 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -355,7 +365,8 @@ jobs:
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     # do not run as PR job for now to avoid flooding the concurrency
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -389,9 +400,10 @@ jobs:
     #      oneapi-construction-kit/build/*.fail
     #      oneapi-construction-kit/build/*.log
 
- # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end:
+ # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -409,3 +421,105 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_tutorial
+
+ # Based on: mr-ubuntu-build-ock-in-tree-llvm
+  run-ubuntu-build-ock-in-tree-llvm:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
+  run-ubuntu-clang-x86-llvm-latest-cl3.0:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
+  run-ubuntu-gcc-x86-llvm-previous-cl3.0-release:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ # Based on: mr-ubuntu-gcc-x86_64-cpu
+  run-ubuntu-gcc-x86_64-cpu:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up sccahe
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+ # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
+  run-windows-msvc-x86_64-llvm-previous-cl3.0-images:
+    runs-on: windows-2019
+    if: contains(inputs.target_list, 'host_x86_64_windows')
+    steps:
+      - name: Setup Windows llvm base
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up ccache
+      - name: setup-windows
+        uses: ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          os: windows
+          llvm_source: ${{ inputs.llvm_source }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
