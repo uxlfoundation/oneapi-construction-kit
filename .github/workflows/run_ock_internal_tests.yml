@@ -503,7 +503,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
-  run-windows-msvc-x86_64-llvm-previous-cl3.0-images:
+  run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
     runs-on: windows-2019
     if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
