@@ -447,17 +447,16 @@ jobs:
       with:
         repository: llvm/llvm-project
         path: llvm-project
-        ref: release/20.x  # where to keep this?
+        ref: release/20.x  # can I use llvm_version instead of '20' here?
         fetch-depth: 1
     - name: Build
       run: |
-        echo WORKSPACE is $GITHUB_WORKSPACE PWD is `pwd`
-        ls -l llvm-project
+        # Position llvm-project alongside ock
         mv llvm-project ..
-        ls -l
-        ls -l ..
         cd ../llvm-project
-        cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang -DLLVM_TARGETS_TO_BUILD="X86;AArch64;ARM;RISCV" -DLLVM_EXTERNAL_PROJECTS=ock -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
+        cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang \
+           -DLLVM_TARGETS_TO_BUILD="X86;AArch64;ARM;RISCV" -DLLVM_EXTERNAL_PROJECTS=ock \
+           -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
         ninja -C build check-ock-vecz-lit
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
