@@ -434,8 +434,6 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
-      with:
-        path: here
 
     # installs tools, ninja, installs llvm and sets up sccahe
     - name: setup-ubuntu
@@ -448,11 +446,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: llvm/llvm-project
-        #  ref:
+        ref: release/20.x  # where to keep this?
         fetch-depth: 1
     - name: Build
       run: |
         echo WORKSPACE is $GITHUB_WORKSPACE PWD is `pwd`
+        ls -l llvm-project
+        mv llvm-project ..
         ls -l
         ls -l ..
 
