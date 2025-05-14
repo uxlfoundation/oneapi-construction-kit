@@ -443,7 +443,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
-  run-ubuntu-clang-x86-llvm-latest-cl3.0:
+  run-ubuntu-clang-x86-llvm-latest-cl3-0:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
@@ -463,7 +463,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
  # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
-  run-ubuntu-gcc-x86-llvm-previous-cl3.0-release:
+  run-ubuntu-gcc-x86-llvm-previous-cl3-0-release:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
