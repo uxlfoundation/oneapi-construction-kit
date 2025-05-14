@@ -442,9 +442,16 @@ jobs:
         llvm_version: ${{ inputs.llvm_current }}
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout llvm-project
+      uses: actions/checkout@v4
+      with:
+        repository: llvm/llvm-project
+        path: $GITHUB_WORKSPACE/..
+        #  branch:
+        #  depth:
     - name: Run Clik
       run: |
-        pwd
+        echo WORKSPACE is $GITHUB_WORKSPACE PWD is `pwd`
         ls -l
         ls -l ..
 
