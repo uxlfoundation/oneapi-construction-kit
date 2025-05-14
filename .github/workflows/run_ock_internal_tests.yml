@@ -456,6 +456,9 @@ jobs:
         mv llvm-project ..
         ls -l
         ls -l ..
+        cd ../llvm-project
+        cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang -DLLVM_TARGETS_TO_BUILD="X86;AArch64;ARM;RISCV" -DLLVM_EXTERNAL_PROJECTS=ock -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
+        ninja -C build check-ock-vecz-lit
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
   run-ubuntu-clang-x86-llvm-latest-cl3-0:
