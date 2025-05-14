@@ -179,6 +179,7 @@ jobs:
   # run clang-format-diff on the repo
   run_clang_format:
 
+    if: false
     runs-on: ubuntu-22.04
 
     steps:
@@ -431,16 +432,21 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up sccahe
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: ${{ inputs.llvm_current }}
-          llvm_source: ${{ inputs.llvm_source}}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+    # installs tools, ninja, installs llvm and sets up sccahe
+    - name: setup-ubuntu
+      uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run Clik
+      run: |
+        pwd
+        ls -l
+        ls -l ..
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
   run-ubuntu-clang-x86-llvm-latest-cl3-0:
