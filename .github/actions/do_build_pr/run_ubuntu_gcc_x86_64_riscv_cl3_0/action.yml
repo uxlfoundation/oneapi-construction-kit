@@ -10,7 +10,7 @@ inputs:
     default: 'check-ock'
   disable_unitcl_vecz_checks:
     type: string
-    default: 'OFF'
+    default: 'ON'
 
 runs:
   using: "composite"

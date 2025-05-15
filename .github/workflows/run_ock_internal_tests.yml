@@ -313,8 +313,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-      with:
-        disable_unitcl_vecz_checks: 'ON'
     # For now DO NOT include run_cities.py testing. Commands/sub-commands used in Gitlab are:
     # $ python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
     #   ==> $ pull artefact.ca-opencl-cts to CA-OpenCL-CTS.tar.gz
@@ -343,6 +341,7 @@ jobs:
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
       with:
         build_targets: 'check-ock-UnitCL-group-vecz'
+        disable_unitcl_vecz_checks: 'OFF'
     # For now DO NOT include run_cities.py testing. Commands/sub-commands used in Gitlab are:
     # $ python -u scripts/storage.py pull artefact.ca-opencl-cts --verbose --clean --path CA-OpenCL-CTS Ubuntu20 x86_64 14 Release
     #   ==> $ pull artefact.ca-opencl-cts to CA-OpenCL-CTS.tar.gz
