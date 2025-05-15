@@ -55,11 +55,6 @@ jobs:
         with:
           cache_seed: true
 
-      - name: build riscv M1
-        uses: ./.github/actions/do_build_pr/run_riscv_m1
-        with:
-          cache_seed: true
-
       - name: build ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
         uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz
         with:
