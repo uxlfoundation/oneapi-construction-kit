@@ -72,6 +72,76 @@ TEST_F(CommandNDRangeKernelTest, EmptyKernel) {
   ASSERT_SUCCESS(clReleaseProgram(program));
 }
 
+// Tests the whether we can enqueue an execute a command buffer containing a
+// kernel enqueue created via clCommandNDRangeKernelKHR with global size of 0
+// or a global size of nullptr
+TEST_F(CommandNDRangeKernelTest, ZeroNDRange) {
+  // Requires a compiler to compile the kernel.
+  if (!getDeviceCompilerAvailable()) {
+    GTEST_SKIP();
+  }
+  // Set up the kernel.
+  const char *code = R"OpenCLC(
+  __kernel void simple_output(__global uint *out) {
+    *out = 42;
+  }
+  )OpenCLC";
+  const size_t code_length = std::strlen(code);
+  std::vector<cl_int> output_data(1);
+  cl_int error = CL_SUCCESS;
+  cl_program program =
+      clCreateProgramWithSource(context, 1, &code, &code_length, &error);
+  ASSERT_SUCCESS(error);
+  ASSERT_SUCCESS(
+      clBuildProgram(program, 1, &device, nullptr, nullptr, nullptr));
+
+  cl_kernel kernel = clCreateKernel(program, "simple_output", &error);
+  ASSERT_SUCCESS(error);
+
+  const cl_int food = 0xf00d;
+
+  // Create output buffer.
+  cl_mem dst_buffer =
+      clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(food), nullptr, &error);
+  // Fill output buffer with 0xf00d.
+  EXPECT_SUCCESS(clEnqueueFillBuffer(command_queue, dst_buffer, &food,
+                                     sizeof(cl_int), 0, sizeof(cl_int), 0,
+                                     nullptr, nullptr));
+
+  constexpr size_t global_size = 0;
+  ASSERT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(cl_mem),
+                                static_cast<void *>(&dst_buffer)));
+
+  // Set up the command buffer and run the command buffer.
+  cl_command_buffer_khr command_buffer =
+      clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
+  ASSERT_SUCCESS(error);
+
+  ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
+      command_buffer, nullptr, nullptr, kernel, 1, nullptr, &global_size,
+      nullptr, 0, nullptr, nullptr, nullptr));
+
+  ASSERT_SUCCESS(clCommandNDRangeKernelKHR(
+      command_buffer, nullptr, nullptr, kernel, 1, nullptr,
+      /*global_work_size=*/nullptr, nullptr, 0, nullptr, nullptr, nullptr));
+
+  ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
+  ASSERT_SUCCESS(clEnqueueCommandBufferKHR(0, nullptr, command_buffer, 0,
+                                           nullptr, nullptr));
+  EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, dst_buffer, CL_TRUE, 0,
+                                     sizeof(food), output_data.data(), 0,
+                                     nullptr, nullptr));
+  ASSERT_SUCCESS(clFinish(command_queue));
+
+  // Check we didn't write to the first output value
+  ASSERT_EQ(output_data[0], food);
+
+  // Clean up.
+  ASSERT_SUCCESS(clReleaseCommandBufferKHR(command_buffer));
+  ASSERT_SUCCESS(clReleaseKernel(kernel));
+  ASSERT_SUCCESS(clReleaseProgram(program));
+}
+
 // Test fixture checking whether we can successfully enqueue and execute a
 // command buffer that does a parallel copy via a kernel.
 // The command buffer consists of a single kernel enqueue which does the
