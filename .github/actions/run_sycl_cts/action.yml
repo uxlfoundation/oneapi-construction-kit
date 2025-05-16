@@ -38,6 +38,13 @@ runs:
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
 
+    - name: Download qemu
+      if: steps.calc_vars.outputs.arch != 'X86_64'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes qemu-user
+
     - name: download dpc++ artifact
       uses: ./.github/actions/download_artifact
       with:
