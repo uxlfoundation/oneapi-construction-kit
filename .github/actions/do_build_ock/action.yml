@@ -67,9 +67,6 @@ inputs:
   assemble_spirv_ll_lit_test_offline:
     description: "Enable Spir-V LL tests offline (Default OFF)"
     default: OFF
-  enable_api:
-    description: "APIs to enable (default CL)"
-    default: cl
   enable_rvv_scalable_vecz_check:
     description: "Enable RVV scalable vecz check (default OFF)"
     default: OFF
@@ -139,7 +136,6 @@ runs:
               -DCMAKE_C_COMPILER_LAUNCHER=ccache
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
               -DCA_MUX_TARGETS_TO_ENABLE=${{ inputs.mux_targets_enable }}
-              -DCA_ENABLE_API=${{ inputs.enable_api }}
               -DCA_LLVM_INSTALL_DIR=${{ inputs.llvm_install_dir }}
               -DCA_ENABLE_DEBUG_SUPPORT=${{ inputs.debug_support }}
               -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}

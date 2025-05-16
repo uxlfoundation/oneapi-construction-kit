@@ -44,7 +44,7 @@ jobs:
       - name: Build Documentation
         working-directory: ${{github.workspace}}
         run: |
-          cmake -DCA_ENABLE_API=cl -DCMAKE_BUILD_TYPE=Debug -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF -DOCL_EXTENSION_cl_khr_il_program=OFF -Bbuild_doc
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF -DOCL_EXTENSION_cl_khr_il_program=OFF -Bbuild_doc
           cmake --build build_doc --target doc_html
 
       - name: Upload artifact

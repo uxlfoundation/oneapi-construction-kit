@@ -16,11 +16,6 @@
 
 set(SUITE riscv-compiler)
 
-if(NOT CA_ENABLE_API MATCHES "(^$|cl)")
-  message(WARNING "${SUITE}-lit disabled: requires CL API")
-  return()
-endif()
-
 add_ca_configure_lit_site_cfg(
   ${SUITE}
   ${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.in
