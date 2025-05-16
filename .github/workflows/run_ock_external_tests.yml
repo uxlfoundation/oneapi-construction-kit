@@ -152,9 +152,9 @@ jobs:
     # build llvm. Otherwise we choose ubuntu-22.04 (use a container for both for consistency).
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
-      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/coldav/ock_ubuntu_24.04:base'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
+             ||                                              'ghcr.io/coldav/ock_ubuntu_22.04:base' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     if: inputs.ock && contains(inputs.target_list, 'linux')
@@ -184,9 +184,9 @@ jobs:
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
-      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/coldav/ock_ubuntu_24.04:base'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
+             ||                                              'ghcr.io/coldav/ock_ubuntu_22.04:base' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -242,9 +242,9 @@ jobs:
 
     runs-on: ${{ contains(matrix.target, 'host_aarch64') && 'ubuntu-22.04-arm' || (contains(matrix.target, 'host_riscv64') && 'cp-ubuntu-24.04' || 'ubuntu-22.04') }}
     container:
-      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: ${{  contains(matrix.target, 'host_riscv')   && 'ghcr.io/coldav/ock_ubuntu_24.04:base'
              || ( contains(matrix.target, 'host_aarch64') && 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-             ||                                              'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest' ) }}
+             ||                                              'ghcr.io/coldav/ock_ubuntu_22.04:base' ) }}
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -274,7 +274,7 @@ jobs:
     needs: [workflow_vars]
     runs-on: 'ubuntu-22.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -326,7 +326,7 @@ jobs:
 
     runs-on: ubuntu-24.04
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -353,7 +353,7 @@ jobs:
         subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -398,7 +398,7 @@ jobs:
         subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -533,7 +533,7 @@ jobs:
         subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -578,7 +578,7 @@ jobs:
         subset: [ 'A', 'B', 'C' ]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -619,7 +619,7 @@ jobs:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl_combine]
     runs-on: 'ubuntu-22.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -638,7 +638,7 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_native_cpu_combine]
     runs-on: 'ubuntu-22.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -695,7 +695,7 @@ jobs:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_opencl_combine]
     runs-on: 'cp-ubuntu-24.04' # note: the job will time-out (>6 hrs) if default github runners are used
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -714,7 +714,7 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_native_cpu_combine]
     runs-on: 'ubuntu-24.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -733,7 +733,7 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64]
     runs-on: 'ubuntu-22.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
@@ -751,7 +751,7 @@ jobs:
     needs: [workflow_vars, build_dpcpp_native_x86_64]
     runs-on: 'ubuntu-22.04'
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/coldav/ock_ubuntu_22.04:base'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 

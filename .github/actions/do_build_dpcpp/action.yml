@@ -25,6 +25,26 @@ runs:
     - name: Install Ninja
       uses: llvm/actions/install-ninja@main
 
+    - name: install riscv64 tools as needed
+      if: steps.calc_vars.outputs.arch == 'riscv64' 
+      shell: bash
+      run: |
+        sudo apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+        sudo apt-get install --yes libhwloc-dev:riscv64
+
+    - name: install aarch64 tools as needed
+      if: steps.calc_vars.outputs.arch == 'aarch64' 
+      shell: bash
+      run: |
+        sudo apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        sudo apt-get install --yes libhwloc-dev:arm64
+
+    - name: install aarch64 tools as needed
+      if: steps.calc_vars.outputs.arch == 'x86_64' 
+      shell: bash
+      run: |
+        sudo apt-get install --yes libhwloc-dev:amd64
+
     - name: clone dpc++
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       uses: actions/checkout@v4
