@@ -33,6 +33,13 @@ runs:
           echo arch = ${{steps.calc_vars.outputs.arch}}
           echo toolchain = ${{steps.calc_vars.outputs.toolchain}}
 
+      - name: install riscv64 tools as needed
+        if: steps.calc_vars.outputs.arch == 'riscv64' 
+        shell: bash
+        # TODO : Check arch of machine to decide whether this is necessary
+        run:
+          sudo dpkg --add-architecture riscv64
+
       # installs tools, ninja, installs llvm and sets up ccache
       - name: setup
         uses:  ./.github/actions/setup_build
