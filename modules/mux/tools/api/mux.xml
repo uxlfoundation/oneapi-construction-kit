@@ -2251,7 +2251,6 @@ For OpenCL, this value is used to implement clGetDeviceInfo, when asking for CL_
           <doxygen><brief>Specify what kind of filter to user when reading image data.</brief></doxygen></member>
         <member>normalize_coords<type>bool</type>
           <doxygen><brief>If true sampler expects coordinates to be normalized, if false sampler does not expect normalized coordinates.</brief></doxygen></member>
-        <!-- TODO: The capabilities of Vulkan samplers are much more detailed and powerful, this has made no attempt to follow Vulkan in favour supporting OpenCL samplers quickly. -->
       </scope>
       <doxygen><brief>A container describing a sampler.</brief></doxygen>
     </struct>

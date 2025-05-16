@@ -161,8 +161,7 @@ if(CA_RUNTIME_COMPILER_ENABLED)
     message(WARNING "Unhandled build environment.")
   endif()
 
-  # Specify chosen library linker options, use the specified output name and
-  # version of the Vulkan library.
+  # Specify chosen library linker options, use the specified output name.
   # Ensure we're not overwriting existing link options
   get_target_property(tgt_link_flags compiler LINK_FLAGS)
   get_target_property(tgt_link_flags_release compiler LINK_FLAGS_RELEASE)

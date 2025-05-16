@@ -45,8 +45,8 @@ SPIR-V Consumption
 SPIR-V binaries are passed to the ``compiler::Module::compileSPIRV`` method,
 which is implemented by the oneAPI Construction Kit.
 
-SPIR-V is an intermediate representation for kernel programs used by Vulkan, and
-can also be passed to an OpenCL driver that is at least version 2.1, or has the
+SPIR-V is an intermediate representation for kernel programs which can be
+passed to an OpenCL driver that is at least version 2.1, or has the
 ``cl_khr_il_program`` extension enabled.
 
 oneAPI Construction Kit comes with ``spirv-ll``, a static library that implements

@@ -648,8 +648,8 @@ endfunction()
 .. cmake:command:: add_ca_example_subdirectory
 
   The ``add_ca_example_subdirectory()`` function delays inclusion of a
-  subdirectory containing targets relating to OpenCL or Vulkan examples
-  until after those API source directories have been added to the CMake tree.
+  subdirectory containing targets relating to OpenCL examples until after those
+  API source directories have been added to the CMake tree.
 
   Arguments:
     * ``directory`` - Path to example directory.

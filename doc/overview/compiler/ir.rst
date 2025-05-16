@@ -637,8 +637,6 @@ and the `Vulkan memory model`_.
    https://www.khronos.org/registry/SPIR-V/specs/unified1/SPIRV.html#_a_id_barrier_a_barrier_instructions
 .. _OpenCL memory consistency model:
    https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#_memory_consistency_model_for_opencl_1_x
-.. _Vulkan memory model:
-   https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#memory-model
 
 Barriers
 --------

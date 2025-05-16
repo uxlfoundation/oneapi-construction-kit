@@ -15,7 +15,7 @@ version mean backward compatible bug fixes have been applied.
 
   Components which have well-defined public APIs include:
 
-  - Any end user facing API: :doc:`/source/cl`, :doc:`/source/vk`, etc.
+  - Any end user facing API: :doc:`/source/cl`, etc.
   - :doc:`mux-runtime-spec`
   - Aspects of the :doc:`mux-compiler-spec` including the core ``compiler``
     classes, mux builtin functions, function attributes and module metadata.
