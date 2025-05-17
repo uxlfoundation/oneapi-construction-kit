@@ -168,11 +168,9 @@ add_mux_target(host CAPABILITIES ${hostCapabilities}
   HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/host
   DEVICE_NAMES "${host_CA_HOST_CL_DEVICE_NAME}")
 
-if(CA_ENABLE_API MATCHES "(^$|cl)")
-  add_subdirectory(extension/cl_ext_codeplay)
-  if(CA_ENABLE_EXAMPLES)
-    add_ca_example_subdirectory(extension/example)
-  endif()
+add_subdirectory(extension/cl_ext_codeplay)
+if(CA_ENABLE_EXAMPLES)
+  add_ca_example_subdirectory(extension/example)
 endif()
 
 if(CA_ENABLE_TESTS)

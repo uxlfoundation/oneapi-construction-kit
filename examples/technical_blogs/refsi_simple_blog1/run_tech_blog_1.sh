@@ -70,7 +70,6 @@ cmake -Bbuild \
       -DCA_MUX_TARGETS_TO_ENABLE="refsi_g1" \
       -DCA_REFSI_G1_ENABLED=ON \
       -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF \
-      -DCA_ENABLE_API=cl \
       -DCA_LLVM_INSTALL_DIR=$LLVM_INSTALL_DIR -GNinja .
 
 

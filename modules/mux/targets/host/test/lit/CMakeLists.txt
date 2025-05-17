@@ -15,11 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 set(SUITE host-mux)
 
-if(NOT CA_ENABLE_API MATCHES "(^$|cl)")
-  message(WARNING "${SUITE}-lit disabled: requires CL API")
-  return()
-endif()
-
 set(HOST_TARGET_ARCH_NAME '')
 get_ca_host_arch(HOST_TARGET_ARCH_NAME)
 string(TOUPPER ${HOST_TARGET_ARCH_NAME} HOST_TARGET_ARCH_NAME)

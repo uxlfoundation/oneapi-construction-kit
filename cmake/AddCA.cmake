@@ -1053,10 +1053,7 @@ function(add_ca_copy_file)
     COMMENT "Copying file ${relOut}")
 endfunction()
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/source/cl AND
-    (CA_ENABLE_API STREQUAL "" OR CA_ENABLE_API MATCHES cl))
-  # Cleared to ensure reconfigures behave correctly.
-  set(CA_CL_RUNTIME_EXTENSION_TAGS ""
+set(CA_CL_RUNTIME_EXTENSION_TAGS ""
     CACHE INTERNAL "List of runtime extension names.")
 
 #[=======================================================================[.rst:
@@ -1098,30 +1095,30 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/source/cl AND
 
       Internally cached List of source files for ``${tag}`` extensions.
 #]=======================================================================]
-  function(add_ca_cl_runtime_extension tag)
-    cmake_parse_arguments(args "" ""
-      "EXTENSIONS;HEADER;INCLUDE_DIRS;SOURCES" ${ARGN})
-    if(args_UNPARSED_ARGUMENTS)
-      message(FATAL_ERROR "invalid arguments: ${args_UNPARSED_ARGUMENTS}")
-    endif()
-    # Add the tag to the list of runtime extension tags.
-    list(APPEND CA_CL_RUNTIME_EXTENSION_TAGS ${tag})
-    set(CA_CL_RUNTIME_EXTENSION_TAGS ${CA_CL_RUNTIME_EXTENSION_TAGS}
-      CACHE INTERNAL "List of runtime extension names.")
-    # Cache the extension information for later use.
-    set(${tag}_RUNTIME_EXTENSIONS ${args_EXTENSIONS}
-      CACHE INTERNAL "List of ${tag} extensions.")
-    set(${tag}_RUNTIME_HEADER ${args_HEADER}
-      CACHE INTERNAL "Extension header for ${tag} extensions.")
-    set(${tag}_RUNTIME_INCLUDE_DIRS ${args_INCLUDE_DIRS}
-      CACHE INTERNAL "Include directory for ${tag} extensions.")
-    set(${tag}_RUNTIME_SOURCES ${args_SOURCES}
-      CACHE INTERNAL "List of source files for ${tag} extensions.")
-  endfunction()
+function(add_ca_cl_runtime_extension tag)
+  cmake_parse_arguments(args "" ""
+    "EXTENSIONS;HEADER;INCLUDE_DIRS;SOURCES" ${ARGN})
+  if(args_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "invalid arguments: ${args_UNPARSED_ARGUMENTS}")
+  endif()
+  # Add the tag to the list of runtime extension tags.
+  list(APPEND CA_CL_RUNTIME_EXTENSION_TAGS ${tag})
+  set(CA_CL_RUNTIME_EXTENSION_TAGS ${CA_CL_RUNTIME_EXTENSION_TAGS}
+    CACHE INTERNAL "List of runtime extension names.")
+  # Cache the extension information for later use.
+  set(${tag}_RUNTIME_EXTENSIONS ${args_EXTENSIONS}
+    CACHE INTERNAL "List of ${tag} extensions.")
+  set(${tag}_RUNTIME_HEADER ${args_HEADER}
+    CACHE INTERNAL "Extension header for ${tag} extensions.")
+  set(${tag}_RUNTIME_INCLUDE_DIRS ${args_INCLUDE_DIRS}
+    CACHE INTERNAL "Include directory for ${tag} extensions.")
+  set(${tag}_RUNTIME_SOURCES ${args_SOURCES}
+    CACHE INTERNAL "List of source files for ${tag} extensions.")
+endfunction()
 
-  # Cleared to ensure reconfigures behave correctly.
-  set(CA_CL_COMPILER_EXTENSION_TAGS ""
-    CACHE INTERNAL "List of compiler extension tags.")
+# Cleared to ensure reconfigures behave correctly.
+set(CA_CL_COMPILER_EXTENSION_TAGS ""
+  CACHE INTERNAL "List of compiler extension tags.")
 
 #[=======================================================================[.rst:
 .. cmake:command:: add_ca_cl_compiler_extension
@@ -1162,27 +1159,26 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/source/cl AND
 
       Internally cached list of source files for ``${tag}`` extensions.
 #]=======================================================================]
-  function(add_ca_cl_compiler_extension tag)
-    cmake_parse_arguments(args "" ""
-      "EXTENSIONS;HEADER;INCLUDE_DIRS;SOURCES" ${ARGN})
-    if(args_UNPARSED_ARGUMENTS)
-      message(FATAL_ERROR "invalid arguments: ${args_UNPARSED_ARGUMENTS}")
-    endif()
-    # Add the tag to the list of compiler extension tags.
-    list(APPEND CA_CL_COMPILER_EXTENSION_TAGS ${tag})
-    set(CA_CL_COMPILER_EXTENSION_TAGS ${CA_CL_COMPILER_EXTENSION_TAGS}
-      CACHE INTERNAL "List of compiler extension names.")
-    # Cache the compiler extension information for later use.
-    set(${tag}_COMPILER_EXTENSIONS ${args_EXTENSIONS}
-      CACHE INTERNAL "List of ${tag} compiler extensions.")
-    set(${tag}_COMPILER_HEADER ${args_HEADER}
-      CACHE INTERNAL "Extension header for ${tag} extensions.")
-    set(${tag}_COMPILER_INCLUDE_DIRS ${args_INCLUDE_DIRS}
-      CACHE INTERNAL "Include directory for ${tag} extensions.")
-    set(${tag}_COMPILER_SOURCES ${args_SOURCES}
-      CACHE INTERNAL "List of source files for ${tag} extensions.")
-  endfunction()
-endif()
+function(add_ca_cl_compiler_extension tag)
+  cmake_parse_arguments(args "" ""
+    "EXTENSIONS;HEADER;INCLUDE_DIRS;SOURCES" ${ARGN})
+  if(args_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "invalid arguments: ${args_UNPARSED_ARGUMENTS}")
+  endif()
+  # Add the tag to the list of compiler extension tags.
+  list(APPEND CA_CL_COMPILER_EXTENSION_TAGS ${tag})
+  set(CA_CL_COMPILER_EXTENSION_TAGS ${CA_CL_COMPILER_EXTENSION_TAGS}
+    CACHE INTERNAL "List of compiler extension names.")
+  # Cache the compiler extension information for later use.
+  set(${tag}_COMPILER_EXTENSIONS ${args_EXTENSIONS}
+    CACHE INTERNAL "List of ${tag} compiler extensions.")
+  set(${tag}_COMPILER_HEADER ${args_HEADER}
+    CACHE INTERNAL "Extension header for ${tag} extensions.")
+  set(${tag}_COMPILER_INCLUDE_DIRS ${args_INCLUDE_DIRS}
+    CACHE INTERNAL "Include directory for ${tag} extensions.")
+  set(${tag}_COMPILER_SOURCES ${args_SOURCES}
+    CACHE INTERNAL "List of source files for ${tag} extensions.")
+endfunction()
 
 #[=======================================================================[.rst:
 .. cmake:command:: add_ca_install_components

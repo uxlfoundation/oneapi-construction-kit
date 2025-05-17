@@ -249,9 +249,6 @@ The builtin CMake options used when invoking CMake on the command line.
   relevant llvm headers and support tools, and their version must match
   a supported LLVM version.
 
-* `CA_ENABLE_API`: Semi-colon separated list of APIs to enable. Valid values are
-  `cl` or '' for OpenCL.
-
 * `CA_BUILD_32_BITS`: Enable compiling in 32-bit mode on Linux, this requires
   to have the proper 32-bit toolchain installed. When used in combination with
   an external LLVM, the external LLVM also needs to be built in 32-bit mode.
@@ -648,8 +645,7 @@ cmake . -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-offline/install \
   -DCA_RUNTIME_COMPILER_ENABLED=OFF \
-  -DCA_EXTERNAL_CLC=$ONEAPI_CON_KIT_INSTALL/bin/clc \
-  -DCA_ENABLE_API=cl
+  -DCA_EXTERNAL_CLC=$ONEAPI_CON_KIT_INSTALL/bin/clc
 ```
 
 Now the build directory is configured, build the `install` target.
@@ -674,8 +670,7 @@ cmake . -G"Visual Studio 16 2019 Win64" ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
   -DCA_RUNTIME_COMPILER_ENABLED=OFF ^
-  -DCA_EXTERNAL_CLC=%ONEAPI_CON_KIT_INSTALL%\bin\clc ^
-  -DCA_ENABLE_API=cl
+  -DCA_EXTERNAL_CLC=%ONEAPI_CON_KIT_INSTALL%\bin\clc
 ```
 
 Now the build directory is configured, build the `install` target. This can be
@@ -702,8 +697,7 @@ cmake . -GNinja ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
   -DCA_RUNTIME_COMPILER_ENABLED=OFF ^
-  -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF ^
-  -DCA_ENABLE_API=cl
+  -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF
 ```
 
 Then, install with:
