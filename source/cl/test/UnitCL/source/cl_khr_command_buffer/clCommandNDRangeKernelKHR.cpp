@@ -138,6 +138,7 @@ TEST_F(CommandNDRangeKernelTest, ZeroNDRange) {
 
   // Clean up.
   ASSERT_SUCCESS(clReleaseCommandBufferKHR(command_buffer));
+  ASSERT_SUCCESS(clReleaseMemObject(dst_buffer));
   ASSERT_SUCCESS(clReleaseKernel(kernel));
   ASSERT_SUCCESS(clReleaseProgram(program));
 }
