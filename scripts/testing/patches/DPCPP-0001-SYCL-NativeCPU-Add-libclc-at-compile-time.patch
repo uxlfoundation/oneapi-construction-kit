@@ -1,4 +1,4 @@
-From 3dec40d9e61b720b1bc33d3fcc5ca0dcb0c590ef Mon Sep 17 00:00:00 2001
+From 165d4e55d2b76bed4ab53a6b7acb2d9440318f81 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Sat, 29 Mar 2025 13:51:45 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Add libclc at compile time.
@@ -11,10 +11,10 @@ This matches what is done for CUDA and HIP.
  3 files changed, 64 insertions(+), 10 deletions(-)
 
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index ea36d15f41a2..1e173ec6c079 100644
+index 175d170af6c9..cdaf2bb84538 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -5982,9 +5982,12 @@ class OffloadingActionBuilder final {
+@@ -5976,9 +5976,12 @@ class OffloadingActionBuilder final {
        if (!NumOfDeviceLibLinked)
          return false;
  
