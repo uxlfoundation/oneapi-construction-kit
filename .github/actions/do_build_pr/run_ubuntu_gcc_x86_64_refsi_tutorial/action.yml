@@ -33,7 +33,6 @@ runs:
         with:
           build_targets: install
           mux_targets_enable: refsi_tutorial
-          use_linker: gold
           debug_support: ON
           offline_kernel_tests: OFF
           source_dir: $GITHUB_WORKSPACE/refsi_tutorial

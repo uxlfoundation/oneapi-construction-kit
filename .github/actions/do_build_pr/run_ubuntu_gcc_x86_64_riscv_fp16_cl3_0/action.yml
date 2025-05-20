@@ -25,7 +25,6 @@ runs:
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON
           host_enable_builtins: OFF
-          use_linker: gold
           hal_description: RV64GCV_Zfh
           hal_refsi_soc: G1
           hal_refsi_thread_mode: WG
