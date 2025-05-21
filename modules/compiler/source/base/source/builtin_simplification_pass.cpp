@@ -22,7 +22,6 @@
 #include <multi_llvm/vector_type_helper.h>
 
 #define ABACUS_LIBRARY_STATIC
-#include <abacus/abacus_extra.h>
 #include <abacus/abacus_math.h>
 
 #include <cmath>

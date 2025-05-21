@@ -647,8 +647,6 @@ int __attribute__((weak)) printf(const constant char *const restrict fmt, ...);
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-
 void *memcpy(void *__restrict dst, const void *__restrict src, size_t num) {
   auto *d = static_cast<unsigned char *>(dst);
   auto *s = static_cast<const unsigned char *>(src);

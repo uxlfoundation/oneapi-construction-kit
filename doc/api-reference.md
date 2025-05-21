@@ -84,12 +84,6 @@ generated LLVM IR before hand off to [mux](#mux-module) are contained in the
 .. doxygengroup:: abacus_config
 ```
 
-#### `abacus extra`
-
-```{eval-rst}
-.. doxygengroup:: abacus_extra
-```
-
 #### `abacus geometric`
 
 ```{eval-rst}

@@ -2521,62 +2521,6 @@ function all_image() {
   fi
 }
 
-function all_extras()
-{
-  for i in $signedinttypes
-  do
-    for k in "" 2 3 4 8 16
-    do
-        for func in findLSB findMSB
-        do
-          echo "$i$k __CL_CONST_ATTRIBUTES $func($i$k x);"
-          echo "$i$k __CL_CONST_ATTRIBUTES $func(u$i$k x);"
-        done
-
-        echo "$i$k __CL_CONST_ATTRIBUTES bitfieldReverse($i$k x);"
-        echo "u$i$k __CL_CONST_ATTRIBUTES bitfieldReverse(u$i$k x);"
-    done
-  done
-
-  for i in $floattypes
-  do
-    half_support_begin $i
-    double_support_begin $i
-    for k in "" 2 3 4
-    do
-      echo "$i$k __CL_CONST_ATTRIBUTES faceforward($i$k n, $i$k i, $i$k nref);"
-      echo "$i$k __CL_CONST_ATTRIBUTES reflect($i$k n, $i$k i);"
-      for l in "half" "float"
-      do
-        half_support_begin $l
-        echo "$i$k __CL_CONST_ATTRIBUTES refract($i$k n, $i$k i, $l eta);"
-        half_support_end $l
-      done
-      if [[ "$i" == "double" ]]
-      then
-        echo "$i$k __CL_CONST_ATTRIBUTES refract($i$k n, $i$k i, double eta);"
-      fi
-    done
-    double_support_end $i
-    half_support_end $i
-  done
-
-  echo "uint __CL_CONST_ATTRIBUTES packSnorm4x8(float4 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packUnorm4x8(float4 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packSnorm2x16(float2 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packUnorm2x16(float2 x) ;"
-  echo "uint __CL_CONST_ATTRIBUTES packHalf2x16(float2 x);"
-  echo "float4 __CL_CONST_ATTRIBUTES unpackSnorm4x8(uint x);"
-  echo "float4 __CL_CONST_ATTRIBUTES unpackUnorm4x8(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackSnorm2x16(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackUnorm2x16(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackHalf2x16(uint x);"
-  echo "float __CL_CONST_ATTRIBUTES quantizeToF16(float x);"
-  echo "float2 __CL_CONST_ATTRIBUTES quantizeToF16(float2 x);"
-  echo "float3 __CL_CONST_ATTRIBUTES quantizeToF16(float3 x);"
-  echo "float4 __CL_CONST_ATTRIBUTES quantizeToF16(float4 x);"
-}
-
 function quantize()
 {
   for k in "" 2 3 4
@@ -2707,11 +2651,6 @@ function output_for_type()
 
   # Image builtins
   all_image >> "$outputFile"
-
-  sand_line >> "$outputFile"
-
-  # Extra builtins
-  [[ "header" == "$generated_output_type" ]] && all_extras >> "$outputFile"
 
   sand_line >> "$outputFile"
 

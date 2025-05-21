@@ -80,8 +80,6 @@ generate(abacus_detail_integer
   abacus_detail_integer)
 generate(abacus_detail_relational
   abacus_detail_relational)
-generate(abacus_extra
-  abacus_extra floats ints refract)
 generate(abacus_geometric
   abacus_geometric cross main)
 generate(abacus_integer
