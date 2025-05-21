@@ -63,6 +63,50 @@ function header()
 
 function footer()
 {
+  if [[ "cxx" == "$generated_output_type" ]]
+  then
+    echo 'void *memcpy(void *__restrict dst, const void *__restrict src, size_t num) {'
+    echo '  auto *d = static_cast<unsigned char *>(dst);'
+    echo '  auto *s = static_cast<const unsigned char *>(src);'
+    echo '  while (num--) {'
+    echo '    *(d++) = *(s++);'
+    echo '  }'
+    echo '  return dst;'
+    echo '}'
+    echo ''
+    echo 'void *memmove(void *dst, const void *src, size_t num) {'
+    echo '  if (reinterpret_cast<uintptr_t>(static_cast<char *>(dst) + num) <='
+    echo '          reinterpret_cast<uintptr_t>(src) ||'
+    echo '      reinterpret_cast<uintptr_t>(static_cast<const char *>(src) + num) <='
+    echo '          reinterpret_cast<uintptr_t>(dst)) {'
+    echo '    return memcpy(dst, src, num);'
+    echo '  }'
+    echo '  if (reinterpret_cast<uintptr_t>(dst) < reinterpret_cast<uintptr_t>(src)) {'
+    echo '    auto *d = static_cast<unsigned char *>(dst);'
+    echo '    auto *s = static_cast<const unsigned char *>(src);'
+    echo '    while (num--) {'
+    echo '      *(d++) = *(s++);'
+    echo '    }'
+    echo '  }'
+    echo '  if (reinterpret_cast<uintptr_t>(src) < reinterpret_cast<uintptr_t>(dst)) {'
+    echo '    auto *d = static_cast<unsigned char *>(dst) + num;'
+    echo '    auto *s = static_cast<const unsigned char *>(src) + num;'
+    echo '    while (num--) {'
+    echo '      *(--d) = *(--s);'
+    echo '    }'
+    echo '  }'
+    echo '  return dst;'
+    echo '}'
+    echo ''
+    echo 'void *memset(void *ptr, int value, size_t num) {'
+    echo '  unsigned char *dst = static_cast<unsigned char *>(ptr);'
+    echo '  while (num--) {'
+    echo '    *(dst++) = (unsigned char)value;'
+    echo '  }'
+    echo '  return ptr;'
+    echo '}'
+    echo ''
+  fi
   echo "#ifdef __cplusplus"
   echo "};"
   echo "#endif"
@@ -1803,8 +1847,8 @@ function math_one_args()
 
   for func in acos acosh acospi asin asinh asinpi atan atanh atanpi cbrt ceil cos half_cos native_cos cosh cospi erfc erf exp half_exp native_exp exp2 half_exp2 native_exp2 exp10 half_exp10 native_exp10 expm1 fabs floor lgamma log half_log native_log log2 half_log2 native_log2 log10 half_log10 native_log10 log1p logb rint round rsqrt half_rsqrt native_rsqrt sin half_sin native_sin sinh sinpi sqrt half_sqrt native_sqrt tan half_tan native_tan tanh tanpi tgamma trunc half_recip native_recip
   do
-    # cl_khr_fp16 extension doesn't implement native_ or half_ maths builtins
-    if [[ "$type" == "half"* ]]
+    # cl_khr_fp16 and cl_khr_fp64 extensions don't implement native_ or half_ maths builtins
+    if [[ "$type" == "half"* || "$type" == "double"* ]]
     then
       if [[ "$func" == "native_"* ]] || [[ "$func" == "half_"* ]]
       then
@@ -1875,6 +1919,15 @@ function math_two_args()
 
   for func in atan2 atan2pi copysign half_divide native_divide fdim fmax fmin fmod hypot maxmag minmag nextafter pow powr half_powr native_powr remainder
   do
+    # cl_khr_fp16 and cl_khr_fp64 extensions don't implement native_ or half_ maths builtins
+    if [[ "$type" == "half"* || "$type" == "double"* ]]
+    then
+      if [[ "$func" == "native_"* ]] || [[ "$func" == "half_"* ]]
+      then
+        continue
+      fi
+    fi
+
     local body=";"
 
     if [[ "cl" == "$generated_output_type" ]]

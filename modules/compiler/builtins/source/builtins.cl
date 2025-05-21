@@ -35,15 +35,15 @@ char __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char(uchar arg) {
 uchar __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar(char arg) {
   return __builtin_astype(arg, uchar);
 }
-char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char2(uchar2 arg) {
+char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char2(
+    uchar2 arg) {
   return __builtin_astype(arg, char2);
 }
 char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char2(short arg) {
   return __builtin_astype(arg, char2);
 }
-char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char2(ushort arg) {
+char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char2(
+    ushort arg) {
   return __builtin_astype(arg, char2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -51,33 +51,33 @@ char2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char2(half arg) {
   return __builtin_astype(arg, char2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar2(char2 arg) {
+uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar2(
+    char2 arg) {
   return __builtin_astype(arg, uchar2);
 }
-uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar2(short arg) {
+uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar2(
+    short arg) {
   return __builtin_astype(arg, uchar2);
 }
-uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar2(ushort arg) {
+uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar2(
+    ushort arg) {
   return __builtin_astype(arg, uchar2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar2(half arg) {
+uchar2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar2(
+    half arg) {
   return __builtin_astype(arg, uchar2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 short __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short(char2 arg) {
   return __builtin_astype(arg, short);
 }
-short __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short(uchar2 arg) {
+short __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short(
+    uchar2 arg) {
   return __builtin_astype(arg, short);
 }
-short __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short(ushort arg) {
+short __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short(
+    ushort arg) {
   return __builtin_astype(arg, short);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -85,21 +85,21 @@ short __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short(half arg) {
   return __builtin_astype(arg, short);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort(char2 arg) {
+ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort(
+    char2 arg) {
   return __builtin_astype(arg, ushort);
 }
-ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort(uchar2 arg) {
+ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort(
+    uchar2 arg) {
   return __builtin_astype(arg, ushort);
 }
-ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort(short arg) {
+ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort(
+    short arg) {
   return __builtin_astype(arg, ushort);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort(half arg) {
+ushort __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort(
+    half arg) {
   return __builtin_astype(arg, ushort);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
@@ -117,16 +117,16 @@ half __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half(ushort arg) {
   return __builtin_astype(arg, half);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char4(uchar4 arg) {
+char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(
+    uchar4 arg) {
   return __builtin_astype(arg, char4);
 }
-char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char4(short2 arg) {
+char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(
+    short2 arg) {
   return __builtin_astype(arg, char4);
 }
-char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char4(ushort2 arg) {
+char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(
+    ushort2 arg) {
   return __builtin_astype(arg, char4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -143,108 +143,108 @@ char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(uint arg) {
 char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(float arg) {
   return __builtin_astype(arg, char4);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(char4 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    char4 arg) {
   return __builtin_astype(arg, uchar4);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(short2 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    short2 arg) {
   return __builtin_astype(arg, uchar4);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(ushort2 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    ushort2 arg) {
   return __builtin_astype(arg, uchar4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(half2 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    half2 arg) {
   return __builtin_astype(arg, uchar4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(int arg) {
   return __builtin_astype(arg, uchar4);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(uint arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    uint arg) {
   return __builtin_astype(arg, uchar4);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(float arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    float arg) {
   return __builtin_astype(arg, uchar4);
 }
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(char4 arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    char4 arg) {
   return __builtin_astype(arg, short2);
 }
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(uchar4 arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    uchar4 arg) {
   return __builtin_astype(arg, short2);
 }
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(ushort2 arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    ushort2 arg) {
   return __builtin_astype(arg, short2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(half2 arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    half2 arg) {
   return __builtin_astype(arg, short2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(int arg) {
   return __builtin_astype(arg, short2);
 }
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(uint arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    uint arg) {
   return __builtin_astype(arg, short2);
 }
-short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short2(float arg) {
+short2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short2(
+    float arg) {
   return __builtin_astype(arg, short2);
 }
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(char4 arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    char4 arg) {
   return __builtin_astype(arg, ushort2);
 }
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(uchar4 arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    uchar4 arg) {
   return __builtin_astype(arg, ushort2);
 }
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(short2 arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    short2 arg) {
   return __builtin_astype(arg, ushort2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(half2 arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    half2 arg) {
   return __builtin_astype(arg, ushort2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(int arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    int arg) {
   return __builtin_astype(arg, ushort2);
 }
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(uint arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    uint arg) {
   return __builtin_astype(arg, ushort2);
 }
-ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort2(float arg) {
+ushort2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort2(
+    float arg) {
   return __builtin_astype(arg, ushort2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half2(char4 arg) {
   return __builtin_astype(arg, half2);
 }
-half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half2(uchar4 arg) {
+half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half2(
+    uchar4 arg) {
   return __builtin_astype(arg, half2);
 }
-half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half2(short2 arg) {
+half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half2(
+    short2 arg) {
   return __builtin_astype(arg, half2);
 }
-half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half2(ushort2 arg) {
+half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half2(
+    ushort2 arg) {
   return __builtin_astype(arg, half2);
 }
 half2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half2(int arg) {
@@ -306,16 +306,16 @@ uint __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint(float arg) {
 float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(char4 arg) {
   return __builtin_astype(arg, float);
 }
-float __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float(uchar4 arg) {
+float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(
+    uchar4 arg) {
   return __builtin_astype(arg, float);
 }
-float __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float(short2 arg) {
+float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(
+    short2 arg) {
   return __builtin_astype(arg, float);
 }
-float __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float(ushort2 arg) {
+float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(
+    ushort2 arg) {
   return __builtin_astype(arg, float);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -329,16 +329,16 @@ float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(int arg) {
 float __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float(uint arg) {
   return __builtin_astype(arg, float);
 }
-char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char8(uchar8 arg) {
+char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(
+    uchar8 arg) {
   return __builtin_astype(arg, char8);
 }
-char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char8(short4 arg) {
+char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(
+    short4 arg) {
   return __builtin_astype(arg, char8);
 }
-char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char8(ushort4 arg) {
+char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(
+    ushort4 arg) {
   return __builtin_astype(arg, char8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -352,8 +352,8 @@ char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(int2 arg) {
 char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(uint2 arg) {
   return __builtin_astype(arg, char8);
 }
-char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char8(float2 arg) {
+char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(
+    float2 arg) {
   return __builtin_astype(arg, char8);
 }
 char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(long arg) {
@@ -363,140 +363,140 @@ char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(ulong arg) {
   return __builtin_astype(arg, char8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char8(double arg) {
+char8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char8(
+    double arg) {
   return __builtin_astype(arg, char8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(char8 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    char8 arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(short4 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    short4 arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(ushort4 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    ushort4 arg) {
   return __builtin_astype(arg, uchar8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(half4 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    half4 arg) {
   return __builtin_astype(arg, uchar8);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(int2 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    int2 arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(uint2 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    uint2 arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(float2 arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    float2 arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(long arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    long arg) {
   return __builtin_astype(arg, uchar8);
 }
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(ulong arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    ulong arg) {
   return __builtin_astype(arg, uchar8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar8(double arg) {
+uchar8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar8(
+    double arg) {
   return __builtin_astype(arg, uchar8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(char8 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    char8 arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(uchar8 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    uchar8 arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(ushort4 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    ushort4 arg) {
   return __builtin_astype(arg, short4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(half4 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    half4 arg) {
   return __builtin_astype(arg, short4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(int2 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    int2 arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(uint2 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    uint2 arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(float2 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    float2 arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(long arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    long arg) {
   return __builtin_astype(arg, short4);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(ulong arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    ulong arg) {
   return __builtin_astype(arg, short4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(double arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    double arg) {
   return __builtin_astype(arg, short4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(char8 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    char8 arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(uchar8 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    uchar8 arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(short4 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    short4 arg) {
   return __builtin_astype(arg, ushort4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(half4 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    half4 arg) {
   return __builtin_astype(arg, ushort4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(int2 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    int2 arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(uint2 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    uint2 arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(float2 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    float2 arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(long arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    long arg) {
   return __builtin_astype(arg, ushort4);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(ulong arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    ulong arg) {
   return __builtin_astype(arg, ushort4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(double arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    double arg) {
   return __builtin_astype(arg, ushort4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -504,16 +504,16 @@ as_ushort4(double arg) {
 half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(char8 arg) {
   return __builtin_astype(arg, half4);
 }
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(uchar8 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    uchar8 arg) {
   return __builtin_astype(arg, half4);
 }
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(short4 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    short4 arg) {
   return __builtin_astype(arg, half4);
 }
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(ushort4 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    ushort4 arg) {
   return __builtin_astype(arg, half4);
 }
 half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(int2 arg) {
@@ -522,8 +522,8 @@ half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(int2 arg) {
 half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(uint2 arg) {
   return __builtin_astype(arg, half4);
 }
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(float2 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    float2 arg) {
   return __builtin_astype(arg, half4);
 }
 half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(long arg) {
@@ -533,8 +533,8 @@ half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(ulong arg) {
   return __builtin_astype(arg, half4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(double arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    double arg) {
   return __builtin_astype(arg, half4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -576,16 +576,16 @@ int2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int2(double arg) {
 uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(char8 arg) {
   return __builtin_astype(arg, uint2);
 }
-uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint2(uchar8 arg) {
+uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(
+    uchar8 arg) {
   return __builtin_astype(arg, uint2);
 }
-uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint2(short4 arg) {
+uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(
+    short4 arg) {
   return __builtin_astype(arg, uint2);
 }
-uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint2(ushort4 arg) {
+uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(
+    ushort4 arg) {
   return __builtin_astype(arg, uint2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -596,8 +596,8 @@ uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(half4 arg) {
 uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(int2 arg) {
   return __builtin_astype(arg, uint2);
 }
-uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint2(float2 arg) {
+uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(
+    float2 arg) {
   return __builtin_astype(arg, uint2);
 }
 uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(long arg) {
@@ -607,52 +607,52 @@ uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(ulong arg) {
   return __builtin_astype(arg, uint2);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint2(double arg) {
+uint2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint2(
+    double arg) {
   return __builtin_astype(arg, uint2);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(char8 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    char8 arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(uchar8 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    uchar8 arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(short4 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    short4 arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(ushort4 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    ushort4 arg) {
   return __builtin_astype(arg, float2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(half4 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    half4 arg) {
   return __builtin_astype(arg, float2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(int2 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    int2 arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(uint2 arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    uint2 arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(long arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    long arg) {
   return __builtin_astype(arg, float2);
 }
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(ulong arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    ulong arg) {
   return __builtin_astype(arg, float2);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float2(double arg) {
+float2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float2(
+    double arg) {
   return __builtin_astype(arg, float2);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -693,16 +693,16 @@ long __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long(double arg) {
 ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(char8 arg) {
   return __builtin_astype(arg, ulong);
 }
-ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong(uchar8 arg) {
+ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(
+    uchar8 arg) {
   return __builtin_astype(arg, ulong);
 }
-ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong(short4 arg) {
+ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(
+    short4 arg) {
   return __builtin_astype(arg, ulong);
 }
-ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong(ushort4 arg) {
+ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(
+    ushort4 arg) {
   return __builtin_astype(arg, ulong);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -716,254 +716,254 @@ ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(int2 arg) {
 ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(uint2 arg) {
   return __builtin_astype(arg, ulong);
 }
-ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong(float2 arg) {
+ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(
+    float2 arg) {
   return __builtin_astype(arg, ulong);
 }
 ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(long arg) {
   return __builtin_astype(arg, ulong);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong(double arg) {
+ulong __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong(
+    double arg) {
   return __builtin_astype(arg, ulong);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(char8 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    char8 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(uchar8 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    uchar8 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(short4 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    short4 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(ushort4 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    ushort4 arg) {
   return __builtin_astype(arg, double);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(half4 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    half4 arg) {
   return __builtin_astype(arg, double);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(int2 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    int2 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(uint2 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    uint2 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(float2 arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    float2 arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(long arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    long arg) {
   return __builtin_astype(arg, double);
 }
-double __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double(ulong arg) {
+double __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double(
+    ulong arg) {
   return __builtin_astype(arg, double);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(uchar16 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    uchar16 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(short8 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    short8 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(ushort8 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    ushort8 arg) {
   return __builtin_astype(arg, char16);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(half8 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    half8 arg) {
   return __builtin_astype(arg, char16);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(int4 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    int4 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(uint4 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    uint4 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(float4 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    float4 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(long2 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    long2 arg) {
   return __builtin_astype(arg, char16);
 }
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(ulong2 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    ulong2 arg) {
   return __builtin_astype(arg, char16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char16(double2 arg) {
+char16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char16(
+    double2 arg) {
   return __builtin_astype(arg, char16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(char16 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    char16 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(short8 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    short8 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(ushort8 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    ushort8 arg) {
   return __builtin_astype(arg, uchar16);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(half8 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    half8 arg) {
   return __builtin_astype(arg, uchar16);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(int4 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    int4 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(uint4 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    uint4 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(float4 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    float4 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(long2 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    long2 arg) {
   return __builtin_astype(arg, uchar16);
 }
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(ulong2 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    ulong2 arg) {
   return __builtin_astype(arg, uchar16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar16(double2 arg) {
+uchar16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar16(
+    double2 arg) {
   return __builtin_astype(arg, uchar16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(char16 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    char16 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(uchar16 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    uchar16 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(ushort8 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    ushort8 arg) {
   return __builtin_astype(arg, short8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(half8 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    half8 arg) {
   return __builtin_astype(arg, short8);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(int4 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    int4 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(uint4 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    uint4 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(float4 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    float4 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(long2 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    long2 arg) {
   return __builtin_astype(arg, short8);
 }
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(ulong2 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    ulong2 arg) {
   return __builtin_astype(arg, short8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short8(double2 arg) {
+short8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short8(
+    double2 arg) {
   return __builtin_astype(arg, short8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(char16 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    char16 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(uchar16 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    uchar16 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(short8 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    short8 arg) {
   return __builtin_astype(arg, ushort8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(half8 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    half8 arg) {
   return __builtin_astype(arg, ushort8);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(int4 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    int4 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(uint4 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    uint4 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(float4 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    float4 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(long2 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    long2 arg) {
   return __builtin_astype(arg, ushort8);
 }
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(ulong2 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    ulong2 arg) {
   return __builtin_astype(arg, ushort8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort8(double2 arg) {
+ushort8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort8(
+    double2 arg) {
   return __builtin_astype(arg, ushort8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(char16 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    char16 arg) {
   return __builtin_astype(arg, half8);
 }
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(uchar16 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    uchar16 arg) {
   return __builtin_astype(arg, half8);
 }
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(short8 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    short8 arg) {
   return __builtin_astype(arg, half8);
 }
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(ushort8 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    ushort8 arg) {
   return __builtin_astype(arg, half8);
 }
 half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(int4 arg) {
@@ -972,20 +972,20 @@ half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(int4 arg) {
 half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(uint4 arg) {
   return __builtin_astype(arg, half8);
 }
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(float4 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    float4 arg) {
   return __builtin_astype(arg, half8);
 }
 half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(long2 arg) {
   return __builtin_astype(arg, half8);
 }
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(ulong2 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    ulong2 arg) {
   return __builtin_astype(arg, half8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half8(double2 arg) {
+half8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half8(
+    double2 arg) {
   return __builtin_astype(arg, half8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -1024,20 +1024,20 @@ int4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int4(double2 arg) {
   return __builtin_astype(arg, int4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(char16 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    char16 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(uchar16 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    uchar16 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(short8 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    short8 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(ushort8 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    ushort8 arg) {
   return __builtin_astype(arg, uint4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -1048,81 +1048,81 @@ uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(half8 arg) {
 uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(int4 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(float4 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    float4 arg) {
   return __builtin_astype(arg, uint4);
 }
 uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(long2 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(ulong2 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    ulong2 arg) {
   return __builtin_astype(arg, uint4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(double2 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    double2 arg) {
   return __builtin_astype(arg, uint4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(char16 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    char16 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(uchar16 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    uchar16 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(short8 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    short8 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(ushort8 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    ushort8 arg) {
   return __builtin_astype(arg, float4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(half8 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    half8 arg) {
   return __builtin_astype(arg, float4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(int4 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    int4 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(uint4 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    uint4 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(long2 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    long2 arg) {
   return __builtin_astype(arg, float4);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(ulong2 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    ulong2 arg) {
   return __builtin_astype(arg, float4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(double2 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    double2 arg) {
   return __builtin_astype(arg, float4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(char16 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    char16 arg) {
   return __builtin_astype(arg, long2);
 }
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(uchar16 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    uchar16 arg) {
   return __builtin_astype(arg, long2);
 }
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(short8 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    short8 arg) {
   return __builtin_astype(arg, long2);
 }
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(ushort8 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    ushort8 arg) {
   return __builtin_astype(arg, long2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -1136,212 +1136,212 @@ long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(int4 arg) {
 long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(uint4 arg) {
   return __builtin_astype(arg, long2);
 }
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(float4 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    float4 arg) {
   return __builtin_astype(arg, long2);
 }
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(ulong2 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    ulong2 arg) {
   return __builtin_astype(arg, long2);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long2(double2 arg) {
+long2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long2(
+    double2 arg) {
   return __builtin_astype(arg, long2);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(char16 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    char16 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(uchar16 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    uchar16 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(short8 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    short8 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(ushort8 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    ushort8 arg) {
   return __builtin_astype(arg, ulong2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(half8 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    half8 arg) {
   return __builtin_astype(arg, ulong2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(int4 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    int4 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(uint4 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    uint4 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(float4 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    float4 arg) {
   return __builtin_astype(arg, ulong2);
 }
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(long2 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    long2 arg) {
   return __builtin_astype(arg, ulong2);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong2(double2 arg) {
+ulong2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong2(
+    double2 arg) {
   return __builtin_astype(arg, ulong2);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(char16 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    char16 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(uchar16 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    uchar16 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(short8 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    short8 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(ushort8 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    ushort8 arg) {
   return __builtin_astype(arg, double2);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(half8 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    half8 arg) {
   return __builtin_astype(arg, double2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(int4 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    int4 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(uint4 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    uint4 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(float4 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    float4 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(long2 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    long2 arg) {
   return __builtin_astype(arg, double2);
 }
-double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double2(ulong2 arg) {
+double2 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double2(
+    ulong2 arg) {
   return __builtin_astype(arg, double2);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(ushort16 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    ushort16 arg) {
   return __builtin_astype(arg, short16);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(half16 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    half16 arg) {
   return __builtin_astype(arg, short16);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(int8 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    int8 arg) {
   return __builtin_astype(arg, short16);
 }
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(uint8 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    uint8 arg) {
   return __builtin_astype(arg, short16);
 }
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(float8 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    float8 arg) {
   return __builtin_astype(arg, short16);
 }
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(long4 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    long4 arg) {
   return __builtin_astype(arg, short16);
 }
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(ulong4 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    ulong4 arg) {
   return __builtin_astype(arg, short16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short16(double4 arg) {
+short16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short16(
+    double4 arg) {
   return __builtin_astype(arg, short16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(short16 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    short16 arg) {
   return __builtin_astype(arg, ushort16);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(half16 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    half16 arg) {
   return __builtin_astype(arg, ushort16);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(int8 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    int8 arg) {
   return __builtin_astype(arg, ushort16);
 }
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(uint8 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    uint8 arg) {
   return __builtin_astype(arg, ushort16);
 }
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(float8 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    float8 arg) {
   return __builtin_astype(arg, ushort16);
 }
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(long4 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    long4 arg) {
   return __builtin_astype(arg, ushort16);
 }
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(ulong4 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    ulong4 arg) {
   return __builtin_astype(arg, ushort16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort16(double4 arg) {
+ushort16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort16(
+    double4 arg) {
   return __builtin_astype(arg, ushort16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(short16 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    short16 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(ushort16 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    ushort16 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(int8 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    int8 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(uint8 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    uint8 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(float8 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    float8 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(long4 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    long4 arg) {
   return __builtin_astype(arg, half16);
 }
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(ulong4 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    ulong4 arg) {
   return __builtin_astype(arg, half16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half16(double4 arg) {
+half16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half16(
+    double4 arg) {
   return __builtin_astype(arg, half16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -1349,8 +1349,8 @@ as_half16(double4 arg) {
 int8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int8(short16 arg) {
   return __builtin_astype(arg, int8);
 }
-int8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_int8(ushort16 arg) {
+int8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int8(
+    ushort16 arg) {
   return __builtin_astype(arg, int8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -1375,87 +1375,87 @@ int8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int8(double4 arg) {
   return __builtin_astype(arg, int8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(short16 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    short16 arg) {
   return __builtin_astype(arg, uint8);
 }
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(ushort16 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    ushort16 arg) {
   return __builtin_astype(arg, uint8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(half16 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    half16 arg) {
   return __builtin_astype(arg, uint8);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(int8 arg) {
   return __builtin_astype(arg, uint8);
 }
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(float8 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    float8 arg) {
   return __builtin_astype(arg, uint8);
 }
 uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(long4 arg) {
   return __builtin_astype(arg, uint8);
 }
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(ulong4 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    ulong4 arg) {
   return __builtin_astype(arg, uint8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint8(double4 arg) {
+uint8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint8(
+    double4 arg) {
   return __builtin_astype(arg, uint8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(short16 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    short16 arg) {
   return __builtin_astype(arg, float8);
 }
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(ushort16 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    ushort16 arg) {
   return __builtin_astype(arg, float8);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(half16 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    half16 arg) {
   return __builtin_astype(arg, float8);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(int8 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    int8 arg) {
   return __builtin_astype(arg, float8);
 }
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(uint8 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    uint8 arg) {
   return __builtin_astype(arg, float8);
 }
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(long4 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    long4 arg) {
   return __builtin_astype(arg, float8);
 }
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(ulong4 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    ulong4 arg) {
   return __builtin_astype(arg, float8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float8(double4 arg) {
+float8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float8(
+    double4 arg) {
   return __builtin_astype(arg, float8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(short16 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    short16 arg) {
   return __builtin_astype(arg, long4);
 }
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(ushort16 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    ushort16 arg) {
   return __builtin_astype(arg, long4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(half16 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    half16 arg) {
   return __builtin_astype(arg, long4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
@@ -1465,258 +1465,258 @@ long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(int8 arg) {
 long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(uint8 arg) {
   return __builtin_astype(arg, long4);
 }
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(float8 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    float8 arg) {
   return __builtin_astype(arg, long4);
 }
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(ulong4 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    ulong4 arg) {
   return __builtin_astype(arg, long4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(double4 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    double4 arg) {
   return __builtin_astype(arg, long4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(short16 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    short16 arg) {
   return __builtin_astype(arg, ulong4);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(ushort16 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    ushort16 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(half16 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    half16 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(int8 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    int8 arg) {
   return __builtin_astype(arg, ulong4);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(uint8 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    uint8 arg) {
   return __builtin_astype(arg, ulong4);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(float8 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    float8 arg) {
   return __builtin_astype(arg, ulong4);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(long4 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    long4 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(double4 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    double4 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(short16 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    short16 arg) {
   return __builtin_astype(arg, double4);
 }
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(ushort16 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    ushort16 arg) {
   return __builtin_astype(arg, double4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(half16 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    half16 arg) {
   return __builtin_astype(arg, double4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(int8 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    int8 arg) {
   return __builtin_astype(arg, double4);
 }
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(uint8 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    uint8 arg) {
   return __builtin_astype(arg, double4);
 }
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(float8 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    float8 arg) {
   return __builtin_astype(arg, double4);
 }
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(long4 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    long4 arg) {
   return __builtin_astype(arg, double4);
 }
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(ulong4 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    ulong4 arg) {
   return __builtin_astype(arg, double4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_int16(uint16 arg) {
+int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int16(
+    uint16 arg) {
   return __builtin_astype(arg, int16);
 }
-int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_int16(float16 arg) {
+int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int16(
+    float16 arg) {
   return __builtin_astype(arg, int16);
 }
 int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int16(long8 arg) {
   return __builtin_astype(arg, int16);
 }
-int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_int16(ulong8 arg) {
+int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int16(
+    ulong8 arg) {
   return __builtin_astype(arg, int16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_int16(double8 arg) {
+int16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int16(
+    double8 arg) {
   return __builtin_astype(arg, int16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint16(int16 arg) {
+uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint16(
+    int16 arg) {
   return __builtin_astype(arg, uint16);
 }
-uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint16(float16 arg) {
+uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint16(
+    float16 arg) {
   return __builtin_astype(arg, uint16);
 }
-uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint16(long8 arg) {
+uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint16(
+    long8 arg) {
   return __builtin_astype(arg, uint16);
 }
-uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint16(ulong8 arg) {
+uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint16(
+    ulong8 arg) {
   return __builtin_astype(arg, uint16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint16(double8 arg) {
+uint16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint16(
+    double8 arg) {
   return __builtin_astype(arg, uint16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float16(int16 arg) {
+float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float16(
+    int16 arg) {
   return __builtin_astype(arg, float16);
 }
-float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float16(uint16 arg) {
+float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float16(
+    uint16 arg) {
   return __builtin_astype(arg, float16);
 }
-float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float16(long8 arg) {
+float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float16(
+    long8 arg) {
   return __builtin_astype(arg, float16);
 }
-float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float16(ulong8 arg) {
+float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float16(
+    ulong8 arg) {
   return __builtin_astype(arg, float16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float16(double8 arg) {
+float16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float16(
+    double8 arg) {
   return __builtin_astype(arg, float16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long8(int16 arg) {
   return __builtin_astype(arg, long8);
 }
-long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long8(uint16 arg) {
+long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long8(
+    uint16 arg) {
   return __builtin_astype(arg, long8);
 }
-long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long8(float16 arg) {
+long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long8(
+    float16 arg) {
   return __builtin_astype(arg, long8);
 }
-long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long8(ulong8 arg) {
+long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long8(
+    ulong8 arg) {
   return __builtin_astype(arg, long8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long8(double8 arg) {
+long8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long8(
+    double8 arg) {
   return __builtin_astype(arg, long8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong8(int16 arg) {
+ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong8(
+    int16 arg) {
   return __builtin_astype(arg, ulong8);
 }
-ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong8(uint16 arg) {
+ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong8(
+    uint16 arg) {
   return __builtin_astype(arg, ulong8);
 }
-ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong8(float16 arg) {
+ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong8(
+    float16 arg) {
   return __builtin_astype(arg, ulong8);
 }
-ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong8(long8 arg) {
+ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong8(
+    long8 arg) {
   return __builtin_astype(arg, ulong8);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong8(double8 arg) {
+ulong8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong8(
+    double8 arg) {
   return __builtin_astype(arg, ulong8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double8(int16 arg) {
+double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double8(
+    int16 arg) {
   return __builtin_astype(arg, double8);
 }
-double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double8(uint16 arg) {
+double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double8(
+    uint16 arg) {
   return __builtin_astype(arg, double8);
 }
-double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double8(float16 arg) {
+double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double8(
+    float16 arg) {
   return __builtin_astype(arg, double8);
 }
-double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double8(long8 arg) {
+double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double8(
+    long8 arg) {
   return __builtin_astype(arg, double8);
 }
-double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double8(ulong8 arg) {
+double8 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double8(
+    ulong8 arg) {
   return __builtin_astype(arg, double8);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-long16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long16(ulong16 arg) {
+long16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long16(
+    ulong16 arg) {
   return __builtin_astype(arg, long16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long16(double16 arg) {
+long16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long16(
+    double16 arg) {
   return __builtin_astype(arg, long16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong16(long16 arg) {
+ulong16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong16(
+    long16 arg) {
   return __builtin_astype(arg, ulong16);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong16(double16 arg) {
+ulong16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong16(
+    double16 arg) {
   return __builtin_astype(arg, ulong16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double16(long16 arg) {
+double16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double16(
+    long16 arg) {
   return __builtin_astype(arg, double16);
 }
-double16 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double16(ulong16 arg) {
+double16 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double16(
+    ulong16 arg) {
   return __builtin_astype(arg, double16);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char3(uchar3 arg) {
+char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char3(
+    uchar3 arg) {
   return __builtin_astype(arg, char3);
 }
-uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar3(char3 arg) {
+uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar3(
+    char3 arg) {
   return __builtin_astype(arg, uchar3);
 }
 char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char3(char4 arg) {
@@ -1725,137 +1725,137 @@ char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char3(char4 arg) {
 char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(char3 arg) {
   return __builtin_astype(arg, char4);
 }
-char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char3(uchar4 arg) {
+char3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char3(
+    uchar4 arg) {
   return __builtin_astype(arg, char3);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(char3 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    char3 arg) {
   return __builtin_astype(arg, uchar4);
 }
-uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar3(char4 arg) {
+uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar3(
+    char4 arg) {
   return __builtin_astype(arg, uchar3);
 }
-char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_char4(uchar3 arg) {
+char4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_char4(
+    uchar3 arg) {
   return __builtin_astype(arg, char4);
 }
-uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar3(uchar4 arg) {
+uchar3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar3(
+    uchar4 arg) {
   return __builtin_astype(arg, uchar3);
 }
-uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uchar4(uchar3 arg) {
+uchar4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uchar4(
+    uchar3 arg) {
   return __builtin_astype(arg, uchar4);
 }
-short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short3(ushort3 arg) {
+short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short3(
+    ushort3 arg) {
   return __builtin_astype(arg, short3);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short3(half3 arg) {
+short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short3(
+    half3 arg) {
   return __builtin_astype(arg, short3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort3(short3 arg) {
+ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort3(
+    short3 arg) {
   return __builtin_astype(arg, ushort3);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort3(half3 arg) {
+ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort3(
+    half3 arg) {
   return __builtin_astype(arg, ushort3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half3(short3 arg) {
+half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half3(
+    short3 arg) {
   return __builtin_astype(arg, half3);
 }
-half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half3(ushort3 arg) {
+half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half3(
+    ushort3 arg) {
   return __builtin_astype(arg, half3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short3(short4 arg) {
+short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short3(
+    short4 arg) {
   return __builtin_astype(arg, short3);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(short3 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    short3 arg) {
   return __builtin_astype(arg, short4);
 }
-short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short3(ushort4 arg) {
+short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short3(
+    ushort4 arg) {
   return __builtin_astype(arg, short3);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(short3 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    short3 arg) {
   return __builtin_astype(arg, ushort4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short3(half4 arg) {
+short3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short3(
+    half4 arg) {
   return __builtin_astype(arg, short3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(short3 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    short3 arg) {
   return __builtin_astype(arg, half4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort3(short4 arg) {
+ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort3(
+    short4 arg) {
   return __builtin_astype(arg, ushort3);
 }
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(ushort3 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    ushort3 arg) {
   return __builtin_astype(arg, short4);
 }
-ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort3(ushort4 arg) {
+ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort3(
+    ushort4 arg) {
   return __builtin_astype(arg, ushort3);
 }
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(ushort3 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    ushort3 arg) {
   return __builtin_astype(arg, ushort4);
 }
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort3(half4 arg) {
+ushort3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort3(
+    half4 arg) {
   return __builtin_astype(arg, ushort3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half4(ushort3 arg) {
+half4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half4(
+    ushort3 arg) {
   return __builtin_astype(arg, half4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half3(short4 arg) {
+half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half3(
+    short4 arg) {
   return __builtin_astype(arg, half3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_short4(half3 arg) {
+short4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_short4(
+    half3 arg) {
   return __builtin_astype(arg, short4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_half3(ushort4 arg) {
+half3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_half3(
+    ushort4 arg) {
   return __builtin_astype(arg, half3);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ushort4(half3 arg) {
+ushort4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ushort4(
+    half3 arg) {
   return __builtin_astype(arg, ushort4);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
@@ -1882,16 +1882,16 @@ int3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int3(float3 arg) {
 uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint3(int3 arg) {
   return __builtin_astype(arg, uint3);
 }
-uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint3(float3 arg) {
+uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint3(
+    float3 arg) {
   return __builtin_astype(arg, uint3);
 }
-float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float3(int3 arg) {
+float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float3(
+    int3 arg) {
   return __builtin_astype(arg, float3);
 }
-float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float3(uint3 arg) {
+float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float3(
+    uint3 arg) {
   return __builtin_astype(arg, float3);
 }
 int3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int3(int4 arg) {
@@ -1909,8 +1909,8 @@ uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(int3 arg) {
 int3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int3(float4 arg) {
   return __builtin_astype(arg, int3);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(int3 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    int3 arg) {
   return __builtin_astype(arg, float4);
 }
 uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint3(int4 arg) {
@@ -1925,64 +1925,64 @@ uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint3(uint4 arg) {
 uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(uint3 arg) {
   return __builtin_astype(arg, uint4);
 }
-uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint3(float4 arg) {
+uint3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint3(
+    float4 arg) {
   return __builtin_astype(arg, uint3);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(uint3 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    uint3 arg) {
   return __builtin_astype(arg, float4);
 }
-float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float3(int4 arg) {
+float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float3(
+    int4 arg) {
   return __builtin_astype(arg, float3);
 }
 int4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_int4(float3 arg) {
   return __builtin_astype(arg, int4);
 }
-float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float3(uint4 arg) {
+float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float3(
+    uint4 arg) {
   return __builtin_astype(arg, float3);
 }
-uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_uint4(float3 arg) {
+uint4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_uint4(
+    float3 arg) {
   return __builtin_astype(arg, uint4);
 }
-float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float3(float4 arg) {
+float3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float3(
+    float4 arg) {
   return __builtin_astype(arg, float3);
 }
-float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_float4(float3 arg) {
+float4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_float4(
+    float3 arg) {
   return __builtin_astype(arg, float4);
 }
-long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long3(ulong3 arg) {
+long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long3(
+    ulong3 arg) {
   return __builtin_astype(arg, long3);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long3(double3 arg) {
+long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long3(
+    double3 arg) {
   return __builtin_astype(arg, long3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong3(long3 arg) {
+ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong3(
+    long3 arg) {
   return __builtin_astype(arg, ulong3);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong3(double3 arg) {
+ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong3(
+    double3 arg) {
   return __builtin_astype(arg, ulong3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double3(long3 arg) {
+double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double3(
+    long3 arg) {
   return __builtin_astype(arg, double3);
 }
-double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double3(ulong3 arg) {
+double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double3(
+    ulong3 arg) {
   return __builtin_astype(arg, double3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
@@ -1992,90 +1992,90 @@ long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long3(long4 arg) {
 long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(long3 arg) {
   return __builtin_astype(arg, long4);
 }
-long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long3(ulong4 arg) {
+long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long3(
+    ulong4 arg) {
   return __builtin_astype(arg, long3);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(long3 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    long3 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long3(double4 arg) {
+long3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long3(
+    double4 arg) {
   return __builtin_astype(arg, long3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(long3 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    long3 arg) {
   return __builtin_astype(arg, double4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong3(long4 arg) {
+ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong3(
+    long4 arg) {
   return __builtin_astype(arg, ulong3);
 }
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(ulong3 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    ulong3 arg) {
   return __builtin_astype(arg, long4);
 }
-ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong3(ulong4 arg) {
+ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong3(
+    ulong4 arg) {
   return __builtin_astype(arg, ulong3);
 }
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(ulong3 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    ulong3 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong3(double4 arg) {
+ulong3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong3(
+    double4 arg) {
   return __builtin_astype(arg, ulong3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(ulong3 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    ulong3 arg) {
   return __builtin_astype(arg, double4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double3(long4 arg) {
+double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double3(
+    long4 arg) {
   return __builtin_astype(arg, double3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_long4(double3 arg) {
+long4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_long4(
+    double3 arg) {
   return __builtin_astype(arg, long4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double3(ulong4 arg) {
+double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double3(
+    ulong4 arg) {
   return __builtin_astype(arg, double3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_ulong4(double3 arg) {
+ulong4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_ulong4(
+    double3 arg) {
   return __builtin_astype(arg, ulong4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double3(double4 arg) {
+double3 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double3(
+    double4 arg) {
   return __builtin_astype(arg, double3);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline))
-as_double4(double3 arg) {
+double4 __CL_CONST_ATTRIBUTES __attribute__((always_inline)) as_double4(
+    double3 arg) {
   return __builtin_astype(arg, double4);
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
