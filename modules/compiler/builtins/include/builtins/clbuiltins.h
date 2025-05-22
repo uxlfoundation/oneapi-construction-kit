@@ -19,7 +19,6 @@
 
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_config.h>
-#include <abacus/abacus_extra.h>
 #include <abacus/abacus_geometric.h>
 #include <abacus/abacus_integer.h>
 // Including abacus_math.h results in multiply defined symbols.

@@ -25,7 +25,6 @@ endif()
 # Add abacus source directories to get lists of source files.
 add_subdirectory(abacus_cast)
 add_subdirectory(abacus_common)
-add_subdirectory(abacus_extra)
 add_subdirectory(abacus_geometric)
 add_subdirectory(abacus_integer)
 add_subdirectory(abacus_math)
@@ -34,11 +33,11 @@ add_subdirectory(abacus_misc)
 add_subdirectory(abacus_relational)
 
 set(abacus_sources_host
-  ${abacus_cast_sources} ${abacus_common_sources} ${abacus_extra_sources}
+  ${abacus_cast_sources} ${abacus_common_sources}
   ${abacus_geometric_sources} ${abacus_integer_sources} ${abacus_math_sources_host}
   ${abacus_memory_sources} ${abacus_misc_sources} ${abacus_relational_sources})
 set(abacus_sources_device
-  ${abacus_cast_sources} ${abacus_common_sources} ${abacus_extra_sources}
+  ${abacus_cast_sources} ${abacus_common_sources}
   ${abacus_geometric_sources} ${abacus_integer_sources} ${abacus_math_sources_device}
   ${abacus_memory_sources} ${abacus_misc_sources} ${abacus_relational_sources})
 

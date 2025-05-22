@@ -10678,8 +10678,6 @@ int __attribute__((weak)) printf(const constant char *const restrict fmt, ...);
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-
 #ifdef __cplusplus
 };
 #endif
