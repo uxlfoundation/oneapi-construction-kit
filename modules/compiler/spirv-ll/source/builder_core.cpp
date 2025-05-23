@@ -35,7 +35,6 @@
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
 #include <spirv-ll/builder_debug_info.h>
-#include <spirv-ll/builder_glsl.h>
 #include <spirv-ll/builder_group_async_copies.h>
 #include <spirv-ll/builder_opencl.h>
 #include <spirv-ll/context.h>
@@ -348,10 +347,7 @@ llvm::Error Builder::create<OpExtension>(const OpExtension *op) {
 template <>
 llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
   auto name = op->Name();
-  if (name == "GLSL.std.450") {
-    registerExtInstHandler<GLSLBuilder>(ExtendedInstrSet::GLSL450);
-    module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::GLSL450);
-  } else if (name == "OpenCL.std") {
+  if (name == "OpenCL.std") {
     registerExtInstHandler<OpenCLBuilder>(ExtendedInstrSet::OpenCL);
     module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::OpenCL);
   } else if (name == "Codeplay.GroupAsyncCopies" ||
