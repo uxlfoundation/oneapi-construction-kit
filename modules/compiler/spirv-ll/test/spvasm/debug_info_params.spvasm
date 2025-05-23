@@ -15,13 +15,13 @@
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: spirv-ll-tool -a Vulkan -b 64 -c Linkage %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Linkage %spv_file_s | FileCheck %s
 
 ; CHECK: ; ModuleID = '{{.*}}'
-               OpCapability Shader
+               OpCapability Kernel
                OpCapability Linkage
           %1 = OpExtInstImport "OpenCL.std"
-               OpMemoryModel Logical GLSL450
+               OpMemoryModel Logical OpenCL
                OpSource OpenCL_C 102000
 
        %file = OpString "test/spvasm/debug_info_params.comp"
@@ -30,24 +30,21 @@
                OpName %a "a"
                OpName %b "b"
                OpName %c "c"
-               OpName %d "d"
                OpName %file "file"
        %void = OpTypeVoid
-     %int_ty = OpTypeInt 32 1
-    %uint_ty = OpTypeInt 32 0
+     %int_ty = OpTypeInt 32 0
    %float_ty = OpTypeFloat 32
   %float_pty = OpTypePointer CrossWorkgroup %float_ty
        %bool = OpTypeBool
-          %3 = OpTypeFunction %void %int_ty %uint_ty %float_ty %float_pty
+          %3 = OpTypeFunction %void %int_ty %float_ty %float_pty
 
 ; CHECK: define private spir_func void @my_kernel(
-; CHECK-SAME:     i32 %a, i32 %b, float %c, ptr addrspace(1) %d)
+; CHECK-SAME:     i32 %a, float %b, ptr addrspace(1) %c)
 ; CHECK-SAME: !dbg [[MainSubprogram:![0-9]+]]
        %my_kernel = OpFunction %void None %3
           %a = OpFunctionParameter %int_ty
-          %b = OpFunctionParameter %uint_ty
-          %c = OpFunctionParameter %float_ty
-          %d = OpFunctionParameter %float_pty
+          %b = OpFunctionParameter %float_ty
+          %c = OpFunctionParameter %float_pty
           %5 = OpLabel
                OpLine %file 6 3
                OpNoLine
@@ -70,8 +67,7 @@
 ; CHECK-SAME: )
 
 ; CHECK: [[MainSubroutineType]] = !DISubroutineType(types: [[MainSubroutineParamTypes:![0-9]+]])
-; CHECK: [[MainSubroutineParamTypes]] = !{[[A:![0-9]+]], [[B:![0-9]+]], [[C:![0-9]+]], [[D:![0-9]+]]}
-; CHECK: [[A]] = !DIBasicType(name: "dbg_int_ty", size: 32, encoding: DW_ATE_signed)
-; CHECK: [[B]] = !DIBasicType(name: "dbg_uint_ty", size: 32, encoding: DW_ATE_unsigned)
-; CHECK: [[C]] = !DIBasicType(name: "dbg_float_ty", size: 32, encoding: DW_ATE_float)
-; CHECK: [[D]] = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: [[C]], size: 64, align: 8)
+; CHECK: [[MainSubroutineParamTypes]] = !{[[A:![0-9]+]], [[B:![0-9]+]], [[C:![0-9]+]]
+; CHECK: [[A]] = !DIBasicType(name: "dbg_uint_ty", size: 32, encoding: DW_ATE_unsigned)
+; CHECK: [[B]] = !DIBasicType(name: "dbg_float_ty", size: 32, encoding: DW_ATE_float)
+; CHECK: [[C]] = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: [[B]], size: 64, align: 8)

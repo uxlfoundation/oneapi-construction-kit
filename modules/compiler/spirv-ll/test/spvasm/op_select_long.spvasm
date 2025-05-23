@@ -16,14 +16,13 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
-                      OpCapability Shader
+                      OpCapability Kernel
                       OpCapability Float64
                       OpCapability Int64
-                 %1 = OpExtInstImport "GLSL.std.450"
-                      OpMemoryModel Logical GLSL450
-                      OpEntryPoint GLCompute %main "main"
+                      OpMemoryModel Logical OpenCL
+                      OpEntryPoint Kernel %main "main"
                       OpExecutionMode %main LocalSize 1 1 1
                       OpSource GLSL 450
                       OpName %main "main"
@@ -36,7 +35,7 @@
               %true = OpConstantTrue %bool
               %long = OpTypeInt 64 1
           %ptr_long = OpTypePointer Function %long
-                %17 = OpConstant %long -4200000000
+                %17 = OpConstant %long 4200000000
                 %19 = OpConstant %long 4200000000
               %main = OpFunction %void None %main_fn
 ; CHECK: define spir_kernel void @main()
@@ -50,7 +49,7 @@
                 %14 = OpLoad %bool %a
 ; CHECK: [[aValue:%.*]] = load i1, ptr %a
                 %15 = OpSelect %long %14 %17 %19  ; testing this
-; CHECK: [[selected:%.*]] = select i1 [[aValue]], i64 -4200000000, i64 4200000000
+; CHECK: [[selected:%.*]] = select i1 [[aValue]], i64 4200000000, i64 4200000000
                       OpStore %b %15
 ; CHECK: store i64 [[selected]], ptr %b
                       OpReturn

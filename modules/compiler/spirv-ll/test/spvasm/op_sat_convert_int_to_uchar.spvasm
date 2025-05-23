@@ -29,11 +29,11 @@
                 OpName %b "b"
         %void = OpTypeVoid
       %main_t = OpTypeFunction %void
-         %int = OpTypeInt 32 0
+        %uint = OpTypeInt 32 0
         %char = OpTypeInt 8 0
-     %ptr_int = OpTypePointer Function %int
+     %ptr_int = OpTypePointer Function %uint
     %ptr_char = OpTypePointer Function %char
-  %const_1024 = OpConstant %int 1024
+  %const_1024 = OpConstant %uint 1024
 
         %main = OpFunction %void None %main_t
 ; CHECK: define spir_kernel void @main()
@@ -44,7 +44,7 @@
 ; CHECK: [[b:%.*]] = alloca i8
                 OpStore %a %const_1024
 ; CHECK: store i32 1024, ptr [[a]]
-       %a_val = OpLoad %int %a
+       %a_val = OpLoad %uint %a
 ; CHECK: [[a_val:%[0-9]+]] = load i32, ptr [[a]]
        %b_val = OpSatConvertSToU %char %a_val
 ; CHECK: [[b_val:%.*]] = call spir_func zeroext i8 @_Z17convert_uchar_sati(i32 [[a_val]])

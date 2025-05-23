@@ -16,13 +16,12 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 %spv_file_s | FileCheck %s
 
-               OpCapability Shader
+               OpCapability Kernel
                OpCapability Float64
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main"
+               OpMemoryModel Logical OpenCL
+               OpEntryPoint Kernel %main "main"
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpName %main "main"
@@ -51,7 +50,7 @@
                OpFunctionEnd
 
 ; CHECK: ; ModuleID = '{{.*}}'
-; CHECK: define spir_kernel void @main() #0 {
+; CHECK: define spir_kernel void @main()
 ; CHECK: = alloca double
 ; CHECK: = alloca double
 ; CHECK: = alloca i1

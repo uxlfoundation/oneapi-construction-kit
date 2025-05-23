@@ -16,25 +16,24 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %res "res"
     %void = OpTypeVoid
        %5 = OpTypeFunction %void
-     %int = OpTypeInt 32 0
-       %9 = OpConstant %int 3
-   %v2int = OpTypeVector %int 2
-  %struct = OpTypeStruct %v2int %int %int
+    %uint = OpTypeInt 32 0
+       %9 = OpConstant %uint 3
+   %v2int = OpTypeVector %uint 2
+  %struct = OpTypeStruct %v2int %uint %uint
 %ptr_struct = OpTypePointer Function %struct
-      %10 = OpConstant %int 42
+      %10 = OpConstant %uint 42
       %11 = OpConstantComposite %v2int %10 %9
     %main = OpFunction %void None %5
       %12 = OpLabel
@@ -45,7 +44,7 @@
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: [[STRUCT:%.*]] = type { <2 x i32>, i32, i32 }
-; CHECK: define spir_kernel void @main() #0 {
+; CHECK: define spir_kernel void @main()
 ; CHECK: [[VAR:%.*]] = alloca [[STRUCT]]
 ; CHECK: store [[STRUCT]] { <2 x i32> <i32 42, i32 3>, i32 3, i32 42 }, ptr [[VAR]]
 ; CHECK: ret void

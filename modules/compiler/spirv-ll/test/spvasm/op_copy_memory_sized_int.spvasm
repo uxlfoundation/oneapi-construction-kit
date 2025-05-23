@@ -16,15 +16,14 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 -c Addresses %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 -c Addresses %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
-               OpCapability Shader
-               OpCapability Addresses
+               OpCapability Kernel
                OpCapability Float64
                OpCapability Int64
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main"
+               OpCapability Addresses
+               OpMemoryModel Logical OpenCL
+               OpEntryPoint Kernel %main "main"
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpName %main "main"
@@ -33,20 +32,19 @@
                OpName %b "b"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-     %size_t = OpTypeInt 32 0
-        %int = OpTypeInt 32 1
-    %ptr_int = OpTypePointer Function %int
-         %14 = OpConstant %int -42
-         %15 = OpConstant %size_t 4
+       %uint = OpTypeInt 32 0
+   %ptr_uint = OpTypePointer Function %uint
+         %14 = OpConstant %uint 42
+         %15 = OpConstant %uint 4
        %main = OpFunction %void None %3
 ; CHECK: define spir_kernel void @main()
           %5 = OpLabel
-          %a = OpVariable %ptr_int Function
+          %a = OpVariable %ptr_uint Function
 ; CHECK: %a = alloca i32
-          %b = OpVariable %ptr_int Function
+          %b = OpVariable %ptr_uint Function
 ; CHECK: %b = alloca i32
                OpStore %a %14
-; CHECK: store i32 -42, ptr %a
+; CHECK: store i32 42, ptr %a
                OpCopyMemorySized %b %a %15
 ; The alignment argument is no longer emitted in LLVM 7, so it's optional {{   below  }}
 ; The bitcasted alloca arguments are required strong alignment in LLVM 11, so included optional alignment string

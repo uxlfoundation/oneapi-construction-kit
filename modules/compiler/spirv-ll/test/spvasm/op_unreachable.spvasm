@@ -16,32 +16,31 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %a "a"
        %void = OpTypeVoid
           %5 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-%_ptr_Function_int = OpTypePointer Function %int
-          %8 = OpConstant %int 42
+       %uint = OpTypeInt 32 0
+%_ptr_Function_int = OpTypePointer Function %uint
+          %8 = OpConstant %uint 42
        %main = OpFunction %void None %5
          %10 = OpLabel
           %a = OpVariable %_ptr_Function_int Function
                OpStore %a %8
-         %11 = OpLoad %int %a
+         %11 = OpLoad %uint %a
                OpSelectionMerge %12 None
                OpSwitch %11 %12 42 %13
          %13 = OpLabel
-         %15 = OpLoad %int %a
-         %16 = OpIAdd %int %15 %8
+         %15 = OpLoad %uint %a
+         %16 = OpIAdd %uint %15 %8
                OpStore %a %16
                OpBranch %17
          %12 = OpLabel
@@ -55,7 +54,7 @@
 ; CHECK: store i32 42, ptr {{[%@].*}}
 ; CHECK: = load i32, ptr {{[%@].*}}
 ; CHECK: switch i32 {{[%@].*}}, label {{[%@].*}} [
-;   i32 -42, label {{[%@].*}}
+;   i32 42, label {{[%@].*}}
 ; ]
 ; CHECK: {{[0-9]+:}}
 ; CHECK: = load i32, ptr {{[%@].*}}

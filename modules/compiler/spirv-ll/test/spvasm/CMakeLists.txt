@@ -30,38 +30,28 @@ set(SPVASM_FILES
   op_atomic_and_function.spvasm
   op_atomic_and_generic.spvasm
   op_atomic_and_global.spvasm
-  op_atomic_and_global_signed.spvasm
   op_atomic_and_local.spvasm
   op_atomic_compare_exchange_function.spvasm
   op_atomic_compare_exchange_generic.spvasm
   op_atomic_compare_exchange_global.spvasm
-  op_atomic_compare_exchange_global_signed.spvasm
   op_atomic_compare_exchange_local.spvasm
   op_atomic_exchange_function.spvasm
   op_atomic_exchange_generic.spvasm
   op_atomic_exchange_global.spvasm
   op_atomic_exchange_global_float.spvasm
-  op_atomic_exchange_global_signed.spvasm
   op_atomic_exchange_local.spvasm
   op_atomic_i_add_function.spvasm
   op_atomic_i_add_global.spvasm
-  op_atomic_i_add_global_signed.spvasm
   op_atomic_i_add_local.spvasm
-  op_atomic_i_decrement_signed_global.spvasm
-  op_atomic_i_decrement_signed_local.spvasm
-  op_atomic_i_decrement_unsigned_global.spvasm
-  op_atomic_i_decrement_unsigned_local.spvasm
-  op_atomic_i_increment_signed_global.spvasm
-  op_atomic_i_increment_signed_local.spvasm
-  op_atomic_i_increment_unsigned_global.spvasm
-  op_atomic_i_increment_unsigned_local.spvasm
+  op_atomic_i_decrement_global.spvasm
+  op_atomic_i_decrement_local.spvasm
+  op_atomic_i_increment_global.spvasm
+  op_atomic_i_increment_local.spvasm
   op_atomic_i_sub_function.spvasm
   op_atomic_i_sub_global.spvasm
-  op_atomic_i_sub_global_signed.spvasm
   op_atomic_i_sub_local.spvasm
   op_atomic_or_function.spvasm
   op_atomic_or_global.spvasm
-  op_atomic_or_global_signed.spvasm
   op_atomic_or_local.spvasm
   op_atomic_double_add_global.spvasm
   op_atomic_double_max_global.spvasm
@@ -79,7 +69,6 @@ set(SPVASM_FILES
   op_atomic_u_min_local.spvasm
   op_atomic_xor_function.spvasm
   op_atomic_xor_global.spvasm
-  op_atomic_xor_global_signed.spvasm
   op_atomic_xor_local.spvasm
   op_bitcast_double_to_long.spvasm
   op_bitcast_float_to_int.spvasm
@@ -128,8 +117,6 @@ set(SPVASM_FILES
   op_copy_memory_sized_float.spvasm
   op_copy_memory_sized_int.spvasm
   op_copy_memory_sized_long.spvasm
-  op_copy_memory_sized_uint.spvasm
-  op_copy_memory_uint.spvasm
   op_copy_object_constant.spvasm
   op_copy_object_variable.spvasm
   op_execution_mode_local_size.spvasm
@@ -152,7 +139,6 @@ set(SPVASM_FILES
   op_forward_pointer_float.spvasm
   op_forward_pointer_int.spvasm
   op_forward_pointer_long.spvasm
-  op_forward_pointer_uint.spvasm
   op_function_call_import.spvasm
   op_global_invocation_id.spvasm
   op_glsl_Barrier.spvasm
@@ -2039,7 +2025,6 @@ set(SPVASM_FILES
   op_select_float.spvasm
   op_select_int.spvasm
   op_select_long.spvasm
-  op_select_uint.spvasm
   op_shift_left_logical_nsw.spvasm
   op_shift_left_logical_nuw.spvasm
   op_sign_bit_set_scalar.spvasm
@@ -2057,9 +2042,6 @@ set(SPVASM_FILES
   op_spec_constant_composite_long_array.spvasm
   op_spec_constant_composite_long_struct.spvasm
   op_spec_constant_composite_long_vec.spvasm
-  op_spec_constant_composite_uint_array.spvasm
-  op_spec_constant_composite_uint_struct.spvasm
-  op_spec_constant_composite_uint_vec.spvasm
   op_spec_constant_deps.spvasm
   op_spec_constant_double.spvasm
   op_spec_constant_false_bool.spvasm
@@ -2078,7 +2060,6 @@ set(SPVASM_FILES
   op_spec_constant_op_fsub_double.spvasm
   op_spec_constant_op_fsub_float.spvasm
   op_spec_constant_true_bool.spvasm
-  op_spec_constant_uint.spvasm
   op_switch_long.spvasm
   op_switch_short.spvasm
   op_switch_char.spvasm
@@ -2103,13 +2084,11 @@ set(SPVASM_FILES
   op_vector_shuffle_float.spvasm
   op_vector_shuffle_int.spvasm
   op_vector_shuffle_long.spvasm
-  op_vector_shuffle_uint.spvasm
   op_vector_shuffle_undef.spvasm
   op_vector_swizzle_double.spvasm
   op_vector_swizzle_float.spvasm
   op_vector_swizzle_int.spvasm
   op_vector_swizzle_long.spvasm
-  op_vector_swizzle_uint.spvasm
   ptr_int_conversions.spvasm
   vec_type_hint_length_1.spvasm
   op_opencl_u_ctz_i16.spvasm
