@@ -406,7 +406,20 @@ llvm::Error Builder::create<OpExtInst>(const OpExtInst *op) {
 
 template <>
 llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
-  if (deviceInfo.addressingModel != op->AddressingModel()) {
+  bool addressingModelValid;
+  switch (deviceInfo.addressingModel) {
+    case spv::AddressingModel::AddressingModelLogical:
+    case spv::AddressingModel::AddressingModelPhysical32:
+    case spv::AddressingModel::AddressingModelPhysical64:
+      addressingModelValid =
+          op->AddressingModel() == deviceInfo.addressingModel ||
+          op->AddressingModel() == spv::AddressingModel::AddressingModelLogical;
+      break;
+    default:
+      addressingModelValid = false;
+      break;
+  }
+  if (!addressingModelValid) {
     return makeStringError("OpMemoryModel AddressingModel " +
                            std::to_string(op->AddressingModel()) +
                            " not supported by device");
