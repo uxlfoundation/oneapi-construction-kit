@@ -16,23 +16,12 @@
 set(SUITE spirv-ll)
 
 ca_option(CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE STRING
-  "Offline-assemble spirv-ll lit spvasm/glsl test binaries" ON)
+  "Offline-assemble spirv-ll lit spvasm test binaries" ON)
 
-set(GLSL_UNSUPPORTED False)
 set(SPVASM_UNSUPPORTED False)
 
 # Check for tools at build time if asked to assemble everything offline.
 if(CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE)
-  find_program(glslangValidator_EXECUTABLE
-    NAMES glslangValidator PATHS ENV VULKAN_SDK PATH_SUFFIXES bin
-    CMAKE_FIND_ROOT_PATH_BOTH)
-  if(glslangValidator_EXECUTABLE STREQUAL
-      glslangValidator_EXECUTABLE-NOTFOUND)
-    set(GLSL_UNSUPPORTED True)
-    message(WARNING "${SUITE} glsl lit tests unsupported: glslangValidator not found")
-  else()
-  endif()
-
   find_package(SpirvTools COMPONENTS spirv-as spirv-val)
   if(TARGET spirv::spirv-as)
     # Get the found spirv-as version, takes the form: v<year>.<point>(-dev)?
@@ -78,16 +67,14 @@ add_ca_configure_lit_site_cfg(
   DEFINED
   TRIPLE=${TRIPLE}
   CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=${CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE}
-  GLSL_UNSUPPORTED=${GLSL_UNSUPPORTED}
   SPVASM_UNSUPPORTED=${SPVASM_UNSUPPORTED}
   SPIRV_AS_VERSION_YEAR=${SpirvAsVersionYear}
   SPIRV_AS_VERSION_POINT=${SpirvAsVersionPoint})
 
-add_subdirectory(glsl)
 add_subdirectory(spvasm)
 
 if(TARGET ${SUITE}-lit)
   add_ca_lit_testsuite(${SUITE}
     ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS spirv-ll-tool spirv-ll-glsl-lit spirv-ll-spvasm-lit ${SUITE}-lit)
+    DEPENDS spirv-ll-tool spirv-ll-spvasm-lit ${SUITE}-lit)
 endif()

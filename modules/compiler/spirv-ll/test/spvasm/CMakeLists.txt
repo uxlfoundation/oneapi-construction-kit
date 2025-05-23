@@ -25,8 +25,6 @@ set(SPVASM_FILES
   debug_info_params.spvasm
   debug_info_builtins.spvasm
   debug_info_funcs_and_blocks.spvasm
-  ext_variable_pointers_op_variable.spvasm
-  ext_variable_pointers_function_call.spvasm
   op_atomic_and_function.spvasm
   op_atomic_and_generic.spvasm
   op_atomic_and_global.spvasm
@@ -141,39 +139,6 @@ set(SPVASM_FILES
   op_forward_pointer_long.spvasm
   op_function_call_import.spvasm
   op_global_invocation_id.spvasm
-  op_glsl_Barrier.spvasm
-  op_glsl_FrexpStruct_double.spvasm
-  op_glsl_FrexpStruct_dvec2.spvasm
-  op_glsl_FrexpStruct_dvec3.spvasm
-  op_glsl_FrexpStruct_dvec4.spvasm
-  op_glsl_FrexpStruct_float.spvasm
-  op_glsl_FrexpStruct_vec2.spvasm
-  op_glsl_FrexpStruct_vec3.spvasm
-  op_glsl_FrexpStruct_vec4.spvasm
-  op_glsl_Frexp_double_intPtr.spvasm
-  op_glsl_Frexp_dvec2_ivec2Ptr.spvasm
-  op_glsl_Frexp_dvec3_ivec3Ptr.spvasm
-  op_glsl_Frexp_dvec4_ivec4Ptr.spvasm
-  op_glsl_Frexp_float_intPtr.spvasm
-  op_glsl_Frexp_vec2_ivec2Ptr.spvasm
-  op_glsl_Frexp_vec3_ivec3Ptr.spvasm
-  op_glsl_Frexp_vec4_ivec4Ptr.spvasm
-  op_glsl_ModfStruct_double.spvasm
-  op_glsl_ModfStruct_dvec2.spvasm
-  op_glsl_ModfStruct_dvec3.spvasm
-  op_glsl_ModfStruct_dvec4.spvasm
-  op_glsl_ModfStruct_float.spvasm
-  op_glsl_ModfStruct_vec2.spvasm
-  op_glsl_ModfStruct_vec3.spvasm
-  op_glsl_ModfStruct_vec4.spvasm
-  op_glsl_Modf_double_doublePtr.spvasm
-  op_glsl_Modf_dvec2_dvec2Ptr.spvasm
-  op_glsl_Modf_dvec3_dvec3Ptr.spvasm
-  op_glsl_Modf_dvec4_dvec4Ptr.spvasm
-  op_glsl_Modf_float_floatPtr.spvasm
-  op_glsl_Modf_vec2_vec2Ptr.spvasm
-  op_glsl_Modf_vec3_vec3Ptr.spvasm
-  op_glsl_Modf_vec4_vec4Ptr.spvasm
   op_group_async_copy_double.spvasm
   op_group_async_copy_float.spvasm
   op_group_async_copy_int.spvasm
