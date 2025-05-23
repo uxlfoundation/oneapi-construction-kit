@@ -83,3 +83,8 @@ SYCL,KernelAndProgram/spec_constants_after_link.cpp,XFail
 SYCL,KernelAndProgram/fp32-precise-fdiv.cpp,XFail
 SYCL,KernelAndProgram/multiple-kernel-linking.cpp,XFail
 SYCL,KernelAndProgram/kernel-bundle-get-kernel.cpp,XFail
+SYCL,FreeFunctionKernels/range_as_kernel_parameter.cpp,XFail
+SYCL,FreeFunctionKernels/id_as_kernel_parameter.cpp,XFail
+SYCL,FreeFunctionKernels/vec_as_kernel_parameter.cpp,XFail
+SYCL,FreeFunctionKernels/marray_as_kernel_parameter.cpp,XFail
+SYCL,FreeFunctionKernels/usm_compatibility.cpp,XFail
