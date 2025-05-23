@@ -219,9 +219,9 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
 
   // TODO: pass mangled name here when we're mangling names
   auto *function_scope = DIBuilder.createFunction(
-      di_compile_unit, function.getName(), function.getName(), di_file,
-      op_line->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
-      llvm::DISubprogram::SPFlagDefinition);
+      di_compile_unit, module.getName(opFunction->IdResult()),
+      function.getName(), di_file, op_line->Line(), dbg_function_type, 1,
+      llvm::DINode::FlagZero, llvm::DISubprogram::SPFlagDefinition);
 
   // Set the function's debug sub-program
   function.setSubprogram(function_scope);
