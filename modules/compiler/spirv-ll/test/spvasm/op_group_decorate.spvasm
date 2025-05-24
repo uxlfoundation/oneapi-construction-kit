@@ -16,12 +16,11 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
-               OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main" %gl_GlobalInvocationID
+               OpCapability Kernel
+               OpMemoryModel Logical OpenCL
+               OpEntryPoint Kernel %main "main" %gl_GlobalInvocationID
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpName %main "main"
@@ -35,12 +34,6 @@
                OpName %outGroup "outGroup"
                OpName %blockGroup "blockGroup"
                OpName %offsetGroup "offsetGroup"
-               OpDecorate %inGroup DescriptorSet 0
-               OpDecorate %inGroup NonWritable
-               OpDecorate %outGroup DescriptorSet 0
-               OpDecorate %outGroup Binding 3
-               OpDecorate %blockGroup Block
-               OpDecorate %offsetGroup Offset 0
     %inGroup = OpDecorationGroup 
    %outGroup = OpDecorationGroup
  %blockGroup = OpDecorationGroup
@@ -48,47 +41,39 @@
                OpGroupDecorate %inGroup %__0 %__1 %__2 
                OpGroupDecorate %outGroup %_
 ; Do some redundant decorating like the CTS to make sure duplicates are handled
-               OpDecorate %_ DescriptorSet 0
-               OpDecorate %_ Binding 3
                OpGroupDecorate %blockGroup %ablock %bblock %cblock
                OpGroupMemberDecorate %offsetGroup %ablock 0 %bblock 0 %cblock 0 %dblock 0
                OpDecorate %gl_GlobalInvocationID BuiltIn GlobalInvocationId
-               OpDecorate %dblock BufferBlock
-               OpDecorate %_runtimearr_int ArrayStride 4
-               OpDecorate %__0 Binding 0
-               OpDecorate %__1 Binding 1
-               OpDecorate %__2 Binding 2
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
        %uint = OpTypeInt 32 0
-        %int = OpTypeInt 32 1
-%_runtimearr_int = OpTypeRuntimeArray %int
-     %ablock = OpTypeStruct %int
-     %bblock = OpTypeStruct %int
-     %cblock = OpTypeStruct %int
-     %dblock = OpTypeStruct %_runtimearr_int
+     %uint_8 = OpConstant %uint 8
+   %arr_uint = OpTypeArray %uint %uint_8
+     %ablock = OpTypeStruct %uint
+     %bblock = OpTypeStruct %uint
+     %cblock = OpTypeStruct %uint
+     %dblock = OpTypeStruct %arr_uint
 ; CHECK: = type { i32 }
 ; CHECK: = type { i32 }
 ; CHECK: = type { i32 }
-; CHECK: = type { [0 x i32] }
+; CHECK: = type { [8 x i32] }
     %v3uint = OpTypeVector %uint 3
  %_ptr_Function_uint = OpTypePointer Function %uint
-   %_ptr_Uniform_int = OpTypePointer Uniform %int
+%_ptr_CrossWorkgroup_int = OpTypePointer CrossWorkgroup %uint
   %_ptr_Input_v3uint = OpTypePointer Input %v3uint
     %_ptr_Input_uint = OpTypePointer Input %uint
-%_ptr_Uniform_ablock = OpTypePointer Uniform %ablock
-%_ptr_Uniform_bblock = OpTypePointer Uniform %bblock
-%_ptr_Uniform_cblock = OpTypePointer Uniform %cblock
-%_ptr_Uniform_dblock = OpTypePointer Uniform %dblock
-        %__0 = OpVariable %_ptr_Uniform_ablock Uniform
-        %__1 = OpVariable %_ptr_Uniform_bblock Uniform
-        %__2 = OpVariable %_ptr_Uniform_cblock Uniform
-          %_ = OpVariable %_ptr_Uniform_dblock Uniform
+%_ptr_CrossWorkgroup_ablock = OpTypePointer CrossWorkgroup %ablock
+%_ptr_CrossWorkgroup_bblock = OpTypePointer CrossWorkgroup %bblock
+%_ptr_CrossWorkgroup_cblock = OpTypePointer CrossWorkgroup %cblock
+%_ptr_CrossWorkgroup_dblock = OpTypePointer CrossWorkgroup %dblock
+          %3 = OpTypeFunction %void %_ptr_CrossWorkgroup_ablock %_ptr_CrossWorkgroup_bblock %_ptr_CrossWorkgroup_cblock %_ptr_CrossWorkgroup_dblock
 %gl_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
      %uint_0 = OpConstant %uint 0
-      %int_0 = OpConstant %int 0
        %main = OpFunction %void None %3
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}, ptr addrspace(1){{( %2)?}}, ptr addrspace(1){{( %3)?}}, ptr addrspace(1){{( %4)?}}) #0 {
+        %__0 = OpFunctionParameter %_ptr_CrossWorkgroup_ablock
+        %__1 = OpFunctionParameter %_ptr_CrossWorkgroup_bblock
+        %__2 = OpFunctionParameter %_ptr_CrossWorkgroup_cblock
+          %_ = OpFunctionParameter %_ptr_CrossWorkgroup_dblock
+; CHECK: define spir_kernel void @main(ptr addrspace(1) noundef %0, ptr addrspace(1) noundef %1, ptr addrspace(1) noundef %2, ptr addrspace(1) noundef %3)
           %5 = OpLabel
          %id = OpVariable %_ptr_Function_uint Function
 ; CHECK:   = alloca i32
@@ -99,22 +84,22 @@
 ; CHECK:   store i32 {{[%@].*}}, ptr {{[%@].*}}
          %22 = OpLoad %uint %id
 ; CHECK:   = load i32, ptr {{[%@].*}}
-         %27 = OpAccessChain %_ptr_Uniform_int %__0 %int_0
-         %32 = OpAccessChain %_ptr_Uniform_int %__1 %int_0
-         %38 = OpAccessChain %_ptr_Uniform_int %__2 %int_0
-         %47 = OpAccessChain %_ptr_Uniform_int %_ %int_0 %22
+         %27 = OpAccessChain %_ptr_CrossWorkgroup_int %__0 %uint_0
+         %32 = OpAccessChain %_ptr_CrossWorkgroup_int %__1 %uint_0
+         %38 = OpAccessChain %_ptr_CrossWorkgroup_int %__2 %uint_0
+         %47 = OpAccessChain %_ptr_CrossWorkgroup_int %_ %uint_0 %22
 ; CHECK:   = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
 ; CHECK:   = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
 ; CHECK:   = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
 ; CHECK:   = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0, i32 {{[%@].*}}
-         %28 = OpLoad %int %27
-         %33 = OpLoad %int %32
-         %39 = OpLoad %int %38
+         %28 = OpLoad %uint %27
+         %33 = OpLoad %uint %32
+         %39 = OpLoad %uint %38
 ; CHECK:   = load i32, ptr addrspace(1) {{[%@].*}}
 ; CHECK:   = load i32, ptr addrspace(1) {{[%@].*}}
 ; CHECK:   = load i32, ptr addrspace(1) {{[%@].*}}
-         %34 = OpIAdd %int %28 %33
-         %40 = OpIAdd %int %34 %39
+         %34 = OpIAdd %uint %28 %33
+         %40 = OpIAdd %uint %34 %39
 ; CHECK:   = add i32 {{[%@].*}}, {{[%@].*}}
 ; CHECK:   = add i32 {{[%@].*}}, {{[%@].*}}
                OpStore %47 %40

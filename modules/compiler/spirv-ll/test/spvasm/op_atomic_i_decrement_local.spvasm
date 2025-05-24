@@ -16,22 +16,26 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -o %t
-; RUN: opt -S --passes=always-inline %t -o - | FileCheck -- %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                OpCapability Kernel
                OpMemoryModel Logical OpenCL
-               OpEntryPoint Kernel %main "main"
-               OpExecutionMode %main LocalSize 1 1 1
-               OpSource GLSL 450
-               OpName %main "main"
-       %void = OpTypeVoid
-          %4 = OpTypeFunction %void
+               OpEntryPoint Kernel %1 "test"
        %uint = OpTypeInt 32 0
-     %uint_2 = OpConstant %uint 2
-   %uint_264 = OpConstant %uint 264
-       %main = OpFunction %void None %4
-          %8 = OpLabel
-               OpControlBarrier %uint_2 %uint_2 %uint_264
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+       %void = OpTypeVoid
+          %6 = OpTypeFunction %void
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+   %uint_528 = OpConstant %uint 528
+          %2 = OpVariable %_ptr_Workgroup_uint Workgroup %uint_0
+          %1 = OpFunction %void None %6
+         %10 = OpLabel
+         %11 = OpAtomicIDecrement %uint %2 %uint_1 %uint_528
                OpReturn
                OpFunctionEnd
-; CHECK: call spir_func void @__mux_work_group_barrier(i32 0, i32 2, i32 264)
+; CHECK: ; ModuleID = '{{.*}}'
+; CHECK: @0 = internal addrspace(3) global i32 0
+; CHECK: define spir_kernel void @test()
+; CHECK: = call spir_func i32 @_Z10atomic_decPU3AS3Vj(ptr addrspace(3) @0)
+; CHECK: ret void
+; CHECK: declare spir_func i32 @_Z10atomic_decPU3AS3Vj(ptr addrspace(3))

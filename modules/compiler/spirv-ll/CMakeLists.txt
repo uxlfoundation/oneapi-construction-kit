@@ -48,7 +48,6 @@ add_ca_library(spirv-ll STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/assert.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_debug_info.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_glsl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_group_async_copies.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/builder_opencl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/spirv-ll/context.h
@@ -57,7 +56,6 @@ add_ca_library(spirv-ll STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builder_core.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builder_debug_info.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/builder_glsl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builder_group_async_copies.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/builder_opencl.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/context.cpp

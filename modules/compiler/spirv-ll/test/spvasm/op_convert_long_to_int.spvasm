@@ -16,13 +16,12 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
@@ -30,17 +29,17 @@
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
         %long = OpTypeInt 64 1
-        %int = OpTypeInt 32 1
+       %uint = OpTypeInt 32 0
     %ptr_long = OpTypePointer Function %long
-    %ptr_int = OpTypePointer Function %int
-          %9 = OpConstant %long -4200000000
+    %ptr_int = OpTypePointer Function %uint
+          %9 = OpConstant %long 4200000000
        %main = OpFunction %void None %3
           %5 = OpLabel
           %a = OpVariable %ptr_long Function
           %b = OpVariable %ptr_int Function
                OpStore %a %9
          %13 = OpLoad %long %a
-         %14 = OpSConvert %int %13 ; testing this
+         %14 = OpSConvert %uint %13 ; testing this
                OpStore %b %14
                OpReturn
                OpFunctionEnd
@@ -48,7 +47,7 @@
 ; CHECK: define spir_kernel void @main()
 ; CHECK: = alloca i64
 ; CHECK: = alloca i32
-; CHECK: store i64 -4200000000, {{(ptr|i64\*)}} {{%.*}}
+; CHECK: store i64 4200000000, {{(ptr|i64\*)}} {{%.*}}
 ; CHECK: = load i64, {{(ptr|i64\*)}} {{%.*}}
 ; CHECK: = trunc i64 %2 to i32
 ; CHECK: store i32 {{%.*}}, {{(ptr|i32\*)}} {{%.*}}

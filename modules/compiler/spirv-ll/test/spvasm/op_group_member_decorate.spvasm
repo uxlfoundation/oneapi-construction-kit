@@ -16,12 +16,11 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
-               OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main"
+               OpCapability Kernel
+               OpMemoryModel Logical OpenCL
+               OpEntryPoint Kernel %main "main"
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpName %main "main"
@@ -29,40 +28,34 @@
                OpMemberName %out_buffer 0 "out_bools"
                OpName %_ ""
                OpDecorate %group Volatile
-               OpDecorate %group Coherent
-               OpDecorate %group Offset 0
       %group = OpDecorationGroup
                OpGroupMemberDecorate %group %out_buffer 0
-               OpMemberDecorate %out_buffer 1 Offset 4
-               OpDecorate %out_buffer BufferBlock
-               OpDecorate %_ DescriptorSet 0
-               OpDecorate %_ Binding 0
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-%_ptr_Function_int = OpTypePointer Function %int
- %out_buffer = OpTypeStruct %int %int
-%_ptr_Uniform_out_buffer = OpTypePointer Uniform %out_buffer
-          %_ = OpVariable %_ptr_Uniform_out_buffer Uniform
-      %int_0 = OpConstant %int 0
-%_ptr_Uniform_int = OpTypePointer Uniform %int
-      %int_1 = OpConstant %int 1
+       %uint = OpTypeInt 32 0
+%_ptr_Function_int = OpTypePointer Function %uint
+ %out_buffer = OpTypeStruct %uint %uint
+%_ptr_CrossWorkgroup_out_buffer = OpTypePointer CrossWorkgroup %out_buffer
+          %3 = OpTypeFunction %void %_ptr_CrossWorkgroup_out_buffer
+      %int_0 = OpConstant %uint 0
+%_ptr_CrossWorkgroup_int = OpTypePointer CrossWorkgroup %uint
+      %int_1 = OpConstant %uint 1
        %main = OpFunction %void None %3
+          %_ = OpFunctionParameter %_ptr_CrossWorkgroup_out_buffer
           %5 = OpLabel
     %in_bool = OpVariable %_ptr_Function_int Function
-         %17 = OpAccessChain %_ptr_Uniform_int %_ %int_0
-         %18 = OpLoad %int %17
+         %17 = OpAccessChain %_ptr_CrossWorkgroup_int %_ %int_0
+         %18 = OpLoad %uint %17
                OpStore %in_bool %18
-         %19 = OpLoad %int %in_bool
-         %21 = OpIAdd %int %19 %int_1
+         %19 = OpLoad %uint %in_bool
+         %21 = OpIAdd %uint %19 %int_1
                OpStore %in_bool %21
-         %22 = OpLoad %int %in_bool
-         %23 = OpAccessChain %_ptr_Uniform_int %_ %int_1
+         %22 = OpLoad %uint %in_bool
+         %23 = OpAccessChain %_ptr_CrossWorkgroup_int %_ %int_1
                OpStore %23 %22
                OpReturn
                OpFunctionEnd
 ; CHECK: [[STRUCT:%.*]] = type { i32, i32 }
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}}) #0 {
+; CHECK: define spir_kernel void @main(ptr addrspace(1) noundef %0)
 ; CHECK: [[IN_GEP:%.*]] = getelementptr [[STRUCT]], ptr addrspace(1) %0, i32 0, i32 0
 ; Check that the volatile decoration was correctly propagated to the result of the GEP
 ; CHECK: = load volatile i32, ptr addrspace(1) [[IN_GEP]]

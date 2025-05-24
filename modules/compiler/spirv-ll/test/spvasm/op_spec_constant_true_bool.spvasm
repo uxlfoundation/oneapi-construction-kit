@@ -16,32 +16,30 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan %spv_file_s | FileCheck %s
-            OpCapability Shader
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %a_block "a_block"
                OpMemberName %a_block 0 "test_out"
                OpName %_ ""
-               OpMemberDecorate %a_block 0 Offset 0
                OpDecorate %11 SpecId 0
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
         %bool = OpTypeBool
    %idx_type = OpTypeInt 32 0
     %a_block = OpTypeStruct %bool
-%ptr_Uniform_block = OpTypePointer Workgroup %a_block
-          %_ = OpVariable %ptr_Uniform_block Workgroup
+%ptr_CrossWorkgroup_block = OpTypePointer Workgroup %a_block
+          %_ = OpVariable %ptr_CrossWorkgroup_block Workgroup
          %10 = OpConstant %idx_type 0
          %11 = OpSpecConstantTrue %bool  ; testing this
-%ptr_Uniform_bool = OpTypePointer Workgroup %bool
+%ptr_CrossWorkgroup_bool = OpTypePointer Workgroup %bool
        %main = OpFunction %void None %3
           %5 = OpLabel
-         %13 = OpAccessChain %ptr_Uniform_bool %_ %10
+         %13 = OpAccessChain %ptr_CrossWorkgroup_bool %_ %10
                OpStore %13 %11
                OpReturn
                OpFunctionEnd

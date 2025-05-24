@@ -35,7 +35,6 @@
 #include <spirv-ll/assert.h>
 #include <spirv-ll/builder.h>
 #include <spirv-ll/builder_debug_info.h>
-#include <spirv-ll/builder_glsl.h>
 #include <spirv-ll/builder_group_async_copies.h>
 #include <spirv-ll/builder_opencl.h>
 #include <spirv-ll/context.h>
@@ -219,9 +218,9 @@ llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
 
   // TODO: pass mangled name here when we're mangling names
   auto *function_scope = DIBuilder.createFunction(
-      di_compile_unit, function.getName(), function.getName(), di_file,
-      op_line->Line(), dbg_function_type, 1, llvm::DINode::FlagZero,
-      llvm::DISubprogram::SPFlagDefinition);
+      di_compile_unit, module.getName(opFunction->IdResult()),
+      function.getName(), di_file, op_line->Line(), dbg_function_type, 1,
+      llvm::DINode::FlagZero, llvm::DISubprogram::SPFlagDefinition);
 
   // Set the function's debug sub-program
   function.setSubprogram(function_scope);
@@ -348,10 +347,7 @@ llvm::Error Builder::create<OpExtension>(const OpExtension *op) {
 template <>
 llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
   auto name = op->Name();
-  if (name == "GLSL.std.450") {
-    registerExtInstHandler<GLSLBuilder>(ExtendedInstrSet::GLSL450);
-    module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::GLSL450);
-  } else if (name == "OpenCL.std") {
+  if (name == "OpenCL.std") {
     registerExtInstHandler<OpenCLBuilder>(ExtendedInstrSet::OpenCL);
     module.associateExtendedInstrSet(op->IdResult(), ExtendedInstrSet::OpenCL);
   } else if (name == "Codeplay.GroupAsyncCopies" ||
@@ -406,7 +402,20 @@ llvm::Error Builder::create<OpExtInst>(const OpExtInst *op) {
 
 template <>
 llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
-  if (deviceInfo.addressingModel != op->AddressingModel()) {
+  bool addressingModelValid;
+  switch (deviceInfo.addressingModel) {
+    case spv::AddressingModel::AddressingModelLogical:
+    case spv::AddressingModel::AddressingModelPhysical32:
+    case spv::AddressingModel::AddressingModelPhysical64:
+      addressingModelValid =
+          op->AddressingModel() == deviceInfo.addressingModel ||
+          op->AddressingModel() == spv::AddressingModel::AddressingModelLogical;
+      break;
+    default:
+      addressingModelValid = false;
+      break;
+  }
+  if (!addressingModelValid) {
     return makeStringError("OpMemoryModel AddressingModel " +
                            std::to_string(op->AddressingModel()) +
                            " not supported by device");

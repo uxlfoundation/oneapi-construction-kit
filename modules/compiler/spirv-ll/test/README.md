@@ -13,9 +13,8 @@ In offline mode - the default, or when `CA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE`
 is enabled in cmake - the test suite will build its SPIR-V binaries ahead of
 time.
 
-This mode requires `spirv-as` to build the `spvasm` test binaries, and
-`glslangValidator` to build the `glsl` test binaries. Both are optional: if
-either tool is not found the tests will be disabled at runtime.
+This mode uses `spirv-as` to build the `spvasm` test binaries. It is optional:
+if the tool is not found the tests will be disabled at runtime.
 
 ### Online Mode
 

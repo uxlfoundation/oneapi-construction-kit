@@ -16,13 +16,12 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
@@ -30,12 +29,12 @@
                OpName %res "res"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-     %v3_int = OpTypeVector %int 3
+       %uint = OpTypeInt 32 0
+     %v3_int = OpTypeVector %uint 3
  %ptr_v3_int = OpTypePointer Function %v3_int
-         %10 = OpConstant %int -42
+         %10 = OpConstant %uint 42
          %11 = OpConstantComposite %v3_int %10 %10 %10
-         %13 = OpConstant %int -42
+         %13 = OpConstant %uint 42
          %14 = OpConstantComposite %v3_int %13 %13 %13
        %main = OpFunction %void None %3
           %5 = OpLabel
@@ -47,5 +46,5 @@
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @main()
 ; CHECK: = alloca <3 x i32>
-; CHECK: store <3 x i32> <i32 -42, i32 undef, i32 -42>, ptr {{[%@].*}}
+; CHECK: store <3 x i32> <i32 42, i32 undef, i32 42>, ptr {{[%@].*}}
 ; CHECK: ret void

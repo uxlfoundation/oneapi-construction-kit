@@ -16,30 +16,29 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Linkage %spv_file_s | FileCheck %s
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Linkage %spv_file_s | FileCheck %s
 ; CHECK: ; ModuleID = '{{.*}}'
-               OpCapability Shader
+               OpCapability Kernel
                OpCapability Linkage
-          %1 = OpExtInstImport "GLSL.std.450"
-               OpMemoryModel Logical GLSL450
-               OpEntryPoint GLCompute %main "main"
+               OpMemoryModel Logical OpenCL
+               OpEntryPoint Kernel %main "main"
                OpExecutionMode %main LocalSize 1 1 1
                OpSource GLSL 450
                OpName %main "main"
                OpDecorate %foo LinkageAttributes "foo" Import
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-          %9 = OpTypeFunction %int %int %int
-    %int_n42 = OpConstant %int -42
-        %foo = OpFunction %int None %9
+       %uint = OpTypeInt 32 0
+          %9 = OpTypeFunction %uint %uint %uint
+    %int_n42 = OpConstant %uint 42
+        %foo = OpFunction %uint None %9
                OpFunctionEnd
        %main = OpFunction %void None %3
           %5 = OpLabel
-         %24 = OpFunctionCall %int %foo %int_n42 %int_n42
+         %24 = OpFunctionCall %uint %foo %int_n42 %int_n42
                OpReturn
                OpFunctionEnd
 ; CHECK: declare spir_func i32 @{{(.+)}}(i32, i32)
 ; CHECK: define spir_kernel void @main()
-; CHECK: = call spir_func i32 @{{(.+)}}(i32 -42, i32 -42)
+; CHECK: = call spir_func i32 @{{(.+)}}(i32 42, i32 42)
 ; CHECK: ret void
