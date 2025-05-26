@@ -91,5 +91,5 @@ runs:
         $GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh "${PREPEND_PATH[@]}" SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
         set +x
         # output a diff of the generated list csv.txt and cts_all.txt
-        diff csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
+        diff -u csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
         exit $exitcode
