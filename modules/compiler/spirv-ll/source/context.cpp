@@ -242,9 +242,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
       case spv::OpTypeArray:
         error = builder.create<OpTypeArray>(op);
         break;
-      case spv::OpTypeRuntimeArray:
-        error = builder.create<OpTypeRuntimeArray>(op);
-        break;
       case spv::OpTypeStruct:
         error = builder.create<OpTypeStruct>(op);
         break;
@@ -357,9 +354,6 @@ cargo::expected<spirv_ll::Module, spirv_ll::Error> spirv_ll::Context::translate(
         break;
       case spv::OpPtrAccessChain:
         error = builder.create<OpPtrAccessChain>(op);
-        break;
-      case spv::OpArrayLength:
-        error = builder.create<OpArrayLength>(op);
         break;
       case spv::OpGenericPtrMemSemantics:
         error = builder.create<OpGenericPtrMemSemantics>(op);

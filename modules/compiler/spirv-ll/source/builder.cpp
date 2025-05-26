@@ -1464,24 +1464,6 @@ void spirv_ll::Builder::generateSpecConstantOps() {
   IRBuilder.SetInsertPoint(oldBasicBlock, oldInsertPoint);
 }
 
-void spirv_ll::Builder::handleGlobalParameters() {
-  auto functionOp = module.get<OpFunction>(getCurrentFunction());
-  auto uniformGlobals = module.getGlobalArgs();
-  if (module.getEntryPoint(functionOp->IdResult())) {
-    for (const auto &iter : uniformGlobals) {
-      auto var = module.getValue(iter.first);
-      IRBuilder.CreateStore(var, iter.second);
-    }
-  } else {
-    for (const auto &iter : uniformGlobals) {
-      auto paramOp = module.get<OpResult>(iter.first);
-      auto loaded =
-          IRBuilder.CreateLoad(iter.second->getValueType(), iter.second);
-      module.replaceID(paramOp, loaded);
-    }
-  }
-}
-
 llvm::Type *spirv_ll::Builder::getRelationalReturnType(llvm::Value *operand) {
   // If the operand is a vector the result of the builtin will be a vector of
   // ints of the same size as the operand's scalar type, e.g. double2 will

@@ -500,23 +500,8 @@ struct SpecializationInfo {
   const void *data;
 };
 
-/// @brief Struct describing a descriptor binding.
-struct DescriptorBinding {
-  /// @brief Descriptor set number.
-  uint32_t set;
-  /// @brief Binding number within `set`.
-  uint32_t binding;
-
-  /// @brief Less than comparison operator to enable sort by binding.
-  bool operator<(const DescriptorBinding &other) const {
-    return set < other.set || (set == other.set && binding < other.binding);
-  }
-};
-
 /// @brief Information about a SPIR-V module after compilation.
 struct ModuleInfo {
-  /// @brief List of used descriptor bindings.
-  std::vector<DescriptorBinding> used_descriptor_bindings;
   /// @brief Work group size.
   std::array<uint32_t, 3> workgroup_size;
 };

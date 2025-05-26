@@ -769,16 +769,6 @@ class Builder {
   /// very top of the function.
   void generateSpecConstantOps();
 
-  /// @brief Generate the IR needed to give entry point parameters global scope.
-  ///
-  /// This is called after the first basic block in a function is created. If
-  /// the function is an entry point it has stores generated to put its
-  /// arguments in global variables, otherwise it has loads generated to get the
-  /// contents of those globals into local scope. This is only necessary for
-  /// GLCompute modules, as their inputs are represented as global pointers but
-  /// they must be translated into entry point parameters for core.
-  void handleGlobalParameters();
-
   /// @brief Registers an extended instruction set handler with an instruction
   /// set ID.
   ///

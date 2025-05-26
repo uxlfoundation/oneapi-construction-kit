@@ -850,9 +850,6 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
     }
 
     // Fill the SPIR-V module info data structure.
-    for (const auto &db : spvModule->getUsedDescriptorBindings()) {
-      module_info.used_descriptor_bindings.push_back({db.set, db.binding});
-    }
     module_info.workgroup_size = spvModule->getWGS();
 
     // Transfer ownership of the llvm::Module.
