@@ -35,8 +35,3 @@ void riscvDestroyFence(mux_device_t device, mux_fence_t fence,
   riscv::fence_s::destroy(device, static_cast<riscv::fence_s *>(fence),
                           mux::allocator(allocator_info));
 }
-
-mux_result_t riscvResetFence(mux_fence_t fence) {
-  static_cast<riscv::fence_s *>(fence)->reset();
-  return mux_success;
-}

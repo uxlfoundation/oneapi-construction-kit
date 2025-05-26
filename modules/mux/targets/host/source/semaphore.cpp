@@ -89,8 +89,3 @@ void hostDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
   mux::allocator allocator(allocator_info);
   allocator.destroy(static_cast<host::semaphore_s *>(semaphore));
 }
-
-mux_result_t hostResetSemaphore(mux_semaphore_t semaphore) {
-  static_cast<host::semaphore_s *>(semaphore)->reset();
-  return mux_success;
-}

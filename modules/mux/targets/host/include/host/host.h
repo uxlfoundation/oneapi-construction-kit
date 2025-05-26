@@ -389,13 +389,6 @@ mux_result_t hostCreateFence(mux_device_t device,
 void hostDestroyFence(mux_device_t device, mux_fence_t fence,
                       mux_allocator_info_t allocator_info);
 
-/// @brief Reset a fence such that it has no previous signalled state.
-///
-/// @param[in] fence The fence to reset.
-///
-/// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t hostResetFence(mux_fence_t fence);
-
 /// @brief Create a semaphore.
 ///
 /// The function uses Mux device, and is used to call into the Mux code to
@@ -421,13 +414,6 @@ mux_result_t hostCreateSemaphore(mux_device_t device,
 /// @param[in] allocator_info Allocator information.
 void hostDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
                           mux_allocator_info_t allocator_info);
-
-/// @brief Reset a semaphore such that it has no previous signalled state.
-///
-/// @param[in] semaphore The semaphore to reset.
-///
-/// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t hostResetSemaphore(mux_semaphore_t semaphore);
 
 /// @brief Create a command buffer.
 ///

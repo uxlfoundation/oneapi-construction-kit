@@ -94,9 +94,3 @@ void hostDestroyFence(mux_device_t device, mux_fence_t fence,
   mux::allocator allocator(allocator_info);
   allocator.destroy(static_cast<host::fence_s *>(fence));
 }
-
-mux_result_t hostResetFence(mux_fence_t fence) {
-  auto *hostFence = static_cast<host::fence_s *>(fence);
-  hostFence->reset();
-  return mux_success;
-}
