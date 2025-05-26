@@ -326,11 +326,7 @@ class BaseModule : public Module {
   class FrontendDiagnosticPrinter : public clang::TextDiagnosticPrinter {
    public:
     FrontendDiagnosticPrinter(BaseModule &base_module,
-                              clang::DiagnosticOptions *diags)
-        : clang::TextDiagnosticPrinter(TempOS, diags,
-                                       /*OwnsOutputStream*/ false),
-          base_module(base_module),
-          TempOS(TempStr) {}
+                              clang::DiagnosticOptions &diags);
 
     void HandleDiagnostic(clang::DiagnosticsEngine::Level Level,
                           const clang::Diagnostic &Info) override;
