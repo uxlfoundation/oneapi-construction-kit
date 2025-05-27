@@ -35,7 +35,7 @@ An offline approach was chosen for clik, which allows using an off-the-shelf
 compiler such as GCC or Clang for compiling kernels (which are written in C) and
 keeping the runtime library (as well as build times) as small as possible. In
 this tutorial, we are using the 64-bit RISC-V variant of the GCC compiler which
-is part of the Ubuntu 20.04 OS for compiling clik kernels to RISC-V binaries.
+is part of the Ubuntu 22.04 OS for compiling clik kernels to RISC-V binaries.
 
 In the RefSi skeleton HAL, the step that is responsible for compiling kernels
 (the ``hal_refsi_tutorial_compile_kernel_source`` and

@@ -7,7 +7,6 @@ Platform Dependencies
 Each supported platform has a set of dependencies which are required in order to
 build the oneAPI Construction Kit.
 
-* `Ubuntu 20.04`_
 * `Ubuntu 22.04`_
 * `Ubuntu 24.04`_
 * `Windows 10`_
@@ -16,7 +15,7 @@ Once the platform dependencies have been installed please read the
 :doc:`/developer-guide` for more information about building and contributing to
 the oneAPI Construction Kit.
 
-Ubuntu 20.04
+Ubuntu 22.04
 ------------
 
 On an x86-64 host system these are the minimum requirements to build
@@ -33,7 +32,7 @@ configuration.
    $ sudo apt update
    $ sudo apt install -y build-essential git cmake libtinfo-dev python3
 
-Recommended for Ubuntu 20.04
+Recommended for Ubuntu 22.04
 ............................
 
 * `Ninja`_ is a useful, fast, build tool. To use it pass ``-GNinja`` to
@@ -67,12 +66,12 @@ terminal info library.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-multilib g++-9-multilib libc6-dev:i386 lib32tinfo-dev
+   $ sudo apt install -y gcc-11-multilib g++-11-multilib libc6-dev:i386 lib32tinfo-dev
 
 .. warning::
    The ``gcc-multilib`` and ``g++-multilib`` packages conflict with the Arm and
    AArch64 toolchain packages below. To install the 32 bit libraries at the same
-   time use ``gcc-9-multilib``, ``g++-9-multilib``, and ``libc6-dev:i386`` that
+   time use ``gcc-11-multilib``, ``g++-11-multilib``, and ``libc6-dev:i386`` that
    ``gcc-multilib`` and ``g++-multilib`` depend on but do not conflict with the
    Arm and AArch64 toolchain packages.
 
@@ -84,7 +83,7 @@ toolchain.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf
+   $ sudo apt install -y gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf
 
 Arm 64-bit (AArch64) Cross Compile
 ..................................
@@ -93,13 +92,7 @@ Install the AArch64 toolchain.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu
-
-Ubuntu 22.04
-------------
-
-This is fully supported. This is recommended for the `RISC-V` host target. gcc
-version 11 is recommended for this operating system.
+   $ sudo apt install -y gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
 
 Ubuntu 24.04
 ------------
@@ -181,7 +174,7 @@ Follow the build instructions, or install the pre-built binaries in the
 repository. It's harder to pin down versions of `SPIRV-Tools`_ since they don't
 do releases, but we should support any commit from after January 2019.
 
-Ubuntu 20.04 and later users can install ``spirv-tools`` from the package repository:
+Ubuntu 22.04 and later users can install ``spirv-tools`` from the package repository:
 
 .. code-block:: console
 
