@@ -134,10 +134,6 @@ mux_result_t stubCreateFence(mux_device_t device,
 void stubDestroyFence(mux_device_t device, mux_semaphore_t semaphore,
                       mux_allocator_info_t allocator_info) {}
 
-mux_result_t stubResetFence(mux_semaphore_t semaphore) {
-  return mux_error_feature_unsupported;
-}
-
 mux_result_t stubCreateSemaphore(mux_device_t device,
                                  mux_allocator_info_t allocator_info,
                                  mux_semaphore_t *out_semaphore) {
@@ -146,10 +142,6 @@ mux_result_t stubCreateSemaphore(mux_device_t device,
 
 void stubDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
                           mux_allocator_info_t allocator_info) {}
-
-mux_result_t stubResetSemaphore(mux_semaphore_t semaphore) {
-  return mux_error_feature_unsupported;
-}
 
 mux_result_t stubCreateCommandBuffer(mux_device_t device,
                                      mux_callback_info_t callback_info,

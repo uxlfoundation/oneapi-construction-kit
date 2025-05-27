@@ -4127,36 +4127,6 @@ muxDestroyFence
 -  ``fence`` **must** be a valid ``mux_fence_t``.
 -  ``allocator_info`` **must** be a valid ``mux_allocator_info_t``.
 
-muxResetFence
-~~~~~~~~~~~~~
-
-``muxResetFence()`` resets a previously created ``mux_fence_t``
-such that it is in the same non-signalled state as when it was
-originally created.
-
-.. code:: c
-
-   mux_result_t muxResetFence(
-       mux_fence_t fence);
-
--  ``fence`` - a fence previously created by a call to
-   ``muxCreateFence()``.
-
-.. rubric:: Return Codes
-
--  ``mux_success`` **should** be returned.
-
-.. rubric:: Valid Usage
-
--  Calls to ``muxResetFence()`` with a given ``fence`` **shall**
-   be considered thread-safe.
-
-.. rubric:: Validation Rules
-
--  The ``mux_device_t`` that was used in the creation of the
-   ``mux_fence_t`` **must not** be destroyed before the fence
-   has been destroyed.
-
 Semaphores
 ----------
 
@@ -4235,47 +4205,6 @@ muxDestroySemaphore
 -  ``device`` **must** be a valid ``mux_device_t``.
 -  ``semaphore`` **must** be a valid ``mux_semaphore_t``.
 -  ``allocator_info`` **must** be a valid ``mux_allocator_info_t``.
-
-muxResetSemaphore
-~~~~~~~~~~~~~~~~~
-
-``muxResetSemaphore()`` resets a previously created ``mux_semaphore_t``
-such that it is in the same non-signalled state as when it was
-originally created.
-
-.. code:: c
-
-   mux_result_t muxResetSemaphore(
-       mux_semaphore_t semaphore);
-
--  ``semaphore`` - a semaphore previously created by a call to
-   ``muxCreateSemaphore()``.
-
-.. rubric:: Return Codes
-
--  ``mux_success`` **should** be returned.
-
-.. rubric:: Valid Usage
-
--  Calls to ``muxResetSemaphore()`` with a given ``semaphore`` **shall**
-   be considered thread-safe.
--  ``muxResetSemaphore()`` **must not** be called in a
-   ``muxDispatch()``\ ’s ``user_function`` callback.
--  ``muxResetSemaphore()`` **should not** be called with a given
-   ``semaphore`` that is being waited on by a call ``muxDispatch()``,
-   but has not been signalled yet.
--  ``muxResetSemaphore()`` **may** be called as soon as a
-   ``muxDispatch()`` has signalled the semaphore.
-
-.. rubric:: Validation Rules
-
--  The ``mux_device_t`` that was used in the creation of the
-   ``mux_semaphore_t`` **must not** be destroyed before the semaphore
-   has been destroyed.
--  The ``mux_semaphore_t`` **must not** be reset while a
-   ``mux_command_buffer_t`` that it is waiting on is currently executing.
--  The ``mux_semaphore_t`` **must not** be reset while a
-   ``mux_command_buffer_t`` that is signalling it currently executing.
 
 Queues
 ------
@@ -4391,13 +4320,11 @@ if* in the order they are pushed onto the command buffer.
 -  All ``mux_semaphore_t``\ ’s in ``signal_semaphores`` **must not** be
    signalled by another call to ``muxDispatch()`` while a given
    ``command_buffer`` is currently executing.
--  All ``mux_semaphore_t``\ ’s in ``signal_semaphores`` **may** be reset
-   with ``muxResetSemaphore()`` or destroyed with
-   ``muxDestroySemaphore()`` as soon as the command buffer invoked by
+-  All ``mux_semaphore_t``\ ’s in ``signal_semaphores`` **may** be destroyed
+   with ``muxDestroySemaphore()`` as soon as the command buffer invoked by
    ``muxDispatch()`` has completed.
--  ``fence`` **may** be reset with ``muxResetFence()`` or destroyed with
-   ``muxDestroyFence()`` as soon as the command buffer invoked by
-   ``muxDispatch()`` has completed.
+-  ``fence`` **may** be destroyed with ``muxDestroyFence()`` as soon as the
+   command buffer invoked by ``muxDispatch()`` has completed.
 -  The ``command_buffer`` passed to ``muxDispatch()`` **may** be empty.
 -  The ``fence`` passed to ``muxDispatch()`` **may** be null indicating there
    is no fence to be signaled on dispatch completion.
