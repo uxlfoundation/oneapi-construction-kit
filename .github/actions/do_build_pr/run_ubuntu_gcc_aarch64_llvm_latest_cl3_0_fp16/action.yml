@@ -20,5 +20,4 @@ runs:
           host_fp16: ON
           debug_support: ON
           builtin_kernel: ON
-          enable_api: "cl"
           offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
