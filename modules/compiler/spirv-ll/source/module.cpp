@@ -68,10 +68,7 @@ spirv_ll::Module::Module(
       File(nullptr),
       LoopControl(),
       specInfo(specInfo),
-      PushConstantStructVariable(nullptr),
-      PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
-      BufferSizeArray(nullptr),
       deferredSpecConstantOps(),
       ImplicitDebugScopes(true) {
   llvmModule->setIsNewDbgInfoFormat(false);
@@ -95,10 +92,7 @@ spirv_ll::Module::Module(spirv_ll::Context &context,
       File(nullptr),
       LoopControl(),
       specInfo(),
-      PushConstantStructVariable(nullptr),
-      PushConstantStructID{},
       WorkgroupSize({{1, 1, 1}}),
-      BufferSizeArray(nullptr),
       deferredSpecConstantOps(),
       ImplicitDebugScopes(true) {}
 
@@ -369,95 +363,10 @@ void spirv_ll::Module::resolveDecorations(spv::Id id) {
     switch (decorateOp->getDecoration()) {
       default:
         break;
-      case spv::Decoration::DecorationSpecId:  // Shader
+      case spv::Decoration::DecorationSpecId:
         addSpecId(id, decorateOp->getValueAtOffset(3));
         break;
-      case spv::Decoration::DecorationBinding:  // Shader
-        addBinding(id, decorateOp->getValueAtOffset(3));
-        break;
-      case spv::Decoration::DecorationDescriptorSet:  // Shader
-        addSet(id, decorateOp->getValueAtOffset(3));
-        break;
     }
-  }
-}
-
-void spirv_ll::Module::addSet(spv::Id id, uint32_t set) {
-  // There are no spec rules on set or binding coming first, so account for both
-  // eventualities.
-  auto found = InterfaceBlocks.find(id);
-  if (found == InterfaceBlocks.end()) {
-    InterfaceBlock block;
-    block.binding.set = set;
-    InterfaceBlocks.insert({id, block});
-  } else {
-    found->second.binding.set = set;
-  }
-}
-
-void spirv_ll::Module::addBinding(spv::Id id, uint32_t binding) {
-  auto found = InterfaceBlocks.find(id);
-  if (found == InterfaceBlocks.end()) {
-    InterfaceBlock block;
-    block.binding.binding = binding;
-    InterfaceBlocks.insert({id, block});
-  } else {
-    found->second.binding.binding = binding;
-  }
-}
-
-llvm::SmallVector<spv::Id, 4> spirv_ll::Module::getDescriptorBindingList()
-    const {
-  llvm::SmallVector<std::pair<spv::Id, InterfaceBlock>, 4> sorted_bindings;
-  for (const auto &binding : InterfaceBlocks) {
-    sorted_bindings.emplace_back(binding.first, binding.second);
-  }
-  std::sort(sorted_bindings.begin(), sorted_bindings.end());
-  llvm::SmallVector<spv::Id, 4> binding_list;
-  binding_list.reserve(sorted_bindings.size());
-  for (auto &b : sorted_bindings) {
-    binding_list.push_back(b.first);
-  }
-  return binding_list;
-}
-
-std::vector<spirv_ll::DescriptorBinding>
-spirv_ll::Module::getUsedDescriptorBindings() const {
-  std::vector<DescriptorBinding> bindingList;
-  for (const auto &bindingPair : InterfaceBlocks) {
-    bindingList.push_back(bindingPair.second.binding);
-  }
-  return bindingList;
-}
-
-bool spirv_ll::Module::hasDescriptorBindings() const {
-  return !InterfaceBlocks.empty();
-}
-
-const spirv_ll::OpCode *spirv_ll::Module::getBindingOp(spv::Id id) const {
-  auto found = InterfaceBlocks.find(id);
-  SPIRV_LL_ASSERT(found != InterfaceBlocks.end(),
-                  "Bad binding ID in InterfaceBlock lookup!");
-  return found->second.op;
-}
-
-void spirv_ll::Module::addInterfaceBlockVariable(
-    const spv::Id id, const spirv_ll::OpVariable *op, llvm::Type *variableTy,
-    llvm::GlobalVariable *variable) {
-  auto found = InterfaceBlocks.find(id);
-  SPIRV_LL_ASSERT(found != InterfaceBlocks.end(),
-                  "Bad ID given for interface block!");
-  found->second.op = op;
-  found->second.variable = variable;
-  found->second.block_type = variableTy;
-}
-
-llvm::Type *spirv_ll::Module::getBlockType(const spv::Id id) const {
-  auto iter = InterfaceBlocks.find(id);
-  if (iter != InterfaceBlocks.end()) {
-    return iter->second.block_type;
-  } else {
-    return nullptr;
   }
 }
 
@@ -563,17 +472,13 @@ llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
     case spv::StorageClassPrivate:
     case spv::StorageClassAtomicCounter:
     case spv::StorageClassInput:
-    case spv::StorageClassOutput:
       // private
       return 0;
-    case spv::StorageClassUniform:
     case spv::StorageClassCrossWorkgroup:
     case spv::StorageClassImage:
-    case spv::StorageClassStorageBuffer:
       // global
       return 1;
     case spv::StorageClassUniformConstant:
-    case spv::StorageClassPushConstant:
       // constant
       return 2;
     case spv::StorageClassWorkgroup:
@@ -706,35 +611,12 @@ spirv_ll::Module::getSpecInfo() {
   return specInfo;
 }
 
-llvm::Type *spirv_ll::Module::getPushConstantStructType() const {
-  return PushConstantStructVariable ? PushConstantStructVariable->getValueType()
-                                    : nullptr;
-}
-
-spv::Id spirv_ll::Module::getPushConstantStructID() const {
-  return PushConstantStructID;
-}
-
-llvm::Value *spirv_ll::Module::getBufferSizeArray() const {
-  return BufferSizeArray;
-}
-
-void spirv_ll::Module::setPushConstantStructVariable(
-    spv::Id id, llvm::GlobalVariable *variable) {
-  PushConstantStructID = id;
-  PushConstantStructVariable = variable;
-}
-
 void spirv_ll::Module::setWGS(uint32_t x, uint32_t y, uint32_t z) {
   WorkgroupSize = {{x, y, z}};
 }
 
 const std::array<uint32_t, 3> &spirv_ll::Module::getWGS() const {
   return WorkgroupSize;
-}
-
-void spirv_ll::Module::setBufferSizeArray(llvm::Value *buffer_size_array) {
-  BufferSizeArray = buffer_size_array;
 }
 
 void spirv_ll::Module::deferSpecConstantOp(
@@ -745,21 +627,6 @@ void spirv_ll::Module::deferSpecConstantOp(
 const llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2> &
 spirv_ll::Module::getDeferredSpecConstants() {
   return deferredSpecConstantOps;
-}
-
-llvm::SmallVector<std::pair<spv::Id, llvm::GlobalVariable *>, 4>
-spirv_ll::Module::getGlobalArgs() const {
-  llvm::SmallVector<std::pair<spv::Id, llvm::GlobalVariable *>, 4> globals;
-
-  for (const auto &iter : InterfaceBlocks) {
-    globals.emplace_back(iter.first, iter.second.variable);
-  }
-
-  if (PushConstantStructVariable) {
-    globals.emplace_back(PushConstantStructID, PushConstantStructVariable);
-  }
-
-  return globals;
 }
 
 const std::string &spirv_ll::Module::getModuleProcess() const {
