@@ -212,7 +212,6 @@ jobs:
         target: ${{ fromJson(inputs.target_list) }}
         exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_x86_64_aarch64) }}
 
-    # Todo: Get working for cp-graviton
     runs-on: ${{ matrix.target == 'host_x86_64_linux' && 'ubuntu-22.04' || 'ubuntu-22.04-arm' }}
     steps:
       - name: clone ock platform
@@ -655,7 +654,7 @@ jobs:
 
   run_sycl_cts_aarch64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_opencl_combine]
-    runs-on: 'cp-graviton'
+    runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
       volumes:
@@ -674,7 +673,7 @@ jobs:
 
   run_sycl_cts_aarch64_native_cpu:
     needs: [workflow_vars, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_native_cpu_combine]
-    runs-on: 'cp-graviton'
+    runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
       volumes:
