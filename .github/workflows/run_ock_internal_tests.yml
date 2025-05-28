@@ -497,9 +497,10 @@ jobs:
  #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
  #if: contains(inputs.target_list, 'host_x86_64_linux')
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
+ # run-ubuntu-clang-x86-llvm-latest-cl3-0:
 
 
-  run-ubuntu-clang-x86-llvm-latest-cl3-0:
+  alan:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
