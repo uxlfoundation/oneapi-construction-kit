@@ -12,7 +12,7 @@ runs:
       - name: remove any old dirs
         shell: bash  
         run:
-          rm -rf build build_offline install_offline
+          rm -rf build
 
       - name: build ock x86 relassert
         uses: ./.github/actions/do_build_ock
