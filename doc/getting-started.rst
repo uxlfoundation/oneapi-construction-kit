@@ -7,7 +7,6 @@ Platform Dependencies
 Each supported platform has a set of dependencies which are required in order to
 build the oneAPI Construction Kit.
 
-* `Ubuntu 20.04`_
 * `Ubuntu 22.04`_
 * `Ubuntu 24.04`_
 * `Windows 10`_
@@ -16,7 +15,7 @@ Once the platform dependencies have been installed please read the
 :doc:`/developer-guide` for more information about building and contributing to
 the oneAPI Construction Kit.
 
-Ubuntu 20.04
+Ubuntu 22.04
 ------------
 
 On an x86-64 host system these are the minimum requirements to build
@@ -33,7 +32,7 @@ configuration.
    $ sudo apt update
    $ sudo apt install -y build-essential git cmake libtinfo-dev python3
 
-Recommended for Ubuntu 20.04
+Recommended for Ubuntu 22.04
 ............................
 
 * `Ninja`_ is a useful, fast, build tool. To use it pass ``-GNinja`` to
@@ -67,12 +66,12 @@ terminal info library.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-multilib g++-9-multilib libc6-dev:i386 lib32tinfo-dev
+   $ sudo apt install -y gcc-11-multilib g++-11-multilib libc6-dev:i386 lib32tinfo-dev
 
 .. warning::
    The ``gcc-multilib`` and ``g++-multilib`` packages conflict with the Arm and
    AArch64 toolchain packages below. To install the 32 bit libraries at the same
-   time use ``gcc-9-multilib``, ``g++-9-multilib``, and ``libc6-dev:i386`` that
+   time use ``gcc-11-multilib``, ``g++-11-multilib``, and ``libc6-dev:i386`` that
    ``gcc-multilib`` and ``g++-multilib`` depend on but do not conflict with the
    Arm and AArch64 toolchain packages.
 
@@ -84,7 +83,7 @@ toolchain.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf
+   $ sudo apt install -y gcc-11-arm-linux-gnueabihf g++-11-arm-linux-gnueabihf
 
 Arm 64-bit (AArch64) Cross Compile
 ..................................
@@ -93,13 +92,7 @@ Install the AArch64 toolchain.
 
 .. code-block:: console
 
-   $ sudo apt install -y gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu
-
-Ubuntu 22.04
-------------
-
-This is fully supported. This is recommended for the `RISC-V` host target. gcc
-version 11 is recommended for this operating system.
+   $ sudo apt install -y gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
 
 Ubuntu 24.04
 ------------
@@ -168,64 +161,26 @@ Windows 11
 
 Windows 11 is supported, but has not been tested to the same level as Windows 10.
 
-Vulkan SDK
-----------
 
-For Vulkan support the Vulkan SDK is required to be installed. It can be
-acquired from `LunarG <https://www.lunarg.com/vulkan-sdk/>`_. The latest version
-should always be supported. The minimum supported version is 1.1.97.
 
-The Vulkan SDK includes `SPIRV-Tools`_ as part of the package. Therefore
-`SPIRV-Tools`_ does not need to be installed separately.
-
-Package Manager Installation
-............................
-
-Users of Ubuntu 20.04 and later should configure their apt package manager to
-install the Vulkan SDK packages directly as described by the `LunarG Vulkan SDK
-packages`_ page. This installation method does neither set nor require the
-:envvar:`VULKAN_SDK` environment variable, avoiding the configuration
-complexities experienced when installing manually.
-
-Windows users should install directly from `LunarG
-<https://www.lunarg.com/vulkan-sdk/>`_, as at the time of writing the Vulkan SDK
-cannot be installed through Chocolatey.
-
-Manual Installation
-...................
-
-Other Linux users will need to take some extra steps after downloading the
-tarball distribution. First run the ``build_tools.sh`` script; then source the
-``setup-env.sh`` script whilst the Vulkan SDK directory as the current
-directory. These steps are needed to access the ``spirv-as`` tool through the
-:envvar:`VULKAN_SDK` environment variable in order to successfully compile
-the oneAPI Construction Kit and generate all test suites correctly.
-
-.. hint::
-   Modifying ``.bashrc`` to source the ``setup-env.sh`` script avoids having to
-   remember to do this on every new terminal session building the oneAPI
-   Construction Kit.
-
-The ``setup-env.sh`` script prepends :envvar:`VULKAN_SDK` to the system
-:envvar:`PATH`, leading to prioritization of :envvar:`VULKAN_SDK` binaries
-ahead of any other versions of the tools which may be installed in ``/usr/bin``.
 
 SPIRV-Tools
 -----------
 
-When OpenCL support is required but Vulkan support is not, `SPIRV-Tools`_
-**may** optionally be installed on the system :envvar:`PATH`. This is
+`SPIRV-Tools`_ **may** optionally be installed on the system :envvar:`PATH`. This is
 recommended to achieve good coverage of SPIR-V compilation paths.
 
 Follow the build instructions, or install the pre-built binaries in the
 repository. It's harder to pin down versions of `SPIRV-Tools`_ since they don't
 do releases, but we should support any commit from after January 2019.
 
-Ubuntu 20.04 and later users can install ``spirv-tools`` from the package repository:
+Ubuntu 22.04 and later users can install ``spirv-tools`` from the package repository:
 
 .. code-block:: console
 
    $ sudo apt install -y spirv-tools
+
+Note for Windows, SPIR-V Tools can be installed from `LunarG <https://vulkan.lunarg.com/sdk/home>`_.
 
 .. warning::
    As the `LunarG Vulkan SDK packages`_ and the ``spirv-tools`` package both
@@ -241,4 +196,3 @@ Ubuntu 20.04 and later users can install ``spirv-tools`` from the package reposi
 .. _Cmder: https://cmder.net/
 .. _SPIRV-Tools: https://github.com/KhronosGroup/SPIRV-Tools
 .. _LunarG Vulkan SDK packages: https://packages.lunarg.com/
-.. _Vulkan SDK Chocolatey: https://community.chocolatey.org/packages/vulkan-sdk

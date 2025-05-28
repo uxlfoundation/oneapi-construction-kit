@@ -60,13 +60,3 @@ void muxDestroyFence(mux_device_t device, mux_fence_t fence,
 
   muxSelectDestroyFence(device, fence, allocator_info);
 }
-
-mux_result_t muxResetFence(mux_fence_t fence) {
-  const tracer::TraceGuard<tracer::Mux> guard(__func__);
-
-  if (mux::objectIsInvalid(fence)) {
-    return mux_error_invalid_value;
-  }
-
-  return muxSelectResetFence(fence);
-}

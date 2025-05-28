@@ -35,7 +35,7 @@ OCK demo package contains the build and install directories of all components. A
 - [oneAPI toolkit](https://github.com/intel/llvm/releases)
 
 The above repositories can be built for dpc++ following their respective build instructions.
-All of the following instructions have been tested on Ubuntu:20.04.
+All of the following instructions have been tested on Ubuntu:22.04.
 
 You'll need to extract the files from the archive file and and oneAPI nighlty release needs to be
 downloaded from `intel/llvm`:

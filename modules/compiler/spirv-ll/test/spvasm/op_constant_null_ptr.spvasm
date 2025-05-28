@@ -25,8 +25,8 @@
             OpName %a "a"
        %void = OpTypeVoid
           %5 = OpTypeFunction %void
-        %int = OpTypeInt 32 0
-        %ptr = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+        %ptr = OpTypePointer Function %uint
     %ptr_ptr = OpTypePointer Function %ptr
           %8 = OpConstantNull %ptr
      %testfn = OpFunction %void None %5

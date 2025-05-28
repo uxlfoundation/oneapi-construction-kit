@@ -902,7 +902,6 @@ RECURSIVE              = YES
 
 EXCLUDE                = @ComputeAorta_SOURCE_DIR@/source/cl/external \
                          @ComputeAorta_SOURCE_DIR@/source/cl/test \
-                         @ComputeAorta_SOURCE_DIR@/source/vk \
                          @ComputeAorta_SOURCE_DIR@/modules/spirv-ll/external \
                          @ComputeAorta_SOURCE_DIR@/modules/mux/targets/riscv/external
 

@@ -37,8 +37,3 @@ void riscvDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
   riscv::semaphore_s::destroy(
       device, static_cast<riscv::semaphore_s *>(semaphore), allocator);
 }
-
-mux_result_t riscvResetSemaphore(mux_semaphore_t semaphore) {
-  static_cast<riscv::semaphore_s *>(semaphore)->reset();
-  return mux_success;
-}

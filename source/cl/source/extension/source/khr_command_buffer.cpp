@@ -805,7 +805,11 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
   // sizes for the unused dimensions so callers don't have to keep checking the
   // work dimensions.
   std::array<size_t, cl::max::WORK_ITEM_DIM> final_global_size{1, 1, 1};
-  std::copy_n(global_work_size, work_dim, std::begin(final_global_size));
+  if (global_work_size) {
+    std::copy_n(global_work_size, work_dim, std::begin(final_global_size));
+  } else {
+    final_global_size = {0, 0, 0};
+  }
 
   // Check the current kernel arguments are valid.
   if (auto error = kernel->checkKernelArgs()) {

@@ -11,6 +11,12 @@ Upgrade guidance:
 * Support for degenerate subgroups has been removed. No in-tree target or
   template was using this, but custom targets may need to be updated.
 * Support for LLVM versions before 19 has been removed.
+* Vulkan API support has been removed and will no longer be supported for any
+  versions. Users may fork from the 4.0.0 version if they wish to use it.
+* The CMake option CA_ENABLE_API has been removed; OpenCL will always be enabled
+  as the API.
+* The mux spec has been bumped:
+  * 0.81.0: the muxResetFence and muxResetSemaphore functions have been removed.
 
 ## Version 4.0.0
 

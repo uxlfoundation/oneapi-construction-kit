@@ -63,13 +63,3 @@ void muxDestroySemaphore(mux_device_t device, mux_semaphore_t semaphore,
 
   muxSelectDestroySemaphore(device, semaphore, allocator_info);
 }
-
-mux_result_t muxResetSemaphore(mux_semaphore_t semaphore) {
-  const tracer::TraceGuard<tracer::Mux> guard(__func__);
-
-  if (mux::objectIsInvalid(semaphore)) {
-    return mux_error_invalid_value;
-  }
-
-  return muxSelectResetSemaphore(semaphore);
-}

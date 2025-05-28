@@ -16,41 +16,36 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan %spv_file_s -e SPV_EXT_shader_atomic_float_min_max -c Float64 -c AtomicFloat64MinMaxEXT | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s -e SPV_EXT_shader_atomic_float_min_max -c Float64 -c AtomicFloat64MinMaxEXT | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability AtomicFloat64MinMaxEXT
             OpExtension "SPV_EXT_shader_atomic_float_min_max"
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %atomic "atomic"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %atomic "atomic"
             OpExecutionMode %atomic LocalSize 1 1 1
             OpName %atomic "atomic"
             OpName %a "a"
-            OpDecorate %block_t Block
-            OpMemberDecorate %block_t 0 Offset 0
-            OpDecorate %block_var DescriptorSet 0
-            OpDecorate %block_var Binding 0
     %void = OpTypeVoid
     %uint = OpTypeInt 32 0
  %float_t = OpTypeFloat 64
  %block_t = OpTypeStruct %float_t
-%ptr_Uniform_block_t = OpTypePointer Uniform %block_t
-%ptr_Uniform_int = OpTypePointer Uniform %float_t
-       %3 = OpTypeFunction %void
+%ptr_CrossWorkgroup_block_t = OpTypePointer CrossWorkgroup %block_t
+%ptr_CrossWorkgroup_int = OpTypePointer CrossWorkgroup %float_t
+       %3 = OpTypeFunction %void %ptr_CrossWorkgroup_block_t
        %9 = OpConstant %float_t 42.4
   %uint_1 = OpConstant %uint 1
   %uint_0 = OpConstant %uint 0
-%block_var = OpVariable %ptr_Uniform_block_t Uniform
   %atomic = OpFunction %void None %3
+%block_var = OpFunctionParameter %ptr_CrossWorkgroup_block_t
        %5 = OpLabel
-       %a = OpAccessChain %ptr_Uniform_int %block_var %uint_0
+       %a = OpAccessChain %ptr_CrossWorkgroup_int %block_var %uint_0
 %original = OpAtomicFMinEXT %float_t %a %uint_1 %uint_0 %9
             OpReturn
             OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: [[TYPE:%.*]] = type { double }
-; CHECK: define spir_kernel void @atomic(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
+; CHECK: define spir_kernel void @atomic(ptr addrspace(1) noundef %0)
 ; CHECK: [[PTR:%.*]] = getelementptr [[TYPE]], ptr addrspace(1) %0, i32 0, i32 0
 ; CHECK: = call spir_func double @_Z25atomic_fetch_min_explicitPU3AS1Vdd(ptr addrspace(1) [[PTR]], double 4.240000e+01)
 ; CHECK: ret void

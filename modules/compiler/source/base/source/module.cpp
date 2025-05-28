@@ -850,9 +850,6 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
     }
 
     // Fill the SPIR-V module info data structure.
-    for (const auto &db : spvModule->getUsedDescriptorBindings()) {
-      module_info.used_descriptor_bindings.push_back({db.set, db.binding});
-    }
     module_info.workgroup_size = spvModule->getWGS();
 
     // Transfer ownership of the llvm::Module.
@@ -1370,6 +1367,19 @@ void BaseModule::runOpenCLFrontendPipeline(
                       std::move(late_passes));
 }
 
+BaseModule::FrontendDiagnosticPrinter::FrontendDiagnosticPrinter(
+    BaseModule &base_module, clang::DiagnosticOptions &diags)
+    : clang::TextDiagnosticPrinter(TempOS,
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+                                   diags,
+#else
+                                   &diags,
+#endif
+                                   /*OwnsOutputStream=*/false),
+      base_module(base_module),
+      TempOS(TempStr) {
+}
+
 void BaseModule::FrontendDiagnosticPrinter::HandleDiagnostic(
     clang::DiagnosticsEngine::Level Level, const clang::Diagnostic &Info) {
   // Flush whatever we've built up already
@@ -1442,7 +1452,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
 #if LLVM_VERSION_GREATER_EQUAL(20, 0)
       *llvm::vfs::getRealFileSystem(),
 #endif
-      new FrontendDiagnosticPrinter(*this, &instance.getDiagnosticOpts()));
+      new FrontendDiagnosticPrinter(*this, instance.getDiagnosticOpts()));
 
   // Write a copy of the kernel source out to disk and update the debug info
   // to point to the location as the kernel source file.

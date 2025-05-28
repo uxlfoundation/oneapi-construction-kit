@@ -16,13 +16,12 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
@@ -33,10 +32,10 @@
        %bool = OpTypeBool
 %_ptr_Function_bool = OpTypePointer Function %bool
           %9 = OpConstantFalse %bool
-        %int = OpTypeInt 32 1
-%_ptr_Function_int = OpTypePointer Function %int
-         %17 = OpConstant %int 24
-         %19 = OpConstant %int 42
+       %uint = OpTypeInt 32 0
+%_ptr_Function_int = OpTypePointer Function %uint
+         %17 = OpConstant %uint 24
+         %19 = OpConstant %uint 42
        %main = OpFunction %void None %3
           %5 = OpLabel
        %cond = OpVariable %_ptr_Function_bool Function
@@ -46,13 +45,13 @@
                OpSelectionMerge %16 None
                OpBranchConditional %14 %15 %18
          %15 = OpLabel
-         %a1 = OpBitwiseXor %int %17 %19
+         %a1 = OpBitwiseXor %uint %17 %19
                OpBranch %16
          %18 = OpLabel
-         %a2 = OpBitwiseAnd %int %17 %19
+         %a2 = OpBitwiseAnd %uint %17 %19
                OpBranch %16
          %16 = OpLabel
-       %aphi = OpPhi %int %a1 %15 %a2 %18
+       %aphi = OpPhi %uint %a1 %15 %a2 %18
                OpStore %a %aphi
                OpReturn
                OpFunctionEnd

@@ -44,7 +44,6 @@
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
 enum class ExtendedInstrSet {
-  GLSL450,             ///< The "GLSL.std.450" instruction set.
   OpenCL,              ///< The "OpenCL.std" instruction set.
   GroupAsyncCopies,    ///< The "Codeplay.GroupAsyncCopies" instruction set.
   DebugInfo,           ///< The "DebugInfo" instruction set.
@@ -163,19 +162,6 @@ inline void swap(iterator &lhs, iterator &rhs) {
   lhs = std::move(rhs);
   rhs = std::move(tmp);
 }
-
-/// @brief Struct describing a descriptor binding.
-struct DescriptorBinding {
-  /// @brief Descriptor set number.
-  uint32_t set;
-  /// @brief Binding number within `set`.
-  uint32_t binding;
-
-  /// @brief Less than comparison operator to enable sort by binding.
-  bool operator<(const DescriptorBinding &other) const {
-    return set < other.set || (set == other.set && binding < other.binding);
-  }
-};
 
 /// @brief Container class for translating a binary SPIR-V module.
 class Module : public ModuleHeader {
@@ -521,73 +507,6 @@ class Module : public ModuleHeader {
   /// @param id An ID with decorations to resolve.
   void resolveDecorations(spv::Id id);
 
-  /// @brief Struct containing information about an interface block.
-  struct InterfaceBlock {
-    /// @brief `DescriptorBinding` struct that has the binding info.
-    DescriptorBinding binding;
-
-    /// @brief Global variable that stores a reference to the interface block.
-    llvm::GlobalVariable *variable;
-
-    /// @brief Underlying interface block type. The global variable's value
-    /// type will be a pointer to this type.
-    llvm::Type *block_type;
-
-    /// @brief `OpVariable` that declared the interface block.
-    const spirv_ll::OpVariable *op;
-  };
-
-  /// @brief Add an interface block ID and its descriptor set to the module.
-  ///
-  /// @param[in] id The ID of an interface block.
-  /// @param[in] set The descriptor set number of the interface block.
-  void addSet(spv::Id id, uint32_t set);
-
-  /// @brief Add an interface block ID and its descriptor binding to the module.
-  ///
-  /// @param[in] id ID of an interface block already added to the module with.
-  /// @param[in] binding The binding number of the interface block.
-  void addBinding(spv::Id id, uint32_t binding);
-
-  /// @brief Return a list of interface block IDs, sorted by their descriptor
-  /// bindings.
-  ///
-  /// @return List of IDs.
-  llvm::SmallVector<spv::Id, 4> getDescriptorBindingList() const;
-
-  /// @brief Fill a list with descriptor set/binding slots used in the module.
-  ///
-  /// @return Returns the list of descriptor set/binding slots used.
-  std::vector<DescriptorBinding> getUsedDescriptorBindings() const;
-
-  /// @brief Whether or not the module uses any descriptor bindings.
-  ///
-  /// @return True if bindings were used, false otherwise.
-  bool hasDescriptorBindings() const;
-
-  /// @brief Look up the `OpCode` object associated with an interface block ID.
-  ///
-  /// @param id ID of the interface block to look up.
-  ///
-  /// @return `OpCode` object that originally created the variable.
-  const OpCode *getBindingOp(spv::Id id) const;
-
-  /// @brief Add an interface block variable to the module.
-  ///
-  /// @param id SPIR-V ID of the block.
-  /// @param op `OpVariable` that declared the block.
-  /// @param variable LLVM global variable object created for the block.
-  void addInterfaceBlockVariable(const spv::Id id,
-                                 const spirv_ll::OpVariable *op, llvm::Type *ty,
-                                 llvm::GlobalVariable *variable);
-
-  /// @brief Return the type of an interface block referred to by an ID.
-  ///
-  /// @param[in] id ID of an interface block.
-  ///
-  /// @return Type of the interface block.
-  llvm::Type *getBlockType(const spv::Id id) const;
-
   /// @brief Create a new `OpCode` derivative object.
   ///
   /// @tparam Op Type of the derived `OpCode`.
@@ -892,35 +811,6 @@ class Module : public ModuleHeader {
   /// `std::nullopt` otherwise.
   std::optional<uint32_t> getSpecId(spv::Id id) const;
 
-  /// @brief Get a pointer to the push constant struct type defined in the
-  /// module.
-  ///
-  /// @return Pointer to the push constant struct type defined in the module or
-  /// `nullptr` if one was not defined.
-  llvm::Type *getPushConstantStructType() const;
-
-  /// @brief Get the ID that will be used to access the push constant struct.
-  ///
-  /// @return Push constant struct ID.
-  spv::Id getPushConstantStructID() const;
-
-  /// @brief Get the previously stored buffer size array `Value`
-  ///
-  /// @return Buffer size array `Value`
-  llvm::Value *getBufferSizeArray() const;
-
-  /// @brief Set a global variable for the push constant struct.
-  ///
-  /// The push constant struct is passed into the entry point of the module as
-  /// an argument, so to make it available globally like it should be the
-  /// argument is stored in this global variable at the start of the entry point
-  /// and loaded from it at the start of every other function.
-  ///
-  /// @param id SPIR-V ID the push constant struct will be accessed with.
-  /// @param variable LLVM global variable object.
-  void setPushConstantStructVariable(spv::Id id,
-                                     llvm::GlobalVariable *variable);
-
   /// @brief Store local workgroup size specified by module in the module.
   ///
   /// @param x The x dimension of the workgroup size.
@@ -934,11 +824,6 @@ class Module : public ModuleHeader {
   /// order.
   const std::array<uint32_t, 3> &getWGS() const;
 
-  /// @brief Save the buffer size array `Value`.
-  ///
-  /// @param buffer_size_array Buffer size array `Value`.
-  void setBufferSizeArray(llvm::Value *buffer_size_array);
-
   /// @brief Store an OpSpecConstantOp that can't be translated immediately.
   ///
   /// @param op `OpSpecConstantOp` object representing the instruction to defer.
@@ -947,10 +832,6 @@ class Module : public ModuleHeader {
   /// @brief Accessor for `deferredSpecConstantOps`.
   const llvm::SmallVector<const OpSpecConstantOp *, 2> &
   getDeferredSpecConstants();
-
-  /// @brief Get a list of entry point arguments that need to have global scope.
-  llvm::SmallVector<std::pair<spv::Id, llvm::GlobalVariable *>, 4>
-  getGlobalArgs() const;
 
   /// @brief The context that this module is using.
   spirv_ll::Context &context;
@@ -1042,8 +923,6 @@ class Module : public ModuleHeader {
       DecorationMap;
   /// @brief Map to keep track of decorations applied by `OpMemberDecorate`.
   llvm::DenseMap<spv::Id, DecoratedStruct> MemberDecorations;
-  /// @brief Map of IDs to the interface blocks they reference.
-  llvm::DenseMap<spv::Id, InterfaceBlock> InterfaceBlocks;
 
   /// @brief Owning container for all the OpCodes in this module.
   // TODO: Could use a slab allocator for `OpCode` derived object storage and
@@ -1098,19 +977,8 @@ class Module : public ModuleHeader {
   llvm::DenseMap<spv::Id, spv::Id> SpecIDs;
   /// @brief Information about specialization constants.
   cargo::optional<const spirv_ll::SpecializationInfo &> specInfo;
-  /// @brief Global variable that stores a reference to the push constant
-  /// struct.
-  llvm::GlobalVariable *PushConstantStructVariable;
-  /// @brief ID used throughout the module to access the push constant struct.
-  spv::Id PushConstantStructID;
   /// @brief Array of values that represent local workgroup size of the module.
   std::array<uint32_t, 3> WorkgroupSize;
-  /// @brief Handle to an array of sizes of descriptor bindings in the module.
-  ///
-  /// More specifically, it contains the sizes of the buffers the descriptors
-  /// are backed by. This exists as a function argument and will be passed in by
-  /// the api if any descriptor bindings are used.
-  llvm::Value *BufferSizeArray;
   /// @brief List of `OpSpecConstantOp` instructions whose translation had to be
   /// deferred.
   llvm::SmallVector<const spirv_ll::OpSpecConstantOp *, 2>
@@ -1123,14 +991,6 @@ class Module : public ModuleHeader {
   /// instructions are to be obeyed.
   bool ImplicitDebugScopes = true;
 };
-
-/// @brief Less than operator that compares the descriptor binding in each `ID`
-/// `InterfaceBlock` pair to allow for a list of IDs sorted by their associated
-/// descriptor set bindings.
-inline bool operator<(const std::pair<spv::Id, Module::InterfaceBlock> &lhs,
-                      const std::pair<spv::Id, Module::InterfaceBlock> &rhs) {
-  return lhs.second.binding < rhs.second.binding;
-}
 
 }  // namespace spirv_ll
 

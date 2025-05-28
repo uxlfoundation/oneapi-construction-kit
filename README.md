@@ -4,14 +4,14 @@
 
 # oneAPI Construction Kit
 
-The oneAPI Construction Kit is a framework to provide implementations of open standards, such as OpenCL and Vulkan, for a wide range of devices. The oneAPI Construction Kit can be used to build with the oneAPI Toolkit. The oneAPI Toolkit includes support for various open standards, such as OpenMP, SYCL, and DPC++. DPC++ is based on the SYCL programming model, which allows to write single-source C++ code that can target both CPUs and GPUs. To get more information on oneAPI, please visit https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html.
+The oneAPI Construction Kit is a framework to provide implementations of open standards, such as OpenCL, for a wide range of devices. The oneAPI Construction Kit can be used to build with the oneAPI Toolkit. The oneAPI Toolkit includes support for various open standards, such as OpenMP, SYCL, and DPC++. DPC++ is based on the SYCL programming model, which allows to write single-source C++ code that can target both CPUs and GPUs. To get more information on oneAPI, please visit https://www.intel.com/content/www/us/en/developer/tools/oneapi/overview.html.
 
 The oneAPI Construction Kit is part of the [UXL Foundation].
 
 [UXL Foundation]: http://www.uxlfoundation.org
 
 >**_Note:_**
- It is not intended to be used as a standalone OpenCL or Vulkan implementation. It does not support the oneAPI Level Zero API.
+ It is not intended to be used as a standalone OpenCL implementation. It does not support the oneAPI Level Zero API.
 
 For more information about building, implementing and maintaining the oneAPI Construction Kit please take the time to read the [developer guide](doc/developer-guide.md) and the other documentation in the
 `doc` directory.
@@ -23,7 +23,7 @@ and external components.
    oneAPI Construction Kit was previously referred to as ComputeAorta and referred to as acronym `CA`. As a result, references to ComputeAorta or CA may be present in some oneAPI Construction Kit's documentation and code.
 
 ## Get started with the oneAPI Construction Kit
-This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 20.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md). There is a [blog post](https://codeplay.com/portal/blogs/2023/06/05/introducing-the-oneapi-construction-kit) demonstrating how to build the kit for a simulated RISC-V target. You can also find the documentation on [Codeplay's developer website](https://developer.codeplay.com/products/oneapi/construction-kit/home/).
+This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 22.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md). There is a [blog post](https://codeplay.com/portal/blogs/2023/06/05/introducing-the-oneapi-construction-kit) demonstrating how to build the kit for a simulated RISC-V target. You can also find the documentation on [Codeplay's developer website](https://developer.codeplay.com/products/oneapi/construction-kit/home/).
 
 ### Platform Dependencies
 * [GCC](https://gcc.gnu.org/)

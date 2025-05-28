@@ -53,8 +53,6 @@ add_ca_executable(UnitMux
   ${CMAKE_CURRENT_SOURCE_DIR}/muxCreateSemaphore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/muxCreateFence.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/muxDestroyFence.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/muxResetFence.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/muxResetSemaphore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/muxDestroySemaphore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/muxGetQueue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/muxDispatch.cpp

@@ -60,10 +60,10 @@ int main(int argc, char **argv) {
   if (auto error = parser.add_argument({"--output", output})) {
     return error;
   }
-  // -a [OpenCL,Vulkan], --api [OpenCL,Vulkan]
+  // -a [OpenCL], --api [OpenCL]
   cargo::string_view api;
-  cargo::small_vector<cargo::string_view, 2> apiChoices;
-  if (auto error = apiChoices.assign({"OpenCL", "Vulkan"})) {
+  cargo::small_vector<cargo::string_view, 1> apiChoices;
+  if (auto error = apiChoices.assign({"OpenCL"})) {
     return error;
   }
   if (auto error = parser.add_argument({"-a", apiChoices, api})) {
@@ -137,9 +137,9 @@ optional arguments:
         -o FILE, --output FILE
                         output file path for the LLVM-IR. Default value or '-'
                         outputs to stdout.
-        -a {OpenCL,Vulkan}, --api {OpenCL,Vulkan}
-                        api the SPIR-V binary is targeting, only OpenCL 1.2 and
-                        Vulkan 1.0 compute modules are supported
+        -a {OpenCL}, --api {OpenCL}
+                        api the SPIR-V binary is targeting, only OpenCL 1.2
+                        modules are supported
         -c CAPABILITY, --capability CAPABILITY
                         name of capability to enable, multiple supported
         -e EXTENSION, --extension EXTENSION
@@ -316,38 +316,6 @@ llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
       deviceInfo.addressBits = 0;
     }
     deviceInfo.memoryModel = spv::MemoryModelOpenCL;
-  } else if (api == "Vulkan") {
-    deviceInfo.capabilities.assign({
-        spv::CapabilityMatrix,
-        spv::CapabilityShader,
-        spv::CapabilityInputAttachment,
-        spv::CapabilitySampled1D,
-        spv::CapabilityImage1D,
-        spv::CapabilitySampledBuffer,
-        spv::CapabilityImageBuffer,
-        spv::CapabilityImageQuery,
-        spv::CapabilityDerivativeControl,
-    });
-    if (enableAll) {
-      // Add the optional Vulkan capabilities if this flag was set.
-      deviceInfo.capabilities.append({
-          spv::CapabilityFloat64,
-          spv::CapabilityInt64,
-          spv::CapabilityInt16,
-          spv::CapabilityVariablePointers,
-          spv::CapabilityVariablePointersStorageBuffer,
-      });
-    }
-    deviceInfo.extInstImports.push_back("GLSL.std.450");
-    deviceInfo.addressingModel = spv::AddressingModelLogical;
-    deviceInfo.memoryModel = spv::MemoryModelGLSL450;
-    if (bits == "32") {
-      deviceInfo.addressBits = 32;
-    } else if (bits == "64") {
-      deviceInfo.addressBits = 64;
-    } else {
-      deviceInfo.addressBits = sizeof(void *) * 8;
-    }
   } else {
     llvm_unreachable("Illegal API");
   }
@@ -478,7 +446,6 @@ llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
         "SPV_KHR_no_integer_wrap_decoration",
         "SPV_KHR_storage_buffer_storage_class",
         "SPV_KHR_variable_pointers",
-        "SPV_KHR_vulkan_memory_model",
         "SPV_KHR_expect_assume",
         "SPV_KHR_linkonce_odr",
         "SPV_KHR_uniform_group_instructions",

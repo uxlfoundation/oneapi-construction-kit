@@ -24,7 +24,6 @@ runs:
           disable_unitcl_vecz_checks: ON
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON
-          use_linker: gold
           hal_description: RV64GCV
           hal_refsi_soc: G1
           hal_refsi_thread_mode: WI

@@ -16,39 +16,32 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %test_block "test_block"
                OpMemberName %test_block 0 "test_out"
                OpName %_ ""
-               OpMemberDecorate %test_block 0 Offset 0
-               OpDecorate %test_block BufferBlock
-               OpDecorate %_ DescriptorSet 0
-               OpDecorate %_ Binding 0
                OpDecorate %14 SpecId 0
-               OpDecorate %arr_int ArrayStride 4
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-   %idx_type = OpTypeInt 32 0
-          %8 = OpConstant %idx_type 4
-    %arr_int = OpTypeArray %int %8
+       %uint = OpTypeInt 32 0
+          %8 = OpConstant %uint 4
+    %arr_int = OpTypeArray %uint %8
  %test_block = OpTypeStruct %arr_int
-%_ptr_Uniform_test_block = OpTypePointer Uniform %test_block
-          %_ = OpVariable %_ptr_Uniform_test_block Uniform
-         %13 = OpConstant %idx_type 0
-         %14 = OpSpecConstant %int -42
+%_ptr_CrossWorkgroup_test_block = OpTypePointer CrossWorkgroup %test_block
+          %3 = OpTypeFunction %void %_ptr_CrossWorkgroup_test_block
+         %13 = OpConstant %uint 0
+         %14 = OpSpecConstant %uint 42
          %15 = OpSpecConstantComposite %arr_int %14 %14 %14 %14 ; testing this
-%ptr_arr_int = OpTypePointer Uniform %arr_int
+%ptr_arr_int = OpTypePointer CrossWorkgroup %arr_int
        %main = OpFunction %void None %3
+          %_ = OpFunctionParameter %_ptr_CrossWorkgroup_test_block
           %5 = OpLabel
          %17 = OpAccessChain %ptr_arr_int %_ %13
                OpStore %17 %15
@@ -56,7 +49,7 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: = type { [4 x i32] }
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
+; CHECK: define spir_kernel void @main(ptr addrspace(1) noundef %0)
 ; CHECK: = getelementptr {{[%@].*}}, ptr addrspace(1) {{[%@].*}}, i32 0, i32 0
-; CHECK: store [4 x i32] [i32 -42, i32 -42, i32 -42, i32 -42], ptr addrspace({{[0-9]}}) {{[%@].*}}
+; CHECK: store [4 x i32] [i32 42, i32 42, i32 42, i32 42], ptr addrspace({{[0-9]}}) {{[%@].*}}
 ; CHECK: ret void

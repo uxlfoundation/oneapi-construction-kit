@@ -16,43 +16,38 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %a_block "a_block"
                OpMemberName %a_block 0 "test_out"
                OpName %_ ""
-               OpMemberDecorate %a_block 0 Offset 0
-               OpDecorate %a_block BufferBlock
-               OpDecorate %_ DescriptorSet 0
-               OpDecorate %_ Binding 0
                OpDecorate %11 SpecId 0
        %void = OpTypeVoid
-          %3 = OpTypeFunction %void
-        %double = OpTypeFloat 64
-   %idx_type = OpTypeInt 32 0
+     %double = OpTypeFloat 64
     %a_block = OpTypeStruct %double
-%ptr_Uniform_block = OpTypePointer Uniform %a_block
-          %_ = OpVariable %ptr_Uniform_block Uniform
+%ptr_CrossWorkgroup_block = OpTypePointer CrossWorkgroup %a_block
+          %3 = OpTypeFunction %void %ptr_CrossWorkgroup_block
+   %idx_type = OpTypeInt 32 0
          %10 = OpConstant %idx_type 0
          %11 = OpSpecConstant %double -42.42 ; testing this
-%ptr_Uniform_double = OpTypePointer Uniform %double
+%ptr_CrossWorkgroup_double = OpTypePointer CrossWorkgroup %double
        %main = OpFunction %void None %3
+          %_ = OpFunctionParameter %ptr_CrossWorkgroup_block
           %5 = OpLabel
-         %13 = OpAccessChain %ptr_Uniform_double %_ %10
+         %13 = OpAccessChain %ptr_CrossWorkgroup_double %_ %10
                OpStore %13 %11
                OpReturn
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: [[a_block:%.*]] = type { double }
-; CHECK: define spir_kernel void @main(ptr addrspace(1){{( %0)?}}, ptr addrspace(1){{( %1)?}})
-; CHECK: [[anon:%.*]] = getelementptr [[a_block]], ptr addrspace(1) {{%.*}}, i32 0, i32 0
+; CHECK: define spir_kernel void @main(ptr addrspace(1) noundef %0)
+; CHECK: [[anon:%.*]] = getelementptr [[a_block]], ptr addrspace(1) %0, i32 0, i32 0
 ; CHECK: store double -4.242000e+01, ptr addrspace(1) [[anon]]
 ; CHECK: ret void

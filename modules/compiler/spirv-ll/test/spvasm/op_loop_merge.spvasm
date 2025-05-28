@@ -16,25 +16,24 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
             OpName %a "a"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
-%_ptr_Function_int = OpTypePointer Function %int
-      %int_42 = OpConstant %int 42
-      %int_0 = OpConstant %int 0
+       %uint = OpTypeInt 32 0
+%_ptr_Function_int = OpTypePointer Function %uint
+      %int_42 = OpConstant %uint 42
+      %int_0 = OpConstant %uint 0
        %bool = OpTypeBool
-      %int_1 = OpConstant %int 1
+      %int_1 = OpConstant %uint 1
        %main = OpFunction %void None %3
           %5 = OpLabel
           %a = OpVariable %_ptr_Function_int Function
@@ -44,12 +43,12 @@
                OpLoopMerge %12 %13 Unroll
                OpBranch %14
          %14 = OpLabel
-         %15 = OpLoad %int %a
+         %15 = OpLoad %uint %a
          %18 = OpSGreaterThan %bool %15 %int_0
                OpBranchConditional %18 %11 %12 5 2
          %11 = OpLabel
-         %19 = OpLoad %int %a
-         %21 = OpISub %int %19 %int_1
+         %19 = OpLoad %uint %a
+         %21 = OpISub %uint %19 %int_1
                OpStore %a %21
                OpBranch %13
          %13 = OpLabel
@@ -67,18 +66,20 @@
 ; CHECK: {{[0-9]+:}}
 ; CHECK: = load i32, ptr {{[%@].*}}
 ; CHECK: = icmp sgt i32 {{[%@].*}}, 0
-; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}, !prof !1
+; CHECK: br i1 {{[%@].*}}, label {{[%@].*}}, label {{[%@].*}}, !prof !3
 ; CHECK: {{[0-9]+:}}
 ; CHECK: = load i32, ptr {{[%@].*}}
 ; CHECK: = sub i32 {{[%@].*}}, 1
 ; CHECK: store i32 {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: br label {{[%@].*}}
 ; CHECK: {{[0-9]+:}}
-; CHECK: br label {{[%@].*}}, !llvm.loop !2
+; CHECK: br label {{[%@].*}}, !llvm.loop !4
 ; CHECK: {{[0-9]+:}}
 ; CHECK: ret void
 ; CHECK: !llvm.ident = !{!0}
 ; CHECK: !0 = !{!"Source language: GLSL, Version: 450"}
-; CHECK: !1 = !{!"branch_weights", i32 5, i32 2}
-; CHECK: !2 = distinct !{!2, !3}
-; CHECK: !3 = !{!"llvm.loop.unroll.enable"}
+; CHECK: !1 = !{}
+; CHECK: !2 = !{i32 1, i32 1, i32 1}
+; CHECK: !3 = !{!"branch_weights", i32 5, i32 2}
+; CHECK: !4 = distinct !{!4, !5}
+; CHECK: !5 = !{!"llvm.loop.unroll.enable"}

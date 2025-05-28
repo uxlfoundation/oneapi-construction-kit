@@ -16,13 +16,12 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: spirv-ll-tool -a Vulkan -c Float64 -c Int64 %spv_file_s | FileCheck %s
-            OpCapability Shader
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Float64 -c Int64 %spv_file_s | FileCheck %s
+            OpCapability Kernel
             OpCapability Float64
             OpCapability Int64
-       %1 = OpExtInstImport "GLSL.std.450"
-            OpMemoryModel Logical GLSL450
-            OpEntryPoint GLCompute %main "main"
+            OpMemoryModel Logical OpenCL
+            OpEntryPoint Kernel %main "main"
             OpExecutionMode %main LocalSize 1 1 1
             OpSource GLSL 450
             OpName %main "main"
@@ -33,15 +32,15 @@
         %float = OpTypeFloat 32
     %ptr_float = OpTypePointer Function %float
           %9 = OpConstant %float 42.42
-        %int = OpTypeInt 32 1
-    %ptr_int = OpTypePointer Function %int
+       %uint = OpTypeInt 32 0
+    %ptr_int = OpTypePointer Function %uint
        %main = OpFunction %void None %3
           %5 = OpLabel
         %src = OpVariable %ptr_float Function
         %dst = OpVariable %ptr_int Function
                OpStore %src %9
          %13 = OpLoad %float %src
-         %14 = OpBitcast %int %13
+         %14 = OpBitcast %uint %13
                OpStore %dst %14
                OpReturn
                OpFunctionEnd

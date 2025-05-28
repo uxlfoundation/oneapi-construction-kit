@@ -31,8 +31,7 @@ pattern matching with the `CHECK` directive.
 
 While the lit tests themselves do not need to be compiled, their configuration
 files are configured through CMake in order to set up correct paths and other
-parameters. The tests are built together with the other test suites when the
-`cl` API is enabled via the `CA_ENABLE_API` CMake option, but they
+parameters. The tests are built together with the other test suites, but they
 can also be built individually through the `host-lit` target.
 
 In order for the tests to be built, the `opt`, `FileCheck`, and `lit` tools need

@@ -20,7 +20,7 @@ LLVM
 
 The ComputeMux Compiler hides its usage of LLVM behind a set of virtual
 interfaces. This avoids the need for an open standards implementation linking
-with the oneAPI Construction Kit, such as OpenCL and Vulkan, to also link with
+with the oneAPI Construction Kit, such as OpenCL, to also link with
 LLVM, improving encapsulation.
 
 The base implementation of the interfaces, such as ``BaseModule``, are

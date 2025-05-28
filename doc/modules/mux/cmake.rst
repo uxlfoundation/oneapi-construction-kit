@@ -7,7 +7,7 @@ build.
 
 ``modules/mux/CMakeLists.txt`` creates a static library target ``mux`` using
 :cmake:command:`add_ca_library` that frontend APIs implemented by the oneAPI
-Construction Kit, such as OpenCL and Vulkan, build on. ComputeMux library code
+Construction Kit, such as OpenCL, build on. ComputeMux library code
 provides entry points to the Mux API which perform implementation agnostic error
 checking of argument invalid usage, and then direct control flow through to a
 desired Mux implementation. The :cmake:variable:`CA_MUX_ENABLE_SHARED` option can

@@ -63,6 +63,50 @@ function header()
 
 function footer()
 {
+  if [[ "cxx" == "$generated_output_type" ]]
+  then
+    echo 'void *memcpy(void *__restrict dst, const void *__restrict src, size_t num) {'
+    echo '  auto *d = static_cast<unsigned char *>(dst);'
+    echo '  auto *s = static_cast<const unsigned char *>(src);'
+    echo '  while (num--) {'
+    echo '    *(d++) = *(s++);'
+    echo '  }'
+    echo '  return dst;'
+    echo '}'
+    echo ''
+    echo 'void *memmove(void *dst, const void *src, size_t num) {'
+    echo '  if (reinterpret_cast<uintptr_t>(static_cast<char *>(dst) + num) <='
+    echo '          reinterpret_cast<uintptr_t>(src) ||'
+    echo '      reinterpret_cast<uintptr_t>(static_cast<const char *>(src) + num) <='
+    echo '          reinterpret_cast<uintptr_t>(dst)) {'
+    echo '    return memcpy(dst, src, num);'
+    echo '  }'
+    echo '  if (reinterpret_cast<uintptr_t>(dst) < reinterpret_cast<uintptr_t>(src)) {'
+    echo '    auto *d = static_cast<unsigned char *>(dst);'
+    echo '    auto *s = static_cast<const unsigned char *>(src);'
+    echo '    while (num--) {'
+    echo '      *(d++) = *(s++);'
+    echo '    }'
+    echo '  }'
+    echo '  if (reinterpret_cast<uintptr_t>(src) < reinterpret_cast<uintptr_t>(dst)) {'
+    echo '    auto *d = static_cast<unsigned char *>(dst) + num;'
+    echo '    auto *s = static_cast<const unsigned char *>(src) + num;'
+    echo '    while (num--) {'
+    echo '      *(--d) = *(--s);'
+    echo '    }'
+    echo '  }'
+    echo '  return dst;'
+    echo '}'
+    echo ''
+    echo 'void *memset(void *ptr, int value, size_t num) {'
+    echo '  unsigned char *dst = static_cast<unsigned char *>(ptr);'
+    echo '  while (num--) {'
+    echo '    *(dst++) = (unsigned char)value;'
+    echo '  }'
+    echo '  return ptr;'
+    echo '}'
+    echo ''
+  fi
   echo "#ifdef __cplusplus"
   echo "};"
   echo "#endif"
@@ -1803,8 +1847,8 @@ function math_one_args()
 
   for func in acos acosh acospi asin asinh asinpi atan atanh atanpi cbrt ceil cos half_cos native_cos cosh cospi erfc erf exp half_exp native_exp exp2 half_exp2 native_exp2 exp10 half_exp10 native_exp10 expm1 fabs floor lgamma log half_log native_log log2 half_log2 native_log2 log10 half_log10 native_log10 log1p logb rint round rsqrt half_rsqrt native_rsqrt sin half_sin native_sin sinh sinpi sqrt half_sqrt native_sqrt tan half_tan native_tan tanh tanpi tgamma trunc half_recip native_recip
   do
-    # cl_khr_fp16 extension doesn't implement native_ or half_ maths builtins
-    if [[ "$type" == "half"* ]]
+    # cl_khr_fp16 and cl_khr_fp64 extensions don't implement native_ or half_ maths builtins
+    if [[ "$type" == "half"* || "$type" == "double"* ]]
     then
       if [[ "$func" == "native_"* ]] || [[ "$func" == "half_"* ]]
       then
@@ -1875,6 +1919,15 @@ function math_two_args()
 
   for func in atan2 atan2pi copysign half_divide native_divide fdim fmax fmin fmod hypot maxmag minmag nextafter pow powr half_powr native_powr remainder
   do
+    # cl_khr_fp16 and cl_khr_fp64 extensions don't implement native_ or half_ maths builtins
+    if [[ "$type" == "half"* || "$type" == "double"* ]]
+    then
+      if [[ "$func" == "native_"* ]] || [[ "$func" == "half_"* ]]
+      then
+        continue
+      fi
+    fi
+
     local body=";"
 
     if [[ "cl" == "$generated_output_type" ]]
@@ -2468,62 +2521,6 @@ function all_image() {
   fi
 }
 
-function all_extras()
-{
-  for i in $signedinttypes
-  do
-    for k in "" 2 3 4 8 16
-    do
-        for func in findLSB findMSB
-        do
-          echo "$i$k __CL_CONST_ATTRIBUTES $func($i$k x);"
-          echo "$i$k __CL_CONST_ATTRIBUTES $func(u$i$k x);"
-        done
-
-        echo "$i$k __CL_CONST_ATTRIBUTES bitfieldReverse($i$k x);"
-        echo "u$i$k __CL_CONST_ATTRIBUTES bitfieldReverse(u$i$k x);"
-    done
-  done
-
-  for i in $floattypes
-  do
-    half_support_begin $i
-    double_support_begin $i
-    for k in "" 2 3 4
-    do
-      echo "$i$k __CL_CONST_ATTRIBUTES faceforward($i$k n, $i$k i, $i$k nref);"
-      echo "$i$k __CL_CONST_ATTRIBUTES reflect($i$k n, $i$k i);"
-      for l in "half" "float"
-      do
-        half_support_begin $l
-        echo "$i$k __CL_CONST_ATTRIBUTES refract($i$k n, $i$k i, $l eta);"
-        half_support_end $l
-      done
-      if [[ "$i" == "double" ]]
-      then
-        echo "$i$k __CL_CONST_ATTRIBUTES refract($i$k n, $i$k i, double eta);"
-      fi
-    done
-    double_support_end $i
-    half_support_end $i
-  done
-
-  echo "uint __CL_CONST_ATTRIBUTES packSnorm4x8(float4 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packUnorm4x8(float4 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packSnorm2x16(float2 x);"
-  echo "uint __CL_CONST_ATTRIBUTES packUnorm2x16(float2 x) ;"
-  echo "uint __CL_CONST_ATTRIBUTES packHalf2x16(float2 x);"
-  echo "float4 __CL_CONST_ATTRIBUTES unpackSnorm4x8(uint x);"
-  echo "float4 __CL_CONST_ATTRIBUTES unpackUnorm4x8(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackSnorm2x16(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackUnorm2x16(uint x);"
-  echo "float2 __CL_CONST_ATTRIBUTES unpackHalf2x16(uint x);"
-  echo "float __CL_CONST_ATTRIBUTES quantizeToF16(float x);"
-  echo "float2 __CL_CONST_ATTRIBUTES quantizeToF16(float2 x);"
-  echo "float3 __CL_CONST_ATTRIBUTES quantizeToF16(float3 x);"
-  echo "float4 __CL_CONST_ATTRIBUTES quantizeToF16(float4 x);"
-}
-
 function quantize()
 {
   for k in "" 2 3 4
@@ -2654,11 +2651,6 @@ function output_for_type()
 
   # Image builtins
   all_image >> "$outputFile"
-
-  sand_line >> "$outputFile"
-
-  # Extra builtins
-  [[ "header" == "$generated_output_type" ]] && all_extras >> "$outputFile"
 
   sand_line >> "$outputFile"
 

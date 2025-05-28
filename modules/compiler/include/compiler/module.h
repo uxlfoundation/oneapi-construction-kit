@@ -476,7 +476,11 @@ struct DeviceInfo {
   spv::AddressingModel addressing_model;
   /// @brief Supported memory model.
   spv::MemoryModel memory_model;
-  /// @brief Size of a device memory address in bits (Vulkan only).
+
+  /// TODO: Review whether this is still needed as it was previously considered
+  /// to only be of use by Vulkan API which has been removed. It does use this
+  /// to set the spirv_ll::DeviceInfo information in base/source/module.cpp.
+  /// @brief Size of a device memory address in bits.
   uint32_t address_bits;
 };
 
@@ -496,23 +500,8 @@ struct SpecializationInfo {
   const void *data;
 };
 
-/// @brief Struct describing a descriptor binding.
-struct DescriptorBinding {
-  /// @brief Descriptor set number.
-  uint32_t set;
-  /// @brief Binding number within `set`.
-  uint32_t binding;
-
-  /// @brief Less than comparison operator to enable sort by binding.
-  bool operator<(const DescriptorBinding &other) const {
-    return set < other.set || (set == other.set && binding < other.binding);
-  }
-};
-
 /// @brief Information about a SPIR-V module after compilation.
 struct ModuleInfo {
-  /// @brief List of used descriptor bindings.
-  std::vector<DescriptorBinding> used_descriptor_bindings;
   /// @brief Work group size.
   std::array<uint32_t, 3> workgroup_size;
 };

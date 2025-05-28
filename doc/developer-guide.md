@@ -14,15 +14,11 @@ Kit build then uses this installation as a dependency.
 Current directory layout:
 
 * `source`: Contains source specific to implementing open standards, such as
-  OpenCL and Vulkan.
+  OpenCL.
   * `source/cl`: Encapsulates all source code which implements the OpenCL open
-    standard, this is an optional component and may not be present dependent on
-    license agreement.
+    standard.
     * `source/cl/source/extension/include`: This directory holds the headers
       for the Codeplay specific OpenCL extensions.
-  * `source/vk`: Encapsulates all source code which implements the Vulkan open
-    standard, this is an optional component and may not be present dependent on
-    license agreement.
 * `modules`: Contains shared _modules_ used in the implementation of the open
   standards in `source`. For details on the _modules_ layout in the [modules
   documentation](modules.md). Currently we have the following modules:
@@ -253,11 +249,6 @@ The builtin CMake options used when invoking CMake on the command line.
   relevant llvm headers and support tools, and their version must match
   a supported LLVM version.
 
-* `CA_ENABLE_API`: Semi-colon separated list of APIs to enable. Valid values
-  are `cl` for OpenCL, and `vk` for Vulkan. Enabling an API when an optional
-  component is not present dependent on license agreement will result in a CMake
-  error. The default is `cl;vk`.
-
 * `CA_BUILD_32_BITS`: Enable compiling in 32-bit mode on Linux, this requires
   to have the proper 32-bit toolchain installed. When used in combination with
   an external LLVM, the external LLVM also needs to be built in 32-bit mode.
@@ -315,7 +306,7 @@ The builtin CMake options used when invoking CMake on the command line.
  `RPATH` for all targets when they are installed using `CMAKE_INSTALL_RPATH`,
   this ensures that when the `install` target is invoked the user does not need
   to specify `LD_LIBRARY_PATH` to correctly execute a test binary in order to
-  use the installed OpenCL or Vulkan library. Do disable this behaviour set
+  use the installed OpenCL library. Do disable this behaviour set
   `-DCMAKE_SKIP_RPATH=ON` when configuring CMake in build directory.
 
 * `CA_HOST_TARGET_<arch>_CPU`, `CA_HOST_TARGET_<arch>_FEATURES`: These options
@@ -374,8 +365,8 @@ The builtin CMake options used when invoking CMake on the command line.
 
 #### oneAPI Construction Kit CMake Build Targets
 
-* `ComputeAorta`: Build the OpenCL and Vulkan libraries, if present, and all
-  their test suites.
+* `ComputeAorta`: Build the OpenCL library, if present, and all its test
+  suites.
 * `check-ock`/`check-ock-<target>`: Build and run all short running test
   suites, this selection of testing is used by continuous integration to verify
   a baseline of correctness, individual test suites can also be tested in
@@ -406,13 +397,6 @@ The builtin CMake options used when invoking CMake on the command line.
 * `OpenCLCTS`: Build the OpenCL library and all the CTS binaries.
 * `check-ock-cl`: Build and run various OpenCL test suites, primarily UnitCL and
   selected short running OpenCL CTS tests.
-
-##### oneAPI Construction Kit Vulkan CMake Build Targets
-
-* `VK`: Build only the Vulkan library, only available when Vulkan is enabled.
-* `UnitVK`: Build the UnitVK test suite, as well as the Vulkan library.
-* `VKICDManifest`: Generates the Vulkan ICD manifest, Linux only.
-* `check-ock-vk`: Build and run UnitVK and spirv-ll lit tests.
 
 ## Compiling
 
@@ -644,8 +628,7 @@ cmake --build %CD%\build-x86_64-Debug --target check --config Debug
 
 Compiling the oneAPI Construction Kit without LLVM is also referred to as an
 offline-only configuration or disabling the runtime compiler. In this mode the
-oneAPI Construction Kit does not include a JIT compiler for OpenCL, offline-only
-is currently not supported for Vulkan and is disabled in the configuration.
+oneAPI Construction Kit does not include a JIT compiler for OpenCL.
 
 #### Compiling the oneAPI Construction Kit without LLVM on Linux
 
@@ -662,8 +645,7 @@ cmake . -GNinja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=$PWD/build-offline/install \
   -DCA_RUNTIME_COMPILER_ENABLED=OFF \
-  -DCA_EXTERNAL_CLC=$ONEAPI_CON_KIT_INSTALL/bin/clc \
-  -DCA_ENABLE_API=cl
+  -DCA_EXTERNAL_CLC=$ONEAPI_CON_KIT_INSTALL/bin/clc
 ```
 
 Now the build directory is configured, build the `install` target.
@@ -688,8 +670,7 @@ cmake . -G"Visual Studio 16 2019 Win64" ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
   -DCA_RUNTIME_COMPILER_ENABLED=OFF ^
-  -DCA_EXTERNAL_CLC=%ONEAPI_CON_KIT_INSTALL%\bin\clc ^
-  -DCA_ENABLE_API=cl
+  -DCA_EXTERNAL_CLC=%ONEAPI_CON_KIT_INSTALL%\bin\clc
 ```
 
 Now the build directory is configured, build the `install` target. This can be
@@ -716,8 +697,7 @@ cmake . -GNinja ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_INSTALL_PREFIX=%CD%\build-offline\install ^
   -DCA_RUNTIME_COMPILER_ENABLED=OFF ^
-  -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF ^
-  -DCA_ENABLE_API=cl
+  -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF
 ```
 
 Then, install with:

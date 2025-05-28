@@ -6,7 +6,6 @@ Bin2H Module
 
   * :doc:`/modules/builtins` for embedding bitcode containing our device side
     builtin functions.
-  * :doc:`/source/vk/cmake/GLSL` for converting GLSL into emeddable SPIR-V
 
 .. cmake-module:: ../../cmake/Bin2H.cmake
 

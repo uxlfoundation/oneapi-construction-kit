@@ -52,7 +52,11 @@ struct DeviceInfo {
   spv::AddressingModel addressingModel;
   /// @brief Supported memory model.
   spv::MemoryModel memoryModel;
-  /// @brief Size of a device memory address in bits (Vulkan only).
+
+  /// TODO: Review whether this is still needed as it was previously considered
+  /// to only be of use by Vulkan API which has been removed. It does use this
+  /// to set the LLVM data layout in Builder::create<OpMemoryModel>
+  /// @brief Size of a device memory address in bits
   uint32_t addressBits;
 };
 

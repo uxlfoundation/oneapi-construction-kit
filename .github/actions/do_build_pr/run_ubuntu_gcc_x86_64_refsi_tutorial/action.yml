@@ -5,6 +5,14 @@ inputs:
   cache_seed:
     type: boolean
     default: false
+  setup_new_target_params:
+    type: string
+    # default to end - this is most reflective of what needs tested most
+    default: '-f "refsi_wrapper_pass;clmul;replace_mem"'
+  tutorial_point:
+    type: string
+    # default to end - set to start and use empty setup_new_target_flags for start for most use cases
+    default: 'end'
 
 runs:
   using: "composite"
@@ -18,23 +26,22 @@ runs:
           virtualenv newenv
           source newenv/bin/activate
           pip install cookiecutter
-          scripts/setup_new_target_tutorial.sh -s end -e $GITHUB_WORKSPACE/refsi_tutorial -f "refsi_wrapper_pass;clmul;replace_mem" $PWD
+          scripts/setup_new_target_tutorial.sh -s ${{ inputs.tutorial_point }} -e $GITHUB_WORKSPACE/refsi_tutorial ${{ inputs.setup_new_target_flags}} $PWD
 
       - name: build refsi_tutorial
         uses: ./.github/actions/do_build_ock
         with:
           build_targets: install
           mux_targets_enable: refsi_tutorial
-          use_linker: gold
           debug_support: ON
           offline_kernel_tests: OFF
           source_dir: $GITHUB_WORKSPACE/refsi_tutorial
           extra_flags: '-DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$GITHUB_WORKSPACE/refsi_tutorial/hal_refsi_tutorial'
 
-      - name: run test
-        if: inputs.cache_seed != 'true'
+      - name: run test (end only)
+        if: inputs.cache_seed != 'true' && inputs.tutorial_point == 'end'
         shell: bash
-         # Run just a quick UnitCL test for now, hal_tutorial causes some failures at present
+         # Run just a quick lit / UnitCL test for now, hal_tutorial causes some failures at present
         run: |
           ninja -Cbuild check-ock-refsi_tutorial-lit
           OCL_ICD_VENDORS=/dev/null OCL_ICD_FILENAMES=$PWD/build/oneAPIConstructionKit/lib/libCL.so \

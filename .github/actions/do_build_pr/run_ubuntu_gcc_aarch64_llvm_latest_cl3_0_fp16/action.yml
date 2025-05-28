@@ -18,8 +18,6 @@ runs:
         with:
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           host_fp16: ON
-          use_linker: gold
           debug_support: ON
           builtin_kernel: ON
-          enable_api: "cl"
           offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}

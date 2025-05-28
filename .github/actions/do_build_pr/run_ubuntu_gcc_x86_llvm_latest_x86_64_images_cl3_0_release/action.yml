@@ -20,7 +20,5 @@ runs:
           build_type: Release
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           host_image: ON
-          use_linker: gold
-          enable_api: ""
           builtin_kernel: ON
           offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}

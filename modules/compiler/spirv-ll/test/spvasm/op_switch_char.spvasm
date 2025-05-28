@@ -28,12 +28,12 @@
                OpName %res "res"
        %void = OpTypeVoid
           %3 = OpTypeFunction %void
-        %int = OpTypeInt 32 0
+       %uint = OpTypeInt 32 0
        %char = OpTypeInt 8 0
-%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Function_int = OpTypePointer Function %uint
 %_ptr_Function_char = OpTypePointer Function %char
-     %int_42 = OpConstant %int 42
-     %int_24 = OpConstant %int 24
+     %int_42 = OpConstant %uint 42
+     %int_24 = OpConstant %uint 24
     %char_42 = OpConstant %char 42
        %main = OpFunction %void None %3
           %5 = OpLabel
@@ -51,8 +51,8 @@
                OpStore %a %int_42
                OpBranch %13
          %13 = OpLabel
-         %19 = OpLoad %int %a
-         %20 = OpBitwiseXor %int %19 %int_42
+         %19 = OpLoad %uint %a
+         %20 = OpBitwiseXor %uint %19 %int_42
                OpStore %res %20
                OpReturn
                OpFunctionEnd

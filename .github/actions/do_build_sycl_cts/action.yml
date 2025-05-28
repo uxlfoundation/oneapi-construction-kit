@@ -98,7 +98,6 @@ runs:
         JOPT="4"
         ARCHOPT="x86_64"
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
-          JOPT="2" # needed for cp-graviton runner
           ARCHOPT="aarch64"
         fi
         EXCLUDE_SUBSET=""

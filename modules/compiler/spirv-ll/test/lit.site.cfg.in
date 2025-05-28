@@ -43,9 +43,6 @@ if config.explicitly_online_offline is not None:
 # If we've explicitly assembled the binaries offline but couldn't find the
 # tools, we know we can't run these tests, unless we're explicitly told to run
 # them online.
-if @GLSL_UNSUPPORTED@ and (config.offline and config.explicitly_online_offline != True):
-    config.available_features.add('no-glsl')
-    lit_config.note("Skipping glsl tests: in offline mode but GLSL wasn't found at build time")
 if @SPVASM_UNSUPPORTED@ and (config.offline and config.explicitly_online_offline != True):
     config.available_features.add('no-spvasm')
     lit_config.note("Skipping spvasm tests: in offline mode but SPVASM wasn't found at build time")

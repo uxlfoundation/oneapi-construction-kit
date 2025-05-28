@@ -42,7 +42,6 @@ development.
    cmake/ReleaseAssert
    cmake/Sanitizers
    source/cl/cmake
-   source/vk/cmake
    modules/mux/cmake
 
 .. _include:
@@ -86,20 +85,18 @@ hardware is unavailable.
 Shared Library Naming and Versioning
 ####################################
 
-Both OpenCL and Vulkan APIs are designed to work through an ICD loader, a
-shared library named ``OpenCL`` and ``Vulkan`` respectively in the form
-``lib<name>.so`` or ``<name>.dll``, depending on if the platform is Linux or
-Windows. The ICD loaders gets linked to application code so that at runtime the
-ICD loader will select the implementation of the standard to run
-and load the chosen shared library, allowing multiple platforms to coexist on
-the same system.
+The OpenCL API is designed to work through an ICD loader, a shared library named
+``OpenCL`` in the form ``lib<name>.so`` or ``<name>.dll``, depending on if the
+platform is Linux or Windows. The ICD loader gets linked to application code so
+that at runtime the ICD loader will select the implementation of the standard to
+run and load the chosen shared library, allowing multiple platforms to coexist
+on the same system.
 
-To avoid naming collisions with the ICD our OpenCL and Vulkan builds by default
-are named ``CL`` and ``VK``, however these can be overridden via the
-``CA_CL_LIBRARY_NAME`` and ``CA_VK_LIBRARY_NAME`` options. Providing customer
-teams with the flexibility to deliver on embedded systems without an ICD loader,
-where only our platform will exist and can be linked to directly by the
-application.
+To avoid naming collisions with the ICD our OpenCL builds by default are named
+``CL``, however this can be overridden via the ``CA_CL_LIBRARY_NAME`` option.
+This provides customer teams with the flexibility to deliver on embedded systems
+without an ICD loader, where only our platform will exist and can be linked to
+directly by the application.
 
 To act as the ICD loader, as well mimicking the library name we also need to
 replicate the library version. Shared libraries in CMake have two
@@ -108,11 +105,9 @@ versioning properties, a `VERSION`_ property for the build version and a
 ``major.minor``, where the major component is incremented on API breaking
 changes and minor for non-breaking API changes, e.g bug fixes. The `SOVERSION`_
 property can then be set as the major component of `VERSION`_. We default
-`VERSION`_ for both OpenCL and Vulkan to our oneAPI Construction Kit
+`VERSION`_ for both OpenCL to our oneAPI Construction Kit
 `PROJECT_VERSION`_, but provide the ``CA_CL_LIBRARY_VERSION`` option to
-override that behavior for OpenCL. We don't provide an equivalent CMake
-library version option for Vulkan as simulating the ICD loader is a use
-case that we have yet to encounter.
+override that behavior for OpenCL.
 
 On Linux an OpenCL build with our default options will result in the following
 symbolic links being created to the fully qualified shared library.

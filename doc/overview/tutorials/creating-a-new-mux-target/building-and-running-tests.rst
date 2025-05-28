@@ -29,7 +29,7 @@ Firstly we set up the `CMake` directive.
     $ export LLVM_INSTALL_DIR=<your_llvm_install_dir>
     $ export ONEAPI_CON_KIT_PATH=<your_oneapi_construction_kit_dir>    
     $ cmake -GNinja -DCA_MUX_TARGETS_TO_ENABLE="refsi_tutorial" \
-        -DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_ENABLE_API=cl \
+        -DCA_REFSI_TUTORIAL_ENABLED=ON \
         -DCMAKE_BUILD_TYPE=Debug \
         -DCA_LLVM_INSTALL_DIR=$LLVM_INSTALL_DIR \
         -DCA_ENABLE_DEBUG_SUPPORT=ON \
