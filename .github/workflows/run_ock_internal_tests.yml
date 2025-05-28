@@ -503,8 +503,8 @@ jobs:
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
     # installs tools, ninja, installs llvm and sets up ccache
     - name: setup-ubuntu
