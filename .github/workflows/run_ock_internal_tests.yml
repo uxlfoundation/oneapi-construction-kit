@@ -494,6 +494,9 @@ jobs:
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
   run-ubuntu-clang-x86-llvm-latest-cl3-0:
+    # ALAN TODO: restore non-PR status
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    #if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -513,10 +516,6 @@ jobs:
  #         github_token: ${{ secrets.GITHUB_TOKEN }}
  #   - name: build and run ock
  #     uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
-
- # ALAN TODO: restore non-PR status
- #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
- #if: contains(inputs.target_list, 'host_x86_64_linux')
 
  #Arch: x86
  #Compiler: 'clang-19'
