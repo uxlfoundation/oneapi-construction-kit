@@ -492,26 +492,26 @@ jobs:
            -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
         ninja -C build check-ock-vecz-lit
 
-  run-ubuntu-build-ock-in-tree-alan:
-    runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+ # run-ubuntu-build-ock-in-tree-alan:
+ #   runs-on: ubuntu-22.04
+ #   container:
+ #     image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+ #     volumes:
+ #       - ${{github.workspace}}:${{github.workspace}}
+ #   steps:
+ #     - name: Checkout repo
+ #       uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up ccache
-      - name: setup-ubuntu
-        uses:  ./.github/actions/setup_build
-        with:
-          llvm_version: ${{ inputs.llvm_current }}
-          cross_arch: x86
-          llvm_source: ${{ inputs.llvm_source}}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-    - name: build and run ock
-      uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
+ #     # installs tools, ninja, installs llvm and sets up ccache
+ #     - name: setup-ubuntu
+ #       uses:  ./.github/actions/setup_build
+ #       with:
+ #         llvm_version: ${{ inputs.llvm_current }}
+ #         cross_arch: x86
+ #         llvm_source: ${{ inputs.llvm_source}}
+ #         github_token: ${{ secrets.GITHUB_TOKEN }}
+ #   - name: build and run ock
+ #     uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
 
  # ALAN TODO: restore non-PR status
  #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
@@ -519,21 +519,21 @@ jobs:
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
  # run-ubuntu-clang-x86-llvm-latest-cl3-0:
 
-#Arch: x86
-#Compiler: 'clang-19'
-#Images: 'OFF'
-#python -u scripts/build.py -GNinja --verbose --clean
-#      --build_type $BuildType --arch $Arch --compiler $Compiler
-#      --artefact_name $LLVM_ARTEFACT_NAME --target $Target
-#      -DCA_CL_ENABLE_ICD_LOADER=ON
-#      -DCA_ENABLE_HOST_IMAGE_SUPPORT=$Images
-#      -DCA_HOST_ENABLE_BUILTIN_KERNEL=ON
-#      -DCA_HOST_ENABLE_BUILTINS_EXTENSION=ON
-#      -DCA_HOST_ENABLE_FP16=$FP16
-#      -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=OFF
-#      -DOCL_EXTENSION_cl_intel_unified_shared_memory=$USM
-#      -DOCL_EXTENSION_cl_khr_command_buffer=$CommandBuffer
-#      -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=$CommandBuffer
+ #Arch: x86
+ #Compiler: 'clang-19'
+ #Images: 'OFF'
+ #python -u scripts/build.py -GNinja --verbose --clean
+ #      --build_type $BuildType --arch $Arch --compiler $Compiler
+ #      --artefact_name $LLVM_ARTEFACT_NAME --target $Target
+ #      -DCA_CL_ENABLE_ICD_LOADER=ON
+ #      -DCA_ENABLE_HOST_IMAGE_SUPPORT=$Images
+ #      -DCA_HOST_ENABLE_BUILTIN_KERNEL=ON
+ #      -DCA_HOST_ENABLE_BUILTINS_EXTENSION=ON
+ #      -DCA_HOST_ENABLE_FP16=$FP16
+ #      -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=OFF
+ #      -DOCL_EXTENSION_cl_intel_unified_shared_memory=$USM
+ #      -DOCL_EXTENSION_cl_khr_command_buffer=$CommandBuffer
+ #      -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=$CommandBuffer
 
  # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
   run-ubuntu-gcc-x86-llvm-previous-cl3-0-release:
