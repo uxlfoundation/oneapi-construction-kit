@@ -432,9 +432,11 @@ if(TARGET ClangTools::clang-tidy)
     cmake_parse_arguments(ACT "" "" "DEPENDS" ${ARGN})
     if(TARGET tidy)
       foreach(entry ${ACT_UNPARSED_ARGUMENTS})
+        if(NOT entry MATCHES "\\.c(pp)?$")
+          continue()
+        endif()
         file(REAL_PATH "${entry}" entry BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-        get_filename_component(ext ${entry} EXT)
-        if(EXISTS ${entry} AND ext MATCHES "^\.c(pp)?$")
+        if(EXISTS ${entry})
           # In order to create a dependency graph for clang-tidy targets we
           # must use a symbolic file, this is a file which doesn't exist other
           # than to setup target dependencies.
