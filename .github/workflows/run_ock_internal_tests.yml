@@ -518,6 +518,7 @@ jobs:
       run: |
         echo PWD is `pwd`
         ls -la
+        ls -la llvm_install_native
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
 
