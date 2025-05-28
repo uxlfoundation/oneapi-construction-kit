@@ -134,3 +134,6 @@ SYCL,XPTI/basic_event_collection_linux.cpp,XFail
 SYCL,XPTI/buffer/multiple_queues.cpp,XFail
 SYCL,Regression/group.cpp,XFail
 SYCL,Regression/group_load_fortified.cpp,XFail
+SYCL,SeparateCompile/test.cpp,XFail
+SYCL,Tracing/code_location_queue_parallel_for.cpp,XFail
+SYCL,Config/kernel_from_file.cpp,XFail

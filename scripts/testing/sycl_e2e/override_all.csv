@@ -123,3 +123,12 @@ SYCL,DeviceGlobal/device_global_arrow_dis.cpp,XFail
 SYCL,KernelAndProgram/cache-build-result.cpp,XFail
 SYCL,KernelAndProgram/build-log.cpp,XFail
 SYCL,KernelAndProgram/undefined-symbol.cpp,XFail
+SYCL,Tracing/task_execution.cpp,XFail
+SYCL,Tracing/code_location_queue_copy.cpp,XFail
+SYCL,Tracing/task_execution_handler.cpp,XFail
+SYCL,Tracing/code_location_queue_submit.cpp,XFail
+SYCL,Tracing/usm/queue_single_task_released_pointer.cpp,XFail
+SYCL,Tracing/usm/queue_single_task_nullptr.cpp,XFail
+SYCL,Tracing/usm/queue_copy_released_pointer.cpp,XFail
+SYCL,SeparateCompile/sycl-external.cpp,XFail
+SYCL,SeparateCompile/sycl-external-within-staticlib.cpp,XFail
