@@ -495,45 +495,31 @@ jobs:
 
  # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-alan:
-    # ALAN TODO: restore non-PR status
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
-    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  #alan:
-  #  runs-on: ubuntu-22.04
-  #  container:
-  #    image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
-  #    volumes:
-  #      - ${{github.workspace}}:${{github.workspace}}
-  #  steps:
-  #    - name: Checkout repo
-  #      uses: actions/checkout@v4
-
-  #    # installs tools, ninja, installs llvm and sets up ccache
-  #    - name: setup-ubuntu
-  #      uses:  ./.github/actions/setup_build
-  #      with:
-  #        llvm_version: ${{ inputs.llvm_current }}
-  #        cross_arch: x86
-  #        llvm_source: ${{ inputs.llvm_source}}
-  #        github_token: ${{ secrets.GITHUB_TOKEN }}
-  #  - name: build and run ock
-  #    uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
+      # installs tools, ninja, installs llvm and sets up ccache
+      - name: setup-ubuntu
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_current }}
+          cross_arch: x86
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
 
  # ALAN TODO: restore non-PR status
  #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
  #if: contains(inputs.target_list, 'host_x86_64_linux')
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
  # run-ubuntu-clang-x86-llvm-latest-cl3-0:
-
 
 #Arch: x86
 #Compiler: 'clang-19'
