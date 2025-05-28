@@ -514,6 +514,10 @@ jobs:
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build
+      run: |
+        ECHO PWD is $PWD
+        ls -la
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
 
