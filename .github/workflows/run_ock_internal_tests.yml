@@ -492,8 +492,6 @@ jobs:
            -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
         ninja -C build check-ock-vecz-lit
 
-
- # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-alan:
     runs-on: ubuntu-22.04
     container:
