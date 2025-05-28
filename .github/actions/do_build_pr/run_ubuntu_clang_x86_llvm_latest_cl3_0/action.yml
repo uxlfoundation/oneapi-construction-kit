@@ -1,0 +1,24 @@
+name: build_pr_ubuntu_clang_x86_llvm_latest_cl3_0
+description: Build pr ubuntu_clang_x86_llvm_latest_cl3_0
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build build_offline install_offline
+
+      - name: build ock x86 relassert
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_32_bit: ON
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
+          builtin_kernel: ON
+          debug_support: ON
+          offline_kernel_tests: 'OFF'
