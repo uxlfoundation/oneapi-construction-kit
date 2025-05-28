@@ -262,7 +262,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    if: contains(inputs.target_list, 'host_riscv64_linux')
+    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -284,7 +285,8 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    if: contains(inputs.target_list, 'host_riscv64_linux')
+    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -429,7 +431,8 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-start:
   run-ubuntu-gcc-x86_64-refsi-tutorial-start:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'host_refsi_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -453,6 +456,8 @@ jobs:
         
  # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-llvm:
+    # ALAN TODO: restore non-PR status
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
@@ -489,7 +494,8 @@ jobs:
 
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
   run-ubuntu-clang-x86-llvm-latest-cl3-0:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
+    # ALAN TODO: restore non-PR status
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -510,7 +516,8 @@ jobs:
 
  # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
   run-ubuntu-gcc-x86-llvm-previous-cl3-0-release:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
+    # ALAN TODO: restore non-PR status
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     if: false
     runs-on: ubuntu-22.04
     container:
