@@ -31,9 +31,9 @@ jobs:
       # ock: true
       # native_cpu: false
       test_tornado: false
-      # test_sycl_cts: true
-      # test_sycl_e2e: false
-      # test_opencl_cts: false
+      test_sycl_cts: true
+      test_sycl_e2e: false
+      test_opencl_cts: false
       run_internal: false
       # run_external: true
       # build_llvm: true
@@ -41,6 +41,6 @@ jobs:
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
       # # e.g. https://github.com/uxlfoundation/oneapi-construction-kit/actions/runs/<run-id>/.....
-      # download_ock_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
-      # download_dpcpp_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
-      # download_sycl_cts_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
+      download_ock_artefact: host_x86_64_linux=15331365357;host_aarch64_linux=15331365357;host_riscv64_linux=15331365357
+      download_dpcpp_artefact: host_x86_64_linux=15331365357;host_aarch64_linux=15331365357;host_riscv64_linux=15331365357
+      download_sycl_cts_artefact: host_x86_64_linux=15331365357;host_aarch64_linux=15331365357;host_riscv64_linux=15331365357
