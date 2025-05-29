@@ -1434,7 +1434,7 @@ function(add_ca_lit_check target comment)
     list(APPEND LIT_ARGS "--param" emulator="${CMAKE_CROSSCOMPILING_EMULATOR}")
   endif()
 
-  set(LIT_COMMAND "${PYTHON_EXECUTABLE};${CA_LIT_PATH}")
+  set(LIT_COMMAND "${Lit_PYTHON_EXECUTABLE};${CA_LIT_PATH}")
   list(APPEND LIT_COMMAND ${LIT_ARGS})
   foreach(param ${args_PARAMS})
     list(APPEND LIT_COMMAND --param ${param})
