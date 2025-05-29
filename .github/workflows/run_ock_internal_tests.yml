@@ -515,7 +515,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: List
       run: |
-        ls -lR llvm_install
+        ls -lR llvm_install/
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
 
