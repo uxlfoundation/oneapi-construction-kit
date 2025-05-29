@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! @Lit_PYTHON_EXECUTABLE@
 # -*- coding: utf-8 -*-
 
 """ A convenience testing wrapper which allows running of lit tests directly
