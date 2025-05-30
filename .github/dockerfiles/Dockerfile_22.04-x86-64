@@ -14,12 +14,6 @@ RUN dpkg --add-architecture riscv64
 # The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
 RUN sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
 
-# Add VulkanSDK latest package repository
-RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
-RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list
-# Sync the two above package repositories
-RUN apt-get update
-
 # Add clang-tidy
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
@@ -30,8 +24,6 @@ RUN apt-get install --yes clang-tidy-19
 
 # Install minimum requirements
 RUN apt-get install --yes cmake libtinfo-dev
-# Install vulkan-sdk
-RUN apt-get install --yes vulkan-sdk
 # Install 32-bit requirements
 RUN apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev lib32ncurses-dev
 # Install Arm requirements

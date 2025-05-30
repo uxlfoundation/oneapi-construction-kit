@@ -65,7 +65,7 @@ jobs:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -100,7 +100,7 @@ jobs:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
@@ -114,6 +114,12 @@ jobs:
           llvm_version: ${{ inputs.llvm_current }}
           llvm_source: ${{ inputs.llvm_source}}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Install requirements
+      - name: Install clang-tidy and parallel
+        run:
+          sudo apt-get install --yes clang-tidy-19 parallel
+
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
         with:
@@ -193,7 +199,7 @@ jobs:
     if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -215,7 +221,7 @@ jobs:
     if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 90 # offline needs longer timeout
@@ -237,7 +243,7 @@ jobs:
     if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -258,7 +264,7 @@ jobs:
     if: contains(inputs.target_list, 'host_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -280,7 +286,7 @@ jobs:
     if: contains(inputs.target_list, 'host_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -305,7 +311,7 @@ jobs:
     if: contains(inputs.target_list, 'host_i686_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -348,7 +354,7 @@ jobs:
     if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -373,7 +379,7 @@ jobs:
     if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -399,7 +405,7 @@ jobs:
     if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
@@ -420,7 +426,7 @@ jobs:
     if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      image: ghcr.io/coldav/ock_ubuntu_22.04:base
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
     timeout-minutes: 60
