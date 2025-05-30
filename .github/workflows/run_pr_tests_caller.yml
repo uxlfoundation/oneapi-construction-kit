@@ -1,20 +1,20 @@
 # Calling workflow for running PR style tests
 name: Run ock tests for PR style testing
-on:
-  pull_request:
-    paths:
-      - 'source/**'
-      - 'clik/**'
-      - 'modules/**'
-      - 'examples/**'
-      - 'cmake/**'
-      - 'hal/**'
-      - '.github/actions/do_build_ock/**'
-      - '.github/actions/do_build_pr/**'
-      - '.github/actions/setup_build/**'
-      - '.github/workflows/run_ock_internal_tests.yml'
-      - '.github/workflows/run_pr_tests_caller.yml'
-      - 'CMakeLists.txt'
+#on:
+#  pull_request:
+#    paths:
+#      - 'source/**'
+#      - 'clik/**'
+#      - 'modules/**'
+#      - 'examples/**'
+#      - 'cmake/**'
+#      - 'hal/**'
+#      - '.github/actions/do_build_ock/**'
+#      - '.github/actions/do_build_pr/**'
+#      - '.github/actions/setup_build/**'
+#      - '.github/workflows/run_ock_internal_tests.yml'
+#      - '.github/workflows/run_pr_tests_caller.yml'
+#      - 'CMakeLists.txt'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

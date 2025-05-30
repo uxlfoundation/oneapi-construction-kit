@@ -480,7 +480,7 @@ jobs:
       with:
         repository: llvm/llvm-project
         path: llvm-project
-        ref: release/20.x  # ALAN TODO: can I use llvm_current instead of '20' here?
+        ref: release/20.x  # ALAN TODO: use llvm_current instead of a hard-wired number here
         fetch-depth: 1
     - name: Build
       run: |
@@ -514,28 +514,8 @@ jobs:
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
-    - name: List
-      run: |
-        ls -lR llvm_install/ || echo NO llvm_install
-        ls -lR llvm_install_native/ || echo NO llvm_install_native
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
-
- #Arch: x86
- #Compiler: 'clang-19'
- #Images: 'OFF'
- #python -u scripts/build.py -GNinja --verbose --clean
- #      --build_type $BuildType --arch $Arch --compiler $Compiler
- #      --artefact_name $LLVM_ARTEFACT_NAME --target $Target
- #      -DCA_CL_ENABLE_ICD_LOADER=ON
- #      -DCA_ENABLE_HOST_IMAGE_SUPPORT=$Images
- #      -DCA_HOST_ENABLE_BUILTIN_KERNEL=ON
- #      -DCA_HOST_ENABLE_BUILTINS_EXTENSION=ON
- #      -DCA_HOST_ENABLE_FP16=$FP16
- #      -DCA_ASSEMBLE_SPIRV_LL_LIT_TESTS_OFFLINE=OFF
- #      -DOCL_EXTENSION_cl_intel_unified_shared_memory=$USM
- #      -DOCL_EXTENSION_cl_khr_command_buffer=$CommandBuffer
- #      -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=$CommandBuffer
 
  # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
   run-ubuntu-gcc-x86-llvm-previous-cl3-0-release:
