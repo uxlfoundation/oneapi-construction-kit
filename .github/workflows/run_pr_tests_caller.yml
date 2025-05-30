@@ -1,6 +1,9 @@
 # Calling workflow for running PR style tests
 name: Run ock tests for PR style testing
 on:
+  pull_request:
+    paths:
+      - 'dummy'
 #  pull_request:
 #    paths:
 #      - 'source/**'
