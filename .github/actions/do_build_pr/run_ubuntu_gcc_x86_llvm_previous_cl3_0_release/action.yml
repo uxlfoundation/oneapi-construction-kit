@@ -1,5 +1,5 @@
-name: build_pr_ubuntu_clang_x86_llvm_latest_cl3_0
-description: Build pr ubuntu_clang_x86_llvm_latest_cl3_0
+name: build_pr_ubuntu_gcc_x86_llvm_previous_cl3_0_release
+description: Build pr ubuntu_gcc_x86_llvm_previous_cl3_0_release
 
 inputs:
   cache_seed:

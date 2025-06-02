@@ -1,0 +1,29 @@
+name: build_pr_ubuntu_gcc_x86_64_cpu
+description: Build pr ubuntu_gcc_x86_64_cpu
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: setup env and create target
+        shell: bash  
+        run: |
+          rm -rf build
+          virtualenv newenv
+          source newenv/bin/activate
+          pip install cookiecutter
+          python3 -u scripts/create_target.py $PWD scripts/new_target_templates/cpu_x86.json --external-dir /cpu_hal_ock
+
+      #- name: build refsi_tutorial
+      #  uses: ./.github/actions/do_build_ock
+      #  with:
+      #    build_targets: install
+      #    mux_targets_enable: refsi_tutorial
+      #    debug_support: ON
+      #    offline_kernel_tests: OFF
+      #    source_dir: $GITHUB_WORKSPACE/refsi_tutorial
+      #    extra_flags: '-DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$GITHUB_WORKSPACE/refsi_tutorial/hal_refsi_tutorial'
