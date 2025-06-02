@@ -23,7 +23,4 @@ runs:
           debug_support: ON
           offline_kernel_tests: 'OFF'
           toolchain_file: $GITHUB_WORKSPACE/platform/x86-linux/x86-toolchain.cmake
-          extra_flags: -DCMAKE_CROSSCOMPILING=TRUE -DCA_EXTERNAL_BUILTINS=FALSE \
-                       -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin \
-                       -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang \
-                       -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
+          extra_flags: -DCMAKE_CROSSCOMPILING=TRUE -DCA_EXTERNAL_BUILTINS=FALSE -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin -DCMAKE_C_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm_install/bin/clang++
