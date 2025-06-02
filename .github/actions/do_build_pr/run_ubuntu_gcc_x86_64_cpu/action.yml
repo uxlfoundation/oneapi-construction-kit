@@ -25,6 +25,11 @@ runs:
           echo cpu_hal_ock && ls -l /cpu_hal_ock
           echo GITHUB_WORKSPACE && ls -l $GITHUB_WORKSPACE
           echo llvm_install && ls -l $GITHUB_WORKSPACE/llvm_install
+
+          mkdir /cpu_hal_ock/build/
+          mv $GITHUB_WORKSPACE/llvm_install /cpu_hal_ock/build/llvm
+          echo llvm_install && ls -l /cpu_hal_ock/build/llvm
+
           cmake -G Ninja -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF -DCA_ENABLE_API=cl -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_MUX_TARGETS_TO_ENABLE=cpu -DCA_CPU_ENABLED=ON -DCA_USE_LINKER=gold -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_CPU_HAL_DIR=$GITHUB_WORKSPACE/clik/external/hal_cpu -DCMAKE_INSTALL_PREFIX=/cpu_hal_ock/build/install -DCA_LLVM_INSTALL_DIR=/cpu_hal_ock/build/llvm -DCMAKE_BUILD_TYPE=ReleaseAssert -DCA_ENABLE_DEBUG_SUPPORT=ON -DCA_BUILTINS_TOOLS_DIR=/cpu_hal_ock/build/llvm/llvm_tools/bin -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCA_GTEST_LAUNCHER=/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py /cpu_hal_ock
 
 #cmake -GNinja -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF -DCA_ENABLE_API=cl -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_MUX_TARGETS_TO_ENABLE=cpu -DCA_CPU_ENABLED=ON -DCA_USE_LINKER=gold -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit -DCA_EXTERNAL_CPU_HAL_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/clik/external/hal_cpu -DCMAKE_INSTALL_PREFIX=/cpu_hal_ock/build/install -DCA_LLVM_INSTALL_DIR=/cpu_hal_ock/build/llvm -DCMAKE_BUILD_TYPE=ReleaseAssert -DCA_ENABLE_DEBUG_SUPPORT=ON -DCA_BUILTINS_TOOLS_DIR=/cpu_hal_ock/build/llvm/llvm_tools/bin -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCA_GTEST_LAUNCHER=/usr/bin/python3;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py /cpu_hal_ock
