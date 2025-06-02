@@ -20,7 +20,7 @@ runs:
           build_32_bit: ON
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           builtin_kernel: ON
-          build_type: Release # ALAN TODO: supported?
+          build_type: Release
           toolchain_file: $GITHUB_WORKSPACE/platform/x86-linux/x86-toolchain.cmake
           offline_kernel_tests: 'OFF'
           extra_flags: -DCMAKE_CROSSCOMPILING=TRUE -DCA_EXTERNAL_BUILTINS=FALSE -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin
