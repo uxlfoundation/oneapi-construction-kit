@@ -482,7 +482,7 @@ jobs:
         path: llvm-project
         ref: release/20.x  # ALAN TODO: use llvm_current instead of a hard-wired number here
         fetch-depth: 1
-    - name: Build
+    - name: build and run
       run: |
         # Position llvm-project alongside ock
         mv llvm-project ..
@@ -495,7 +495,6 @@ jobs:
  # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
   run-ubuntu-clang-x86-llvm-latest-cl3-0:
     # ALAN TODO: restore non-PR status
-    # ALAN TODO: test clang
     #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
@@ -566,6 +565,10 @@ jobs:
         llvm_version: ${{ inputs.llvm_current }}
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: setup target
+      run: |
+        pip install cookiecutter
+        python -u scripts/create_target.py $PWD scripts/new_target_templates/cpu_x86.json --external-dir /cpu_hal_ock
 
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
   run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
