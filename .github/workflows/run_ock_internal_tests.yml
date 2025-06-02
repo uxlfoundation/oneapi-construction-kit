@@ -567,6 +567,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: setup env and create target
       # ALAN TODO: move to step in action ??
+      shell: bash
       run: |
         virtualenv newenv
         source newenv/bin/activate
