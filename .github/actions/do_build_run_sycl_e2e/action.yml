@@ -71,5 +71,7 @@ runs:
              -o override_combined.csv -vv
         # We need the LD_LIBRARY_PATH for the ICD, but it does no harm for native_cpu
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GITHUB_WORKSPACE/install_icd/lib:$GITHUB_WORKSPACE/install_dpcpp/lib
+        # Some e2e tests expect binaries to be in the path.
+        export PATH=$GITHUB_WORKSPACE/install_dpcpp/bin:$PATH
         python3 -u scripts/testing/run_cities.py -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so -p lit \
-                --lit_dir build_e2e --timeout ${{ inputs.timeout }} -o override_combined.csv
+                --lit_dir build_e2e --timeout ${{ inputs.timeout }} -o override_combined.csv -b $GITHUB_WORKSPACE/install_dpcpp/bin
