@@ -17,6 +17,7 @@ runs:
           source newenv/bin/activate
           pip install cookiecutter
           python3 -u scripts/create_target.py $PWD scripts/new_target_templates/cpu_x86.json --external-dir /cpu_hal_ock
+          ls -l /cpu_hal_ock
 
       #- name: build refsi_tutorial
       #  uses: ./.github/actions/do_build_ock
@@ -27,3 +28,25 @@ runs:
       #    offline_kernel_tests: OFF
       #    source_dir: $GITHUB_WORKSPACE/refsi_tutorial
       #    extra_flags: '-DCA_REFSI_TUTORIAL_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_REFSI_TUTORIAL_HAL_DIR=$GITHUB_WORKSPACE/refsi_tutorial/hal_refsi_tutorial'
+
+#variables:
+#    # We run check-UnitCL here rather then the full check-ComputeAorta target as there is issues
+#    # with check-UnitCL-vecz that need to be addressed for generated targets.
+#    TARGET: check-ock-UnitCL
+#    ONEAPI_CON_KIT_DIR: $CI_PROJECT_DIR/oneapi-construction-kit
+#  script:
+#    - *clone_ock
+#    - pip install cookiecutter
+#    - python -u scripts/create_target.py $PWD scripts/new_target_templates/cpu_x86.json --external-dir /cpu_hal_ock
+#    - cd /cpu_hal_ock
+#    - $ONEAPI_CON_KIT_DIR/scripts/build.py -Bbuild -GNinja --verbose --clean
+#      --build_type ReleaseAssert --artefact_name $LLVM_ARTEFACT_NAME
+#      --target $TARGET
+#      --source_dir $PWD
+#      -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF
+#      -DCA_CL_ENABLE_ICD_LOADER=ON
+#      -DCA_MUX_TARGETS_TO_ENABLE="cpu"
+#      -DCA_CPU_ENABLED=ON
+#      -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=ON
+#      -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$ONEAPI_CON_KIT_DIR
+#      -DCA_EXTERNAL_CPU_HAL_DIR=$ONEAPI_CON_KIT_DIR/clik/external/hal_cpu
