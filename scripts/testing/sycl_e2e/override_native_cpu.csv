@@ -34,11 +34,9 @@ SYCL,Reduction/reduction_big_data.cpp,XFail
 SYCL,QueueFlushing/queue_flushing.cpp,XFail
 SYCL,SpecConstants/2020/handler-api.cpp,XFail
 SYCL,DeviceImageBackendContent/basic_test.cpp,XFail
-SYCL,Experimental/launch_queries/max_num_work_groups.cpp,XFail
 SYCL,Experimental/launch_queries/max_sub_group_size.cpp,XFail
 SYCL,DeviceCodeSplit/split-per-kernel.cpp,XFail
 SYCL,DeviceCodeSplit/split-per-source-main.cpp,XFail
-SYCL,syclcompat/util/max_active_work_groups_per_cu.cpp,XFail
 SYCL,syclcompat/device/device.cpp,XFail
 SYCL,syclcompat/math/math_compare.cpp,XFail
 SYCL,OptionalKernelFeatures/is_compatible/is_compatible_spir64.cpp,XFail
