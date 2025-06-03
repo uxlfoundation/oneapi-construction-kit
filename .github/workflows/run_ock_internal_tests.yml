@@ -568,8 +568,7 @@ jobs:
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
   run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
     runs-on: windows-2019
-    #if: contains(inputs.target_list, 'host_x86_64_windows')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
     - name: Setup Windows llvm base
       uses: llvm/actions/setup-windows@main
