@@ -27,6 +27,7 @@ env:
 concurrency:
   group: pr-test-cache-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+permissions: {}
 jobs:
   ubuntu_22_llvm_prev_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
