@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <thread>
+
 #include "../src/timers.h"
 #include "benchmark/benchmark.h"
 #include "output_test.h"
@@ -21,8 +22,9 @@ void MyBusySpinwait() {
     const auto elapsed = now - start;
 
     if (std::chrono::duration<double, std::chrono::seconds::period>(elapsed) >=
-        time_frame)
+        time_frame) {
       return;
+    }
   }
 }
 
@@ -181,4 +183,8 @@ BENCHMARK(BM_MainThreadAndWorkerThread)
 // ---------------------------- TEST CASES END ----------------------------- //
 // ========================================================================= //
 
-int main(int argc, char* argv[]) { RunOutputTests(argc, argv); }
+int main(int argc, char* argv[]) {
+  benchmark::MaybeReenterWithoutASLR(argc, argv);
+
+  RunOutputTests(argc, argv);
+}

@@ -76,6 +76,7 @@ if(NOT (CMAKE_CROSSCOMPILING AND CA_PLATFORM_WINDOWS AND
     benchmark/src/benchmark_name.cc
     benchmark/src/benchmark_register.cc
     benchmark/src/benchmark_runner.cc
+    benchmark/src/check.cc
     benchmark/src/colorprint.cc
     benchmark/src/commandlineflags.cc
     benchmark/src/complexity.cc
@@ -85,13 +86,12 @@ if(NOT (CMAKE_CROSSCOMPILING AND CA_PLATFORM_WINDOWS AND
     benchmark/src/json_reporter.cc
     benchmark/src/perf_counters.cc
     benchmark/src/reporter.cc
-    benchmark/src/sleep.cc
     benchmark/src/statistics.cc
     benchmark/src/string_util.cc
     benchmark/src/sysinfo.cc
     benchmark/src/timers.cc)
   set_target_properties(ca-benchmark PROPERTIES
-    CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+    CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
   target_include_directories(ca-benchmark SYSTEM
     PUBLIC benchmark/include PRIVATE benchmark/src)
   target_compile_definitions(ca-benchmark PRIVATE HAVE_STD_REGEX)

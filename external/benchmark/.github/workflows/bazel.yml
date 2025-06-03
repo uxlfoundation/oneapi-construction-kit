@@ -4,22 +4,29 @@ on:
   push: {}
   pull_request: {}
 
+env:
+  CMAKE_GENERATOR: Ninja
+
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    
+  build_and_test_default:
+    name: bazel.${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: mount bazel cache
-      uses: actions/cache@v2.0.0
+      uses: actions/cache@v4
       env:
         cache-name: bazel-cache
       with:
         path: "~/.cache/bazel"
-        key: ${{ env.cache-name }}-${{ runner.os }}-${{ github.ref }}
+        key: ${{ env.cache-name }}-${{ matrix.os }}-${{ github.ref }}
         restore-keys: |
-          ${{ env.cache-name }}-${{ runner.os }}-main
+          ${{ env.cache-name }}-${{ matrix.os }}-main
 
     - name: build
       run: |
