@@ -587,5 +587,5 @@ jobs:
         llvm_source: ${{ inputs.llvm_source }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build and test ock
-        uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_images
+    - name: build and test ock
+      uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_images
