@@ -16,6 +16,9 @@ on:
       - '.github/workflows/run_pr_tests_caller.yml'
       - 'CMakeLists.txt'
 
+permissions:
+  packages: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
