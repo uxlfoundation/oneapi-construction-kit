@@ -10,9 +10,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
-  attestations: write
-  id-token: write
 
 env:
   REGISTRY: ghcr.io/uxlfoundation
@@ -21,6 +18,10 @@ jobs:
 
   publish-docker-images-x86-64:
     runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      id-token: write
+      packages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -40,6 +41,10 @@ jobs:
 
   publish-docker-images-aarch64:
     runs-on: ubuntu-22.04-arm
+    permissions:
+      attestations: write
+      id-token: write
+      packages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
