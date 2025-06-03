@@ -480,7 +480,7 @@ jobs:
       with:
         repository: llvm/llvm-project
         path: llvm-project
-        ref: release/20.x  # ALAN TODO: use llvm_current instead of a hard-wired number here
+        ref: release/${{ inputs.llvm_current }}.x  # ALAN TODO: use llvm_current instead of a hard-wired number here
         fetch-depth: 1
     - name: build and run
       run: |
@@ -543,9 +543,6 @@ jobs:
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_llvm_previous_cl3_0_release
 
-#
-# HERE
-#
  # Based on: mr-ubuntu-gcc-x86_64-cpu
   run-ubuntu-gcc-x86_64-cpu:
     if: contains(inputs.target_list, 'host_x86_64_linux')
@@ -568,6 +565,9 @@ jobs:
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_cpu
 
+#
+# HERE
+#
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
   run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
     runs-on: windows-2019
