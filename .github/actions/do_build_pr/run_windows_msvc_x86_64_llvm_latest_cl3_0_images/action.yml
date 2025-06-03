@@ -1,0 +1,28 @@
+name: build_pr_windows_msvc_x86_64_llvm_latest_cl3_0_images
+description: Build pr windows_msvc_x86_64_llvm_latest_cl3_0_images
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+  is_pull_request:
+    type: boolean
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: remove any old dirs
+      shell: bash  
+      run:
+        rm -rf build
+
+    - name: build ock x86_64
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL' || 'check-ock' }}
+        host_image: ON
+        shell_to_use: pwsh
+        gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
+        debug_support: ON
+        extra_flags: -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin
