@@ -18,12 +18,14 @@ ADD_CASES(TC_ConsoleOut,
       {"^BM_Counters_Tabular/repeats:2/threads:1 %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:1_mean %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:1_median %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
-      {"^BM_Counters_Tabular/repeats:2/threads:1_stddev %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
+            {"^BM_Counters_Tabular/repeats:2/threads:1_stddev %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
+            {"^BM_Counters_Tabular/repeats:2/threads:1_cv %console_percentage_report [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*%$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:2 %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:2 %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:2_mean %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
       {"^BM_Counters_Tabular/repeats:2/threads:2_median %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
-      {"^BM_Counters_Tabular/repeats:2/threads:2_stddev %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
+            {"^BM_Counters_Tabular/repeats:2/threads:2_stddev %console_report [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat [ ]*%hrfloat$", MR_Next},
+            {"^BM_Counters_Tabular/repeats:2/threads:2_cv %console_percentage_report [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*% [ ]*%percentage[ ]*%$", MR_Next},
     {"^BM_CounterRates_Tabular/threads:%int %console_report [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s$", MR_Next},
     {"^BM_CounterRates_Tabular/threads:%int %console_report [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s$", MR_Next},
     {"^BM_CounterRates_Tabular/threads:%int %console_report [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s [ ]*%hrfloat/s$", MR_Next},
@@ -61,6 +63,10 @@ ADD_CASES(TC_CSVOut, {{"%csv_header,"
 
 void BM_Counters_Tabular(benchmark::State& state) {
   for (auto _ : state) {
+    // This test requires a non-zero CPU time to avoid divide-by-zero
+    auto iterations = static_cast<double>(state.iterations()) *
+                      static_cast<double>(state.iterations());
+    benchmark::DoNotOptimize(iterations);
   }
   namespace bm = benchmark;
   state.counters.insert({
@@ -125,6 +131,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"mean\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": %int,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -146,6 +153,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"median\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": %int,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -167,6 +175,29 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"stddev\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
+           {"\"iterations\": %int,$", MR_Next},
+           {"\"real_time\": %float,$", MR_Next},
+           {"\"cpu_time\": %float,$", MR_Next},
+           {"\"time_unit\": \"ns\",$", MR_Next},
+           {"\"Bar\": %float,$", MR_Next},
+           {"\"Bat\": %float,$", MR_Next},
+           {"\"Baz\": %float,$", MR_Next},
+           {"\"Foo\": %float,$", MR_Next},
+           {"\"Frob\": %float,$", MR_Next},
+           {"\"Lob\": %float$", MR_Next},
+           {"}", MR_Next}});
+ADD_CASES(TC_JSONOut,
+          {{"\"name\": \"BM_Counters_Tabular/repeats:2/threads:1_cv\",$"},
+           {"\"family_index\": 0,$", MR_Next},
+           {"\"per_family_instance_index\": 0,$", MR_Next},
+           {"\"run_name\": \"BM_Counters_Tabular/repeats:2/threads:1\",$",
+            MR_Next},
+           {"\"run_type\": \"aggregate\",$", MR_Next},
+           {"\"repetitions\": 2,$", MR_Next},
+           {"\"threads\": 1,$", MR_Next},
+           {"\"aggregate_name\": \"cv\",$", MR_Next},
+           {"\"aggregate_unit\": \"percentage\",$", MR_Next},
            {"\"iterations\": %int,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -231,6 +262,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 2,$", MR_Next},
            {"\"aggregate_name\": \"median\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": %int,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -252,6 +284,29 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 2,$", MR_Next},
            {"\"aggregate_name\": \"stddev\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
+           {"\"iterations\": %int,$", MR_Next},
+           {"\"real_time\": %float,$", MR_Next},
+           {"\"cpu_time\": %float,$", MR_Next},
+           {"\"time_unit\": \"ns\",$", MR_Next},
+           {"\"Bar\": %float,$", MR_Next},
+           {"\"Bat\": %float,$", MR_Next},
+           {"\"Baz\": %float,$", MR_Next},
+           {"\"Foo\": %float,$", MR_Next},
+           {"\"Frob\": %float,$", MR_Next},
+           {"\"Lob\": %float$", MR_Next},
+           {"}", MR_Next}});
+ADD_CASES(TC_JSONOut,
+          {{"\"name\": \"BM_Counters_Tabular/repeats:2/threads:2_cv\",$"},
+           {"\"family_index\": 0,$", MR_Next},
+           {"\"per_family_instance_index\": 1,$", MR_Next},
+           {"\"run_name\": \"BM_Counters_Tabular/repeats:2/threads:2\",$",
+            MR_Next},
+           {"\"run_type\": \"aggregate\",$", MR_Next},
+           {"\"repetitions\": 2,$", MR_Next},
+           {"\"threads\": 2,$", MR_Next},
+           {"\"aggregate_name\": \"cv\",$", MR_Next},
+           {"\"aggregate_unit\": \"percentage\",$", MR_Next},
            {"\"iterations\": %int,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -279,6 +334,9 @@ ADD_CASES(TC_CSVOut,
           {{"^\"BM_Counters_Tabular/repeats:2/threads:1_stddev\",%csv_report,"
             "%float,%float,%float,%float,%float,%float$"}});
 ADD_CASES(TC_CSVOut,
+          {{"^\"BM_Counters_Tabular/repeats:2/threads:1_cv\",%csv_cv_report,"
+            "%float,%float,%float,%float,%float,%float$"}});
+ADD_CASES(TC_CSVOut,
           {{"^\"BM_Counters_Tabular/repeats:2/threads:2\",%csv_report,"
             "%float,%float,%float,%float,%float,%float$"}});
 ADD_CASES(TC_CSVOut,
@@ -292,6 +350,9 @@ ADD_CASES(TC_CSVOut,
             "%float,%float,%float,%float,%float,%float$"}});
 ADD_CASES(TC_CSVOut,
           {{"^\"BM_Counters_Tabular/repeats:2/threads:2_stddev\",%csv_report,"
+            "%float,%float,%float,%float,%float,%float$"}});
+ADD_CASES(TC_CSVOut,
+          {{"^\"BM_Counters_Tabular/repeats:2/threads:2_cv\",%csv_cv_report,"
             "%float,%float,%float,%float,%float,%float$"}});
 // VS2013 does not allow this function to be passed as a lambda argument
 // to CHECK_BENCHMARK_RESULTS()
@@ -315,7 +376,9 @@ CHECK_BENCHMARK_RESULTS("BM_Counters_Tabular/repeats:2/threads:2$",
 void BM_CounterRates_Tabular(benchmark::State& state) {
   for (auto _ : state) {
     // This test requires a non-zero CPU time to avoid divide-by-zero
-    benchmark::DoNotOptimize(state.iterations());
+    auto iterations = static_cast<double>(state.iterations()) *
+                      static_cast<double>(state.iterations());
+    benchmark::DoNotOptimize(iterations);
   }
   namespace bm = benchmark;
   state.counters.insert({
@@ -497,4 +560,7 @@ CHECK_BENCHMARK_RESULTS("BM_CounterSet2_Tabular", &CheckSet2);
 // --------------------------- TEST CASES END ------------------------------ //
 // ========================================================================= //
 
-int main(int argc, char* argv[]) { RunOutputTests(argc, argv); }
+int main(int argc, char* argv[]) {
+  benchmark::MaybeReenterWithoutASLR(argc, argv);
+  RunOutputTests(argc, argv);
+}
