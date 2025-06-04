@@ -122,7 +122,7 @@ jobs:
     needs: [workflow_vars]
     # Currently there is only one windows target so we don't bother with the
     # matrix, just check if it's enabled
-    runs-on: windows-2019
+    runs-on: windows-2022
     if: inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Checkout repo
