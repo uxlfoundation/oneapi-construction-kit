@@ -105,6 +105,11 @@ jobs:
         with:
           cache_seed: true
 
+      - name: build ubuntu_gcc_x86_64_cpu
+        uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_cpu
+        with:
+          cache_seed: true
+
   # aarch 64
   ubuntu_22_llvm_current_aarch64_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
@@ -153,8 +158,14 @@ jobs:
           save: true
           os: windows
           llvm_source: install
+
       - name: build windows_msvc_x86_64_llvm_latest_cl3_0_offline
         uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_offline
+        with:
+          cache_seed: true
+
+      - name: build windows_msvc_x86_64_llvm_previous_cl3_0_images
+        uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_previous_cl3_0_images
         with:
           cache_seed: true
 

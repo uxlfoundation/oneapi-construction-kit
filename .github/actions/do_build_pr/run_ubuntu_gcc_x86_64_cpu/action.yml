@@ -30,5 +30,5 @@ runs:
           command_buffer: OFF
           # We run check-ock-UnitCL here rather then the full check-ComputeAorta target as there is issues
           # with check-UnitCL-vecz that need to be addressed for generated targets.
-          build_targets: check-ock-UnitCL
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock-UnitCL' }}
           extra_flags: -DCA_ENABLE_API=cl -DCA_CPU_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_CPU_HAL_DIR=$GITHUB_WORKSPACE/clik/external/hal_cpu -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin

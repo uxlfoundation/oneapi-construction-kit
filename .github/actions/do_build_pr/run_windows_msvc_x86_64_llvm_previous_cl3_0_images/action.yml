@@ -17,7 +17,7 @@ runs:
     - name: build ock x86_64
       uses: ./.github/actions/do_build_ock
       with:
-        build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL' || 'check-ock' }}
+        build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
         host_image: ON
         shell_to_use: pwsh
         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
