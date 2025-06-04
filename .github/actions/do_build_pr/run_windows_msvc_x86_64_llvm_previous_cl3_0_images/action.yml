@@ -1,13 +1,10 @@
-name: build_pr_windows_msvc_x86_64_llvm_latest_cl3_0_images
-description: Build pr windows_msvc_x86_64_llvm_latest_cl3_0_images
+name: build_pr_windows_msvc_x86_64_llvm_previous_cl3_0_images
+description: Build pr windows_msvc_x86_64_llvm_previous_cl3_0_images
 
 inputs:
   cache_seed:
     type: boolean
     default: false
-  is_pull_request:
-    type: boolean
-    default: true
 
 runs:
   using: "composite"

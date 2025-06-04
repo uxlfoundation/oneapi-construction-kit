@@ -536,7 +536,7 @@ jobs:
       uses:  ./.github/actions/setup_build
       with:
         llvm_version: ${{ inputs.llvm_previous }}
-        # llvm_build_type: Release # TODO: Release not yet supported
+        # llvm_build_type: Release
         cross_arch: x86
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -568,6 +568,8 @@ jobs:
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
   run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
     runs-on: windows-2019
+    # ALAN TODO: restore non-PR status
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_windows') }}
     if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
     - name: Setup Windows llvm base
@@ -588,4 +590,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: build and test ock
-      uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_images
+      uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_previous_cl3_0_images
