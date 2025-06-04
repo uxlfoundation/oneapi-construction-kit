@@ -137,6 +137,33 @@ jobs:
         with:
           cache_seed: true
 
+  windows_llvm_prev_jobs:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    runs-on: windows-2019
+    steps:
+      - name: Setup Windows llvm base
+        uses: llvm/actions/setup-windows@main
+        with:
+          arch: amd64
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # installs tools, ninja, installs llvm and sets up ccache
+      - name: setup-windows
+        uses:  ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ env.llvm_previous }}
+          llvm_build_type: RelAssert
+          save: true
+          os: windows
+          llvm_source: install
+
+      - name: build windows_msvc_x86_64_llvm_previous_cl3_0_images
+        uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_previous_cl3_0_images
+        with:
+          cache_seed: true
+
   windows_llvm_current_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
     runs-on: windows-2019
@@ -163,12 +190,6 @@ jobs:
         uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_latest_cl3_0_offline
         with:
           cache_seed: true
-
-      - name: build windows_msvc_x86_64_llvm_previous_cl3_0_images
-        uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_previous_cl3_0_images
-        with:
-          cache_seed: true
-
 
   # The following tries to delete old caches but fails on the branch due to permissions errors
   # Look to uncomment in the future.

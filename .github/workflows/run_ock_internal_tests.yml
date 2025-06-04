@@ -584,7 +584,7 @@ jobs:
     - name: setup-windows
       uses: ./.github/actions/setup_build
       with:
-        llvm_version: ${{ inputs.llvm_current }}
+        llvm_version: ${{ inputs.llvm_previous }}
         os: windows
         llvm_source: ${{ inputs.llvm_source }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
