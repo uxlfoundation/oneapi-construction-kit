@@ -25,4 +25,5 @@ runs:
         shell_to_use: pwsh
         gtest_launcher: "python3;-u;${{ github.workspace }}/scripts/gtest-terse-runner.py"
         debug_support: ON
+        builtin_kernel: ON
         extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}\llvm_install\bin
