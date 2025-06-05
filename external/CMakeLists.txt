@@ -94,7 +94,9 @@ if(NOT (CMAKE_CROSSCOMPILING AND CA_PLATFORM_WINDOWS AND
     CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
   target_include_directories(ca-benchmark SYSTEM
     PUBLIC benchmark/include PRIVATE benchmark/src)
-  target_compile_definitions(ca-benchmark PRIVATE HAVE_STD_REGEX)
+  target_compile_definitions(ca-benchmark
+    PRIVATE HAVE_STD_REGEX
+    PUBLIC BENCHMARK_STATIC_DEFINE)
   target_compile_options(ca-benchmark PRIVATE
     $<$<PLATFORM_ID:Linux>:-fstrict-aliasing>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:QCC>>:
