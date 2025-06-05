@@ -110,10 +110,10 @@ runs:
         7z x clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc.tar.xz -so | 7z x -si -ttar
         mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
         # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
-        ls -R "C:/Program Files/Microsoft Visual Studio/2022/Enterprise"
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
-        cp "C:/Program Files (x86)/Microsoft Visual Studio/2022/Enterprise/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
-
+        echo "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
+        ls "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
+        cp "$Env:VSINSRALLDIR/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
     - name: download llvm native
       if: inputs.llvm_source != 'install' && inputs.llvm_source != 'cache'
