@@ -113,7 +113,7 @@ runs:
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
         echo "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
         ls "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
-        cp "$Env:VSINSRALLDIR/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
+        cp "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
     - name: download llvm native
       if: inputs.llvm_source != 'install' && inputs.llvm_source != 'cache'
