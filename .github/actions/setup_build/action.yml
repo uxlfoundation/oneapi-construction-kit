@@ -15,7 +15,7 @@ inputs:
     default: 22.04
   windows_version:
     description: 'Version of windows used for cache retrieval and prerequisites'
-    default: 2022
+    default: 2025
   save:
     description: 'Save the build cache at the end - not for PR testing'
     default: false

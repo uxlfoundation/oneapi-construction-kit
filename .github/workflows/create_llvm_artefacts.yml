@@ -97,9 +97,9 @@ jobs:
           arch: riscv64
           use_github_cache: ${{ inputs.use_github_cache }}
 
-  create_llvm_artifacts_windows_2022_x86_64:
+  create_llvm_artifacts_windows_2025_x86_64:
     if: contains(inputs.target_list, 'host_x86_64_windows')
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
       - name: Checkout repo ock platform
         uses: actions/checkout@v4
@@ -108,5 +108,5 @@ jobs:
         with:
           llvm_branch: ${{ inputs.llvm_branch }}
           llvm_version: ${{ inputs.llvm_version }}
-          os: 'windows-2022'
+          os: 'windows-2025'
           use_github_cache: ${{ inputs.use_github_cache }}

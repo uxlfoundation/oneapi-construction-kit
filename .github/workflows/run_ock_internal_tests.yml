@@ -166,7 +166,7 @@ jobs:
 
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
-    runs-on: windows-2022
+    runs-on: windows-2025
     if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Setup Windows llvm base
