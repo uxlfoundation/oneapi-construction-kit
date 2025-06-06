@@ -64,12 +64,8 @@ declare spir_func i32 @printf(ptr addrspace(2), ...)
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !4, isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug)
 !2 = !{i32 2, !"Debug Info Version", i32 3}
 
-!3 = distinct !DISubprogram(name: "do_printf", scope: !4, file: !4, line: 1, type: !5, scopeLine: 1, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!3 = distinct !DISubprogram(name: "do_printf", scope: !4, file: !4, line: 1, scopeLine: 1, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
 !4 = !DIFile(filename: "/tmp/printf.cl", directory: "")
-!5 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: !6)
-!6 = !{null, !7}
-!7 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !8, size: 64, dwarfAddressSpace: 1)
-!8 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
 
 !9 = !DILocation(line: 3, scope: !3)
 !10 = !DILocation(line: 4, scope: !3)
