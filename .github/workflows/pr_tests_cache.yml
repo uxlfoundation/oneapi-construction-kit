@@ -166,6 +166,7 @@ jobs:
 
   windows_llvm_current_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    needs: [windows_llvm_prev_jobs]
     runs-on: windows-2019
     steps:
       - name: Setup Windows llvm base
