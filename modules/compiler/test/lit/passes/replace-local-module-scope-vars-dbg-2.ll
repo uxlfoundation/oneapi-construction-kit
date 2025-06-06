@@ -106,24 +106,14 @@ attributes #1 = { nounwind "mux-kernel"="entry-point" }
 !6 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
 !7 = !{i32 2, !"Debug Info Version", i32 3}
 !8 = !{i32 1, !"wchar_size", i32 4}
-!27 = distinct !DISubprogram(name: "helper_kernel", scope: !5, file: !5, line: 18, type: !28, scopeLine: 18, flags: DIFlagArtificial | DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !31)
-!28 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: !29)
-!29 = !{null, !30}
-!30 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !6, size: 64, dwarfAddressSpace: 1)
+!27 = distinct !DISubprogram(name: "helper_kernel", scope: !5, file: !5, line: 18, scopeLine: 18, flags: DIFlagArtificial | DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !31)
 !31 = !{}
-!33 = !{i32 0, i32 0}
-!34 = distinct !DISubprogram(name: "local_array", scope: !5, file: !5, line: 29, type: !35, scopeLine: 29, flags: DIFlagArtificial | DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !31)
-!35 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: !36)
-!36 = !{null, !30, !30}
-!37 = !{i32 0, i32 0}
+!34 = distinct !DISubprogram(name: "local_array", scope: !5, file: !5, line: 29, scopeLine: 29, flags: DIFlagArtificial | DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !31)
 
 !38 = !DIGlobalVariableExpression(var: !39, expr: !DIExpression(DW_OP_constu, 3, DW_OP_swap, DW_OP_xderef))
 !39 = distinct !DIGlobalVariable(name: "data", scope: !40, file: !5, line: 19, type: !47, isLocal: true, isDefinition: true)
-!40 = distinct !DISubprogram(name: "helper_kernel", scope: !41, file: !5, line: 18, type: !42, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !46)
+!40 = distinct !DISubprogram(name: "helper_kernel", scope: !41, file: !5, line: 18, scopeLine: 18, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !46)
 !41 = !DIFile(filename: "kernel.opencl", directory: "/ComputeAorta")
-!42 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: !43)
-!43 = !{null, !44}
-!44 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !45, size: 64, dwarfAddressSpace: 1)
 !45 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
 !46 = !{}
 !47 = !DICompositeType(tag: DW_TAG_array_type, baseType: !45, size: 128, elements: !48)
