@@ -55,10 +55,6 @@ attributes #0 = { "mux-kernel"="entry-point" }
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 16.0.4", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug)
 !1 = !DIFile(filename: "add-kernel-wrapper-dbg.ll", directory: "/tmp")
-!2 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: !3)
-!3 = !{!4, !4}
-!4 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !5, size: 64, dwarfAddressSpace: 1)
-!5 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
 !6 = !{i32 2, !"Debug Info Version", i32 3}
 
-!10 = distinct !DISubprogram(name: "foo", scope: !1, file: !1, line: 2, type: !2, scopeLine: 2, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!10 = distinct !DISubprogram(name: "foo", scope: !1, file: !1, line: 2, scopeLine: 2, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)

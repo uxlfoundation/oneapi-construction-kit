@@ -38,7 +38,6 @@ attributes #0 = { "mux-kernel"="entry-point" }
 !2 = !{!3}
 !3 = !DIGlobalVariableExpression(var: !4, expr: !DIExpression(DW_OP_constu, 3, DW_OP_swap, DW_OP_xderef))
 !4 = distinct !DIGlobalVariable(name: "a", scope: !5, file: !1, line: 11, type: !7, isLocal: true, isDefinition: true)
-!5 = distinct !DISubprogram(name: "func", scope: !1, file: !1, type: !6, flags: DIFlagPrototyped, unit: !0)
-!6 = !DISubroutineType(cc: DW_CC_LLVM_OpenCLKernel, types: null)
+!5 = distinct !DISubprogram(name: "func", scope: !1, file: !1, flags: DIFlagPrototyped, unit: !0)
 !7 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
 !8 = !{i32 1, !"Debug Info Version", i32 3}
