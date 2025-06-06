@@ -56,6 +56,7 @@ SYCL,Graph/Explicit/node_ordering.cpp,XFail
 SYCL,Graph/Explicit/sub_graph.cpp,XFail
 SYCL,Graph/Explicit/local_accessor_multiple_accessors.cpp,XFail
 SYCL,Graph/Explicit/work_group_memory.cpp,XFail
+SYCL,Graph/Explicit/buffer_interleave_eager.cpp,XFail
 SYCL,Graph/Explicit/buffer_ordering.cpp,XFail
 SYCL,Graph/Explicit/spec_constants_kernel_bundle_api.cpp,XFail
 SYCL,Graph/Explicit/sub_graph_two_parent_graphs.cpp,XFail
@@ -68,6 +69,7 @@ SYCL,Graph/Explicit/usm_fill_host.cpp,XFail
 SYCL,Graph/Explicit/usm_fill.cpp,XFail
 SYCL,Graph/Explicit/usm_copy.cpp,XFail
 SYCL,Graph/Explicit/usm_fill_shared.cpp,XFail
+SYCL,Graph/RecordReplay/buffer_interleave_eager.cpp,XFail
 SYCL,Graph/RecordReplay/free_function_kernels.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_fill_2d.cpp,XFail
 SYCL,Graph/RecordReplay/sub_graph_execute_without_parent.cpp,XFail
