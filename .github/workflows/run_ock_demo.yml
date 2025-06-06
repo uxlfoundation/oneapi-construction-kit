@@ -19,7 +19,7 @@ jobs:
   run_riscv_m1_ock_demo:
     runs-on: ubuntu-22.04
     container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64@sha256:11930b4367fb364589419475a36406b94e835b1b4431af301d23c7dfa94b4539'
       volumes:
         - ${{github.workspace}}:${{github.workspace}}
 
