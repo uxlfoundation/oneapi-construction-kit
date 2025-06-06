@@ -15,7 +15,7 @@ inputs:
     default: 22.04
   windows_version:
     description: 'Version of windows used for cache retrieval and prerequisites'
-    default: 2019
+    default: 2025
   save:
     description: 'Save the build cache at the end - not for PR testing'
     default: false
@@ -111,8 +111,7 @@ runs:
         mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
         # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
-        cp "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
-
+        cp "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
     - name: download llvm native
       if: inputs.llvm_source != 'install' && inputs.llvm_source != 'cache'
