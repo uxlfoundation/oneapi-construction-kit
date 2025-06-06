@@ -111,8 +111,6 @@ runs:
         mv clang+llvm-$env:LLVM_RELEASE-x86_64-pc-windows-msvc llvm_install
         # Work-around: satisfy hard-wired reference to VS "Professional" lib (when "Enterprise" is actually installed)
         mkdir "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
-        echo "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
-        ls "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib"
         cp "$Env:VSINSTALLDIR/DIA SDK/lib/amd64/diaguids.lib" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
     - name: download llvm native
