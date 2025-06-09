@@ -12,6 +12,8 @@ SYCL,ThreadSanitizer/check_unaligned_access.cpp,XFail
 SYCL,ThreadSanitizer/check_host_usm.cpp,XFail
 SYCL,ThreadSanitizer/check_device_usm.cpp,XFail
 SYCL,ThreadSanitizer/check_shared_usm.cpp,XFail
+SYCL,ThreadSanitizer/local_accessor.cpp,XFail
+SYCL,ThreadSanitizer/group_local_memory.cpp,XFail
 SYCL,Assert/assert_in_multiple_tus.cpp,XFail
 SYCL,Assert/assert_in_simultaneous_kernels.cpp,XFail
 SYCL,Assert/check_resource_leak.cpp,XFail
@@ -123,3 +125,12 @@ SYCL,DeviceGlobal/device_global_arrow_dis.cpp,XFail
 SYCL,KernelAndProgram/cache-build-result.cpp,XFail
 SYCL,KernelAndProgram/build-log.cpp,XFail
 SYCL,KernelAndProgram/undefined-symbol.cpp,XFail
+SYCL,Tracing/task_execution.cpp,XFail
+SYCL,Tracing/code_location_queue_copy.cpp,XFail
+SYCL,Tracing/task_execution_handler.cpp,XFail
+SYCL,Tracing/code_location_queue_submit.cpp,XFail
+SYCL,Tracing/usm/queue_single_task_released_pointer.cpp,XFail
+SYCL,Tracing/usm/queue_single_task_nullptr.cpp,XFail
+SYCL,Tracing/usm/queue_copy_released_pointer.cpp,XFail
+SYCL,SeparateCompile/sycl-external.cpp,XFail
+SYCL,SeparateCompile/sycl-external-within-staticlib.cpp,XFail

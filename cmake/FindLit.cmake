@@ -60,6 +60,14 @@ if(NOT Lit_EXECUTABLE STREQUAL Lit_EXECUTABLE-NOTFOUND)
     set_target_properties(lit PROPERTIES
       IMPORTED_LOCATION ${Lit_EXECUTABLE})
   endif()
+  if(NOT Lit_PYTHON_EXECUTABLE)
+    execute_process(COMMAND ${Lit_EXECUTABLE}
+      --config-prefix FindLit ${CMAKE_CURRENT_LIST_DIR}
+      OUTPUT_VARIABLE Lit_PYTHON_EXECUTABLE
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "Found Lit Python: ${Lit_PYTHON_EXECUTABLE}")
+    set(Lit_PYTHON_EXECUTABLE "${Lit_PYTHON_EXECUTABLE}" CACHE STRING "Path to a Python executable supporting the LLVM lit module.")
+  endif()
 endif()
 
 include(FindPackageHandleStandardArgs)

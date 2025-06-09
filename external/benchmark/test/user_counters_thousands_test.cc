@@ -16,13 +16,13 @@ void BM_Counters_Thousands(benchmark::State& state) {
       {"t0_1000000DefaultBase",
        bm::Counter(1000 * 1000, bm::Counter::kDefaults)},
       {"t1_1000000Base1000", bm::Counter(1000 * 1000, bm::Counter::kDefaults,
-                                         benchmark::Counter::OneK::kIs1000)},
+                                         bm::Counter::OneK::kIs1000)},
       {"t2_1000000Base1024", bm::Counter(1000 * 1000, bm::Counter::kDefaults,
-                                         benchmark::Counter::OneK::kIs1024)},
+                                         bm::Counter::OneK::kIs1024)},
       {"t3_1048576Base1000", bm::Counter(1024 * 1024, bm::Counter::kDefaults,
-                                         benchmark::Counter::OneK::kIs1000)},
+                                         bm::Counter::OneK::kIs1000)},
       {"t4_1048576Base1024", bm::Counter(1024 * 1024, bm::Counter::kDefaults,
-                                         benchmark::Counter::OneK::kIs1024)},
+                                         bm::Counter::OneK::kIs1024)},
   });
 }
 BENCHMARK(BM_Counters_Thousands)->Repetitions(2);
@@ -30,21 +30,21 @@ ADD_CASES(
     TC_ConsoleOut,
     {
         {"^BM_Counters_Thousands/repeats:2 %console_report "
-         "t0_1000000DefaultBase=1000k "
-         "t1_1000000Base1000=1000k t2_1000000Base1024=976.56[23]k "
-         "t3_1048576Base1000=1048.58k t4_1048576Base1024=1024k$"},
+         "t0_1000000DefaultBase=1M "
+         "t1_1000000Base1000=1M t2_1000000Base1024=976.56[23]Ki "
+         "t3_1048576Base1000=1.04858M t4_1048576Base1024=1Mi$"},
         {"^BM_Counters_Thousands/repeats:2 %console_report "
-         "t0_1000000DefaultBase=1000k "
-         "t1_1000000Base1000=1000k t2_1000000Base1024=976.56[23]k "
-         "t3_1048576Base1000=1048.58k t4_1048576Base1024=1024k$"},
+         "t0_1000000DefaultBase=1M "
+         "t1_1000000Base1000=1M t2_1000000Base1024=976.56[23]Ki "
+         "t3_1048576Base1000=1.04858M t4_1048576Base1024=1Mi$"},
         {"^BM_Counters_Thousands/repeats:2_mean %console_report "
-         "t0_1000000DefaultBase=1000k t1_1000000Base1000=1000k "
-         "t2_1000000Base1024=976.56[23]k t3_1048576Base1000=1048.58k "
-         "t4_1048576Base1024=1024k$"},
+         "t0_1000000DefaultBase=1M t1_1000000Base1000=1M "
+         "t2_1000000Base1024=976.56[23]Ki t3_1048576Base1000=1.04858M "
+         "t4_1048576Base1024=1Mi$"},
         {"^BM_Counters_Thousands/repeats:2_median %console_report "
-         "t0_1000000DefaultBase=1000k t1_1000000Base1000=1000k "
-         "t2_1000000Base1024=976.56[23]k t3_1048576Base1000=1048.58k "
-         "t4_1048576Base1024=1024k$"},
+         "t0_1000000DefaultBase=1M t1_1000000Base1000=1M "
+         "t2_1000000Base1024=976.56[23]Ki t3_1048576Base1000=1.04858M "
+         "t4_1048576Base1024=1Mi$"},
         {"^BM_Counters_Thousands/repeats:2_stddev %console_time_only_report [ "
          "]*2 t0_1000000DefaultBase=0 t1_1000000Base1000=0 "
          "t2_1000000Base1024=0 t3_1048576Base1000=0 t4_1048576Base1024=0$"},
@@ -96,6 +96,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"mean\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": 2,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -115,6 +116,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"median\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": 2,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -134,6 +136,7 @@ ADD_CASES(TC_JSONOut,
            {"\"repetitions\": 2,$", MR_Next},
            {"\"threads\": 1,$", MR_Next},
            {"\"aggregate_name\": \"stddev\",$", MR_Next},
+           {"\"aggregate_unit\": \"time\",$", MR_Next},
            {"\"iterations\": 2,$", MR_Next},
            {"\"real_time\": %float,$", MR_Next},
            {"\"cpu_time\": %float,$", MR_Next},
@@ -163,8 +166,9 @@ ADD_CASES(
 // VS2013 does not allow this function to be passed as a lambda argument
 // to CHECK_BENCHMARK_RESULTS()
 void CheckThousands(Results const& e) {
-  if (e.name != "BM_Counters_Thousands/repeats:2")
+  if (e.name != "BM_Counters_Thousands/repeats:2") {
     return;  // Do not check the aggregates!
+  }
 
   // check that the values are within 0.01% of the expected values
   CHECK_FLOAT_COUNTER_VALUE(e, "t0_1000000DefaultBase", EQ, 1000 * 1000,
@@ -180,4 +184,7 @@ CHECK_BENCHMARK_RESULTS("BM_Counters_Thousands", &CheckThousands);
 // --------------------------- TEST CASES END ------------------------------ //
 // ========================================================================= //
 
-int main(int argc, char* argv[]) { RunOutputTests(argc, argv); }
+int main(int argc, char* argv[]) {
+  benchmark::MaybeReenterWithoutASLR(argc, argv);
+  RunOutputTests(argc, argv);
+}

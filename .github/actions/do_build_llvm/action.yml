@@ -4,7 +4,7 @@ description: Action to build llvm artifacts
 inputs:
   os:
     type: string
-    description: 'operating system, one of ubuntu-22.04, ubuntu-24.04 or windows-2019'
+    description: 'operating system, one of ubuntu-22.04, ubuntu-24.04 or windows-2025'
     default: 'ubuntu-22.04'
   arch:
     type: string

@@ -27,9 +27,7 @@ env:
 concurrency:
   group: pr-test-cache-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
-permissions:
-  actions: write
+permissions: {}
 jobs:
   ubuntu_22_llvm_prev_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
@@ -139,7 +137,7 @@ jobs:
 
   windows_llvm_prev_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
-    runs-on: windows-2019
+    runs-on: windows-2025
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -167,7 +165,7 @@ jobs:
   windows_llvm_current_jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
     needs: [windows_llvm_prev_jobs]
-    runs-on: windows-2019
+    runs-on: windows-2025
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -200,7 +198,7 @@ jobs:
     needs: [ubuntu_22_llvm_current_aarch64_jobs, windows_llvm_current_jobs]
     runs-on: ubuntu-latest
     permissions:
-      actions: write
+      actions: write # for gh cache delete
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

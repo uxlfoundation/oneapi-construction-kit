@@ -21,7 +21,7 @@ if(DOXYGEN STREQUAL "DOXYGEN-NOTFOUND")
   return()
 endif()
 
-find_program(VIRTUALENV virtualenv REQUIRED)
+find_program(VIRTUALENV virtualenv)
 if(VIRTUALENV STREQUAL "VIRTUALENV-NOTFOUND")
   message(WARNING
     "virtualenv not found, documentation generation disabled, "

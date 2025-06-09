@@ -8,11 +8,12 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-DECLARE_bool(benchmark_enable_random_interleaving);
-DECLARE_string(benchmark_filter);
-DECLARE_int32(benchmark_repetitions);
-
 namespace benchmark {
+
+BM_DECLARE_bool(benchmark_enable_random_interleaving);
+BM_DECLARE_string(benchmark_filter);
+BM_DECLARE_int32(benchmark_repetitions);
+
 namespace internal {
 namespace {
 
@@ -33,7 +34,8 @@ class EventQueue : public std::queue<std::string> {
   }
 };
 
-static EventQueue* queue = new EventQueue;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+EventQueue* const queue = new EventQueue();
 
 class NullReporter : public BenchmarkReporter {
  public:
@@ -47,19 +49,18 @@ class BenchmarkTest : public testing::Test {
 
   static void TeardownHook(int /* num_threads */) { queue->push("Teardown"); }
 
-  void Execute(const std::string& pattern) {
+  static void Execute(const std::string& pattern) {
     queue->Clear();
 
-    BenchmarkReporter* reporter = new NullReporter;
+    std::unique_ptr<BenchmarkReporter> reporter(new NullReporter());
     FLAGS_benchmark_filter = pattern;
-    RunSpecifiedBenchmarks(reporter);
-    delete reporter;
+    RunSpecifiedBenchmarks(reporter.get());
 
     queue->Put("DONE");  // End marker
   }
 };
 
-static void BM_Match1(benchmark::State& state) {
+void BM_Match1(benchmark::State& state) {
   const int64_t arg = state.range(0);
 
   for (auto _ : state) {
@@ -110,8 +111,8 @@ TEST_F(BenchmarkTest, Match1WithRandomInterleaving) {
     std::vector<std::string> interleaving;
     interleaving.push_back(queue->Get());
     interleaving.push_back(queue->Get());
-    element_count[interleaving[0].c_str()]++;
-    element_count[interleaving[1].c_str()]++;
+    element_count[interleaving[0]]++;
+    element_count[interleaving[1]]++;
     interleaving_count[StrFormat("%s,%s", interleaving[0].c_str(),
                                  interleaving[1].c_str())]++;
   }

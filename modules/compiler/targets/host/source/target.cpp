@@ -382,9 +382,9 @@ compiler::Result HostTarget::initWithBuiltins(
     // Customize the JIT linking layer to provide better profiler/debugger
     // integration.
     Builder.setObjectLinkingLayerCreator(
-        [&](llvm::orc::ExecutionSession &ES, auto...)
+        [&](llvm::orc::ExecutionSession &ES, auto &&...)
             -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
-          auto GetMemMgr = []() {
+          auto GetMemMgr = [](auto &&...) {
             return std::make_unique<llvm::SectionMemoryManager>();
           };
           auto ObjLinkingLayer =

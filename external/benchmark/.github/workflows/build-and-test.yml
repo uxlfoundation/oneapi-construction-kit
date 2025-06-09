@@ -1,110 +1,151 @@
 name: build-and-test
 
 on:
-  push: {}
-  pull_request: {}
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CMAKE_GENERATOR: Ninja
 
 jobs:
   # TODO: add 32-bit builds (g++ and clang++) for ubuntu
   #   (requires g++-multilib and libc6:i386)
   # TODO: add coverage build (requires lcov)
   # TODO: add clang + libc++ builds for ubuntu
-  # TODO: add clang + ubsan/asan/msan + libc++ builds for ubuntu
   job:
-    name: ${{ matrix.os }}.${{ matrix.build_type }}.${{ matrix.compiler }}
+    name: ${{ matrix.os }}.${{ matrix.build_type }}.${{ matrix.lib }}.${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-16.04, ubuntu-20.04, macos-latest]
+        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, macos-latest]
         build_type: ['Release', 'Debug']
-        compiler: [g++, clang++]
-        include:
-          - displayTargetName: windows-latest-release
-            os: windows-latest
-            build_type: 'Release'
-          - displayTargetName: windows-latest-debug
-            os: windows-latest
-            build_type: 'Debug'
+        compiler: ['g++', 'clang++']
+        lib: ['shared', 'static']
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Install dependencies (macos)
+        if: runner.os == 'macOS'
+        run: brew install ninja
 
-      - name: create build environment
-        run: cmake -E make_directory ${{ runner.workspace }}/_build
-
-      - name: configure cmake
-        env:
-          CXX: ${{ matrix.compiler }}
-        shell: bash
-        working-directory: ${{ runner.workspace }}/_build
-        run: >
-          cmake $GITHUB_WORKSPACE
-          -DBENCHMARK_DOWNLOAD_DEPENDENCIES=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - uses: actions/checkout@v4
 
       - name: build
-        shell: bash
-        working-directory: ${{ runner.workspace }}/_build
-        run: cmake --build . --config ${{ matrix.build_type }}
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          build-dir: ${{ runner.workspace }}/_build
+          cxx-compiler: ${{ matrix.compiler }}
+          options: |
+            BENCHMARK_DOWNLOAD_DEPENDENCIES=ON
+            BUILD_SHARED_LIBS=${{ matrix.lib == 'shared' }}
+            CMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            CMAKE_CXX_COMPILER=${{ matrix.compiler }}
+            CMAKE_CXX_VISIBILITY_PRESET=hidden
+            CMAKE_VISIBILITY_INLINES_HIDDEN=ON
 
       - name: test
         shell: bash
         working-directory: ${{ runner.workspace }}/_build
         run: ctest -C ${{ matrix.build_type }} -VV
 
-  ubuntu-14_04:
-    name: ubuntu-14.04.${{ matrix.build_type }}.${{ matrix.compiler }}
-    runs-on: [ubuntu-latest]
+  msvc:
+    name: ${{ matrix.os }}.${{ matrix.build_type }}.${{ matrix.lib }}.${{ matrix.msvc }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+        run:
+            shell: powershell
     strategy:
       fail-fast: false
       matrix:
-        build_type: ['Release', 'Debug']
-        compiler: [g++-4.8, clang++-3.6]
+        msvc:
+          - VS-16-2019
+          - VS-17-2022
+        build_type:
+          - Debug
+          - Release
+        lib:
+          - shared
+          - static
         include:
-          - compiler: g++-6
-            build_type: 'Debug'
-            run_tests: true
-          - compiler: g++-6
-            build_type: 'Release'
-            run_tests: true
-    container: ubuntu:14.04
+          - msvc: VS-16-2019
+            os: windows-2019
+            generator: 'Visual Studio 16 2019'
+          - msvc: VS-17-2022
+            os: windows-2022
+            generator: 'Visual Studio 17 2022'
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: install required bits
-        run: |
-          sudo apt update
-          sudo apt -y install clang-3.6 cmake3 g++-4.8 git
-
-      - name: install other bits
-        if: ${{ matrix.compiler }} == g++-6
-        run: |
-          sudo apt -y install software-properties-common
-          sudo add-apt-repository -y "ppa:ubuntu-toolchain-r/test"
-          sudo apt update
-          sudo apt -y install g++-6
-
-      - name: create build environment
-        run: cmake -E make_directory $GITHUB_WORKSPACE/_build
+      - uses: lukka/get-cmake@latest
 
       - name: configure cmake
-        env:
-          CXX: ${{ matrix.compiler }}
-        shell: bash
-        working-directory: ${{ github.workspace }}/_build
         run: >
-          cmake $GITHUB_WORKSPACE
-          -DBENCHMARK_ENABLE_TESTING=${{ matrix.run_tests }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DBENCHMARK_DOWNLOAD_DEPENDENCIES=${{ matrix.run_tests }}
+          cmake -S . -B ${{ runner.workspace }}/_build/
+          -G "${{ matrix.generator }}"
+          -DBENCHMARK_DOWNLOAD_DEPENDENCIES=ON
+          -DBUILD_SHARED_LIBS=${{ matrix.lib == 'shared' }}
 
       - name: build
-        shell: bash
-        working-directory: ${{ github.workspace }}/_build
-        run: cmake --build . --config ${{ matrix.build_type }}
+        run: cmake --build ${{ runner.workspace }}/_build/ --config ${{ matrix.build_type }}
 
       - name: test
-        if: ${{ matrix.run_tests }}
-        shell: bash
-        working-directory: ${{ github.workspace }}/_build
+        run: ctest --test-dir ${{ runner.workspace }}/_build/ -C ${{ matrix.build_type }} -VV
+
+  msys2:
+    name: ${{ matrix.os }}.${{ matrix.build_type }}.${{ matrix.lib }}.${{ matrix.msys2.msystem }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+        run:
+            shell: msys2 {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest ]
+        msys2:
+          - { msystem: MINGW64,    arch: x86_64,  family: GNU,  compiler: g++ }
+          - { msystem: CLANG64,    arch: x86_64,  family: LLVM, compiler: clang++ }
+          - { msystem: UCRT64,     arch: x86_64,  family: GNU,  compiler: g++ }
+        build_type:
+          - Debug
+          - Release
+        lib:
+          - shared
+          - static
+
+    steps:
+      - name: setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          cache: false
+          msystem: ${{ matrix.msys2.msystem }}
+          update: true
+          install: >-
+            git
+            base-devel
+          pacboy: >-
+            gcc:p
+            clang:p
+            cmake:p
+            ninja:p
+
+      - uses: actions/checkout@v4
+
+      # NOTE: we can't use cmake actions here as we need to do everything in msys2 shell.
+      - name: configure cmake
+        env:
+          CXX: ${{ matrix.msys2.compiler }}
+        run: >
+          cmake -S . -B _build/
+          -GNinja
+          -DBENCHMARK_DOWNLOAD_DEPENDENCIES=ON
+          -DBUILD_SHARED_LIBS=${{ matrix.lib == 'shared' }}
+
+      - name: build
+        run: cmake --build _build/ --config ${{ matrix.build_type }}
+
+      - name: test
+        working-directory: _build
         run: ctest -C ${{ matrix.build_type }} -VV

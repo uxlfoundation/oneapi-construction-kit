@@ -182,7 +182,7 @@ static void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
 
   cl_command_queue queue;
 
-  if (0 == state.thread_index) {
+  if (0 == state.thread_index()) {
     queue = cd.queue;
   } else {
     queue = clCreateCommandQueue(cd.context, cd.device, 0, nullptr);
@@ -199,7 +199,7 @@ static void MultiThreadMultiQueueNoDependencies(benchmark::State &state) {
     clFinish(queue);
   }
 
-  if (0 != state.thread_index) {
+  if (0 != state.thread_index()) {
     clReleaseCommandQueue(queue);
   }
 
@@ -216,7 +216,7 @@ static void MultiThreadMultiQueue(benchmark::State &state) {
 
   cl_command_queue queue;
 
-  if (0 == state.thread_index) {
+  if (0 == state.thread_index()) {
     queue = cd.queue;
   } else {
     queue = clCreateCommandQueue(cd.context, cd.device, 0, nullptr);
@@ -240,7 +240,7 @@ static void MultiThreadMultiQueue(benchmark::State &state) {
     clReleaseEvent(event);
   }
 
-  if (0 != state.thread_index) {
+  if (0 != state.thread_index()) {
     clReleaseCommandQueue(queue);
   }
 
