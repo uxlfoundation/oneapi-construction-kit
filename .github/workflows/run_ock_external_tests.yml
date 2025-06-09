@@ -18,6 +18,11 @@ on:
         type: boolean
         description: 'Enable testing tornado'
         default: true
+      test_remote_hal:
+        required: false
+        type: boolean
+        description: 'Enable testing remote_hal'
+        default: true
       test_sycl_cts:
         required: false
         type: boolean
@@ -201,7 +206,21 @@ jobs:
         with:
           target: ${{matrix.target}}
 
-  
+  build_run_remote_hal:
+    if: inputs.test_remote_hal
+    needs: [ workflow_vars ]
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name : build server
+        run: |
+          echo build_server
+      - name : build client
+        run: |
+          echo build_client
+      - name : run remote_hal
+        run: |
+          echo run remote_hal
+
   # Currently only builds and runs on x86_64 linux
   build_run_tornado:
     if: inputs.test_tornado

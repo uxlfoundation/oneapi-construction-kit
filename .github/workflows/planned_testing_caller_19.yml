@@ -24,16 +24,17 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      # target_list: '[ "host_x86_64_linux" ]'
+      target_list: '[ "host_x86_64_linux" ]'
       # ock: true
-      # native_cpu: true
-      # test_tornado: true
-      # test_sycl_cts: true
-      # test_sycl_e2e: true
-      # test_opencl_cts: true
-      # run_internal: true
+      native_cpu: false
+      test_tornado: false
+      test_remote_hal: true
+      test_sycl_cts: false
+      test_sycl_e2e: false
+      test_opencl_cts: false
+      run_internal: false
       # run_external: true
-      # build_llvm: true
+      build_llvm: false
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
