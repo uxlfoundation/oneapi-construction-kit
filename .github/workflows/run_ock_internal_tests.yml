@@ -574,7 +574,7 @@ jobs:
 
  # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
   run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
-    runs-on: windows-2019
+    runs-on: windows-2025
     # ALAN TODO: restore non-PR status
     #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_windows') }}
     if: contains(inputs.target_list, 'host_x86_64_windows')
