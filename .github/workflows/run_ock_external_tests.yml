@@ -122,7 +122,7 @@ jobs:
     needs: [workflow_vars]
     # Currently there is only one windows target so we don't bother with the
     # matrix, just check if it's enabled
-    runs-on: windows-2019
+    runs-on: windows-2025
     if: inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Checkout repo
@@ -174,7 +174,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
-    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e)
+    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'linux')
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
