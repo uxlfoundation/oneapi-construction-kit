@@ -27,13 +27,12 @@ on:
       target_list:
         required: false
         type: string
-        #default: '[ "host_x86_64_linux",
-        #            "host_aarch64_linux",
-        #            "host_riscv64_linux",
-        #            "host_i686_linux",
-        #            "host_refsi_linux",
-        #            "host_x86_64_windows" ]'
-        default: '[ "host_x86_64_windows" ]'
+        default: '[ "host_x86_64_linux",
+                    "host_aarch64_linux",
+                    "host_riscv64_linux",
+                    "host_i686_linux",
+                    "host_refsi_linux",
+                    "host_x86_64_windows" ]'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
