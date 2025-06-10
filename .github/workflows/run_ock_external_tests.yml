@@ -226,15 +226,15 @@ jobs:
       - name : build server
         run: |
           echo build_server
-          ls -l
-          ls -l examples || echo NO EXAMPLES
-          ls -l llvm_install || echo NO LLVM_INSTALL
           mkdir build_server
           cmake -GNinja $GITHUB_WORKSPACE/examples/hal_cpu_remote_server -Bbuild_server -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
           ninja -Cbuild_server
       - name : build client
         run: |
+          ls -l
           echo build_client
+          cmake -Bbuild_client -GNinja -DCA_MUX_TARGETS_TO_ENABLE="riscv" -DCA_RISCV_ENABLED=ON -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/llvm_install -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_HAL_NAME=cpu_client
+          ninja -Cbuild_client UnitCL
       - name : run remote_hal
         run: |
           echo run remote_hal
