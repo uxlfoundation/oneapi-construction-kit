@@ -69,6 +69,7 @@ SYCL,Graph/Explicit/usm_fill_host.cpp,XFail
 SYCL,Graph/Explicit/usm_fill.cpp,XFail
 SYCL,Graph/Explicit/usm_copy.cpp,XFail
 SYCL,Graph/Explicit/usm_fill_shared.cpp,XFail
+SYCL,Graph/Explicit/multiple_exec_graphs.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_interleave_eager.cpp,XFail
 SYCL,Graph/RecordReplay/free_function_kernels.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_fill_2d.cpp,XFail
@@ -114,6 +115,7 @@ SYCL,Graph/RecordReplay/usm_fill.cpp,XFail
 SYCL,Graph/RecordReplay/usm_memset_shortcut.cpp,XFail
 SYCL,Graph/RecordReplay/usm_copy.cpp,XFail
 SYCL,Graph/RecordReplay/usm_fill_shared.cpp,XFail
+SYCL,Graph/RecordReplay/multiple_exec_graphs.cpp,XFail
 SYCL,HierPar/hier_par_basic.cpp,MayFail
 SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl.cpp,XFail
