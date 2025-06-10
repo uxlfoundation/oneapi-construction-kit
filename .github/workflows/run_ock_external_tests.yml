@@ -229,6 +229,9 @@ jobs:
           ls -l
           ls -l examples || echo NO EXAMPLES
           ls -l llvm_install || echo NO LLVM_INSTALL
+          mkdir build_server
+          cmake -GNinja $GITHUB_WORKSPACE/examples/hal_cpu_remote_server -Bbuild_server -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
+          ninja -Cbuild_server
       - name : build client
         run: |
           echo build_client
