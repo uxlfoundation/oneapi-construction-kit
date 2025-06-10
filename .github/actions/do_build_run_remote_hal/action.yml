@@ -15,11 +15,24 @@ runs:
     - name : build client
       shell: bash
       run: |
-        ls -l
         echo build_client
         cmake -Bbuild_client -GNinja -DCA_MUX_TARGETS_TO_ENABLE="riscv" -DCA_RISCV_ENABLED=ON -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/llvm_install -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_HAL_NAME=cpu_client
         ninja -Cbuild_client UnitCL
     - name : run remote_hal
       shell: bash
       run: |
+        ls -l
         echo run remote_hal
+        cd build_server
+        export HAL_REMOTE_PORT=9999
+        # Limit number of threads to 1 due to hal cpu use of temporary threads causing excessive qemu memory usage.
+        export CA_CPU_HAL_NUM_THREADS=1
+        /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT &
+        # This gives enough time for the server to start. We should consider whether a better
+        # design could avoid this - see OR-380
+        sleep 1
+        cd $GITHUB_WORKSPACE/build_client
+        exitcode=0
+        OCL_ICD_FILENAMES=$PWD/lib/libCL.so.4.0 ./bin/UnitCL || exitcode=$?
+        kill %1
+        exit $exitcode
