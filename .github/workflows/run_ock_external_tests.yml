@@ -226,6 +226,7 @@ jobs:
       - name : build server
         run: |
           echo build_server
+          ls -l
           ls -l examples || echo NO EXAMPLES
           ls -l llvm_install || echo NO LLVM_INSTALL
       - name : build client
