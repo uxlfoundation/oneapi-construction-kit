@@ -79,7 +79,7 @@ static OptimizationOptions processOptimizationOptions(
   // this is the exact number of elements to vectorize by. For scalable VFs,
   // the actual number of elements is a multiple (vscale) of these, unknown at
   // compile time. Default is scalar, can be updated here.
-  vecz_options.factor = compiler::utils::VectorizationFactor::getScalar();
+  vecz_options.factor = llvm::ElementCount::getFixed(1);
 
   vecz_options.choices.enable(vecz::VectorizationChoices::eDivisionExceptions);
 
@@ -92,8 +92,6 @@ static OptimizationOptions processOptimizationOptions(
   // VP    - produce a vector-predicated kernel
   bool found_error = false;
   if (const auto *vecz_vf_flags_env = std::getenv("CA_{{cookiecutter.target_name_capitals}}_VF")) {
-    // Set scalable to off and let users add it explicitly with 'S'.
-    vecz_options.factor.setIsScalable(false);
     llvm::SmallVector<llvm::StringRef, 4> flags;
     llvm::StringRef vf_flags_ref(vecz_vf_flags_env);
     vf_flags_ref.split(flags, ',');
@@ -109,10 +107,13 @@ static OptimizationOptions processOptimizationOptions(
         // "VF" environment variable and look for a "v/V" toggle.
         env_var_opts.force_no_tail = true;
       } else if (r == "S" || r == "s") {
-        vecz_options.factor.setIsScalable(true);
+        vecz_options.factor = llvm::ElementCount::getScalable(
+            vecz_options.factor.getKnownMinValue());
         env_var_opts.early_link_builtins = true;
       } else if (isdigit(r[0])) {
-        vecz_options.factor.setKnownMin(std::stoi(r.str()));
+        // Keep scalable as is and let users add it explicitly with 'S'.
+        vecz_options.factor = llvm::ElementCount::get(
+            std::stoi(r.str()), vecz_options.factor.isScalable());
       } else if (r == "VP" || r == "vp") {
         vecz_options.choices.enable(
             vecz::VectorizationChoices::eVectorPredication);
