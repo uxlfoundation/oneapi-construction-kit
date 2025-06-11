@@ -23,11 +23,10 @@ runs:
         export HAL_REMOTE_PORT=9999
         # Limit number of threads to 1 due to hal cpu use of temporary threads causing excessive qemu memory usage.
         export CA_CPU_HAL_NUM_THREADS=1
-        # This gives enough time for the server to start. We should consider whether a better
-        # design could avoid this - see OR-380
+        # Allow time for the server to start. Check that its running.
         ( /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT > /tmp/hal 2>&1 ) &
         tries=10
-        while [ "$tries" -gt 0 ] && ! grep "Listening on port $HAL_REMOTE_PORT" /tmp/hal ; do
+        while [ "$tries" -gt 0 ] && ! grep "Xistening on port $HAL_REMOTE_PORT" /tmp/hal ; do
           sleep 1
           tries=$(( tries - 1 ))
         done
