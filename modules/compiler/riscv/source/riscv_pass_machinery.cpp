@@ -62,7 +62,7 @@ RiscvPassMachinery::processOptimizationOptions(
   // this is the exact number of elements to vectorize by. For scalable VFs,
   // the actual number of elements is a multiple (vscale) of these, unknown at
   // compile time. Default taken from config. May be overriden later.
-  vecz_opts.factor = compiler::utils::VectorizationFactor::getScalar();
+  vecz_opts.factor = llvm::ElementCount::getFixed(1);
 
   vecz_opts.choices.enable(vecz::VectorizationChoices::eDivisionExceptions);
 
@@ -79,8 +79,6 @@ RiscvPassMachinery::processOptimizationOptions(
   // VVP   - produce both a vectorized and a vector-predicated kernel
   bool add_vvp = false;
   if (const auto *vecz_vf_flags_env = std::getenv("CA_RISCV_VF")) {
-    // Set scalable to off and let users add it explicitly with 'S'.
-    vecz_opts.factor.setIsScalable(false);
     llvm::SmallVector<llvm::StringRef, 4> flags;
     const llvm::StringRef vf_flags_ref(vecz_vf_flags_env);
     vf_flags_ref.split(flags, ',');
@@ -96,10 +94,13 @@ RiscvPassMachinery::processOptimizationOptions(
         // "VF" environment variable and look for a "v/V" toggle.
         env_var_opts.force_no_tail = true;
       } else if (r == "S" || r == "s") {
-        vecz_opts.factor.setIsScalable(true);
+        vecz_opts.factor = llvm::ElementCount::getScalable(
+            vecz_opts.factor.getKnownMinValue());
         env_var_opts.early_link_builtins = true;
       } else if (isdigit(r[0])) {
-        vecz_opts.factor.setKnownMin(std::stoi(r.str()));
+        // Keep scalable as is and let users add it explicitly with 'S'.
+        vecz_opts.factor = llvm::ElementCount::get(
+            std::stoi(r.str()), vecz_opts.factor.isScalable());
       } else if (r == "VP" || r == "vp") {
         vecz_opts.choices.enable(
             vecz::VectorizationChoices::eVectorPredication);

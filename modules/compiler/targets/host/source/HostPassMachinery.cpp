@@ -115,8 +115,7 @@ static bool hostVeczPassOpts(
   const uint32_t SIMDWidth = llvm::bit_floor(
       local_size != 0 ? std::min(local_size, work_width) : work_width);
 
-  vecz_options.factor =
-      compiler::utils::VectorizationFactor::getFixedWidth(SIMDWidth);
+  vecz_options.factor = llvm::ElementCount::getFixed(SIMDWidth);
 
   Opts.push_back(vecz_options);
   return true;

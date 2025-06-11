@@ -66,7 +66,6 @@ add_ca_library(compiler-pipeline STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/sub_group_usage_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/target_extension_types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/unique_opaque_structs_pass.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/vectorization_factor.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/verify_reqd_sub_group_size_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/compiler/utils/work_item_loops_pass.h
   ${CMAKE_CURRENT_SOURCE_DIR}/source/add_kernel_wrapper_pass.cpp
