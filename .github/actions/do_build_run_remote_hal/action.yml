@@ -18,6 +18,7 @@ runs:
         mux_targets_enable: riscv
         riscv_enabled: ON
         llvm_install_dir: $GITHUB_WORKSPACE/llvm_install
+        command_buffer: OFF
         extra_flags: -DCA_HAL_NAME=cpu_client
         build_targets: 'UnitCL'
     #- name : build client
