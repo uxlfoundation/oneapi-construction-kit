@@ -12,10 +12,19 @@ runs:
         cmake -GNinja $GITHUB_WORKSPACE/examples/hal_cpu_remote_server -Bbuild_server -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
         ninja -Cbuild_server
     - name : build client
-      shell: bash
-      run: |
-        cmake -Bbuild_client -GNinja -DCA_MUX_TARGETS_TO_ENABLE="riscv" -DCA_RISCV_ENABLED=ON -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/llvm_install -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_HAL_NAME=cpu_client
-        ninja -Cbuild_client UnitCL
+      uses: ./.github/actions/do_build_ock
+      with:
+        build_dir: build_client
+        mux_targets_enable: riscv
+        riscv_enabled: ON
+        llvm_install_dir: $GITHUB_WORKSPACE/llvm_install
+        extra_flags: -DCA_HAL_NAME=cpu_client
+        build_targets: 'UnitCL'
+    #- name : build client
+    #  shell: bash
+    #  run: |
+    #    cmake -Bbuild_client -GNinja -DCA_MUX_TARGETS_TO_ENABLE="riscv" -DCA_RISCV_ENABLED=ON -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/llvm_install -DCA_CL_ENABLE_ICD_LOADER=ON -DCA_HAL_NAME=cpu_client
+    #    ninja -Cbuild_client UnitCL
     - name : run remote_hal
       shell: bash
       run: |
@@ -23,15 +32,16 @@ runs:
         export HAL_REMOTE_PORT=9999
         # Limit number of threads to 1 due to hal cpu use of temporary threads causing excessive qemu memory usage.
         export CA_CPU_HAL_NUM_THREADS=1
+        export START_STRING="Listening on port $HAL_REMOTE_PORT"
+        export TRIES=10
         # Allow time for the server to start. Check that its running.
-        ( /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT > /tmp/hal 2>&1 ) &
-        tries=10
-        while [ "$tries" -gt 0 ] && ! grep "Xistening on port $HAL_REMOTE_PORT" /tmp/hal ; do
+        ( /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT > /tmp/halop 2>&1 ) &
+        while [ "$TRIES" -gt 0 ] && ! grep "$START_STRING" /tmp/halop ; do
           sleep 1
-          tries=$(( tries - 1 ))
+          TRIES=$(( TRIES - 1 ))
         done
-        rm /tmp/hal
-        if [ "$tries" -ne 0 ]; then
+        rm /tmp/halop
+        if [ "$TRIES" -ne 0 ]; then
           jobs
           cd $GITHUB_WORKSPACE/build_client
           exitcode=0
@@ -39,6 +49,6 @@ runs:
           kill %1
           exit $exitcode
         else
-          echo "Server has failed to start"
+          echo "Fail: no server start string: $START_STRING"
           exit 1
         fi
