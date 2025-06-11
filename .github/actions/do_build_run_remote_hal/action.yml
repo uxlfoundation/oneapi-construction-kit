@@ -11,16 +11,6 @@ runs:
         mkdir build_server
         cmake -GNinja $GITHUB_WORKSPACE/examples/hal_cpu_remote_server -Bbuild_server -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/riscv64-linux/riscv64-gcc-toolchain.cmake
         ninja -Cbuild_server
-    #- name : build client
-    #  uses: ./.github/actions/do_build_ock
-    #  with:
-    #    build_dir: build_client
-    #    mux_targets_enable: riscv
-    #    riscv_enabled: ON
-    #    llvm_install_dir: $GITHUB_WORKSPACE/llvm_install
-    #    command_buffer: OFF
-    #    extra_flags: -DCA_HAL_NAME=cpu_client
-    #    build_targets: 'UnitCL'
     - name : build client
       shell: bash
       run: |
@@ -29,27 +19,29 @@ runs:
     - name : run remote_hal
       shell: bash
       run: |
-        cd build_server
         export HAL_REMOTE_PORT=9999
         # Limit number of threads to 1 due to hal cpu use of temporary threads causing excessive qemu memory usage.
         export CA_CPU_HAL_NUM_THREADS=1
         export START_STRING="Listening on port $HAL_REMOTE_PORT"
         export TRIES=10
-        ( /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT > /tmp/halop 2>&1 ) &
-        # Allow time for the server to start. Check that its running.
-        while [ "$TRIES" -gt 0 ] && ! grep "$START_STRING" /tmp/halop ; do
+        # Start server
+        cd build_server
+        ( /usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu ./hal_cpu_server_bin $HAL_REMOTE_PORT > /tmp/hal.op 2>&1 ) &
+        # Check that server is running.
+        while [ "$TRIES" -gt 0 ] && ! grep "$START_STRING" /tmp/hal.op ; do
           sleep 1
           TRIES=$(( TRIES - 1 ))
         done
-        rm /tmp/halop
+        rm /tmp/hal.op
         if [ "$TRIES" -ne 0 ]; then
           jobs
+          # Run client
           cd $GITHUB_WORKSPACE/build_client
           exitcode=0
           OCL_ICD_FILENAMES=$PWD/lib/libCL.so.4.0 ./bin/UnitCL || exitcode=$?
           kill %1
           exit $exitcode
         else
-          echo "Fail: no server start string: $START_STRING"
+          echo "FAIL: server start check - no listener start string found"
           exit 1
         fi
