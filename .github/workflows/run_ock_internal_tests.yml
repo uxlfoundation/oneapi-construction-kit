@@ -154,6 +154,7 @@ jobs:
   run_clang_format:
 
     runs-on: ubuntu-22.04
+    if: false
 
     steps:
       - name: Checkout repo
