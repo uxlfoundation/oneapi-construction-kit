@@ -1324,7 +1324,7 @@ void spirv_ll::Builder::checkMemberDecorations(
         nextType = multi_llvm::getVectorElementType(traversed.back());
         break;
       case llvm::Type::PointerTyID: {
-        auto *opTy = module.getFromLLVMTy<OpType>(traversed.back());
+        auto *opTy = module.get<OpType>(traversed.back());
         SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
         nextType = module.getLLVMType(opTy->getTypePointer()->Type());
         break;
@@ -1370,7 +1370,7 @@ void spirv_ll::Builder::checkMemberDecorations(
   // according to the spec, so this cast is safe.
   const uint32_t member =
       cast<llvm::ConstantInt>(indexes[memberIndex])->getZExtValue();
-  auto structType = module.getFromLLVMTy<OpTypeStruct>(accessedStructType);
+  auto structType = module.get<OpTypeStruct>(accessedStructType);
   const auto &memberDecorations =
       module.getMemberDecorations(structType->IdResult(), member);
   for (auto *opMemberDecorate : memberDecorations) {

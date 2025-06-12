@@ -70,9 +70,7 @@ spirv_ll::Module::Module(
       specInfo(specInfo),
       WorkgroupSize({{1, 1, 1}}),
       deferredSpecConstantOps(),
-      ImplicitDebugScopes(true) {
-  llvmModule->setIsNewDbgInfoFormat(false);
-}
+      ImplicitDebugScopes(true) {}
 
 spirv_ll::Module::Module(spirv_ll::Context &context,
                          llvm::ArrayRef<uint32_t> code)
@@ -130,9 +128,9 @@ const spirv_ll::OpEntryPoint *spirv_ll::Module::getEntryPoint(
 }
 
 void spirv_ll::Module::replaceID(const OpResult *Op, llvm::Value *V) {
-  auto found = Values.find(Op->IdResult());
-  if (found != Values.end()) {
-    Values.erase(found);
+  auto found = LLVMObjects.find(Op->IdResult());
+  if (found != LLVMObjects.end()) {
+    LLVMObjects.erase(found);
   }
   addID(Op->IdResult(), Op, V);
 }
@@ -267,11 +265,12 @@ std::string spirv_ll::Module::getName(spv::Id id) const {
 }
 
 std::string spirv_ll::Module::getName(llvm::Value *Value) const {
-  auto it = std::find_if(Values.begin(), Values.end(), [Value](const auto &v) {
-    return v.second.Value == Value;
-  });
+  auto it = std::find_if(LLVMObjects.begin(), LLVMObjects.end(),
+                         [Object = LLVMObjectPtr(Value)](const auto &o) {
+                           return o.second.LLVMObject == Object;
+                         });
 
-  if (it == Values.end()) {
+  if (it == LLVMObjects.end()) {
     return std::string();
   }
 
@@ -378,16 +377,39 @@ bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Value *V) {
     V->setName(name);
   }
   // SSA form forbids the reassignment of IDs
-  auto existing = Values.find(id);
-  if (existing != Values.end() && existing->second.Value != nullptr) {
+  auto existing = LLVMObjects.find(id);
+  if (existing != LLVMObjects.end() && !existing->second.LLVMObject.isNull()) {
     return false;
   }
-  Values.insert({id, ValuePair(Op, V)});
+  LLVMObjects.insert({id, LLVMObjectPair(Op, V)});
   return true;
 }
 
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op,
+                             llvm::DbgRecord *DR) {
+  // SSA form forbids the reassignment of IDs
+  auto existing = LLVMObjects.find(id);
+  if (existing != LLVMObjects.end() && !existing->second.LLVMObject.isNull()) {
+    return false;
+  }
+  LLVMObjects.insert({id, LLVMObjectPair(Op, DR)});
+  return true;
+}
+
+bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op,
+                             llvm::DbgInstPtr DI) {
+  if (auto *I = dyn_cast<llvm::Instruction *>(DI)) {
+    return addID(id, Op, I);
+  } else if (auto *DR = dyn_cast<llvm::DbgRecord *>(DI)) {
+    return addID(id, Op, DR);
+  } else {
+    SPIRV_LL_ABORT("DbgInstPtr must be Instruction or DbgRecord");
+    return false;
+  }
+}
+
 llvm::Type *spirv_ll::Module::getLLVMType(spv::Id id) const {
-  return Types.lookup(id).Type;
+  return cast<llvm::Type *>(LLVMObjects.lookup(id).LLVMObject);
 }
 
 void spirv_ll::Module::addForwardPointer(spv::Id id) {
@@ -556,11 +578,11 @@ spirv_ll::Module::SampledImage spirv_ll::Module::getSampledImage(
 
 bool spirv_ll::Module::addID(spv::Id id, const OpCode *Op, llvm::Type *T) {
   // SSA form forbids the reassignment of IDs
-  auto existing = Types.find(id);
-  if (existing != Types.end() && existing->second.Type != nullptr) {
+  auto existing = LLVMObjects.find(id);
+  if (existing != LLVMObjects.end() && !existing->second.LLVMObject.isNull()) {
     return false;
   }
-  Types.insert({id, TypePair(Op, T)});
+  LLVMObjects.insert({id, LLVMObjectPair(Op, T)});
   return true;
 }
 
@@ -584,7 +606,8 @@ std::optional<spv::Id> spirv_ll::Module::getParamTypeID(spv::Id F,
 }
 
 llvm::Value *spirv_ll::Module::getValue(spv::Id id) const {
-  return Values.lookup(id).Value;
+  return llvm::dyn_cast_or_null<llvm::Value *>(
+      LLVMObjects.lookup(id).LLVMObject);
 }
 
 void spirv_ll::Module::addBuiltInID(spv::Id id) { BuiltInVarIDs.push_back(id); }

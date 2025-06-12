@@ -2180,7 +2180,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   }
   if (argTy->isVectorTy()) {
     auto *const elemTy = multi_llvm::getVectorElementType(argTy);
-    const auto opElem = module.getFromLLVMTy<OpCode>(elemTy);
+    const auto opElem = module.get<OpCode>(elemTy);
     const auto name = getScalarTypeName(elemTy, opElem);
     const auto numElements =
         std::to_string(multi_llvm::getVectorNumElements(argTy));
@@ -2194,7 +2194,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     return structName;
   }
   if (argTy->isIntegerTy()) {
-    auto argTyOp = module.getFromLLVMTy<OpType>(argTy);
+    auto argTyOp = module.get<OpType>(argTy);
     return getScalarTypeName(argTy, argTyOp);
   }
   if (auto *tgtExtTy = llvm::dyn_cast<llvm::TargetExtType>(argTy)) {
@@ -2226,7 +2226,7 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
     }
     SPIRV_LL_ABORT("Unknown Target Extension Type");
   }
-  auto argOp = module.getFromLLVMTy<OpCode>(argTy);
+  auto argOp = module.get<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
 }  // namespace
