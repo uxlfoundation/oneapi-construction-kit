@@ -38,7 +38,8 @@ runs:
         # v2025-01-22-00 is the latest release
         # v2025-04-21-00 is the latest prerelease
         # ref: v2025-01-22-00 - fails
-        ref: v2025-04-21-00
+        ref: v2025-01-22-00
+        # ref: v2025-04-21-00
 
     - name: build opencl cts
       shell: bash
