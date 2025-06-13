@@ -18,6 +18,11 @@ on:
         type: boolean
         description: 'Enable testing tornado'
         default: true
+      test_remote_hal:
+        required: false
+        type: boolean
+        description: 'Enable testing remote_hal'
+        default: true
       test_sycl_cts:
         required: false
         type: boolean
@@ -201,7 +206,26 @@ jobs:
         with:
           target: ${{matrix.target}}
 
-  
+  build_run_remote_hal:
+    if: inputs.test_remote_hal
+    needs: [ workflow_vars ]
+    runs-on: 'ubuntu-24.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: setup-ubuntu
+        uses: ./.github/actions/setup_build
+        with:
+          llvm_version: ${{ inputs.llvm_version }}
+          llvm_source: ${{ inputs.llvm_source}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name : build run remote_hal
+        uses: ./.github/actions/do_build_run_remote_hal
+
   # Currently only builds and runs on x86_64 linux
   build_run_tornado:
     if: inputs.test_tornado
