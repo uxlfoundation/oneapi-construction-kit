@@ -289,22 +289,14 @@ jobs:
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
-          # platform: for toolchain files
           sparse-checkout: |
             scripts
             source
-            platform
             .github
-      # TODO: Consider separating out opencl_cts build and run in the future
       - name : build and upload opencl_cts
-        uses: ./.github/actions/do_build_opencl_cts
+        uses: ./.github/actions/do_build_opencl_cts_artefact
         with:
           target: 'host_x86_64_linux'
-      #- name : run opencl_cts
-      #  uses: ./.github/actions/run_opencl_cts
-      #  with:
-      #    target: ${{ matrix.target }}
-      #    llvm_version: ${{ inputs.llvm_version }}
 
   build_dpcpp_native_x86_64:
     needs: [workflow_vars]
