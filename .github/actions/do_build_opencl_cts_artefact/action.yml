@@ -38,8 +38,7 @@ runs:
         # v2025-01-22-00 is the latest release
         # v2025-04-21-00 is the latest prerelease
         # ref: v2025-01-22-00 - fails
-        ref: v2025-01-22-00
-        # ref: v2025-04-21-00
+        ref: v2025-04-21-00
 
     - name: build opencl cts
       shell: bash
@@ -59,12 +58,16 @@ runs:
         done
         # do build
         set -x
+        echo BEFORE
+        ls -l
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
           -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
         ninja -v
+        echo AFTER
+        ls -l
 
     - name: upload opencl cts artifacts
       uses: actions/upload-artifact@v4
