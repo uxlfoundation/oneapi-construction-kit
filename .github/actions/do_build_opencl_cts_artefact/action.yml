@@ -34,6 +34,10 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
+        # v2024-01-09-04 is used with the Gitlab artefact (at time of writing)
+        # v2025-01-22-00 is the latest release
+        # v2025-04-21-00 is the latest prerelease
+        ref: v2025-01-22-00
 
     - name: build opencl cts
       shell: bash
