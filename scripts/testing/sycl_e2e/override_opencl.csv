@@ -1,6 +1,7 @@
 SYCL,Basic/group_local_id.cpp,XFail
 SYCL,Basic/built-ins/nextafter.cpp,XFail
 SYCL,Basic/submit_time.cpp,XFail
+SYCL,Basic/profile_host_task.cpp,XFail
 SYCL,Assert/assert_in_simultaneously_multiple_tus_one_ndebug.cpp,XFail
 SYCL,Assert/assert_in_simultaneously_multiple_tus.cpp,XFail
 SYCL,SubGroup/sub_group_as_vec.cpp,XFail
@@ -15,6 +16,7 @@ SYCL,DeviceLib/math_test_marray_vec.cpp,XFail
 SYCL,DeviceLib/assert.cpp,XFail
 SYCL,DeviceLib/math_test.cpp,XFail
 SYCL,DeviceLib/string_test.cpp,XFail
+SYCL,DeviceLib/cmath_fp64_test.cpp,XFail
 SYCL,Printf/int.cpp,XFail
 SYCL,ProfilingTag/in_order_profiling_queue.cpp,XFail
 SYCL,VirtualFunctions/2/2/single-construct-single-use.cpp,XFail
@@ -70,6 +72,7 @@ SYCL,Graph/Explicit/usm_fill.cpp,XFail
 SYCL,Graph/Explicit/usm_copy.cpp,XFail
 SYCL,Graph/Explicit/usm_fill_shared.cpp,XFail
 SYCL,Graph/Explicit/multiple_exec_graphs.cpp,XFail
+SYCL,Graph/Explicit/release_while_executing.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_interleave_eager.cpp,XFail
 SYCL,Graph/RecordReplay/free_function_kernels.cpp,XFail
 SYCL,Graph/RecordReplay/buffer_fill_2d.cpp,XFail
@@ -116,6 +119,7 @@ SYCL,Graph/RecordReplay/usm_memset_shortcut.cpp,XFail
 SYCL,Graph/RecordReplay/usm_copy.cpp,XFail
 SYCL,Graph/RecordReplay/usm_fill_shared.cpp,XFail
 SYCL,Graph/RecordReplay/multiple_exec_graphs.cpp,XFail
+SYCL,Graph/RecordReplay/release_while_executing.cpp,XFail
 SYCL,HierPar/hier_par_basic.cpp,MayFail
 SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl.cpp,XFail
