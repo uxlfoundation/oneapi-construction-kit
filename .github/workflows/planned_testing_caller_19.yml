@@ -28,6 +28,7 @@ jobs:
       # ock: true
       # native_cpu: true
       # test_tornado: true
+      # test_remote_hal: true
       # test_sycl_cts: true
       # test_sycl_e2e: true
       # test_opencl_cts: true
