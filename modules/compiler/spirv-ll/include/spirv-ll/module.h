@@ -428,6 +428,9 @@ class Module : public ModuleHeader {
   /// respective loop latches.
   void resolveLoopControl();
 
+  using LLVMObjectPtr =
+      llvm::PointerUnion<llvm::Type *, llvm::Value *, llvm::DbgRecord *>;
+
   /// @brief Add a new ID/name pair to the module.
   ///
   /// @param[in] id The new ID.
@@ -698,6 +701,33 @@ class Module : public ModuleHeader {
   /// @return true on success, false if the ID already exists
   bool addID(spv::Id id, const OpCode *Op, llvm::Value *V);
 
+  /// @brief Add a new ID, matching Op and LLVM Debug Record to the module.
+  ///
+  /// If the ID doesn't exist, a new one will be created and inserted into the
+  /// Values map. If the ID already exists, the operation will fail, since SSA
+  /// form does not allow for IDs to be reassigned.
+  ///
+  /// @param[in] id The new ID.
+  /// @param[in] Op The Op associated with (i.e. creating) the ID.
+  /// @param[in] DR The LLVM debug record for the given Op.
+  ///
+  /// @return true on success, false if the ID already exists
+  bool addID(spv::Id id, const OpCode *Op, llvm::DbgRecord *DR);
+
+  /// @brief Add a new ID, matching Op and LLVM Debug Instruction or Record to
+  /// the module.
+  ///
+  /// If the ID doesn't exist, a new one will be created and inserted into the
+  /// Values map. If the ID already exists, the operation will fail, since SSA
+  /// form does not allow for IDs to be reassigned.
+  ///
+  /// @param[in] id The new ID.
+  /// @param[in] Op The Op associated with (i.e. creating) the ID.
+  /// @param[in] DI The LLVM debug instruction or record for the given Op.
+  ///
+  /// @return true on success, false if the ID already exists
+  bool addID(spv::Id id, const OpCode *Op, llvm::DbgInstPtr DI);
+
   /// @brief Get the LLVM Value for the given SPIR-V ID.
   ///
   /// @param[in] id The SPIR-V ID to fetch the value for.
@@ -718,11 +748,8 @@ class Module : public ModuleHeader {
     if (!id) {
       return nullptr;
     }
-    if (auto ty = Types.find(id); ty != Types.end()) {
-      return cast<Op>(ty->second.Op);
-    }
-    if (auto val = Values.find(id); val != Values.end()) {
-      return cast<Op>(val->second.Op);
+    if (auto it = LLVMObjects.find(id); it != LLVMObjects.end()) {
+      return cast<Op>(it->second.Op);
     }
     auto found = std::find_if(
         OpCodes.begin(), OpCodes.end(),
@@ -753,32 +780,19 @@ class Module : public ModuleHeader {
     return op;
   }
 
-  /// @brief Get the SpirV Op for the given LLVM Value.
+  /// @brief Get the SpirV Op for the given LLVM value, type, or debug record.
   ///
-  /// @param[in] v The LLVM value to find the Op for.
-  ///
-  /// @return A pointer to the Op or nullptr if not found.
-  template <class Op = OpCode>
-  const Op *get(llvm::Value *v) const {
-    auto found = std::find_if(
-        Values.begin(), Values.end(),
-        [v](decltype(*Values.begin()) &e) { return e.second.Value == v; });
-    SPIRV_LL_ASSERT(found != Values.end(), "OpCode for llvm::Value not found");
-    return cast<Op>(found->second.Op);
-  }
-
-  /// @brief Get the SpirV Op for the given LLVM Type.
-  ///
-  /// @param[in] ty The LLVM type to find the Op for.
+  /// @param[in] o The LLVM object to find the Op for.
   ///
   /// @return A pointer to the Op or nullptr if not found.
   template <class Op = OpCode>
-  const Op *getFromLLVMTy(llvm::Type *ty) const {
-    assert(!ty->isPointerTy() && "can't get the type of a pointer");
-    auto found = std::find_if(
-        Types.begin(), Types.end(),
-        [&](decltype(*Types.begin()) &e) { return e.second.Type == ty; });
-    SPIRV_LL_ASSERT(found != Types.end(), "OpCode for llvm::Type not found");
+  const Op *get(LLVMObjectPtr o) const {
+    auto found = std::find_if(LLVMObjects.begin(), LLVMObjects.end(),
+                              [o](decltype(*LLVMObjects.begin()) &e) {
+                                return e.second.LLVMObject == o;
+                              });
+    SPIRV_LL_ASSERT(found != LLVMObjects.end(),
+                    "OpCode for LLVM object not found");
     return cast<Op>(found->second.Op);
   }
 
@@ -931,19 +945,23 @@ class Module : public ModuleHeader {
   // made during translation.
   llvm::SmallVector<std::unique_ptr<const OpCode>, 64> OpCodes;
 
-  /// @brief Pair holding a SPIR-V Op and the matching LLVM Type.
-  struct TypePair {
+  /// @brief Pair holding a SPIR-V Op and the matching LLVM Type, Value, or
+  /// Debug Record.
+  struct LLVMObjectPair {
     /// @brief Empty constructor, initializes everything to nullptr.
-    TypePair() : Op(nullptr), Type(nullptr) {}
+    LLVMObjectPair() : Op(nullptr), LLVMObject(nullptr) {}
     /// @brief Constructor with initializers
-    TypePair(const OpCode *Op, llvm::Type *Type) : Op(Op), Type(Type) {}
+    LLVMObjectPair(const OpCode *Op, LLVMObjectPtr LLVMObject)
+        : Op(Op), LLVMObject(LLVMObject) {}
     /// @brief Pointer to the SPIR-V Op.
     const OpCode *Op;
-    /// @brief Pointer to the LLVM Type defined by the SPIR-V Op.
-    llvm::Type *Type;
+    /// @brief Pointer to the LLVM Type, Value, or Debug Record defined by the
+    /// SPIR-V Op.
+    LLVMObjectPtr LLVMObject;
   };
-  /// @brief Map of IDs to LLVM Types.
-  llvm::MapVector<spv::Id, TypePair> Types;
+  /// @brief Map of IDs to LLVM objects.
+  llvm::MapVector<spv::Id, LLVMObjectPair> LLVMObjects;
+
   /// @brief Map of function IDs to SPIR-V Types IDs
   llvm::DenseMap<spv::Id, llvm::SmallVector<spv::Id, 3>> ParamTypeIDs;
   /// @brief List of IDs that correspond to forward declared pointer types.
@@ -958,19 +976,6 @@ class Module : public ModuleHeader {
   /// @brief Map of IDs that correspond to sampled image structs.
   llvm::DenseMap<spv::Id, SampledImage> SampledImagesMap;
 
-  /// @brief Pair holding a SPIR-V Op and the matching LLVM Value.
-  struct ValuePair {
-    /// @brief Empty constructor, initializes everything to nullptr.
-    ValuePair() : Op(nullptr), Value(nullptr) {}
-    /// @brief Constructor with initializers
-    ValuePair(const OpCode *Op, llvm::Value *Value) : Op(Op), Value(Value) {}
-    /// @brief Pointer to the SPIR-V Op.
-    const OpCode *Op;
-    /// @brief Pointer to the LLVM Value defined by the SPIR-V Op.
-    llvm::Value *Value;
-  };
-  /// @brief Map of IDs to LLVM Values.
-  llvm::MapVector<spv::Id, ValuePair> Values;
   /// @brief Set containing IDs that have been decorated as builtin variables.
   llvm::SmallVector<spv::Id, 4> BuiltInVarIDs;
   /// @brief Map of spec constant IDs and their specialization IDs.
