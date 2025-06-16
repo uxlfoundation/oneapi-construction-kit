@@ -271,7 +271,7 @@ jobs:
 
 #
 # OCK artefats dependency needed for build only?
-# checkout source needed for build only?
+# checkout source only needed for build only?
 #
 
   build_opencl_cts_artefact_x86_64:
