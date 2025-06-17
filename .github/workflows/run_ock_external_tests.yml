@@ -310,13 +310,6 @@ jobs:
     steps:
       - name: clone ock
         uses: actions/checkout@v4
-        with:
-          # scripts: for run_cities.py
-          # source: for CTS filter.csv files
-          sparse-checkout: |
-            scripts
-            source
-            .github
       - name : build and upload opencl_cts
         uses: ./.github/actions/do_build_opencl_cts_artefact
         with:
