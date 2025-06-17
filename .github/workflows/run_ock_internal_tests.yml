@@ -291,7 +291,7 @@ jobs:
     # TODO: add limited run-cities testing
     - name: download opencl_cts artifact
       uses: ./.github/actions/download_artifact
-        with:
+      with:
         name: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
         needs_tar: 'true'
