@@ -388,7 +388,8 @@ jobs:
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     # do not run as PR job for now to avoid flooding the concurrency
     #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
-    if: ${{ contains(inputs.target_list, 'host_refsi_linux') }}
+    #if: ${{ contains(inputs.target_list, 'host_refsi_linux') }}
+    if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
