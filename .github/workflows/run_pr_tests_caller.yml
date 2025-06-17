@@ -1,8 +1,8 @@
 # Calling workflow for running PR style tests
 name: Run ock tests for PR style testing
-#on:
-#  pull_request:
-#    paths:
+on:
+  pull_request:
+    paths:
 #      - 'source/**'
 #      - 'clik/**'
 #      - 'modules/**'
@@ -14,7 +14,7 @@ name: Run ock tests for PR style testing
 #      - '.github/actions/setup_build/**'
 #      - '.github/workflows/run_ock_internal_tests.yml'
 #      - '.github/workflows/run_pr_tests_caller.yml'
-#      - 'CMakeLists.txt'
+      - 'CMakeLists.txt'
 
 permissions:
   packages: read
