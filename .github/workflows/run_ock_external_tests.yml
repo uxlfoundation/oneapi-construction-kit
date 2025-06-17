@@ -37,6 +37,11 @@ on:
         required: false
         type: boolean
         description: 'Enable testing opencl-cts'
+        default: true
+      opencl_cts_artifact:
+        required: false
+        type: boolean
+        description: 'Enable building opencl-cts aftifact'
         default: true  
       target_list:
         required: false
@@ -294,8 +299,8 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   build_opencl_cts_artefact_x86_64:
-    # ALAN TODO: if: <add "build opencl_cts artifact" flag
-    #            if: artifact not found in cache ??
+    if: inputs.opencl_cts_artifact
+    # if: artifact not found in cache ??
     needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu ]
     runs-on: 'ubuntu-22.04'
     container:

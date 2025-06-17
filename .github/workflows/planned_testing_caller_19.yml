@@ -35,6 +35,7 @@ jobs:
       run_internal: false
       # run_external: true
       # build_llvm: true
+      # opencl_cts_artifact: true
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
       # # the action run of a job or workflow
