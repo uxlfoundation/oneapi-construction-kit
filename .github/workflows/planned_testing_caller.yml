@@ -113,7 +113,9 @@ jobs:
 
   run_internal_tests:
     if: inputs.run_internal && always() && !failure() && !cancelled()
-    needs: [build_llvm_artefacts]
+    #needs: [build_llvm_artefacts]
+    # ALAN TODO: makes int tests wait for opencl_cts artifact
+    needs: [build_llvm_artefacts, run_external_tests]
     uses: ./.github/workflows/run_ock_internal_tests.yml
     with:
       is_pull_request: false
