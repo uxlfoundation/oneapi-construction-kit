@@ -24,6 +24,7 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
+      # ALAN TODO: set target for artifact build here - massage PR jobs that use any other
       target_list: '[ "host_x86_64_linux" ]'
       # ock: true
       native_cpu: false
@@ -35,6 +36,7 @@ jobs:
       # run_internal: true
       # run_external: true
       # build_llvm: true
+      # ALAN TODO: add opencl_cts artifact as "test" type
       # opencl_cts_artifact: true
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
