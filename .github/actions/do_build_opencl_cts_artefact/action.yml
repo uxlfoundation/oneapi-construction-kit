@@ -51,7 +51,7 @@ runs:
     - name: build opencl cts
       shell: bash
       run: |
-         # do build
+        # do build
         set -x
         echo BEFORE
         ls -l
@@ -106,4 +106,3 @@ runs:
     #      !test_conformance/test_common
     #      !test_conformance/test_common/**
     #    retention-days: 7
-THUB_WORKSPACE/opencl_cts_build
