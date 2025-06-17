@@ -41,7 +41,7 @@ runs:
     #    ref: v2025-04-21-00
 
     - name: download llvm artifact
-      uses: ./.github/actions/download-artifact
+      uses: ./.github/actions/download_artifact
       with:
         name: llvm-ubuntu-22.04-x86_64-19-RelAssert
         path: opencl_cts_build/build/llvm_install
