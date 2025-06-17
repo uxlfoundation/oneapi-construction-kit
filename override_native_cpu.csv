@@ -1,0 +1,1 @@
+SYCL_CTS,test_handler "handler.parallel_for*",MayFail

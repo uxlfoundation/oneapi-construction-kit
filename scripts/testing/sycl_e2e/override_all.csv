@@ -67,7 +67,6 @@ SYCL,AddressSanitizer/out-of-bounds/buffer/buffer_copy_fill.cpp,XFail
 SYCL,DeviceLib/bfloat16_conversion_dlopen_test.cpp,XFail
 SYCL,DeviceLib/bfloat16_conversion_test.cpp,XFail
 SYCL,DeviceLib/imf_simd_emulate_test.cpp,XFail
-SYCL,DeviceLib/cmath_fp64_test.cpp,XFail
 SYCL,DeviceLib/imf_fp64_test2.cpp,XFail
 SYCL,DeviceLib/imf_fp64_test.cpp,XFail
 SYCL,DeviceLib/cmath_test.cpp,XFail

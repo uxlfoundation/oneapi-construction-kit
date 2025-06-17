@@ -87,3 +87,4 @@ SYCL,FreeFunctionKernels/id_as_kernel_parameter.cpp,XFail
 SYCL,FreeFunctionKernels/vec_as_kernel_parameter.cpp,XFail
 SYCL,FreeFunctionKernels/marray_as_kernel_parameter.cpp,XFail
 SYCL,FreeFunctionKernels/usm_compatibility.cpp,XFail
+SYCL,FreeFunctionKernels/free_function_kernels_as_device_host_functions.cpp,XFail
