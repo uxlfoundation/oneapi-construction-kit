@@ -288,15 +288,26 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-    # TODO: add limited run-cities testing
+    # run-cities testing ALAN TODO: add following to above PR action ???
     - name: download opencl_cts artifact
       uses: actions/download-artifact@v4
       with:
         name: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
-    - name: list
+    - name: run_cities call and run
       run: |
         ls -laR
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py
+          -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv
+          -b $GITHUB_WORKSPACE/opencl_cts_install
+          -e "CA_RISCV_VF=1,S"
+          -L $GITHUB_WORKSPACE/build/lib
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so
+          -e OCL_ICD_VENDORS=/dev/null
+          --timeout 00:10:00
+          --verbose
+          -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
+        ninja -C $GITHUB_WORKSPACE/build check-ock
      # python scripts/testing/run_cities.py
      #   -s scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv
      #   -b CA-OpenCL-CTS/bin -e "CA_RISCV_VF=1,S"
@@ -306,7 +317,6 @@ jobs:
      #   --timeout 00:10:00 --verbose
      #   -l build/cts.log -f build/cts.fail -r build/cts_riscv_1s.xml
      # ninja -C build check-ock
-
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
