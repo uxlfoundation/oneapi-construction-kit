@@ -290,12 +290,10 @@ jobs:
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
     # TODO: add limited run-cities testing
     - name: download opencl_cts artifact
-      uses: ./.github/actions/download_artifact
+      uses: actions/download-artifact@v4
       with:
         name: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
-        needs_tar: 'true'
-        run_id: ${{ github.run_id }}
     - name: list
       run: |
         ls -laR
