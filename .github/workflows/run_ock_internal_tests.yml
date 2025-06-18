@@ -296,6 +296,7 @@ jobs:
         path: opencl_cts_install
     - name: run_cities call and run
       run: |
+        chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
         ls -laR
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
