@@ -217,6 +217,11 @@ class Profile(object):
             action="store_true",
             help="Return a zero exit code when there are test failures")
         parser.add_argument(
+            "--default-unknown",
+            default=False,
+            action="store_true",
+            help="default all tests as having Unknown attribute")
+        parser.add_argument(
             'patterns',
             metavar='PATTERN',
             type=str,
@@ -242,7 +247,7 @@ class Profile(object):
         if override_path and not os.path.exists(override_path):
             raise Exception("Override test list file does not exist")
         tests = (TestList
-                 .from_file(csv_paths, disabled_path, ignored_path, override_path, self.args.test_prefix)
+                 .from_file(csv_paths, disabled_path, ignored_path, override_path, self.args.test_prefix, self.args.default_unknown)
                  .filter(self.args.patterns))
         return tests
 
