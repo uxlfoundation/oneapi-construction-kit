@@ -35,8 +35,8 @@ runs:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
         # Note: at time of writing:
-        # v2025-01-22-00 is the latest release - but gives build errors,
-        # v2025-04-21-00 is the latest prerelease - and builds OK
+        #    v2025-01-22-00 is the latest release - but gives build errors,
+        #    v2025-04-21-00 is the latest prerelease - and builds OK
         ref: v2025-04-21-00
 
     - name: build opencl cts
