@@ -1,8 +1,6 @@
 SYCL,Basic/max_work_group_size_props.cpp,XFail
 SYCL,Basic/max_linear_work_group_size_props.cpp,XFail
-SYCL,Basic/kernel_info.cpp,XFail
 SYCL,Basic/large-range.cpp,XFail
-SYCL,Basic/kernel_info_attr.cpp,XFail
 SYCL,Basic/kernel_bundle/kernel_bundle_api.cpp,XFail
 SYCL,Basic/buffer/reinterpret.cpp,XFail
 SYCL,NewOffloadDriver/split-per-source-main.cpp,XFail
@@ -33,10 +31,7 @@ SYCL,DeviceImageDependencies/NewOffloadDriver/dynamic.cpp,XFail
 SYCL,Reduction/reduction_big_data.cpp,XFail
 SYCL,QueueFlushing/queue_flushing.cpp,XFail
 SYCL,SpecConstants/2020/handler-api.cpp,XFail
-SYCL,DeviceImageBackendContent/basic_test.cpp,XFail
 SYCL,Experimental/launch_queries/max_sub_group_size.cpp,XFail
-SYCL,DeviceCodeSplit/split-per-kernel.cpp,XFail
-SYCL,DeviceCodeSplit/split-per-source-main.cpp,XFail
 SYCL,syclcompat/device/device.cpp,XFail
 SYCL,syclcompat/math/math_compare.cpp,XFail
 SYCL,OptionalKernelFeatures/is_compatible/is_compatible_spir64.cpp,XFail
@@ -76,15 +71,8 @@ SYCL,Regression/barrier_with_work.cpp,XFail
 SYCL,Regression/usm_malloc_shared.cpp,XFail
 SYCL,Compression/no_zstd_warning.cpp,XFail
 SYCL,WorkGroupMemory/reduction_lambda.cpp,XFail
-SYCL,KernelAndProgram/free_function_kernels.cpp,XFail
 SYCL,KernelAndProgram/spec_constants_after_link.cpp,XFail
 SYCL,KernelAndProgram/fp32-precise-fdiv.cpp,XFail
 SYCL,KernelAndProgram/multiple-kernel-linking.cpp,XFail
-SYCL,KernelAndProgram/kernel-bundle-get-kernel.cpp,XFail
-SYCL,FreeFunctionKernels/accessor_as_kernel_parameter.cpp,XFail
-SYCL,FreeFunctionKernels/range_as_kernel_parameter.cpp,XFail
-SYCL,FreeFunctionKernels/id_as_kernel_parameter.cpp,XFail
-SYCL,FreeFunctionKernels/vec_as_kernel_parameter.cpp,XFail
-SYCL,FreeFunctionKernels/marray_as_kernel_parameter.cpp,XFail
-SYCL,FreeFunctionKernels/usm_compatibility.cpp,XFail
 SYCL,FreeFunctionKernels/free_function_kernels_as_device_host_functions.cpp,XFail
+SYCL,FreeFunctionKernels/address_test.cpp,XFail
