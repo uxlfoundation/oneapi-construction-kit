@@ -11,6 +11,11 @@ on:
         type: string
         description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
         default: 19
+      llvm_branch:
+        required: false
+        type: string
+        description: 'The actual llvm branch to check out e.g. release/19.x'
+        default: 'release/19.x'
       download_ock_artefact:
         required: false
         type: string
@@ -21,12 +26,28 @@ on:
         type: string
         description: 'method of sourcing llvm (install, cache or run-id)'
         default: 'cache'
+      use_llvm_github_cache:
+        required: false
+        type: boolean
+        description: 'Use a cache for any llvm artifact fetching and update if not found'
+        default: true
      
 permissions:
   packages: read
 
 jobs:
+  build_llvm_artefacts:
+    name: Create llvm artefact
+    uses: ./.github/workflows/create_llvm_artefacts.yml
+    secrets: inherit
+    with:
+      llvm_branch: ${{ inputs.llvm_branch }}
+      llvm_version: ${{ inputs.llvm_version }}
+      use_github_cache: ${{ inputs.use_llvm_github_cache }}
+      target_list: '[ host_x86_64_linux ]'
+
   create_ock_artefacts_ubuntu:
+    name: Create ock artefact
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -48,6 +69,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
+    name: Create ICD artefact
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -66,6 +88,7 @@ jobs:
           target: 'host_x86_64_linux'
 
   build_opencl_cts_artefact:
+    name: Create OpenCL-CTS artefact
     needs: [ build_icd, create_ock_artefacts_ubuntu ]
     runs-on: 'ubuntu-22.04'
     container:
