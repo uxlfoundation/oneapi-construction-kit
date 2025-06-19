@@ -92,6 +92,8 @@ class LitProfile(DefaultProfile):
 
     def load_tests(self, csv_paths, disabled_path, ignored_path, override_path):
         """ This uses lit to discover the test lists. """
+        if csv_paths:
+            print("Warning: csv list not supported for Lit profile")
         if disabled_path:
             print("Warning: disabled list not supported for Lit profile")
         if ignored_path:
@@ -118,10 +120,6 @@ class LitProfile(DefaultProfile):
             self.lit_config.maxIndividualTestTime = self.timeout
         self.discovered_tests = lit.discovery.find_tests_for_inputs(
             self.lit_config, self.args.lit_dir)
-        csv_tests = []
-        if csv_paths:
-            for csv_path in csv_paths:
-                csv_tests.extend(TestList.read_csv_file(csv_path))
         override_tests = []
         if override_path:
             override_tests = TestList.read_csv_file(override_path)
@@ -145,16 +143,16 @@ class LitProfile(DefaultProfile):
         for cfg in {t.config for t in self.discovered_tests}:
             cfg.environment.update(self.tmp_dir_envs)
 
-        # Add from discovered tests, adding to attributes as necesssary from the csv files
+        # Add from discovered tests, adding to attributes as necessary from the csv files
         for d in self.discovered_tests:
             test_info = TestInfo(d.suite.config.name +
                                  "/" + '/'.join(d.path_in_suite), d, [])
             # Set the default unknown attribute based on the command arg
             test_info.unknown = self.args.default_unknown
-            # Check against csv and override files and update the attributes
+            # Check against override files and update the attributes
             # Note this will normally set the Unknown attribute to False unless the attribute
             # is in the csv files
-            for chunks in csv_tests + override_tests:
+            for chunks in override_tests:
                 if len(chunks) >= 2 and chunks[0] == d.suite.config.name and chunks[1] == '/'.join(d.path_in_suite):
                     test_info.update_test_info_from_attribute(chunks[2] if len(chunks) >= 3 else "")
 
