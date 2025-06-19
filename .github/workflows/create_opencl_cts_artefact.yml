@@ -44,7 +44,7 @@ jobs:
       llvm_branch: ${{ inputs.llvm_branch }}
       llvm_version: ${{ inputs.llvm_version }}
       #use_github_cache: ${{ inputs.use_llvm_github_cache }}
-      use_github_cache: false
+      use_github_cache: true
       target_list: '[ "host_x86_64_linux" ]'
 
   create_ock_artefact:
