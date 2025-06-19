@@ -48,6 +48,7 @@ jobs:
 
   create_ock_artefacts_ubuntu:
     name: Create ock artefact
+    needs: [ build_llvm_artefacts ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
