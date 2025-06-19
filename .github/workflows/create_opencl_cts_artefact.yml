@@ -1,0 +1,90 @@
+# Workflow for creating OpenCL-CTS artefact
+
+name: Create OpenCL-CTS artefact
+
+on:
+  workflow_dispatch:
+    inputs:
+      llvm_version:
+        required: false
+        type: string
+        description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+        default: 19
+      download_ock_artefact:
+        required: false
+        type: string
+        description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
+        default: ''
+      llvm_source:
+        required: false
+        type: string
+        description: 'method of sourcing llvm (install, cache or run-id)'
+        default: 'cache'
+     
+permissions:
+  packages: read
+
+jobs:
+  create_ock_artefacts_ubuntu:
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup_gh
+        with:
+          os: 'ubuntu'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: build ock artefact
+        uses: ./.github/actions/do_build_ock_artefact
+        with:
+          target: 'host_x86_64_linux'
+          llvm_version: ${{ inputs.llvm_version }}
+          download_ock_artefact: ${{ inputs.download_ock_artefact }}
+          llvm_source: ${{ inputs.llvm_source }}
+
+  build_icd:
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: clone ock platform
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            platform
+            .github
+      - name : build and upload icd ${{matrix.target}}
+        uses: ./.github/actions/do_build_icd
+        with:
+          target: 'host_x86_64_linux'
+
+  build_opencl_cts_artefact:
+    needs: [ build_icd, create_ock_artefacts_ubuntu ]
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: clone ock
+        uses: actions/checkout@v4
+        with:
+          # scripts: for run_cities.py
+          # source: for CTS filter.csv files
+          # platform: for toolchain files  ALAN TODO: not needed for x86_64
+      # ALAN TODO: platform not needed for x86_64
+          sparse-checkout: |
+            scripts
+            source
+            platform
+            .github
+      - name : build and upload opencl_cts artefact
+        uses: ./.github/actions/do_build_opencl_cts_artefact
+        with:
+          target: 'host_x86_64_linux'
