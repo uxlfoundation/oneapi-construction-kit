@@ -47,6 +47,7 @@ jobs:
       target_list: '[ "host_x86_64_linux" ]'
 
   create_ock_artefact:
+    if: false
     name: Create ock artefact
     needs: [ build_llvm_artefact ]
     runs-on: 'ubuntu-22.04'
@@ -70,6 +71,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
+    if: false
     name: Create ICD artefact
     runs-on: 'ubuntu-22.04'
     container:
@@ -89,6 +91,7 @@ jobs:
           target: 'host_x86_64_linux'
 
   build_opencl_cts_artefact:
+    if: false
     name: Create OpenCL-CTS artefact
     needs: [ build_icd, create_ock_artefact ]
     runs-on: 'ubuntu-22.04'
