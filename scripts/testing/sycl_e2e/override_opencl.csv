@@ -120,6 +120,7 @@ SYCL,Graph/RecordReplay/usm_copy.cpp,XFail
 SYCL,Graph/RecordReplay/usm_fill_shared.cpp,XFail
 SYCL,Graph/RecordReplay/multiple_exec_graphs.cpp,XFail
 SYCL,Graph/RecordReplay/release_while_executing.cpp,XFail
+SYCL,Graph/RecordReplay/ext_oneapi_enqueue_functions_with_dependencies.cpp,XFail
 SYCL,HierPar/hier_par_basic.cpp,MayFail
 SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl.cpp,XFail
@@ -146,3 +147,4 @@ SYCL,Regression/group_load_fortified.cpp,XFail
 SYCL,SeparateCompile/test.cpp,XFail
 SYCL,Tracing/code_location_queue_parallel_for.cpp,XFail
 SYCL,Config/kernel_from_file.cpp,XFail
+SYCL,FreeFunctionKernels/template_specialization.cpp,XFail
