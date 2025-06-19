@@ -36,7 +36,7 @@ permissions:
   packages: read
 
 jobs:
-  build_llvm_artefacts:
+  build_llvm_artefact:
     name: Create llvm artefact
     uses: ./.github/workflows/create_llvm_artefacts.yml
     secrets: inherit
@@ -44,11 +44,11 @@ jobs:
       llvm_branch: ${{ inputs.llvm_branch }}
       llvm_version: ${{ inputs.llvm_version }}
       use_github_cache: ${{ inputs.use_llvm_github_cache }}
-      target_list: '[ host_x86_64_linux ]'
+      target_list: '[ "host_x86_64_linux" ]'
 
-  create_ock_artefacts_ubuntu:
+  create_ock_artefact:
     name: Create ock artefact
-    needs: [ build_llvm_artefacts ]
+    needs: [ build_llvm_artefact ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -90,7 +90,7 @@ jobs:
 
   build_opencl_cts_artefact:
     name: Create OpenCL-CTS artefact
-    needs: [ build_icd, create_ock_artefacts_ubuntu ]
+    needs: [ build_icd, create_ock_artefact ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
