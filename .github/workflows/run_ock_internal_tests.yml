@@ -306,6 +306,8 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
+        mv test_conformance opencl_cts_install
+        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
         chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
         set -x
@@ -363,6 +365,8 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
+        mv test_conformance opencl_cts_install
+        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
         chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
         set -x
@@ -472,9 +476,6 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
     # run-cities testing ALAN TODO: add following to above PR action ???
-    - name: list delete
-      run: |
-        ls -la
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
@@ -492,7 +493,8 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        ls -la
+        mv test_conformance opencl_cts_install
+        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
         chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
@@ -509,16 +511,6 @@ jobs:
           -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml
         ninja -C build check-ock
         ninja -C build check-ock-UnitCL-half
-
-        #-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-        #-b $GITHUB_WORKSPACE/opencl_cts_install \
-        #-e "CA_RISCV_VF=1,S" \
-        #-L $GITHUB_WORKSPACE/build/lib \
-        #-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
-        #-e OCL_ICD_VENDORS=/dev/null \
-        #--timeout 00:10:00 \
-        #--verbose \
-        #-l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end:
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
