@@ -4,6 +4,10 @@ description: build opencl cts
 inputs:
   target:
     description: 'target architecture'
+  cache_update:
+    type: boolean
+    description: 'flag indicating that a cache update for the built artifact is required'
+    default: false
 
 runs:
   using: "composite"
@@ -80,3 +84,19 @@ runs:
           !test_conformance/test_common/**
         retention-days: 7
 
+    - name: update opencl cts artifact cache
+      if: inputs.cache_update == 'true'
+      uses: actions/cache/save@v4
+      id: cache
+      with:
+        key: opencl_cts_${{inputs.target}}
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**

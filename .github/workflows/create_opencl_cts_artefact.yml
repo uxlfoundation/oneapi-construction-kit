@@ -1,8 +1,9 @@
-# Workflow for creating OpenCL-CTS artefact
+# Workflow for creating and caching OpenCL-CTS artefact
 
-name: Create OpenCL-CTS artefact
+name: Create an cache OpenCL-CTS artefact
 
 on:
+  # ALAN TODO: restore workflow_dispatch - and usage of all inputs
   #workflow_dispatch:
   pull_request:
     inputs:
@@ -17,10 +18,11 @@ on:
         description: 'The actual llvm branch to check out e.g. release/19.x'
         default: 'release/19.x'
       download_ock_artefact:
+        # ALAN TODO: is this needed here?
         required: false
         type: string
         description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
-        default: ''
+        default: '15775731955'
       llvm_source:
         required: false
         type: string
@@ -36,6 +38,7 @@ permissions:
   packages: read
 
 jobs:
+  # ALAN TODO:  delete this once happy!
   print_inputs:
     name: Print inputs
     runs-on: 'ubuntu-22.04'
@@ -127,6 +130,7 @@ jobs:
             platform
             .github
       - name : build and upload opencl_cts artefact
-        uses: ./.github/actions/do_build_opencl_cts_artefact
+        uses: ./.github/actions/do_build_opencl_cts
         with:
           target: 'host_x86_64_linux'
+          cache_update: true
