@@ -293,7 +293,16 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: opencl_cts_install
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
@@ -341,7 +350,16 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: opencl_cts_install
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
@@ -458,7 +476,16 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: opencl_cts_install
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |

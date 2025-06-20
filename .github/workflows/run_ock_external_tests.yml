@@ -179,7 +179,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
-    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e ) && contains(inputs.target_list, 'linux')
+    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'linux')
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
