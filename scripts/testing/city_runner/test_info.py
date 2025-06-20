@@ -56,6 +56,7 @@ class TestInfo(object):
         self.pool = Pool.NORMAL
         self.xfail = False
         self.mayfail = False
+        self.unknown = False
 
     def match(self, pattern):
         """ Determine whether the test name matches the pattern or not. """
@@ -89,6 +90,7 @@ class TestInfo(object):
         self.unimplemented = attribute.casefold() == 'Unimplemented'.casefold()
         self.xfail = attribute.casefold() == 'Xfail'.casefold()
         self.mayfail = attribute.casefold() == 'Mayfail'.casefold()
+        self.unknown = attribute.casefold() == 'Unknown'.casefold()
 
 class TestList(object):
     """ Holds a list of tests. """
@@ -111,7 +113,7 @@ class TestList(object):
         return TestList(new_tests, self.executables)
 
     @staticmethod
-    def read_override_file(override_file_path):
+    def read_csv_file(override_file_path):
         override_tests = []
         if override_file_path:
             with open(override_file_path, "r") as f:
@@ -123,7 +125,7 @@ class TestList(object):
         return override_tests
 
     @classmethod
-    def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, override_file_path, prefix=""):
+    def from_file(cls, list_file_paths, disabled_file_path, ignored_file_path, override_file_path, prefix="", default_unknown = False):
         """ Load a list of tests from a CTS list file. """
         tests = []
         disabled_tests = []
@@ -148,7 +150,7 @@ class TestList(object):
         # override_matches
         override_tests = []
         if override_file_path:
-            override_tests = TestList.read_override_file(override_file_path)
+            override_tests = TestList.read_csv_file(override_file_path)
         for list_file_path in list_file_paths:
             with open(list_file_path, "r") as f:
                 stripped = (line.strip() for line in f)
@@ -225,6 +227,7 @@ class TestList(object):
                     test.unimplemented = unimplemented
                     test.xfail = xfail
                     test.mayfail = mayfail
+                    test.unknown = default_unknown
 
                     if len(chunks) >= 3:
                         test.update_test_info_from_attribute(chunks[2])
@@ -330,13 +333,13 @@ class TestResults(object):
             elif run.status == "FAIL":
                 self.num_xfails += 1
                 run.status = "XFAIL"
-        elif run.status == "PASS":
+        elif run.status == "PASS" and not run.test.unknown:
             self.num_passes += 1
-        elif run.test.mayfail:
+        elif run.test.mayfail and not run.test.unknown:
             if run.status == "FAIL":
                 self.num_mayfails += 1
                 run.status = "MAYFAIL"
-        elif run.status == "FAIL":
+        elif run.status == "FAIL" and not run.test.unknown:
             self.num_fails += 1
 
         if run.total_tests is not None:
@@ -360,6 +363,9 @@ class TestResults(object):
         self.xpass_list = []
         self.mayfail_list = []
         self.xfail_list = []
+        self.unknown_pass_list = []
+        self.unknown_fail_list = []
+        self.unknown_timeout_list = []
 
         for test in self.tests:
             try:
@@ -375,16 +381,24 @@ class TestResults(object):
                 self.add_run(run)
                 self.fail_list.append(run)
             else:
-                if run.status == "FAIL":
-                    self.fail_list.append(run)
-                elif run.status == "TIMEOUT":
-                    self.timeout_list.append(run)
-                elif run.status == "XPASS":
-                    self.xpass_list.append(run)
-                elif run.status == "MAYFAIL":
-                    self.mayfail_list.append(run)
-                elif run.status == "XFAIL":
-                    self.xfail_list.append(run)
+                if not test.unknown:
+                    if run.status == "FAIL":
+                        self.fail_list.append(run)
+                    elif run.status == "TIMEOUT":
+                        self.timeout_list.append(run)
+                    elif run.status == "XPASS":
+                        self.xpass_list.append(run)
+                    elif run.status == "MAYFAIL":
+                        self.mayfail_list.append(run)
+                    elif run.status == "XFAIL":
+                        self.xfail_list.append(run)
+                else:
+                    if run.status == "PASS":
+                        self.unknown_pass_list.append(run)
+                    elif run.status == "TIMEOUT":
+                        self.unknown_timeout_list.append(run)
+                    else:
+                        self.unknown_fail_list.append(run)
 
     def write_junit(self, out, suite_name):
         """ Print results to the Junit XML file for reading by Jenkins."""

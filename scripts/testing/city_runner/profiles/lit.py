@@ -122,7 +122,7 @@ class LitProfile(DefaultProfile):
             self.lit_config, self.args.lit_dir)
         override_tests = []
         if override_path:
-            override_tests = TestList.read_override_file(override_path)
+            override_tests = TestList.read_csv_file(override_path)
         test_info_list = []
 
         if self.args.lit_filter:
@@ -143,10 +143,15 @@ class LitProfile(DefaultProfile):
         for cfg in {t.config for t in self.discovered_tests}:
             cfg.environment.update(self.tmp_dir_envs)
 
+        # Add from discovered tests, adding to attributes as necessary from the csv files
         for d in self.discovered_tests:
             test_info = TestInfo(d.suite.config.name +
                                  "/" + '/'.join(d.path_in_suite), d, [])
-            # Check against override file
+            # Set the default unknown attribute based on the command arg
+            test_info.unknown = self.args.default_unknown
+            # Check against override files and update the attributes
+            # Note this will normally set the Unknown attribute to False unless the attribute
+            # is in the csv files
             for chunks in override_tests:
                 if len(chunks) >= 2 and chunks[0] == d.suite.config.name and chunks[1] == '/'.join(d.path_in_suite):
                     test_info.update_test_info_from_attribute(chunks[2] if len(chunks) >= 3 else "")
