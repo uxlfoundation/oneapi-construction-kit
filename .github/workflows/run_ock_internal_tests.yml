@@ -472,6 +472,9 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
     # run-cities testing ALAN TODO: add following to above PR action ???
+    - name: list delete
+      run: |
+        ls -la
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
@@ -489,6 +492,7 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
+        ls -la
         # ALAN TODO: handle perms at source
         chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
