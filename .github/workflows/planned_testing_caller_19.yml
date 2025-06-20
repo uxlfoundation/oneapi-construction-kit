@@ -1,6 +1,7 @@
 name: run planned tests for llvm 19
 on:
-  pull_request:
+  #pull_request:
+  workflow_dispatch:
     paths:
       - '.github/workflows/planned_testing_caller_19.yml'
   schedule:
@@ -16,8 +17,7 @@ concurrency:
 
 jobs:
   L19_:
-    #if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
-    if: false
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
     uses: ./.github/workflows/planned_testing_caller.yml
     with:
       llvm_version: '19'
