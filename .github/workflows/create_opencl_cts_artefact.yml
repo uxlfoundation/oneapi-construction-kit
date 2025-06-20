@@ -47,26 +47,23 @@ jobs:
       - name: Inputs
         shell: bash
         run: |
-          echo  llvm_version = ${{ inputs.llvm_version }}
-          echo  llvm_branch = ${{ inputs.llvm_branch }}
-          echo  download_ock_artefact = ${{ inputs.download_ock_artefact }}
-          echo  llvm_source = ${{ inputs.llvm_source }}
-          echo  use_llvm_github_cache = ${{ inputs.use_llvm_github_cache }}
+          echo  llvm_version = ${{ inputs.llvm_version || '19' }}
+          echo  llvm_branch = ${{ inputs.llvm_branch || 'release/19.x' }}
+          echo  download_ock_artefact = ${{ inputs.download_ock_artefact || '' }}
+          echo  llvm_source = ${{ inputs.llvm_source || 'cache' }}
+          echo  use_llvm_github_cache = ${{ inputs.use_llvm_github_cache || 'true' }}
 
   build_llvm_artefact:
-    if: false
     name: Create llvm artefact
     uses: ./.github/workflows/create_llvm_artefacts.yml
     secrets: inherit
     with:
-      llvm_branch: ${{ inputs.llvm_branch }}
-      llvm_version: ${{ inputs.llvm_version }}
-      #use_github_cache: ${{ inputs.use_llvm_github_cache }}
-      use_github_cache: true
+      llvm_branch: ${{ inputs.llvm_branch || 'release/19.x' }}
+      llvm_version: ${{ inputs.llvm_version || '19' }}
+      use_github_cache: ${{ inputs.use_llvm_github_cache || 'true' }}
       target_list: '[ "host_x86_64_linux" ]'
 
   create_ock_artefact:
-    if: false
     name: Create ock artefact
     needs: [ build_llvm_artefact ]
     runs-on: 'ubuntu-22.04'
@@ -85,12 +82,11 @@ jobs:
         uses: ./.github/actions/do_build_ock_artefact
         with:
           target: 'host_x86_64_linux'
-          llvm_version: ${{ inputs.llvm_version }}
-          download_ock_artefact: ${{ inputs.download_ock_artefact }}
-          llvm_source: ${{ inputs.llvm_source }}
+          llvm_version: ${{ inputs.llvm_version || '19' }}
+          download_ock_artefact: ${{ inputs.download_ock_artefact || '' }}
+          llvm_source: ${{ inputs.llvm_source || 'cache' }}
 
   build_icd:
-    if: false
     name: Create ICD artefact
     runs-on: 'ubuntu-22.04'
     container:
@@ -104,13 +100,12 @@ jobs:
           sparse-checkout: |
             platform
             .github
-      - name : build and upload icd ${{matrix.target}}
+      - name : build and upload icd
         uses: ./.github/actions/do_build_icd
         with:
           target: 'host_x86_64_linux'
 
   build_opencl_cts_artefact:
-    if: false
     name: Create OpenCL-CTS artefact
     needs: [ build_icd, create_ock_artefact ]
     runs-on: 'ubuntu-22.04'
