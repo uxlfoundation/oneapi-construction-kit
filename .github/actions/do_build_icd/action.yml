@@ -22,6 +22,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-Headers
         path: headers
+        ref: v2025.06.13
 
     - name: cmake headers
       shell: bash
@@ -49,6 +50,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-ICD-Loader
         path: icd
+        ref: v2024.10.24
 
     - name: icd cmake
       shell: bash
