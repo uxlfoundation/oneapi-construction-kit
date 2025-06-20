@@ -38,11 +38,6 @@ on:
         type: boolean
         description: 'Enable testing opencl-cts'
         default: true
-      opencl_cts_artifact:
-        required: false
-        type: boolean
-        description: 'Enable building opencl-cts aftifact'
-        default: true  
       target_list:
         required: false
         description: 'List of enabled targets'
@@ -184,7 +179,7 @@ jobs:
           llvm_source: ${{ inputs.llvm_source }}
 
   build_icd:
-    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e || inputs.opencl_cts_artifact ) && contains(inputs.target_list, 'linux')
+    if: inputs.ock && ( inputs.test_tornado || inputs.test_opencl_cts || inputs.test_sycl_cts || inputs.test_sycl_e2e ) && contains(inputs.target_list, 'linux')
     needs: [workflow_vars]
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -297,34 +292,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           llvm_version: ${{ inputs.llvm_version }}
-
-  build_opencl_cts_artefact_x86_64:
-    if: inputs.opencl_cts_artifact
-    # if: artifact not found in cache ??
-    needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu ]
-    runs-on: 'ubuntu-22.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-    steps:
-      # ALAN TO DO: move checkout to build artifact workflow/action - call only here
-      - name: clone ock
-        uses: actions/checkout@v4
-        with:
-          # scripts: for run_cities.py
-          # source: for CTS filter.csv files
-          # platform: for toolchain files  ALAN TODO: not needed for x86_64
-      # ALAN TODO: platform not needed for x86_64
-          sparse-checkout: |
-            scripts
-            source
-            platform
-            .github
-      - name : build and upload opencl_cts artefact
-        uses: ./.github/actions/do_build_opencl_cts_artefact
-        with:
-          target: 'host_x86_64_linux'
 
   build_dpcpp_native_x86_64:
     needs: [workflow_vars]

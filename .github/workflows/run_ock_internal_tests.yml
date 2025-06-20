@@ -289,11 +289,12 @@ jobs:
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
     # run-cities testing ALAN TODO: add following to above PR action ???
-    - name: download opencl_cts artifact
-      uses: actions/download-artifact@v4
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
       with:
-        name: opencl_cts_host_x86_64_linux
+        key: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
+        fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
@@ -336,11 +337,12 @@ jobs:
         build_targets: 'check-ock-UnitCL-group-vecz'
         disable_unitcl_vecz_checks: 'OFF'
     # run-cities testing ALAN TODO: add following to above PR action ???
-    - name: download opencl_cts artifact
-      uses: actions/download-artifact@v4
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
       with:
-        name: opencl_cts_host_x86_64_linux
+        key: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
+        fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
@@ -452,11 +454,12 @@ jobs:
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
     # run-cities testing ALAN TODO: add following to above PR action ???
-    - name: download opencl_cts artifact
-      uses: actions/download-artifact@v4
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
       with:
-        name: opencl_cts_host_x86_64_linux
+        key: opencl_cts_host_x86_64_linux
         path: opencl_cts_install
+        fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
