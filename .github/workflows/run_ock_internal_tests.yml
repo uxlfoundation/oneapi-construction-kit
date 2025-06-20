@@ -306,14 +306,12 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        mv test_conformance opencl_cts_install
-        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
+        chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-          -b $GITHUB_WORKSPACE/opencl_cts_install \
+          -b $GITHUB_WORKSPACE/test_conformance \
           -e "CA_RISCV_VF=1,S" \
           -L $GITHUB_WORKSPACE/build/lib \
           -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
@@ -365,14 +363,12 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        mv test_conformance opencl_cts_install
-        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
+        chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-          -b $GITHUB_WORKSPACE/opencl_cts_install \
+          -b $GITHUB_WORKSPACE/test_conformance \
           -e "CA_RISCV_VF=1,S,VP" \
           -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
           -e OCL_ICD_VENDORS=/dev/null \
@@ -493,16 +489,14 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        mv test_conformance opencl_cts_install
-        ls -la opencl_cts_install
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/opencl_cts_install
+        chmod -R +x $GITHUB_WORKSPACE/test_conformance
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
           -i $GITHUB_WORKSPACE/skipped.txt \
-          -b $GITHUB_WORKSPACE/opencl_cts_install \
+          -b $GITHUB_WORKSPACE/test_conformance \
           -L $GITHUB_WORKSPACE/build/lib \
           -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
           -e OCL_ICD_VENDORS=/dev/null \
