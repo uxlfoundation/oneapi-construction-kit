@@ -30,7 +30,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: @foo.mux-barrier-region(ptr [[D:%.*]], ptr [[A:%.*]], ptr [[MEM:%.*]])
 ; CHECK:  [[FIXED_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 2
 ; CHECK:  [[VSCALE:%.*]] = call i64 @llvm.vscale.i64()
-; CHECK:  [[NXV1I16_OFFS:%.*]] = mul i64 [[VSCALE]], 32
+; CHECK:  [[NXV1I16_OFFS:%.*]] = mul {{(nuw )?}}i64 [[VSCALE]], 32
 ; CHECK:  [[NXV1I16_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 4, i64 [[NXV1I16_OFFS]]
 ; CHECK:  [[NXV8I32_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 4, i32 0
 ; CHECK:  [[I8_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 0
@@ -52,7 +52,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: @foo.mux-barrier-region.1(ptr [[D:%.*]], ptr [[A:%.*]], ptr [[MEM:%.*]])
 ; CHECK:  [[FIXED_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 2
 ; CHECK:  [[VSCALE:%.*]] = call i64 @llvm.vscale.i64()
-; CHECK:  [[NXV1I16_OFFS:%.*]] = mul i64 [[VSCALE]], 32
+; CHECK:  [[NXV1I16_OFFS:%.*]] = mul {{(nuw )?}}i64 [[VSCALE]], 32
 ; CHECK:  [[NXV1I16_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 4, i64 [[NXV1I16_OFFS]]
 ; CHECK:  [[NXV8I32_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 4, i32 0
 ; CHECK:  [[I8_ADDR:%.*]] = getelementptr inbounds %foo_live_mem_info, ptr [[MEM]], i32 0, i32 0
@@ -82,7 +82,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: define void @foo.mux-barrier-wrapper(ptr %d, ptr %a)
 ; CHECK:  [[VSCALE:%.*]] = call i64 @llvm.vscale.i64()
-; CHECK:  [[SCALABLE_SIZE:%.*]] = mul i64 [[VSCALE:%.*]], 64
+; CHECK:  [[SCALABLE_SIZE:%.*]] = mul {{(nuw )?}}i64 [[VSCALE:%.*]], 64
 ; CHECK:  [[PER_WI_SIZE:%.*]] = add i64 [[SCALABLE_SIZE]], 32
 ; CHECK:  [[TOTAL_WG_SIZE:%.*]] = mul i64 [[PER_WI_SIZE]], {{%.*}}
 ; CHECK:  %live_variables = alloca i8, i64 [[TOTAL_WG_SIZE]], align 32
