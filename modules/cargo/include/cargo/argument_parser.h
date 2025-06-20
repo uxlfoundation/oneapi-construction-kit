@@ -219,7 +219,7 @@ class argument {
     cargo::array_view<cargo::string_view> Choices;
   };
   union {
-    bool *Bool;
+    bool *Bool = {};
     cargo::string_view *Value;
     ChoiceT Choice;
     cargo::small_vector<cargo::string_view, 4> *Values;
