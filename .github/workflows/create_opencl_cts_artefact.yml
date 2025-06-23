@@ -4,8 +4,8 @@ name: Create an cache OpenCL-CTS artefact
 
 on:
   # ALAN TODO: restore workflow_dispatch - and usage of all inputs
-  workflow_dispatch:
-  #pull_request:
+  #workflow_dispatch:
+  pull_request:
     inputs:
       llvm_version:
         required: false
@@ -125,8 +125,7 @@ jobs:
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
-          # platform: for toolchain files  ALAN TODO: not needed for x86_64
-      # ALAN TODO: platform not needed for x86_64
+          # platform: for toolchain files
           sparse-checkout: |
             scripts
             source

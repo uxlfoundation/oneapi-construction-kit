@@ -1,8 +1,8 @@
 name: run planned tests for llvm 19
 on:
-  pull_request:
+  #pull_request:
   # Disable planned tests by using workflow_dispatch
-  #workflow_dispatch:
+  workflow_dispatch:
     paths:
       - '.github/workflows/planned_testing_caller_19.yml'
   schedule:
