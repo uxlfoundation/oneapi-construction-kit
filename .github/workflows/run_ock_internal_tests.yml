@@ -307,7 +307,7 @@ jobs:
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/test_conformance
+        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
@@ -364,7 +364,7 @@ jobs:
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/test_conformance
+        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
@@ -490,7 +490,7 @@ jobs:
     - name: run_cities call and run
       run: |
         # ALAN TODO: handle perms at source
-        chmod -R +x $GITHUB_WORKSPACE/test_conformance
+        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \

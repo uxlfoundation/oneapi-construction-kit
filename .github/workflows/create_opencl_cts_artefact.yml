@@ -38,23 +38,6 @@ permissions:
   packages: read
 
 jobs:
-  # ALAN TODO:  delete this once happy!
-  print_inputs:
-    name: Print inputs
-    runs-on: 'ubuntu-22.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-    steps:
-      - name: Inputs
-        shell: bash
-        run: |
-          echo  llvm_version = ${{ inputs.llvm_version || '19' }}
-          echo  llvm_branch = ${{ inputs.llvm_branch || 'release/19.x' }}
-          echo  download_ock_artefact = ${{ inputs.download_ock_artefact || 'host_x86_64_linux=15775731955' }}
-          echo  llvm_source = ${{ inputs.llvm_source || 'cache' }}
-          echo  use_llvm_github_cache = ${{ inputs.use_llvm_github_cache || true }}
 
   build_llvm_artefact:
     name: Create llvm artefact
