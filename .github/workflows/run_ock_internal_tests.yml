@@ -59,7 +59,9 @@ permissions:
   packages: read
 
 env:
-  BIG_ENV: "hello"
+  BIG_ENV: "hello
+world
+stuff"
 
 jobs:
 
@@ -298,7 +300,6 @@ jobs:
         key: opencl_cts_host_x86_64_linux
         path: |
           test_conformance
-          $BIG_ENV
           ${{ env.BIG_ENV }}
         #path: |
         #  test_conformance
