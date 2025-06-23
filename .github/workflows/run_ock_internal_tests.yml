@@ -58,6 +58,9 @@ on:
 permissions:
   packages: read
 
+env:
+  BIG_ENV: "hello"
+
 jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
@@ -295,14 +298,18 @@ jobs:
         key: opencl_cts_host_x86_64_linux
         path: |
           test_conformance
-          !test_conformance/**/.*
-          !test_conformance/**/CMakeCache.txt
-          !test_conformance/**/CMakeFiles
-          !test_conformance/**/CMakeFiles/**
-          !test_conformance/**/*.cmake
-          !test_conformance/**/*.ninja
-          !test_conformance/test_common
-          !test_conformance/test_common/**
+          $BIG_ENV
+          ${{ env.BIG_ENV }}
+        #path: |
+        #  test_conformance
+        #  !test_conformance/**/.*
+        #  !test_conformance/**/CMakeCache.txt
+        #  !test_conformance/**/CMakeFiles
+        #  !test_conformance/**/CMakeFiles/**
+        #  !test_conformance/**/*.cmake
+        #  !test_conformance/**/*.ninja
+        #  !test_conformance/test_common
+        #  !test_conformance/test_common/**
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
