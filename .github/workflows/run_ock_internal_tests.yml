@@ -60,22 +60,6 @@ permissions:
 
 jobs:
 
-  opencl_cts_artifact_path:
-    runs-on: ubuntu-22.04
-    outputs:
-      artifact_path: ${{ steps.opencl_cts_artifact_path.outputs.ARTIFACT_PATH }}
-    steps:
-      - name: Artifact Path
-        id: opencl_cts_artifact_path
-        run: |
-          ARTIFACT_PATH="this is line one \n
-                         this is line two \n
-                         this is line three \n"
-          echo "ARTIFACT_PATH<<EOF" >> $GITHUB_ENV
-          # here we can place the command that will generate multi-line text
-          echo $ARTIFACT_PATH >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
     #if: contains(inputs.target_list, 'host_x86_64_linux')
@@ -285,7 +269,6 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    needs: [ opencl_cts_artifact_path ]
     #if: contains(inputs.target_list, 'host_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
@@ -312,17 +295,14 @@ jobs:
         key: opencl_cts_host_x86_64_linux
         path: |
           test_conformance
-          ${{ needs.opencl_cts_artifact_path.outputs.artifact_path }}
-        #path: |
-        #  test_conformance
-        #  !test_conformance/**/.*
-        #  !test_conformance/**/CMakeCache.txt
-        #  !test_conformance/**/CMakeFiles
-        #  !test_conformance/**/CMakeFiles/**
-        #  !test_conformance/**/*.cmake
-        #  !test_conformance/**/*.ninja
-        #  !test_conformance/test_common
-        #  !test_conformance/test_common/**
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
