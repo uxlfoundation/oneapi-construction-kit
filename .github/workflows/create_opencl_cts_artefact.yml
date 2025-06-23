@@ -33,6 +33,24 @@ on:
         type: boolean
         description: 'Use a cache for any llvm artifact fetching and update if not found'
         default: true
+      header_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL Headers repo'
+        default: 'v2025.06.13'
+      icd_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL ICD Loader repo'
+        default: 'v2024.10.24'
+      opencl_cts_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL-CTS repo'
+        # Note: at time of writing:
+        #    v2025-01-22-00 is the latest release - but gives build errors,
+        #    v2025-04-21-00 is the latest prerelease - and builds OK
+        default: 'v2025-04-21-00'
      
 permissions:
   packages: read
@@ -90,6 +108,8 @@ jobs:
         uses: ./.github/actions/do_build_icd
         with:
           target: 'host_x86_64_linux'
+          header_ref: ${{ inputs.header_ref || 'v2025.06.13' }}
+          icd_ref: ${{ inputs.icd_ref || 'v2024.10.24 ' }}
 
   build_opencl_cts_artefact:
     name: Create OpenCL-CTS artefact
@@ -117,3 +137,4 @@ jobs:
         with:
           target: 'host_x86_64_linux'
           cache_update: true
+          opencl_cts_ref: ${{ inputs.opencl_cts_ref || 'v2025-04-21-00' }}

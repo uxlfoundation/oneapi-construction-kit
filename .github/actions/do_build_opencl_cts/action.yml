@@ -3,11 +3,19 @@ description: build opencl cts
 
 inputs:
   target:
+    required: true
+    type: string
     description: 'target architecture'
   cache_update:
+    required: false
     type: boolean
     description: 'flag indicating that a cache update for the built artifact is required'
     default: false
+  opencl_cts_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for OpenCL-CTS repo'
+    default: ''
 
 runs:
   using: "composite"
