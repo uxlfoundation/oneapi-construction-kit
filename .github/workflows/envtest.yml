@@ -8,14 +8,14 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     outputs:
-      alan-op: ${{ steps.alan-id.outputs.ALAN_VAR }}
+      alan-op: ${{ steps.alan-id.outputs.ALAN_PATH }}
     steps:
       - name: set var
         id: alan-id
         #run: |
-        #  echo "ALAN_VAR=hello" >> $GITHUB_OUTPUT
+        #  echo "ALAN_PATH=hello" >> $GITHUB_OUTPUT
         run: |
-          echo "ALAN_VAR<<EOF" >> $GITHUB_OUTPUT
+          echo "ALAN_PATH<<EOF" >> $GITHUB_OUTPUT
           echo "hello" >> $GITHUB_OUTPUT
           echo "world" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -24,11 +24,11 @@ jobs:
     needs: [job1]
     runs-on: ubuntu-latest
     env:
-      ALAN_ENV: ${{ needs.job1.outputs.alan-op }}
+      ALAN_PATH: ${{ needs.job1.outputs.alan-op }}
     steps:
       - name: print var
         run: |
-          echo "ALAN_VAR=$ALAN_ENV"
+          echo "ALAN_PATH=$ALAN_PATH"
       - name: download cached opencl_cts artifact
         uses: actions/cache/restore@v4
         with:
@@ -49,7 +49,7 @@ jobs:
         with:
           key: opencl_cts_host_x86_64_linux
           path: |
-            ${{ env.ALAN_ENV }}
+            ${{ env.ALAN_PATH }}
           fail-on-cache-miss: true
 
     
