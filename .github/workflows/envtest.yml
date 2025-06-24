@@ -9,16 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Defining a new Environment Variable
+        id: alan_step
         run: |                          
-          MULTI_LINES_TEXT="this is line one \n
-                            this is line two \n
-                            this is line three \n"    
-
-          echo "MULTI_LINES_TEXT_ENV_VAR<<EOF" >> $GITHUB_ENV
-          # here we can place the command that will generate multi-line text
-          echo $MULTI_LINES_TEXT >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          {
+          echo 'ALAN_VAR<<EOF'
+          curl https://example.com
+          curl https://example.com
+          curl https://example.com
+          echo EOF
+        } >> "$GITHUB_ENV"
           
       - name: Using the previously defined environment variable
+        env:
+          ALAN_STR: ${{ steps.alan_step.outputs.ALAN_VAR }} 
         run: |
-          echo ${{ env.ONE_LINE_TEXT_ENV_VAR }}
+          echo "$ALAN_STR"
