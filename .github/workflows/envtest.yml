@@ -5,17 +5,16 @@ on:
     - .github/workflows/envtest.yml
 
 jobs:
-  job1:
+  set_opencl_cts_path:
     runs-on: ubuntu-latest
     outputs:
-      alan-op: ${{ steps.alan-id.outputs.ALAN_PATH }}
+      path_spec: ${{ steps.path_id.outputs.OPENCL_CTS_PATH }}
     steps:
       - name: set var
-        id: alan-id
-        #run: |
-        #  echo "ALAN_PATH=hello" >> $GITHUB_OUTPUT
+        id: path_id
         run: |
-          echo "ALAN_PATH<<EOF" >> $GITHUB_OUTPUT
+          echo "OPENCL_CTS_PATH<<EOF" >> $GITHUB_OUTPUT
+          # PATH START ...
           echo 'test_conformance' >> $GITHUB_OUTPUT
           echo '!test_conformance/**/.*' >> $GITHUB_OUTPUT
           echo '!test_conformance/**/CMakeCache.txt' >> $GITHUB_OUTPUT
@@ -25,41 +24,19 @@ jobs:
           echo '!test_conformance/**/*.ninja' >> $GITHUB_OUTPUT
           echo '!test_conformance/test_common' >> $GITHUB_OUTPUT
           echo '!test_conformance/test_common/**' >> $GITHUB_OUTPUT
+          # ... PATH END
           echo "EOF" >> $GITHUB_OUTPUT
-          #echo "hello" >> $GITHUB_OUTPUT
-          #echo "world" >> $GITHUB_OUTPUT
-          #echo "EOF" >> $GITHUB_OUTPUT
 
-  job2:
-    needs: [job1]
+  use_path:
+    needs: [set_opencl_cts_path]
     runs-on: ubuntu-latest
     env:
-      ALAN_PATH: ${{ needs.job1.outputs.alan-op }}
+      OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
     steps:
-      - name: print var
-        run: |
-          echo "ALAN_PATH=$ALAN_PATH"
       - name: download cached opencl_cts artifact
         uses: actions/cache/restore@v4
         with:
           key: opencl_cts_host_x86_64_linux
           path: |
-            test_conformance
-            !test_conformance/**/.*
-            !test_conformance/**/CMakeCache.txt
-            !test_conformance/**/CMakeFiles
-            !test_conformance/**/CMakeFiles/**
-            !test_conformance/**/*.cmake
-            !test_conformance/**/*.ninja
-            !test_conformance/test_common
-            !test_conformance/test_common/**
+            ${{ env.OPENCL_CTS_PATH }}
           fail-on-cache-miss: true
-      - name: download cached opencl_cts artifact
-        uses: actions/cache/restore@v4
-        with:
-          key: opencl_cts_host_x86_64_linux
-          path: |
-            ${{ env.ALAN_PATH }}
-          fail-on-cache-miss: true
-
-    
