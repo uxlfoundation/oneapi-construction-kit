@@ -12,8 +12,13 @@ jobs:
     steps:
       - name: set var
         id: alan-id
+        #run: |
+        #  echo "ALAN_VAR=hello" >> $GITHUB_OUTPUT
         run: |
-          echo "ALAN_VAR=hello" >> $GITHUB_OUTPUT
+          echo "ALAN_VAR<<EOF" >> $GITHUB_OUTPUT
+          echo "hello" >> $GITHUB_OUTPUT
+          echo "world" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   job2:
     needs: [job1]
