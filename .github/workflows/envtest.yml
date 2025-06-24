@@ -14,8 +14,8 @@ jobs:
         id: alan-id
         run: |
           echo "ALAN_VAR=hello
-                world
-                goodbye" >> $GITHUB_OUTPUT
+          world
+          goodbye" >> $GITHUB_OUTPUT
 
   job2:
     needs: [job1]
