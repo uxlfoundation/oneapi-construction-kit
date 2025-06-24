@@ -26,7 +26,7 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      # ALAN TODO: set target for build here - massage PR jobs that use any other
+      # ALAN TODO: set single target for build here - massage PR jobs that use any other
       target_list: '[ "host_x86_64_linux" ]'
       # ock: true
       native_cpu: false

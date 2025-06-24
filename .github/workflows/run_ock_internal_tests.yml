@@ -288,7 +288,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-    # run-cities testing ALAN TODO: add following to above PR action ???
+    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
@@ -306,8 +306,6 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        # ALAN TODO: handle perms at source
-        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
@@ -345,7 +343,7 @@ jobs:
       with:
         build_targets: 'check-ock-UnitCL-group-vecz'
         disable_unitcl_vecz_checks: 'OFF'
-    # run-cities testing ALAN TODO: add following to above PR action ???
+    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
@@ -363,8 +361,6 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        # ALAN TODO: handle perms at source
-        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
@@ -452,7 +448,6 @@ jobs:
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     # do not run as PR job for now to avoid flooding the concurrency
     #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
-    #if: ${{ contains(inputs.target_list, 'host_refsi_linux') }}
     if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     runs-on: ubuntu-22.04
     container:
@@ -471,7 +466,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
-    # run-cities testing ALAN TODO: add following to above PR action ???
+    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
@@ -489,8 +484,6 @@ jobs:
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
-        # ALAN TODO: handle perms at source
-        #chmod -R +x $GITHUB_WORKSPACE/test_conformance
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
