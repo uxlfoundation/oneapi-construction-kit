@@ -5,22 +5,24 @@ on:
     - .github/workflows/envtest.yml
 
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
+    outputs:
+      alan-op: ${{ steps.alan-id.outputs.ALAN_VAR }}
     steps:
-      - name: Defining a new Environment Variable
-        id: alan_step
-        run: |                          
-          {
-          echo 'ALAN_VAR<<EOF'
-          curl https://example.com
-          curl https://example.com
-          curl https://example.com
-          echo EOF
-          } >> "$GITHUB_ENV"
-          
-      - name: Using the previously defined environment variable
-        env:
-          ALAN_STR: ${{ steps.alan_step.outputs.ALAN_VAR }} 
+      - name: set var
+        id: alan-id
         run: |
-          echo "$ALAN_STR"
+          echo "ALAN_VAR=hello" >> $GITHUB_OUTPUT
+
+  job2:
+    needs: [job1]
+    runs-on: ubuntu-latest
+    env:
+      ALAN_ENV: ${{ needs.job1.outputs.alan-op }}
+    steps:
+      - name: print var
+        id: alan-id
+        run: |
+          echo "ALAN_VAR=$ALAN_ENV"
+    
