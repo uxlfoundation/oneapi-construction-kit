@@ -17,7 +17,7 @@ jobs:
           curl https://example.com
           curl https://example.com
           echo EOF
-        } >> "$GITHUB_ENV"
+          } >> "$GITHUB_ENV"
           
       - name: Using the previously defined environment variable
         env:
