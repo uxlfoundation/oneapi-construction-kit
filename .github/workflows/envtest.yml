@@ -13,7 +13,7 @@ jobs:
       - name: set var
         id: alan-id
         run: |
-          printf "ALAN_VAR=hello\nworld\ngoodbye" >> $GITHUB_OUTPUT
+          echo "ALAN_VAR=hello" >> $GITHUB_OUTPUT
 
   job2:
     needs: [job1]
