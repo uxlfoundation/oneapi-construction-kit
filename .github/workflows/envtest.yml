@@ -22,12 +22,12 @@ jobs:
       ALAN_ENV: ${{ needs.job1.outputs.alan-op }}
     steps:
       - name: print var
-        id: alan-id
         run: |
           echo "ALAN_VAR=$ALAN_ENV"
       - name: download cached opencl_cts artifact
         uses: actions/cache/restore@v4
-        with:                                                                                                                key: opencl_cts_host_x86_64_linux
+        with:
+          key: opencl_cts_host_x86_64_linux
           path: |
             ${{ env.ALAN_ENV }}
           #path: |
