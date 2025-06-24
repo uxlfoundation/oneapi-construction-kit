@@ -16,9 +16,19 @@ jobs:
         #  echo "ALAN_PATH=hello" >> $GITHUB_OUTPUT
         run: |
           echo "ALAN_PATH<<EOF" >> $GITHUB_OUTPUT
-          echo "hello" >> $GITHUB_OUTPUT
-          echo "world" >> $GITHUB_OUTPUT
+          echo 'test_conformance' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/.*' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeCache.txt' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeFiles' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeFiles/**' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/*.cmake' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/*.ninja' >> $GITHUB_OUTPUT
+          echo '!test_conformance/test_common' >> $GITHUB_OUTPUT
+          echo '!test_conformance/test_common/**' >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          #echo "hello" >> $GITHUB_OUTPUT
+          #echo "world" >> $GITHUB_OUTPUT
+          #echo "EOF" >> $GITHUB_OUTPUT
 
   job2:
     needs: [job1]
