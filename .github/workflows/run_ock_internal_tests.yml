@@ -59,6 +59,27 @@ permissions:
   packages: read
 
 jobs:
+  set_opencl_cts_path:
+    runs-on: ubuntu-latest
+    outputs:
+      path_spec: ${{ steps.path_id.outputs.OPENCL_CTS_PATH }}
+    steps:
+      - name: set var
+        id: path_id
+        run: |
+          echo "OPENCL_CTS_PATH<<EOF" >> $GITHUB_OUTPUT
+          # PATH START ...
+          echo 'test_conformance' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/.*' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeCache.txt' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeFiles' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/CMakeFiles/**' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/*.cmake' >> $GITHUB_OUTPUT
+          echo '!test_conformance/**/*.ninja' >> $GITHUB_OUTPUT
+          echo '!test_conformance/test_common' >> $GITHUB_OUTPUT
+          echo '!test_conformance/test_common/**' >> $GITHUB_OUTPUT
+          # ... PATH END
+          echo "EOF" >> $GITHUB_OUTPUT
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
@@ -269,6 +290,9 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
+    needs: [set_opencl_cts_path]
+    env:
+      OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
     #if: contains(inputs.target_list, 'host_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
@@ -294,7 +318,7 @@ jobs:
       with:
         key: opencl_cts_host_x86_64_linux
         path: |
-          test_conformance
+          ${{ env.OPENCL_CTS_PATH }}
         #path: |
         #  test_conformance
         #  !test_conformance/**/.*
