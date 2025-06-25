@@ -3,9 +3,10 @@
 name: Create an cache OpenCL-CTS artefact
 
 on:
-  # ALAN TODO: restore workflow_dispatch - and usage of all inputs
-  workflow_dispatch:
-  #pull_request:
+  # ALAN TODO: set to pull_request to build in PR.
+  #            for production restore workflow_dispatch - and usage of all inputs
+  #workflow_dispatch:
+  pull_request:
     inputs:
       llvm_version:
         required: false
@@ -18,7 +19,6 @@ on:
         description: 'The actual llvm branch to check out e.g. release/19.x'
         default: 'release/19.x'
       download_ock_artefact:
-        # ALAN TODO: is this needed here?
         required: false
         type: string
         description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'

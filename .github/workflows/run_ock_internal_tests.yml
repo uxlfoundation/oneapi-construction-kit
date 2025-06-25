@@ -60,6 +60,7 @@ permissions:
 
 jobs:
   set_opencl_cts_path:
+    # Set an inter-job multiline env var for opencl_cts artifact download "path:" content
     runs-on: ubuntu-latest
     outputs:
       path_spec: ${{ steps.path_id.outputs.OPENCL_CTS_PATH }}
@@ -290,11 +291,11 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
+    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_opencl_cts_path]
     env:
       OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
-    #if: contains(inputs.target_list, 'host_riscv64_linux')
-    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -316,7 +317,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
+        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
     - name: run_cities call and run
@@ -336,11 +337,11 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
+    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_opencl_cts_path]
     env:
       OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
-    #if: contains(inputs.target_list, 'host_riscv64_linux')
-    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -365,7 +366,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
+        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
     - name: run_cities call and run
@@ -455,12 +456,12 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
+    if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     needs: [set_opencl_cts_path]
     env:
       OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
     # do not run as PR job for now to avoid flooding the concurrency
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
-    if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -482,7 +483,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
+        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
     - name: run_cities call and run

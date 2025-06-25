@@ -1,8 +1,8 @@
 name: run planned tests for llvm 19
 on:
-  pull_request:
-  # Disable planned tests by using workflow_dispatch
-  #workflow_dispatch:
+  #pull_request:
+  # Temporarily disable planned tests by using workflow_dispatch
+  workflow_dispatch:
     paths:
       - '.github/workflows/planned_testing_caller_19.yml'
   schedule:
@@ -26,7 +26,7 @@ jobs:
       use_llvm_github_cache: true
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      # ALAN TODO: set single target for build here - massage PR jobs that use any other
+      # ALAN TODO: set single target for build here - temporarily massage PR jobs that use any other
       target_list: '[ "host_x86_64_linux" ]'
       # ock: true
       native_cpu: false
