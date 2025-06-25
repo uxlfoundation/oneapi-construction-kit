@@ -1,6 +1,7 @@
 name: Test CI - Multi-Line Value
 on:
-  pull_request:
+  #pull_request:
+  workflow_dispatch:
     paths: 
     - .github/workflows/envtest.yml
 
@@ -27,7 +28,7 @@ jobs:
           # ... PATH END
           echo "EOF" >> $GITHUB_OUTPUT
 
-  use_path:
+  use_opencl_cts_path:
     needs: [set_opencl_cts_path]
     runs-on: ubuntu-latest
     env:
