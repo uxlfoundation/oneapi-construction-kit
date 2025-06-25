@@ -11,9 +11,6 @@ inputs:
   disable_unitcl_vecz_checks:
     type: string
     default: 'ON'
-  opencl_cts_install:
-    type: string
-    required: true
 
 runs:
   using: "composite"
@@ -41,18 +38,3 @@ runs:
           debug_support: ON
           external_compiler_dirs: "${{ github.workspace }}/examples/refsi/refsi_m1/compiler/refsi_m1"
           extra_flags: -DCA_BUILTINS_TOOLS_DIR=${{ github.workspace }}/llvm_install/bin
-
-      - name: run_cities call and run
-        run: |
-          set -x
-          python3 ${{ github.workspace }}/scripts/testing/run_cities.py \
-            -s ${{ github.workspace }}/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-            -b ${{ inputs.opencl_cts_install }} \
-            -e "CA_RISCV_VF=1,S" \
-            -L ${{ github.workspace }}/build/lib \
-            -e OCL_ICD_FILENAMES=${{ github.workspace }}/build/lib/libCL.so \
-            -e OCL_ICD_VENDORS=/dev/null \
-            --timeout 00:10:00 \
-            --verbose \
-            -l ${{ github.workspace }}/build/cts.log -f ${{ github.workspace }}/build/cts.fail -r ${{ github.workspace }}/build/cts_riscv_1s.xml
-          ninja -C ${{ github.workspace }}/build check-ock

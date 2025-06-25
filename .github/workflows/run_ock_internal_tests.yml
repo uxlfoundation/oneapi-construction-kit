@@ -310,34 +310,29 @@ jobs:
         llvm_version: ${{ inputs.llvm_current }}
         llvm_source: ${{ inputs.llvm_source}}
         github_token: ${{ secrets.GITHUB_TOKEN }}
-    #- name: build and run ock
-    #  uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # download path is: ${{ github.workspace }}/test_conformance
+        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
-    - name: build and run ock
-      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-      with:
-        opencl_cts_install: ${{ github.workspace }}/test_conformance
-    #- name: run_cities call and run
-    #  run: |
-    #    set -x
-    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-    #      -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-    #      -b $GITHUB_WORKSPACE/test_conformance \
-    #      -e "CA_RISCV_VF=1,S" \
-    #      -L $GITHUB_WORKSPACE/build/lib \
-    #      -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
-    #      -e OCL_ICD_VENDORS=/dev/null \
-    #      --timeout 00:10:00 \
-    #      --verbose \
-    #      -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
-    #    ninja -C $GITHUB_WORKSPACE/build check-ock
+    - name: run_cities call and run
+      run: |
+        set -x
+        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+          -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
+          -b $GITHUB_WORKSPACE/test_conformance \
+          -e "CA_RISCV_VF=1,S" \
+          -L $GITHUB_WORKSPACE/build/lib \
+          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
+          -e OCL_ICD_VENDORS=/dev/null \
+          --timeout 00:10:00 \
+          --verbose \
+          -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
+        ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
@@ -366,12 +361,11 @@ jobs:
       with:
         build_targets: 'check-ock-UnitCL-group-vecz'
         disable_unitcl_vecz_checks: 'OFF'
-    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |
+        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
     - name: run_cities call and run
@@ -484,12 +478,11 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
-    # run-cities testing ALAN TODO: use variable for path: setting and add following to above PR action ???
     - name: download cached opencl_cts artifact
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |
+        path: |  # install path is: $GITHUB_WORKSPACE/test_conformance
           ${{ env.OPENCL_CTS_PATH }}
         fail-on-cache-miss: true
     - name: run_cities call and run
