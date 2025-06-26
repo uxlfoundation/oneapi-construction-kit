@@ -11,7 +11,7 @@ inputs:
     type: string
     description: 'Git checkout ref for OpenCL Headers repo'
     default: ''
-  icd_ref:
+  icd_loader_ref:
     required: false
     type: string
     description: 'Git checkout ref for OpenCL ICD Loader repo'
@@ -62,7 +62,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-ICD-Loader
         path: icd
-        ref: ${{inputs.icd_ref}}
+        ref: ${{inputs.icd_loader_ref}}
 
     - name: icd cmake
       shell: bash
