@@ -17,6 +17,10 @@ on:
         type: boolean
         description: 'Enable testing tornado'
         default: true
+      test_sanitizers:
+        type: boolean
+        description: 'Enable testing sanitizers'
+        default: true
       test_remote_hal:
         type: boolean
         description: 'Enable testing remote_hal'
