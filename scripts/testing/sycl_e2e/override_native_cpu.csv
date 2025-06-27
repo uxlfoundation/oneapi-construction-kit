@@ -3,7 +3,6 @@ SYCL,Basic/max_linear_work_group_size_props.cpp,XFail
 SYCL,Basic/large-range.cpp,XFail
 SYCL,Basic/kernel_bundle/kernel_bundle_api.cpp,XFail
 SYCL,Basic/buffer/reinterpret.cpp,XFail
-SYCL,NewOffloadDriver/split-per-source-main.cpp,XFail
 SYCL,NewOffloadDriver/multisource.cpp,XFail
 SYCL,SubGroup/attributes.cpp,XFail
 SYCL,SubGroup/info.cpp,XFail
@@ -24,7 +23,6 @@ SYCL,DeviceImageDependencies/free_function_kernels.cpp,XFail
 SYCL,DeviceImageDependencies/singleDynamicLibrary.cpp,XFail
 SYCL,DeviceImageDependencies/objects.cpp,XFail
 SYCL,DeviceImageDependencies/dynamic.cpp,XFail
-SYCL,DeviceImageDependencies/NewOffloadDriver/free_function_kernels.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/singleDynamicLibrary.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/objects.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/dynamic.cpp,XFail
@@ -74,5 +72,3 @@ SYCL,WorkGroupMemory/reduction_lambda.cpp,XFail
 SYCL,KernelAndProgram/spec_constants_after_link.cpp,XFail
 SYCL,KernelAndProgram/fp32-precise-fdiv.cpp,XFail
 SYCL,KernelAndProgram/multiple-kernel-linking.cpp,XFail
-SYCL,FreeFunctionKernels/free_function_kernels_as_device_host_functions.cpp,XFail
-SYCL,FreeFunctionKernels/address_test.cpp,XFail

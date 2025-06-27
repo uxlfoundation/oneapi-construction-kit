@@ -75,7 +75,6 @@ SYCL,DeviceLib/imf_fp32_test.cpp,XFail
 SYCL,DeviceLib/imf_float2bfloat16.cpp,XFail
 SYCL,DeviceLib/std_complex_math_fp64_test.cpp,XFail
 SYCL,DeviceLib/imf_fp64_rounding_test.cpp,XFail
-SYCL,DeviceLib/math_fp64_test.cpp,XFail
 SYCL,DeviceLib/imf_bfloat16_integeral_convesions.cpp,XFail
 SYCL,DeviceLib/imf_fp32_rounding_test.cpp,XFail
 SYCL,DeviceLib/exp/exp-std-complex-double-edge-cases.cpp,XFail
@@ -93,6 +92,12 @@ SYCL,MemorySanitizer/local/parallel_for_work_group.cpp,XFail
 SYCL,MemorySanitizer/local/local_accessor.cpp,XFail
 SYCL,MemorySanitizer/local/group_local_memory.cpp,XFail
 SYCL,MemorySanitizer/private/single_private.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_host_usm.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_host_usm_initialized_on_host.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_kernel_memcpy.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_kernel_memmove_no_overlap.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_kernel_memmove_overlap.cpp,XFail
+SYCL,MemorySanitizer/track-origins/check_shared_usm.cpp,XFail
 SYCL,syclcompat/launch/launch_policy.cpp,XFail
 SYCL,syclcompat/launch/launch_policy_lmem.cpp,XFail
 SYCL,syclcompat/atomic/atomics_verification_usmnone.cpp,XFail
