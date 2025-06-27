@@ -20,19 +20,19 @@ runs:
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
     - name: Run cmake
       shell: 'bash'
-      run:
+      run: |
         ls -l
-        cmake llbm_project/llvm
-            -GNinja
-            -Bbuild
-            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/llvm_install
-            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-project
-            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-spirv
-            -DLLVM_ENABLE_ZLIB=FALSE
-            -DLLVM_ENABLE_Z3_SOLVER=FALSE
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo
-            -DLLVM_USE_SANITIZER=Thread
-            -DCMAKE_C_COMPILER=clang-19
+        cmake llvm-project/llvm \
+            -GNinja \
+            -Bbuild \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/llvm_install \
+            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-project \
+            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-spirv \
+            -DLLVM_ENABLE_ZLIB=FALSE \
+            -DLLVM_ENABLE_Z3_SOLVER=FALSE \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DLLVM_USE_SANITIZER=Thread \
+            -DCMAKE_C_COMPILER=clang-19 \
             -DCMAKE_CXX_COMPILER=clang++-19
         ls -l
         #cmake llvm-project/llvm
@@ -52,6 +52,6 @@ runs:
     - name: Run build on llvm
       shell: 'bash'
       run:
-        cmake --build $GITHUB_WORKSPACE/external/llvm/build--target install -- -j4
+        cmake --build $GITHUB_WORKSPACE/build --target install -- -j4
         #cmake --build build --target install
     # build/run OCK
