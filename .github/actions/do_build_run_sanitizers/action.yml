@@ -16,7 +16,7 @@ runs:
         #path: llvm-project
         path: external/llvm/llvm-project
     - name: Install Ninja
-        uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
     - name: Run cmake
       shell: 'bash'
       run:
