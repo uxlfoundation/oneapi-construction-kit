@@ -1,0 +1,11 @@
+name: build run sanitizers
+description: build run sanitizers
+
+runs:
+  # We don't want a new docker just a list of steps, so mark as composite
+  using: "composite"
+  steps:
+    - name : build and run 
+      shell: bash
+      run: |
+        echo hello world
