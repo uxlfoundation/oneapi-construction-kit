@@ -1,20 +1,20 @@
-From 1e2eabb213ccc8cbbe8d826ec7f12d63405a7454 Mon Sep 17 00:00:00 2001
+From 8828f4ef9e46fadb29e256f39a37d5d71125e75e Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Sat, 29 Mar 2025 13:51:45 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Add libclc at compile time.
 
 This matches what is done for CUDA and HIP.
 ---
- clang/lib/Driver/Driver.cpp                 |  9 ++--
- clang/lib/Driver/ToolChains/SYCL.cpp        | 53 +++++++++++++++++++++
- clang/test/Driver/sycl-native-cpu-fsycl.cpp | 12 ++---
- 3 files changed, 64 insertions(+), 10 deletions(-)
+ clang/lib/Driver/Driver.cpp                 |  9 ++++++---
+ clang/lib/Driver/ToolChains/SYCL.cpp        |  6 ++++++
+ clang/test/Driver/sycl-native-cpu-fsycl.cpp | 12 +++++-------
+ 3 files changed, 17 insertions(+), 10 deletions(-)
 
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index 9904c6d5fc2d..be0cff4d268f 100644
+index 530d1fd3e478..e04b3f916b2f 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -5978,9 +5978,12 @@ class OffloadingActionBuilder final {
+@@ -5989,9 +5989,12 @@ class OffloadingActionBuilder final {
        if (!NumOfDeviceLibLinked)
          return false;
  
@@ -27,69 +27,22 @@ index 9904c6d5fc2d..be0cff4d268f 100644
 +      // CUDAToolChain::addClangTargetOptions, check under what circumstances
 +      // this is still needed.
 +      if (TC->getTriple().isNVPTX()) {
-         std::string LibSpirvFile;
-         if (Args.hasArg(options::OPT_fsycl_libspirv_path_EQ)) {
-           auto ProvidedPath =
+         if (const char *LibSpirvFile = SYCLInstallation.findLibspirvPath(
+                 TC->getTriple(), Args, *TC->getAuxTriple())) {
+           Arg *LibClcInputArg =
 diff --git a/clang/lib/Driver/ToolChains/SYCL.cpp b/clang/lib/Driver/ToolChains/SYCL.cpp
-index 933644fd24c8..ea69b10e490e 100644
+index 164a4c297c36..7845699acd4a 100644
 --- a/clang/lib/Driver/ToolChains/SYCL.cpp
 +++ b/clang/lib/Driver/ToolChains/SYCL.cpp
-@@ -1531,6 +1531,59 @@ void SYCLToolChain::addClangTargetOptions(
+@@ -1599,6 +1599,12 @@ void SYCLToolChain::addClangTargetOptions(
      const llvm::opt::ArgList &DriverArgs, llvm::opt::ArgStringList &CC1Args,
      Action::OffloadKind DeviceOffloadingKind) const {
    HostTC.addClangTargetOptions(DriverArgs, CC1Args, DeviceOffloadingKind);
 +
-+  auto NoLibSpirv = getTriple().isSPIROrSPIRV() ||
-+                    DriverArgs.hasArg(options::OPT_fno_sycl_libspirv) ||
-+                    getDriver().offloadDeviceOnly();
-+  if (DeviceOffloadingKind == Action::OFK_SYCL && !NoLibSpirv) {
-+    // Select remangled libclc variant
-+    std::string LibSpirvTargetName =
-+        HostTC.getTriple().isOSWindows()
-+            ? "remangled-l32-signed_char.libspirv-" + getTriple().str() + ".bc"
-+            : "remangled-l64-signed_char.libspirv-" + getTriple().str() + ".bc";
-+
-+    std::string LibSpirvFile;
-+
-+    if (DriverArgs.hasArg(clang::driver::options::OPT_fsycl_libspirv_path_EQ)) {
-+      auto ProvidedPath =
-+          DriverArgs
-+              .getLastArgValue(
-+                  clang::driver::options::OPT_fsycl_libspirv_path_EQ)
-+              .str();
-+      if (llvm::sys::fs::exists(ProvidedPath))
-+        LibSpirvFile = ProvidedPath;
-+    } else {
-+      SmallVector<StringRef, 8> LibraryPaths;
-+
-+      // Expected path w/out install.
-+      SmallString<256> WithoutInstallPath(getDriver().ResourceDir);
-+      llvm::sys::path::append(WithoutInstallPath, Twine("../../clc"));
-+      LibraryPaths.emplace_back(WithoutInstallPath.c_str());
-+
-+      // Expected path w/ install.
-+      SmallString<256> WithInstallPath(getDriver().ResourceDir);
-+      llvm::sys::path::append(WithInstallPath, Twine("../../../share/clc"));
-+      LibraryPaths.emplace_back(WithInstallPath.c_str());
-+
-+      for (StringRef LibraryPath : LibraryPaths) {
-+        SmallString<128> LibSpirvTargetFile(LibraryPath);
-+        llvm::sys::path::append(LibSpirvTargetFile, LibSpirvTargetName);
-+        if (llvm::sys::fs::exists(LibSpirvTargetFile) ||
-+            DriverArgs.hasArg(options::OPT__HASH_HASH_HASH)) {
-+          LibSpirvFile = std::string(LibSpirvTargetFile.str());
-+          break;
-+        }
-+      }
-+    }
-+
-+    if (LibSpirvFile.empty()) {
-+      getDriver().Diag(diag::err_drv_no_sycl_libspirv) << LibSpirvTargetName;
-+      return;
-+    }
-+
-+    CC1Args.push_back("-mlink-builtin-bitcode");
-+    CC1Args.push_back(DriverArgs.MakeArgString(LibSpirvFile));
++  if (DeviceOffloadingKind == Action::OFK_SYCL &&
++      !getTriple().isSPIROrSPIRV()) {
++    SYCLInstallation.addLibspirvLinkArgs(getEffectiveTriple(), DriverArgs,
++                                         HostTC.getTriple(), CC1Args);
 +  }
  }
  
