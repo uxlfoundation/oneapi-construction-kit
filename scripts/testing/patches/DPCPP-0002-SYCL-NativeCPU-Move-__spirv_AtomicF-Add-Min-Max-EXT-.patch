@@ -1,4 +1,4 @@
-From 84ef444899718378ddd81c2e1cfc286236abfcf7 Mon Sep 17 00:00:00 2001
+From 17ba40c4252cfad0c2942411b963b2319e831416 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 2 Apr 2025 15:12:26 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Move __spirv_AtomicF{Add,Min,Max}EXT into

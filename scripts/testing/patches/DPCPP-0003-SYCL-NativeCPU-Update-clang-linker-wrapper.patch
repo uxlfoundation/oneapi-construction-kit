@@ -1,4 +1,4 @@
-From efed30fa055305bbb646303994061645ebdd3004 Mon Sep 17 00:00:00 2001
+From 4d3d948391602434bfbb41acdb32f42c368d384a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 17:11:39 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Update clang-linker-wrapper.
