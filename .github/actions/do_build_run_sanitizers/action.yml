@@ -8,6 +8,11 @@ runs:
     #
     # tsan
     #
+    - name: List default
+      shell: 'bash'
+      run: |
+        echo PATH IS $PATH
+        ls -l
     - name: Checkout repo llvm
       uses: actions/checkout@v4
       with:
@@ -15,21 +20,21 @@ runs:
         #ref: ${{inputs.llvm_branch}}
         ref: 'release/19.x'  # ALAN TODO: pass in param for this
         #path: llvm-project
-        path: llvm-project
+        path: external/llvm-project
     - name: Install Ninja
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
     - name: Run cmake
       shell: 'bash'
       run: |
-        echo PATH IS $PATH
-        ls -l /usr/bin
         ls -l
+        ls -l external/llvm-project
+        cd external
         cmake llvm-project/llvm \
             -GNinja \
             -Bbuild \
-            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/llvm_install \
-            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-project \
-            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/llvm-spirv \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
+            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
+            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
             -DLLVM_ENABLE_ZLIB=FALSE \
             -DLLVM_ENABLE_Z3_SOLVER=FALSE \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -54,6 +59,10 @@ runs:
     - name: Run build on llvm
       shell: 'bash'
       run:
-        cmake --build $GITHUB_WORKSPACE/build --target install -- -j4
+        ls -l
+        ls -l external
+        ls -l external/llvm-project
+        cd external
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
         #cmake --build build --target install
     # build/run OCK
