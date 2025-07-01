@@ -27,7 +27,7 @@ runs:
       shell: 'bash'
       run: |
         sudo apt update && sudo apt upgrade
-        sudo apt install clang
+        sudo apt install -y clang
         ls -l
         ls -l external/llvm-project
         cd external
