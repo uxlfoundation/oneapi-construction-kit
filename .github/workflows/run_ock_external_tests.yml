@@ -215,7 +215,7 @@ jobs:
     if: inputs.test_sanitizers
     needs: [ workflow_vars ]
     #runs-on: 'ubuntu-22.04'
-    runs-on: 'cp-ubuntu-22.04'
+    runs-on: 'cp-ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
       volumes:
