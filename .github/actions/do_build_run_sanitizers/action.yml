@@ -41,7 +41,6 @@ runs:
             -DLLVM_USE_SANITIZER=Thread \
             -DCMAKE_C_COMPILER=/usr/bin/cc \
             -DCMAKE_CXX_COMPILER=/usr/bin/c++
-        ls -l
         #cmake llvm-project/llvm
         #    -DLLVM_ENABLE_DIA_SDK=OFF
         #    -DCMAKE_INSTALL_PREFIX=llvm_install
