@@ -58,7 +58,7 @@ runs:
         #    $ARCH_FLAGS
     - name: Run build on llvm
       shell: 'bash'
-      run:
+      run: |
         ls -l
         ls -l external
         ls -l external/llvm-project
