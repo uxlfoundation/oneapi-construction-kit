@@ -26,11 +26,11 @@ runs:
     - name: Run cmake
       shell: 'bash'
       run: |
-        set -x
-        sudo apt update
-        sudo apt -y upgrade
-        sudo apt install -y clang
-        set +x
+        #set -x
+        #sudo apt update
+        #sudo apt -y upgrade
+        #sudo apt install -y clang
+        #set +x
         ls -l
         ls -l external/llvm-project
         cd external
@@ -44,10 +44,10 @@ runs:
             -DLLVM_ENABLE_Z3_SOLVER=FALSE \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DLLVM_USE_SANITIZER=Thread \
-            -DCMAKE_C_COMPILER=/usr/bin/clang \
-            -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-        #   -DCMAKE_C_COMPILER=/usr/bin/cc \
-        #   -DCMAKE_CXX_COMPILER=/usr/bin/c++
+            -DCMAKE_C_COMPILER=/usr/bin/cc \
+            -DCMAKE_CXX_COMPILER=/usr/bin/c++
+        #   -DCMAKE_C_COMPILER=/usr/bin/clang \
+        #   -DCMAKE_CXX_COMPILER=/usr/bin/clang++
         #cmake llvm-project/llvm
         #    -DLLVM_ENABLE_DIA_SDK=OFF
         #    -DCMAKE_INSTALL_PREFIX=llvm_install
