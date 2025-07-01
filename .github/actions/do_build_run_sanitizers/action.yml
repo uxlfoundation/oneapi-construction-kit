@@ -26,8 +26,11 @@ runs:
     - name: Run cmake
       shell: 'bash'
       run: |
-        sudo apt update && sudo apt upgrade
+        set -x
+        sudo apt update
+        sudo apt -y upgrade
         sudo apt install -y clang
+        set +x
         ls -l
         ls -l external/llvm-project
         cd external
