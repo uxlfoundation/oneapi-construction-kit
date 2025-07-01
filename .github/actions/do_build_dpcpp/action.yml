@@ -8,6 +8,10 @@ inputs:
     description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>. Special value of download_release applies to all targets.'
     type: string
     default: "build"
+  save_cache:
+    description: 'save cache for build'
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
@@ -27,6 +31,14 @@ runs:
       with:
         repository: intel/llvm
         path: llvm
+
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
+      with:
+        max-size: 1000M
+        key: ccache-dpcpp-build-${{ inputs.target }}
+        variant: ccache
+        save: ${{ inputs.save_cache }}
 
     # Note: checkout action (above) cleans "path:". Do native artifact download/unpackage after that.
 
@@ -72,7 +84,8 @@ runs:
                 --host-target="X86;AArch64;RISCV" --native_cpu \
                 --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
                 $CROSS_OPTS \
-                --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF
+                --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF \
+                --cmake-opt=-DLLVM_CCACHE_BUILD=ON
 
     - name: build sycl-headers
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
@@ -96,6 +109,13 @@ runs:
        cmake --build llvm/build/${{steps.calc_vars.outputs.arch}}-linux -- FileCheck clang-tblgen
         libclc-remangler llvm-as llvm-min-tblgen llvm-tblgen not
         opt prepare_builtins -j8
+
+    - name: cleanup ccache
+      if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
+      shell: bash
+      # Evict any unused entries older than 6 hours, the max github ci timeout
+      run:
+        ccache --evict-older-than 21600s
 
     - name: copy utilities
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
