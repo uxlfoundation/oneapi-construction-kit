@@ -1,4 +1,4 @@
-From 8828f4ef9e46fadb29e256f39a37d5d71125e75e Mon Sep 17 00:00:00 2001
+From 1106d8434eadde55e8839f28890398625049c864 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Sat, 29 Mar 2025 13:51:45 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Add libclc at compile time.
@@ -11,10 +11,10 @@ This matches what is done for CUDA and HIP.
  3 files changed, 17 insertions(+), 10 deletions(-)
 
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index 530d1fd3e478..e04b3f916b2f 100644
+index 45bc8ec0af14..6d0054b37d23 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -5989,9 +5989,12 @@ class OffloadingActionBuilder final {
+@@ -5992,9 +5992,12 @@ class OffloadingActionBuilder final {
        if (!NumOfDeviceLibLinked)
          return false;
  
@@ -31,7 +31,7 @@ index 530d1fd3e478..e04b3f916b2f 100644
                  TC->getTriple(), Args, *TC->getAuxTriple())) {
            Arg *LibClcInputArg =
 diff --git a/clang/lib/Driver/ToolChains/SYCL.cpp b/clang/lib/Driver/ToolChains/SYCL.cpp
-index 164a4c297c36..7845699acd4a 100644
+index 7d9223a70b6f..bcab2d14bce8 100644
 --- a/clang/lib/Driver/ToolChains/SYCL.cpp
 +++ b/clang/lib/Driver/ToolChains/SYCL.cpp
 @@ -1599,6 +1599,12 @@ void SYCLToolChain::addClangTargetOptions(
