@@ -69,15 +69,11 @@ SYCL,DeviceLib/bfloat16_conversion_test.cpp,XFail
 SYCL,DeviceLib/imf_simd_emulate_test.cpp,XFail
 SYCL,DeviceLib/imf_fp64_test2.cpp,XFail
 SYCL,DeviceLib/imf_fp64_test.cpp,XFail
-SYCL,DeviceLib/cmath_test.cpp,XFail
-SYCL,DeviceLib/std_complex_math_test.cpp,XFail
 SYCL,DeviceLib/imf_fp32_test.cpp,XFail
 SYCL,DeviceLib/imf_float2bfloat16.cpp,XFail
-SYCL,DeviceLib/std_complex_math_fp64_test.cpp,XFail
 SYCL,DeviceLib/imf_fp64_rounding_test.cpp,XFail
 SYCL,DeviceLib/imf_bfloat16_integeral_convesions.cpp,XFail
 SYCL,DeviceLib/imf_fp32_rounding_test.cpp,XFail
-SYCL,DeviceLib/exp/exp-std-complex-double-edge-cases.cpp,XFail
 SYCL,ProfilingTag/profiling_queue.cpp,XFail
 SYCL,DeviceImageDependencies/math_device_lib.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/math_device_lib.cpp,XFail

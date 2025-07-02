@@ -1,0 +1,208 @@
+From 54475b97d1f61194991ade0b0dc1023bfa16eaee Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Thu, 26 Jun 2025 15:29:23 +0100
+Subject: [PATCH] [NFC] Remove getDefaultCallingConvention IsBuiltin
+
+ASTContext::getDefaultCallingConvention() was documented as returning
+"the default calling convention for the current target", but did not do
+this, and was never intended to do this, it has always been controlled
+by command-line options to deviate from the target default.
+
+This commit changes ASTContext::getDefaultCallingConvention() to reflect
+the fact that it returns the context's default calling convention, not
+the target's default calling convention. The IsBuiltin parameter, which
+was used to return the target's default calling convention rather than
+the context's, is removed in favor of
+getTargetInfo().getDefaultCallingConv() which is more explicit of the
+intent.
+---
+ clang/include/clang/AST/ASTContext.h   | 10 ++--
+ clang/include/clang/Basic/TargetInfo.h |  7 ++-
+ clang/lib/AST/ASTContext.cpp           | 68 ++++++++++++--------------
+ clang/lib/Sema/SemaExprCXX.cpp         |  4 +-
+ clang/lib/Sema/SemaLookup.cpp          |  3 +-
+ clang/lib/Sema/SemaRISCV.cpp           |  2 +-
+ 6 files changed, 48 insertions(+), 46 deletions(-)
+
+diff --git a/clang/include/clang/AST/ASTContext.h b/clang/include/clang/AST/ASTContext.h
+index f0d2cc61ce65..ea5e94bc7239 100644
+--- a/clang/include/clang/AST/ASTContext.h
++++ b/clang/include/clang/AST/ASTContext.h
+@@ -2890,10 +2890,14 @@ public:
+   NestedNameSpecifier *
+   getCanonicalNestedNameSpecifier(NestedNameSpecifier *NNS) const;
+ 
+-  /// Retrieves the default calling convention for the current target.
++  /// Retrieves the default calling convention for the current context.
++  ///
++  /// The context's default calling convention may differ from the current
++  /// target's default calling convention if the -fdefault-calling-conv option
++  /// is used; to get the target's default calling convention, e.g. for built-in
++  /// functions, call getTargetInfo().getDefaultCallingConv() instead.
+   CallingConv getDefaultCallingConvention(bool IsVariadic,
+-                                          bool IsCXXMethod,
+-                                          bool IsBuiltin = false) const;
++                                          bool IsCXXMethod) const;
+ 
+   /// Retrieves the "canonical" template name that refers to a
+   /// given template.
+diff --git a/clang/include/clang/Basic/TargetInfo.h b/clang/include/clang/Basic/TargetInfo.h
+index c3bce6e807f3..8dbacdd3703a 100644
+--- a/clang/include/clang/Basic/TargetInfo.h
++++ b/clang/include/clang/Basic/TargetInfo.h
+@@ -1693,8 +1693,11 @@ public:
+   /// Controls if __arithmetic_fence is supported in the targeted backend.
+   virtual bool checkArithmeticFenceSupported() const { return false; }
+ 
+-  /// Gets the default calling convention for the given target and
+-  /// declaration context.
++  /// Gets the default calling convention for the given target.
++  ///
++  /// This function does not take into account any user options to override the
++  /// default calling convention. For that, see
++  /// ASTContext::getDefaultCallingConvention().
+   virtual CallingConv getDefaultCallingConv() const {
+     // Not all targets will specify an explicit calling convention that we can
+     // express.  This will always do the right thing, even though it's not
+diff --git a/clang/lib/AST/ASTContext.cpp b/clang/lib/AST/ASTContext.cpp
+index 0b372341a975..d8ef36b958d0 100644
+--- a/clang/lib/AST/ASTContext.cpp
++++ b/clang/lib/AST/ASTContext.cpp
+@@ -12708,10 +12708,9 @@ QualType ASTContext::GetBuiltinType(unsigned Id,
+ 
+   bool Variadic = (TypeStr[0] == '.');
+ 
+-  FunctionType::ExtInfo EI(getDefaultCallingConvention(
+-      Variadic, /*IsCXXMethod=*/false, /*IsBuiltin=*/true));
+-  if (BuiltinInfo.isNoReturn(Id)) EI = EI.withNoReturn(true);
+-
++  FunctionType::ExtInfo EI(Target->getDefaultCallingConv());
++  if (BuiltinInfo.isNoReturn(Id))
++    EI = EI.withNoReturn(true);
+ 
+   // We really shouldn't be making a no-proto type here.
+   if (ArgTypes.empty() && Variadic && !getLangOpts().requiresStrictPrototypes())
+@@ -13115,43 +13114,38 @@ void ASTContext::forEachMultiversionedFunctionVersion(
+ }
+ 
+ CallingConv ASTContext::getDefaultCallingConvention(bool IsVariadic,
+-                                                    bool IsCXXMethod,
+-                                                    bool IsBuiltin) const {
++                                                    bool IsCXXMethod) const {
+   // Pass through to the C++ ABI object
+   if (IsCXXMethod && !LangOpts.SYCLIsDevice)
+     return ABI->getDefaultMethodCallConv(IsVariadic);
+ 
+-  // Builtins ignore user-specified default calling convention and remain the
+-  // Target's default calling convention.
+-  if (!IsBuiltin) {
+-    switch (LangOpts.getDefaultCallingConv()) {
+-    case LangOptions::DCC_None:
+-      break;
+-    case LangOptions::DCC_CDecl:
+-      return CC_C;
+-    case LangOptions::DCC_FastCall:
+-      if (getTargetInfo().hasFeature("sse2") && !IsVariadic)
+-        return CC_X86FastCall;
+-      break;
+-    case LangOptions::DCC_StdCall:
+-      if (!IsVariadic)
+-        return CC_X86StdCall;
+-      break;
+-    case LangOptions::DCC_VectorCall:
+-      // __vectorcall cannot be applied to variadic functions.
+-      if (!IsVariadic)
+-        return CC_X86VectorCall;
+-      break;
+-    case LangOptions::DCC_RegCall:
+-      // __regcall cannot be applied to variadic functions.
+-      if (!IsVariadic)
+-        return CC_X86RegCall;
+-      break;
+-    case LangOptions::DCC_RtdCall:
+-      if (!IsVariadic)
+-        return CC_M68kRTD;
+-      break;
+-    }
++  switch (LangOpts.getDefaultCallingConv()) {
++  case LangOptions::DCC_None:
++    break;
++  case LangOptions::DCC_CDecl:
++    return CC_C;
++  case LangOptions::DCC_FastCall:
++    if (getTargetInfo().hasFeature("sse2") && !IsVariadic)
++      return CC_X86FastCall;
++    break;
++  case LangOptions::DCC_StdCall:
++    if (!IsVariadic)
++      return CC_X86StdCall;
++    break;
++  case LangOptions::DCC_VectorCall:
++    // __vectorcall cannot be applied to variadic functions.
++    if (!IsVariadic)
++      return CC_X86VectorCall;
++    break;
++  case LangOptions::DCC_RegCall:
++    // __regcall cannot be applied to variadic functions.
++    if (!IsVariadic)
++      return CC_X86RegCall;
++    break;
++  case LangOptions::DCC_RtdCall:
++    if (!IsVariadic)
++      return CC_M68kRTD;
++    break;
+   }
+   return Target->getDefaultCallingConv();
+ }
+diff --git a/clang/lib/Sema/SemaExprCXX.cpp b/clang/lib/Sema/SemaExprCXX.cpp
+index 77b0b2fc893c..be0e3164f357 100644
+--- a/clang/lib/Sema/SemaExprCXX.cpp
++++ b/clang/lib/Sema/SemaExprCXX.cpp
+@@ -3479,8 +3479,8 @@ void Sema::DeclareGlobalAllocationFunction(DeclarationName Name,
+     }
+   }
+ 
+-  FunctionProtoType::ExtProtoInfo EPI(Context.getDefaultCallingConvention(
+-      /*IsVariadic=*/false, /*IsCXXMethod=*/false, /*IsBuiltin=*/true));
++  FunctionProtoType::ExtProtoInfo EPI(
++      Context.getTargetInfo().getDefaultCallingConv());
+ 
+   QualType BadAllocType;
+   bool HasBadAllocExceptionSpec = Name.isAnyOperatorNew();
+diff --git a/clang/lib/Sema/SemaLookup.cpp b/clang/lib/Sema/SemaLookup.cpp
+index 45bad3673dc1..003df2ab24ef 100644
+--- a/clang/lib/Sema/SemaLookup.cpp
++++ b/clang/lib/Sema/SemaLookup.cpp
+@@ -22,6 +22,7 @@
+ #include "clang/AST/ExprCXX.h"
+ #include "clang/Basic/Builtins.h"
+ #include "clang/Basic/LangOptions.h"
++#include "clang/Basic/TargetInfo.h"
+ #include "clang/Lex/HeaderSearch.h"
+ #include "clang/Lex/ModuleLoader.h"
+ #include "clang/Lex/Preprocessor.h"
+@@ -788,7 +789,7 @@ static void GetProgModelBuiltinFctOverloads(
+     std::vector<QualType> &FunctionList, SmallVector<QualType, 1> &RetTypes,
+     SmallVector<SmallVector<QualType, 1>, 5> &ArgTypes, bool IsVariadic) {
+   FunctionProtoType::ExtProtoInfo PI(
+-      Context.getDefaultCallingConvention(false, false, true));
++      Context.getTargetInfo().getDefaultCallingConv());
+   PI.Variadic = IsVariadic;
+   PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
+ 
+diff --git a/clang/lib/Sema/SemaRISCV.cpp b/clang/lib/Sema/SemaRISCV.cpp
+index ac88f5e059b7..5469e61a8d93 100644
+--- a/clang/lib/Sema/SemaRISCV.cpp
++++ b/clang/lib/Sema/SemaRISCV.cpp
+@@ -446,7 +446,7 @@ void RISCVIntrinsicManagerImpl::CreateRVVIntrinsicDecl(LookupResult &LR,
+     ArgTypes.push_back(RVVType2Qual(Context, Sigs[i]));
+ 
+   FunctionProtoType::ExtProtoInfo PI(
+-      Context.getDefaultCallingConvention(false, false, true));
++      Context.getTargetInfo().getDefaultCallingConv());
+ 
+   PI.Variadic = false;
+ 
+-- 
+2.47.2
+

@@ -1,4 +1,4 @@
-From 08f6c97622cf88a1f8c0008a80cef9d6a36123fa Mon Sep 17 00:00:00 2001
+From fdb9fcb8ddf26961b379b960a7e102f7c5ecf4ce Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Sat, 29 Mar 2025 13:51:45 +0000
 Subject: [PATCH] [SYCL][NativeCPU] Add libclc at compile time.
