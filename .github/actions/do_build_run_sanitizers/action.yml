@@ -69,6 +69,7 @@ runs:
         ls -l external
         ls -l external/llvm-project
         cd external
-        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j1
+        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
         #cmake --build build --target install
     # build/run OCK
