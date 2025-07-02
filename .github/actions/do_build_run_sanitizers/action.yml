@@ -14,7 +14,7 @@ runs:
         echo PATH IS $PATH
         echo UNAME IS && uname -a
         echo SYSCTL IS && sysctl vm.mmap_rnd_bits
-        sysctl vm.mmap_rnd_bits=28
+        sudo sysctl vm.mmap_rnd_bits=28
         echo SYSCTL IS && sysctl vm.mmap_rnd_bits
         ls -l
     - name: Checkout repo llvm
