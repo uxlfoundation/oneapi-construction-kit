@@ -4,6 +4,7 @@ SYCL,Basic/submit_time.cpp,XFail
 SYCL,Basic/profile_host_task.cpp,XFail
 SYCL,Assert/assert_in_simultaneously_multiple_tus_one_ndebug.cpp,XFail
 SYCL,Assert/assert_in_simultaneously_multiple_tus.cpp,XFail
+SYCL,DeviceLib/exp/exp-std-complex-float-edge-cases.cpp,XFail
 SYCL,SubGroup/sub_group_as_vec.cpp,XFail
 SYCL,SubGroup/sub_group_as.cpp,XFail
 SYCL,GroupAlgorithm/SYCL2020/group_sort/array_input_sort.cpp,XFail
