@@ -16,6 +16,9 @@ runs:
         echo SYSCTL IS && sysctl vm.mmap_rnd_bits
         sudo sysctl vm.mmap_rnd_bits=28
         echo SYSCTL IS && sysctl vm.mmap_rnd_bits
+        echo RANDOM IS && cat /proc/sys/kernel/randomize_va_space
+        echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
+        echo RANDOM IS && cat /proc/sys/kernel/randomize_va_space
         ls -l
     - name: Checkout repo llvm
       uses: actions/checkout@v4
