@@ -83,7 +83,38 @@ runs:
         ls -l external
         ls -l external/llvm-project
         cd external
-        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
         #cmake --build build --target install
-    # build/run OCK
+    #- name:  build OCK
+    #  uses: ./.github/actions/do_build_ock
+    #    with:
+    #      build_targets: ${{ inputs.cache_seed == 'true' && 'clc UnitCL' || 'check-ock-UnitCL-group-vecz' }}
+    #      mux_targets_enable: riscv
+    #      mux_compilers_enable: riscv
+    #      riscv_enabled: ON
+    #      enable_rvv_scalable_vecz_check: ON
+    #      enable_rvv_scalable_vp_vecz_check: ON
+    #      hal_description: RV64GCV_Zfh
+    #      hal_refsi_soc: G1
+    #      hal_refsi_thread_mode: WG
+    #      debug_support: ON
+    #      offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
+        # cmake 
+        # -GNinja 
+        # -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF 
+        # -DOCL_EXTENSION_cl_khr_command_buffer=ON 
+        # -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON 
+        # -DCA_ENABLE_EXTENDED_CHECKS=OFF 
+        # -DCMAKE_INSTALL_PREFIX=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/install 
+        # -DCA_LLVM_INSTALL_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/external/llvm/build/install 
+        # -DCMAKE_BUILD_TYPE=Debug 
+        # -DCA_USE_SANITIZER=Thread 
+        # -DCMAKE_C_COMPILER=clang-19 
+        # -DCMAKE_CXX_COMPILER=clang++-19 
+        # -DCA_ENABLE_DEBUG_SUPPORT=ON 
+        # -DCA_BUILTINS_TOOLS_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/llvm/llvm_tools/bin 
+        # -DCMAKE_C_COMPILER_LAUNCHER=ccache 
+        # -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
+        # -DCA_GTEST_LAUNCHER=/usr/bin/python;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py 
+        # /builds/ComputeAorta/ci-github/oneapi-construction-kit
