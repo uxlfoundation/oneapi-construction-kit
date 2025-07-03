@@ -37,7 +37,7 @@ runs:
         set -x
         sudo apt update
         sudo apt -y upgrade
-        sudo apt install -y clang-19 lld-19
+        sudo apt install -y clang-19
         set +x
         ls -l
         ls -l external/llvm-project
@@ -52,6 +52,8 @@ runs:
             -DLLVM_ENABLE_Z3_SOLVER=FALSE \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DLLVM_USE_SANITIZER=Thread \
+            -DLLVM_BUILD_LLVM_DYLIB=ON \
+            -DLLVM_LINK_LLVM_DYLIB=ON \
             -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
         #   -DCMAKE_C_COMPILER=/usr/bin/cc \
@@ -77,7 +79,7 @@ runs:
         ls -l external
         ls -l external/llvm-project
         cd external
-        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
         #cmake --build build --target install
     # build/run OCK
