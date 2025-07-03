@@ -54,6 +54,10 @@ runs:
             -DLLVM_USE_SANITIZER=Thread \
             -DLLVM_BUILD_LLVM_DYLIB=ON \
             -DLLVM_LINK_LLVM_DYLIB=ON \
+            -DLLVM_ENABLE_DIA_SDK=OFF \
+            -DLLVM_ENABLE_ZSTD=FALSE \
+            -DLLVM_ENABLE_PROJECTS="clang;lld" \
+            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
         #   -DCMAKE_C_COMPILER=/usr/bin/cc \
