@@ -5,7 +5,6 @@ SYCL,Basic/group_local_id.cpp,XFail
 SYCL,Basic/profile_host_task.cpp,XFail
 SYCL,Basic/submit_time.cpp,XFail
 SYCL,Config/kernel_from_file.cpp,XFail
-SYCL,DeviceLib/exp/exp-std-complex-float-edge-cases.cpp,XFail
 SYCL,FreeFunctionKernels/template_specialization.cpp,XFail
 SYCL,Graph/Explicit/add_nodes_after_finalize.cpp,XFail
 SYCL,Graph/Explicit/buffer_copy_2d.cpp,XFail
