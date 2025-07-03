@@ -470,7 +470,7 @@ inline T tan_naive_reduction(T x, typename TypeTraits<T>::SignedType *octet) {
   const SignedType octet_local = abacus::internal::floor_unsafe(x4bypi);
 
   // Get the octet x is in (if x is negative we need to flip octet)
-  *octet = __abacus_select(octet_local, ~octet_local, x < 0);
+  *octet = __abacus_select(octet_local, ~octet_local, __abacus_signbit(x));
 
   // if the integral is odd we need to return (pi/4 - xx) as opposed to just xx:
   const T foctet =
@@ -847,7 +847,7 @@ struct payne_hanek_helper<abacus_float, abacus_float> {
     SignedType octet;
     const T fract = ph_extract_fract<T>::_(rHi, rLo, &octet);
 
-    *out_octet = __abacus_select(octet, ~octet, x < 0);
+    *out_octet = __abacus_select(octet, ~octet, __abacus_signbit(x));
 
     return fract;
   }
@@ -876,7 +876,7 @@ struct payne_hanek_helper<T, abacus_float> {
     // Get the relevent integral and mantissa
     SignedType phoctet;
     const T phfract = ph_extract_fract<T>::_(rHi, rLo, &phoctet);
-    phoctet = __abacus_select(phoctet, ~phoctet, x < 0);
+    phoctet = __abacus_select(phoctet, ~phoctet, __abacus_signbit(x));
 
     // Check to see if our number is small enough to use a normal mod(pi/4) on
     const SignedType exp_threshold = 1;  // MUST BE > 0!
@@ -911,7 +911,7 @@ struct payne_hanek_helper<abacus_double, abacus_double> {
     }
 
     if (__abacus_fabs(x) < PI_8) {
-      *octet = (x < 0) ? 7 : 0;
+      *octet = (__abacus_signbit(x)) ? 7 : 0;
       return __abacus_fabs(x * FOUR_PI);
     }
 
@@ -941,7 +941,7 @@ struct payne_hanek_helper<abacus_double, abacus_double> {
     const T fract = ph_extract_fract<abacus_double>::_(rHi, rLo, &phoctet);
 
     const IntVectorType octetCond =
-        abacus::detail::cast::convert<IntVectorType>(x < 0);
+        abacus::detail::cast::convert<IntVectorType>(__abacus_signbit(x));
     *octet = __abacus_select(phoctet, ~phoctet, octetCond);
 
     return fract;
@@ -986,7 +986,7 @@ struct payne_hanek_helper<T, abacus_double> {
     T result = ph_extract_fract<T>::_(rHi, rLo, &phoctet);
 
     const IntVectorType octetCond =
-        abacus::detail::cast::convert<IntVectorType>(x < 0);
+        abacus::detail::cast::convert<IntVectorType>(__abacus_signbit(x));
     phoctet = __abacus_select(phoctet, ~phoctet, octetCond);
 
     const SignedType cond1 = __abacus_fabs(x) < PI_8;
