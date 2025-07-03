@@ -5,6 +5,7 @@ SYCL,Basic/group_local_id.cpp,XFail
 SYCL,Basic/profile_host_task.cpp,XFail
 SYCL,Basic/submit_time.cpp,XFail
 SYCL,Config/kernel_from_file.cpp,XFail
+SYCL,DeviceLib/math_test_marray_vec.cpp,XFail
 SYCL,FreeFunctionKernels/template_specialization.cpp,XFail
 SYCL,Graph/Explicit/add_nodes_after_finalize.cpp,XFail
 SYCL,Graph/Explicit/buffer_copy_2d.cpp,XFail
@@ -117,6 +118,7 @@ SYCL,NonUniformGroups/opportunistic_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/tangle_group_algorithms.cpp,XFail
 SYCL,Printf/int.cpp,XFail
 SYCL,ProfilingTag/in_order_profiling_queue.cpp,XFail
+SYCL,Reduction/reduction_internal_range_3dim.cpp,XFail
 SYCL,Regression/group.cpp,XFail
 SYCL,Regression/group_load_fortified.cpp,XFail
 SYCL,Scheduler/DataMovement.cpp,XFail

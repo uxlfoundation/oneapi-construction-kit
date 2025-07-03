@@ -1751,6 +1751,7 @@ SYCL,KernelCompiler/sycl.cpp
 SYCL,KernelCompiler/sycl_device_flags.cpp
 SYCL,KernelCompiler/sycl_device_globals.cpp
 SYCL,KernelCompiler/sycl_export_registration.cpp
+SYCL,KernelCompiler/sycl_imf.cpp
 SYCL,KernelCompiler/sycl_include_paths.cpp
 SYCL,KernelCompiler/sycl_join.cpp
 SYCL,KernelCompiler/sycl_lifetimes.cpp
@@ -2176,6 +2177,12 @@ SYCL,SubGroup/vote.cpp
 SYCL,SYCLBIN/basic_executable.cpp
 SYCL,SYCLBIN/basic_input.cpp
 SYCL,SYCLBIN/basic_object.cpp
+SYCL,SYCLBIN/dae_executable.cpp
+SYCL,SYCLBIN/dae_input.cpp
+SYCL,SYCLBIN/dae_object.cpp
+SYCL,SYCLBIN/dg_executable.cpp
+SYCL,SYCLBIN/dg_input.cpp
+SYCL,SYCLBIN/dg_object.cpp
 SYCL,SYCLBIN/link_input.cpp
 SYCL,SYCLBIN/link_object.cpp
 SYCL,SYCLBIN/link_rtc_input.cpp
