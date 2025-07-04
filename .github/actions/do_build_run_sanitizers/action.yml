@@ -6,39 +6,24 @@ runs:
   using: "composite"
   steps:
     #
-    # tsan
+    # tsan first
     #
-    - name: List default
-      shell: 'bash'
-      run: |
-        echo PATH IS $PATH
-        echo UNAME IS && uname -a
-        #echo SYSCTL IS && sysctl vm.mmap_rnd_bits
-        #sudo sysctl vm.mmap_rnd_bits=28
-        #echo SYSCTL IS && sysctl vm.mmap_rnd_bits
-        #echo RANDOM IS && cat /proc/sys/kernel/randomize_va_space
-        #echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
-        #sudo setarch `uname -m` -R
-        #echo RANDOM IS && cat /proc/sys/kernel/randomize_va_space
-        ls -l
-    - name: Checkout repo llvm
+    - name: Checkout llvm/llvm-project
       uses: actions/checkout@v4
       with:
         repository: llvm/llvm-project
         #ref: ${{inputs.llvm_branch}}
         ref: 'release/19.x'  # ALAN TODO: pass in param for this
         #path: llvm-project
-        path: external/llvm-project
+        path: external/llvm-project   # ALAN TODO: external dir already exists - rename?
     - name: Install Ninja
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
-    - name: Run cmake
+    - name: Run cmake on llvm
       shell: 'bash'
       run: |
-        set -x
         sudo apt update
         sudo apt -y upgrade
         sudo apt install -y clang-19
-        set +x
         ls -l
         ls -l external/llvm-project
         cd external
@@ -60,62 +45,62 @@ runs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
-        #   -DCMAKE_C_COMPILER=/usr/bin/cc \
-        #   -DCMAKE_CXX_COMPILER=/usr/bin/c++
-        #cmake llvm-project/llvm
-        #    -DLLVM_ENABLE_DIA_SDK=OFF
-        #    -DCMAKE_INSTALL_PREFIX=llvm_install
-        #    -DLLVM_ENABLE_ZLIB=FALSE
-        #    -DLLVM_ENABLE_ZSTD=FALSE
-        #    -DLLVM_ENABLE_Z3_SOLVER=FALSE
-        #    -DLLVM_ENABLE_PROJECTS="clang;lld"
-        #    -DLLVM_TARGETS_TO_BUILD="X86;ARM;AArch64;RISCV"
-        #    -Bbuild
-        #    -GNinja
-        #    -DCMAKE_BUILD_TYPE=Release
-        #    ${{ inputs.build_type == 'RelAssert' && '-DLLVM_ENABLE_ASSERTIONS=ON' || '' }}
-        #    ${{ !startsWith(runner.os, 'Windows') && '-DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON' || '' }}
-        #    $ARCH_FLAGS
-    - name: Run build on llvm
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        ls -l
+        ls -l external
+        ls -l external/llvm_install || echo NO INSTALL
+        ls -l external/llvm-project || echo NO PROJECT
+        ls -l external/llvm-spirv || echo NO SPIRV
+
+    - name: Build OCK
+      shell: 'bash'
+      run: |
+        # ALAN TODO: Review CA_BUILTINS_TOOLS_DIR
+        cmake \
+            -GNinja \
+            -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
+            -DOCL_EXTENSION_cl_khr_command_buffer=ON \
+            -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON \
+            -DCA_ENABLE_EXTENDED_CHECKS=OFF \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
+            -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/external/llvm_install \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCA_USE_SANITIZER=Thread \
+            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19 \
+            -DCA_ENABLE_DEBUG_SUPPORT=ON \
+            -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install\bin \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCA_GTEST_LAUNCHER=/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py \
+            .
+            # cmake 
+            # -GNinja 
+            # -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF 
+            # -DOCL_EXTENSION_cl_khr_command_buffer=ON 
+            # -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON 
+            # -DCA_ENABLE_EXTENDED_CHECKS=OFF 
+            # -DCMAKE_INSTALL_PREFIX=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/install 
+            # -DCA_LLVM_INSTALL_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/external/llvm/build/install 
+            # -DCMAKE_BUILD_TYPE=Debug 
+            # -DCA_USE_SANITIZER=Thread 
+            # -DCMAKE_C_COMPILER=clang-19 
+            # -DCMAKE_CXX_COMPILER=clang++-19 
+            # -DCA_ENABLE_DEBUG_SUPPORT=ON 
+            # -DCA_BUILTINS_TOOLS_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/llvm/llvm_tools/bin 
+            # -DCMAKE_C_COMPILER_LAUNCHER=ccache 
+            # -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
+            # -DCA_GTEST_LAUNCHER=/usr/bin/python;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py 
+            # /builds/ComputeAorta/ci-github/oneapi-construction-kit
+        ls -l
+        ls -l install || echo NO INSTALL
+        ls -l build || echo NO BUILD
+        cmake --build $GITHUB_WORKSPACE/build --target all --config SanitizeThread
+
+    - name: Test OCK
       shell: 'bash'
       run: |
         ls -l
-        ls -l external
-        ls -l external/llvm-project
-        cd external
-        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j1
-        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j4
-        #cmake --build build --target install
-    #- name:  build OCK
-    #  uses: ./.github/actions/do_build_ock
-    #    with:
-    #      build_targets: ${{ inputs.cache_seed == 'true' && 'clc UnitCL' || 'check-ock-UnitCL-group-vecz' }}
-    #      mux_targets_enable: riscv
-    #      mux_compilers_enable: riscv
-    #      riscv_enabled: ON
-    #      enable_rvv_scalable_vecz_check: ON
-    #      enable_rvv_scalable_vp_vecz_check: ON
-    #      hal_description: RV64GCV_Zfh
-    #      hal_refsi_soc: G1
-    #      hal_refsi_thread_mode: WG
-    #      debug_support: ON
-    #      offline_kernel_tests: ${{ inputs.cache_seed == 'true' && 'OFF' || 'ON' }}
-        # cmake 
-        # -GNinja 
-        # -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF 
-        # -DOCL_EXTENSION_cl_khr_command_buffer=ON 
-        # -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON 
-        # -DCA_ENABLE_EXTENDED_CHECKS=OFF 
-        # -DCMAKE_INSTALL_PREFIX=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/install 
-        # -DCA_LLVM_INSTALL_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/external/llvm/build/install 
-        # -DCMAKE_BUILD_TYPE=Debug 
-        # -DCA_USE_SANITIZER=Thread 
-        # -DCMAKE_C_COMPILER=clang-19 
-        # -DCMAKE_CXX_COMPILER=clang++-19 
-        # -DCA_ENABLE_DEBUG_SUPPORT=ON 
-        # -DCA_BUILTINS_TOOLS_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/llvm/llvm_tools/bin 
-        # -DCMAKE_C_COMPILER_LAUNCHER=ccache 
-        # -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
-        # -DCA_GTEST_LAUNCHER=/usr/bin/python;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py 
-        # /builds/ComputeAorta/ci-github/oneapi-construction-kit
+        ls -l build || echo NO BUILD
+        # ALAN TODO: Guesstimate -j4 - was -j8 on Gitlab
+        ninja -C build -j4 check-ock
