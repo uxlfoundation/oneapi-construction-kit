@@ -47,10 +47,9 @@ runs:
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
         cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
         ls -l
-        ls -l external
-        ls -l external/llvm_install || echo NO INSTALL
-        ls -l external/llvm-project || echo NO PROJECT
-        ls -l external/llvm-spirv || echo NO SPIRV
+        ls -l llvm_install || echo NO INSTALL
+        ls -l llvm-project || echo NO PROJECT
+        ls -l llvm-spirv || echo NO SPIRV
 
     - name: Build OCK
       shell: 'bash'
