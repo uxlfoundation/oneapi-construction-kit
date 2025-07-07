@@ -70,6 +70,7 @@ runs:
       run: |
         # ALAN TODO: Review CA_BUILTINS_TOOLS_DIR
         cmake \
+            -Bbuild \
             -GNinja \
             -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
             -DOCL_EXTENSION_cl_khr_command_buffer=ON \
