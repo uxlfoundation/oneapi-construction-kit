@@ -23,35 +23,36 @@ runs:
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt install -y clang-19
-        #ls -l
-        #ls -l external/llvm-project
-        #cd external
-        #cmake llvm-project/llvm \
-        #    -GNinja \
-        #    -Bbuild \
-        #    -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
-        #    -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
-        #    -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
-        #    -DLLVM_ENABLE_ZLIB=FALSE \
-        #    -DLLVM_ENABLE_Z3_SOLVER=FALSE \
-        #    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        #    -DLLVM_USE_SANITIZER=Thread \
-        #    -DLLVM_BUILD_LLVM_DYLIB=ON \
-        #    -DLLVM_LINK_LLVM_DYLIB=ON \
-        #    -DLLVM_ENABLE_DIA_SDK=OFF \
-        #    -DLLVM_ENABLE_ZSTD=FALSE \
-        #    -DLLVM_ENABLE_PROJECTS="clang;lld" \
-        #    -DCMAKE_BUILD_TYPE=Release \
-        #    -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
-        #    -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
-        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        #ls -l
-        #ls -l llvm_install || echo NO INSTALL
-        #ls -l llvm-project || echo NO PROJECT
-        #ls -l llvm-spirv || echo NO SPIRV
+        sudo apt install -y clang-19   # ALAN TODO: move to new step
+        ls -l
+        ls -l external/llvm-project
+        cd external
+        cmake llvm-project/llvm \
+            -GNinja \
+            -Bbuild \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
+            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
+            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
+            -DLLVM_ENABLE_ZLIB=FALSE \
+            -DLLVM_ENABLE_Z3_SOLVER=FALSE \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DLLVM_USE_SANITIZER=Thread \
+            -DLLVM_BUILD_LLVM_DYLIB=ON \
+            -DLLVM_LINK_LLVM_DYLIB=ON \
+            -DLLVM_ENABLE_DIA_SDK=OFF \
+            -DLLVM_ENABLE_ZSTD=FALSE \
+            -DLLVM_ENABLE_PROJECTS="clang;lld" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        ls -l
+        ls -l llvm_install || echo NO INSTALL
+        ls -l llvm-project || echo NO PROJECT
+        ls -l llvm-spirv || echo NO SPIRV
 
     - name: download llvm
+      if: false
       uses: ./.github/actions/download_artifact
       with:
         name: llvm-ubuntu-22.04-x86_64-19-RelAssert
@@ -61,6 +62,7 @@ runs:
         needs_tar: 'true'
 
     - name: list llvm
+      if: false
       shell: 'bash'
       run: |
         ls -lR $GITHUB_WORKSPACE/external/llvm_install
@@ -88,6 +90,7 @@ runs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
             .
+
             # cmake 
             # -GNinja 
             # -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF 
@@ -106,6 +109,7 @@ runs:
             # -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
             # -DCA_GTEST_LAUNCHER=/usr/bin/python;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py 
             # /builds/ComputeAorta/ci-github/oneapi-construction-kit
+
         ls -l
         ls -l install || echo NO INSTALL
         ls -l build || echo NO BUILD
