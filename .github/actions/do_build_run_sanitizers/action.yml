@@ -25,32 +25,32 @@ runs:
         sudo apt update
         sudo apt -y upgrade
         sudo apt install -y clang-19
-        ls -l
-        ls -l external/llvm-project
-        cd external
-        cmake llvm-project/llvm \
-            -GNinja \
-            -Bbuild \
-            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
-            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
-            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
-            -DLLVM_ENABLE_ZLIB=FALSE \
-            -DLLVM_ENABLE_Z3_SOLVER=FALSE \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DLLVM_USE_SANITIZER=Thread \
-            -DLLVM_BUILD_LLVM_DYLIB=ON \
-            -DLLVM_LINK_LLVM_DYLIB=ON \
-            -DLLVM_ENABLE_DIA_SDK=OFF \
-            -DLLVM_ENABLE_ZSTD=FALSE \
-            -DLLVM_ENABLE_PROJECTS="clang;lld" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
-            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
-        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        ls -l
-        ls -l llvm_install || echo NO INSTALL
-        ls -l llvm-project || echo NO PROJECT
-        ls -l llvm-spirv || echo NO SPIRV
+        #ls -l
+        #ls -l external/llvm-project
+        #cd external
+        #cmake llvm-project/llvm \
+        #    -GNinja \
+        #    -Bbuild \
+        #    -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
+        #    -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
+        #    -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
+        #    -DLLVM_ENABLE_ZLIB=FALSE \
+        #    -DLLVM_ENABLE_Z3_SOLVER=FALSE \
+        #    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        #    -DLLVM_USE_SANITIZER=Thread \
+        #    -DLLVM_BUILD_LLVM_DYLIB=ON \
+        #    -DLLVM_LINK_LLVM_DYLIB=ON \
+        #    -DLLVM_ENABLE_DIA_SDK=OFF \
+        #    -DLLVM_ENABLE_ZSTD=FALSE \
+        #    -DLLVM_ENABLE_PROJECTS="clang;lld" \
+        #    -DCMAKE_BUILD_TYPE=Release \
+        #    -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
+        #    -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
+        #cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        #ls -l
+        #ls -l llvm_install || echo NO INSTALL
+        #ls -l llvm-project || echo NO PROJECT
+        #ls -l llvm-spirv || echo NO SPIRV
 
     - name: download llvm
       uses: ./.github/actions/download_artifact
