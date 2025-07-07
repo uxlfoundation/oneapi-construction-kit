@@ -86,7 +86,7 @@ runs:
             -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install\bin \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCA_GTEST_LAUNCHER=/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py \
+            -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
             .
             # cmake 
             # -GNinja 
