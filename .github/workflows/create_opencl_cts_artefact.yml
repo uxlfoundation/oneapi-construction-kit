@@ -5,34 +5,9 @@ name: Create an cache OpenCL-CTS artefact
 on:
   # ALAN TODO: set to pull_request to build in PR.
   #            for production restore workflow_dispatch - and usage of all inputs
-  workflow_dispatch:
-  #pull_request:
+  #workflow_dispatch:
+  pull_request:
     inputs:
-      llvm_version:
-        required: false
-        type: string
-        description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
-        default: 19
-      llvm_branch:
-        required: false
-        type: string
-        description: 'The actual llvm branch to check out e.g. release/19.x'
-        default: 'release/19.x'
-      download_ock_artefact:
-        required: false
-        type: string
-        description: 'download ock artefact rather than building, of form <target>=id;<target2=id2>.'
-        default: ''
-      llvm_source:
-        required: false
-        type: string
-        description: 'method of sourcing llvm (install, cache or run-id)'
-        default: 'cache'
-      use_llvm_github_cache:
-        required: false
-        type: boolean
-        description: 'Use a cache for any llvm artifact fetching and update if not found'
-        default: true
       header_ref:
         required: false
         type: string
@@ -53,41 +28,6 @@ permissions:
   packages: read
 
 jobs:
-
-  build_llvm_artefact:
-    if: false
-    name: Create llvm artefact
-    uses: ./.github/workflows/create_llvm_artefacts.yml
-    secrets: inherit
-    with:
-      llvm_branch: ${{ inputs.llvm_branch || 'release/19.x' }}
-      llvm_version: ${{ inputs.llvm_version || '19' }}
-      use_github_cache: ${{ inputs.use_llvm_github_cache || true }}
-      target_list: '[ "host_x86_64_linux" ]'
-
-  create_ock_artefact:
-    if: false
-    name: Create ock artefact
-    needs: [ build_llvm_artefact ]
-    runs-on: 'ubuntu-22.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - uses: ./.github/actions/setup_gh
-        with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build ock artefact
-        uses: ./.github/actions/do_build_ock_artefact
-        with:
-          target: 'host_x86_64_linux'
-          llvm_version: ${{ inputs.llvm_version || '19' }}
-          download_ock_artefact: ${{ inputs.download_ock_artefact || '' }}
-          llvm_source: ${{ inputs.llvm_source || 'cache' }}
 
   build_icd:
     name: Create ICD artefact
