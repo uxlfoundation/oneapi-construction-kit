@@ -19,7 +19,6 @@ runs:
     - name: Install Ninja
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
     - name: Run cmake on llvm
-      if: false
       shell: 'bash'
       run: |
         sudo apt update
