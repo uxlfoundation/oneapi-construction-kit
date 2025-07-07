@@ -63,7 +63,7 @@ runs:
     - name: list llvm
       shell: 'bash'
       run: |
-        ls -l $GITHUB_WORKSPACE/external/llvm_install
+        ls -lR $GITHUB_WORKSPACE/external/llvm_install
 
     - name: Build OCK
       shell: 'bash'
@@ -83,7 +83,7 @@ runs:
             -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19 \
             -DCA_ENABLE_DEBUG_SUPPORT=ON \
-            -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install\bin \
+            -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install/bin \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
