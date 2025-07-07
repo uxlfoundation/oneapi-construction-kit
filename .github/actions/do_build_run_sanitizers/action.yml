@@ -121,4 +121,4 @@ runs:
         ls -l
         ls -l build || echo NO BUILD
         # ALAN TODO: Guesstimate -j4 - was -j8 on Gitlab
-        ninja -C build -j4 check-ock
+        ninja -C build -j8 check-ock
