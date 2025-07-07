@@ -57,7 +57,7 @@ runs:
       with:
         name: llvm-ubuntu-22.04-x86_64-19-RelAssert
         run_id: ${{ github.run_id }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ env.GH_TOKEN }}
         path: $GITHUB_WORKSPACE/external/llvm_install
         needs_tar: 'true'
 
