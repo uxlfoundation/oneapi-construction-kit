@@ -25,7 +25,7 @@ jobs:
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
       target_list: '[ "host_x86_64_linux" ]'
-      ock: false
+      # ock: true
       native_cpu: false
       test_tornado: false
       test_remote_hal: false
