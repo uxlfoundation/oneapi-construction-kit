@@ -1,4 +1,4 @@
-From 982bb189f8042b5d6263340c3a8568fbc25b9ea7 Mon Sep 17 00:00:00 2001
+From c232652b545a8bff308a6b321753c629e65b5d2c Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Mon, 30 Jun 2025 17:28:19 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Create NativeCPUABIInfo.
@@ -10,12 +10,12 @@ change is split out into a separate commit for easier review.
 ---
  clang/lib/Basic/Targets/NativeCPU.cpp         | 10 ++---
  clang/lib/CodeGen/CMakeLists.txt              |  1 +
- clang/lib/CodeGen/CodeGenModule.cpp           | 43 ++++++++++++++++--
+ clang/lib/CodeGen/CodeGenModule.cpp           | 42 +++++++++++++++--
  clang/lib/CodeGen/TargetInfo.h                |  4 ++
  clang/lib/CodeGen/Targets/NativeCPU.cpp       | 45 +++++++++++++++++++
  .../native_cpu_target_features.cpp            |  3 ++
  libclc/utils/prepare-builtins.cpp             |  6 +--
- 7 files changed, 100 insertions(+), 12 deletions(-)
+ 7 files changed, 99 insertions(+), 12 deletions(-)
  create mode 100644 clang/lib/CodeGen/Targets/NativeCPU.cpp
 
 diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
@@ -62,7 +62,7 @@ index 91f304395fe8..f6f721b12716 100644
    Targets/PPC.cpp
    Targets/RISCV.cpp
 diff --git a/clang/lib/CodeGen/CodeGenModule.cpp b/clang/lib/CodeGen/CodeGenModule.cpp
-index 9478b836e1fd..74790e043edb 100644
+index b2b1b72454f8..8c70d08517ad 100644
 --- a/clang/lib/CodeGen/CodeGenModule.cpp
 +++ b/clang/lib/CodeGen/CodeGenModule.cpp
 @@ -117,9 +117,8 @@ static bool SYCLCUDAIsSYCLDevice(const clang::LangOptions &LangOpts) {
@@ -77,7 +77,7 @@ index 9478b836e1fd..74790e043edb 100644
    const CodeGenOptions &CodeGenOpts = CGM.getCodeGenOpts();
  
    switch (Triple.getArch()) {
-@@ -335,9 +334,47 @@ createTargetCodeGenInfo(CodeGenModule &CGM) {
+@@ -335,9 +334,46 @@ createTargetCodeGenInfo(CodeGenModule &CGM) {
      return createLoongArchTargetCodeGenInfo(
          CGM, Target.getPointerWidth(LangAS::Default), ABIFRLen);
    }
@@ -105,8 +105,7 @@ index 9478b836e1fd..74790e043edb 100644
 +      }();
 +    }
 +    if (!HostTriple.isNativeCPU()) {
-+      HostTargetCodeGenInfo =
-+          createTargetCodeGenInfo(CGM, Target, HostTriple);
++      HostTargetCodeGenInfo = createTargetCodeGenInfo(CGM, Target, HostTriple);
 +    }
 +
 +    return createNativeCPUTargetCodeGenInfo(CGM,
