@@ -5,9 +5,21 @@ runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
+
     #
-    # tsan first
+    # TSAN first
     #
+
+    - name: Install Ninja
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
+
+    - name: Install clang
+      shell: 'bash'
+      run: |
+        sudo apt update
+        sudo apt -y upgrade
+        sudo apt install -y clang-19
+
     - name: Checkout llvm/llvm-project
       uses: actions/checkout@v4
       with:
@@ -16,17 +28,14 @@ runs:
         ref: 'release/19.x'  # ALAN TODO: pass in param for this
         #path: llvm-project
         path: external/llvm-project   # ALAN TODO: external dir already exists - rename?
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
-    - name: Run cmake on llvm
+
+    - name: Build llvm
       shell: 'bash'
       run: |
-        sudo apt update
-        sudo apt -y upgrade
-        sudo apt install -y clang-19   # ALAN TODO: move to new step
         ls -l
         ls -l external/llvm-project
         cd external
+        # ALAN TODO: Use do_build_llvm ??
         cmake llvm-project/llvm \
             -GNinja \
             -Bbuild \
@@ -51,7 +60,7 @@ runs:
         ls -l llvm-project || echo NO PROJECT
         ls -l llvm-spirv || echo NO SPIRV
 
-    - name: download llvm
+    - name: Download llvm DELETE
       if: false
       uses: ./.github/actions/download_artifact
       with:
@@ -61,7 +70,7 @@ runs:
         path: $GITHUB_WORKSPACE/external/llvm_install
         needs_tar: 'true'
 
-    - name: list llvm
+    - name: List llvm DELETE
       if: false
       shell: 'bash'
       run: |
@@ -71,6 +80,7 @@ runs:
       shell: 'bash'
       run: |
         # ALAN TODO: Review CA_BUILTINS_TOOLS_DIR
+        # ALAN TODO: Use do_build_ock
         cmake \
             -Bbuild \
             -GNinja \
@@ -90,26 +100,6 @@ runs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
             .
-
-            # cmake 
-            # -GNinja 
-            # -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF 
-            # -DOCL_EXTENSION_cl_khr_command_buffer=ON 
-            # -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON 
-            # -DCA_ENABLE_EXTENDED_CHECKS=OFF 
-            # -DCMAKE_INSTALL_PREFIX=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/install 
-            # -DCA_LLVM_INSTALL_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/external/llvm/build/install 
-            # -DCMAKE_BUILD_TYPE=Debug 
-            # -DCA_USE_SANITIZER=Thread 
-            # -DCMAKE_C_COMPILER=clang-19 
-            # -DCMAKE_CXX_COMPILER=clang++-19 
-            # -DCA_ENABLE_DEBUG_SUPPORT=ON 
-            # -DCA_BUILTINS_TOOLS_DIR=/builds/ComputeAorta/ci-github/oneapi-construction-kit/build/llvm/llvm_tools/bin 
-            # -DCMAKE_C_COMPILER_LAUNCHER=ccache 
-            # -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
-            # -DCA_GTEST_LAUNCHER=/usr/bin/python;-u;/builds/ComputeAorta/ci-github/oneapi-construction-kit/scripts/gtest-terse-runner.py 
-            # /builds/ComputeAorta/ci-github/oneapi-construction-kit
-
         ls -l
         ls -l install || echo NO INSTALL
         ls -l build || echo NO BUILD
@@ -120,5 +110,5 @@ runs:
       run: |
         ls -l
         ls -l build || echo NO BUILD
-        # ALAN TODO: Guesstimate -j4 - was -j8 on Gitlab
-        ninja -C build -j8 check-ock
+        # ALAN TODO: Guesstimate -j4 initially - failed!
+        ninja -C build -j3 check-ock
