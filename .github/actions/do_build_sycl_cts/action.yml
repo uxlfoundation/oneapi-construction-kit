@@ -23,10 +23,6 @@ runs:
       with:
         target: ${{ inputs.target }}  
 
-    - name: Install Ninja
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
-      uses: llvm/actions/install-ninja@main
-
     - name: download icd artifact
       if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4

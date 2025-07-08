@@ -54,9 +54,6 @@ runs:
         echo "PATH=C:\VulkanSDK\1.3.283.0\Bin;$env:PATH" >> $env:GITHUB_ENV
         pip install lit
 
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
-
     - name: set llvm key
       id: set_llvm_key
       shell: bash
