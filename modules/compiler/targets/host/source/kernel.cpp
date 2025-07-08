@@ -215,9 +215,10 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     return optimized_kernel_map[local_size];
   }
 
-  {
-    const std::lock_guard<compiler::Context> guard(target.getContext());
-
+  return target.withLLVMContextDo([&](llvm::LLVMContext &C)
+                                      -> cargo::expected<
+                                          const OptimizedKernel &,
+                                          compiler::Result> {
     std::unique_ptr<llvm::Module> optimized_module(llvm::CloneModule(*module));
     if (nullptr == optimized_module) {
       return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
@@ -449,7 +450,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     optimized_kernel_map.emplace(
         local_size,
         OptimizedKernel{optimized_module_ptr, std::move(jit_kernel)});
-  }
-  return optimized_kernel_map[local_size];
+    return optimized_kernel_map[local_size];
+  });
 }
 }  // namespace host

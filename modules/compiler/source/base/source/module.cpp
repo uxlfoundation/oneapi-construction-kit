@@ -169,9 +169,10 @@ void runFrontendPipeline(
     const clang::CodeGenOptions &CGO,
     std::optional<llvm::ModulePassManager> EP = std::nullopt,
     std::optional<llvm::ModulePassManager> LP = std::nullopt) {
+  auto &C = module.getContext();
   llvm::PipelineTuningOptions PTO;
   PTO.LoopUnrolling = CGO.UnrollLoops;
-  auto PassMach = base_module.createPassMachinery();
+  auto PassMach = base_module.createPassMachinery(C);
 
   base_module.initializePassMachineryForFrontend(*PassMach, CGO);
 
@@ -342,10 +343,22 @@ BaseModule::BaseModule(compiler::BaseTarget &target,
       num_errors(num_errors),
       log(log) {}
 
-BaseModule::~BaseModule() {}
+BaseModule::~BaseModule() {
+  if (llvm_module || finalized_llvm_module) {
+    target.withLLVMContextDo([&](llvm::LLVMContext &) {
+      llvm_module.reset();
+      finalized_llvm_module.reset();
+    });
+  }
+}
 
 void BaseModule::clear() {
-  llvm_module.reset();
+  if (llvm_module || finalized_llvm_module) {
+    target.withLLVMContextDo([&](llvm::LLVMContext &) {
+      llvm_module.reset();
+      finalized_llvm_module.reset();
+    });
+  }
   kernel_map.clear();
 
   state = ModuleState::NONE;
@@ -804,71 +817,73 @@ cargo::expected<spirv::ModuleInfo, Result> BaseModule::compileSPIRV(
     cargo::array_view<const std::uint32_t> buffer,
     const spirv::DeviceInfo &spirv_device_info,
     cargo::optional<const spirv::SpecializationInfo &> spirv_spec_info) {
-  const std::lock_guard<compiler::BaseContext> lock(context);
+  return target.withLLVMContextDo(
+      [&](llvm::LLVMContext &C) -> cargo::expected<spirv::ModuleInfo, Result> {
+        spirv::ModuleInfo module_info;
 
-  spirv::ModuleInfo module_info;
+        {
+          spirv_ll::Context spvContext(&C);
 
-  {
-    spirv_ll::Context spvContext(&target.getLLVMContext());
+          // Convert SPIR-V inputs to SPIRV-LL data structures.
+          spirv_ll::DeviceInfo spirv_ll_device_info;
+          std::copy(spirv_device_info.capabilities.begin(),
+                    spirv_device_info.capabilities.end(),
+                    std::back_inserter(spirv_ll_device_info.capabilities));
+          std::copy(spirv_device_info.extensions.begin(),
+                    spirv_device_info.extensions.end(),
+                    std::back_inserter(spirv_ll_device_info.extensions));
+          std::copy(spirv_device_info.ext_inst_imports.begin(),
+                    spirv_device_info.ext_inst_imports.end(),
+                    std::back_inserter(spirv_ll_device_info.extInstImports));
+          spirv_ll_device_info.addressingModel =
+              spirv_device_info.addressing_model;
+          spirv_ll_device_info.addressBits = spirv_device_info.address_bits;
 
-    // Convert SPIR-V inputs to SPIRV-LL data structures.
-    spirv_ll::DeviceInfo spirv_ll_device_info;
-    std::copy(spirv_device_info.capabilities.begin(),
-              spirv_device_info.capabilities.end(),
-              std::back_inserter(spirv_ll_device_info.capabilities));
-    std::copy(spirv_device_info.extensions.begin(),
-              spirv_device_info.extensions.end(),
-              std::back_inserter(spirv_ll_device_info.extensions));
-    std::copy(spirv_device_info.ext_inst_imports.begin(),
-              spirv_device_info.ext_inst_imports.end(),
-              std::back_inserter(spirv_ll_device_info.extInstImports));
-    spirv_ll_device_info.addressingModel = spirv_device_info.addressing_model;
-    spirv_ll_device_info.addressBits = spirv_device_info.address_bits;
+          spirv_ll::SpecializationInfo spirv_ll_spec_info;
+          cargo::optional<const spirv_ll::SpecializationInfo &>
+              spirv_ll_spec_info_optional;
+          if (spirv_spec_info) {
+            spirv_ll_spec_info.data = spirv_spec_info->data;
+            for (const auto &entry : spirv_spec_info->entries) {
+              spirv_ll_spec_info.entries[entry.first] =
+                  spirv_ll::SpecializationInfo::Entry{entry.second.offset,
+                                                      entry.second.size};
+            }
+            spirv_ll_spec_info_optional = spirv_ll_spec_info;
+          }
 
-    spirv_ll::SpecializationInfo spirv_ll_spec_info;
-    cargo::optional<const spirv_ll::SpecializationInfo &>
-        spirv_ll_spec_info_optional;
-    if (spirv_spec_info) {
-      spirv_ll_spec_info.data = spirv_spec_info->data;
-      for (const auto &entry : spirv_spec_info->entries) {
-        spirv_ll_spec_info.entries[entry.first] =
-            spirv_ll::SpecializationInfo::Entry{entry.second.offset,
-                                                entry.second.size};
-      }
-      spirv_ll_spec_info_optional = spirv_ll_spec_info;
-    }
+          // Translate the SPIR-V binary into an llvm::Module.
+          auto spvModule = spvContext.translate({buffer.data(), buffer.size()},
+                                                spirv_ll_device_info,
+                                                spirv_ll_spec_info_optional);
+          if (!spvModule) {
+            // Add error message to the build log.
+            log.append(spvModule.error().message + "\n");
+            num_errors = 1;
+            return cargo::make_unexpected(Result::COMPILE_PROGRAM_FAILURE);
+          }
 
-    // Translate the SPIR-V binary into an llvm::Module.
-    auto spvModule =
-        spvContext.translate({buffer.data(), buffer.size()},
-                             spirv_ll_device_info, spirv_ll_spec_info_optional);
-    if (!spvModule) {
-      // Add error message to the build log.
-      log.append(spvModule.error().message + "\n");
-      num_errors = 1;
-      return cargo::make_unexpected(Result::COMPILE_PROGRAM_FAILURE);
-    }
+          // Fill the SPIR-V module info data structure.
+          module_info.workgroup_size = spvModule->getWGS();
 
-    // Fill the SPIR-V module info data structure.
-    module_info.workgroup_size = spvModule->getWGS();
+          // Transfer ownership of the llvm::Module.
+          llvm_module = std::move(spvModule.value().llvmModule);
+        }
 
-    // Transfer ownership of the llvm::Module.
-    llvm_module = std::move(spvModule.value().llvmModule);
-  }
+        createOpenCLKernelsMetadata(*llvm_module);
 
-  createOpenCLKernelsMetadata(*llvm_module);
+        // Now run a generic optimization pipeline based on the one clang
+        // normally runs during codegen. We also run some of the fixup passes on
+        // IR generated from SPIR-V and it's unclear if that's actually
+        // necessary: see DDK-278.
+        clang::CodeGenOptions codeGenOpts;
+        populateCodeGenOpts(codeGenOpts);
+        runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRVPasses());
 
-  // Now run a generic optimization pipeline based on the one clang normally
-  // runs during codegen.
-  // We also run some of the fixup passes on IR generated from SPIR-V and it's
-  // unclear if that's actually necessary: see DDK-278.
-  clang::CodeGenOptions codeGenOpts;
-  populateCodeGenOpts(codeGenOpts);
-  runOpenCLFrontendPipeline(codeGenOpts, getEarlySPIRVPasses());
+        state = ModuleState::COMPILED_OBJECT;
 
-  state = ModuleState::COMPILED_OBJECT;
-
-  return {std::move(module_info)};
+        return {std::move(module_info)};
+      });
 }
 
 void BaseModule::populateCodeGenOpts(clang::CodeGenOptions &codeGenOpts) const {
@@ -1300,7 +1315,8 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
   return kernelFile;
 }
 
-void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance) {
+void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance,
+                                 llvm::LLVMContext &C) {
   clang::ASTContext *astContext = &(instance.getASTContext());
 
   auto reader = std::make_unique<clang::ASTReader>(
@@ -1332,7 +1348,7 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance) {
         "to load precompiled header.");
   }
 
-  const ScopedDiagnosticHandler handler(*this);
+  const ScopedDiagnosticHandler handler(*this, C);
 
   // Load the builtins header as a virtual file. This is required by Clang which
   // needs to access the contents of the header even when using PCH files.
@@ -1399,26 +1415,30 @@ void BaseModule::FrontendDiagnosticPrinter::HandleDiagnostic(
 Result BaseModule::compileOpenCLC(
     cargo::string_view device_profile, cargo::string_view source_sv,
     cargo::array_view<compiler::InputHeader> input_headers) {
-  clang::CompilerInstance instance;
+  return target.withLLVMContextDo(
+      [&](llvm::LLVMContext &llvm_context) -> Result {
+        clang::CompilerInstance instance;
 
-  llvm_module = compileOpenCLCToIR(instance, device_profile, source_sv,
-                                   input_headers, &num_errors, &state);
+        llvm_module =
+            compileOpenCLCToIR(instance, llvm_context, device_profile,
+                               source_sv, input_headers, &num_errors, &state);
 
-  if (!llvm_module) {
-    return compiler::Result::COMPILE_PROGRAM_FAILURE;
-  }
+        if (!llvm_module) {
+          return compiler::Result::COMPILE_PROGRAM_FAILURE;
+        }
 
-  // Now run the passes we skipped by enabling the DisableLLVMPasses option
-  // earlier.
-  const std::lock_guard<compiler::BaseContext> guard(context);
-  runOpenCLFrontendPipeline(instance.getCodeGenOpts(), getEarlyOpenCLCPasses());
+        // Now run the passes we skipped by enabling the DisableLLVMPasses
+        // option earlier.
+        runOpenCLFrontendPipeline(instance.getCodeGenOpts(),
+                                  getEarlyOpenCLCPasses());
 
-  return compiler::Result::SUCCESS;
+        return compiler::Result::SUCCESS;
+      });
 }
 
 std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
-    clang::CompilerInstance &instance, cargo::string_view device_profile,
-    cargo::string_view source_sv,
+    clang::CompilerInstance &instance, llvm::LLVMContext &llvm_context,
+    cargo::string_view device_profile, cargo::string_view source_sv,
     cargo::array_view<compiler::InputHeader> input_headers,
     uint32_t *num_errors, ModuleState *new_state) {
   const llvm::StringRef source{source_sv.data(), source_sv.size()};
@@ -1463,15 +1483,12 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   auto kernelFile = prepareOpenCLInputFile(instance, source, kernel_file_name,
                                            opencl_opts, input_headers);
 
-  // Now we're actually going to start doing work, so need to lock LLVMContext.
-  const std::lock_guard<compiler::BaseContext> guard(context);
-
-  clang::EmitLLVMOnlyAction action(&target.getLLVMContext());
+  clang::EmitLLVMOnlyAction action(&llvm_context);
 
   // Prepare the action for processing kernelFile
   {
-    // BeginSourceFile accesses LLVM global variables: LLVMTimePassesEnabled
-    // and LLVMTimePassesPerRun.
+    // BeginSourceFile accesses LLVM global variables:
+    // LLVMTimePassesEnabled and LLVMTimePassesPerRun.
     const std::lock_guard<std::mutex> globalLock(
         compiler::utils::getLLVMGlobalMutex());
     if (!action.BeginSourceFile(instance, kernelFile)) {
@@ -1479,19 +1496,20 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
     }
   }
 
-  loadBuiltinsPCH(instance);
+  loadBuiltinsPCH(instance, llvm_context);
 
   {
     // At this point we have already locked the LLVMContext mutex for the
-    // current context we are operating on.  If, however, an OpenCL programmer
-    // uses multiple cl_context in parallel they can invoke multiple compiler
-    // instances in parallel.  This is generally safe, as each context is
-    // independent.  Unfortunately, Clang has some global option handling code
-    // that does not affect us, but is still run and causes multiple threads to
-    // write to a large global object at once (GlobalParser in LLVM).  On x86
-    // this did not seem to matter, on AArch64 it caused crashes due to double
-    // free's within a std::string's destructor.  So, we lock globally before
-    // asking Clang to process this source file.
+    // current context we are operating on.  If, however, an OpenCL
+    // programmer uses multiple cl_context in parallel they can invoke
+    // multiple compiler instances in parallel.  This is generally safe,
+    // as each context is independent.  Unfortunately, Clang has some
+    // global option handling code that does not affect us, but is still
+    // run and causes multiple threads to write to a large global object
+    // at once (GlobalParser in LLVM).  On x86 this did not seem to
+    // matter, on AArch64 it caused crashes due to double free's within a
+    // std::string's destructor.  So, we lock globally before asking Clang
+    // to process this source file.
     const std::lock_guard<std::mutex> guard(
         compiler::utils::getLLVMGlobalMutex());
     if (action.Execute()) {
@@ -1532,74 +1550,73 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
 }
 
 Result BaseModule::link(cargo::array_view<Module *> input_modules) {
-  std::unique_ptr<llvm::Module> module;
+  return target.withLLVMContextDo([&](llvm::LLVMContext &C) -> Result {
+    std::unique_ptr<llvm::Module> module;
 
-  // We'll need to lock the LLVMContext for the whole function.
-  const std::lock_guard<compiler::BaseContext> guard(context);
+    auto filter_func = [](const llvm::DiagnosticInfo &DI) {
+      switch (DI.getSeverity()) {
+        default:
+          return false;
+        case llvm::DiagnosticSeverity::DS_Warning:
+        case llvm::DiagnosticSeverity::DS_Error:
+          return true;
+      }
+    };
+    const ScopedDiagnosticHandler handler(*this, C, filter_func);
 
-  auto filter_func = [](const llvm::DiagnosticInfo &DI) {
-    switch (DI.getSeverity()) {
+    if (ModuleState::COMPILED_OBJECT == state) {
+      module = llvm::CloneModule(*this->llvm_module);
+    } else {
+      module =
+          std::unique_ptr<llvm::Module>(new llvm::Module("::ca_module_id", C));
+    }
+
+    for (auto input_module_interface : input_modules) {
+      auto input_module =
+          static_cast<compiler::BaseModule *>(input_module_interface);
+      // We need to clone the LLVM module for the input program as LLVM does not
+      // preserve the source module during linking, and a program can be linked
+      // multiple times.
+      const llvm::Module *m = input_module->llvm_module.get();
+      if (&C != &m->getContext()) {
+        CPL_ABORT(
+            "BaseModule::link. Error linking program: Cannot clone "
+            "with incompatible contexts.");
+      }
+      auto clone = llvm::CloneModule(*m);
+
+      // if any of the input programs had argument metadata, we need to ensure
+      // it will be preserved
+      if (input_module->options.kernel_arg_info) {
+        this->options.kernel_arg_info = true;
+      }
+
+      if (llvm::Linker::linkModules(*module.get(), std::move(clone))) {
+        return Result::LINK_PROGRAM_FAILURE;
+      }
+    }
+
+    switch (state) {
+      case ModuleState::COMPILED_OBJECT:
+        this->llvm_module.reset();
+        break;
+      case ModuleState::NONE:
+        break;
       default:
-        return false;
-      case llvm::DiagnosticSeverity::DS_Warning:
-      case llvm::DiagnosticSeverity::DS_Error:
-        return true;
-    }
-  };
-  const ScopedDiagnosticHandler handler(*this, filter_func);
-
-  if (ModuleState::COMPILED_OBJECT == state) {
-    module = llvm::CloneModule(*this->llvm_module);
-  } else {
-    module = std::unique_ptr<llvm::Module>(
-        new llvm::Module("::ca_module_id", target.getLLVMContext()));
-  }
-
-  for (auto input_module_interface : input_modules) {
-    auto input_module =
-        static_cast<compiler::BaseModule *>(input_module_interface);
-    // We need to clone the LLVM module for the input program as LLVM does not
-    // preserve the source module during linking, and a program can be linked
-    // multiple times.
-    const llvm::Module *m = input_module->llvm_module.get();
-    if (&target.getLLVMContext() != &m->getContext()) {
-      CPL_ABORT(
-          "BaseModule::link. Error linking program: Cannot clone "
-          "with incompatible contexts.");
-    }
-    auto clone = llvm::CloneModule(*m);
-
-    // if any of the input programs had argument metadata, we need to ensure it
-    // will be preserved
-    if (input_module->options.kernel_arg_info) {
-      this->options.kernel_arg_info = true;
+        CPL_ABORT(
+            "BaseModule::link. Error linking program: Program in invalid "
+            "state.");
     }
 
-    if (llvm::Linker::linkModules(*module.get(), std::move(clone))) {
-      return Result::LINK_PROGRAM_FAILURE;
-    }
-  }
+    // Always creates a library. clBuildProgram and clLinkProgram call this
+    // function to generate an executable (finalize the program) if
+    // necessary, e.g., when the -create-library option is passed to
+    // clLinkProgram.
+    this->llvm_module = std::move(module);
+    state = ModuleState::LIBRARY;
 
-  switch (state) {
-    case ModuleState::COMPILED_OBJECT:
-      this->llvm_module.reset();
-      break;
-    case ModuleState::NONE:
-      break;
-    default:
-      CPL_ABORT(
-          "BaseModule::link. Error linking program: Program in invalid "
-          "state.");
-  }
-
-  // Always creates a library. clBuildProgram and clLinkProgram call this
-  // function to generate an executable (finalize the program) if
-  // necessary, e.g., when the -create-library option is passed to
-  // clLinkProgram.
-  this->llvm_module = std::move(module);
-  state = ModuleState::LIBRARY;
-
-  return Result::SUCCESS;
+    return Result::SUCCESS;
+  });
 }
 
 bool BaseModule::DiagnosticHandler::handleDiagnostics(
@@ -1649,199 +1666,198 @@ bool BaseModule::DiagnosticHandler::handleDiagnostics(
 Result BaseModule::finalize(
     ProgramInfo *program_info,
     std::vector<builtins::printf::descriptor> &printf_calls) {
-  // Lock the context, this is necessary due to analysis/pass managers being
-  // owned by the LLVMContext and we are making heavy use of both below.
-  const std::lock_guard<compiler::BaseContext> contextLock(context);
-  // Numerous things below touch LLVM's global state, in particular
-  // retriggering command-line option parsing at various points. Ensure we
-  // avoid data races by locking the LLVM global mutex.
-  const std::lock_guard<std::mutex> globalLock(
-      compiler::utils::getLLVMGlobalMutex());
+  return target.withLLVMContextDo([&](llvm::LLVMContext &C) -> Result {
+    // Numerous things below touch LLVM's global state, in particular
+    // retriggering command-line option parsing at various points. Ensure we
+    // avoid data races by locking the LLVM global mutex.
+    const std::lock_guard<std::mutex> globalLock(
+        compiler::utils::getLLVMGlobalMutex());
 
-  if (!llvm_module) {
-    CPL_ABORT(
-        "BaseModule::finalize. Error finalizing "
-        "program: Module is not initialised.");
-  }
+    if (!llvm_module) {
+      CPL_ABORT(
+          "BaseModule::finalize. Error finalizing "
+          "program: Module is not initialised.");
+    }
 
-  mux_device_info_t device_info = target.getCompilerInfo()->device_info;
+    mux_device_info_t device_info = target.getCompilerInfo()->device_info;
 
-  // Further on we will be cloning the module, this will not work with
-  // mismatching contexts.
-  const llvm::Module *m = llvm_module.get();
-  if (&target.getLLVMContext() != &m->getContext()) {
-    CPL_ABORT(
-        "BaseModule::finalize. Error finalizing program: Cannot "
-        "clone with incompatible contexts.");
-  }
+    // Further on we will be cloning the module, this will not work with
+    // mismatching contexts.
+    const llvm::Module *m = llvm_module.get();
+    if (&C != &m->getContext()) {
+      CPL_ABORT(
+          "BaseModule::finalize. Error finalizing program: Cannot "
+          "clone with incompatible contexts.");
+    }
 
-  auto pass_mach = createPassMachinery();
-  initializePassMachineryForFinalize(*pass_mach);
+    auto pass_mach = createPassMachinery(C);
+    initializePassMachineryForFinalize(*pass_mach);
 
-  // Forward on any compiler options required.
-  static_cast<compiler::BaseModulePassMachinery &>(*pass_mach)
-      .setCompilerOptions(options);
+    // Forward on any compiler options required.
+    static_cast<compiler::BaseModulePassMachinery &>(*pass_mach)
+        .setCompilerOptions(options);
 
-  llvm::ModulePassManager pm;
+    llvm::ModulePassManager pm;
 
-  // Compute the immutable DeviceInfoAnalysis so that cached retrievals work.
-  pm.addPass(llvm::RequireAnalysisPass<compiler::utils::DeviceInfoAnalysis,
-                                       llvm::Module>());
+    // Compute the immutable DeviceInfoAnalysis so that cached retrievals work.
+    pm.addPass(llvm::RequireAnalysisPass<compiler::utils::DeviceInfoAnalysis,
+                                         llvm::Module>());
 
-  if (auto *target_machine = pass_mach->getTM()) {
-    const std::string triple = target_machine->getTargetTriple().normalize();
-    auto DL = target_machine->createDataLayout();
-    pm.addPass(
-        compiler::utils::SimpleCallbackPass([triple, DL](llvm::Module &m) {
-          m.setDataLayout(DL);
+    if (auto *target_machine = pass_mach->getTM()) {
+      const std::string triple = target_machine->getTargetTriple().normalize();
+      auto DL = target_machine->createDataLayout();
+      pm.addPass(
+          compiler::utils::SimpleCallbackPass([triple, DL](llvm::Module &m) {
+            m.setDataLayout(DL);
 #if LLVM_VERSION_GREATER_EQUAL(21, 0)
-          m.setTargetTriple(llvm::Triple(triple));
+            m.setTargetTriple(llvm::Triple(triple));
 #else
-          m.setTargetTriple(triple);
+            m.setTargetTriple(triple);
 #endif
+          }));
+      pm.addPass(compiler::utils::AlignModuleStructsPass());
+    }
+
+    pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
+
+    const compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
+    pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
+
+    // Lower all language-level builtins with corresponding mux builtins
+    pm.addPass(compiler::utils::LowerToMuxBuiltinsPass());
+
+    pm.addPass(llvm::createModuleToFunctionPassAdaptor(
+        compiler::SoftwareDivisionPass()));
+    pm.addPass(compiler::ImageArgumentSubstitutionPass());
+    pm.addPass(compiler::utils::ReplaceAtomicFuncsPass());
+
+    compiler::utils::EncodeBuiltinRangeMetadataOptions Opts;
+    // FIXME: We don't have a way to grab the maximum *global* work-group sizes
+    // as being distinct from the local ones. See CA-4714.
+    Opts.MaxLocalSizes[0] = device_info->max_work_group_size_x;
+    Opts.MaxLocalSizes[1] = device_info->max_work_group_size_y;
+    Opts.MaxLocalSizes[2] = device_info->max_work_group_size_z;
+    pm.addPass(compiler::utils::EncodeBuiltinRangeMetadataPass(Opts));
+
+    pm.addPass(compiler::utils::SimpleCallbackPass(
+        [vecz_mode = options.vectorization_mode](llvm::Module &m) {
+          for (auto &f : m) {
+            compiler::encodeVectorizationMode(f, vecz_mode);
+          }
         }));
-    pm.addPass(compiler::utils::AlignModuleStructsPass());
-  }
 
-  pm.addPass(compiler::utils::VerifyReqdSubGroupSizeLegalPass());
+    pm.addPass(compiler::utils::ReplaceC11AtomicFuncsPass());
 
-  const compiler::utils::ReplaceTargetExtTysOptions RTETOpts;
-  pm.addPass(compiler::utils::ReplaceTargetExtTysPass(RTETOpts));
-
-  // Lower all language-level builtins with corresponding mux builtins
-  pm.addPass(compiler::utils::LowerToMuxBuiltinsPass());
-
-  pm.addPass(llvm::createModuleToFunctionPassAdaptor(
-      compiler::SoftwareDivisionPass()));
-  pm.addPass(compiler::ImageArgumentSubstitutionPass());
-  pm.addPass(compiler::utils::ReplaceAtomicFuncsPass());
-
-  compiler::utils::EncodeBuiltinRangeMetadataOptions Opts;
-  // FIXME: We don't have a way to grab the maximum *global* work-group sizes
-  // as being distinct from the local ones. See CA-4714.
-  Opts.MaxLocalSizes[0] = device_info->max_work_group_size_x;
-  Opts.MaxLocalSizes[1] = device_info->max_work_group_size_y;
-  Opts.MaxLocalSizes[2] = device_info->max_work_group_size_z;
-  pm.addPass(compiler::utils::EncodeBuiltinRangeMetadataPass(Opts));
-
-  pm.addPass(compiler::utils::SimpleCallbackPass(
-      [vecz_mode = options.vectorization_mode](llvm::Module &m) {
-        for (auto &f : m) {
-          compiler::encodeVectorizationMode(f, vecz_mode);
-        }
-      }));
-
-  pm.addPass(compiler::utils::ReplaceC11AtomicFuncsPass());
-
-  if (options.prevec_mode != compiler::PreVectorizationMode::NONE) {
-    llvm::FunctionPassManager fpm;
-    if (options.prevec_mode == compiler::PreVectorizationMode::ALL ||
-        options.prevec_mode == compiler::PreVectorizationMode::SLP) {
-      fpm.addPass(llvm::SLPVectorizerPass());
-    }
-
-    if (options.prevec_mode == compiler::PreVectorizationMode::ALL ||
-        options.prevec_mode == compiler::PreVectorizationMode::LOOP) {
-      // Loop vectorization apparently only works on loops with a single basic
-      // block. Sometimes, Loop Rotation may be able to help us here.
-      fpm.addPass(llvm::createFunctionToLoopPassAdaptor(
-          llvm::LoopRotatePass(/*EnableHeaderDuplication*/ false)));
-      fpm.addPass(llvm::LoopVectorizePass());
-
-      // Loop vectorization also emits a scalar version of the loop, in case it
-      // wasn't a multiple of the vector size, even when the loop count is a
-      // compile-time constant that is a known multiple of the vector size.
-      // In that case we get a redundant compare and branch to clean up.
-      fpm.addPass(llvm::InstCombinePass());
-      fpm.addPass(llvm::SimplifyCFGPass());
-    }
-
-    // SLP vectorization can leave a lot of unused GEPs lying around..
-    fpm.addPass(llvm::DCEPass());
-
-    pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
-  }
-
-  if (!options.opt_disable) {
-    {
+    if (options.prevec_mode != compiler::PreVectorizationMode::NONE) {
       llvm::FunctionPassManager fpm;
-      fpm.addPass(llvm::InstCombinePass());
-      fpm.addPass(llvm::ReassociatePass());
-      fpm.addPass(compiler::MemToRegPass());
-      fpm.addPass(llvm::BDCEPass());
-      fpm.addPass(llvm::ADCEPass());
-      fpm.addPass(llvm::SimplifyCFGPass());
+      if (options.prevec_mode == compiler::PreVectorizationMode::ALL ||
+          options.prevec_mode == compiler::PreVectorizationMode::SLP) {
+        fpm.addPass(llvm::SLPVectorizerPass());
+      }
+
+      if (options.prevec_mode == compiler::PreVectorizationMode::ALL ||
+          options.prevec_mode == compiler::PreVectorizationMode::LOOP) {
+        // Loop vectorization apparently only works on loops with a single basic
+        // block. Sometimes, Loop Rotation may be able to help us here.
+        fpm.addPass(llvm::createFunctionToLoopPassAdaptor(
+            llvm::LoopRotatePass(/*EnableHeaderDuplication*/ false)));
+        fpm.addPass(llvm::LoopVectorizePass());
+
+        // Loop vectorization also emits a scalar version of the loop, in case
+        // it wasn't a multiple of the vector size, even when the loop count is
+        // a compile-time constant that is a known multiple of the vector size.
+        // In that case we get a redundant compare and branch to clean up.
+        fpm.addPass(llvm::InstCombinePass());
+        fpm.addPass(llvm::SimplifyCFGPass());
+      }
+
+      // SLP vectorization can leave a lot of unused GEPs lying around..
+      fpm.addPass(llvm::DCEPass());
+
       pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
     }
-    pm.addPass(compiler::BuiltinSimplificationPass());
+
+    if (!options.opt_disable) {
+      {
+        llvm::FunctionPassManager fpm;
+        fpm.addPass(llvm::InstCombinePass());
+        fpm.addPass(llvm::ReassociatePass());
+        fpm.addPass(compiler::MemToRegPass());
+        fpm.addPass(llvm::BDCEPass());
+        fpm.addPass(llvm::ADCEPass());
+        fpm.addPass(llvm::SimplifyCFGPass());
+        pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
+      }
+      pm.addPass(compiler::BuiltinSimplificationPass());
+      {
+        llvm::FunctionPassManager fpm;
+        fpm.addPass(llvm::InstCombinePass());
+        fpm.addPass(llvm::ReassociatePass());
+        fpm.addPass(llvm::BDCEPass());
+        fpm.addPass(llvm::ADCEPass());
+        fpm.addPass(llvm::SimplifyCFGPass());
+        pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
+      }
+    }
+
+    if (!options.opt_disable) {
+      pm.addPass(llvm::GlobalDCEPass());
+      pm.addPass(pass_mach->getPB().buildInlinerPipeline(
+          llvm::OptimizationLevel::O3, llvm::ThinOrFullLTOPhase::None));
+    }
+
+    pm.addPass(
+        compiler::PrintfReplacementPass(&printf_calls, PRINTF_BUFFER_SIZE));
+
     {
       llvm::FunctionPassManager fpm;
-      fpm.addPass(llvm::InstCombinePass());
-      fpm.addPass(llvm::ReassociatePass());
-      fpm.addPass(llvm::BDCEPass());
-      fpm.addPass(llvm::ADCEPass());
-      fpm.addPass(llvm::SimplifyCFGPass());
+      fpm.addPass(compiler::CombineFPExtFPTruncPass());
+      fpm.addPass(compiler::CheckForUnsupportedTypesPass());
       pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
     }
-  }
 
-  if (!options.opt_disable) {
-    pm.addPass(llvm::GlobalDCEPass());
-    pm.addPass(pass_mach->getPB().buildInlinerPipeline(
-        llvm::OptimizationLevel::O3, llvm::ThinOrFullLTOPhase::None));
-  }
+    const ScopedDiagnosticHandler handler(*this, C);
+    /// Set up an error handler to redirect fatal errors to the build log.
+    const llvm::ScopedFatalErrorHandler error_handler(
+        BaseModule::llvmFatalErrorHandler, this);
 
-  pm.addPass(
-      compiler::PrintfReplacementPass(&printf_calls, PRINTF_BUFFER_SIZE));
+    // We need to clone the LLVM module as LLVM does not preserve the source
+    // module during linking and the module can be used multiple times.
+    auto clone = std::unique_ptr<llvm::Module>(llvm::CloneModule(*m));
 
-  {
-    llvm::FunctionPassManager fpm;
-    fpm.addPass(compiler::CombineFPExtFPTruncPass());
-    fpm.addPass(compiler::CheckForUnsupportedTypesPass());
-    pm.addPass(llvm::createModuleToFunctionPassAdaptor(std::move(fpm)));
-  }
-
-  const ScopedDiagnosticHandler handler(*this);
-  /// Set up an error handler to redirect fatal errors to the build log.
-  const llvm::ScopedFatalErrorHandler error_handler(
-      BaseModule::llvmFatalErrorHandler, this);
-
-  // We need to clone the LLVM module as LLVM does not preserve the source
-  // module during linking and the module can be used multiple times.
-  auto clone = std::unique_ptr<llvm::Module>(llvm::CloneModule(*m));
-
-  // Generate program info.
-  if (program_info) {
-    auto program_info_result = moduleToProgramInfo(*program_info, clone.get(),
-                                                   options.kernel_arg_info);
-    if (program_info_result != Result::SUCCESS) {
-      return program_info_result;
+    // Generate program info.
+    if (program_info) {
+      auto program_info_result = moduleToProgramInfo(*program_info, clone.get(),
+                                                     options.kernel_arg_info);
+      if (program_info_result != Result::SUCCESS) {
+        return program_info_result;
+      }
     }
-  }
 
-  // Finally, check if there are any external functions that we don't have a
-  // definition for, and error out if so
-  pm.addPass(compiler::CheckForExtFuncsPass());
+    // Finally, check if there are any external functions that we don't have a
+    // definition for, and error out if so
+    pm.addPass(compiler::CheckForExtFuncsPass());
 
-  // Add any target-specific passes
-  pm.addPass(getLateTargetPasses(*pass_mach));
+    // Add any target-specific passes
+    pm.addPass(getLateTargetPasses(*pass_mach));
 
-  llvm::CrashRecoveryContext CRC;
-  llvm::CrashRecoveryContext::Enable();
-  const bool crashed =
-      !CRC.RunSafely([&] { pm.run(*clone, pass_mach->getMAM()); });
-  llvm::CrashRecoveryContext::Disable();
+    llvm::CrashRecoveryContext CRC;
+    llvm::CrashRecoveryContext::Enable();
+    const bool crashed =
+        !CRC.RunSafely([&] { pm.run(*clone, pass_mach->getMAM()); });
+    llvm::CrashRecoveryContext::Disable();
 
-  // Check if we've accumulated any errors
-  if (crashed || num_errors) {
-    return Result::FINALIZE_PROGRAM_FAILURE;
-  }
+    // Check if we've accumulated any errors
+    if (crashed || num_errors) {
+      return Result::FINALIZE_PROGRAM_FAILURE;
+    }
 
-  // Save the finalized LLVM module.
-  finalized_llvm_module = std::move(clone);
+    // Save the finalized LLVM module.
+    finalized_llvm_module = std::move(clone);
 
-  state = ModuleState::EXECUTABLE;
-  return compiler::Result::SUCCESS;
+    state = ModuleState::EXECUTABLE;
+    return compiler::Result::SUCCESS;
+  });
 }
 
 Kernel *BaseModule::getKernel(const std::string &name) {
@@ -1889,10 +1905,9 @@ std::size_t BaseModule::size() {
     }
   } stream;
 
-  {
-    const std::lock_guard<compiler::BaseContext> guard(context);
+  target.withLLVMContextDo([&](llvm::LLVMContext &) {
     llvm::WriteBitcodeToFile(*llvm_module, stream);
-  }
+  });
   stream.flush();
 
   size += stream.size;
@@ -1930,10 +1945,9 @@ std::size_t BaseModule::serialize(std::uint8_t *output_buffer) {
     }
   } stream(reinterpret_cast<char *>(output_buffer));
 
-  {
-    const std::lock_guard<compiler::BaseContext> guard(context);
+  target.withLLVMContextDo([&](llvm::LLVMContext &) {
     llvm::WriteBitcodeToFile(*llvm_module, stream);
-  }
+  });
   stream.flush();
 
   total_written += stream.size;
@@ -1942,36 +1956,37 @@ std::size_t BaseModule::serialize(std::uint8_t *output_buffer) {
 }
 
 bool BaseModule::deserialize(cargo::array_view<const std::uint8_t> buffer) {
-  const std::lock_guard<compiler::BaseContext> guard(context);
-  const ScopedDiagnosticHandler handler(*this);
+  return target.withLLVMContextDo([&](llvm::LLVMContext &C) -> bool {
+    const ScopedDiagnosticHandler handler(*this, C);
 
-  // If there's nothing to deserialize, that implies that the module is empty.
-  if (buffer.empty()) {
-    return true;
-  }
+    // If there's nothing to deserialize, that implies that the module is empty.
+    if (buffer.empty()) {
+      return true;
+    }
 
-  const std::uint8_t *buffer_read_ptr = buffer.data();
+    const std::uint8_t *buffer_read_ptr = buffer.data();
 
-  // Get the module state.
-  std::memcpy(&state, buffer_read_ptr, sizeof(state));
-  buffer_read_ptr += sizeof(state);
+    // Get the module state.
+    std::memcpy(&state, buffer_read_ptr, sizeof(state));
+    buffer_read_ptr += sizeof(state);
 
-  // Deserialize the LLVM module.
-  const std::ptrdiff_t header_size = buffer_read_ptr - buffer.data();
-  const DeserializeMemoryBuffer memoryBuffer(
-      llvm::StringRef(reinterpret_cast<const char *>(buffer_read_ptr),
-                      buffer.size() - header_size));
-  auto errorOrModule(llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(),
-                                            target.getLLVMContext()));
+    // Deserialize the LLVM module.
+    const std::ptrdiff_t header_size = buffer_read_ptr - buffer.data();
+    const DeserializeMemoryBuffer memoryBuffer(
+        llvm::StringRef(reinterpret_cast<const char *>(buffer_read_ptr),
+                        buffer.size() - header_size));
+    auto errorOrModule(
+        llvm::parseBitcodeFile(memoryBuffer.getMemBufferRef(), C));
 
-  if (errorOrModule) {
-    llvm_module = std::move(errorOrModule.get());
-    return true;
-  } else {
-    addBuildError(std::string("Failed to deserialize module: ") +
-                  toString(errorOrModule.takeError()));
-    return false;
-  }
+    if (errorOrModule) {
+      llvm_module = std::move(errorOrModule.get());
+      return true;
+    } else {
+      addBuildError(std::string("Failed to deserialize module: ") +
+                    toString(errorOrModule.takeError()));
+      return false;
+    }
+  });
 }
 
 void BaseModule::addDiagnostic(cargo::string_view message) {
@@ -2077,10 +2092,10 @@ void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance,
   }
 }
 
-std::unique_ptr<compiler::utils::PassMachinery>
-BaseModule::createPassMachinery() {
+std::unique_ptr<compiler::utils::PassMachinery> BaseModule::createPassMachinery(
+    llvm::LLVMContext &C) {
   return std::make_unique<BaseModulePassMachinery>(
-      llvm_module->getContext(), /*TM*/ nullptr, /*Info*/ std::nullopt,
+      C, /*TM*/ nullptr, /*Info*/ std::nullopt,
       /*BICallback*/ nullptr, target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());

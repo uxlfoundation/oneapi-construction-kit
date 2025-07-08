@@ -219,8 +219,12 @@ Error driver::setupContext() {
 
   CompilerInfo = *InfoRes;
 
-  CompilerTarget =
-      CompilerInfo->createTarget(CompilerContext.get(), /*callback*/ nullptr);
+  CompilerTarget = [&] {
+    std::unique_ptr<compiler::Target> target =
+        CompilerInfo->createTarget(CompilerContext.get(), /*callback*/ nullptr);
+    return std::unique_ptr<compiler::BaseTarget>(
+        static_cast<compiler::BaseTarget *>(target.release()));
+  }();
 
   if (!CompilerTarget ||
       CompilerTarget->init(detectBuiltinCapabilities(
@@ -254,64 +258,67 @@ static Expected<std::unique_ptr<Module>> parseIRFileToModule(LLVMContext &Ctx) {
 }
 
 Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
-  if (!InputLanguage.empty() && InputLanguage != "ir" &&
-      InputLanguage != "cl") {
-    return make_error<StringError>("input language must be '', 'ir' or 'cl'",
-                                   inconvertibleErrorCode());
-  }
-  const StringRef IFN = InputFilename;
+  auto Impl = [&](llvm::LLVMContext &C) -> Expected<std::unique_ptr<Module>> {
+    if (!InputLanguage.empty() && InputLanguage != "ir" &&
+        InputLanguage != "cl") {
+      return make_error<StringError>("input language must be '', 'ir' or 'cl'",
+                                     inconvertibleErrorCode());
+    }
+    const StringRef IFN = InputFilename;
 
-  auto *LLVMContextToUse =
-      CompilerTarget
-          ? &static_cast<compiler::BaseTarget *>(CompilerTarget.get())
-                 ->getLLVMContext()
-          : LLVMCtx.get();
-  assert(LLVMContextToUse && "Missing LLVM Context");
+    // Assume that .bc and .ll files are already IR unless told otherwise.
+    if (InputLanguage == "ir" ||
+        (InputLanguage.empty() &&
+         (IFN.ends_with(".bc") || IFN.ends_with(".bc32") ||
+          IFN.ends_with(".bc64") || IFN.ends_with(".ll")))) {
+      return parseIRFileToModule(C);
+    }
+    // Assume that stdin is IR unless told otherwise
+    if (InputLanguage.empty() && IFN == "-") {
+      return parseIRFileToModule(C);
+    }
+    // Now we know we're in OpenCL mode; we need a known device.
+    if (!CompilerModule) {
+      return make_error<StringError>("A device must be set to compile OpenCL C",
+                                     inconvertibleErrorCode());
+    }
 
-  // Assume that .bc and .ll files are already IR unless told otherwise.
-  if (InputLanguage == "ir" ||
-      (InputLanguage.empty() &&
-       (IFN.ends_with(".bc") || IFN.ends_with(".bc32") ||
-        IFN.ends_with(".bc64") || IFN.ends_with(".ll")))) {
-    return parseIRFileToModule(*LLVMContextToUse);
-  }
-  // Assume that stdin is IR unless told otherwise
-  if (InputLanguage.empty() && IFN == "-") {
-    return parseIRFileToModule(*LLVMContextToUse);
-  }
-  // Now we know we're in OpenCL mode; we need a known device.
-  if (!CompilerModule) {
-    return make_error<StringError>("A device must be set to compile OpenCL C",
-                                   inconvertibleErrorCode());
-  }
+    // Parse any options
+    if (CompilerModule->parseOptions(CLOptions,
+                                     compiler::Options::Mode::COMPILE) !=
+        compiler::Result::SUCCESS) {
+      return make_error<StringError>("OpenCL C options parsing error",
+                                     inconvertibleErrorCode());
+    }
 
-  // Parse any options
-  if (CompilerModule->parseOptions(CLOptions,
-                                   compiler::Options::Mode::COMPILE) !=
-      compiler::Result::SUCCESS) {
-    return make_error<StringError>("OpenCL C options parsing error",
-                                   inconvertibleErrorCode());
-  }
+    ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
+        MemoryBuffer::getFileOrSTDIN(IFN, /*IsText=*/true);
+    if (const std::error_code EC = FileOrErr.getError()) {
+      return make_error<StringError>(
+          "Could not open input file: " + EC.message(),
+          inconvertibleErrorCode());
+    }
+    auto SourceAsStr = FileOrErr.get()->getBuffer();
+    auto *const BaseModule =
+        static_cast<compiler::BaseModule *>(CompilerModule.get());
+    clang::CompilerInstance instance;
+    // We don't support profiles or headers
+    auto M =
+        BaseModule->compileOpenCLCToIR(instance, C, "FULL_PROFILE", SourceAsStr,
+                                       /*input_headers*/ {});
+    if (!M) {
+      return make_error<StringError>("OpenCL C compilation error",
+                                     inconvertibleErrorCode());
+    }
 
-  ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
-      MemoryBuffer::getFileOrSTDIN(IFN, /*IsText=*/true);
-  if (const std::error_code EC = FileOrErr.getError()) {
-    return make_error<StringError>("Could not open input file: " + EC.message(),
-                                   inconvertibleErrorCode());
-  }
-  auto SourceAsStr = FileOrErr.get()->getBuffer();
-  auto *const BaseModule =
-      static_cast<compiler::BaseModule *>(CompilerModule.get());
-  clang::CompilerInstance instance;
-  // We don't support profiles or headers
-  auto M = BaseModule->compileOpenCLCToIR(instance, "FULL_PROFILE", SourceAsStr,
-                                          /*input_headers*/ {});
-  if (!M) {
-    return make_error<StringError>("OpenCL C compilation error",
-                                   inconvertibleErrorCode());
-  }
+    return std::move(M);
+  };
 
-  return std::move(M);
+  return CompilerTarget ? CompilerTarget->withLLVMContextDo(std::move(Impl))
+                        : Impl([&]() -> llvm::LLVMContext & {
+                            assert(LLVMCtx && "Missing LLVM Context");
+                            return *LLVMCtx;
+                          }());
 }
 
 Expected<std::unique_ptr<compiler::utils::PassMachinery>>
@@ -319,12 +326,16 @@ driver::createPassMachinery() {
   std::unique_ptr<compiler::utils::PassMachinery> PassMach;
 
   if (CompilerTarget) {
-    auto *const BaseModule =
-        static_cast<compiler::BaseModule *>(CompilerModule.get());
-    PassMach = BaseModule->createPassMachinery();
-    // Forward on any frontend options we've parsed
-    static_cast<compiler::BaseModulePassMachinery *>(PassMach.get())
-        ->setCompilerOptions(BaseModule->getOptions());
+    PassMach = CompilerTarget->withLLVMContextDo([&](llvm::LLVMContext &C) {
+      auto *const BaseModule =
+          static_cast<compiler::BaseModule *>(CompilerModule.get());
+      std::unique_ptr<compiler::utils::PassMachinery> PassMach =
+          BaseModule->createPassMachinery(C);
+      // Forward on any frontend options we've parsed
+      static_cast<compiler::BaseModulePassMachinery *>(PassMach.get())
+          ->setCompilerOptions(BaseModule->getOptions());
+      return PassMach;
+    });
   } else {
     compiler::utils::DeviceInfo Info(
         HalfCap ? compiler::utils::device_floating_point_capabilities_full : 0,

@@ -83,10 +83,4 @@ BaseContext::getSpecializableConstants(cargo::array_view<const uint32_t> code) {
   }
   return {std::move(constants_map)};
 }
-
-void BaseContext::lock() { base_context_mutex.lock(); }
-
-bool BaseContext::try_lock() { return base_context_mutex.try_lock(); }
-
-void BaseContext::unlock() { base_context_mutex.unlock(); }
 }  // namespace compiler
