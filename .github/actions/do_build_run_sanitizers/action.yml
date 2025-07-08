@@ -111,4 +111,4 @@ runs:
         ls -l
         ls -l build || echo NO BUILD
         # ALAN TODO: Guesstimate -j4 initially - failed!
-        ninja -C build -j3 check-ock
+        ninja -C build -j2 check-ock
