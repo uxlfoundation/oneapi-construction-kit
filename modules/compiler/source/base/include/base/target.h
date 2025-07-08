@@ -24,6 +24,8 @@
 #include <llvm/IR/Module.h>
 #include <mux/mux.h>
 
+#include <optional>
+
 namespace compiler {
 class BaseContext;
 
@@ -53,10 +55,60 @@ class BaseTarget : public Target {
 
   NotifyCallbackFn getNotifyCallbackFn() const { return callback; }
 
-  /// @brief Returns the (non-null) LLVMContext.
-  virtual llvm::LLVMContext &getLLVMContext() = 0;
-  /// @brief Returns the (non-null) LLVMContext.
-  virtual const llvm::LLVMContext &getLLVMContext() const = 0;
+  /// @brief Calls a function with the LLVMContext, taking into account any
+  /// required locking to allow the function exclusive use.
+  virtual void withLLVMContextDo(void (*)(llvm::LLVMContext &, void *),
+                                 void *) = 0;
+
+  /// @brief Calls a function with the (non-null) LLVMContext, taking into
+  /// account any required locking to allow the function exclusive use.
+  template <typename F>
+  auto withLLVMContextDo(F &&f) -> std::enable_if_t<std::is_void_v<
+      decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()))>> {
+    withLLVMContextDo(
+        [](llvm::LLVMContext &C, void *f) {
+          (std::forward<F>(*static_cast<F *>(f)))(C);
+        },
+        std::addressof(f));
+  }
+
+  /// @brief Calls a function with the (non-null) LLVMContext, taking into
+  /// account any required locking to allow the function exclusive use.
+  template <typename F>
+  auto withLLVMContextDo(F &&f) -> std::enable_if_t<
+      std::is_object_v<
+          decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()))>,
+      decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()))> {
+    using ResultTy =
+        decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()));
+    // Ideally this would use std::promise to merge the value and reference
+    // implementations, but older versions of MSVC do not accept
+    // non-default-constructible types for that; work around it by using
+    // std::optional instead.
+    std::optional<ResultTy> result;
+    withLLVMContextDo(
+        [&](llvm::LLVMContext &C) { result = std::forward<F>(f)(C); });
+    assert(result.has_value() && "result should have been assigned");
+    return std::move(result.value());
+  }
+
+  /// @brief Calls a function with the (non-null) LLVMContext, taking into
+  /// account any required locking to allow the function exclusive use.
+  template <typename F>
+  auto withLLVMContextDo(F &&f) -> std::enable_if_t<
+      std::is_reference_v<
+          decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()))>,
+      decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()))> {
+    using ResultTy =
+        decltype(std::forward<F>(f)(std::declval<llvm::LLVMContext &>()));
+    // std::optional does not accept references. Use a pointer instead.
+    std::optional<std::remove_reference_t<ResultTy> *> resultPtr;
+    withLLVMContextDo([&](llvm::LLVMContext &C) {
+      auto &&resultRef = std::forward<F>(f)(C);
+      resultPtr = std::addressof(resultRef);
+    });
+    return static_cast<ResultTy>(*resultPtr.value());
+  }
 
  protected:
   /// @brief Initialize the compiler target after loading the builtins module.
@@ -86,10 +138,10 @@ class BaseAOTTarget : public BaseTarget {
  public:
   BaseAOTTarget(const compiler::Info *compiler_info, compiler::Context *context,
                 NotifyCallbackFn callback);
-  /// @see BaseTarget::getLLVMContext
-  virtual llvm::LLVMContext &getLLVMContext() override;
-  /// @see BaseTarget::getLLVMContext
-  virtual const llvm::LLVMContext &getLLVMContext() const override;
+
+  /// @see BaseTarget::withLLVMContextDo
+  void withLLVMContextDo(void (*)(llvm::LLVMContext &, void *),
+                         void *) override;
 
   /// @see BaseTarget::getBuiltins
   llvm::Module *getBuiltins() const override { return builtins.get(); };
@@ -97,6 +149,9 @@ class BaseAOTTarget : public BaseTarget {
  protected:
   /// @brief LLVM context.
   llvm::LLVMContext llvm_context;
+
+  /// @brief Mutex for accessing the LLVM context.
+  std::mutex llvm_context_mutex;
 
   /// @brief LLVM Module containing implementations of the builtin functions
   /// this target provides. May be null for compiler targets without external

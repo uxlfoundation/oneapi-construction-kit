@@ -47,8 +47,8 @@ class RiscvModule : public compiler::BaseModule {
       cargo::array_view<std::uint8_t> &buffer) override;
 
   /// @see Module::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery()
-      override;
+  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &) override;
 
   /// @see BaseModule::initializePassMachineryForFrontend
   void initializePassMachineryForFrontend(

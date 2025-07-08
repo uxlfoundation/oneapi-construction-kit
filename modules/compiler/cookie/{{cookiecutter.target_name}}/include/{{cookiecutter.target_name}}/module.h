@@ -43,12 +43,12 @@ class {{cookiecutter.target_name.capitalize()}}Module final : public compiler::B
   void clear() override;
 
   /// @see Module::createBinary
-  compiler::Result createBinary(
-      cargo::array_view<std::uint8_t> &buffer) override;
+  compiler::Result createBinary(cargo::array_view<std::uint8_t> & buffer)
+      override;
 
   /// @see Module::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery()
-      override;
+  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &) override;
 
   /// @see BaseModule::initializePassMachineryForFrontend
   void initializePassMachineryForFrontend(compiler::utils::PassMachinery &,

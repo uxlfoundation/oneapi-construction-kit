@@ -475,29 +475,8 @@ _cl_program::_cl_program(cl_context context)
 }
 
 _cl_program::~_cl_program() {
-  // This guard needs a variable name, otherwise it is destroyed just after
-  // being created. Resource acquisition is required here, as clearing the
-  // binaries changes the context, while the context may be accessed at the
-  // same time by other _cl_program destructors and Compile and Link calls.
-  // The scoping ensures that the resource (context) is released before its
-  // possible destruction by the ReleaseInternal call.
-  {
-    std::unique_lock<std::mutex> guard(context->mutex, std::defer_lock);
-    std::unique_lock<compiler::Context> context_guard;
-    if (context->getCompilerContext()) {
-      context_guard = std::unique_lock<compiler::Context>{
-          *context->getCompilerContext(), std::defer_lock};
-
-      // We need to use std::lock here to avoid a deadlock scenario when using
-      // two mutexes.
-      std::lock(guard, context_guard);
-    } else {
-      guard.lock();
-    }
-
-    // Clear the programs first because they use our cl_context
-    programs.clear();
-  }
+  // Clear the programs first because they use our cl_context
+  programs.clear();
 
   // Explicitly destruct union members where appropriate.
   switch (type) {

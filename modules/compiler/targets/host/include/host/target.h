@@ -51,10 +51,10 @@ class HostTarget : public compiler::BaseTarget {
   std::unique_ptr<compiler::Module> createModule(uint32_t &num_errors,
                                                  std::string &log) override;
 
-  /// @see BaseTarget::getLLVMContext
-  llvm::LLVMContext &getLLVMContext() override;
-  /// @see BaseTarget::getLLVMContext
-  const llvm::LLVMContext &getLLVMContext() const override;
+  /// @see BaseTarget::withLLVMContextDo
+  void withLLVMContextDo(void (*)(llvm::LLVMContext &, void *),
+                         void *) override;
+  using BaseTarget::withLLVMContextDo;
 
   /// @see BaseTarget::getBuiltins
   llvm::Module *getBuiltins() const override;
