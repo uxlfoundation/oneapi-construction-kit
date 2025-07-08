@@ -15,9 +15,6 @@ runs:
       with:
         target: ${{ inputs.target }}
 
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
-    
     - name: download icd artifact
       uses: actions/download-artifact@v4
       with:
