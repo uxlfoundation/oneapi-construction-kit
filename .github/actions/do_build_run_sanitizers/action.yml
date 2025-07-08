@@ -1,19 +1,38 @@
 name: build run sanitizers
 description: build run sanitizers
 
+inputs:
+  san_type:
+    description: 'sanitizer type: tsan OR aubsan'
+    type: string
+    required: true
+  build_type:
+    description: 'build type: offline OR online'
+    type: string
+    required: true
+
 runs:
   # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
+
+    - name: Temp default
+      if: ${{ !startsWith(inputs.san_type, 'tsan') }} && ${{ !startsWith(inputs.build_type, 'online') }}
+      shell: 'bash'
+      run: |
+        echo san_type = [${{ inputs.san_type }}]
+        echo build_type = [${{ inputs.build_type }}]
 
     #
     # TSAN first
     #
 
     - name: Install Ninja
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
     - name: Install clang
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         sudo apt update
@@ -21,6 +40,7 @@ runs:
         sudo apt install -y clang-19
 
     - name: Checkout llvm/llvm-project
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       uses: actions/checkout@v4
       with:
         repository: llvm/llvm-project
@@ -30,6 +50,7 @@ runs:
         path: external/llvm-project   # ALAN TODO: external dir already exists - rename?
 
     - name: Build llvm
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         ls -l
@@ -77,6 +98,7 @@ runs:
         ls -lR $GITHUB_WORKSPACE/external/llvm_install
 
     - name: Build OCK
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         # ALAN TODO: Review CA_BUILTINS_TOOLS_DIR
@@ -106,9 +128,9 @@ runs:
         cmake --build $GITHUB_WORKSPACE/build --target all --config SanitizeThread
 
     - name: Test OCK
+      if: startsWith(inputs.san_type, 'tsan') && startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         ls -l
         ls -l build || echo NO BUILD
-        # ALAN TODO: Guesstimate -j4 initially - failed!
-        ninja -C build -j2 check-ock
+        ninja -C build -j3 check-ock
