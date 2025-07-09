@@ -35,6 +35,13 @@ runs:
         fi
         cat $GITHUB_OUTPUT
 
+    - name: Get sanitizer vars
+      shell: 'bash'
+      run: |
+        echo BUILD_TYPE ${{ steps.sanitizer_vars.outputs.build_type }} 
+        echo NINJA_OPTIONS ${{ steps.sanitizer_vars.outputs.ninja_options }} 
+        echo CA_OPTIONS ${{ steps.sanitizer_vars.outputs.ca_options }} 
+
     - name: Temp default
       if: startsWith(inputs.build_type, 'offline')
       shell: 'bash'
