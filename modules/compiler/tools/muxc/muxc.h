@@ -18,7 +18,7 @@
 
 #include <base/base_module_pass_machinery.h>
 #include <base/context.h>
-#include <compiler/target.h>
+#include <base/target.h>
 #include <mux/mux.hpp>
 
 namespace muxc {
@@ -57,7 +57,7 @@ class driver {
   /// @brief Compiler context to drive compilation.
   std::unique_ptr<compiler::Context> CompilerContext;
   /// @brief Compiler target to drive compilation.
-  std::unique_ptr<compiler::Target> CompilerTarget;
+  std::unique_ptr<compiler::BaseTarget> CompilerTarget;
   /// @brief LLVM context. Used unless CompilerTarget is set, in which case we
   /// use its LLVMContext.
   std::unique_ptr<llvm::LLVMContext> LLVMCtx;

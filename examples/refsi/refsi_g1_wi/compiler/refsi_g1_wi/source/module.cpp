@@ -31,7 +31,7 @@ RefSiG1Module::RefSiG1Module(RefSiG1Target &target,
     : riscv::RiscvModule(target, context, num_errors, log) {}
 
 std::unique_ptr<compiler::utils::PassMachinery>
-RefSiG1Module::createPassMachinery() {
+RefSiG1Module::createPassMachinery(llvm::LLVMContext &C) {
   auto *TM = getTargetMachine();
   auto *Builtins = getTarget().getBuiltins();
   const auto &BaseContext = getTarget().getContext();
@@ -44,10 +44,8 @@ RefSiG1Module::createPassMachinery() {
         std::make_unique<RefSiG1BIMuxInfo>(),
         compiler::utils::createCLBuiltinInfo(Builtins));
   };
-  llvm::LLVMContext &Ctx = Builtins->getContext();
   return std::make_unique<RefSiG1PassMachinery>(
-      getTarget(), Ctx, TM, Info, Callback,
-      BaseContext.isLLVMVerifyEachEnabled(),
+      getTarget(), C, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());
 }

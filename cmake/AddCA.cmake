@@ -172,6 +172,7 @@ list(APPEND CA_COMPILE_OPTIONS
     -Wall -Wextra         # Enable more warnings
     -Wcast-qual           # Enable warnings for casting away const
     -Wformat              # Enable printf format warnings
+    -Wno-unused-parameter # Disable unused parameter warnings
 
     $<$<NOT:$<BOOL:${MINGW}>>:
       -fPIC               # Emit position-independent code

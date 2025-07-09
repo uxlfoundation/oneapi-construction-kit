@@ -77,6 +77,11 @@ on:
         type: string
         description: 'method of sourcing llvm (install, cache or run-id)'
         default: 'cache'
+      save_cache:
+        required: false
+        type: boolean
+        description: 'save any caches required during building of any artefacts (usually on main only)'
+        default: false
      
 permissions:
   packages: read
@@ -354,6 +359,7 @@ jobs:
         with:
           target: host_x86_64_linux
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          save_cache: ${{ inputs.save_cache }}
 
   build_dpcpp_native_aarch64:
     needs: [workflow_vars]
@@ -377,6 +383,7 @@ jobs:
         with:
           target: host_aarch64_linux
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          save_cache: ${{ inputs.save_cache }}
 
   build_dpcpp_riscv64:
     needs: [workflow_vars, build_dpcpp_native_x86_64]  # cross builds need pre-built native artefact
@@ -406,6 +413,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
+          save_cache: ${{ inputs.save_cache }}
 
   build_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]

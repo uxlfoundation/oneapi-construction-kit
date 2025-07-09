@@ -133,13 +133,14 @@ cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
 HostModule::hostCompileObject(HostTarget &target,
                               const compiler::Options &build_options,
                               llvm::Module *module) {
+  llvm::LLVMContext &C = module->getContext();
   std::unique_ptr<llvm::Module> cloned_module(llvm::CloneModule(*module));
 
   if (nullptr == cloned_module) {
     return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
   }
 
-  auto pass_mach = createPassMachinery();
+  auto pass_mach = createPassMachinery(C);
   if (!pass_mach) {
     return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
   }
@@ -189,11 +190,9 @@ compiler::Result HostModule::createBinary(
 
   auto &host_target = static_cast<HostTarget &>(target);
 
-  std::unique_ptr<llvm::Module> clonedModule;
-  {
-    const std::lock_guard<compiler::Context> guard(context);
-
-    clonedModule = llvm::CloneModule(*finalized_llvm_module.get());
+  return target.withLLVMContextDo([&](llvm::LLVMContext &) -> compiler::Result {
+    const std::unique_ptr<llvm::Module> clonedModule =
+        llvm::CloneModule(*finalized_llvm_module.get());
 
     llvm::SmallVector<char, 1024> object_code_buffer;
     const llvm::raw_svector_ostream stream(object_code_buffer);
@@ -205,11 +204,11 @@ compiler::Result HostModule::createBinary(
     }
 
     object_code = std::move(binaryOrError.value());
-  }
 
-  buffer = cargo::array_view<std::uint8_t>(object_code);
+    buffer = cargo::array_view<std::uint8_t>(object_code);
 
-  return compiler::Result::SUCCESS;
+    return compiler::Result::SUCCESS;
+  });
 }
 
 llvm::ModulePassManager HostModule::getLateTargetPasses(
@@ -221,34 +220,41 @@ llvm::ModulePassManager HostModule::getLateTargetPasses(
 }
 
 compiler::Kernel *HostModule::createKernel(const std::string &name) {
-  std::unique_ptr<llvm::Module> kernel_module;
   handler::GenericMetadata kernel_md(name, name, 0);
-  {
-    const std::lock_guard<compiler::Context> guard(context);
-    kernel_module = llvm::CloneModule(*finalized_llvm_module);
+  std::unique_ptr<llvm::Module> kernel_module = target.withLLVMContextDo(
+      [&](llvm::LLVMContext &C) -> std::unique_ptr<llvm::Module> {
+        std::unique_ptr<llvm::Module> kernel_module =
+            llvm::CloneModule(*finalized_llvm_module);
 
-    if (!kernel_module || !kernel_module->getFunction(name)) {
-      return nullptr;
-    }
+        if (!kernel_module || !kernel_module->getFunction(name)) {
+          return nullptr;
+        }
 
-    llvm::ModulePassManager pm;
-    auto pass_mach = createPassMachinery();
-    pass_mach->initializeStart();
-    pass_mach->initializeFinish();
+        llvm::ModulePassManager pm;
+        auto pass_mach = createPassMachinery(C);
+        pass_mach->initializeStart();
+        pass_mach->initializeFinish();
 
-    // Set up the kernel metadata which informs later passes which kernel we're
-    // interested in optimizing.
-    const compiler::utils::EncodeKernelMetadataPassOptions pass_opts{name};
-    pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
-    pm.addPass(compiler::utils::ReduceToFunctionPass());
-    pm.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
+        // Set up the kernel metadata which informs later passes which kernel
+        // we're interested in optimizing.
+        const compiler::utils::EncodeKernelMetadataPassOptions pass_opts{name};
+        pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
+        pm.addPass(compiler::utils::ReduceToFunctionPass());
+        pm.addPass(compiler::utils::ComputeLocalMemoryUsagePass());
 
-    pm.run(*kernel_module, pass_mach->getMAM());
-    // Retrieve the estimation of the amount of local memory this kernel uses.
-    if (auto *f = kernel_module->getFunction(name)) {
-      kernel_md = pass_mach->getFAM()
-                      .getResult<compiler::utils::GenericMetadataAnalysis>(*f);
-    }
+        pm.run(*kernel_module, pass_mach->getMAM());
+        // Retrieve the estimation of the amount of local memory this kernel
+        // uses.
+        if (auto *f = kernel_module->getFunction(name)) {
+          kernel_md =
+              pass_mach->getFAM()
+                  .getResult<compiler::utils::GenericMetadataAnalysis>(*f);
+        }
+
+        return kernel_module;
+      });
+  if (!kernel_module) {
+    return nullptr;
   }
   auto device_info = target.getCompilerInfo()->device_info;
   // These default local sizes are fairly arbitrary, at the moment the key
@@ -268,8 +274,8 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
   return kernel;
 }
 
-std::unique_ptr<compiler::utils::PassMachinery>
-HostModule::createPassMachinery() {
+std::unique_ptr<compiler::utils::PassMachinery> HostModule::createPassMachinery(
+    llvm::LLVMContext &C) {
   auto *TM = static_cast<HostTarget &>(target).target_machine.get();
   auto Info =
       compiler::initDeviceInfoFromMux(target.getCompilerInfo()->device_info);
@@ -279,8 +285,7 @@ HostModule::createPassMachinery() {
         compiler::utils::createCLBuiltinInfo(BI));
   };
   return std::make_unique<host::HostPassMachinery>(
-      target.getLLVMContext(), TM, Info, Callback,
-      target.getContext().isLLVMVerifyEachEnabled(),
+      C, TM, Info, Callback, target.getContext().isLLVMVerifyEachEnabled(),
       target.getContext().getLLVMDebugLoggingLevel(),
       target.getContext().isLLVMTimePassesEnabled());
 }

@@ -53,8 +53,10 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
     };
     void *notify_callback_fn_as_user_data =
         static_cast<void *>(&this->callback);
-    getLLVMContext().setDiagnosticHandlerCallBack(
-        diag_handler_callback_thunk, notify_callback_fn_as_user_data);
+    withLLVMContextDo([&](llvm::LLVMContext &C) {
+      C.setDiagnosticHandlerCallBack(diag_handler_callback_thunk,
+                                     notify_callback_fn_as_user_data);
+    });
   }
 
   const auto valid_capabilities_bitmask =
@@ -79,10 +81,13 @@ Result BaseTarget::init(uint32_t builtins_capabilities) {
   std::unique_ptr<llvm::Module> builtins_module_from_file = nullptr;
 
   if (builtins_file.data()) {
-    auto error_or_builtins_module = llvm::getOwningLazyBitcodeModule(
-        std::make_unique<compiler::utils::MemoryBuffer>(builtins_file.data(),
-                                                        builtins_file.size()),
-        getLLVMContext());
+    auto error_or_builtins_module =
+        withLLVMContextDo([&](llvm::LLVMContext &C) {
+          return llvm::getOwningLazyBitcodeModule(
+              std::make_unique<compiler::utils::MemoryBuffer>(
+                  builtins_file.data(), builtins_file.size()),
+              C);
+        });
     if (!error_or_builtins_module) {
       return Result::FAILURE;
     }
@@ -112,10 +117,10 @@ BaseAOTTarget::BaseAOTTarget(const compiler::Info *compiler_info,
                              NotifyCallbackFn callback)
     : BaseTarget(compiler_info, context, callback) {}
 
-llvm::LLVMContext &BaseAOTTarget::getLLVMContext() { return llvm_context; }
-
-const llvm::LLVMContext &BaseAOTTarget::getLLVMContext() const {
-  return llvm_context;
+void BaseAOTTarget::withLLVMContextDo(void (*f)(llvm::LLVMContext &, void *),
+                                      void *p) {
+  const std::lock_guard guard(llvm_context_mutex);
+  f(llvm_context, p);
 }
 
 }  // namespace compiler

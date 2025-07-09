@@ -34,7 +34,7 @@ runs:
         # key is first argument
         for CACHE_PREFIX in ${{ inputs.cache_prefixes }}
         do
-          grep -E -o "${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' | awk '{ print $1 }'
+          grep -E -o "${CACHE_PREFIX}[^[:space:]]+" CACHE_LIST | sed '1d' | awk '{ print $1 }' || true
         done > CCACHE_LIST
 
         cat CCACHE_LIST

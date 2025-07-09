@@ -78,26 +78,6 @@ class Context {
   /// otherwise returns an error string.
   virtual cargo::expected<spirv::SpecializableConstantsMap, std::string>
   getSpecializableConstants(cargo::array_view<const uint32_t> code) = 0;
-
-  /// @brief Locks the underlying mutex, used to control access to the
-  /// underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::lock`.
-  virtual void lock() = 0;
-
-  /// @brief Attempts to acquire the lock on the underlying mutex, used to
-  /// control access to the underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::try_lock`.
-  ///
-  /// @return Returns true if the lock was acquired, false otherwise.
-  virtual bool try_lock() = 0;
-
-  /// @brief Unlocks the underlying mutex, used to control access to the
-  /// underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::unlock`.
-  virtual void unlock() = 0;
 };  // class Context
 /// @}
 }  // namespace compiler

@@ -75,8 +75,8 @@ class HostModule : public compiler::BaseModule {
   compiler::Kernel *createKernel(const std::string &name) override;
 
   /// @see BaseModule::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery()
-      override;
+  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &) override;
 
   /// @see BaseModule::initializePassMachineryForFinalize
   void initializePassMachineryForFinalize(

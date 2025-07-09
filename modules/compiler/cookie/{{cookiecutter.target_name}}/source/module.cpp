@@ -103,99 +103,100 @@ compiler::Result {{cookiecutter.target_name.capitalize()}}Module::createBinary(c
 
   // Lock the context, this is necessary due to analysis/pass managers being
   // owned by the LLVMContext and we are making heavy use of both below.
-  std::lock_guard<compiler::BaseContext> contextLock(context);
-  // Numerous things below touch LLVM's global state, in particular
-  // retriggering command-line option parsing at various points. Ensure we
-  // avoid data races by locking the LLVM global mutex.
-  std::lock_guard<std::mutex> globalLock(compiler::utils::getLLVMGlobalMutex());
+  return target.withLLVMContextDo([&](llvm::LLVMContext &) -> compiler::Result {
+    // Numerous things below touch LLVM's global state, in particular
+    // retriggering command-line option parsing at various points. Ensure we
+    // avoid data races by locking the LLVM global mutex.
+    std::lock_guard<std::mutex> globalLock(compiler::utils::getLLVMGlobalMutex());
 
-  // Write to an Elf object
-  auto *TM = getTargetMachine();
-  llvm::SmallVector<char, 512> objectBinary;
-  llvm::raw_svector_ostream ostream(objectBinary);
+    // Write to an Elf object
+    auto *TM = getTargetMachine();
+    llvm::SmallVector<char, 512> objectBinary;
+    llvm::raw_svector_ostream ostream(objectBinary);
 
-  {
-    compiler::Result err = compiler::Result::FAILURE;
-    llvm::CrashRecoveryContext CRC;
-    llvm::CrashRecoveryContext::Enable();
-    bool crashed = !CRC.RunSafely([&] {
-      err = compiler::emitCodeGenFile(*finalized_llvm_module, TM, ostream);
-    });
-    llvm::CrashRecoveryContext::Disable();
-    if (crashed) {
-      return compiler::Result::FINALIZE_PROGRAM_FAILURE;
+    {
+      compiler::Result err = compiler::Result::FAILURE;
+      llvm::CrashRecoveryContext CRC;
+      llvm::CrashRecoveryContext::Enable();
+      bool crashed = !CRC.RunSafely([&] {
+        err = compiler::emitCodeGenFile(*finalized_llvm_module, TM, ostream);
+      });
+      llvm::CrashRecoveryContext::Disable();
+      if (crashed) {
+        return compiler::Result::FINALIZE_PROGRAM_FAILURE;
+      }
+      if (compiler::Result::SUCCESS != err) {
+        return err;
+      }
     }
-    if (compiler::Result::SUCCESS != err) {
-      return err;
+
+    llvm::ArrayRef<uint8_t> inputBinary{
+        reinterpret_cast<uint8_t *>(objectBinary.data()),
+        static_cast<std::size_t>(objectBinary.size())};
+
+    llvm::SmallVector<std::string, 4> lld_args;
+    // Set the entry point to the zero address to avoid a linker warning. The
+    // entry point will not be used directly.
+    lld_args.push_back("-e0");
+
+    if ({{cookiecutter.link_shared}}) {
+      lld_args.push_back("--shared");
     }
-  }
 
-  llvm::ArrayRef<uint8_t> inputBinary{
-      reinterpret_cast<uint8_t *>(objectBinary.data()),
-      static_cast<std::size_t>(objectBinary.size())};
-
-  llvm::SmallVector<std::string, 4> lld_args;
-  // Set the entry point to the zero address to avoid a linker warning. The
-  // entry point will not be used directly.
-  lld_args.push_back("-e0");
-
-  if ({{cookiecutter.link_shared}}) {
-    lld_args.push_back("--shared");
-  }
-
-  {
-    bool linkSuccess = false;
-    llvm::CrashRecoveryContext CRC;
-    llvm::CrashRecoveryContext::Enable();
-    bool crashed = !CRC.RunSafely([&] {
-      auto linkResult = compiler::utils::lldLinkToBinary(
-          inputBinary, getTarget().hal_device_info->linker_script,
-          getTarget().rt_lib, getTarget().rt_lib_size, lld_args);
-      if (auto E = linkResult.takeError()) {
-        std::string errStr = toString(std::move(E));
-        addBuildError(errStr);
-        if (auto callback = target.getNotifyCallbackFn()) {
-          callback(errStr.c_str(), /*data*/ nullptr, /*data_size*/ 0);
+    {
+      bool linkSuccess = false;
+      llvm::CrashRecoveryContext CRC;
+      llvm::CrashRecoveryContext::Enable();
+      bool crashed = !CRC.RunSafely([&] {
+        auto linkResult = compiler::utils::lldLinkToBinary(
+            inputBinary, getTarget().hal_device_info->linker_script,
+            getTarget().rt_lib, getTarget().rt_lib_size, lld_args);
+        if (auto E = linkResult.takeError()) {
+          std::string errStr = toString(std::move(E));
+          addBuildError(errStr);
+          if (auto callback = target.getNotifyCallbackFn()) {
+            callback(errStr.c_str(), /*data*/ nullptr, /*data_size*/ 0);
+          }
+          return;
         }
-        return;
+        auto size = (*linkResult)->getBufferSize();
+        if (cargo::success != object_code.alloc(size)) {
+          return;
+        }
+        std::memcpy(object_code.data(), (*linkResult)->getBufferStart(), size);
+        linkSuccess = true;
+      });
+      llvm::CrashRecoveryContext::Disable();
+      if (crashed || !linkSuccess) {
+        return compiler::Result::LINK_PROGRAM_FAILURE;
       }
-      auto size = (*linkResult)->getBufferSize();
-      if (cargo::success != object_code.alloc(size)) {
-        return;
-      }
-      std::memcpy(object_code.data(), (*linkResult)->getBufferStart(), size);
-      linkSuccess = true;
-    });
-    llvm::CrashRecoveryContext::Disable();
-    if (crashed || !linkSuccess) {
-      return compiler::Result::LINK_PROGRAM_FAILURE;
     }
-  }
 
-  // copy the generated ELF file to a specified path if desired
+    // copy the generated ELF file to a specified path if desired
 #if defined(CA_ENABLE_DEBUG_SUPPORT) || defined(CA_{{cookiecutter.target_name_capitals}}_DEMO_MODE)
-  if (!getTarget().env_debug_prefix.empty()) {
-    std::string env_name = getTarget().env_debug_prefix + "_SAVE_ELF_PATH";
-    if (const auto copyElfPath = llvm::sys::Process::GetEnv(env_name.c_str())) {
-      llvm::SmallVector<char, 8> resultPath;
-      std::error_code error;
-      llvm::raw_fd_ostream of(*copyElfPath, error);
-      if (error) {
-        llvm::errs() << "Unable to open ELF file " << *copyElfPath << " :\n";
-        llvm::errs() << "\t" << error.message() << "\n";
-      } else {
-        const uint8_t *elf_data = object_code.data();
-        of.write(reinterpret_cast<const char *>(elf_data), object_code.size());
-        llvm::errs() << "Writing ELF file  to " << *copyElfPath << "\n";
+    if (!getTarget().env_debug_prefix.empty()) {
+      std::string env_name = getTarget().env_debug_prefix + "_SAVE_ELF_PATH";
+      if (const auto copyElfPath = llvm::sys::Process::GetEnv(env_name.c_str())) {
+        llvm::SmallVector<char, 8> resultPath;
+        std::error_code error;
+        llvm::raw_fd_ostream of(*copyElfPath, error);
+        if (error) {
+          llvm::errs() << "Unable to open ELF file " << *copyElfPath << " :\n";
+          llvm::errs() << "\t" << error.message() << "\n";
+        } else {
+          const uint8_t *elf_data = object_code.data();
+          of.write(reinterpret_cast<const char *>(elf_data), object_code.size());
+          llvm::errs() << "Writing ELF file  to " << *copyElfPath << "\n";
+        }
       }
     }
-  }
 #endif
 
-  // return the binary buffer.
-  binary = object_code;
+    // return the binary buffer.
+    binary = object_code;
 
-  return compiler::Result::SUCCESS;
+    return compiler::Result::SUCCESS;
+  });
 }
 
 // No deferred support so just return nullptr
@@ -246,7 +247,7 @@ llvm::TargetMachine *{{cookiecutter.target_name.capitalize()}}Module::getTargetM
   }
 {% endif -%}
 
-std::unique_ptr<compiler::utils::PassMachinery> {{cookiecutter.target_name.capitalize()}}Module::createPassMachinery() {
+std::unique_ptr<compiler::utils::PassMachinery> {{cookiecutter.target_name.capitalize()}}Module::createPassMachinery(llvm::LLVMContext &C) {
   auto *TM = getTargetMachine();
   auto *Builtins = getTarget().getBuiltins();
   const auto &BaseContext = getTarget().getContext();
@@ -261,10 +262,8 @@ std::unique_ptr<compiler::utils::PassMachinery> {{cookiecutter.target_name.capit
     return compiler::utils::BuiltinInfo(compiler::utils::createCLBuiltinInfo(Builtins));
 {% endif -%}
   };
-  llvm::LLVMContext &Ctx = Builtins->getContext();
   return std::make_unique<{{cookiecutter.target_name.capitalize()}}PassMachinery>(
-      getTarget(), Ctx, TM, Info, Callback,
-      BaseContext.isLLVMVerifyEachEnabled(),
+      getTarget(), C, TM, Info, Callback, BaseContext.isLLVMVerifyEachEnabled(),
       BaseContext.getLLVMDebugLoggingLevel(),
       BaseContext.isLLVMTimePassesEnabled());
 }

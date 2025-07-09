@@ -1,18 +1,50 @@
-print("Half precision sincos:");
+print("Half precision sincos:\n");
 Range=[0.0; 1.0];
+
 Func=cos(x*pi/4);
-Poly= fpminimax(Func, [|0,2,4,6|],[|11...|], Range, relative, floating);
-Poly;
-
+Poly=fpminimax(Func, [|0,2,4,6|],[|HP...|], Range, relative, floating);
 Err=dirtyinfnorm(Poly-Func, Range);
-print("\ninf-norm error:", Err);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");
 
+Func=sin(x*pi/4);
+Poly=fpminimax(Func, [|1,3,5,7|],[|HP...|], Range, relative, floating);
+Err=dirtyinfnorm(Poly-Func, Range);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");
 
-Range2=[0.0; 1.0];
-Func2=sin(x*pi/4);
-Poly2= fpminimax(Func2, [|1,3,5,7|],[|11...|], Range2, relative, floating);
-Poly2;
+print("Single precision sincos:\n");
+Range=[0.0; pi/4];
 
-Err=dirtyinfnorm(Poly2-Func2, Range2);
-print("\ninf-norm error:", Err);
+Func=cos(x);
+Poly=fpminimax(Func, [|0,2,4,6,8|],[|SG...|], Range, relative, floating);
+Err=dirtyinfnorm(Poly-Func, Range);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");
 
+Func=sin(x);
+Poly=fpminimax(Func, [|1,3,5,7|],[|SG...|], Range, relative, floating);
+Err=dirtyinfnorm(Poly-Func, Range);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");
+
+print("Double precision sincos:\n");
+Range=[0.0; 1.0];
+
+Func=cos(x*pi/4);
+Poly=fpminimax(Func, [|0,2,4,6,8,10,12,14|],[|D...|], Range, relative, floating);
+Err=dirtyinfnorm(Poly-Func, Range);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");
+
+Func=sin(x*pi/4);
+Poly=fpminimax(Func, [|1,3,5,7,9,11,13|],[|D...|], Range, relative, floating);
+Err=dirtyinfnorm(Poly-Func, Range);
+print(Func);
+Poly;
+print("inf-norm error:", Err, "\n");

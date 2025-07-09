@@ -1,4 +1,4 @@
-From 84ef444899718378ddd81c2e1cfc286236abfcf7 Mon Sep 17 00:00:00 2001
+From 42367486c9c2ef767da36406d79882fd9a4cfd6d Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 2 Apr 2025 15:12:26 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Move __spirv_AtomicF{Add,Min,Max}EXT into
@@ -194,7 +194,7 @@ index dbe22c62b56f..000000000000
 -
 -} // namespace llvm
 diff --git a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
-index 884b28ff94a3..8c1af8e5d4de 100644
+index a6643f918664..85e50be268f4 100644
 --- a/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
 +++ b/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
 @@ -3,7 +3,6 @@ add_llvm_component_library(LLVMSYCLNativeCPUUtils

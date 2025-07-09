@@ -56,26 +56,6 @@ class BaseContext : public Context {
   cargo::expected<spirv::SpecializableConstantsMap, std::string>
   getSpecializableConstants(cargo::array_view<const uint32_t> code) override;
 
-  /// @brief Locks the underlying mutex, used to control access to the
-  /// underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::lock`.
-  void lock() override;
-
-  /// @brief Attempts to acquire the lock on the underlying mutex, used to
-  /// control access to the underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::try_lock`.
-  ///
-  /// @return Returns true if the lock was acquired, false otherwise.
-  bool try_lock() override;
-
-  /// @brief Unlocks the underlying mutex, used to control access to the
-  /// underlying LLVM context.
-  ///
-  /// Forwards to `std::mutex::unlock`.
-  void unlock() override;
-
   bool isLLVMVerifyEachEnabled() const { return llvm_verify_each; }
 
   bool isLLVMTimePassesEnabled() const { return llvm_time_passes; }
@@ -85,9 +65,6 @@ class BaseContext : public Context {
   }
 
  private:
-  /// @brief Mutex for accessing the BaseContext.
-  std::mutex base_context_mutex;
-
   /// @brief True if compiler passes should be individually verified.
   ///
   /// If false, the default is to verify before/after each pass pipeline.
