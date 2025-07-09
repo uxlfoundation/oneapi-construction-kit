@@ -22,6 +22,7 @@ jobs:
       llvm_version: '19'
       llvm_branch: 'release/19.x'
       use_llvm_github_cache: true
+      save_cache:  ${{ github.event_name == 'schedule' }}
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
       # target_list: '[ "host_x86_64_linux" ]'
@@ -43,4 +44,20 @@ jobs:
       # download_dpcpp_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
       # download_sycl_cts_artefact: host_x86_64_linux=14225268091;host_aarch64_linux=14225268091;host_riscv64_linux=14225268091
 
-# Force running L19 on PR
+  # This cleans up any caches which may have been created when running external tests
+  clean_caches:
+    needs: [ L19_ ]
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name == 'schedule' && always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # for gh cache delete
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - name: Cache clean
+        uses: ./.github/actions/clean_cache
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cache_prefixes: "ccache-dpcpp-build-host_x86_64_linux ccache-dpcpp-build-host_aarch64_linux ccache-dpcpp-build-host_riscv64_linux"
