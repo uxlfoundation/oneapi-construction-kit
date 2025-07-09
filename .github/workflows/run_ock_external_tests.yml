@@ -243,6 +243,7 @@ jobs:
         with:
           san_type: ${{ matrix.san_type }}
           build_type: ${{ matrix.build_type }}
+          llvm_branch: ${{ inputs.llvm_branch }}
 
   build_run_remote_hal:
     if: inputs.test_remote_hal
