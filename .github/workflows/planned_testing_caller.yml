@@ -104,6 +104,7 @@ jobs:
       test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
       test_opencl_cts: ${{ inputs.test_opencl_cts }}
       native_cpu: ${{ inputs.native_cpu }}
+      llvm_branch: ${{ inputs.llvm_branch }}
 
       # The following can be used to download from a previous workflow run (change id)
       download_ock_artefact: ${{ inputs.download_ock_artefact }}
