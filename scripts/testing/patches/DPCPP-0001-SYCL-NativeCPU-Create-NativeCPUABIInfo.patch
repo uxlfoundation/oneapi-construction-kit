@@ -1,4 +1,4 @@
-From c232652b545a8bff308a6b321753c629e65b5d2c Mon Sep 17 00:00:00 2001
+From c04ebb5cfda9c4e90ee084de122bccb42b4d92c0 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Mon, 30 Jun 2025 17:28:19 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Create NativeCPUABIInfo.
