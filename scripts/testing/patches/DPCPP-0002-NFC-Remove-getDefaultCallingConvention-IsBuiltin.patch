@@ -1,4 +1,4 @@
-From a18b6461399cfdce11a6f8ad19b2c2193d30d14b Mon Sep 17 00:00:00 2001
+From 2ba2c00af2326927371dbde39da8054c91012b4e Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Thu, 26 Jun 2025 15:29:23 +0100
 Subject: [PATCH] [NFC] Remove getDefaultCallingConvention IsBuiltin
