@@ -30,7 +30,8 @@ runs:
            echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         else # aubsan
            echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
-           echo "ninja_options=-j8" >> "$GITHUB_OUTPUT"
+           #echo "ninja_options=-j8" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j6" >> "$GITHUB_OUTPUT"
            echo "ca_options=" >> "$GITHUB_OUTPUT"
         fi
         cat $GITHUB_OUTPUT
