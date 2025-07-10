@@ -22,9 +22,6 @@ runs:
       with:
         target: ${{ inputs.target }}  
 
-    - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
-
     - name: clone dpc++
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
       uses: actions/checkout@v4
