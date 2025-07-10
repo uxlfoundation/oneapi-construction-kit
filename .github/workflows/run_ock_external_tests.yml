@@ -227,9 +227,8 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        #san_type:   [ 'tsan', 'aubsan' ]
-        #build_type: [ 'offline', 'online' ]
-        san_type:   [ 'aubsan' ]
+        san_type:   [ 'tsan', 'aubsan' ]
+        # TODO: implement offline: build_type: [ 'offline', 'online' ]
         build_type: [ 'online' ]
     runs-on: 'ubuntu-22.04'
     container:

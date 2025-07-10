@@ -30,25 +30,10 @@ runs:
            echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         else # aubsan
            echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
-           #echo "ninja_options=-j8" >> "$GITHUB_OUTPUT"
-           echo "ninja_options=-j1" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
            echo "ca_options=" >> "$GITHUB_OUTPUT"
         fi
         cat $GITHUB_OUTPUT
-
-    - name: Get sanitizer vars
-      shell: 'bash'
-      run: |
-        echo BUILD_TYPE ${{ steps.sanitizer_vars.outputs.build_type }} 
-        echo NINJA_OPTIONS ${{ steps.sanitizer_vars.outputs.ninja_options }} 
-        echo CA_OPTIONS ${{ steps.sanitizer_vars.outputs.ca_options }} 
-
-    - name: Temp default
-      if: startsWith(inputs.build_type, 'offline')
-      shell: 'bash'
-      run: |
-        echo san_type = [${{ inputs.san_type }}]
-        echo build_type = [${{ inputs.build_type }}]
 
     - name: Install Ninja
       if: startsWith(inputs.build_type, 'online')
@@ -68,17 +53,14 @@ runs:
       with:
         repository: llvm/llvm-project
         ref: ${{ inputs.llvm_branch }}
-        path: external/llvm-project   # ALAN TODO: external dir already exists - rename?
+        path: external/llvm-project
 
     - name: Build llvm
       if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
-        ls -l
-        ls -l external/llvm-project
+        echo Build LLVM
         cd external
-        # ALAN TODO: Use do_build_llvm ??
-        # ALAN TODO: Could/Should this artefact be pre-built separately and shared between san builds ??
         cmake llvm-project/llvm \
             -GNinja \
             -Bbuild \
@@ -97,34 +79,14 @@ runs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
+        echo Install LLVM
         cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
-        ls -l
-        ls -l llvm_install || echo NO INSTALL
-        ls -l llvm-project || echo NO PROJECT
-        ls -l llvm-spirv || echo NO SPIRV
-
-    - name: Download llvm DELETE
-      if: false
-      uses: ./.github/actions/download_artifact
-      with:
-        name: llvm-ubuntu-22.04-x86_64-19-RelAssert
-        run_id: ${{ github.run_id }}
-        token: ${{ env.GH_TOKEN }}
-        path: $GITHUB_WORKSPACE/external/llvm_install
-        needs_tar: 'true'
-
-    - name: List llvm DELETE
-      if: false
-      shell: 'bash'
-      run: |
-        ls -lR $GITHUB_WORKSPACE/external/llvm_install
 
     - name: Build OCK
       if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
-        # ALAN TODO: Review CA_BUILTINS_TOOLS_DIR
-        # ALAN TODO: Use do_build_ock
+        echo Build OCK
         cmake \
             -Bbuild \
             -GNinja \
@@ -144,15 +106,14 @@ runs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
             .
-        ls -l
-        ls -l install || echo NO INSTALL
-        ls -l build || echo NO BUILD
+        echo Build OCK all config=${{ steps.sanitizer_vars.outputs.build_type }}
         cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
 
     - name: Test OCK
       if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
-        ls -l
-        ls -l build || echo NO BUILD
+        echo Test OCK cmake
+        cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
+        echo Test OCK ninja
         ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} check-ock
