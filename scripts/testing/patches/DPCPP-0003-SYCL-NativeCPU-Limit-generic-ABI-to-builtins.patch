@@ -1,4 +1,4 @@
-From 60114f9cdce11bb6f9357437b5ccc45d13b1046c Mon Sep 17 00:00:00 2001
+From fa47974678269b196015f8534b44dd15d0951dd5 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 6 Jun 2025 17:48:28 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
@@ -18,16 +18,15 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  clang/lib/Basic/Targets/NativeCPU.h           |   5 +
  clang/lib/CodeGen/Targets/NativeCPU.cpp       |  13 +
  clang/lib/Sema/SemaLookup.cpp                 |   2 +-
- libclc/CMakeLists.txt                         |   2 -
+ libclc/CMakeLists.txt                         |   1 +
  libclc/clc/include/clc/clcfunc.h              |   4 +
- libclc/libspirv/lib/native_cpu/math/helpers.h |  14 +-
  libdevice/nativecpu_utils.cpp                 |   5 +-
  llvm/lib/Linker/IRMover.cpp                   |   7 +
  sycl/include/sycl/builtins.hpp                |  28 +-
  .../sycl/detail/defines_elementary.hpp        |   9 +
  sycl/include/sycl/group.hpp                   |  20 +-
  sycl/include/sycl/stl_wrappers/cmath          | 327 +++++++++---------
- 14 files changed, 259 insertions(+), 183 deletions(-)
+ 13 files changed, 252 insertions(+), 175 deletions(-)
 
 diff --git a/clang/include/clang/Basic/TargetInfo.h b/clang/include/clang/Basic/TargetInfo.h
 index 8dbacdd3703a..1c6b8a660353 100644
@@ -117,18 +116,17 @@ index 003df2ab24ef..e74b6c2c8379 100644
    PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
  
 diff --git a/libclc/CMakeLists.txt b/libclc/CMakeLists.txt
-index b4335f18f394..b83b4d01046b 100644
+index fd6cbff58f25..e43b22522e57 100644
 --- a/libclc/CMakeLists.txt
 +++ b/libclc/CMakeLists.txt
-@@ -482,8 +482,6 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
-       set( opt_flags -O3 "--nvvm-reflect-enable=false" )
-     elseif( ARCH STREQUAL amdgcn )
-       set( opt_flags -O3 --amdgpu-oclc-reflect-enable=false )
--    elseif( ARCH STREQUAL native_cpu )
--      set( opt_flags -O3 )
-     else()
+@@ -467,6 +467,7 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
+     elseif( ARCH STREQUAL native_cpu )
+       set( build_flags -Xclang -fsycl-is-native-cpu )
        set( opt_flags -O3 )
-       set( MACRO_ARCH ${ARCH} )
++      set( MACRO_ARCH native_cpu )
+     else()
+       set( build_flags )
+       set( opt_flags -O3 )
 diff --git a/libclc/clc/include/clc/clcfunc.h b/libclc/clc/include/clc/clcfunc.h
 index b1a173d73496..fc712935d51b 100644
 --- a/libclc/clc/include/clc/clcfunc.h
@@ -144,56 +142,6 @@ index b1a173d73496..fc712935d51b 100644
  #else
  #define _CLC_DEF __attribute__((always_inline))
  #endif
-diff --git a/libclc/libspirv/lib/native_cpu/math/helpers.h b/libclc/libspirv/lib/native_cpu/math/helpers.h
-index 2f4498e6cd4c..8a303462f5ac 100644
---- a/libclc/libspirv/lib/native_cpu/math/helpers.h
-+++ b/libclc/libspirv/lib/native_cpu/math/helpers.h
-@@ -15,12 +15,12 @@
- // __builtin_elementwise_##NAME
- #ifndef IS_FABS
- #define GEN_UNARY_VECTOR_BUILTIN(NAME, TYPE, NUM)                              \
--  _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n) {                         \
-+  _CLC_DEF _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n) {                \
-     return __builtin_elementwise_##NAME(n);                                    \
-   }
- #else
- #define GEN_UNARY_VECTOR_BUILTIN(NAME, TYPE, NUM)                              \
--  _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n) {                         \
-+  _CLC_DEF _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n) {                \
-     return __builtin_elementwise_abs(n);                                       \
-   }
- #endif
-@@ -33,7 +33,9 @@
-   GEN_UNARY_VECTOR_BUILTIN(NAME, TYPE, 16)
- 
- #define GEN_UNARY_BUILTIN_T(NAME, TYPE)                                        \
--  _CLC_OVERLOAD TYPE GETNAME(NAME)(TYPE n) { return __builtin_##NAME(n); }
-+  _CLC_DEF _CLC_OVERLOAD TYPE GETNAME(NAME)(TYPE n) {                          \
-+    return __builtin_##NAME(n);                                                \
-+  }
- 
- #if defined(cl_khr_fp16)
- #define GEN_UNARY_FP16(NAME)                                                   \
-@@ -58,8 +60,8 @@
-   GEN_UNARY_FP64(NAME)
- 
- #define GEN_TERNARY_VECTOR_BUILTIN(NAME, TYPE, NUM)                            \
--  _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n1, TYPE##NUM n2,            \
--                                        TYPE##NUM n3) {                        \
-+  _CLC_DEF _CLC_OVERLOAD TYPE##NUM GETNAME(NAME)(TYPE##NUM n1, TYPE##NUM n2,   \
-+                                                 TYPE##NUM n3) {               \
-     return __builtin_elementwise_##NAME(n1, n2, n3);                           \
-   }
- 
-@@ -71,7 +73,7 @@
-   GEN_TERNARY_VECTOR_BUILTIN(NAME, TYPE, 16)
- 
- #define GEN_TERNARY_BUILTIN_T(NAME, TYPE)                                      \
--  _CLC_OVERLOAD TYPE GETNAME(NAME)(TYPE n1, TYPE n2, TYPE n3) {                \
-+  _CLC_DEF _CLC_OVERLOAD TYPE GETNAME(NAME)(TYPE n1, TYPE n2, TYPE n3) {       \
-     return __builtin_##NAME(n1, n2, n3);                                       \
-   }
- 
 diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
 index 819fd0910858..71eacb1f6a0e 100644
 --- a/libdevice/nativecpu_utils.cpp
