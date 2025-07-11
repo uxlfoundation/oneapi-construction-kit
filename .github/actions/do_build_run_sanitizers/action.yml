@@ -26,11 +26,9 @@ runs:
       run: |
         if [ "${{ inputs.san_type }}" = "tsan" ]; then
            echo "build_type=SanitizeThread" >> "$GITHUB_OUTPUT"
-           echo "ninja_options=-j3" >> "$GITHUB_OUTPUT"
            echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         else # aubsan
            echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
-           echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
            echo "ca_options=" >> "$GITHUB_OUTPUT"
         fi
         cat $GITHUB_OUTPUT
@@ -116,4 +114,4 @@ runs:
         echo Test OCK cmake
         cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
         echo Test OCK ninja
-        ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} check-ock
+        ninja -C build -j3 check-ock
