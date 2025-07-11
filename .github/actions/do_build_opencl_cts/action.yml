@@ -3,7 +3,19 @@ description: build opencl cts
 
 inputs:
   target:
+    required: true
+    type: string
     description: 'target architecture'
+  cache_update:
+    required: false
+    type: boolean
+    description: 'flag indicating that a cache update for the built artifact is required'
+    default: false
+  opencl_cts_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for OpenCL-CTS repo'
+    default: ''
 
 runs:
   using: "composite"
@@ -34,6 +46,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
+        ref: ${{inputs.opencl_cts_ref}}
 
     - name: build opencl cts
       shell: bash
@@ -76,3 +89,19 @@ runs:
           !test_conformance/test_common/**
         retention-days: 7
 
+    - name: update opencl cts artifact cache
+      if: inputs.cache_update == 'true'
+      uses: actions/cache/save@v4
+      id: cache
+      with:
+        key: opencl_cts_${{inputs.target}}
+        path: |
+          test_conformance
+          !test_conformance/**/.*
+          !test_conformance/**/CMakeCache.txt
+          !test_conformance/**/CMakeFiles
+          !test_conformance/**/CMakeFiles/**
+          !test_conformance/**/*.cmake
+          !test_conformance/**/*.ninja
+          !test_conformance/test_common
+          !test_conformance/test_common/**
