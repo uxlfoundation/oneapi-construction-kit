@@ -1,4 +1,4 @@
-From 060f62198cd653790332e87f1629069a80e88c8f Mon Sep 17 00:00:00 2001
+From f82d9dec6a6385bcd0d337471b5584d5cfa7e00b Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 17:11:39 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Update clang-linker-wrapper.
@@ -7,15 +7,14 @@ The current support for NativeCPU in clang-linker-wrapper had not been
 maintained; this commit updates it to work again, simplifies things, and
 fixes handling of specialization constants.
 ---
- .../ClangLinkerWrapper.cpp                    | 137 ++++++++++++------
- .../Offloading/SYCLOffloadWrapper.cpp         |   9 +-
- sycl/test/native_cpu/atomic-base.cpp          |   3 +
- sycl/test/native_cpu/multiple_tu.cpp          |   7 +
- sycl/test/native_cpu/vector-add.cpp           |   4 +
- 5 files changed, 107 insertions(+), 53 deletions(-)
+ .../ClangLinkerWrapper.cpp                    | 61 ++++++++++++++++---
+ sycl/test/native_cpu/atomic-base.cpp          |  3 +
+ sycl/test/native_cpu/multiple_tu.cpp          |  7 +++
+ sycl/test/native_cpu/vector-add.cpp           |  4 ++
+ 4 files changed, 67 insertions(+), 8 deletions(-)
 
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 04b284e073f1..3645356cbb3a 100644
+index 04b284e073f1..db4f7d29ee1f 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 @@ -674,9 +674,8 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
@@ -30,36 +29,37 @@ index 04b284e073f1..3645356cbb3a 100644
        !Args.hasArg(OPT_sycl_allow_device_image_dependencies) &&
        !Triple.isNVPTX() && !Triple.isAMDGPU())
      PostLinkArgs.push_back("-emit-only-kernels-as-entry-points");
-@@ -1558,7 +1557,7 @@ Error extractBundledObjects(StringRef Filename, const ArgList &Args,
- 
- namespace generic {
- Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
--                          bool IsSYCLKind = false) {
-+                          bool IsSYCLKind = false, bool SYCLNativeCPU = false) {
-   llvm::TimeTraceScope TimeScope("Clang");
-   // Use `clang` to invoke the appropriate device tools.
-   Expected<std::string> ClangPath =
-@@ -1567,7 +1566,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1567,8 +1566,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
      return ClangPath.takeError();
  
    llvm::Triple Triple(Args.getLastArgValue(OPT_triple_EQ));
 -  if (Triple.isNativeCPU())
-+  if (SYCLNativeCPU)
-     Triple = llvm::Triple(Args.getLastArgValue(OPT_host_triple_EQ));
+-    Triple = llvm::Triple(Args.getLastArgValue(OPT_host_triple_EQ));
++  llvm::Triple HostTriple(Args.getLastArgValue(OPT_host_triple_EQ));
  
    StringRef Arch = Args.getLastArgValue(OPT_arch_EQ);
-@@ -1602,16 +1601,24 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+   // Create a new file to write the linked device image to. Assume that the
+@@ -1585,7 +1583,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+       "--no-default-config",
+       "-o",
+       *TempFileOrErr,
+-      Args.MakeArgString("--target=" + Triple.getTriple()),
++      Args.MakeArgString("--target=" + (Triple.isNativeCPU() ? HostTriple : Triple).getTriple()),
+   };
+ 
+   if (!Arch.empty())
+@@ -1602,16 +1600,24 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
          {"-Xlinker",
           Args.MakeArgString("--plugin-opt=" + StringRef(Arg->getValue()))});
  
 -  if (!Triple.isNVPTX() && !Triple.isSPIRV())
-+  if (!Triple.isNVPTX() && !Triple.isSPIRV() && !SYCLNativeCPU)
++  if (!Triple.isNVPTX() && !Triple.isSPIRV() && !Triple.isNativeCPU())
      CmdArgs.push_back("-Wl,--no-undefined");
  
    if (IsSYCLKind && Triple.isNVPTX())
      CmdArgs.push_back("-S");
 +
-+  if (IsSYCLKind && SYCLNativeCPU) {
++  if (IsSYCLKind && Triple.isNativeCPU()) {
 +    CmdArgs.push_back("-Wno-override-module");
 +    CmdArgs.push_back("-mllvm");
 +    CmdArgs.push_back("-sycl-native-cpu-backend");
@@ -71,16 +71,16 @@ index 04b284e073f1..3645356cbb3a 100644
  
    // If this is CPU offloading we copy the input libraries.
 -  if (!Triple.isGPU()) {
-+  if (!Triple.isGPU() && !SYCLNativeCPU) {
++  if (!Triple.isGPU() && !Triple.isNativeCPU()) {
      CmdArgs.push_back("-Wl,-Bsymbolic");
      CmdArgs.push_back("-shared");
      ArgStringList LinkerArgs;
-@@ -1664,6 +1671,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1664,6 +1670,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
                        Args.MakeArgString(Arg.split('=').second)});
    }
  
 +  // link NativeCPU utils lib if needed
-+  if (SYCLNativeCPU) {
++  if (Triple.isNativeCPU()) {
 +    if (auto *A = Args.getLastArg(OPT_sycl_device_library_location_EQ)) {
 +      std::string NativeCPUUtilsLib = "";
 +
@@ -114,125 +114,20 @@ index 04b284e073f1..3645356cbb3a 100644
    // The OpenMPOpt pass can introduce new calls and is expensive, we do
    // not want this when running CodeGen through clang.
    if (Args.hasArg(OPT_clang_backend) || Args.hasArg(OPT_builtin_bitcode_EQ))
-@@ -1721,11 +1760,6 @@ Expected<StringRef> linkDevice(ArrayRef<StringRef> InputFiles,
-   }
-   case Triple::loongarch64:
-     return generic::clang(InputFiles, Args, IsSYCLKind);
--  case Triple::native_cpu:
--    if (IsSYCLKind)
--      return generic::clang(InputFiles, Args, IsSYCLKind);
--    return createStringError(Triple.getArchName() +
--                             " linking is not supported other than for SYCL");
-   default:
-     return createStringError(Triple.getArchName() +
-                              " linking is not supported");
-@@ -2104,39 +2138,52 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
-           return OutputFile.takeError();
-         WrappedOutput.push_back(*OutputFile);
-       }
--      for (size_t I = 0, E = SplitModules.size(); I != E; ++I) {
--        SmallVector<StringRef> Files = {SplitModules[I].ModuleFilePath};
--        StringRef Arch = LinkerArgs.getLastArgValue(OPT_arch_EQ);
--        if (Arch.empty())
--          Arch = "native";
--        SmallVector<std::pair<StringRef, StringRef>, 4> BundlerInputFiles;
--        auto ClangOutputOrErr =
--            linkDevice(Files, LinkerArgs, true /* IsSYCLKind */);
--        if (!ClangOutputOrErr)
--          return ClangOutputOrErr.takeError();
--        if (Triple.isNVPTX()) {
--          auto VirtualArch = StringRef(clang::OffloadArchToVirtualArchString(
--              clang::StringToOffloadArch(Arch)));
--          auto PtxasOutputOrErr =
--              nvptx::ptxas(*ClangOutputOrErr, LinkerArgs, Arch);
--          if (!PtxasOutputOrErr)
--            return PtxasOutputOrErr.takeError();
--          BundlerInputFiles.emplace_back(*ClangOutputOrErr, VirtualArch);
--          BundlerInputFiles.emplace_back(*PtxasOutputOrErr, Arch);
--          auto BundledFileOrErr =
--              nvptx::fatbinary(BundlerInputFiles, LinkerArgs);
--          if (!BundledFileOrErr)
--            return BundledFileOrErr.takeError();
--          SplitModules[I].ModuleFilePath = *BundledFileOrErr;
--        } else if (Triple.isAMDGCN()) {
--          BundlerInputFiles.emplace_back(*ClangOutputOrErr, Arch);
--          auto BundledFileOrErr =
--              amdgcn::fatbinary(BundlerInputFiles, LinkerArgs);
--          if (!BundledFileOrErr)
--            return BundledFileOrErr.takeError();
--          SplitModules[I].ModuleFilePath = *BundledFileOrErr;
--        } else {
--          SplitModules[I].ModuleFilePath = *ClangOutputOrErr;
-+      if (Triple.str() == "native_cpu") {
-+        for (size_t I = 0, E = SplitModules.size(); I != E; ++I) {
-+          SmallVector<StringRef> Files = {SplitModules[I].ModuleFilePath};
-+          auto ClangOutputOrErr =
-+              generic::clang(Files, Args, /*IsSYCLKind=*/true,
-+                             /*SYCLNativeCPU=*/true);
-+          if (!ClangOutputOrErr)
-+            return ClangOutputOrErr.takeError();
-+          std::scoped_lock Guard(ImageMtx);
-+          WrappedOutput.push_back(*ClangOutputOrErr);
-+        }
-+      } else {
-+        for (size_t I = 0, E = SplitModules.size(); I != E; ++I) {
-+          SmallVector<StringRef> Files = {SplitModules[I].ModuleFilePath};
-+          StringRef Arch = LinkerArgs.getLastArgValue(OPT_arch_EQ);
-+          if (Arch.empty())
-+            Arch = "native";
-+          SmallVector<std::pair<StringRef, StringRef>, 4> BundlerInputFiles;
-+          auto ClangOutputOrErr =
-+              linkDevice(Files, LinkerArgs, true /* IsSYCLKind */);
-+          if (!ClangOutputOrErr)
-+            return ClangOutputOrErr.takeError();
-+          if (Triple.isNVPTX()) {
-+            auto VirtualArch = StringRef(clang::OffloadArchToVirtualArchString(
-+                clang::StringToOffloadArch(Arch)));
-+            auto PtxasOutputOrErr =
-+                nvptx::ptxas(*ClangOutputOrErr, LinkerArgs, Arch);
-+            if (!PtxasOutputOrErr)
-+              return PtxasOutputOrErr.takeError();
-+            BundlerInputFiles.emplace_back(*ClangOutputOrErr, VirtualArch);
-+            BundlerInputFiles.emplace_back(*PtxasOutputOrErr, Arch);
-+            auto BundledFileOrErr =
-+                nvptx::fatbinary(BundlerInputFiles, LinkerArgs);
-+            if (!BundledFileOrErr)
-+              return BundledFileOrErr.takeError();
-+            SplitModules[I].ModuleFilePath = *BundledFileOrErr;
-+          } else if (Triple.isAMDGCN()) {
-+            BundlerInputFiles.emplace_back(*ClangOutputOrErr, Arch);
-+            auto BundledFileOrErr =
-+                amdgcn::fatbinary(BundlerInputFiles, LinkerArgs);
-+            if (!BundledFileOrErr)
-+              return BundledFileOrErr.takeError();
-+            SplitModules[I].ModuleFilePath = *BundledFileOrErr;
-+          } else {
-+            SplitModules[I].ModuleFilePath = *ClangOutputOrErr;
+@@ -2137,6 +2175,13 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
+           SplitModules[I].ModuleFilePath = *BundledFileOrErr;
+         } else {
+           SplitModules[I].ModuleFilePath = *ClangOutputOrErr;
++          if (Triple.isNativeCPU()) {
++            // Add to WrappedOutput directly rather than combining this with the
++            // below because WrappedOutput holds references and
++            // SplitModules[I].ModuleFilePath will go out of scope too soon.
++            std::scoped_lock Guard(ImageMtx);
++            WrappedOutput.push_back(*ClangOutputOrErr);
 +          }
          }
        }
  
-diff --git a/llvm/lib/Frontend/Offloading/SYCLOffloadWrapper.cpp b/llvm/lib/Frontend/Offloading/SYCLOffloadWrapper.cpp
-index 3d227d0c2e05..da05e34cac19 100644
---- a/llvm/lib/Frontend/Offloading/SYCLOffloadWrapper.cpp
-+++ b/llvm/lib/Frontend/Offloading/SYCLOffloadWrapper.cpp
-@@ -221,15 +221,8 @@ struct Wrapper {
-     FunctionType *NativeCPUFuncTy = FunctionType::get(
-         Type::getVoidTy(C),
-         {PointerType::getUnqual(C), PointerType::getUnqual(C)}, false);
--    FunctionType *NativeCPUBuiltinTy = FunctionType::get(
--        PointerType::getUnqual(C), {PointerType::getUnqual(C)}, false);
--    FunctionType *FTy;
--    if (Name.starts_with("__dpcpp_nativecpu"))
--      FTy = NativeCPUBuiltinTy;
--    else
--      FTy = NativeCPUFuncTy;
-     auto FCalle = M.getOrInsertFunction(
--        sycl::utils::addSYCLNativeCPUSuffix(Name).str(), FTy);
-+        sycl::utils::addSYCLNativeCPUSuffix(Name).str(), NativeCPUFuncTy);
-     Function *F = dyn_cast<Function>(FCalle.getCallee());
-     if (F == nullptr)
-       report_fatal_error("Unexpected callee");
 diff --git a/sycl/test/native_cpu/atomic-base.cpp b/sycl/test/native_cpu/atomic-base.cpp
 index ee84a90c8a89..15deb2e27564 100644
 --- a/sycl/test/native_cpu/atomic-base.cpp
