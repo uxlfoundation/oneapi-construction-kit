@@ -10,6 +10,9 @@ inputs:
   llvm_version:
     description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
     required: true
+  split_index:
+    description: "optional split index so this run can be done with different splits, current only 0 or 1"
+    default: ''
 
 runs:
   using: "composite"
@@ -74,6 +77,11 @@ runs:
 
         exitcode=0
         set -x
+        if [ "${{ inputs.split_index }}" != "" ]; then
+          split -n l/2 $CTS_CSV_FILE --additional-suffix=.csv -d 0;
+          CTS_CSV_FILE=00${{ inputs.split_index }}.csv
+          echo Using $CTS_CSV_FILE
+        fi
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
@@ -88,8 +96,10 @@ runs:
           -o override_combined.csv \
           $SYCL_CTS_FILTER || exitcode=$?
 
-        $GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh "${PREPEND_PATH[@]}" SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
-        set +x
-        # output a diff of the generated list csv.txt and cts_all.txt
-        diff -u csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
+        if [ "${{ inputs.split_index }}" == "" ]; then
+          $GITHUB_WORKSPACE/scripts/testing/create_sycl_cts_test_lists.sh "${PREPEND_PATH[@]}" SYCL-CTS $CTS_CSV_FILE csv.txt cts_all.txt
+          set +x
+          # output a diff of the generated list csv.txt and cts_all.txt
+          diff -u csv.txt cts_all.txt || echo "WARNING - Missing some tests from sycl cts file based on test_all --list-tests - see > above"
+        fi
         exit $exitcode
