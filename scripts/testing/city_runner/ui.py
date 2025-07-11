@@ -123,6 +123,10 @@ class TestUI(object):
             self.out.write(self.fmt.red("Unknown passing tests:\n"))
             self.report_test_list(results.unknown_pass_list)
 
+        if results.unknown_skip_list:
+            self.out.write(self.fmt.red("Unknown skipped tests:\n"))
+            self.report_test_list(results.unknown_skip_list)
+
         if results.unknown_timeout_list:
             self.out.write(self.fmt.red("Unknown timeout tests:\n"))
             self.report_test_list(results.unknown_timeout_list)

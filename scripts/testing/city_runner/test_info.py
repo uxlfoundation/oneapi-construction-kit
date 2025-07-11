@@ -364,6 +364,7 @@ class TestResults(object):
         self.mayfail_list = []
         self.xfail_list = []
         self.unknown_pass_list = []
+        self.unknown_skip_list = []
         self.unknown_fail_list = []
         self.unknown_timeout_list = []
 
@@ -395,6 +396,8 @@ class TestResults(object):
                 else:
                     if run.status == "PASS":
                         self.unknown_pass_list.append(run)
+                    elif run.status == "SKIP":
+                        self.unknown_skip_list.append(run)
                     elif run.status == "TIMEOUT":
                         self.unknown_timeout_list.append(run)
                     else:
