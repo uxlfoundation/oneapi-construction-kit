@@ -16,7 +16,6 @@ inputs:
     required: true
 
 runs:
-  # We don't want a new docker just a list of steps, so mark as composite
   using: "composite"
   steps:
 
@@ -26,23 +25,20 @@ runs:
       run: |
         if [ "${{ inputs.san_type }}" = "tsan" ]; then
            echo "build_type=SanitizeThread" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j3" >> "$GITHUB_OUTPUT"
            echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         else # aubsan
            echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
            echo "ca_options=" >> "$GITHUB_OUTPUT"
         fi
         cat $GITHUB_OUTPUT
-
-    - name: Install Ninja
-      if: startsWith(inputs.build_type, 'online')
-      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
 
     - name: Install clang
       if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         sudo apt update
-        sudo apt -y upgrade
         sudo apt install -y clang-19
 
     - name: Checkout llvm/llvm-project
@@ -111,7 +107,5 @@ runs:
       if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
-        echo Test OCK cmake
-        cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
         echo Test OCK ninja
-        ninja -C build -j3 check-ock
+        ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} check-ock
