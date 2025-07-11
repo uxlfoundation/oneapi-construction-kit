@@ -262,7 +262,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -284,7 +284,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    if: contains(inputs.target_list, 'host_riscv64_linux')
+    if: contains(inputs.target_list, 'host_refsi_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -309,7 +309,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    if: contains(inputs.target_list, 'host_i686_linux')
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
