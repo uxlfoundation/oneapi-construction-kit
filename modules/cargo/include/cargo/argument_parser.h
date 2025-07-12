@@ -49,6 +49,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <variant>
 
 namespace cargo {
 /// @addtogroup cargo
@@ -85,7 +86,7 @@ class argument {
   /// @param options Bitset of `cargo::argument::option` values.
   argument(cargo::string_view name, bool &storage,
            cargo::argument::option_bitset options = STORE_TRUE)
-      : Bool(&storage), Name(name), Type(BOOL), Options(options) {}
+      : Name(name), Variant(BoolT{&storage}), Options(options) {}
 
   /// @brief Construct a value argument.
   ///
@@ -94,7 +95,7 @@ class argument {
   /// @param options Bitset of `cargo::argument::option` values.
   argument(cargo::string_view name, cargo::string_view &storage,
            cargo::argument::option_bitset options = NONE)
-      : Value(&storage), Name(name), Type(VALUE), Options(options) {}
+      : Name(name), Variant(ValueT{&storage}), Options(options) {}
 
   /// @brief Construct a choices value argument.
   ///
@@ -106,9 +107,8 @@ class argument {
            cargo::array_view<cargo::string_view> choices,
            cargo::string_view &storage,
            cargo::argument::option_bitset options = NONE)
-      : Choice({std::addressof(storage), choices}),
-        Name(name),
-        Type(CHOICES),
+      : Name(name),
+        Variant(ChoiceT{std::addressof(storage), choices}),
         Options(options) {}
 
   /// @brief Construct an append value argument.
@@ -119,10 +119,7 @@ class argument {
   argument(cargo::string_view name,
            cargo::small_vector<cargo::string_view, 4> &storage,
            cargo::argument::option_bitset options = NONE)
-      : Values(std::addressof(storage)),
-        Name(name),
-        Type(APPEND),
-        Options(options) {}
+      : Name(name), Variant(ValuesT{&storage}), Options(options) {}
 
   /// @brief Construct a custom handler value argument.
   ///
@@ -135,9 +132,9 @@ class argument {
   argument(cargo::string_view name, custom_handler_function &&parse_argument,
            custom_handler_function &&parse_value,
            cargo::argument::option_bitset options = NONE)
-      : CustomHandler({std::move(parse_argument), std::move(parse_value)}),
-        Name(name),
-        Type(CUSTOM),
+      : Name(name),
+        Variant(
+            CustomHandlerT{std::move(parse_argument), std::move(parse_value)}),
         Options(options) {}
 
   /// @brief Parse a given argument, used by `cargo::argument_parser`.
@@ -152,16 +149,15 @@ class argument {
   [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_arg(
       cargo::string_view arg) {
     if (Name == arg) {  // "<name> <value>"
-      switch (Type) {
-        case BOOL:
-          *Bool = (STORE_FALSE & Options) ? false : true;
-          return cargo::argument::parse::COMPLETE;
-        case VALUE:
-        case CHOICES:
-        case APPEND:
-          return cargo::argument::parse::INCOMPLETE;
-        case CUSTOM:
-          return CustomHandler.ParseArgument(arg);
+      if (auto *Bool = isType<BOOL>()) {
+        **Bool = (STORE_FALSE & Options) ? false : true;
+        return cargo::argument::parse::COMPLETE;
+      }
+      if (isType<VALUE>() || isType<CHOICES>() || isType<APPEND>()) {
+        return cargo::argument::parse::INCOMPLETE;
+      }
+      if (auto *CustomHandler = isType<CUSTOM>()) {
+        return CustomHandler->ParseArgument(arg);
       }
     }
     if (arg.starts_with(Name)) {  // "<name><value>"
@@ -169,8 +165,8 @@ class argument {
       if (!value) {
         return cargo::argument::parse::NOT_FOUND;
       }
-      if (Type == CUSTOM) {
-        CustomHandler.ParseArgument(arg);
+      if (auto *CustomHandler = isType<CUSTOM>()) {
+        CustomHandler->ParseArgument(arg);
       }
       return parse_value(std::move(*value));
     }
@@ -186,58 +182,67 @@ class argument {
   /// @retval `INVALID` invalid argument, value not found.
   [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_value(
       cargo::string_view value) {
-    switch (Type) {
-      case BOOL:
+    if (isType<BOOL>()) {
+      return cargo::argument::parse::INVALID;
+    }
+    if (auto **Value = isType<VALUE>()) {
+      **Value = std::move(value);
+      return cargo::argument::parse::COMPLETE;
+    }
+    if (auto *Choice = isType<CHOICES>()) {
+      if (std::none_of(
+              Choice->Choices.begin(), Choice->Choices.end(),
+              [value](const string_view &choice) { return value == choice; })) {
         return cargo::argument::parse::INVALID;
-      case VALUE:
-        *Value = std::move(value);
-        break;
-      case CHOICES:
-        if (std::none_of(Choice.Choices.begin(), Choice.Choices.end(),
-                         [value](const string_view &choice) {
-                           return value == choice;
-                         })) {
-          return cargo::argument::parse::INVALID;
-        }
-        *Choice.Value = std::move(value);
-        break;
-      case APPEND:
-        if (auto error = Values->emplace_back(std::move(value))) {
-          return error;
-        }
-        break;
-      case CUSTOM:
-        return CustomHandler.ParseValue(std::move(value));
-        break;
+      }
+      *Choice->Value = std::move(value);
+      return cargo::argument::parse::COMPLETE;
+    }
+    if (auto **Values = isType<APPEND>()) {
+      if (auto error = (*Values)->emplace_back(std::move(value))) {
+        return error;
+      }
+      return cargo::argument::parse::COMPLETE;
+    }
+    if (auto *CustomHandler = isType<CUSTOM>()) {
+      return CustomHandler->ParseValue(std::move(value));
     }
     return cargo::argument::parse::COMPLETE;
   }
 
  private:
-  struct ChoiceT {
-    cargo::string_view *Value;
-    cargo::array_view<cargo::string_view> Choices;
-  };
-  union {
-    bool *Bool;
-    cargo::string_view *Value;
-    ChoiceT Choice;
-    cargo::small_vector<cargo::string_view, 4> *Values;
-  };
-  struct CustomHandlerT {
-    custom_handler_function ParseArgument;
-    custom_handler_function ParseValue;
-  } CustomHandler;
-
-  cargo::string_view Name;
-  enum : uint8_t {
+  enum TypeT : uint8_t {
     BOOL,
     VALUE,
     CHOICES,
     APPEND,
     CUSTOM,
-  } Type;
+  };
+  using BoolT = bool *;
+  using ValueT = cargo::string_view *;
+  struct ChoiceT {
+    cargo::string_view *Value;
+    cargo::array_view<cargo::string_view> Choices;
+  };
+  using ValuesT = cargo::small_vector<cargo::string_view, 4> *;
+  struct CustomHandlerT {
+    custom_handler_function ParseArgument;
+    custom_handler_function ParseValue;
+  };
+
+  cargo::string_view Name;
+  std::variant<BoolT, ValueT, ChoiceT, ValuesT, CustomHandlerT> Variant;
   option_bitset Options;
+
+  template <TypeT Type>
+  auto isType() -> decltype(std::get_if<Type>(&Variant)) {
+    return std::get_if<Type>(&Variant);
+  }
+
+  template <TypeT Type>
+  auto isType() const -> decltype(std::get_if<Type>(&Variant)) {
+    return std::get_if<Type>(&Variant);
+  }
 };
 
 /// @brief Type to store the bitset of parser options.
