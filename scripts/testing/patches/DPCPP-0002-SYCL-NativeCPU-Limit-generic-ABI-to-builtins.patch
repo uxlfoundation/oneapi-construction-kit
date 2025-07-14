@@ -1,4 +1,4 @@
-From fa47974678269b196015f8534b44dd15d0951dd5 Mon Sep 17 00:00:00 2001
+From eeb131c61fc563518e28351f47b6db9862c17f22 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 6 Jun 2025 17:48:28 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
