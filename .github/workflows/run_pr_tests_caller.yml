@@ -3,21 +3,18 @@ name: Run ock tests for PR style testing
 on:
   pull_request:
     paths:
-      - 'dummy'
-#  pull_request:
-#    paths:
-#      - 'source/**'
-#      - 'clik/**'
-#      - 'modules/**'
-#      - 'examples/**'
-#      - 'cmake/**'
-#      - 'hal/**'
-#      - '.github/actions/do_build_ock/**'
-#      - '.github/actions/do_build_pr/**'
-#      - '.github/actions/setup_build/**'
-#      - '.github/workflows/run_ock_internal_tests.yml'
-#      - '.github/workflows/run_pr_tests_caller.yml'
-#      - 'CMakeLists.txt'
+      - 'source/**'
+      - 'clik/**'
+      - 'modules/**'
+      - 'examples/**'
+      - 'cmake/**'
+      - 'hal/**'
+      - '.github/actions/do_build_ock/**'
+      - '.github/actions/do_build_pr/**'
+      - '.github/actions/setup_build/**'
+      - '.github/workflows/run_ock_internal_tests.yml'
+      - '.github/workflows/run_pr_tests_caller.yml'
+      - 'CMakeLists.txt'
 
 permissions:
   packages: read

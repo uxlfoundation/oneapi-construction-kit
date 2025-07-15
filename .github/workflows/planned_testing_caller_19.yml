@@ -32,7 +32,7 @@ jobs:
       # test_sycl_e2e: true
       # test_opencl_cts: true
       # run_internal: true
-      run_external: false
+      # run_external: true
       # build_llvm: true
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
