@@ -59,13 +59,16 @@ permissions:
   packages: read
 
 jobs:
-  set_opencl_cts_path:
-    # Set an inter-job multiline env var for opencl_cts artifact download "path:" content
+  set_env_vars:
+    # Set inter-job multiline env vars for:
+    #    opencl_cts artifact download "path:" content
+    #    common run_cities options
     runs-on: ubuntu-latest
     outputs:
       path_spec: ${{ steps.path_id.outputs.OPENCL_CTS_PATH }}
+      run_cities_options: ${{ steps.run_cities_id.outputs.COMMON_RUN_CITIES_OPTIONS }}
     steps:
-      - name: set var
+      - name: set path var
         id: path_id
         run: |
           echo "OPENCL_CTS_PATH<<EOF" >> $GITHUB_OUTPUT
@@ -81,6 +84,21 @@ jobs:
           echo '!test_conformance/test_common/**' >> $GITHUB_OUTPUT
           # ... PATH END
           echo "EOF" >> $GITHUB_OUTPUT
+      - name: set run_cities var
+        id: run_cities_id
+        run: |
+          echo "COMMON_RUN_CITIES_OPTIONS<<EOF2" >> $GITHUB_OUTPUT
+          # COMMON RUN_CITIES OPTIONS START ...
+          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \\' >> $GITHUB_OUTPUT
+          echo '-b $GITHUB_WORKSPACE/test_conformance \\' >> $GITHUB_OUTPUT
+          echo '-L $GITHUB_WORKSPACE/build/lib \\' >> $GITHUB_OUTPUT
+          echo '-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \\' >> $GITHUB_OUTPUT
+          echo '-e OCL_ICD_VENDORS=/dev/null \\' >> $GITHUB_OUTPUT
+          echo '--timeout 00:10:00 \\' >> $GITHUB_OUTPUT
+          echo '--verbose \\' >> $GITHUB_OUTPUT
+          echo '-l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
+          # ... COMMON RUN_CITIES OPTIONS END
+          echo "EOF2" >> $GITHUB_OUTPUT
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
@@ -293,9 +311,10 @@ jobs:
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
     #if: contains(inputs.target_list, 'host_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
-    needs: [set_opencl_cts_path]
+    needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
+      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -324,24 +343,19 @@ jobs:
       run: |
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-          -b $GITHUB_WORKSPACE/test_conformance \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -e "CA_RISCV_VF=1,S" \
-          -L $GITHUB_WORKSPACE/build/lib \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
-          -e OCL_ICD_VENDORS=/dev/null \
-          --timeout 00:10:00 \
-          --verbose \
-          -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
+          -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
         ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
     #if: contains(inputs.target_list, 'host_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
-    needs: [set_opencl_cts_path]
+    needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
+      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -373,15 +387,9 @@ jobs:
       run: |
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
-          -b $GITHUB_WORKSPACE/test_conformance \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -e "CA_RISCV_VF=1,S,VP" \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
-          -e OCL_ICD_VENDORS=/dev/null \
-          -L $GITHUB_WORKSPACE/build/lib \
-          --timeout 00:10:00 \
-          --verbose \
-          -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml
+          -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml
         ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
@@ -458,9 +466,10 @@ jobs:
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
     if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
-    needs: [set_opencl_cts_path]
+    needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_opencl_cts_path.outputs.path_spec }}
+      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     # do not run as PR job for now to avoid flooding the concurrency
     runs-on: ubuntu-22.04
     container:
@@ -491,15 +500,9 @@ jobs:
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -i $GITHUB_WORKSPACE/skipped.txt \
-          -b $GITHUB_WORKSPACE/test_conformance \
-          -L $GITHUB_WORKSPACE/build/lib \
-          -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \
-          -e OCL_ICD_VENDORS=/dev/null \
-          --timeout 00:10:00 \
-          --verbose \
-          -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml
+          -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml
         ninja -C build check-ock
         ninja -C build check-ock-UnitCL-half
 
