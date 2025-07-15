@@ -227,9 +227,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        san_type:   [ 'tsan', 'aubsan' ]
-        # TODO: implement offline: build_type: [ 'offline', 'online' ]
-        build_type: [ 'online' ]
+        san_type: [ 'tsan', 'aubsan' ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -248,7 +246,6 @@ jobs:
         uses: ./.github/actions/do_build_run_sanitizers
         with:
           san_type: ${{ matrix.san_type }}
-          build_type: ${{ matrix.build_type }}
           llvm_branch: ${{ inputs.llvm_branch }}
 
   build_run_remote_hal:

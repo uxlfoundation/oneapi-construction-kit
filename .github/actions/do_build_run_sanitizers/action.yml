@@ -6,10 +6,6 @@ inputs:
     description: 'sanitizer type: tsan OR aubsan'
     type: string
     required: true
-  build_type:
-    description: 'build type: offline OR online'
-    type: string
-    required: true
   llvm_branch:
     description: 'The actual llvm branch to check out e.g. release/19.x'
     type: string
@@ -35,14 +31,12 @@ runs:
         cat $GITHUB_OUTPUT
 
     - name: Install clang
-      if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         sudo apt update
         sudo apt install -y clang-19
 
     - name: Checkout llvm/llvm-project
-      if: startsWith(inputs.build_type, 'online')
       uses: actions/checkout@v4
       with:
         repository: llvm/llvm-project
@@ -50,7 +44,6 @@ runs:
         path: external/llvm-project
 
     - name: Build llvm
-      if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         echo Build LLVM
@@ -77,7 +70,6 @@ runs:
         cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
 
     - name: Build OCK
-      if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         echo Build OCK
@@ -104,7 +96,6 @@ runs:
         cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
 
     - name: Test OCK
-      if: startsWith(inputs.build_type, 'online')
       shell: 'bash'
       run: |
         echo Test OCK ninja
