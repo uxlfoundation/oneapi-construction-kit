@@ -60,7 +60,7 @@ permissions:
 
 jobs:
   set_env_vars:
-    # Set inter-job multiline env vars for:
+    # Set inter-job env vars for:
     #    opencl_cts artifact download "path:" content
     #    common run_cities options
     runs-on: ubuntu-latest
@@ -89,14 +89,7 @@ jobs:
         run: |
           echo "COMMON_RUN_CITIES_OPTIONS<<EOF2" >> $GITHUB_OUTPUT
           # COMMON RUN_CITIES OPTIONS START ...
-          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv \\' >> $GITHUB_OUTPUT
-          echo '-b $GITHUB_WORKSPACE/test_conformance \\' >> $GITHUB_OUTPUT
-          echo '-L $GITHUB_WORKSPACE/build/lib \\' >> $GITHUB_OUTPUT
-          echo '-e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so \\' >> $GITHUB_OUTPUT
-          echo '-e OCL_ICD_VENDORS=/dev/null \\' >> $GITHUB_OUTPUT
-          echo '--timeout 00:10:00 \\' >> $GITHUB_OUTPUT
-          echo '--verbose \\' >> $GITHUB_OUTPUT
-          echo '-l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
+          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
           # ... COMMON RUN_CITIES OPTIONS END
           echo "EOF2" >> $GITHUB_OUTPUT
 
@@ -343,9 +336,9 @@ jobs:
       run: |
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -e "CA_RISCV_VF=1,S" \
-          -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml
+          -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
         ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
@@ -387,9 +380,9 @@ jobs:
       run: |
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -e "CA_RISCV_VF=1,S,VP" \
-          -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml
+          -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
         ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
@@ -500,9 +493,9 @@ jobs:
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
         set -x
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }} \
           -i $GITHUB_WORKSPACE/skipped.txt \
-          -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml
+          -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
         ninja -C build check-ock
         ninja -C build check-ock-UnitCL-half
 
