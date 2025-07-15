@@ -53,7 +53,7 @@ template<typename T> struct abs_helper<T, true> {
   static typename TypeTraits<T>::UnsignedType _(const T& x) {
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
     const typename TypeTraits<T>::SignedType cond = x < 0;
-    UnsignedType ux = cast::as<UnsignedType>(x);
+    const UnsignedType ux = cast::as<UnsignedType>(x);
     return relational::select(ux, (UnsignedType)-ux, cond);
   }
 };
