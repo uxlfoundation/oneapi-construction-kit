@@ -61,7 +61,7 @@ on:
                       "host_aarch64_linux",
                       "host_riscv64_linux",
                       "host_i686_linux",
-                      "host_refsi_linux",
+                      "refsi_riscv64_linux",
                       "host_x86_64_windows" ]'
       native_cpu:
         type: boolean

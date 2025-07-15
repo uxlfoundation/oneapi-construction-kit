@@ -31,7 +31,7 @@ on:
                     "host_aarch64_linux",
                     "host_riscv64_linux",
                     "host_i686_linux",
-                    "host_refsi_linux",
+                    "refsi_riscv64_linux",
                     "host_x86_64_windows" ]'
 
   # Allows you to run this workflow manually from the Actions tab
@@ -197,7 +197,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -241,7 +241,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -262,7 +262,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -284,7 +284,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -352,7 +352,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -377,7 +377,7 @@ jobs:
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
     # do not run as PR job for now to avoid flooding the concurrency
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'refsi_riscv64_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -403,7 +403,7 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end:
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -424,7 +424,7 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-start:
   run-ubuntu-gcc-x86_64-refsi-tutorial-start:
-    if: contains(inputs.target_list, 'host_refsi_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
