@@ -1,0 +1,17 @@
+name: build_pr_ubuntu_clang_tidy_x86_64
+description: Build pr ubuntu clang tidy x86_64
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: build host x86_64 online release
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_type: ReleaseAssert
+          build_targets: check-ock-tidy
+          extra_flags: -DCMAKE_C_COMPILER=${{ inputs.cmake_cxx_compiler }}${{ github.workspace }}/llvm_install/bin/clang -DCMAKE_CXX_COMPILER=${{ inputs.cmake_cxx_compiler }}${{ github.workspace }}/llvm_install/bin/clang++
