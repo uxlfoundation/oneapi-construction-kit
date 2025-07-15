@@ -1,4 +1,4 @@
-From eeb131c61fc563518e28351f47b6db9862c17f22 Mon Sep 17 00:00:00 2001
+From fb9a4d6fae5bbb8210db91077f082c3ccdf7716e Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 6 Jun 2025 17:48:28 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
@@ -18,7 +18,6 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  clang/lib/Basic/Targets/NativeCPU.h           |   5 +
  clang/lib/CodeGen/Targets/NativeCPU.cpp       |  13 +
  clang/lib/Sema/SemaLookup.cpp                 |   2 +-
- libclc/CMakeLists.txt                         |   1 +
  libclc/clc/include/clc/clcfunc.h              |   4 +
  libdevice/nativecpu_utils.cpp                 |   5 +-
  llvm/lib/Linker/IRMover.cpp                   |   7 +
@@ -26,7 +25,7 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  .../sycl/detail/defines_elementary.hpp        |   9 +
  sycl/include/sycl/group.hpp                   |  20 +-
  sycl/include/sycl/stl_wrappers/cmath          | 327 +++++++++---------
- 13 files changed, 252 insertions(+), 175 deletions(-)
+ 12 files changed, 251 insertions(+), 175 deletions(-)
 
 diff --git a/clang/include/clang/Basic/TargetInfo.h b/clang/include/clang/Basic/TargetInfo.h
 index 8dbacdd3703a..1c6b8a660353 100644
@@ -115,18 +114,6 @@ index 003df2ab24ef..e74b6c2c8379 100644
    PI.Variadic = IsVariadic;
    PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
  
-diff --git a/libclc/CMakeLists.txt b/libclc/CMakeLists.txt
-index fd6cbff58f25..e43b22522e57 100644
---- a/libclc/CMakeLists.txt
-+++ b/libclc/CMakeLists.txt
-@@ -467,6 +467,7 @@ foreach( t ${LIBCLC_TARGETS_TO_BUILD} )
-     elseif( ARCH STREQUAL native_cpu )
-       set( build_flags -Xclang -fsycl-is-native-cpu )
-       set( opt_flags -O3 )
-+      set( MACRO_ARCH native_cpu )
-     else()
-       set( build_flags )
-       set( opt_flags -O3 )
 diff --git a/libclc/clc/include/clc/clcfunc.h b/libclc/clc/include/clc/clcfunc.h
 index b1a173d73496..fc712935d51b 100644
 --- a/libclc/clc/include/clc/clcfunc.h
