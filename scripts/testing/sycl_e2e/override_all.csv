@@ -68,7 +68,6 @@ SYCL,DeviceGlobal/device_global_subscript.cpp,XFail
 SYCL,DeviceGlobal/device_global_subscript_dis.cpp,XFail
 SYCL,DeviceImageDependencies/math_device_lib.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/math_device_lib.cpp,XFail
-SYCL,DeviceLib/assert.cpp,XFail
 SYCL,DeviceLib/bfloat16_conversion_dlopen_test.cpp,XFail
 SYCL,DeviceLib/bfloat16_conversion_test.cpp,XFail
 SYCL,DeviceLib/imf/bfloat16_integeral_convesions.cpp,XFail
