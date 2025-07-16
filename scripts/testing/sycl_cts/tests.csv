@@ -169,7 +169,7 @@ SYCL_CTS,test_hierarchical hierarchical_non_uniform_local_range
 SYCL_CTS,test_hierarchical hierarchical_private_memory
 SYCL_CTS,test_host_accessor
 SYCL_CTS,test_host_task "CUDA host task interop test" --allow-running-no-tests
-SYCL_CTS,test_host_task host_task_interop_api
+SYCL_CTS,test_host_task host_task_interop_api --allow-running-no-tests
 SYCL_CTS,test_host_task host_task_invoke_api
 SYCL_CTS,test_id "id provides a default constructor"
 SYCL_CTS,test_id "id provides specialized constructors for each dimensionality"
