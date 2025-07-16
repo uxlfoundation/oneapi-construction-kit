@@ -1,4 +1,4 @@
-From 47c5110b6b77bdfc05e17e2e1dcf935d9b9e736b Mon Sep 17 00:00:00 2001
+From abe3897f3245622d514ed8985b59763505c5e9d9 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Apr 2025 17:11:39 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Update clang-linker-wrapper.
@@ -7,14 +7,14 @@ The current support for NativeCPU in clang-linker-wrapper had not been
 maintained; this commit updates it to work again, simplifies things, and
 fixes handling of specialization constants.
 ---
- .../ClangLinkerWrapper.cpp                    | 61 ++++++++++++++++---
+ .../ClangLinkerWrapper.cpp                    | 63 ++++++++++++++++---
  sycl/test/native_cpu/atomic-base.cpp          |  3 +
  sycl/test/native_cpu/multiple_tu.cpp          |  7 +++
  sycl/test/native_cpu/vector-add.cpp           |  4 ++
- 4 files changed, 67 insertions(+), 8 deletions(-)
+ 4 files changed, 69 insertions(+), 8 deletions(-)
 
 diff --git a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
-index 04b284e073f1..db4f7d29ee1f 100644
+index 04b284e073f1..121837d9d9d7 100644
 --- a/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 +++ b/clang/tools/clang-linker-wrapper/ClangLinkerWrapper.cpp
 @@ -674,9 +674,8 @@ getTripleBasedSYCLPostLinkOpts(const ArgList &Args,
@@ -39,16 +39,18 @@ index 04b284e073f1..db4f7d29ee1f 100644
  
    StringRef Arch = Args.getLastArgValue(OPT_arch_EQ);
    // Create a new file to write the linked device image to. Assume that the
-@@ -1585,7 +1583,7 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1585,7 +1583,9 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
        "--no-default-config",
        "-o",
        *TempFileOrErr,
 -      Args.MakeArgString("--target=" + Triple.getTriple()),
-+      Args.MakeArgString("--target=" + (Triple.isNativeCPU() ? HostTriple : Triple).getTriple()),
++      Args.MakeArgString(
++          "--target=" +
++          (Triple.isNativeCPU() ? HostTriple : Triple).getTriple()),
    };
  
    if (!Arch.empty())
-@@ -1602,16 +1600,24 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1602,16 +1602,24 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
          {"-Xlinker",
           Args.MakeArgString("--plugin-opt=" + StringRef(Arg->getValue()))});
  
@@ -75,7 +77,7 @@ index 04b284e073f1..db4f7d29ee1f 100644
      CmdArgs.push_back("-Wl,-Bsymbolic");
      CmdArgs.push_back("-shared");
      ArgStringList LinkerArgs;
-@@ -1664,6 +1670,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
+@@ -1664,6 +1672,38 @@ Expected<StringRef> clang(ArrayRef<StringRef> InputFiles, const ArgList &Args,
                        Args.MakeArgString(Arg.split('=').second)});
    }
  
@@ -114,7 +116,7 @@ index 04b284e073f1..db4f7d29ee1f 100644
    // The OpenMPOpt pass can introduce new calls and is expensive, we do
    // not want this when running CodeGen through clang.
    if (Args.hasArg(OPT_clang_backend) || Args.hasArg(OPT_builtin_bitcode_EQ))
-@@ -2137,6 +2175,13 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
+@@ -2137,6 +2177,13 @@ Expected<SmallVector<StringRef>> linkAndWrapDeviceFiles(
            SplitModules[I].ModuleFilePath = *BundledFileOrErr;
          } else {
            SplitModules[I].ModuleFilePath = *ClangOutputOrErr;

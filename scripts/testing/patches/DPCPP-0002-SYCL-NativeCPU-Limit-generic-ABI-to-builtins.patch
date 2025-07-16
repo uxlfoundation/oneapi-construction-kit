@@ -1,4 +1,4 @@
-From fb9a4d6fae5bbb8210db91077f082c3ccdf7716e Mon Sep 17 00:00:00 2001
+From 11e1e3985a179f2a4955c95b1abf5255fe5c2547 Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Fri, 6 Jun 2025 17:48:28 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
@@ -13,36 +13,90 @@ it is not specified for any libc functions.
 
 Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
 ---
- clang/include/clang/Basic/TargetInfo.h        |   5 +
- clang/lib/Basic/Targets/NativeCPU.cpp         |   1 +
- clang/lib/Basic/Targets/NativeCPU.h           |   5 +
- clang/lib/CodeGen/Targets/NativeCPU.cpp       |  13 +
- clang/lib/Sema/SemaLookup.cpp                 |   2 +-
- libclc/clc/include/clc/clcfunc.h              |   4 +
- libdevice/nativecpu_utils.cpp                 |   5 +-
- llvm/lib/Linker/IRMover.cpp                   |   7 +
- sycl/include/sycl/builtins.hpp                |  28 +-
- .../sycl/detail/defines_elementary.hpp        |   9 +
- sycl/include/sycl/group.hpp                   |  20 +-
- sycl/include/sycl/stl_wrappers/cmath          | 327 +++++++++---------
- 12 files changed, 251 insertions(+), 175 deletions(-)
+ clang/include/clang/Basic/Attr.td             |  6 ++++++
+ clang/include/clang/Basic/TargetInfo.h        |  5 +++++
+ clang/lib/AST/Type.cpp                        |  1 +
+ clang/lib/AST/TypePrinter.cpp                 |  3 +++
+ clang/lib/Basic/Targets/NativeCPU.cpp         |  1 +
+ clang/lib/Basic/Targets/NativeCPU.h           |  7 +++++++
+ clang/lib/CodeGen/CGCall.cpp                  |  3 +++
+ clang/lib/CodeGen/Targets/NativeCPU.cpp       | 13 ++++++++++++
+ clang/lib/Sema/SemaDeclAttr.cpp               |  7 +++++++
+ clang/lib/Sema/SemaLookup.cpp                 |  3 ++-
+ clang/lib/Sema/SemaType.cpp                   |  5 ++++-
+ libclc/clc/include/clc/clcfunc.h              |  4 ++++
+ libdevice/nativecpu_utils.cpp                 |  5 +++--
+ llvm/lib/Linker/IRMover.cpp                   |  7 +++++++
+ .../sycl/detail/defines_elementary.hpp        |  5 +++++
+ sycl/include/sycl/group.hpp                   | 20 ++++++++++++++++---
+ 16 files changed, 88 insertions(+), 7 deletions(-)
 
+diff --git a/clang/include/clang/Basic/Attr.td b/clang/include/clang/Basic/Attr.td
+index bae6b08b0a2b..2aa83e9e6310 100644
+--- a/clang/include/clang/Basic/Attr.td
++++ b/clang/include/clang/Basic/Attr.td
+@@ -492,6 +492,7 @@ def TargetAnyX86 : TargetArch<["x86", "x86_64"]>;
+ def TargetSPIRV : TargetArch<["spirv", "spirv32", "spirv64"]>;
+ def TargetWebAssembly : TargetArch<["wasm32", "wasm64"]>;
+ def TargetNVPTX : TargetArch<["nvptx", "nvptx64"]>;
++def TargetNativeCPU : TargetArch<["native_cpu"]>;
+ def TargetWindows : TargetSpec {
+   let OSes = ["Win32"];
+ }
+@@ -4440,6 +4441,11 @@ def RISCVVLSCC: DeclOrTypeAttr, TargetSpecificAttr<TargetRISCV> {
+  let Documentation = [RISCVVLSCCDocs];
+ }
+ 
++def NativeCPULibclcCall : DeclOrTypeAttr, TargetSpecificAttr<TargetNativeCPU> {
++  let Spellings = [Clang<"libclc_call", 0>];
++  let Documentation = [Undocumented];
++}
++
+ def Target : InheritableAttr {
+   let Spellings = [GCC<"target">];
+   let Args = [StringArgument<"featuresStr">];
 diff --git a/clang/include/clang/Basic/TargetInfo.h b/clang/include/clang/Basic/TargetInfo.h
-index 8dbacdd3703a..1c6b8a660353 100644
+index c3bce6e807f3..511cd5d10772 100644
 --- a/clang/include/clang/Basic/TargetInfo.h
 +++ b/clang/include/clang/Basic/TargetInfo.h
-@@ -1705,6 +1705,11 @@ public:
+@@ -1702,6 +1702,11 @@ public:
      return CC_C;
    }
  
-+  /// Gets the calling convention for OpenCL built-ins for the given target.
-+  virtual CallingConv getOpenCLCallingConv() const {
++  /// Gets the calling convention for libclc built-ins for the given target.
++  virtual CallingConv getLibclcCallingConv() const {
 +    return getDefaultCallingConv();
 +  }
 +
    /// Get the default atomic options.
    AtomicOptions getAtomicOpts() const { return AtomicOpts; }
  
+diff --git a/clang/lib/AST/Type.cpp b/clang/lib/AST/Type.cpp
+index 64b7a67bccd6..87f236826952 100644
+--- a/clang/lib/AST/Type.cpp
++++ b/clang/lib/AST/Type.cpp
+@@ -4337,6 +4337,7 @@ bool AttributedType::isCallingConv() const {
+   case attr::PreserveNone:
+   case attr::RISCVVectorCC:
+   case attr::RISCVVLSCC:
++  case attr::NativeCPULibclcCall:
+     return true;
+   }
+   llvm_unreachable("invalid attr kind");
+diff --git a/clang/lib/AST/TypePrinter.cpp b/clang/lib/AST/TypePrinter.cpp
+index d66b5299c91f..7ec555a1c51a 100644
+--- a/clang/lib/AST/TypePrinter.cpp
++++ b/clang/lib/AST/TypePrinter.cpp
+@@ -2108,6 +2108,9 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
+   case attr::RISCVVLSCC:
+     OS << "riscv_vls_cc";
+     break;
++  case attr::NativeCPULibclcCall:
++    OS << "libclc_call";
++    break;
+   case attr::NoDeref:
+     OS << "noderef";
+     break;
 diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
 index 65db0613b7c4..276086d4aa5e 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.cpp
@@ -54,24 +108,40 @@ index 65db0613b7c4..276086d4aa5e 100644
 +  resetDataLayout(Aux->getDataLayoutString());
  }
 diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
-index cb2c71ebe39b..e5b342f49346 100644
+index cb2c71ebe39b..38e0fd99d36a 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.h
 +++ b/clang/lib/Basic/Targets/NativeCPU.h
-@@ -49,7 +49,12 @@ public:
+@@ -49,7 +49,14 @@ public:
  
    void setSupportedOpenCLOpts() override { supportAllOpenCLOpts(); }
  
-+  CallingConv getOpenCLCallingConv() const override { return CC_IntelOclBicc; }
++  CallingConv getLibclcCallingConv() const override {
++    return CC_SpirFunction;
++  }
 +
    CallingConvCheckResult checkCallingConvention(CallingConv CC) const override {
-+    if (CC == CC_IntelOclBicc)
++    if (CC == CC_SpirFunction)
 +      return CCCR_OK;
 +
      if (HostTarget)
        return HostTarget->checkCallingConvention(CC);
  
+diff --git a/clang/lib/CodeGen/CGCall.cpp b/clang/lib/CodeGen/CGCall.cpp
+index 3b78aa85712b..792e192a2b7f 100644
+--- a/clang/lib/CodeGen/CGCall.cpp
++++ b/clang/lib/CodeGen/CGCall.cpp
+@@ -336,6 +336,9 @@ static CallingConv getCallingConventionForDecl(const ObjCMethodDecl *D,
+     }
+   }
+ 
++  if (D->hasAttr<NativeCPULibclcCallAttr>())
++    return CC_SpirFunction;
++
+   return CC_C;
+ }
+ 
 diff --git a/clang/lib/CodeGen/Targets/NativeCPU.cpp b/clang/lib/CodeGen/Targets/NativeCPU.cpp
-index 313878c008f8..9aa6f38ad38b 100644
+index 313878c008f8..af64f073794c 100644
 --- a/clang/lib/CodeGen/Targets/NativeCPU.cpp
 +++ b/clang/lib/CodeGen/Targets/NativeCPU.cpp
 @@ -20,6 +20,8 @@ private:
@@ -89,7 +159,7 @@ index 313878c008f8..9aa6f38ad38b 100644
  
 +void NativeCPUABIInfo::computeInfo(CGFunctionInfo &FI) const {
 +  if (HostABIInfo &&
-+      FI.getCallingConvention() != llvm::CallingConv::Intel_OCL_BI) {
++      FI.getCallingConvention() != llvm::CallingConv::SPIR_FUNC) {
 +    HostABIInfo->computeInfo(FI);
 +    return;
 +  }
@@ -101,21 +171,84 @@ index 313878c008f8..9aa6f38ad38b 100644
  std::unique_ptr<TargetCodeGenInfo> CodeGen::createNativeCPUTargetCodeGenInfo(
      CodeGenModule &CGM,
      std::unique_ptr<TargetCodeGenInfo> HostTargetCodeGenInfo) {
+diff --git a/clang/lib/Sema/SemaDeclAttr.cpp b/clang/lib/Sema/SemaDeclAttr.cpp
+index b076cb60db26..87dc1bd80b1e 100644
+--- a/clang/lib/Sema/SemaDeclAttr.cpp
++++ b/clang/lib/Sema/SemaDeclAttr.cpp
+@@ -5330,6 +5330,9 @@ static void handleCallConvAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+     D->addAttr(::new (S.Context) RISCVVLSCCAttr(S.Context, AL, VectorLength));
+     return;
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    D->addAttr(::new (S.Context) NativeCPULibclcCallAttr(S.Context, AL));
++    return;
+   default:
+     llvm_unreachable("unexpected attribute kind");
+   }
+@@ -5572,6 +5575,9 @@ bool Sema::CheckCallingConvAttr(const ParsedAttr &Attrs, CallingConv &CC,
+                                   llvm::Log2_64(ABIVLen) - 5);
+     break;
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    CC = CC_SpirFunction;
++    break;
+   default: llvm_unreachable("unexpected attribute kind");
+   }
+ 
+@@ -7575,6 +7581,7 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
+   case ParsedAttr::AT_PreserveNone:
+   case ParsedAttr::AT_RISCVVectorCC:
+   case ParsedAttr::AT_RISCVVLSCC:
++  case ParsedAttr::AT_NativeCPULibclcCall:
+     handleCallConvAttr(S, D, AL);
+     break;
+   case ParsedAttr::AT_Suppress:
 diff --git a/clang/lib/Sema/SemaLookup.cpp b/clang/lib/Sema/SemaLookup.cpp
-index 003df2ab24ef..e74b6c2c8379 100644
+index 45bad3673dc1..2207a869c5d9 100644
 --- a/clang/lib/Sema/SemaLookup.cpp
 +++ b/clang/lib/Sema/SemaLookup.cpp
-@@ -789,7 +789,7 @@ static void GetProgModelBuiltinFctOverloads(
+@@ -22,6 +22,7 @@
+ #include "clang/AST/ExprCXX.h"
+ #include "clang/Basic/Builtins.h"
+ #include "clang/Basic/LangOptions.h"
++#include "clang/Basic/TargetInfo.h"
+ #include "clang/Lex/HeaderSearch.h"
+ #include "clang/Lex/ModuleLoader.h"
+ #include "clang/Lex/Preprocessor.h"
+@@ -788,7 +789,7 @@ static void GetProgModelBuiltinFctOverloads(
      std::vector<QualType> &FunctionList, SmallVector<QualType, 1> &RetTypes,
      SmallVector<SmallVector<QualType, 1>, 5> &ArgTypes, bool IsVariadic) {
    FunctionProtoType::ExtProtoInfo PI(
--      Context.getTargetInfo().getDefaultCallingConv());
-+      Context.getTargetInfo().getOpenCLCallingConv());
+-      Context.getDefaultCallingConvention(false, false, true));
++      Context.getTargetInfo().getLibclcCallingConv());
    PI.Variadic = IsVariadic;
    PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
  
+diff --git a/clang/lib/Sema/SemaType.cpp b/clang/lib/Sema/SemaType.cpp
+index cabab1a26e0e..9e54c6a7791b 100644
+--- a/clang/lib/Sema/SemaType.cpp
++++ b/clang/lib/Sema/SemaType.cpp
+@@ -144,7 +144,8 @@ static void diagnoseBadTypeAttribute(Sema &S, const ParsedAttr &attr,
+   case ParsedAttr::AT_M68kRTD:                                                 \
+   case ParsedAttr::AT_PreserveNone:                                            \
+   case ParsedAttr::AT_RISCVVectorCC:                                           \
+-  case ParsedAttr::AT_RISCVVLSCC
++  case ParsedAttr::AT_RISCVVLSCC:                                              \
++  case ParsedAttr::AT_NativeCPULibclcCall
+ 
+ // Function type attributes.
+ #define FUNCTION_TYPE_ATTRS_CASELIST                                           \
+@@ -7663,6 +7664,8 @@ static Attr *getCCTypeAttr(ASTContext &Ctx, ParsedAttr &Attr) {
+ 
+     return ::new (Ctx) RISCVVLSCCAttr(Ctx, Attr, ABIVLen);
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    return createSimpleAttr<NativeCPULibclcCallAttr>(Ctx, Attr);
+   }
+   llvm_unreachable("unexpected attribute kind!");
+ }
 diff --git a/libclc/clc/include/clc/clcfunc.h b/libclc/clc/include/clc/clcfunc.h
-index b1a173d73496..fc712935d51b 100644
+index b1a173d73496..7b19ae2c3312 100644
 --- a/libclc/clc/include/clc/clcfunc.h
 +++ b/libclc/clc/include/clc/clcfunc.h
 @@ -22,6 +22,10 @@
@@ -123,14 +256,14 @@ index b1a173d73496..fc712935d51b 100644
  #elif defined(CLC_CLSPV)
  #define _CLC_DEF __attribute__((noinline)) __attribute__((clspv_libclc_builtin))
 +#elif defined(CLC_NATIVE_CPU)
-+#define _CLC_DEF __attribute__((always_inline)) __attribute__((intel_ocl_bicc))
++#define _CLC_DEF __attribute__((always_inline)) __attribute__((libclc_call))
 +#undef _CLC_DECL
-+#define _CLC_DECL __attribute__((intel_ocl_bicc))
++#define _CLC_DECL __attribute__((libclc_call))
  #else
  #define _CLC_DEF __attribute__((always_inline))
  #endif
 diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
-index 819fd0910858..71eacb1f6a0e 100644
+index 819fd0910858..68e2ccde1446 100644
 --- a/libdevice/nativecpu_utils.cpp
 +++ b/libdevice/nativecpu_utils.cpp
 @@ -25,9 +25,10 @@ using __nativecpu_state = native_cpu::state;
@@ -138,11 +271,11 @@ index 819fd0910858..71eacb1f6a0e 100644
  #undef DEVICE_EXTERNAL
  #undef DEVICE_EXTERN_C
 -#define DEVICE_EXTERN_C extern "C" SYCL_EXTERNAL
-+#define DEVICE_EXTERN_C extern "C" SYCL_EXTERNAL __attribute__((intel_ocl_bicc))
++#define DEVICE_EXTERN_C extern "C" SYCL_EXTERNAL __attribute__((libclc_call))
  #define DEVICE_EXTERNAL_C DEVICE_EXTERN_C __attribute__((always_inline))
 -#define DEVICE_EXTERNAL SYCL_EXTERNAL __attribute__((always_inline))
 +#define DEVICE_EXTERNAL                                                        \
-+  SYCL_EXTERNAL __attribute__((always_inline, intel_ocl_bicc))
++  SYCL_EXTERNAL __attribute__((always_inline, libclc_call))
  
  // Several functions are used implicitly by WorkItemLoopsPass and
  // PrepareSYCLNativeCPUPass and need to be marked as used to prevent them being
@@ -164,65 +297,8 @@ index 9ec9122555f2..45283ead6609 100644
  
    if (EnableDLWarning && (SrcM->getDataLayout() != DstM.getDataLayout())) {
      emitWarning("Linking two modules of different data layouts: '" +
-diff --git a/sycl/include/sycl/builtins.hpp b/sycl/include/sycl/builtins.hpp
-index 8969bfddebda..45a2e12cf1aa 100644
---- a/sycl/include/sycl/builtins.hpp
-+++ b/sycl/include/sycl/builtins.hpp
-@@ -15,13 +15,13 @@
- #ifdef __SYCL_DEVICE_ONLY__
- extern "C" {
- 
--extern __DPCPP_SYCL_EXTERNAL void *memcpy(void *dest, const void *src,
--                                          size_t n);
--extern __DPCPP_SYCL_EXTERNAL void *memset(void *dest, int c, size_t n);
--extern __DPCPP_SYCL_EXTERNAL int memcmp(const void *s1, const void *s2,
--                                        size_t n);
--extern __DPCPP_SYCL_EXTERNAL int rand();
--extern __DPCPP_SYCL_EXTERNAL void srand(unsigned int seed);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void *memcpy(void *dest, const void *src,
-+                                               size_t n);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void *memset(void *dest, int c, size_t n);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int memcmp(const void *s1, const void *s2,
-+                                             size_t n);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int rand();
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void srand(unsigned int seed);
- extern __DPCPP_SYCL_EXTERNAL long long int __imf_llmax(long long int x,
-                                                        long long int y);
- extern __DPCPP_SYCL_EXTERNAL long long int __imf_llmin(long long int x,
-@@ -634,15 +634,15 @@ extern __DPCPP_SYCL_EXTERNAL int __imf_vimin_s32_relu(int x, int y);
- }
- #ifdef __GLIBC__
- namespace std {
--extern __DPCPP_SYCL_EXTERNAL void
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void
- __glibcxx_assert_fail(const char *file, int line, const char *func,
-                       const char *cond) noexcept;
- } // namespace std
- extern "C" {
--extern __DPCPP_SYCL_EXTERNAL void __assert_fail(const char *expr,
--                                                const char *file,
--                                                unsigned int line,
--                                                const char *func);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void __assert_fail(const char *expr,
-+                                                     const char *file,
-+                                                     unsigned int line,
-+                                                     const char *func);
- }
- #elif defined(_WIN32)
- extern "C" {
-@@ -652,8 +652,8 @@ extern "C" {
- //       APIs used by STL, such as _Cosh, are undocumented, even though
- //       they are open-sourced. Recognizing them as builtins is not
- //       straightforward currently.
--extern __DPCPP_SYCL_EXTERNAL void _wassert(const wchar_t *wexpr,
--                                           const wchar_t *wfile, unsigned line);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC void
-+_wassert(const wchar_t *wexpr, const wchar_t *wfile, unsigned line);
- }
- #endif
- #endif // __SYCL_DEVICE_ONLY__
 diff --git a/sycl/include/sycl/detail/defines_elementary.hpp b/sycl/include/sycl/detail/defines_elementary.hpp
-index 17107c9216b3..ba3401496849 100644
+index f64e21516d83..05541a11c46b 100644
 --- a/sycl/include/sycl/detail/defines_elementary.hpp
 +++ b/sycl/include/sycl/detail/defines_elementary.hpp
 @@ -25,7 +25,12 @@
@@ -230,7 +306,7 @@ index 17107c9216b3..ba3401496849 100644
  
  #ifdef SYCL_EXTERNAL
 +#ifdef __NativeCPU__
-+#define __DPCPP_SYCL_EXTERNAL SYCL_EXTERNAL __attribute__((intel_ocl_bicc))
++#define __DPCPP_SYCL_EXTERNAL SYCL_EXTERNAL __attribute__((__libclc_call__))
 +#define __DPCPP_SYCL_EXTERNAL_LIBC SYCL_EXTERNAL
 +#else
  #define __DPCPP_SYCL_EXTERNAL SYCL_EXTERNAL
@@ -238,19 +314,8 @@ index 17107c9216b3..ba3401496849 100644
  #else
  #ifdef __SYCL_DEVICE_ONLY__
  #define __DPCPP_SYCL_EXTERNAL __attribute__((sycl_device))
-@@ -35,6 +40,10 @@
- #endif
- #endif
- 
-+#ifndef __DPCPP_SYCL_EXTERNAL_LIBC
-+#define __DPCPP_SYCL_EXTERNAL_LIBC __DPCPP_SYCL_EXTERNAL
-+#endif
-+
- // Helper for enabling empty-base optimizations on MSVC.
- // TODO: Remove this when MSVC has this optimization enabled by default.
- #ifdef _MSC_VER
 diff --git a/sycl/include/sycl/group.hpp b/sycl/include/sycl/group.hpp
-index 9402d2fb83d0..be60a681e410 100644
+index 9402d2fb83d0..bc77c85e5fa4 100644
 --- a/sycl/include/sycl/group.hpp
 +++ b/sycl/include/sycl/group.hpp
 @@ -175,8 +175,18 @@ public:
@@ -266,7 +331,7 @@ index 9402d2fb83d0..be60a681e410 100644
    template <typename WorkItemFunctionT>
 -  void parallel_for_work_item(WorkItemFunctionT Func) const {
 +#ifdef __NativeCPU__
-+  __attribute__((__intel_ocl_bicc__))
++  __attribute__((__libclc_call__))
 +#endif
 +  void
 +  parallel_for_work_item(WorkItemFunctionT Func) const {
@@ -280,7 +345,7 @@ index 9402d2fb83d0..be60a681e410 100644
 -  void parallel_for_work_item(range<Dimensions> flexibleRange,
 -                              WorkItemFunctionT Func) const {
 +#ifdef __NativeCPU__
-+  __attribute__((__intel_ocl_bicc__))
++  __attribute__((__libclc_call__))
 +#endif
 +  void
 +  parallel_for_work_item(range<Dimensions> flexibleRange,
@@ -288,359 +353,6 @@ index 9402d2fb83d0..be60a681e410 100644
      detail::workGroupBarrier();
  #ifdef __SYCL_DEVICE_ONLY__
      range<Dimensions> GlobalSize{
-diff --git a/sycl/include/sycl/stl_wrappers/cmath b/sycl/include/sycl/stl_wrappers/cmath
-index c25eadf6394a..0a2a576aa1aa 100644
---- a/sycl/include/sycl/stl_wrappers/cmath
-+++ b/sycl/include/sycl/stl_wrappers/cmath
-@@ -20,154 +20,171 @@
- 
- #ifdef __SYCL_DEVICE_ONLY__
- extern "C" {
--extern __DPCPP_SYCL_EXTERNAL int abs(int x);
--extern __DPCPP_SYCL_EXTERNAL long int labs(long int x);
--extern __DPCPP_SYCL_EXTERNAL long long int llabs(long long int x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int abs(int x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC long int labs(long int x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC long long int llabs(long long int x);
- 
--extern __DPCPP_SYCL_EXTERNAL div_t div(int x, int y);
--extern __DPCPP_SYCL_EXTERNAL ldiv_t ldiv(long int x, long int y);
--extern __DPCPP_SYCL_EXTERNAL lldiv_t lldiv(long long int x, long long int y);
--extern __DPCPP_SYCL_EXTERNAL float scalbnf(float x, int n);
--extern __DPCPP_SYCL_EXTERNAL double scalbn(double x, int n);
--extern __DPCPP_SYCL_EXTERNAL float logf(float x);
--extern __DPCPP_SYCL_EXTERNAL double log(double x);
--extern __DPCPP_SYCL_EXTERNAL float expf(float x);
--extern __DPCPP_SYCL_EXTERNAL double exp(double x);
--extern __DPCPP_SYCL_EXTERNAL float log10f(float x);
--extern __DPCPP_SYCL_EXTERNAL double log10(double x);
--extern __DPCPP_SYCL_EXTERNAL float modff(float x, float *intpart);
--extern __DPCPP_SYCL_EXTERNAL double modf(double x, double *intpart);
--extern __DPCPP_SYCL_EXTERNAL float exp2f(float x);
--extern __DPCPP_SYCL_EXTERNAL double exp2(double x);
--extern __DPCPP_SYCL_EXTERNAL float expm1f(float x);
--extern __DPCPP_SYCL_EXTERNAL double expm1(double x);
--extern __DPCPP_SYCL_EXTERNAL int ilogbf(float x);
--extern __DPCPP_SYCL_EXTERNAL int ilogb(double x);
--extern __DPCPP_SYCL_EXTERNAL float log1pf(float x);
--extern __DPCPP_SYCL_EXTERNAL double log1p(double x);
--extern __DPCPP_SYCL_EXTERNAL float log2f(float x);
--extern __DPCPP_SYCL_EXTERNAL double log2(double x);
--extern __DPCPP_SYCL_EXTERNAL float logbf(float x);
--extern __DPCPP_SYCL_EXTERNAL double logb(double x);
--extern __DPCPP_SYCL_EXTERNAL float sqrtf(float x);
--extern __DPCPP_SYCL_EXTERNAL double sqrt(double x);
--extern __DPCPP_SYCL_EXTERNAL float cbrtf(float x);
--extern __DPCPP_SYCL_EXTERNAL double cbrt(double x);
--extern __DPCPP_SYCL_EXTERNAL float erff(float x);
--extern __DPCPP_SYCL_EXTERNAL double erf(double x);
--extern __DPCPP_SYCL_EXTERNAL float erfcf(float x);
--extern __DPCPP_SYCL_EXTERNAL double erfc(double x);
--extern __DPCPP_SYCL_EXTERNAL float tgammaf(float x);
--extern __DPCPP_SYCL_EXTERNAL double tgamma(double x);
--extern __DPCPP_SYCL_EXTERNAL float lgammaf(float x);
--extern __DPCPP_SYCL_EXTERNAL double lgamma(double x);
--extern __DPCPP_SYCL_EXTERNAL float fmodf(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double fmod(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float remainderf(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double remainder(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float remquof(float x, float y, int *q);
--extern __DPCPP_SYCL_EXTERNAL double remquo(double x, double y, int *q);
--extern __DPCPP_SYCL_EXTERNAL float nextafterf(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double nextafter(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float fdimf(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double fdim(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float fmaf(float x, float y, float z);
--extern __DPCPP_SYCL_EXTERNAL double fma(double x, double y, double z);
--extern __DPCPP_SYCL_EXTERNAL float sinf(float x);
--extern __DPCPP_SYCL_EXTERNAL double sin(double x);
--extern __DPCPP_SYCL_EXTERNAL float cosf(float x);
--extern __DPCPP_SYCL_EXTERNAL double cos(double x);
--extern __DPCPP_SYCL_EXTERNAL float tanf(float x);
--extern __DPCPP_SYCL_EXTERNAL double tan(double x);
--extern __DPCPP_SYCL_EXTERNAL float asinf(float x);
--extern __DPCPP_SYCL_EXTERNAL double asin(double x);
--extern __DPCPP_SYCL_EXTERNAL float acosf(float x);
--extern __DPCPP_SYCL_EXTERNAL double acos(double x);
--extern __DPCPP_SYCL_EXTERNAL float atanf(float x);
--extern __DPCPP_SYCL_EXTERNAL double atan(double x);
--extern __DPCPP_SYCL_EXTERNAL float powf(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double pow(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float atan2f(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double atan2(double x, double y);
--
--extern __DPCPP_SYCL_EXTERNAL float sinhf(float x);
--extern __DPCPP_SYCL_EXTERNAL double sinh(double x);
--extern __DPCPP_SYCL_EXTERNAL float coshf(float x);
--extern __DPCPP_SYCL_EXTERNAL double cosh(double x);
--extern __DPCPP_SYCL_EXTERNAL float tanhf(float x);
--extern __DPCPP_SYCL_EXTERNAL double tanh(double x);
--extern __DPCPP_SYCL_EXTERNAL float asinhf(float x);
--extern __DPCPP_SYCL_EXTERNAL double asinh(double x);
--extern __DPCPP_SYCL_EXTERNAL float acoshf(float x);
--extern __DPCPP_SYCL_EXTERNAL double acosh(double x);
--extern __DPCPP_SYCL_EXTERNAL float atanhf(float x);
--extern __DPCPP_SYCL_EXTERNAL double atanh(double x);
--extern __DPCPP_SYCL_EXTERNAL double frexp(double x, int *exp);
--extern __DPCPP_SYCL_EXTERNAL double ldexp(double x, int exp);
--extern __DPCPP_SYCL_EXTERNAL double hypot(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC div_t div(int x, int y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC ldiv_t ldiv(long int x, long int y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC lldiv_t lldiv(long long int x,
-+                                                long long int y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float scalbnf(float x, int n);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double scalbn(double x, int n);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float logf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double log(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float expf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double exp(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float log10f(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double log10(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float modff(float x, float *intpart);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double modf(double x, double *intpart);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float exp2f(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double exp2(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float expm1f(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double expm1(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int ilogbf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int ilogb(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float log1pf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double log1p(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float log2f(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double log2(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float logbf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double logb(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float sqrtf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double sqrt(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float cbrtf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double cbrt(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float erff(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double erf(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float erfcf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double erfc(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float tgammaf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double tgamma(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float lgammaf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double lgamma(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float fmodf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double fmod(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float remainderf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double remainder(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float remquof(float x, float y, int *q);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double remquo(double x, double y, int *q);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float nextafterf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double nextafter(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float fdimf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double fdim(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float fmaf(float x, float y, float z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double fma(double x, double y, double z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float sinf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double sin(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float cosf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double cos(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float tanf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double tan(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float asinf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double asin(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float acosf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double acos(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float atanf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double atan(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float powf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double pow(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float atan2f(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double atan2(double x, double y);
- 
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float sinhf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double sinh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float coshf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double cosh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float tanhf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double tanh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float asinhf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double asinh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float acoshf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double acosh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float atanhf(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double atanh(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double frexp(double x, int *exp);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double ldexp(double x, int exp);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double hypot(double x, double y);
- }
- #ifdef __GLIBC__
- extern "C" {
--extern __DPCPP_SYCL_EXTERNAL float frexpf(float x, int *exp);
--extern __DPCPP_SYCL_EXTERNAL float ldexpf(float x, int exp);
--extern __DPCPP_SYCL_EXTERNAL float hypotf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float frexpf(float x, int *exp);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float ldexpf(float x, int exp);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float hypotf(float x, float y);
- 
- // MS UCRT supports most of the C standard library but <complex.h> is
- // an exception.
--extern __DPCPP_SYCL_EXTERNAL float cimagf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double cimag(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float crealf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double creal(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float cargf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double carg(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float cabsf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double cabs(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cprojf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cproj(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cexpf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cexp(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ clogf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ clog(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cpowf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cpow(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ csqrtf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ csqrt(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ csinhf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ csinh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ ccoshf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ ccosh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ ctanhf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ ctanh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ csinf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ csin(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ ccosf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ ccos(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ ctanf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ ctan(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cacosf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cacos(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cacoshf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cacosh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ casinf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ casin(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ casinhf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ casinh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ catanf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ catan(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ catanhf(float __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ catanh(double __complex__ z);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ cpolarf(float rho, float theta);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ cpolar(double rho,
--                                                       double theta);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ __mulsc3(float a, float b,
--                                                        float c, float d);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ __muldc3(double a, double b,
--                                                         double c, double d);
--extern __DPCPP_SYCL_EXTERNAL float __complex__ __divsc3(float a, float b,
--                                                        float c, float d);
--extern __DPCPP_SYCL_EXTERNAL double __complex__ __divdc3(float a, float b,
--                                                         float c, float d);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float cimagf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double cimag(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float crealf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double creal(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float cargf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double carg(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float cabsf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double cabs(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cprojf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cproj(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cexpf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cexp(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ clogf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ clog(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cpowf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cpow(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ csqrtf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ csqrt(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ csinhf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ csinh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ ccoshf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ ccosh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ ctanhf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ ctanh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ csinf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ csin(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ ccosf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ ccos(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ ctanf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ ctan(double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cacosf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cacos(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cacoshf(
-+    float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cacosh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ casinf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ casin(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ casinhf(
-+    float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ casinh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ catanf(float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ catan(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ catanhf(
-+    float __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ catanh(
-+    double __complex__ z);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ cpolarf(float rho,
-+                                                            float theta);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ cpolar(double rho,
-+                                                            double theta);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ __mulsc3(float a, float b,
-+                                                             float c, float d);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ __muldc3(double a,
-+                                                              double b,
-+                                                              double c,
-+                                                              double d);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float __complex__ __divsc3(float a, float b,
-+                                                             float c, float d);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double __complex__ __divdc3(float a, float b,
-+                                                              float c, float d);
- }
- #elif defined(_WIN32)
- extern "C" {
-@@ -177,21 +194,21 @@ extern "C" {
- //       APIs used by STL, such as _Cosh, are undocumented, even though
- //       they are open-sourced. Recognizing them as builtins is not
- //       straightforward currently.
--extern __DPCPP_SYCL_EXTERNAL double _Cosh(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL int _dpcomp(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL int _dsign(double x);
--extern __DPCPP_SYCL_EXTERNAL short _Dtest(double *px);
--extern __DPCPP_SYCL_EXTERNAL short _dtest(double *px);
--extern __DPCPP_SYCL_EXTERNAL short _Exp(double *px, double y, short eoff);
--extern __DPCPP_SYCL_EXTERNAL float _FCosh(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL int _fdpcomp(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL int _fdsign(float x);
--extern __DPCPP_SYCL_EXTERNAL short _FDtest(float *px);
--extern __DPCPP_SYCL_EXTERNAL short _fdtest(float *px);
--extern __DPCPP_SYCL_EXTERNAL short _FExp(float *px, float y, short eoff);
--extern __DPCPP_SYCL_EXTERNAL float _FSinh(float x, float y);
--extern __DPCPP_SYCL_EXTERNAL double _Sinh(double x, double y);
--extern __DPCPP_SYCL_EXTERNAL float _hypotf(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double _Cosh(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int _dpcomp(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int _dsign(double x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _Dtest(double *px);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _dtest(double *px);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _Exp(double *px, double y, short eoff);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float _FCosh(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int _fdpcomp(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC int _fdsign(float x);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _FDtest(float *px);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _fdtest(float *px);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC short _FExp(float *px, float y, short eoff);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float _FSinh(float x, float y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC double _Sinh(double x, double y);
-+extern __DPCPP_SYCL_EXTERNAL_LIBC float _hypotf(float x, float y);
- }
- #endif
- #endif // __SYCL_DEVICE_ONLY__
 -- 
 2.47.2
 
