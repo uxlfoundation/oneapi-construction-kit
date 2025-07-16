@@ -473,7 +473,10 @@ class BaseModule : public Module {
   /// file must already have been prepared before calling this function.
   ///
   /// @param[in] instance Clang compiler instance.
-  void loadBuiltinsPCH(clang::CompilerInstance &instance, llvm::LLVMContext &C);
+  /// @param[in] C LLVM Context
+  /// @param[in] codeGenOpts clang CodeGen options
+  void loadBuiltinsPCH(clang::CompilerInstance &instance, llvm::LLVMContext &C,
+                       const clang::CodeGenOptions &codeGenOpts);
 
   /// @brief Run this module through the OpenCL frontend pipeline, optionally
   /// running early and late LLVM passes as part of this pipeline. A late fast
