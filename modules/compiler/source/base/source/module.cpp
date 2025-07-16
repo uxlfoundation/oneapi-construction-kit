@@ -1049,7 +1049,9 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
   lang_opts.RTTI = false;
   lang_opts.RTTIData = false;
   lang_opts.MathErrno = false;
+#if LLVM_VERSION_LESS(22, 0)
   lang_opts.Optimize = !options.opt_disable;
+#endif
   lang_opts.NoBuiltin = true;
   lang_opts.ModulesSearchAll = false;
   // Before llvm10, clang assumes OpenCL functions are always convergent. After
@@ -1316,12 +1318,15 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
 }
 
 void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance,
-                                 llvm::LLVMContext &C) {
+                                 llvm::LLVMContext &C,
+                                 const clang::CodeGenOptions &codeGenOpts) {
   clang::ASTContext *astContext = &(instance.getASTContext());
-
   auto reader = std::make_unique<clang::ASTReader>(
       instance.getPreprocessor(), instance.getModuleCache(), astContext,
       instance.getPCHContainerReader(),
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+      codeGenOpts,
+#endif
       instance.getFrontendOpts().ModuleFileExtensions, "",
       clang::DisableValidationForModuleKind::All, false, true, false, false);
 
@@ -1496,7 +1501,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
     }
   }
 
-  loadBuiltinsPCH(instance, llvm_context);
+  loadBuiltinsPCH(instance, llvm_context, codeGenOpts);
 
   {
     // At this point we have already locked the LLVMContext mutex for the
