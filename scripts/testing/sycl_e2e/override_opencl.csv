@@ -114,6 +114,7 @@ SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl_cache.cpp,XFail
 SYCL,KernelCompiler/sycl.cpp,XFail
 SYCL,KernelCompiler/sycl_device_globals.cpp,XFail
+SYCL,NewOffloadDriver/multisource.cpp,XFail
 SYCL,NonUniformGroups/ballot_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group.cpp,XFail
