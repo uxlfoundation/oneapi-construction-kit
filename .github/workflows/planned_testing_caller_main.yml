@@ -23,7 +23,7 @@ jobs:
       llvm_version: 'main'
       llvm_branch: 'main'
       save_cache:  ${{ github.event_name == 'schedule' }}
-      target_list: '[ "host_x86_64_linux", "host_refsi_linux" ]'
+      target_list: '[ "host_x86_64_linux", "refsi_riscv64_linux" ]'
       ock: true
       native_cpu: false
       test_tornado: false
