@@ -1,0 +1,8 @@
+SYCL,AtomicRef/max.cpp,MayFail
+SYCL,AtomicRef/sub_generic.cpp,MayFail
+SYCL,Basic/built-ins/marray_geometric.cpp,XFail
+SYCL,Config/env_vars.cpp,XFail
+SYCL,DeviceLib/math_test_marray_vec_fp16.cpp,XFail
+SYCL,syclcompat/math/math_compare.cpp,XFail
+SYCL,syclcompat/math/math_emu_simd_from_syclomatic.cpp,XFail
+SYCL,syclcompat/math/math_emu_simd_from_syclomatic.cpp,XFail
