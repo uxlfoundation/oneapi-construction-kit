@@ -1049,7 +1049,9 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
   lang_opts.RTTI = false;
   lang_opts.RTTIData = false;
   lang_opts.MathErrno = false;
+#if LLVM_VERSION_LESS(22, 0)
   lang_opts.Optimize = !options.opt_disable;
+#endif
   lang_opts.NoBuiltin = true;
   lang_opts.ModulesSearchAll = false;
   // Before llvm10, clang assumes OpenCL functions are always convergent. After
