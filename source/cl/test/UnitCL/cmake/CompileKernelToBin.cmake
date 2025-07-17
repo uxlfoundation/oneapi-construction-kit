@@ -222,6 +222,7 @@ endif()
 # ${CLC_EXECUTABLE} may have other things in it (like a qemu invocation). Turn
 # it into a CMake list, so that execute_process() isn't confused.
 string(REPLACE " " ";" CLC_EXECUTABLE "${CLC_EXECUTABLE}")
+# message("__CSD__  ${CLC_EXECUTABLE} -d ${DEVICE_NAME}  -cl-kernel-arg-info  -cl-std=CL${CLC_CL_STD}  ${CLC_OPTIONS_LIST}  ${DEFS_LIST}  -o ${OUTPUT_FILE} -- ${INPUT_FILE}")
 execute_process(
   COMMAND ${CLC_EXECUTABLE}
     -d ${DEVICE_NAME}
