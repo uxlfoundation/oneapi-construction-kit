@@ -17,6 +17,10 @@ on:
         type: boolean
         description: 'Enable testing tornado'
         default: true
+      test_sanitizers:
+        type: boolean
+        description: 'Enable testing sanitizers'
+        default: true
       test_remote_hal:
         type: boolean
         description: 'Enable testing remote_hal'
@@ -102,6 +106,7 @@ jobs:
       test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
       test_opencl_cts: ${{ inputs.test_opencl_cts }}
       native_cpu: ${{ inputs.native_cpu }}
+      llvm_branch: ${{ inputs.llvm_branch }}
       save_cache: ${{ inputs.save_cache }}
 
       # The following can be used to download from a previous workflow run (change id)

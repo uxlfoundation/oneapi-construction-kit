@@ -1,0 +1,102 @@
+name: build run sanitizers
+description: build run sanitizers
+
+inputs:
+  san_type:
+    description: 'sanitizer type: tsan OR aubsan'
+    type: string
+    required: true
+  llvm_branch:
+    description: 'The actual llvm branch to check out e.g. release/19.x'
+    type: string
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Set sanitizer vars
+      id: sanitizer_vars
+      shell: 'bash'
+      run: |
+        if [ "${{ inputs.san_type }}" = "tsan" ]; then
+           echo "build_type=SanitizeThread" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j3" >> "$GITHUB_OUTPUT"
+           echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
+        else # aubsan
+           echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
+           echo "ca_options=" >> "$GITHUB_OUTPUT"
+        fi
+        cat $GITHUB_OUTPUT
+
+    - name: Install clang
+      shell: 'bash'
+      run: |
+        sudo apt update
+        sudo apt install -y clang-19
+
+    - name: Checkout llvm/llvm-project
+      uses: actions/checkout@v4
+      with:
+        repository: llvm/llvm-project
+        ref: ${{ inputs.llvm_branch }}
+        path: external/llvm-project
+
+    - name: Build llvm
+      shell: 'bash'
+      run: |
+        echo Build LLVM
+        cd external
+        cmake llvm-project/llvm \
+            -GNinja \
+            -Bbuild \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/external/llvm_install \
+            -DCA_LLVM_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-project \
+            -DCA_LLVM_SPIRV_PROJECT_DIR=$GITHUB_WORKSPACE/external/llvm-spirv \
+            -DLLVM_ENABLE_ZLIB=FALSE \
+            -DLLVM_ENABLE_Z3_SOLVER=FALSE \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DLLVM_USE_SANITIZER=Thread \
+            -DLLVM_BUILD_LLVM_DYLIB=ON \
+            -DLLVM_LINK_LLVM_DYLIB=ON \
+            -DLLVM_ENABLE_DIA_SDK=OFF \
+            -DLLVM_ENABLE_ZSTD=FALSE \
+            -DLLVM_ENABLE_PROJECTS="clang;lld" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
+        echo Install LLVM
+        cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+
+    - name: Build OCK
+      shell: 'bash'
+      run: |
+        echo Build OCK
+        cmake \
+            -Bbuild \
+            -GNinja \
+            -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
+            -DOCL_EXTENSION_cl_khr_command_buffer=ON \
+            -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON \
+            ${{ steps.sanitizer_vars.outputs.ca_options }} \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
+            -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/external/llvm_install \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCA_USE_SANITIZER=Thread \
+            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19 \
+            -DCA_ENABLE_DEBUG_SUPPORT=ON \
+            -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install/bin \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCA_GTEST_LAUNCHER="/usr/bin/python3;-u;$GITHUB_WORKSPACE/scripts/gtest-terse-runner.py" \
+            .
+        echo Build OCK all config=${{ steps.sanitizer_vars.outputs.build_type }}
+        cmake --build $GITHUB_WORKSPACE/build --target all --config ${{ steps.sanitizer_vars.outputs.build_type }}
+
+    - name: Test OCK
+      shell: 'bash'
+      run: |
+        echo Test OCK ninja
+        ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} check-ock
