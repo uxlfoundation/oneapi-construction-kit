@@ -4,8 +4,8 @@ on:
     paths:
       - '.github/workflows/planned_testing_caller_19.yml'
   schedule:
-    # Run Sun, Tues, Thurs Sat at 7pm
-    - cron: '0 19 * * 0,2,4,6'
+    # Run Sun, Wed at 7pm
+    - cron: '0 19 * * 0,3'
 
 permissions:
   packages: read
