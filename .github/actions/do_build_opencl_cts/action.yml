@@ -66,28 +66,25 @@ runs:
         done
         # do build
         set -x
+        mkdir $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/build
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
           -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
           -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
         ninja -v
+        # remove some files to reduce the size and complexity of the upload
+        # (internal upload does not support filtering out)
+        find $GITHUB_WORKSPACE/build/test_conformance \( -name "*.o" -o -name "*.cmake" \) -delete
 
     - name: upload opencl cts artifacts
-      uses: actions/upload-artifact@v4
+      uses: ./.github/actions/upload_artifact
       with:
         name: opencl_cts_${{inputs.target}}
-        path: |
-          test_conformance
-          !test_conformance/**/.*
-          !test_conformance/**/CMakeCache.txt
-          !test_conformance/**/CMakeFiles
-          !test_conformance/**/CMakeFiles/**
-          !test_conformance/**/*.cmake
-          !test_conformance/**/*.ninja
-          !test_conformance/test_common
-          !test_conformance/test_common/**
+        path: build/test_conformance
         retention-days: 7
+        needs_tar: 'true'
 
     - name: update opencl cts artifact cache
       if: inputs.cache_update == 'true'
@@ -95,13 +92,4 @@ runs:
       id: cache
       with:
         key: opencl_cts_${{inputs.target}}
-        path: |
-          test_conformance
-          !test_conformance/**/.*
-          !test_conformance/**/CMakeCache.txt
-          !test_conformance/**/CMakeFiles
-          !test_conformance/**/CMakeFiles/**
-          !test_conformance/**/*.cmake
-          !test_conformance/**/*.ninja
-          !test_conformance/test_common
-          !test_conformance/test_common/**
+        path: build/test_conformance

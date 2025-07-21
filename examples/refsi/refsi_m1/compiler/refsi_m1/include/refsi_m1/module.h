@@ -33,8 +33,8 @@ class RefSiM1Module final : public riscv::RiscvModule {
                 uint32_t &num_errors, std::string &log);
 
   /// @see Module::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery()
-      override;
+  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &) override;
 
   /// @see Module::getLateTargetPasses
   llvm::ModulePassManager getLateTargetPasses(

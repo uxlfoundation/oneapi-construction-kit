@@ -31,7 +31,7 @@ on:
                     "host_aarch64_linux",
                     "host_riscv64_linux",
                     "host_i686_linux",
-                    "host_refsi_linux",
+                    "refsi_riscv64_linux",
                     "host_x86_64_windows" ]'
 
   # Allows you to run this workflow manually from the Actions tab
@@ -106,7 +106,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up sccahe
+      # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
         with:
@@ -142,7 +142,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # installs tools, ninja, installs llvm and sets up sccahe
+      # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
         with:
@@ -234,7 +234,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    #if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -280,7 +280,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    #if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -302,7 +302,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_env_vars]
     env:
@@ -343,7 +343,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    #if: contains(inputs.target_list, 'host_riscv64_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_env_vars]
     env:
@@ -387,7 +387,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    #if: contains(inputs.target_list, 'host_i686_linux')
+    #if: contains(inputs.target_list, 'host_x86_64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -432,7 +432,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    #if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -457,7 +457,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_refsi_linux') }}
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'refsi_riscv64_linux') }}
     if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     needs: [set_env_vars]
     env:
@@ -499,9 +499,9 @@ jobs:
         ninja -C build check-ock
         ninja -C build check-ock-UnitCL-half
 
- # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end:
+ # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
-    #if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -523,7 +523,7 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-start:
   run-ubuntu-gcc-x86_64-refsi-tutorial-start:
-    #if: contains(inputs.target_list, 'host_refsi_linux')
+    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
     if: false
     runs-on: ubuntu-22.04
     container:
@@ -545,3 +545,159 @@ jobs:
       with:
         setup_new_target_params: ''
         tutorial_point: start
+        
+ # Based on: mr-ubuntu-build-ock-in-tree-llvm
+  run-ubuntu-build-ock-in-tree-llvm:
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # installs tools, ninja, installs llvm and sets up ccache
+    - name: setup-ubuntu
+      uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout llvm-project
+      uses: actions/checkout@v4
+      with:
+        repository: llvm/llvm-project
+        path: llvm-project
+        ref: release/${{ inputs.llvm_current }}.x  # NOTE: using llvm_current instead of hard-wired ref here
+        fetch-depth: 1
+    - name: build and run
+      run: |
+        # Position llvm-project alongside ock
+        mv llvm-project ..
+        cd ../llvm-project
+        cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang \
+           -DLLVM_TARGETS_TO_BUILD="X86;AArch64;ARM;RISCV" -DLLVM_EXTERNAL_PROJECTS=ock \
+           -DLLVM_EXTERNAL_OCK_SOURCE_DIR=$PWD/../oneapi-construction-kit
+        ninja -C build check-ock-vecz-lit
+
+ # Based on: mr-ubuntu-clang-x86-llvm-latest-cl3.0
+  run-ubuntu-clang-x86-llvm-latest-cl3-0:
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # installs tools, ninja, installs llvm and sets up ccache
+    - name: setup-ubuntu
+      uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        cross_arch: x86
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_clang_x86_llvm_latest_cl3_0
+
+ # Based on: mr-ubuntu-gcc-x86-llvm-previous-cl3.0-release
+  run-ubuntu-gcc-x86-llvm-previous-cl3-0-release:
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # installs tools, ninja, installs llvm and sets up ccache
+    - name: setup-ubuntu
+      uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_previous }}
+        # llvm_build_type: Release
+        cross_arch: x86
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_llvm_previous_cl3_0_release
+
+ # Based on: mr-ubuntu-gcc-x86_64-cpu
+  run-ubuntu-gcc-x86_64-cpu:
+    if: contains(inputs.target_list, 'host_x86_64_linux')
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # installs tools, ninja, installs llvm and sets up ccache
+    - name: setup-ubuntu
+      uses:  ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_current }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and run ock
+      uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_cpu
+
+ # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-images
+  run-windows-msvc-x86_64-llvm-previous-cl3_0-images:
+    runs-on: windows-2025
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_windows') }}
+    steps:
+    - name: Setup Windows llvm base
+      uses: llvm/actions/setup-windows@main
+      with:
+        arch: amd64
+
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # installs tools, ninja, installs llvm and sets up ccache
+    - name: setup-windows
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_previous }}
+        os: windows
+        llvm_source: ${{ inputs.llvm_source }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: build and test ock
+      uses: ./.github/actions/do_build_pr/run_windows_msvc_x86_64_llvm_previous_cl3_0_images
+
+
+  run-ubuntu-clang-tidy-x86_64:
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}  
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      # Install requirements
+    - name: Install clang-tidy and parallel
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes clang-tidy-19 parallel
+
+    - name: setup-ubuntu
+      uses: ./.github/actions/setup_build
+      with:
+        llvm_version: ${{ inputs.llvm_previous }}
+        llvm_source: ${{ inputs.llvm_source}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: build ock / clang-tidy
+      uses: ./.github/actions/do_build_pr/run_ubuntu_clang_tidy_x86_64

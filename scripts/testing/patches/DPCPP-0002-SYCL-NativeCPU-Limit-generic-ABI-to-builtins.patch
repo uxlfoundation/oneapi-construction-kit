@@ -1,0 +1,358 @@
+From 11e1e3985a179f2a4955c95b1abf5255fe5c2547 Mon Sep 17 00:00:00 2001
+From: Harald van Dijk <harald.vandijk@codeplay.com>
+Date: Fri, 6 Jun 2025 17:48:28 +0100
+Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
+
+In #17408, NativeCPU became a target in order to be able to pick the ABI
+for its own libclc functions consistently, without having targets affect
+this. This was, and is, required to be able to use libclc independent of
+target and target options. However, it breaks some calls into libc.
+Therefore, this PR allows the calling convention to be explicitly
+specified, ensures it is specified for any libclc functions, and ensures
+it is not specified for any libc functions.
+
+Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
+---
+ clang/include/clang/Basic/Attr.td             |  6 ++++++
+ clang/include/clang/Basic/TargetInfo.h        |  5 +++++
+ clang/lib/AST/Type.cpp                        |  1 +
+ clang/lib/AST/TypePrinter.cpp                 |  3 +++
+ clang/lib/Basic/Targets/NativeCPU.cpp         |  1 +
+ clang/lib/Basic/Targets/NativeCPU.h           |  7 +++++++
+ clang/lib/CodeGen/CGCall.cpp                  |  3 +++
+ clang/lib/CodeGen/Targets/NativeCPU.cpp       | 13 ++++++++++++
+ clang/lib/Sema/SemaDeclAttr.cpp               |  7 +++++++
+ clang/lib/Sema/SemaLookup.cpp                 |  3 ++-
+ clang/lib/Sema/SemaType.cpp                   |  5 ++++-
+ libclc/clc/include/clc/clcfunc.h              |  4 ++++
+ libdevice/nativecpu_utils.cpp                 |  5 +++--
+ llvm/lib/Linker/IRMover.cpp                   |  7 +++++++
+ .../sycl/detail/defines_elementary.hpp        |  5 +++++
+ sycl/include/sycl/group.hpp                   | 20 ++++++++++++++++---
+ 16 files changed, 88 insertions(+), 7 deletions(-)
+
+diff --git a/clang/include/clang/Basic/Attr.td b/clang/include/clang/Basic/Attr.td
+index bae6b08b0a2b..2aa83e9e6310 100644
+--- a/clang/include/clang/Basic/Attr.td
++++ b/clang/include/clang/Basic/Attr.td
+@@ -492,6 +492,7 @@ def TargetAnyX86 : TargetArch<["x86", "x86_64"]>;
+ def TargetSPIRV : TargetArch<["spirv", "spirv32", "spirv64"]>;
+ def TargetWebAssembly : TargetArch<["wasm32", "wasm64"]>;
+ def TargetNVPTX : TargetArch<["nvptx", "nvptx64"]>;
++def TargetNativeCPU : TargetArch<["native_cpu"]>;
+ def TargetWindows : TargetSpec {
+   let OSes = ["Win32"];
+ }
+@@ -4440,6 +4441,11 @@ def RISCVVLSCC: DeclOrTypeAttr, TargetSpecificAttr<TargetRISCV> {
+  let Documentation = [RISCVVLSCCDocs];
+ }
+ 
++def NativeCPULibclcCall : DeclOrTypeAttr, TargetSpecificAttr<TargetNativeCPU> {
++  let Spellings = [Clang<"libclc_call", 0>];
++  let Documentation = [Undocumented];
++}
++
+ def Target : InheritableAttr {
+   let Spellings = [GCC<"target">];
+   let Args = [StringArgument<"featuresStr">];
+diff --git a/clang/include/clang/Basic/TargetInfo.h b/clang/include/clang/Basic/TargetInfo.h
+index c3bce6e807f3..511cd5d10772 100644
+--- a/clang/include/clang/Basic/TargetInfo.h
++++ b/clang/include/clang/Basic/TargetInfo.h
+@@ -1702,6 +1702,11 @@ public:
+     return CC_C;
+   }
+ 
++  /// Gets the calling convention for libclc built-ins for the given target.
++  virtual CallingConv getLibclcCallingConv() const {
++    return getDefaultCallingConv();
++  }
++
+   /// Get the default atomic options.
+   AtomicOptions getAtomicOpts() const { return AtomicOpts; }
+ 
+diff --git a/clang/lib/AST/Type.cpp b/clang/lib/AST/Type.cpp
+index 64b7a67bccd6..87f236826952 100644
+--- a/clang/lib/AST/Type.cpp
++++ b/clang/lib/AST/Type.cpp
+@@ -4337,6 +4337,7 @@ bool AttributedType::isCallingConv() const {
+   case attr::PreserveNone:
+   case attr::RISCVVectorCC:
+   case attr::RISCVVLSCC:
++  case attr::NativeCPULibclcCall:
+     return true;
+   }
+   llvm_unreachable("invalid attr kind");
+diff --git a/clang/lib/AST/TypePrinter.cpp b/clang/lib/AST/TypePrinter.cpp
+index d66b5299c91f..7ec555a1c51a 100644
+--- a/clang/lib/AST/TypePrinter.cpp
++++ b/clang/lib/AST/TypePrinter.cpp
+@@ -2108,6 +2108,9 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
+   case attr::RISCVVLSCC:
+     OS << "riscv_vls_cc";
+     break;
++  case attr::NativeCPULibclcCall:
++    OS << "libclc_call";
++    break;
+   case attr::NoDeref:
+     OS << "noderef";
+     break;
+diff --git a/clang/lib/Basic/Targets/NativeCPU.cpp b/clang/lib/Basic/Targets/NativeCPU.cpp
+index 65db0613b7c4..276086d4aa5e 100644
+--- a/clang/lib/Basic/Targets/NativeCPU.cpp
++++ b/clang/lib/Basic/Targets/NativeCPU.cpp
+@@ -68,4 +68,5 @@ void NativeCPUTargetInfo::setAuxTarget(const TargetInfo *Aux) {
+   assert(Aux && "Cannot invoke setAuxTarget without a valid auxiliary target!");
+   copyAuxTarget(Aux);
+   getTargetOpts() = Aux->getTargetOpts();
++  resetDataLayout(Aux->getDataLayoutString());
+ }
+diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
+index cb2c71ebe39b..38e0fd99d36a 100644
+--- a/clang/lib/Basic/Targets/NativeCPU.h
++++ b/clang/lib/Basic/Targets/NativeCPU.h
+@@ -49,7 +49,14 @@ public:
+ 
+   void setSupportedOpenCLOpts() override { supportAllOpenCLOpts(); }
+ 
++  CallingConv getLibclcCallingConv() const override {
++    return CC_SpirFunction;
++  }
++
+   CallingConvCheckResult checkCallingConvention(CallingConv CC) const override {
++    if (CC == CC_SpirFunction)
++      return CCCR_OK;
++
+     if (HostTarget)
+       return HostTarget->checkCallingConvention(CC);
+ 
+diff --git a/clang/lib/CodeGen/CGCall.cpp b/clang/lib/CodeGen/CGCall.cpp
+index 3b78aa85712b..792e192a2b7f 100644
+--- a/clang/lib/CodeGen/CGCall.cpp
++++ b/clang/lib/CodeGen/CGCall.cpp
+@@ -336,6 +336,9 @@ static CallingConv getCallingConventionForDecl(const ObjCMethodDecl *D,
+     }
+   }
+ 
++  if (D->hasAttr<NativeCPULibclcCallAttr>())
++    return CC_SpirFunction;
++
+   return CC_C;
+ }
+ 
+diff --git a/clang/lib/CodeGen/Targets/NativeCPU.cpp b/clang/lib/CodeGen/Targets/NativeCPU.cpp
+index 313878c008f8..af64f073794c 100644
+--- a/clang/lib/CodeGen/Targets/NativeCPU.cpp
++++ b/clang/lib/CodeGen/Targets/NativeCPU.cpp
+@@ -20,6 +20,8 @@ private:
+ public:
+   NativeCPUABIInfo(CodeGen::CodeGenTypes &CGT, const ABIInfo *HostABIInfo)
+       : DefaultABIInfo(CGT), HostABIInfo(HostABIInfo) {}
++
++  void computeInfo(CGFunctionInfo &FI) const override;
+ };
+ 
+ class NativeCPUTargetCodeGenInfo : public TargetCodeGenInfo {
+@@ -37,6 +39,17 @@ public:
+ };
+ } // namespace
+ 
++void NativeCPUABIInfo::computeInfo(CGFunctionInfo &FI) const {
++  if (HostABIInfo &&
++      FI.getCallingConvention() != llvm::CallingConv::SPIR_FUNC) {
++    HostABIInfo->computeInfo(FI);
++    return;
++  }
++
++  DefaultABIInfo::computeInfo(FI);
++  FI.setEffectiveCallingConvention(llvm::CallingConv::C);
++}
++
+ std::unique_ptr<TargetCodeGenInfo> CodeGen::createNativeCPUTargetCodeGenInfo(
+     CodeGenModule &CGM,
+     std::unique_ptr<TargetCodeGenInfo> HostTargetCodeGenInfo) {
+diff --git a/clang/lib/Sema/SemaDeclAttr.cpp b/clang/lib/Sema/SemaDeclAttr.cpp
+index b076cb60db26..87dc1bd80b1e 100644
+--- a/clang/lib/Sema/SemaDeclAttr.cpp
++++ b/clang/lib/Sema/SemaDeclAttr.cpp
+@@ -5330,6 +5330,9 @@ static void handleCallConvAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+     D->addAttr(::new (S.Context) RISCVVLSCCAttr(S.Context, AL, VectorLength));
+     return;
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    D->addAttr(::new (S.Context) NativeCPULibclcCallAttr(S.Context, AL));
++    return;
+   default:
+     llvm_unreachable("unexpected attribute kind");
+   }
+@@ -5572,6 +5575,9 @@ bool Sema::CheckCallingConvAttr(const ParsedAttr &Attrs, CallingConv &CC,
+                                   llvm::Log2_64(ABIVLen) - 5);
+     break;
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    CC = CC_SpirFunction;
++    break;
+   default: llvm_unreachable("unexpected attribute kind");
+   }
+ 
+@@ -7575,6 +7581,7 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
+   case ParsedAttr::AT_PreserveNone:
+   case ParsedAttr::AT_RISCVVectorCC:
+   case ParsedAttr::AT_RISCVVLSCC:
++  case ParsedAttr::AT_NativeCPULibclcCall:
+     handleCallConvAttr(S, D, AL);
+     break;
+   case ParsedAttr::AT_Suppress:
+diff --git a/clang/lib/Sema/SemaLookup.cpp b/clang/lib/Sema/SemaLookup.cpp
+index 45bad3673dc1..2207a869c5d9 100644
+--- a/clang/lib/Sema/SemaLookup.cpp
++++ b/clang/lib/Sema/SemaLookup.cpp
+@@ -22,6 +22,7 @@
+ #include "clang/AST/ExprCXX.h"
+ #include "clang/Basic/Builtins.h"
+ #include "clang/Basic/LangOptions.h"
++#include "clang/Basic/TargetInfo.h"
+ #include "clang/Lex/HeaderSearch.h"
+ #include "clang/Lex/ModuleLoader.h"
+ #include "clang/Lex/Preprocessor.h"
+@@ -788,7 +789,7 @@ static void GetProgModelBuiltinFctOverloads(
+     std::vector<QualType> &FunctionList, SmallVector<QualType, 1> &RetTypes,
+     SmallVector<SmallVector<QualType, 1>, 5> &ArgTypes, bool IsVariadic) {
+   FunctionProtoType::ExtProtoInfo PI(
+-      Context.getDefaultCallingConvention(false, false, true));
++      Context.getTargetInfo().getLibclcCallingConv());
+   PI.Variadic = IsVariadic;
+   PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
+ 
+diff --git a/clang/lib/Sema/SemaType.cpp b/clang/lib/Sema/SemaType.cpp
+index cabab1a26e0e..9e54c6a7791b 100644
+--- a/clang/lib/Sema/SemaType.cpp
++++ b/clang/lib/Sema/SemaType.cpp
+@@ -144,7 +144,8 @@ static void diagnoseBadTypeAttribute(Sema &S, const ParsedAttr &attr,
+   case ParsedAttr::AT_M68kRTD:                                                 \
+   case ParsedAttr::AT_PreserveNone:                                            \
+   case ParsedAttr::AT_RISCVVectorCC:                                           \
+-  case ParsedAttr::AT_RISCVVLSCC
++  case ParsedAttr::AT_RISCVVLSCC:                                              \
++  case ParsedAttr::AT_NativeCPULibclcCall
+ 
+ // Function type attributes.
+ #define FUNCTION_TYPE_ATTRS_CASELIST                                           \
+@@ -7663,6 +7664,8 @@ static Attr *getCCTypeAttr(ASTContext &Ctx, ParsedAttr &Attr) {
+ 
+     return ::new (Ctx) RISCVVLSCCAttr(Ctx, Attr, ABIVLen);
+   }
++  case ParsedAttr::AT_NativeCPULibclcCall:
++    return createSimpleAttr<NativeCPULibclcCallAttr>(Ctx, Attr);
+   }
+   llvm_unreachable("unexpected attribute kind!");
+ }
+diff --git a/libclc/clc/include/clc/clcfunc.h b/libclc/clc/include/clc/clcfunc.h
+index b1a173d73496..7b19ae2c3312 100644
+--- a/libclc/clc/include/clc/clcfunc.h
++++ b/libclc/clc/include/clc/clcfunc.h
+@@ -22,6 +22,10 @@
+ #define _CLC_DEF
+ #elif defined(CLC_CLSPV)
+ #define _CLC_DEF __attribute__((noinline)) __attribute__((clspv_libclc_builtin))
++#elif defined(CLC_NATIVE_CPU)
++#define _CLC_DEF __attribute__((always_inline)) __attribute__((libclc_call))
++#undef _CLC_DECL
++#define _CLC_DECL __attribute__((libclc_call))
+ #else
+ #define _CLC_DEF __attribute__((always_inline))
+ #endif
+diff --git a/libdevice/nativecpu_utils.cpp b/libdevice/nativecpu_utils.cpp
+index 819fd0910858..68e2ccde1446 100644
+--- a/libdevice/nativecpu_utils.cpp
++++ b/libdevice/nativecpu_utils.cpp
+@@ -25,9 +25,10 @@ using __nativecpu_state = native_cpu::state;
+ 
+ #undef DEVICE_EXTERNAL
+ #undef DEVICE_EXTERN_C
+-#define DEVICE_EXTERN_C extern "C" SYCL_EXTERNAL
++#define DEVICE_EXTERN_C extern "C" SYCL_EXTERNAL __attribute__((libclc_call))
+ #define DEVICE_EXTERNAL_C DEVICE_EXTERN_C __attribute__((always_inline))
+-#define DEVICE_EXTERNAL SYCL_EXTERNAL __attribute__((always_inline))
++#define DEVICE_EXTERNAL                                                        \
++  SYCL_EXTERNAL __attribute__((always_inline, libclc_call))
+ 
+ // Several functions are used implicitly by WorkItemLoopsPass and
+ // PrepareSYCLNativeCPUPass and need to be marked as used to prevent them being
+diff --git a/llvm/lib/Linker/IRMover.cpp b/llvm/lib/Linker/IRMover.cpp
+index 9ec9122555f2..45283ead6609 100644
+--- a/llvm/lib/Linker/IRMover.cpp
++++ b/llvm/lib/Linker/IRMover.cpp
+@@ -1480,6 +1480,13 @@ Error IRLinker::run() {
+     EnableTripleWarning = !SrcHasLibDeviceTriple;
+     EnableDLWarning = !(SrcHasLibDeviceTriple && SrcHasLibDeviceDL);
+   }
++  // Likewise, during SYCL Native CPU compilation we link with bitcode with a
++  // generic data layout, which is compatible with the concrete host data layout
++  // and the concrete host target that we use later on.
++  if (SrcTriple.isNativeCPU()) {
++    EnableDLWarning = false;
++    EnableTripleWarning = false;
++  }
+ 
+   if (EnableDLWarning && (SrcM->getDataLayout() != DstM.getDataLayout())) {
+     emitWarning("Linking two modules of different data layouts: '" +
+diff --git a/sycl/include/sycl/detail/defines_elementary.hpp b/sycl/include/sycl/detail/defines_elementary.hpp
+index f64e21516d83..05541a11c46b 100644
+--- a/sycl/include/sycl/detail/defines_elementary.hpp
++++ b/sycl/include/sycl/detail/defines_elementary.hpp
+@@ -25,7 +25,12 @@
+ #endif // __SYCL_ALWAYS_INLINE
+ 
+ #ifdef SYCL_EXTERNAL
++#ifdef __NativeCPU__
++#define __DPCPP_SYCL_EXTERNAL SYCL_EXTERNAL __attribute__((__libclc_call__))
++#define __DPCPP_SYCL_EXTERNAL_LIBC SYCL_EXTERNAL
++#else
+ #define __DPCPP_SYCL_EXTERNAL SYCL_EXTERNAL
++#endif
+ #else
+ #ifdef __SYCL_DEVICE_ONLY__
+ #define __DPCPP_SYCL_EXTERNAL __attribute__((sycl_device))
+diff --git a/sycl/include/sycl/group.hpp b/sycl/include/sycl/group.hpp
+index 9402d2fb83d0..bc77c85e5fa4 100644
+--- a/sycl/include/sycl/group.hpp
++++ b/sycl/include/sycl/group.hpp
+@@ -175,8 +175,18 @@ public:
+ 
+   bool leader() const { return (get_local_linear_id() == 0); }
+ 
++  // Note: These signatures for parallel_for_work_item are intentionally
++  // non-conforming. The spec says this should take const WorkItemFunctionT &,
++  // but we take it by value, and rely on passing by value being done as passing
++  // a copy by reference (ptr byval) to ensure that the special handling in
++  // SYCLLowerWGScopePass to mutate the passed functor object works.
++
+   template <typename WorkItemFunctionT>
+-  void parallel_for_work_item(WorkItemFunctionT Func) const {
++#ifdef __NativeCPU__
++  __attribute__((__libclc_call__))
++#endif
++  void
++  parallel_for_work_item(WorkItemFunctionT Func) const {
+     // need barriers to enforce SYCL semantics for the work item loop -
+     // compilers are expected to optimize when possible
+     detail::workGroupBarrier();
+@@ -227,8 +237,12 @@ public:
+   }
+ 
+   template <typename WorkItemFunctionT>
+-  void parallel_for_work_item(range<Dimensions> flexibleRange,
+-                              WorkItemFunctionT Func) const {
++#ifdef __NativeCPU__
++  __attribute__((__libclc_call__))
++#endif
++  void
++  parallel_for_work_item(range<Dimensions> flexibleRange,
++                         WorkItemFunctionT Func) const {
+     detail::workGroupBarrier();
+ #ifdef __SYCL_DEVICE_ONLY__
+     range<Dimensions> GlobalSize{
+-- 
+2.47.2
+

@@ -58,7 +58,12 @@ if(LLD_FOUND)
   set(LLVM_LIBS)
   foreach(target IN LISTS LLVM_TARGETS_TO_BUILD)
     foreach(lib IN LISTS LLVM_AVAILABLE_LIBS)
-      if(lib MATCHES "^LLVM${target}")
+      # If LLVM is built with SPIRV-LLVM-Translator as an external project, in
+      # addition to LLVM's own LLVMSPIRVCodeGen, LLVMSPIRVDesc, etc. libraries,
+      # we will also have SPIRV-LLVM-Translator's LLVMSPIRVLib. This is not
+      # required by LLD and may result in linker errors depending on the exact
+      # configuration, so take care to leave it out.
+      if(lib MATCHES "^LLVM${target}" AND NOT lib STREQUAL "LLVMSPIRVLib")
         list(APPEND LLVM_LIBS "${lib}")
       endif()
     endforeach()

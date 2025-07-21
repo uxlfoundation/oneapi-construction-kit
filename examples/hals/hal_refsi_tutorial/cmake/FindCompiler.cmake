@@ -73,11 +73,13 @@ function(find_cc TRIPLE)
     if(TRIPLE STREQUAL "riscv32")
       set_property(GLOBAL PROPERTY RISCV_CC_FLAGS
         --target=${RISCV_TOOLCHAIN_TRIPLE}
+        -fuse-ld=lld
         -march=rv32gc
         -mno-relax)
     else()
       set_property(GLOBAL PROPERTY RISCV_CC_FLAGS
         --target=${RISCV_TOOLCHAIN_TRIPLE}
+        -fuse-ld=lld
         -march=rv64gc
         -mno-relax)
     endif()

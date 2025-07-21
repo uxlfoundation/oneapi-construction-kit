@@ -1,0 +1,43 @@
+name: run full planned tests for experimental llvm main
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/planned_testing_caller_main.yml'
+  schedule:
+    # Run Sat at 7pm
+    - cron: '0 19 * * 6'
+
+permissions:
+  packages: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # This makes the diagram too big if we post much here so Lmainfullexp_ is used.
+  Lmainfullexp_:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    uses: ./.github/workflows/planned_testing_caller.yml
+    with:
+      llvm_version: 'main'
+      llvm_branch: 'main'
+      save_cache:  ${{ github.event_name == 'schedule' }}
+
+ # This cleans up any caches which may have been created when running external tests
+  clean_caches:
+    needs: [ Lmainfullexp_ ]
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name == 'schedule' && always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # for gh cache delete
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - name: Cache clean
+        uses: ./.github/actions/clean_cache
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cache_prefixes: "ccache-ccache-dpcpp-build-host_x86_64_linux ccache-ccache-dpcpp-build-host_aarch64_linux ccache-ccache-dpcpp-build-host_riscv64_linux"

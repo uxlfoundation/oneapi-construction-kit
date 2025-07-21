@@ -108,11 +108,13 @@ compiler::Result HostTarget::initWithBuiltins(
   gdb_registration_listener = compiler::utils::createGDBRegistrationListener();
 
 #ifdef CA_ENABLE_HOST_BUILTINS
-  auto loadedModule = llvm::getOwningLazyBitcodeModule(
-      std::make_unique<compiler::utils::MemoryBuffer>(
-          rc::host::host_x86_64_unknown_unknown_bc.data(),
-          rc::host::host_x86_64_unknown_unknown_bc.size()),
-      getLLVMContext());
+  auto loadedModule = withLLVMContextDo([&](llvm::LLVMContext &C) {
+    return llvm::getOwningLazyBitcodeModule(
+        std::make_unique<compiler::utils::MemoryBuffer>(
+            rc::host::host_x86_64_unknown_unknown_bc.data(),
+            rc::host::host_x86_64_unknown_unknown_bc.size()),
+        C);
+  });
   if (!loadedModule) {
     return compiler::Result::FAILURE;
   }
@@ -440,12 +442,14 @@ std::unique_ptr<compiler::Module> HostTarget::createModule(uint32_t &num_errors,
   };
 }
 
-llvm::LLVMContext &HostTarget::getLLVMContext() {
-  return *llvm_ts_context.getContext();
-}
-
-const llvm::LLVMContext &HostTarget::getLLVMContext() const {
-  return *llvm_ts_context.getContext();
+void HostTarget::withLLVMContextDo(void (*f)(llvm::LLVMContext &, void *),
+                                   void *p) {
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  llvm_ts_context.withContextDo([&](llvm::LLVMContext *C) { f(*C, p); });
+#else
+  auto Lock = llvm_ts_context.getLock();
+  f(*llvm_ts_context.getContext(), p);
+#endif
 }
 
 llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); }

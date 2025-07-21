@@ -51,9 +51,10 @@ template<typename T, bool SIGNED = TypeTraits<T>::is_signed> struct abs_helper {
 
 template<typename T> struct abs_helper<T, true> {
   static typename TypeTraits<T>::UnsignedType _(const T& x) {
+    typedef typename TypeTraits<T>::UnsignedType UnsignedType;
     const typename TypeTraits<T>::SignedType cond = x < 0;
-    return cast::as<typename TypeTraits<T>::UnsignedType>(
-      relational::select(x, (T)-x, cond));
+    const UnsignedType ux = cast::as<UnsignedType>(x);
+    return relational::select(ux, (UnsignedType)-ux, cond);
   }
 };
 

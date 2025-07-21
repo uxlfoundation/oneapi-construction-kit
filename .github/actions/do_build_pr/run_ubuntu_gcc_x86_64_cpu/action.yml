@@ -1,0 +1,34 @@
+name: build_pr_ubuntu_gcc_x86_64_cpu
+description: Build pr ubuntu_gcc_x86_64_cpu
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: setup env and create target
+        shell: bash  
+        run: |
+          rm -rf build
+          virtualenv newenv
+          source newenv/bin/activate
+          pip install cookiecutter
+          python3 -u scripts/create_target.py $PWD scripts/new_target_templates/cpu_x86.json --external-dir cpu_hal_ock
+
+      - name: build and run
+        uses: ./.github/actions/do_build_ock
+        with:
+          source_dir: $GITHUB_WORKSPACE/cpu_hal_ock
+          build_dir: $GITHUB_WORKSPACE/cpu_hal_ock/build
+          install_dir: $GITHUB_WORKSPACE/cpu_hal_ock/install
+          mux_targets_enable: cpu
+          use_linker: gold
+          debug_support: ON
+          command_buffer: OFF
+          # We run check-ock-UnitCL here rather then the full check-ComputeAorta target as there is issues
+          # with check-UnitCL-vecz that need to be addressed for generated targets.
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock-UnitCL' }}
+          extra_flags: -DCA_ENABLE_API=cl -DCA_CPU_ENABLED=ON -DCA_EXTERNAL_ONEAPI_CON_KIT_DIR=$GITHUB_WORKSPACE -DCA_EXTERNAL_CPU_HAL_DIR=$GITHUB_WORKSPACE/clik/external/hal_cpu -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin

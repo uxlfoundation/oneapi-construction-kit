@@ -1,0 +1,53 @@
+name: run planned tests for llvm 21
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/planned_testing_caller_21.yml'
+  schedule:
+    # Run Tue, Fri at 7pm
+    - cron: '0 19 * * 2,5'
+
+permissions:
+  packages: read
+
+# To add another llvm planned testing, simply copy this file and set the llvm_version and llvm_branch variables
+# llvm_version is only used for tagging purposes, although ideally would be a number or main
+# We may want to delete the lowest version for planned_testing_caller_*.yml at that time.
+# If it is known to be unchanging, then set the 'use_llvm_github_cache: true' as an input to planned_testing_caller.yml/
+
+# Note this will not affect normal PR runs which will require run_pr_tests_caller.yml to be updated.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # This makes the diagram too big if we post much here so L21_ is used.
+  L21_:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    uses: ./.github/workflows/planned_testing_caller.yml
+    with:
+      llvm_version: '21'
+      llvm_branch: 'release/21.x'
+      save_cache:  ${{ github.event_name == 'schedule' }}
+      # We can set ock, test_sycl_cts etc here optionally if this is used as a
+      # pull request. Any parameters below this is intended for local testing
+      # and should not be merged nor reviewed (other than checking it should not be merged).
+
+  # This cleans up any caches which may have been created when running external tests
+  clean_caches:
+    needs: [ L21_ ]
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name == 'schedule' && always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # for gh cache delete
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - name: Cache clean
+        uses: ./.github/actions/clean_cache
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cache_prefixes: "ccache-ccache-dpcpp-build-host_x86_64_linux ccache-ccache-dpcpp-build-host_aarch64_linux ccache-ccache-dpcpp-build-host_riscv64_linux"

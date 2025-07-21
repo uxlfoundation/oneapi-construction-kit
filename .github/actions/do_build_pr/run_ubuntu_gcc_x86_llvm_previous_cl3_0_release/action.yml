@@ -1,0 +1,26 @@
+name: build_pr_ubuntu_gcc_x86_llvm_previous_cl3_0_release
+description: Build pr ubuntu_gcc_x86_llvm_previous_cl3_0_release
+
+inputs:
+  cache_seed:
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+      - name: remove any old dirs
+        shell: bash  
+        run:
+          rm -rf build
+
+      - name: build ock x86 relassert
+        uses: ./.github/actions/do_build_ock
+        with:
+          build_32_bit: ON
+          build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
+          builtin_kernel: ON
+          build_type: Release
+          toolchain_file: $GITHUB_WORKSPACE/platform/x86-linux/x86-toolchain.cmake
+          offline_kernel_tests: 'OFF'
+          extra_flags: -DCMAKE_CROSSCOMPILING=TRUE -DCA_EXTERNAL_BUILTINS=FALSE -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/llvm_install/bin

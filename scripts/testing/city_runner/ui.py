@@ -97,6 +97,11 @@ class TestUI(object):
         self.out.write("\n%s\n" % (sep * 4))
         self.out.flush()
 
+    def report_test_list(self, test_list):
+        for run in test_list:
+            self.out.write("  %s\n" % run.test.name)
+        self.out.write("\n")
+
     def print_results(self, results):
         pass_rate = self.calc_progress(results.num_passes, results.num_tests, 1)
         xfail_rate = self.calc_progress(results.num_xfails, results.num_tests, 1)
@@ -105,39 +110,51 @@ class TestUI(object):
         fail_rate = self.calc_progress(results.num_fails, results.num_tests, 1)
         timeout_rate = self.calc_progress(results.num_timeouts, results.num_tests, 1)
         skip_rate = self.calc_progress(results.num_skipped, results.num_tests, 1)
+        unknown_pass_rate = self.calc_progress(len(results.unknown_pass_list), results.num_tests, 1)
+        unknown_fail_rate = self.calc_progress(len(results.unknown_fail_list), results.num_tests, 1)
+        unknown_timeout_rate = self.calc_progress(len(results.unknown_timeout_list), results.num_tests, 1)
         cts_rate = self.calc_progress(results.num_passes_cts, results.num_total_cts, 1)
         cts_fail_rate = self.calc_progress(results.num_total_cts-results.num_passes_cts,
                                            results.num_total_cts, 1)
+
         self.start_message(self.MESSAGE_TYPE_RESULTS)
-        if results.xfail_list:
-            self.out.write(self.fmt.red("XFailed tests (as expected):\n"))
-            for run in results.xfail_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
 
-        if results.mayfail_list:
-            self.out.write(self.fmt.red("May Fail failing tests:\n"))
-            for run in results.mayfail_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
+        if results.unknown_pass_list:
+            self.out.write(self.fmt.red("Unknown passing tests:\n"))
+            self.report_test_list(results.unknown_pass_list)
 
-        if results.fail_list:
-            self.out.write(self.fmt.red("Failed tests:\n"))
-            for run in results.fail_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
+        if results.unknown_skip_list:
+            self.out.write(self.fmt.red("Unknown skipped tests:\n"))
+            self.report_test_list(results.unknown_skip_list)
 
-        if results.xpass_list:
-            self.out.write(self.fmt.red("Unexpected passing XFail tests:\n"))
-            for run in results.xpass_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
+        if results.unknown_timeout_list:
+            self.out.write(self.fmt.red("Unknown timeout tests:\n"))
+            self.report_test_list(results.unknown_timeout_list)
 
         if results.timeout_list:
             self.out.write(self.fmt.blue("Timeout tests:\n"))
-            for run in results.timeout_list:
-                self.out.write("  %s\n" % run.test.name)
-            self.out.write("\n")
+            self.report_test_list(results.timeout_list)
+
+        if results.xfail_list:
+            self.out.write(self.fmt.red("XFailed tests (as expected):\n"))
+            self.report_test_list(results.xfail_list)
+
+        if results.mayfail_list:
+            self.out.write(self.fmt.red("May Fail failing tests:\n"))
+            self.report_test_list(results.mayfail_list)
+
+        if results.unknown_fail_list:
+            self.out.write(self.fmt.red("Unknown failing tests:\n"))
+            self.report_test_list(results.unknown_fail_list)
+
+        if results.xpass_list:
+            self.out.write(self.fmt.red("Unexpected passing XFail tests:\n"))
+            self.report_test_list(results.xpass_list)
+
+        if results.fail_list:
+            self.out.write(self.fmt.red("Failed tests:\n"))
+            self.report_test_list(results.fail_list)
+
 
         # Round the duration to the nearest second.
         duration = results.duration
@@ -154,7 +171,16 @@ class TestUI(object):
         self.out.write(self.fmt.white("Finished in "))
         self.out.write("%s\n" % duration)
         # Print test figures.
-        self.out.write(self.fmt.green("\nPassed expectedly:  "))
+        if results.unknown_pass_list:
+            self.out.write(self.fmt.red("\nUnknown passing:    "))
+            self.out.write("%6d (%5.1f %%)\n" % (len(results.unknown_pass_list), unknown_pass_rate))
+        if results.unknown_fail_list:
+            self.out.write(self.fmt.red("Unknown failing:    "))
+            self.out.write("%6d (%5.1f %%)\n" % (len(results.unknown_fail_list), unknown_fail_rate))
+        if results.unknown_timeout_list:
+            self.out.write(self.fmt.red("Unknown timeout:    "))
+            self.out.write("%6d (%5.1f %%)\n" % (len(results.unknown_timeout_list), unknown_timeout_rate))
+        self.out.write(self.fmt.green("Passed expectedly:  "))
         self.out.write("%6d (%5.1f %%)\n" % (results.num_passes, pass_rate))
         self.out.write(self.fmt.red("Failed unexpectedly:"))
         self.out.write("%6d (%5.1f %%)\n" % (results.num_fails, fail_rate))

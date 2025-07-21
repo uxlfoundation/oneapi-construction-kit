@@ -12,6 +12,9 @@ inputs:
   llvm_version:
     description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
     required: true
+  split_index:
+    description: "optional split index so this run can be done with different splits, current only 0 or 1"
+    default: ''
 
 runs:
   using: "composite"
@@ -21,6 +24,20 @@ runs:
       with:
         name: ock_${{inputs.target}}
         path: install_ock
+
+    - name: download icd artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: icd_${{inputs.target}}
+        path: install_icd
+
+    - name: Download opencl cts artefact
+      uses: ./.github/actions/download_artifact
+      with:
+        name: opencl_cts_${{inputs.target}}
+        path: $GITHUB_WORKSPACE/test_conformance
+        needs_tar: true
+        run_id: ${{ github.run_id }}
 
     - name: Run opencl cts
       shell: bash
@@ -41,6 +58,12 @@ runs:
         python3 scripts/testing/create_override_csv.py -d scripts/testing/opencl_cts \
              -k ${{ inputs.target }} llvm_${{ inputs.llvm_version }} \
              -o override_combined.csv -vv
+        CTS_CSV_FILE_PATH=$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE
+        if [ "${{ inputs.split_index }}" != "" ]; then
+          split -n l/2 $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE --additional-suffix=.csv -d 0
+          CTS_CSV_FILE_PATH=00${{ inputs.split_index }}.csv
+        fi
+        echo Using $CTS_CSV_FILE_PATH
 
         # $CTS_FILTER ignores certain test, so is treated differently to temporary fails.
         python3 -u $GITHUB_WORKSPACE/scripts/testing/run_cities.py -v \
@@ -51,6 +74,6 @@ runs:
           -e CLC_EXECUTABLE=$GITHUB_WORKSPACE/install_ock/bin/clc \
           -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so \
           -e CL_PLATFORM_INDEX=0 \
-          -s $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE \
+          -s $CTS_CSV_FILE_PATH \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
           -o override_combined.csv

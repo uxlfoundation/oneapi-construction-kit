@@ -957,12 +957,6 @@ void compiler::utils::Barrier::MakeLiveVariableMemType() {
 
     // Check if the alloca has a debug info source variable attached. If
     // so record this and the matching byte offset into the struct.
-    auto DbgIntrinsics = findDbgDeclares(member.value);
-    for (auto DII : DbgIntrinsics) {
-      if (auto dbgDeclare = dyn_cast<DbgDeclareInst>(DII)) {
-        debug_intrinsics_.push_back(std::make_pair(dbgDeclare, offset));
-      }
-    }
     const auto DVRDeclares = findDVRDeclares(member.value);
     for (auto *const DVRDeclare : DVRDeclares) {
       debug_variable_records_.push_back(std::make_pair(DVRDeclare, offset));
@@ -1188,7 +1182,7 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
   // The entry kernel might have allocas in it that don't get removed,
   // so better make sure to insert after them.
   while (isa<AllocaInst>(insert_point)) {
-    insert_point = insert_point->getNextNonDebugInstruction();
+    insert_point = insert_point->getNextNode();
   }
 
   // It puts all the GEPs at the start of the kernel, but only once
@@ -1258,9 +1252,9 @@ Function *compiler::utils::Barrier::GenerateNewKernel(BarrierRegion &region) {
       // Place the new store immediately after the definition, but if it's a
       // PHI node we have to make sure to put it after any other PHI nodes.
       Instruction *inst = cast<Instruction>(vmap[live_var]);
-      Instruction *insert_point = inst->getNextNonDebugInstruction();
+      Instruction *insert_point = inst->getNextNode();
       while (isa<PHINode>(insert_point)) {
-        insert_point = insert_point->getNextNonDebugInstruction();
+        insert_point = insert_point->getNextNode();
       }
       IRBuilder<> B(insert_point);
       if (!isStructWithScalables(live_var->getType())) {
@@ -1425,12 +1419,6 @@ BasicBlock *compiler::utils::Barrier::CloneBasicBlock(
 
   // Loop over all instructions, and copy them over.
   for (Instruction &i : *bb) {
-    // Don't clone over debug intrinsics since we're going to create them
-    // manually later.
-    if (isa<DbgDeclareInst>(&i)) {
-      continue;
-    }
-
     Instruction *new_inst = i.clone();
     if (i.hasName()) new_inst->setName(i.getName() + name_suffix);
     new_inst->insertInto(new_bb, new_bb->end());

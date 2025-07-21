@@ -250,13 +250,13 @@ PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
         // If the old argument was marked 'noundef', the result of the load
         // from it will also be noundef. Use metadata to convey that.
         if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NoUndef)) {
-          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          MDNode *md = MDNode::get(newFunction->getContext(), {});
           arg_load->setMetadata(LLVMContext::MD_noundef, md);
         }
         // If the old argument was marked 'nonnull', the result of the load
         // from it will also be nonnull. Use metadata to convey that.
         if (F.getArg(argMapping.OldArgIdx)->hasAttribute(Attribute::NonNull)) {
-          MDNode *md = MDNode::get(newFunction->getContext(), std::nullopt);
+          MDNode *md = MDNode::get(newFunction->getContext(), {});
           arg_load->setMetadata(LLVMContext::MD_nonnull, md);
         }
         params.push_back(arg_load);

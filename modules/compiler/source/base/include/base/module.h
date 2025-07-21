@@ -139,6 +139,7 @@ class BaseModule : public Module {
   /// @brief Compile an OpenCL C program to an LLVM module.
   ///
   /// @param[in] instance clang CompilerInstance.
+  /// @param[in] llvm_context LLVM context.
   /// @param[in] device_profile Device profile string. Should be either
   /// FULL_PROFILE or EMBEDDED_PROFILE.
   /// @param[in] source OpenCL C source code string.
@@ -151,8 +152,8 @@ class BaseModule : public Module {
   ///
   /// @return Return the compiled LLVM module, or nullptr on failure.
   std::unique_ptr<llvm::Module> compileOpenCLCToIR(
-      clang::CompilerInstance &instance, cargo::string_view device_profile,
-      cargo::string_view source,
+      clang::CompilerInstance &instance, llvm::LLVMContext &llvm_context,
+      cargo::string_view device_profile, cargo::string_view source,
       cargo::array_view<compiler::InputHeader> input_headers,
       uint32_t *num_errors = nullptr, ModuleState *new_state = nullptr);
 
@@ -214,7 +215,8 @@ class BaseModule : public Module {
   ModuleState getState() const override final { return state; }
 
   /// @brief Return a new pass machinery to be used for the compilation pipeline
-  virtual std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery();
+  virtual std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &);
 
   /// @brief Initialize a pass machinery for running in BaseModule's frontend
   /// pipelines.
@@ -250,20 +252,20 @@ class BaseModule : public Module {
   /// restoring the old one on scope exit.
   struct ScopedDiagnosticHandler {
     ScopedDiagnosticHandler(
-        BaseModule &base_module,
+        BaseModule &base_module, llvm::LLVMContext &context,
         DiagnosticHandler::DiagnosticFilterTy filter_fn = nullptr)
         : base_module(base_module),
-          old_handler(
-              base_module.target.getLLVMContext().getDiagnosticHandler()) {
-      base_module.target.getLLVMContext().setDiagnosticHandler(
+          context(context),
+          old_handler(context.getDiagnosticHandler()) {
+      context.setDiagnosticHandler(
           std::make_unique<DiagnosticHandler>(base_module, filter_fn));
     }
     ~ScopedDiagnosticHandler() {
       // Reinstate the old diagnostic handler
-      base_module.target.getLLVMContext().setDiagnosticHandler(
-          std::move(old_handler));
+      context.setDiagnosticHandler(std::move(old_handler));
     }
     BaseModule &base_module;
+    llvm::LLVMContext &context;
     std::unique_ptr<llvm::DiagnosticHandler> old_handler;
   };
 
@@ -471,7 +473,10 @@ class BaseModule : public Module {
   /// file must already have been prepared before calling this function.
   ///
   /// @param[in] instance Clang compiler instance.
-  void loadBuiltinsPCH(clang::CompilerInstance &instance);
+  /// @param[in] C LLVM Context
+  /// @param[in] codeGenOpts clang CodeGen options
+  void loadBuiltinsPCH(clang::CompilerInstance &instance, llvm::LLVMContext &C,
+                       const clang::CodeGenOptions &codeGenOpts);
 
   /// @brief Run this module through the OpenCL frontend pipeline, optionally
   /// running early and late LLVM passes as part of this pipeline. A late fast
