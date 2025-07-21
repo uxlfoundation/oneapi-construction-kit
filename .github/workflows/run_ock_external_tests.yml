@@ -336,6 +336,7 @@ jobs:
           llvm_version: ${{ inputs.llvm_version }}
 
   build_opencl_cts_riscv64:
+    if: inputs.test_opencl_cts && contains(inputs.target_list, 'host_riscv64_linux')
     needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu ]
     runs-on: 'ubuntu-24.04'
     container:
@@ -361,7 +362,7 @@ jobs:
           target: host_riscv64_linux
 
   run_opencl_cts_riscv64:
-    if: inputs.test_opencl_cts
+    if: inputs.test_opencl_cts && contains(inputs.target_list, 'host_riscv64_linux')
     needs: [ workflow_vars, build_icd, create_ock_artefacts_ubuntu, build_opencl_cts_riscv64 ]
     runs-on: 'ubuntu-24.04'
     strategy:

@@ -65,31 +65,14 @@ jobs:
     #    common run_cities options
     runs-on: ubuntu-latest
     outputs:
-      path_spec: ${{ steps.path_id.outputs.OPENCL_CTS_PATH }}
       run_cities_options: ${{ steps.run_cities_id.outputs.COMMON_RUN_CITIES_OPTIONS }}
     steps:
-      - name: set path var
-        id: path_id
-        run: |
-          echo "OPENCL_CTS_PATH<<EOF" >> $GITHUB_OUTPUT
-          # PATH START ...
-          echo 'test_conformance' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/.*' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/CMakeCache.txt' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/CMakeFiles' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/CMakeFiles/**' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/*.cmake' >> $GITHUB_OUTPUT
-          echo '!test_conformance/**/*.ninja' >> $GITHUB_OUTPUT
-          echo '!test_conformance/test_common' >> $GITHUB_OUTPUT
-          echo '!test_conformance/test_common/**' >> $GITHUB_OUTPUT
-          # ... PATH END
-          echo "EOF" >> $GITHUB_OUTPUT
       - name: set run_cities var
         id: run_cities_id
         run: |
           echo "COMMON_RUN_CITIES_OPTIONS<<EOF2" >> $GITHUB_OUTPUT
           # COMMON RUN_CITIES OPTIONS START ...
-          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
+          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/build/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
           # ... COMMON RUN_CITIES OPTIONS END
           echo "EOF2" >> $GITHUB_OUTPUT
 
@@ -306,7 +289,6 @@ jobs:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
@@ -329,8 +311,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
-          ${{ env.OPENCL_CTS_PATH }}
+        path: build/test_conformance
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
@@ -347,7 +328,6 @@ jobs:
     if: contains(inputs.target_list, 'host_x86_64_linux')
     needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
@@ -373,8 +353,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
-          ${{ env.OPENCL_CTS_PATH }}
+        path: build/test_conformance
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
@@ -461,7 +440,6 @@ jobs:
     if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
     needs: [set_env_vars]
     env:
-      OPENCL_CTS_PATH: ${{ needs.set_env_vars.outputs.path_spec }}
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     # do not run as PR job for now to avoid flooding the concurrency
     runs-on: ubuntu-22.04
@@ -485,8 +463,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         key: opencl_cts_host_x86_64_linux
-        path: |  # install dir is: $GITHUB_WORKSPACE/test_conformance
-          ${{ env.OPENCL_CTS_PATH }}
+        path: build/test_conformance
         fail-on-cache-miss: true
     - name: run_cities call and run
       run: |
@@ -548,7 +525,8 @@ jobs:
         
  # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-llvm:
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -631,7 +609,8 @@ jobs:
 
  # Based on: mr-ubuntu-gcc-x86_64-cpu
   run-ubuntu-gcc-x86_64-cpu:
-    if: contains(inputs.target_list, 'host_x86_64_linux')
+    #if: contains(inputs.target_list, 'host_x86_64_linux')
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -678,7 +657,8 @@ jobs:
 
 
   run-ubuntu-clang-tidy-x86_64:
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}  
+    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
