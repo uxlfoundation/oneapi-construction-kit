@@ -16,8 +16,7 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses -c Float64 %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Addresses -c Float64 %spv_file_s | FileCheck %s
                OpCapability Addresses
                OpCapability Kernel
                OpCapability Int64
@@ -56,10 +55,8 @@
                OpFunctionEnd
 ; CHECK: ; ModuleID = '{{.*}}'
 ; CHECK: define spir_kernel void @async_copy(ptr addrspace(1) noundef %in, ptr addrspace(3) noundef %out, i64 noundef %size)
-; CHECK-GE17: [[EVENT_VAR:%.*]] = alloca [[EVENT_TY:target\("spirv.Event"\)]]
-; CHECK-LT17: [[EVENT_VAR:%.*]] = alloca [[EVENT_TY:ptr]]
-; CHECK-GE17: [[EVENT:%.*]] = call spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1dPU3AS3Kdmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, [[EVENT_TY]] zeroinitializer)
-; CHECK-LT17: [[EVENT:%.*]] = call spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1dPU3AS3Kdmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, [[EVENT_TY]] null)
+; CHECK: [[EVENT_VAR:%.*]] = alloca [[EVENT_TY:target\("spirv.Event"\)]]
+; CHECK: [[EVENT:%.*]] = call spir_func [[EVENT_TY]] @_Z29async_work_group_strided_copyPU3AS1dPU3AS3Kdmm9ocl_event(ptr addrspace(1) %in, ptr addrspace(3) %out, i64 %size, i64 1, [[EVENT_TY]] zeroinitializer)
 ; CHECK: store [[EVENT_TY]] [[EVENT]], ptr [[EVENT_VAR]] 
 ; CHECK: call spir_func void @_Z17wait_group_eventsiP9ocl_event(i32 1, ptr [[EVENT_VAR]])
 ; CHECK: ret void
