@@ -2,6 +2,9 @@
 
 ## Introduction
 
+> [!NOTE]
+> This release package is no longer tested and is not guaranteed to work with the latest DPC++.
+
 The release package is a self-contained pre-built project to demonstrate how to run OpenCL
 and SYCL applications on the RISC-V spike simulator, including a deep neural
 network demo that uses the VGG network.
