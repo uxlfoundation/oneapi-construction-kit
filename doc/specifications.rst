@@ -7,4 +7,3 @@ Specifications
    specifications/versioning
    specifications/mux-runtime-spec
    specifications/mux-compiler-spec
-   specifications/hal

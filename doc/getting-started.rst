@@ -113,7 +113,7 @@ configuration.
 * `Git`_
 * `CMake`_ 3.4.3+
 * `Python`_ 3.6.9+
-* `Vulkan SDK`_ 1.1.97+
+* `LunarG Vulkan SDK packages`_ 1.1.97+
 
 Windows 10 does not provide an adequate package manager. However, the
 third-party `Chocolatey <https://chocolatey.org/install#install-with-cmdexe>`_

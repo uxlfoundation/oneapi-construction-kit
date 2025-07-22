@@ -39,10 +39,10 @@ FindGitClangFormat Module
 .. seealso::
   Used to implement the :doc:`/cmake/Format`.
 
-FindLLVMTool Module
+ImportLLVM Module
 ###################
 
-.. cmake-module:: ../../cmake/FindLLVMTool.cmake
+.. cmake-module:: ../../cmake/ImportLLVM.cmake
 
 FindLit Module
 ##############

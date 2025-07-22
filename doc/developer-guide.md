@@ -745,7 +745,7 @@ To cross-compile LLVM the appropriate CMake toolchain file from the oneAPI
 Construction Kit repository may be used; the path to this repository will be
 specified by the `$ONEAPI_CON_KIT` variable in the following examples.
 
-##### Cross-compiling LLVM for ARM
+#### Cross-compiling LLVM for ARM
 
 For cross-compilation targeting ARM, only the `ARM` target back end needs to be
 enabled. Run the following command to configure an LLVM build targeting ARM from
@@ -770,7 +770,7 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-arm install
 ```
 
-##### Cross-compiling LLVM for AArch64
+#### Cross-compiling LLVM for AArch64
 
 For cross-compilation targeting AArch64 only the `AArch64` target back end needs
 to be enabled. Run the following command to configure an LLVM build targeting
@@ -795,7 +795,7 @@ Now the build directory is configured, build the `install` target.
 ninja -C build-aarch64 install
 ```
 
-##### Cross-compiling LLVM for RISC-V
+#### Cross-compiling LLVM for RISC-V
 
 For cross-compilation targeting RISC-V only the `RISCV` target back end needs
 to be enabled. Run the following command to configure an LLVM build targeting

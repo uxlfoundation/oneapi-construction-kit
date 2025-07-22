@@ -9,11 +9,6 @@ ComputeMux
    CMake <mux/cmake>
    Bumping the Specification Version <mux/bumping-the-spec>
 
-.. toctree::
-   :hidden:
-
-   mux/hal/dynamic_loading
-
 .. seealso::
    The :doc:`/specifications/mux-runtime-spec` and the
    :doc:`/specifications/mux-compiler-spec`.

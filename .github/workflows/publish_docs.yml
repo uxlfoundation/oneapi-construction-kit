@@ -1,0 +1,93 @@
+# Workflow for building and deploying a Jekyll site to GitHub Pages for docs and rfcs
+name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/publish_docs.yml'
+  schedule:
+    # Run Mon at 6pm
+    - cron: '0 18 * * 1'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+
+  build_ock_docs:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch'  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Install apt package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen virtualenv
+
+      - name: Install prerequisites
+        run: python -m pip install -r doc/requirements.txt
+
+      - name: Build Documentation
+        working-directory: ${{github.workspace}}
+        run: |
+           cmake -DCMAKE_BUILD_TYPE=Debug -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF -DOCL_EXTENSION_cl_khr_il_program=OFF -Bbuild_doc
+           cmake --build build_doc --target doc_html
+           mkdir docs
+           mv build_doc/doc/html docs/ock
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: rfcs
+          path: rfcs
+
+      - name: Move rfcs to build_doc
+        shell: bash
+        run: |
+          mv rfcs/* docs
+          cp -r $GITHUB_WORKSPACE/.github/workflows/combined_docs/* docs
+
+          # TODO : Remove from original rfc docs
+          sed -i 's/permalink: index/permalink: rfc-0000/' docs/rfc-0000.md
+          sed -i 's/split.size == 2 %/split.size == 2 and page.rfc %/' docs/rfc-0000.md
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: [ build_ock_docs ]
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
