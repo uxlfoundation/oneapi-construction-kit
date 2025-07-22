@@ -17,7 +17,7 @@ concurrency:
 jobs:
   # This makes the diagram too big if we post much here so Lmainexp_ is used.
   Lmainexp_:
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit'
     uses: ./.github/workflows/planned_testing_caller.yml
     with:
       llvm_version: 'main'
