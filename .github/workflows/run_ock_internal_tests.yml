@@ -60,9 +60,7 @@ permissions:
 
 jobs:
   set_env_vars:
-    # Set inter-job env vars for:
-    #    opencl_cts artifact download "path:" content
-    #    common run_cities options
+    # Set inter-job env var for common run_cities options
     runs-on: ubuntu-latest
     outputs:
       run_cities_options: ${{ steps.run_cities_id.outputs.COMMON_RUN_CITIES_OPTIONS }}
@@ -314,13 +312,21 @@ jobs:
         path: build/test_conformance
         fail-on-cache-miss: true
     - name: run_cities call and run
-      run: |
-        set -x
-        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -e "CA_RISCV_VF=1,S" \
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-e 'CA_RISCV_VF=1,S' \
           -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-        ninja -C $GITHUB_WORKSPACE/build check-ock
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
+        ninja_1_options: "-C $GITHUB_WORKSPACE/build check-ock"
+    #- name: run_cities call and run
+    #  run: |
+    #    set -x
+    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+    #      -e "CA_RISCV_VF=1,S" \
+    #      -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml \
+    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
+    #    ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
@@ -356,13 +362,21 @@ jobs:
         path: build/test_conformance
         fail-on-cache-miss: true
     - name: run_cities call and run
-      run: |
-        set -x
-        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -e "CA_RISCV_VF=1,S,VP" \
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-e 'CA_RISCV_VF=1,S,VP' \
           -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-        ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
+        ninja_1_options: "-C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz"
+    #- name: run_cities call and run
+    #  run: |
+    #    set -x
+    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+    #      -e "CA_RISCV_VF=1,S,VP" \
+    #      -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml \
+    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
+    #    ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
@@ -465,16 +479,28 @@ jobs:
         key: opencl_cts_host_x86_64_linux
         path: build/test_conformance
         fail-on-cache-miss: true
-    - name: run_cities call and run
+    - name: set-up skipped.txt for run_cities.py
       run: |
         echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
-        set -x
-        python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-          -i $GITHUB_WORKSPACE/skipped.txt \
+    - name: run_cities call and run
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-i $GITHUB_WORKSPACE/skipped.txt \
           -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml \
-          ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-        ninja -C build check-ock
-        ninja -C build check-ock-UnitCL-half
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
+        ninja_1_options: "-C build check-ock"
+        ninja_2_options: "-C build check-ock-UnitCL-half"
+    #- name: run_cities call and run
+    #  run: |
+    #    echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
+    #    set -x
+    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
+    #      -i $GITHUB_WORKSPACE/skipped.txt \
+    #      -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml \
+    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
+    #    ninja -C build check-ock
+    #    ninja -C build check-ock-UnitCL-half
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:

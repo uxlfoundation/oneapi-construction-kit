@@ -1,0 +1,38 @@
+name: run_cities internal_tests
+description: wrapper around run_cities.py call and ninja run(s) for internal tests
+
+# assumes python3 and ninja are on the $PATH
+
+inputs:
+  run_cities_path:
+    required: true
+    type: string
+    description: 'path to the run_cities.py script'
+  run_cities_options:
+    required: true
+    type: string
+    description: 'options for the run_cities.py call'
+  ninja_1_options:
+    required: true
+    type: string
+    description: 'options for the first ninja call'
+  ninja_2_options:
+    required: false
+    type: string
+    default: ''
+    description: 'options for any second ninja call'
+
+runs:
+  using: "composite"
+  steps:
+    - name: run_cities call and run
+      shell: bash
+      run: |
+        set -x
+        python3 ${{ inputs.run_cities_path }}/run_cities.py ${{ inputs.run_cities_options }}
+        ninja /run_cities.py ${{ inputs.ninja_1_options }}
+        set +x
+        if [ "${{ inputs.ninja_2_options }}" != "" ]; then
+          set -x
+          ninja /run_cities.py ${{ inputs.ninja_2_options }}
+        fi
