@@ -30,9 +30,9 @@ runs:
       run: |
         set -x
         python3 ${{ inputs.run_cities_path }}/run_cities.py ${{ inputs.run_cities_options }}
-        ninja /run_cities.py ${{ inputs.ninja_1_options }}
+        ninja ${{ inputs.ninja_1_options }}
         set +x
         if [ "${{ inputs.ninja_2_options }}" != "" ]; then
           set -x
-          ninja /run_cities.py ${{ inputs.ninja_2_options }}
+          ninja ${{ inputs.ninja_2_options }}
         fi
