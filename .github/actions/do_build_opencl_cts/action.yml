@@ -97,6 +97,7 @@ runs:
 
     - name: error on attempt to overwrite existing opencl cts artifact cache
       if: inputs.cache_update == 'true' && steps.cache_check.outputs.cache-hit == 'true'
+      shell: bash
       run: |
         echo "Error: attempt to overwrite existing opencl cts cache: opencl_cts_${{inputs.target}}"
         exit 1
