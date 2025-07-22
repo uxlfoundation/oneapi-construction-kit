@@ -1,4 +1,4 @@
-From 925e5e4bece439a831b2759e4f22348f59200f0c Mon Sep 17 00:00:00 2001
+From 86fd6f997e06f7917e30588619354a027e72267d Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
 Date: Wed, 9 Jul 2025 15:46:08 +0100
 Subject: [PATCH] [SYCL][NFC] Mark external libc functions.
