@@ -16,8 +16,7 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c StorageImageWriteWithoutFormat %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c ImageBasic -c StorageImageWriteWithoutFormat %spv_file_s | FileCheck %s
                             OpCapability Kernel
                             OpCapability Addresses
                             OpCapability ImageBasic
@@ -44,8 +43,7 @@
 ; All functions
                  %image2d = OpFunction %void_t None %image_write_fn_t                            
                    %image = OpFunctionParameter %image2d_t
-; CHECK-GE17: define spir_kernel void @image2d([[TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] noundef %image)
-; CHECK-LT17: define spir_kernel void @image2d([[TY:ptr addrspace\(1\)]] noundef %image)
+; CHECK: define spir_kernel void @image2d([[TY:target\("spirv.Image", void, 1, 0, 0, 0, 0, 0, 0\)]] noundef %image)
                        %1 = OpLabel
                             OpImageWrite %image %v2int_1 %v4float_1
 ; CHECK: call spir_func void @_Z12write_imagef11ocl_image2dDv2_iDv4_f([[TY]] %image, <2 x i32> {{<(i32 1(, )?)+>|splat \(i32 1\)}}, <4 x float> {{<(float 1.000000e\+00(, )?)+>|splat \(float 1.000000e\+00\)}})

@@ -16,8 +16,7 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D -c LiteralSampler %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D -c LiteralSampler %spv_file_s | FileCheck %s
                       OpCapability Kernel
                       OpCapability Addresses
                       OpCapability Sampled1D
@@ -46,12 +45,10 @@
 
   %constant_sampler = OpFunction %void_t None %sampler_fn_t
           %in_image = OpFunctionParameter %image1d_array_ro_t
-; CHECK-GE17: define spir_kernel void @constant_sampler([[IMG_TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] noundef %in_image)
-; CHECK-LT17: define spir_kernel void @constant_sampler([[IMG_TY:ptr addrspace\(1\)]] noundef %in_image)
+; CHECK: define spir_kernel void @constant_sampler([[IMG_TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] noundef %in_image)
                  %1 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %const_sampler
-; CHECK-GE17: [[SAMPLER:%.*]] = call [[SAMPLER_TY:target\("spirv.Sampler"\)]] @__translate_sampler_initializer(i32 16)
-; CHECK-LT17: [[SAMPLER:%.*]] = call [[SAMPLER_TY:ptr]] @__translate_sampler_initializer(i32 16)
+; CHECK: [[SAMPLER:%.*]] = call [[SAMPLER_TY:target\("spirv.Sampler"\)]] @__translate_sampler_initializer(i32 16)
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2float_1 None
 ; CHECK: = call spir_func <4 x float> @_Z11read_imagef16ocl_image1darray11ocl_samplerDv2_f([[IMG_TY]] %in_image, [[SAMPLER_TY]] [[SAMPLER]], <2 x float> {{<(float 1.000000e\+00(, )?)+>|splat \(float 1.000000e\+00\)}})
                  %3 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2uint_1 None

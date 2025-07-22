@@ -16,8 +16,7 @@
 
 ; REQUIRES: spirv-as-v2020.0+
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
 
                         OpCapability Addresses
                         OpCapability Linkage
@@ -57,13 +56,11 @@
                %entry = OpLabel
 
 
-; CHECK-GE17: [[inEvent:%.*]] = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS3vmPU3AS1Kvmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") zeroinitializer)
-; CHECK-LT17: [[inEvent:%.*]] = call spir_func ptr @_Z26async_work_group_copy_2D2DPU3AS3vmPU3AS1Kvmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, ptr null)
+; CHECK: [[inEvent:%.*]] = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS3vmPU3AS1Kvmmmmmm9ocl_event(ptr addrspace(3) [[scratch]], i64 0, ptr addrspace(1) [[in]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") zeroinitializer)
              %inEvent = OpExtInst %eventT %groupAsyncCopies 1 %scratch %int64Zero %in %int64Zero %sizeofInt32T %numBytesPerLine %numLines %lineLength %lineLength %nullEvent
 
 
-; CHECK-GE17: = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") [[inEvent]])
-; CHECK-LT17: = call spir_func ptr @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, ptr [[inEvent]])
+; CHECK: = call spir_func target("spirv.Event") @_Z26async_work_group_copy_2D2DPU3AS1vmPU3AS3Kvmmmmmm9ocl_event(ptr addrspace(1) [[out]], i64 0, ptr addrspace(3) [[scratch]], i64 0, i64 4, i64 16, i64 8, i64 4, i64 4, target("spirv.Event") [[inEvent]])
             %outEvent = OpExtInst %eventT %groupAsyncCopies 1 %out %int64Zero %scratch %int64Zero %sizeofInt32T %numBytesPerLine %numLines %lineLength %lineLength %inEvent
 
                         OpReturn

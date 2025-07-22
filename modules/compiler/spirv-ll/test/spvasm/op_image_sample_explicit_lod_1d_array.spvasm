@@ -16,8 +16,7 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 -c Sampled1D %spv_file_s | FileCheck %s
                       OpCapability Kernel
                       OpCapability Addresses
                       OpCapability Sampled1D
@@ -48,10 +47,8 @@
      %image1d_array = OpFunction %void_t None %sampler_fn_t
         %in_sampler = OpFunctionParameter %sampler_t
           %in_image = OpFunctionParameter %image1d_array_t
-; CHECK-GE17: define spir_kernel void @image1d_array([[SAMPLER_TY:target\("spirv.Sampler"\)]] noundef %in_sampler,
-; CHECK-GE17-SAME: [[IMG_TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] noundef %in_image)
-; CHECK-LT17: define spir_kernel void @image1d_array([[SAMPLER_TY:ptr]] noundef %in_sampler,
-; CHECK-LT17-SAME: [[IMG_TY:ptr addrspace\(1\)]] noundef %in_image)
+; CHECK: define spir_kernel void @image1d_array([[SAMPLER_TY:target\("spirv.Sampler"\)]] noundef %in_sampler,
+; CHECK-SAME: [[IMG_TY:target\("spirv.Image", void, 0, 0, 1, 0, 0, 0, 0\)]] noundef %in_image)
                  %1 = OpLabel
      %sampled_image = OpSampledImage %sampled_image_t %in_image %in_sampler
                  %2 = OpImageSampleExplicitLod %v4float_t %sampled_image %v2float_1 None
