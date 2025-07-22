@@ -24,6 +24,7 @@ permissions: {}
 jobs:
   # Build job
   build:
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch'  
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
