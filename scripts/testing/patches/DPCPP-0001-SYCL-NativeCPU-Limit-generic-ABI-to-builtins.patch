@@ -1,6 +1,6 @@
-From a12433d40f6a330ec67f1e769423aa51d8201426 Mon Sep 17 00:00:00 2001
+From 6897ba489228109b85d997b3e4525478ee03635a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
-Date: Fri, 6 Jun 2025 17:48:28 +0100
+Date: Wed, 23 Jul 2025 17:25:19 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
 
 In #17408, NativeCPU became a target in order to be able to pick the ABI
@@ -18,7 +18,7 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  clang/lib/AST/Type.cpp                        |  1 +
  clang/lib/AST/TypePrinter.cpp                 |  3 +++
  clang/lib/Basic/Targets/NativeCPU.cpp         |  1 +
- clang/lib/Basic/Targets/NativeCPU.h           |  7 +++++++
+ clang/lib/Basic/Targets/NativeCPU.h           |  5 +++++
  clang/lib/CodeGen/CGCall.cpp                  |  3 +++
  clang/lib/CodeGen/Targets/NativeCPU.cpp       | 13 ++++++++++++
  clang/lib/Sema/SemaDeclAttr.cpp               |  7 +++++++
@@ -29,7 +29,7 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  llvm/lib/Linker/IRMover.cpp                   |  7 +++++++
  .../sycl/detail/defines_elementary.hpp        |  5 +++++
  sycl/include/sycl/group.hpp                   | 20 ++++++++++++++++---
- 16 files changed, 88 insertions(+), 7 deletions(-)
+ 16 files changed, 86 insertions(+), 7 deletions(-)
 
 diff --git a/clang/include/clang/Basic/Attr.td b/clang/include/clang/Basic/Attr.td
 index a098c6b27a47..573dc4aefabd 100644
@@ -108,16 +108,14 @@ index 65db0613b7c4..276086d4aa5e 100644
 +  resetDataLayout(Aux->getDataLayoutString());
  }
 diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
-index cb2c71ebe39b..38e0fd99d36a 100644
+index cb2c71ebe39b..eb4f365734d6 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.h
 +++ b/clang/lib/Basic/Targets/NativeCPU.h
-@@ -49,7 +49,14 @@ public:
+@@ -49,7 +49,12 @@ public:
  
    void setSupportedOpenCLOpts() override { supportAllOpenCLOpts(); }
  
-+  CallingConv getLibclcCallingConv() const override {
-+    return CC_SpirFunction;
-+  }
++  CallingConv getLibclcCallingConv() const override { return CC_SpirFunction; }
 +
    CallingConvCheckResult checkCallingConvention(CallingConv CC) const override {
 +    if (CC == CC_SpirFunction)
