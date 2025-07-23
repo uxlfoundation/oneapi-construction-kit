@@ -17,6 +17,10 @@ Upgrade guidance:
   as the API.
 * The mux spec has been bumped:
   * 0.81.0: the muxResetFence and muxResetSemaphore functions have been removed.
+* Mux now enables only the "host" compiler and target by default. Non-host
+  builds will need to specify the compiler and target explicitly. The
+  `CA_(target)_ENABLED` variables which served as extra gates for various
+  targets no longer have any effect.
 
 ## Version 4.0.0
 

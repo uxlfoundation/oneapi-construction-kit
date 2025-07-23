@@ -125,7 +125,6 @@ Currently recommended build options include:
 .. code-block:: console
 
  $ cmake -GNinja \
-   -DCA_RISCV_ENABLED=ON \
    -DCA_MUX_TARGETS_TO_ENABLE="riscv" \
    -DCA_LLVM_INSTALL_DIR=<llvm_install_dir>/llvm_install \
    -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
@@ -138,7 +137,6 @@ target has additional features. This is done by adding to the build options:
 .. code-block:: console
 
  $ cmake -GNinja \
-   -DCA_RISCV_ENABLED=ON \
    -DCA_MUX_TARGETS_TO_ENABLE="riscv" \
    -DCA_LLVM_INSTALL_DIR=<llvm_install_dir>/llvm_install \
    -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \

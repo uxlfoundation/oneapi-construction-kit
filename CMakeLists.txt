@@ -110,11 +110,11 @@ endif()
 ca_option(CA_ENABLE_DOCUMENTATION BOOL
   "Enable documentation generation" ON)
 ca_option(CA_MUX_TARGETS_TO_ENABLE STRING
-  "Semi-colon separated list of ComputeMux targets to enable, empty enables all" "")
+  "Semi-colon separated list of ComputeMux targets to enable, empty enables all" "host")
 ca_option(CA_EXTERNAL_MUX_TARGET_DIRS STRING
   "Semi-colon separated list of external ComputeMux target source directories" "")
 ca_option(CA_MUX_COMPILERS_TO_ENABLE STRING
-  "Semi-colon separated list of ComputeMux compilers to enable, empty enables all" "")
+  "Semi-colon separated list of ComputeMux compilers to enable, empty enables all" "${CA_MUX_TARGETS_TO_ENABLE}")
 ca_option(CA_EXTERNAL_MUX_COMPILER_DIRS STRING
   "Semi-colon separated list of external ComputeMux compiler source directories" "")
 ca_immutable_option(CA_RUNTIME_COMPILER_ENABLED BOOL

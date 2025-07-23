@@ -26,7 +26,6 @@ runs:
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || inputs.build_targets }}
           mux_targets_enable: riscv
           mux_compilers_enable: refsi_m1
-          riscv_enabled: ON
           disable_unitcl_vecz_checks: ${{ inputs.disable_unitcl_vecz_checks }}
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON
