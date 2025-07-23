@@ -68,11 +68,8 @@ jobs:
       - name: set run_cities var
         id: run_cities_id
         run: |
-          echo "COMMON_RUN_CITIES_OPTIONS<<EOF2" >> $GITHUB_OUTPUT
-          # COMMON RUN_CITIES OPTIONS START ...
-          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/build/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
-          # ... COMMON RUN_CITIES OPTIONS END
-          echo "EOF2" >> $GITHUB_OUTPUT
+          echo "COMMON_RUN_CITIES_OPTIONS='-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/build/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail'" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
@@ -317,16 +314,7 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-e 'CA_RISCV_VF=1,S' \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-        #      -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml \
         ninja_1_options: "-C $GITHUB_WORKSPACE/build check-ock"
-    #- name: run_cities call and run
-    #  run: |
-    #    set -x
-    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-    #      -e "CA_RISCV_VF=1,S" \
-    #      -r $GITHUB_WORKSPACE/build/cts_riscv_1s.xml \
-    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-    #    ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
@@ -367,16 +355,7 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-e 'CA_RISCV_VF=1,S,VP' \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-        #      -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml \
         ninja_1_options: "-C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz"
-    #- name: run_cities call and run
-    #  run: |
-    #    set -x
-    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-    #      -e "CA_RISCV_VF=1,S,VP" \
-    #      -r $GITHUB_WORKSPACE/build/cts_riscv_1svp.xml \
-    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-    #    ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
@@ -488,19 +467,8 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-i $GITHUB_WORKSPACE/skipped.txt \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-        #      -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml \
         ninja_1_options: "-C build check-ock"
         ninja_2_options: "-C build check-ock-UnitCL-half"
-    #- name: run_cities call and run
-    #  run: |
-    #    echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
-    #    set -x
-    #    python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
-    #      -i $GITHUB_WORKSPACE/skipped.txt \
-    #      -r $GITHUB_WORKSPACE/build/cts_refsi_g1_wi.xml \
-    #      ${{ env.COMMON_RUN_CITIES_OPTIONS }}
-    #    ninja -C build check-ock
-    #    ninja -C build check-ock-UnitCL-half
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
