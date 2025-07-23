@@ -20,6 +20,7 @@
 // destination buffer using concurrent DMA operations.
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <vector>
 
