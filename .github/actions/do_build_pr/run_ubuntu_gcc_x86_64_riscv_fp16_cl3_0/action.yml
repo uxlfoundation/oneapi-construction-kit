@@ -20,7 +20,6 @@ runs:
           build_targets: ${{ inputs.cache_seed == 'true' && 'UnitCL clc' || 'check-ock' }}
           mux_targets_enable: riscv
           mux_compilers_enable: riscv
-          riscv_enabled: ON
           disable_unitcl_vecz_checks: ON
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON

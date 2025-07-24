@@ -11,8 +11,7 @@ Bumping the ComputeMux Specification Version
    a. Note that as long as the version number is in the 0.X.Y stage it is very
       unlikely that you will be updating the major number.
 3. Configure CMake, making sure that all ComputeMux targets are enabled. This
-   includes ``host`` which is enabled by default, and the RISC-V target which
-   is enabled with the ``CA_RISCV_ENABLED`` cmake option.
+   includes ``host`` which is enabled by default, and the ``riscv`` target.
 4. Build the ``mux-api-generate`` target e.g., ``ninja mux-api-generate``.
 5. Update ``doc/modules/mux/changes.rst``. The previous step will have
    generated an empty entry for the latest version.
