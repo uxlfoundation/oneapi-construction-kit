@@ -301,11 +301,11 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     }
 
     // Host doesn't support scalable values.
-    if (fn_metadata.min_work_item_factor.isScalable() ||
-        fn_metadata.pref_work_item_factor.isScalable() ||
-        fn_metadata.sub_group_size.isScalable()) {
-      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
-    }
+    // if (fn_metadata.min_work_item_factor.isScalable() ||
+    //     fn_metadata.pref_work_item_factor.isScalable() ||
+    //     fn_metadata.sub_group_size.isScalable()) {
+    //   return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
+    // }
 
     // Note that we grab a handle to the module here, which we use to reference
     // the module going forward. This is despite us passing ownership of the

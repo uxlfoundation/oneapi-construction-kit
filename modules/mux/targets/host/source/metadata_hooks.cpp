@@ -78,17 +78,21 @@ cargo::optional<kernel_variant_map> readBinaryMetadata(loader::ElfFile *elf,
   handler::VectorizeInfoMetadata md;
   while (handler.read(md)) {
     // We don't expect scalable vectorization widths on host.
+    bool isScalable = false;
     if (md.min_work_item_factor.isScalable() ||
         md.pref_work_item_factor.isScalable()) {
-      return cargo::nullopt;
+      printf("Warning: Scalable support is experimental on host target\n");
+     // return cargo::nullopt;
+     isScalable = true;
     }
     const host::binary_kernel_s kernel{
         /*hook*/ 0,
         std::move(md.kernel_name),
+        // TODO: Work out sensible values for scalable.
         static_cast<uint32_t>(md.local_memory_usage),
-        md.min_work_item_factor.getFixedValue(),
-        md.pref_work_item_factor.getFixedValue(),
-        md.sub_group_size.getFixedValue()};
+         isScalable ? 1 : md.min_work_item_factor.getFixedValue(),
+         isScalable ?  1 : md.pref_work_item_factor.getFixedValue(),
+         isScalable ? 1 : md.sub_group_size.getFixedValue()};
     auto it = kernels.find(md.source_name);
     if (it != kernels.end()) {
       it->second.push_back(kernel);
