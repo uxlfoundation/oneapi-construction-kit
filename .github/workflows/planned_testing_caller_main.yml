@@ -17,7 +17,7 @@ concurrency:
 jobs:
   # This makes the diagram too big if we post much here so Lmainfullexp_ is used.
   Lmainfullexp_:
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit'
+    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.repository == 'AERO-Project-EU/oneapi-construction-kit' )
     uses: ./.github/workflows/planned_testing_caller.yml
     with:
       llvm_version: 'main'
@@ -27,7 +27,7 @@ jobs:
  # This cleans up any caches which may have been created when running external tests
   clean_caches:
     needs: [ Lmainfullexp_ ]
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name == 'schedule' && always()
+    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.repository == 'AERO-Project-EU/oneapi-construction-kit' ) && github.event_name == 'schedule' && always()
     runs-on: ubuntu-latest
     permissions:
       actions: write # for gh cache delete
