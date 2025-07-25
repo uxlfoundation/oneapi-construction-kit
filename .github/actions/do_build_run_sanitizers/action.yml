@@ -6,6 +6,10 @@ inputs:
     description: 'sanitizer type: tsan OR aubsan'
     type: string
     required: true
+  part_id:
+    description: 'tests are long-running so split into 2 parts - indicate which to run: part1 OR part2'
+    type: string
+    required: true
   llvm_branch:
     description: 'The actual llvm branch to check out e.g. release/19.x'
     type: string
@@ -21,12 +25,19 @@ runs:
       run: |
         if [ "${{ inputs.san_type }}" = "tsan" ]; then
            echo "build_type=SanitizeThread" >> "$GITHUB_OUTPUT"
-           echo "ninja_options=-j3" >> "$GITHUB_OUTPUT"
-           echo "ca_options=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
+           echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
+           echo "extended_checks=-DCA_ENABLE_EXTENDED_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         else # aubsan
            echo "build_type=SanitizeAddress,Undefined" >> "$GITHUB_OUTPUT"
            echo "ninja_options=-j2" >> "$GITHUB_OUTPUT"
-           echo "ca_options=" >> "$GITHUB_OUTPUT"
+           echo "extended_checks=" >> "$GITHUB_OUTPUT"
+        fi
+        if [ "${{ inputs.part_id }}" = "part1" ]; then
+           echo "build_target=check-ock" >> "$GITHUB_OUTPUT"
+           echo "disable_unitcl_vecz_checks=-DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=ON" >> "$GITHUB_OUTPUT"
+        else # part2
+           echo "build_target=check-ock-UnitCL-group-vecz" >> "$GITHUB_OUTPUT"
+           echo "disable_unitcl_vecz_checks=-DCA_CL_DISABLE_UNITCL_VECZ_CHECKS=OFF" >> "$GITHUB_OUTPUT"
         fi
         cat $GITHUB_OUTPUT
 
@@ -79,7 +90,8 @@ runs:
             -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \
             -DOCL_EXTENSION_cl_khr_command_buffer=ON \
             -DOCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch=ON \
-            ${{ steps.sanitizer_vars.outputs.ca_options }} \
+            ${{ steps.sanitizer_vars.outputs.extended_checks }} \
+            ${{ steps.sanitizer_vars.outputs.disable_unitcl_vecz_checks }} \
             -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install \
             -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/external/llvm_install \
             -DCMAKE_BUILD_TYPE=Debug \
@@ -99,4 +111,4 @@ runs:
       shell: 'bash'
       run: |
         echo Test OCK ninja
-        ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} check-ock
+        ninja -C build ${{ steps.sanitizer_vars.outputs.ninja_options }} ${{ steps.sanitizer_vars.outputs.build_target }}
