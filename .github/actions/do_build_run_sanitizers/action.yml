@@ -7,7 +7,7 @@ inputs:
     type: string
     required: true
   part_id:
-    description: 'tests are split into part1/part2 - indicate which to run: part1 OR part2'
+    description: 'tests are long-running so split into 2 parts - indicate which to run: part1 OR part2'
     type: string
     required: true
   llvm_branch:

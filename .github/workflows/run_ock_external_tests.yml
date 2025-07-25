@@ -228,6 +228,9 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         san_type: [ 'tsan', 'aubsan' ]
+        # sanitizer jobs are long-running in their original format and close to the
+        # default job timeout value. Splitting into part1/part2 trims c.45 mins from
+        # total matrix run time across all jobs.
         part_id: [ 'part1', 'part2' ]
     runs-on: 'ubuntu-22.04'
     container:
