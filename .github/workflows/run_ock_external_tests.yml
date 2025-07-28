@@ -228,6 +228,10 @@ jobs:
       fail-fast: false  # let all matrix jobs complete
       matrix:
         san_type: [ 'tsan', 'aubsan' ]
+        # sanitizer jobs are long-running in their original format and close to the
+        # default job timeout value. Splitting into part1/part2 trims c.45 mins from
+        # total matrix run time across all jobs.
+        part_id: [ 'part1', 'part2' ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -246,6 +250,7 @@ jobs:
         uses: ./.github/actions/do_build_run_sanitizers
         with:
           san_type: ${{ matrix.san_type }}
+          part_id: ${{ matrix.part_id }}
           llvm_branch: ${{ inputs.llvm_branch }}
 
   build_run_remote_hal:
