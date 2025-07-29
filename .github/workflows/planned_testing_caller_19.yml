@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   L19_:
-    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.repository == 'AERO-Project-EU/oneapi-construction-kit' )
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit'
     uses: ./.github/workflows/planned_testing_caller.yml
     with:
       llvm_version: '19'
@@ -48,7 +48,7 @@ jobs:
   # This cleans up any caches which may have been created when running external tests
   clean_caches:
     needs: [ L19_ ]
-    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.repository == 'AERO-Project-EU/oneapi-construction-kit' ) && always()
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && always()
     runs-on: ubuntu-latest
     permissions:
       actions: write # for gh cache delete
