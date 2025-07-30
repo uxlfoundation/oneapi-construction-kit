@@ -1,0 +1,5 @@
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/AddCA.cmake)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multi_llvm)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/compiler_pipeline)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vecz)
