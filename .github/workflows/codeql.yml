@@ -9,6 +9,7 @@ permissions: {}
 jobs:
   analyze-host-x86_64-release:
     name: Analyze host x86_64 release
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit'
     permissions:
       # required for all workflows
       security-events: write
@@ -60,6 +61,7 @@ jobs:
 
   analyze-riscv-m1:
     name: Analyze riscv m1
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit'
     permissions:
       # required for all workflows
       security-events: write
