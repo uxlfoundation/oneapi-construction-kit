@@ -16,9 +16,9 @@
 (tbd)
 
 ## Self-Hosted Runners
-References to standard Github runners can be replaced by self-hosted runners in the CI config by updating individual `runs-on:` settings to use an appropriate self-hosted runner string.
+References to standard Github runners can be replaced by references to self-hosted runners in the CI config by updating individual `runs-on:` settings to use an appropriate self-hosted runner string.
 
-Further information on deploying up self-hosted runners can be found [here](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
+Further information on deploying self-hosted runners can be found [here](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
 Further information on `runs-on:` can be found [here](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idruns-on).
 
 ## Configuring Run_Cities test phases in PR testing jobs (once merged)
@@ -39,7 +39,7 @@ There are a number of inputs to this workflow which relate to Git checkout refer
 ```
 These default values can also be updated interactively on a per-run basis when called from the web interface. 
 
-Should an update to an opencl_cts cache artifact be required (e.g. when new Git checkout references are available and the workflow inputs defaults have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Care should also be taken to avoid impacting any in-progress PRs which are still referencing the previous artefact version.
+Should an update to the opencl_cts cache artifact be required (e.g. when new Git checkout references are available and the workflow inputs default values have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Care should be taken to avoid impacting any in-progress PRs which are still referencing the previous artefact version.
 
 ## Running workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [here](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
