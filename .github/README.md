@@ -16,14 +16,16 @@
 (tbd)
 
 ## Self-Hosted Runners
-Standard Github runners can be replaced by self-hosted runners in the CI config by updating individual `runs-on:` settings to use an appropriate self-hosted runner string.
+References to standard Github runners can be replaced by self-hosted runners in the CI config by updating individual `runs-on:` settings to use an appropriate self-hosted runner string.
+
 Further information on deploying up self-hosted runners can be found [here](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
 Further information on `runs-on:` can be found [here](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idruns-on).
 
 ## Configuring Run_Cities test phases in PR testing jobs (once merged)
-A number of individual PR test jobs in the `Run ock internal tests" workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the PR tests. This phase also requires a pre-built opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
-The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests themselves.
-There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values at time of writing are:
+A number of individual PR test jobs in the `Run ock internal tests` workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the PR tests. This phase also requires a pre-built opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
+
+The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests.
+There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values for these at time of writing are:
 ```
       header_ref:
         description: 'Git checkout ref for OpenCL Headers repo'
@@ -36,7 +38,8 @@ There are a number of inputs to this workflow which relate to Git checkout refer
         default: 'v2025-04-21-00'
 ```
 These default values can also be updated interactively on a per-run basis when called from the web interface. 
-Should an update to an opencl_cts cache artifact be required (e.g. when new Git checkout reference inputs are available) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Care should also be taken to avoid impacting any in-progress PRs which still reference the previous artefact version.
+
+Should an update to an opencl_cts cache artifact be required (e.g. when new Git checkout references are available and the workflow inputs defaults have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Care should also be taken to avoid impacting any in-progress PRs which are still referencing the previous artefact version.
 
 ## Running workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [here](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
