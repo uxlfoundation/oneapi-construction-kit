@@ -26,6 +26,7 @@
 #include <map>
 #include <mutex>
 #include <new>
+#include <vector>
 
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
 #include <papi.h>
@@ -95,17 +96,14 @@ struct thread_pool_s final {
   /// @param[in] user_data User data to pass to the function.
   /// @param[in] user_data2 A second user data to pass to the function.
   /// @param[in] user_data3 A third user data to pass to the function.
-  /// @param[in,out] signals A list of bools that will be signalled when each
+  /// @param[in,out] signals A vector of bools that will be signalled when each
   /// slice of the enqueue range has completed.
   /// @param[in,out] count A number that is incremented immediately, and
   /// decremented when the enqueued function has completed.
   /// @param[in] slices The number of pieces that the work is to be divided into
   /// when it is enqueued on the thread pool.
-  ///
-  /// @tparam N Length of `signals`.
-  template <size_t N>
   void enqueue_range(function_t function, void *user_data, void *user_data2,
-                     std::array<std::atomic<bool>, N> &signals,
+                     std::vector<std::atomic<bool>> &signals,
                      std::atomic<uint32_t> *count, size_t slices) {
     const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
@@ -173,20 +171,15 @@ struct thread_pool_s final {
   /// enqueue, wait() will wait for the counter to reach zero.
   void wait(std::atomic<uint32_t> *count);
 
-  /// The maximum number of threads our thread pool supports. Useful for
-  /// allocating memory (you know the max size of allocations required).
-  static const size_t max_num_threads = 32;
-
   /// The maximum number of work that can be enqueued.
   static const size_t queue_max = 4096;
 
-  /// The number of threads actually initialized in the thread pool.  General
-  /// the lower of the number of cores or max_num_threads, but could be lower in
-  /// the presence of debug settings.
+  /// The number of threads actually initialized in the thread pool. In General
+  /// the number of cores, but could be lower in the presence of debug settings.
   size_t initialized_threads;
 
   /// The pool of threads to use for execution.
-  std::array<cargo::thread, max_num_threads> pool;
+  std::vector<cargo::thread> pool;
 
   /// The buffer to hold the queue of work.
   std::array<thread_pool_work_item_s, queue_max> queue;

@@ -87,8 +87,7 @@ thread_pool_s::thread_pool_s() : stayAlive(true) {
   const size_t hw_threads = cargo::thread::hardware_concurrency();
   const size_t desired_threads =
       clamp(hw_threads - ca_free_hw_threads, 2, hw_threads);
-  const size_t max_threads = thread_pool_s::max_num_threads;
-  size_t debug_threads = thread_pool_s::max_num_threads;
+  size_t debug_threads = hw_threads;
 
   // Register the value of the CA_HOST_NUM_THREADS environment variable.
   // If the programmer has provided an override to the number of threads that
@@ -102,7 +101,8 @@ thread_pool_s::thread_pool_s() : stayAlive(true) {
   }
 
   // Must be set before num_threads() is called.
-  initialized_threads = std::min({desired_threads, max_threads, debug_threads});
+  initialized_threads = std::min({desired_threads, debug_threads});
+  pool.resize(num_threads());
   for (size_t i = 0, e = num_threads(); i < e; i++) {
     pool[i] = cargo::thread(threadFunc, this);
     pool[i].set_name("host:pool:" + std::to_string(i));
