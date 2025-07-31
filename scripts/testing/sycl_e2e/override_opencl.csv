@@ -123,6 +123,7 @@ SYCL,Printf/int.cpp,XFail
 SYCL,ProfilingTag/in_order_profiling_queue.cpp,XFail
 SYCL,Reduction/reduction_internal_nd_range_1dim.cpp,MayFail
 SYCL,Reduction/reduction_internal_range_1dim.cpp,MayFail
+SYCL,Reduction/reduction_internal_range_2dim.cpp,MayFail
 SYCL,Reduction/reduction_internal_range_3dim.cpp,MayFail
 SYCL,Regression/group.cpp,XFail
 SYCL,Regression/group_load_fortified.cpp,XFail

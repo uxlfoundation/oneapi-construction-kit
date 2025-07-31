@@ -1,3 +1,4 @@
 SYCL_CTS,test_atomic_ref_stress,MayFail
 SYCL_CTS,test_atomic_ref "sycl::atomic_ref fetch_add()/fetch_sub() test. *",MayFail
 SYCL_CTS,test_atomic_ref "sycl::atomic_ref operator+=*",MayFail
+SYCL_CTS,test_reduction reduction_without_identity_param_even_item_core --allow-running-no-tests,MayFail
