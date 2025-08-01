@@ -2,9 +2,8 @@ name: run planned tests for llvm 19
 on:
   # Temporarily disable planned tests by using workflow_dispatch
   #pull_request:
-  workflow_dispatch:
-    paths:
-      - '.github/workflows/planned_testing_caller_19.yml'
+  #  paths:
+  #    - '.github/workflows/planned_testing_caller_19.yml'
   schedule:
     # Run Sun, Wed at 7pm
     - cron: '0 19 * * 0,3'
