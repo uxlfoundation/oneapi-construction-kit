@@ -6,6 +6,7 @@ on:
   schedule:
     # Run Mon, Thu at 7pm
     - cron: '0 19 * * 1,4'
+  workflow_dispatch:
 
 permissions:
   packages: read
@@ -24,7 +25,7 @@ concurrency:
 jobs:
   # This makes the diagram too big if we post much here so L20_ is used.
   L20_:
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name != 'schedule'
+    if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/planned_testing_caller.yml
     with:
       llvm_version: '20'
@@ -38,7 +39,7 @@ jobs:
   # This cleans up any caches which may have been created when running external tests
   clean_caches:
     needs: [ L20_ ]
-    if: github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name == 'schedule' && always()
+    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch' ) && always()
     runs-on: ubuntu-latest
     permissions:
       actions: write # for gh cache delete

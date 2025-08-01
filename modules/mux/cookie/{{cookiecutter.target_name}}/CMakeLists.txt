@@ -18,11 +18,6 @@
 # Reserved.
 {% endif -%}
 
-ca_option(CA_{{cookiecutter.target_name_capitals}}_ENABLED BOOL "Enable {{cookiecutter.target_name}} mux target" OFF)
-if(NOT ${CA_{{cookiecutter.target_name_capitals}}_ENABLED})
-  return()
-endif()
-
 if (DEFINED CA_EXTERNAL_{{cookiecutter.target_name_capitals}}_HAL_DIR)
   # Get the name of only the final part of the directory
   get_filename_component(EXTERNAL_HAL_NAME ${CA_EXTERNAL_{{cookiecutter.target_name_capitals}}_HAL_DIR} NAME)

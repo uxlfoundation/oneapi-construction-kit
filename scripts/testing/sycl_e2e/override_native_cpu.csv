@@ -9,7 +9,6 @@ SYCL,Basic/kernel_bundle/kernel_bundle_api.cpp,XFail
 SYCL,Basic/large-range.cpp,XFail
 SYCL,Basic/max_linear_work_group_size_props.cpp,XFail
 SYCL,Basic/max_work_group_size_props.cpp,XFail
-SYCL,Complex/sycl_complex_math_test.cpp,XFail
 SYCL,Compression/no_zstd_warning.cpp,XFail
 SYCL,DeviceImageDependencies/dynamic.cpp,XFail
 SYCL,DeviceImageDependencies/free_function_kernels.cpp,XFail

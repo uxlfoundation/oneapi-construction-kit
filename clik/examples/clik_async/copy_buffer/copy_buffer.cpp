@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "clik_async_api.h"
 #include "option_parser.h"

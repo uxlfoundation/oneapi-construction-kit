@@ -15,16 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #[=======================================================================[.rst:
-.. cmake:variable:: CA_HOST_ENABLED
-
-  Option for enabling host Mux target, defaults to on.
-#]=======================================================================]
-ca_option(CA_HOST_ENABLED BOOL "Enable host mux target" ON)
-if(NOT CA_HOST_ENABLED)
-  return()
-endif()
-
-#[=======================================================================[.rst:
 .. cmake:variable:: CA_HOST_ENABLE_BUILTIN_KERNEL
 
   Enable host reporting of builtin kernels. Defaults to the value of

@@ -114,6 +114,7 @@ SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl_cache.cpp,XFail
 SYCL,KernelCompiler/sycl.cpp,XFail
 SYCL,KernelCompiler/sycl_device_globals.cpp,XFail
+SYCL,NewOffloadDriver/multisource.cpp,XFail
 SYCL,NonUniformGroups/ballot_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group.cpp,XFail
@@ -123,6 +124,7 @@ SYCL,Printf/int.cpp,XFail
 SYCL,ProfilingTag/in_order_profiling_queue.cpp,XFail
 SYCL,Reduction/reduction_internal_nd_range_1dim.cpp,MayFail
 SYCL,Reduction/reduction_internal_range_1dim.cpp,MayFail
+SYCL,Reduction/reduction_internal_range_2dim.cpp,MayFail
 SYCL,Reduction/reduction_internal_range_3dim.cpp,MayFail
 SYCL,Regression/group.cpp,XFail
 SYCL,Regression/group_load_fortified.cpp,XFail

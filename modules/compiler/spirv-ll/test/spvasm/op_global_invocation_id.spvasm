@@ -16,8 +16,7 @@
 
 ; RUN: %if online-spirv-as %{ spirv-as --target-env %spv_tgt_env -o %spv_file_s %s %}
 ; RUN: %if online-spirv-as %{ spirv-val %spv_file_s %}
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %t
+; RUN: spirv-ll-tool -a OpenCL -b 64 %spv_file_s | FileCheck %s
                OpCapability Kernel
                OpCapability Addresses
                OpCapability Int64
@@ -49,5 +48,4 @@
 
 ; CHECK: declare spir_func i64 @_Z13get_global_idj(i32) [[ATTRS:#[0-9]+]]
 
-; CHECK-GE16: attributes [[ATTRS]] = { nounwind memory(read) }
-; CHECK-LT16: attributes [[ATTRS]] = { nounwind readonly }
+; CHECK: attributes [[ATTRS]] = { nounwind memory(read) }

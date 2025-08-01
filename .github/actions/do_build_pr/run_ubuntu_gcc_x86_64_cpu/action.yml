@@ -25,6 +25,7 @@ runs:
           build_dir: $GITHUB_WORKSPACE/cpu_hal_ock/build
           install_dir: $GITHUB_WORKSPACE/cpu_hal_ock/install
           mux_targets_enable: cpu
+          mux_compilers_enable: cpu
           use_linker: gold
           debug_support: ON
           command_buffer: OFF

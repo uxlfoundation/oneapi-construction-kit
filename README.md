@@ -76,7 +76,6 @@ The available targets in the current implementation are based on Codeplay's refe
 ```sh
 cmake -GNinja \
    -Bbuild-riscv \
-   -DCA_RISCV_ENABLED=ON \
    -DCA_MUX_TARGETS_TO_ENABLE="riscv" \
    -DCA_LLVM_INSTALL_DIR=$LLVMInstall \
    -DCA_ENABLE_HOST_IMAGE_SUPPORT=OFF \

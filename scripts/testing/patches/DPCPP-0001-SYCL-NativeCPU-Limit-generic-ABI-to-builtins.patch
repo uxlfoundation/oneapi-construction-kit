@@ -1,6 +1,6 @@
-From 11e1e3985a179f2a4955c95b1abf5255fe5c2547 Mon Sep 17 00:00:00 2001
+From 6897ba489228109b85d997b3e4525478ee03635a Mon Sep 17 00:00:00 2001
 From: Harald van Dijk <harald.vandijk@codeplay.com>
-Date: Fri, 6 Jun 2025 17:48:28 +0100
+Date: Wed, 23 Jul 2025 17:25:19 +0100
 Subject: [PATCH] [SYCL][NativeCPU] Limit generic ABI to builtins.
 
 In #17408, NativeCPU became a target in order to be able to pick the ABI
@@ -18,7 +18,7 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  clang/lib/AST/Type.cpp                        |  1 +
  clang/lib/AST/TypePrinter.cpp                 |  3 +++
  clang/lib/Basic/Targets/NativeCPU.cpp         |  1 +
- clang/lib/Basic/Targets/NativeCPU.h           |  7 +++++++
+ clang/lib/Basic/Targets/NativeCPU.h           |  5 +++++
  clang/lib/CodeGen/CGCall.cpp                  |  3 +++
  clang/lib/CodeGen/Targets/NativeCPU.cpp       | 13 ++++++++++++
  clang/lib/Sema/SemaDeclAttr.cpp               |  7 +++++++
@@ -29,13 +29,13 @@ Fixes the SYCL-E2E acos, cmath, and exp-std-complex tests.
  llvm/lib/Linker/IRMover.cpp                   |  7 +++++++
  .../sycl/detail/defines_elementary.hpp        |  5 +++++
  sycl/include/sycl/group.hpp                   | 20 ++++++++++++++++---
- 16 files changed, 88 insertions(+), 7 deletions(-)
+ 16 files changed, 86 insertions(+), 7 deletions(-)
 
 diff --git a/clang/include/clang/Basic/Attr.td b/clang/include/clang/Basic/Attr.td
-index bae6b08b0a2b..2aa83e9e6310 100644
+index a098c6b27a47..573dc4aefabd 100644
 --- a/clang/include/clang/Basic/Attr.td
 +++ b/clang/include/clang/Basic/Attr.td
-@@ -492,6 +492,7 @@ def TargetAnyX86 : TargetArch<["x86", "x86_64"]>;
+@@ -494,6 +494,7 @@ def TargetAnyX86 : TargetArch<["x86", "x86_64"]>;
  def TargetSPIRV : TargetArch<["spirv", "spirv32", "spirv64"]>;
  def TargetWebAssembly : TargetArch<["wasm32", "wasm64"]>;
  def TargetNVPTX : TargetArch<["nvptx", "nvptx64"]>;
@@ -43,7 +43,7 @@ index bae6b08b0a2b..2aa83e9e6310 100644
  def TargetWindows : TargetSpec {
    let OSes = ["Win32"];
  }
-@@ -4440,6 +4441,11 @@ def RISCVVLSCC: DeclOrTypeAttr, TargetSpecificAttr<TargetRISCV> {
+@@ -4490,6 +4491,11 @@ def RISCVVLSCC: DeclOrTypeAttr, TargetSpecificAttr<TargetRISCV> {
   let Documentation = [RISCVVLSCCDocs];
  }
  
@@ -72,10 +72,10 @@ index c3bce6e807f3..511cd5d10772 100644
    AtomicOptions getAtomicOpts() const { return AtomicOpts; }
  
 diff --git a/clang/lib/AST/Type.cpp b/clang/lib/AST/Type.cpp
-index 64b7a67bccd6..87f236826952 100644
+index 2e583b3307c5..da38b9ebddd2 100644
 --- a/clang/lib/AST/Type.cpp
 +++ b/clang/lib/AST/Type.cpp
-@@ -4337,6 +4337,7 @@ bool AttributedType::isCallingConv() const {
+@@ -4342,6 +4342,7 @@ bool AttributedType::isCallingConv() const {
    case attr::PreserveNone:
    case attr::RISCVVectorCC:
    case attr::RISCVVLSCC:
@@ -84,10 +84,10 @@ index 64b7a67bccd6..87f236826952 100644
    }
    llvm_unreachable("invalid attr kind");
 diff --git a/clang/lib/AST/TypePrinter.cpp b/clang/lib/AST/TypePrinter.cpp
-index d66b5299c91f..7ec555a1c51a 100644
+index 25461ab284b6..9cb66b660156 100644
 --- a/clang/lib/AST/TypePrinter.cpp
 +++ b/clang/lib/AST/TypePrinter.cpp
-@@ -2108,6 +2108,9 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
+@@ -2112,6 +2112,9 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
    case attr::RISCVVLSCC:
      OS << "riscv_vls_cc";
      break;
@@ -108,16 +108,14 @@ index 65db0613b7c4..276086d4aa5e 100644
 +  resetDataLayout(Aux->getDataLayoutString());
  }
 diff --git a/clang/lib/Basic/Targets/NativeCPU.h b/clang/lib/Basic/Targets/NativeCPU.h
-index cb2c71ebe39b..38e0fd99d36a 100644
+index cb2c71ebe39b..eb4f365734d6 100644
 --- a/clang/lib/Basic/Targets/NativeCPU.h
 +++ b/clang/lib/Basic/Targets/NativeCPU.h
-@@ -49,7 +49,14 @@ public:
+@@ -49,7 +49,12 @@ public:
  
    void setSupportedOpenCLOpts() override { supportAllOpenCLOpts(); }
  
-+  CallingConv getLibclcCallingConv() const override {
-+    return CC_SpirFunction;
-+  }
++  CallingConv getLibclcCallingConv() const override { return CC_SpirFunction; }
 +
    CallingConvCheckResult checkCallingConvention(CallingConv CC) const override {
 +    if (CC == CC_SpirFunction)
@@ -127,10 +125,10 @@ index cb2c71ebe39b..38e0fd99d36a 100644
        return HostTarget->checkCallingConvention(CC);
  
 diff --git a/clang/lib/CodeGen/CGCall.cpp b/clang/lib/CodeGen/CGCall.cpp
-index 3b78aa85712b..792e192a2b7f 100644
+index c0adc86c86fe..58db2c2a885f 100644
 --- a/clang/lib/CodeGen/CGCall.cpp
 +++ b/clang/lib/CodeGen/CGCall.cpp
-@@ -336,6 +336,9 @@ static CallingConv getCallingConventionForDecl(const ObjCMethodDecl *D,
+@@ -334,6 +334,9 @@ static CallingConv getCallingConventionForDecl(const ObjCMethodDecl *D,
      }
    }
  
@@ -172,10 +170,10 @@ index 313878c008f8..af64f073794c 100644
      CodeGenModule &CGM,
      std::unique_ptr<TargetCodeGenInfo> HostTargetCodeGenInfo) {
 diff --git a/clang/lib/Sema/SemaDeclAttr.cpp b/clang/lib/Sema/SemaDeclAttr.cpp
-index b076cb60db26..87dc1bd80b1e 100644
+index d69801fab4af..656b11f434c5 100644
 --- a/clang/lib/Sema/SemaDeclAttr.cpp
 +++ b/clang/lib/Sema/SemaDeclAttr.cpp
-@@ -5330,6 +5330,9 @@ static void handleCallConvAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+@@ -5374,6 +5374,9 @@ static void handleCallConvAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
      D->addAttr(::new (S.Context) RISCVVLSCCAttr(S.Context, AL, VectorLength));
      return;
    }
@@ -185,8 +183,8 @@ index b076cb60db26..87dc1bd80b1e 100644
    default:
      llvm_unreachable("unexpected attribute kind");
    }
-@@ -5572,6 +5575,9 @@ bool Sema::CheckCallingConvAttr(const ParsedAttr &Attrs, CallingConv &CC,
-                                   llvm::Log2_64(ABIVLen) - 5);
+@@ -5645,6 +5648,9 @@ bool Sema::CheckCallingConvAttr(const ParsedAttr &Attrs, CallingConv &CC,
+     CC = CC_DeviceKernel;
      break;
    }
 +  case ParsedAttr::AT_NativeCPULibclcCall:
@@ -195,16 +193,16 @@ index b076cb60db26..87dc1bd80b1e 100644
    default: llvm_unreachable("unexpected attribute kind");
    }
  
-@@ -7575,6 +7581,7 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
+@@ -7646,6 +7652,7 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
    case ParsedAttr::AT_PreserveNone:
    case ParsedAttr::AT_RISCVVectorCC:
    case ParsedAttr::AT_RISCVVLSCC:
 +  case ParsedAttr::AT_NativeCPULibclcCall:
      handleCallConvAttr(S, D, AL);
      break;
-   case ParsedAttr::AT_Suppress:
+   case ParsedAttr::AT_DeviceKernel:
 diff --git a/clang/lib/Sema/SemaLookup.cpp b/clang/lib/Sema/SemaLookup.cpp
-index 45bad3673dc1..2207a869c5d9 100644
+index 9c2e96e5f06f..94b671a1e8d7 100644
 --- a/clang/lib/Sema/SemaLookup.cpp
 +++ b/clang/lib/Sema/SemaLookup.cpp
 @@ -22,6 +22,7 @@
@@ -225,7 +223,7 @@ index 45bad3673dc1..2207a869c5d9 100644
    PI.ExceptionSpec = FunctionProtoType::ExceptionSpecInfo{EST_BasicNoexcept};
  
 diff --git a/clang/lib/Sema/SemaType.cpp b/clang/lib/Sema/SemaType.cpp
-index cabab1a26e0e..9e54c6a7791b 100644
+index e1fc5322d5cd..3ea2e586fc89 100644
 --- a/clang/lib/Sema/SemaType.cpp
 +++ b/clang/lib/Sema/SemaType.cpp
 @@ -144,7 +144,8 @@ static void diagnoseBadTypeAttribute(Sema &S, const ParsedAttr &attr,
@@ -238,7 +236,7 @@ index cabab1a26e0e..9e54c6a7791b 100644
  
  // Function type attributes.
  #define FUNCTION_TYPE_ATTRS_CASELIST                                           \
-@@ -7663,6 +7664,8 @@ static Attr *getCCTypeAttr(ASTContext &Ctx, ParsedAttr &Attr) {
+@@ -7659,6 +7660,8 @@ static Attr *getCCTypeAttr(ASTContext &Ctx, ParsedAttr &Attr) {
  
      return ::new (Ctx) RISCVVLSCCAttr(Ctx, Attr, ABIVLen);
    }
@@ -280,10 +278,10 @@ index 819fd0910858..68e2ccde1446 100644
  // Several functions are used implicitly by WorkItemLoopsPass and
  // PrepareSYCLNativeCPUPass and need to be marked as used to prevent them being
 diff --git a/llvm/lib/Linker/IRMover.cpp b/llvm/lib/Linker/IRMover.cpp
-index 9ec9122555f2..45283ead6609 100644
+index cb36361a49de..04dff0bb9f8e 100644
 --- a/llvm/lib/Linker/IRMover.cpp
 +++ b/llvm/lib/Linker/IRMover.cpp
-@@ -1480,6 +1480,13 @@ Error IRLinker::run() {
+@@ -1472,6 +1472,13 @@ Error IRLinker::run() {
      EnableTripleWarning = !SrcHasLibDeviceTriple;
      EnableDLWarning = !(SrcHasLibDeviceTriple && SrcHasLibDeviceDL);
    }

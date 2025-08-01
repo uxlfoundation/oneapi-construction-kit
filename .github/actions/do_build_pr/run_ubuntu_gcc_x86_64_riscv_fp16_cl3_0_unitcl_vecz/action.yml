@@ -20,7 +20,6 @@ runs:
           build_targets: ${{ inputs.cache_seed == 'true' && 'clc UnitCL' || 'check-ock-UnitCL-group-vecz' }}
           mux_targets_enable: riscv
           mux_compilers_enable: riscv
-          riscv_enabled: ON
           enable_rvv_scalable_vecz_check: ON
           enable_rvv_scalable_vp_vecz_check: ON
           hal_description: RV64GCV_Zfh

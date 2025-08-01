@@ -129,11 +129,16 @@ class CTSTestRun(TestRunBase):
             self.total_tests += total_tests
 
         # Special cases.
-        if self.return_code:
-            # Handle failures due to signals.
-            super(CTSTestRun, self).analyze_process_output()
-        else:
+        if self.return_code == 0:
             # Handle tests that do not print 'PASSED'.
             if self.test.executable.name.find("headers") >= 0:
                 # The 'headers' executable always returns zero.
                 self.status = "PASS"
+        elif self.return_code == 156:
+            # OpenCL CTS uses -100 as a magic value to indicate that a test
+            # was skipped. Because exit codes are returned as 8-bit unsigned
+            # values, we see this as 156.
+            self.status = "SKIP"
+        else:
+            # Handle failures due to signals.
+            super(CTSTestRun, self).analyze_process_output()
