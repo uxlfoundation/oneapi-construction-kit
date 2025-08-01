@@ -1,9 +1,64 @@
 # CI Overview
 
 ## Workflows
+
+codeql.yml 
+- name: CodeQL
+- description: runs the CodeQL tool
+create_llvm_artefacts.yml 
+- name: create llvm artefacts
+- description: creates llvm artrfacts
+create_publish_artifacts.yml 
+- name: Build and Package
+- description: builds and packages publish artefacts
+docs.yml 
+- name: Build documentation
+- description: builds docs for PR testing
+planned_testing_caller.yml 
+- name: Run planned testing
+- description: runs planned_testing-style tests, called from an llvm versoon caller
+planned_testing_caller_19.yml 
+- name: run planned tests for llvm 19
+- description: runs planned_tests for llvm 19
+planned_testing_caller_20.yml 
+- name: run planned tests for llvm 20
+- description: runs planned_tests for llvm 20
+planned_testing_caller_21.yml 
+- name: run planned tests for llvm 21
+- description: runs planned_tests for llvm 21
+planned_testing_caller_main.yml 
+- name: run full planned tests for experimental llvm main
+- description: runs planned_tests for experimental llvm main
+planned_testing_caller_mini_main.yml 
+- name: run limited planned tests for experimental llvm main
+- description: runs limited planned_tests for experimental llvm main
+pr_tests_cache.yml 
+- name: Seed the cache for ock builds
+- description: seeds the cache for OCK builds
+publish_docker_images.yml 
+- name: publish docker images
+- description: builds and pulished docker images
+run_ock_external_tests.yml 
+- name: Run external tests
+- description: runs external OCK tests
+run_ock_internal_tests.yml 
+- name: Run ock internal tests
+- description: runs internal OCK tests
+run_pr_tests_caller.yml 
+- name: Run ock tests for PR style testing
+- description: runs PR-style tests
+scorecard.yml 
+- name: Scorecard supply-chain security
+- description: runs scorecard analysis and reporting
+
 ### Scheduled
 (tbd)
+### workflow_dispatch (available in forks)
+(tbd)
 ### PR workflows
+(tbd)
+
+## Tailoring workflow runs
 (tbd)
 
 ## Dockers
@@ -12,17 +67,17 @@
 ### Container images
 (tbd)
 
-## LLVM handling
+## LLVM management
 (tbd)
 
-## Self-Hosted Runners
-References to standard Github runners can be replaced by references to self-hosted runners in the CI config by updating individual `runs-on:` settings to use an appropriate self-hosted runner string.
+## Adding Self-Hosted Runners
+CI runs on standard Github runners. References to these runners can be replaced by references to self-hosted runners by updating individual `runs-on:` settings in the CI config to use an appropriate self-hosted runner string.
 
 Further information on deploying self-hosted runners can be found [here](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
 Further information on `runs-on:` can be found [here](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idruns-on).
 
-## Configuring Run_Cities test phases in PR testing jobs (once merged)
-A number of individual PR test jobs in the `Run ock internal tests` workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the PR tests. This phase also requires a pre-built opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
+## PR testing pre-requisites
+A number of individual PR test jobs in the `Run ock internal tests` (PR testing) workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the tests. This phase also requires the pre-built `opencl_cts_host_x86_64_linux` opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
 
 The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests.
 There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values for these at time of writing are:
@@ -39,9 +94,9 @@ There are a number of inputs to this workflow which relate to Git checkout refer
 ```
 These default values can also be updated interactively on a per-run basis when called from the web interface. 
 
-Should an update to the opencl_cts cache artifact be required (e.g. when new Git checkout references are available and the workflow inputs default values have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Care should be taken to avoid impacting any in-progress PRs which are still referencing the previous artefact version.
+At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
-## Running workflows in forks
+## Running planned_testing workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [here](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
 
 <!---
