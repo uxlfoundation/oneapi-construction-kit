@@ -1,6 +1,6 @@
-# OCK CI Overview
+# oneAPI Construction Kit CI Overview
 
-## Workflows: listing & types
+## Workflow definition: listing & types
 
 ### Listing
 
@@ -72,7 +72,7 @@ create_llvm_artefacts.yml
 
 `Scorecard supply-chain security`: scorecard.yml
 
-### `workflow_dispatch:` workflows (available in forks)
+### `workflow_dispatch:` workflows (manually runnable and available in forks)
 
 `run planned tests for llvm 19`: planned_testing_caller_19.yml
 
@@ -96,14 +96,14 @@ create_llvm_artefacts.yml
 
 ## Docker: images, dockerfiles and workflow
 ### Container images
-OCK CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages):
+oneAPI Construction Kit CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages):
 ```
        ock_ubuntu_22.04-x86-64:latest
        ock_ubuntu_22.04-aarch64:latest
        ock_ubuntu_24.04-x86-64:latest
 ```
 
-### Dockerfiles and build workflow
+### Dockerfiles and container build workflow
 Corresponding dockerfiles used to build the above container images can be found in the repo [dockerfile folder](https://github.com/uxlfoundation/oneapi-construction-kit/tree/main/.github/dockerfiles):
 ```
        Dockerfile_22.04-x86-64
@@ -116,12 +116,12 @@ The `publish docker images` workflow is configured to rebuild the containers whe
 (tbd)
 
 ## Adding Self-Hosted Runners
-OCK CI runs on standard Github runners. References to these runners can be replaced by references to self-hosted runners by updating individual `runs-on:` settings in the CI config to use an appropriate self-hosted runner string.
+oneAPI Construction Kit CI runs on standard Github runners. References to these runners can be replaced by references to self-hosted runners by updating individual `runs-on:` settings in the CI config to use an appropriate self-hosted runner string.
 
 Further information on deploying self-hosted runners can be found in the [github docs](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
 Further information on `runs-on:` can also be found in the [github docs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idruns-on).
 
-## Setting up PR testing pre-requisites
+## Setting up PR testing workflow pre-requisites
 A number of individual PR test jobs in the `Run ock internal tests` (PR testing) workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the tests. This phase also requires the pre-built `opencl_cts_host_x86_64_linux` opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
 
 The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests. This workflow can be called in forks.
@@ -137,7 +137,7 @@ There are a number of inputs to this workflow which relate to Git checkout refer
         description: 'Git checkout ref for OpenCL-CTS repo'
         default: 'v2025-04-21-00'
 ```
-These default values can also be updated interactively on a per-run basis when called from the web interface. 
+These default values can also be set interactively on a per-run basis when called from the web interface. 
 
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
