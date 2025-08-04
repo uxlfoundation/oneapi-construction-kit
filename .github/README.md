@@ -16,7 +16,7 @@ create_llvm_artefacts.yml
 - description: builds docs for PR testing
 
 `Run planned testing`: planned_testing_caller.yml
-- description: runs planned_testing-style tests, called from an llvm versoon caller
+- description: runs planned_testing-style tests, called from an llvm version caller
 
 `run planned tests for llvm 19`: planned_testing_caller_19.yml
 - description: runs planned_tests for llvm 19
@@ -36,7 +36,8 @@ create_llvm_artefacts.yml
 `Seed the cache for ock builds`: pr_tests_cache.yml
 - description: seeds the cache for OCK builds
 
-`publish docker images`: publish_docker_images.yml - description: builds and publishes docker images
+`publish docker images`: publish_docker_images.yml 
+- description: builds and publishes docker images
 
 `Run external tests`: run_ock_external_tests.yml
 - description: runs external OCK tests
@@ -91,10 +92,7 @@ create_llvm_artefacts.yml
 
 `Run ock internal tests`: run_ock_internal_tests.yml
 
-## Tailoring planned_testing workflow runs
-(tbd)
-
-## Docker images, dockerfiles and workflow
+## Docker: images, dockerfiles and workflow
 ### Container images
 CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages) and are:
 ```
@@ -143,6 +141,15 @@ At the point at which an update to the opencl_cts cache artifact is required (e.
 
 ## Running planned_testing workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
+
+### Tailoring planned_testing workflow runs
+The following planned_testing workflows all call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
+```
+      run planned tests for llvm 19: planned_testing_caller_19.yml
+      run planned tests for llvm 20: planned_testing_caller_20.yml
+      run planned tests for llvm 21: planned_testing_caller_21.yml
+```
+They an be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc. by setting the `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. Note that tailored values should be set directly in the workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface. 
 
 <!---
 Docs: add readme in .github
