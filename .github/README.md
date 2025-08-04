@@ -1,66 +1,100 @@
 # CI Overview
 
-## Workflows
+## Workflows - complete listing
 
-codeql.yml: `CodeQL`
+`CodeQL`: codeql.yml
 - description: runs the CodeQL tool
 
-create_llvm_artefacts.yml: `create llvm artefacts`
-- description: creates llvm artrfacts
+`create llvm artefacts`:
+create_llvm_artefacts.yml
+- description: creates llvm artefacts
 
-create_publish_artifacts.yml: `Build and Package`
+`Build and Package`: create_publish_artifacts.yml
 - description: builds and packages publish artefacts
 
-docs.yml: `Build documentation`
+`Build documentation`: docs.yml
 - description: builds docs for PR testing
 
-planned_testing_caller.yml: `Run planned testing`
+`Run planned testing`: planned_testing_caller.yml
 - description: runs planned_testing-style tests, called from an llvm versoon caller
 
-planned_testing_caller_19.yml: `run planned tests for llvm 19`
+`run planned tests for llvm 19`: planned_testing_caller_19.yml
 - description: runs planned_tests for llvm 19
 
-planned_testing_caller_20.yml: `run planned tests for llvm 20`
+`run planned tests for llvm 20`: planned_testing_caller_20.yml
 - description: runs planned_tests for llvm 20
 
-planned_testing_caller_21.yml: `run planned tests for llvm 21`
+`run planned tests for llvm 21`: planned_testing_caller_21.yml
 - description: runs planned_tests for llvm 21
 
-planned_testing_caller_main.yml: `run full planned tests for experimental llvm main`
+`run full planned tests for experimental llvm main`: planned_testing_caller_main.yml
 - description: runs planned_tests for experimental llvm main
 
-planned_testing_caller_mini_main.yml: `run limited planned tests for experimental llvm main`
+`run limited planned tests for experimental llvm main`: planned_testing_caller_mini_main.yml
 - description: runs limited planned_tests for experimental llvm main
 
-pr_tests_cache.yml: `Seed the cache for ock builds`
+`Seed the cache for ock builds`: pr_tests_cache.yml
 - description: seeds the cache for OCK builds
 
-publish_docker_images.yml: `publish docker images`
-- description: builds and publishes docker images
+`publish docker images`: publish_docker_images.yml - description: builds and publishes docker images
 
-run_ock_external_tests.yml: `Run external tests`
+`Run external tests`: run_ock_external_tests.yml
 - description: runs external OCK tests
 
-run_ock_internal_tests.yml: `Run ock internal tests`
+`Run ock internal tests`: run_ock_internal_tests.yml
 - description: runs internal OCK tests
 
-run_pr_tests_caller.yml: `Run ock tests for PR style testing`
+`Run ock tests for PR style testing`: run_pr_tests_caller.yml
 - description: runs PR-style tests
 
-scorecard.yml: `Scorecard supply-chain security`
+`Scorecard supply-chain security`: scorecard.yml
 - description: runs scorecard analysis and reporting
 
-### Scheduled
-(tbd)
-### workflow_dispatch (available in forks)
-(tbd)
-### PR workflows
+`Create a cache OpenCL-CTS artefact`: create_opencl_cts_artefact.yml
+- description: Workflow for creating and caching OpenCL-CTS artefact
+
+### `schedule:` workflows
+
+`CodeQL`: codeql.yml
+
+`run planned tests for llvm 19`: planned_testing_caller_19.yml
+
+`run planned tests for llvm 20`: planned_testing_caller_20.yml
+
+`run planned tests for llvm 21`: planned_testing_caller_21.yml
+
+`run full planned tests for experimental llvm main`: planned_testing_caller_main.yml
+
+`run limited planned tests for experimental llvm main`: planned_testing_caller_mini_main.yml
+
+`Scorecard supply-chain security`: scorecard.yml
+
+### `workflow_dispatch:` workflows (available in forks)
+
+`run planned tests for llvm 19`: planned_testing_caller_19.yml
+
+`run planned tests for llvm 20`: planned_testing_caller_20.yml
+
+`run planned tests for llvm 21`: planned_testing_caller_21.yml
+
+`Seed the cache for ock builds`: pr_tests_cache.yml
+
+`Build and Package`: create_publish_artifacts.yml
+
+`Build documentation`: docs.yml
+
+`Run ock internal tests`: run_ock_internal_tests.yml
+
+`Create a cache OpenCL-CTS artefact`: create_opencl_cts_artefact.yml
+
+### PR workflow
+
+`Run ock internal tests`: run_ock_internal_tests.yml
+
+## Tailoring planned_testing workflow runs
 (tbd)
 
-## Tailoring workflow runs
-(tbd)
-
-## Dockers
+## Docker images, dockerfiles and workflow
 ### Container images
 CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages) and are:
 ```
