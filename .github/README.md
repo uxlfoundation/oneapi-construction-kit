@@ -1,6 +1,8 @@
 # CI Overview
 
-## Workflows - complete listing
+## Workflows: listing & workflow types
+
+### Listing
 
 `CodeQL`: codeql.yml
 - description: runs the CodeQL tool
@@ -139,10 +141,11 @@ These default values can also be updated interactively on a per-run basis when c
 
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
-## Running planned_testing workflows in forks
+## Running planned_testing workflows
+### planned_testing workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
 
-### Tailoring planned_testing workflow runs
+### Tailoring planned_testing workflows
 The following planned_testing workflows all call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
 ```
       run planned tests for llvm 19: planned_testing_caller_19.yml
