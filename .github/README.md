@@ -1,6 +1,6 @@
-# CI Overview
+# OCK CI Overview
 
-## Workflows: listing & workflow types
+## Workflows: listing & types
 
 ### Listing
 
@@ -96,7 +96,7 @@ create_llvm_artefacts.yml
 
 ## Docker: images, dockerfiles and workflow
 ### Container images
-CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages) and are:
+OCK CI container images can be found under the [uxlfoundation repo packages tab](https://github.com/orgs/uxlfoundation/packages):
 ```
        ock_ubuntu_22.04-x86-64:latest
        ock_ubuntu_22.04-aarch64:latest
@@ -104,7 +104,7 @@ CI container images can be found under the [uxlfoundation repo packages tab](htt
 ```
 
 ### Dockerfiles and build workflow
-Corresponding dockerfiles used to build the above container images can be found in the repo [dockerfile folder](https://github.com/uxlfoundation/oneapi-construction-kit/tree/main/.github/dockerfiles) and are:
+Corresponding dockerfiles used to build the above container images can be found in the repo [dockerfile folder](https://github.com/uxlfoundation/oneapi-construction-kit/tree/main/.github/dockerfiles):
 ```
        Dockerfile_22.04-x86-64
        Dockerfile_22.04-aarch64
@@ -116,7 +116,7 @@ The `publish docker images` workflow is configured to rebuild the containers whe
 (tbd)
 
 ## Adding Self-Hosted Runners
-CI runs on standard Github runners. References to these runners can be replaced by references to self-hosted runners by updating individual `runs-on:` settings in the CI config to use an appropriate self-hosted runner string.
+OCK CI runs on standard Github runners. References to these runners can be replaced by references to self-hosted runners by updating individual `runs-on:` settings in the CI config to use an appropriate self-hosted runner string.
 
 Further information on deploying self-hosted runners can be found in the [github docs](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners).
 Further information on `runs-on:` can also be found in the [github docs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idruns-on).
@@ -124,7 +124,7 @@ Further information on `runs-on:` can also be found in the [github docs](https:/
 ## Setting up PR testing pre-requisites
 A number of individual PR test jobs in the `Run ock internal tests` (PR testing) workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the tests. This phase also requires the pre-built `opencl_cts_host_x86_64_linux` opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
 
-The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests.
+The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests. This workflow can be called in forks.
 There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values for these at time of writing are:
 ```
       header_ref:
@@ -142,17 +142,17 @@ These default values can also be updated interactively on a per-run basis when c
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
 ## Running planned_testing workflows
-### planned_testing workflows in forks
+### Planned_testing workflows in forks
 Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
 
 ### Tailoring planned_testing workflows
-The following planned_testing workflows all call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
+The following planned_testing workflows call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
 ```
       run planned tests for llvm 19: planned_testing_caller_19.yml
       run planned tests for llvm 20: planned_testing_caller_20.yml
       run planned tests for llvm 21: planned_testing_caller_21.yml
 ```
-They an be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc. by setting the `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. Note that tailored values should be set directly in the workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface. 
+They can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. Note that tailored values should be set directly in the workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface. 
 
 <!---
 Docs: add readme in .github
