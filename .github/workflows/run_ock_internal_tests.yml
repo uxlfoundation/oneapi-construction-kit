@@ -517,7 +517,7 @@ jobs:
         
  # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-llvm:
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux')  && inputs.llvm_version != 'main' }}
     if: false
     runs-on: ubuntu-22.04
     container:

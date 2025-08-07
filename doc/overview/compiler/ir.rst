@@ -624,8 +624,7 @@ the `OpenCL C atomic`_ and `OpenCL C fence`_ operations and the `SPIR-V atomic`_
 and `SPIR-V barrier`_ operations. Synchronization on non-atomic memory access
 is defined by a *memory consistency model*. The memory consistency requirements
 made on the instruction listed in the Mux compiler spec enables the oneAPI
-Construction Kit to support the higher level `OpenCL memory consistency model`_
-and the `Vulkan memory model`_.
+Construction Kit to support the higher level `OpenCL memory consistency model`_.
 
 .. _OpenCL C atomic:
    https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_C.html#atomic-functions

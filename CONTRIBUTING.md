@@ -136,22 +136,7 @@ in preparation for your suggestion.
 ### Submitting an enhancement suggestion
 
 Once you have prepared to submit your enhancement suggestion, we ask that you
-follow these steps.
-
-* Consider using the slack channel [#oneck] to discuss the idea.
-* Open an
-  [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
-* Select the **Enhancement** issue template and fill in the requested details.
-* Use a clear and descriptive title for the issue to identify the suggestion.
-* Describe the current behaviour and explain what expected behaviour you are
-  proposing and why. You may also describe alternative approaches and explain
-  why those do not work for your use case.
-* If you have any resources that demonstrate why the suggestion should be
-  accepted, feel free to reference these. You may include graphics,
-  screenshots, code snippets, etc.
-* Explain why the enhancement will be useful to most oneAPI Construction Kit
-  users. Where relevant, you may want to reference other projects that serve as
-  evidence of why the enhancement is a good idea.
+follow the [RFC Process](https://uxlfoundation.github.io/oneapi-construction-kit/rfc-0001.html).
 
 ## Code contributions
 

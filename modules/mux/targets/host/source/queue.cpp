@@ -249,9 +249,10 @@ void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
     return;
   }
 
-  constexpr size_t signal_count =
-      host::thread_pool_s::max_num_threads * slice_multiplier;
-  std::array<std::atomic<bool>, signal_count> signals;
+  const size_t signal_count =
+      host_device->thread_pool.num_threads() * slice_multiplier;
+
+  std::vector<std::atomic<bool>> signals(signal_count);
   std::atomic<uint32_t> queued(0);
   host_device->thread_pool.enqueue_range(
       [](void *const in, void *const info, void *, size_t index) {
