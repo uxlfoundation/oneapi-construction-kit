@@ -81,7 +81,7 @@ runs:
             -e CL_PLATFORM_INDEX=0 \
             -s $CTS_CSV_FILE_PATH \
             -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
-            -o override_combined.csv
+            -o override_combined.csv \
             $1
         }
         if [ "${{ inputs.vector_factor }}" = "" ] ; then
