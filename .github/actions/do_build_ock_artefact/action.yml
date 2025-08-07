@@ -68,6 +68,8 @@ runs:
           # Do we need the offline kernel as an artefact? If so currently this requires an external clc or qemu to be installed.
           offline_kernel_tests: OFF
           host_fp16: ON
+          # debug_support: ON needed for riscv64 rvv variant testing
+          debug_support: ${{ steps.calc_vars.outputs.arch == 'riscv64' && 'ON' || 'OFF' }}
 
       - name: download previous ock if needed ${{ inputs.target }} ${{ matrix.download_dpcpp_artefact}}
         shell: bash      
