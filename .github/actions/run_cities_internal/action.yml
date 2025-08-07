@@ -1,0 +1,23 @@
+name: run_cities internal_tests
+description: wrapper around run_cities.py call for internal tests
+
+# assumes python3 is on the $PATH
+
+inputs:
+  run_cities_path:
+    required: true
+    type: string
+    description: 'path to the run_cities.py script'
+  run_cities_options:
+    required: true
+    type: string
+    description: 'options for the run_cities.py call'
+
+runs:
+  using: "composite"
+  steps:
+    - name: run_cities call and run
+      shell: bash
+      run: |
+        set -x
+        python3 ${{ inputs.run_cities_path }}/run_cities.py ${{ inputs.run_cities_options }}
