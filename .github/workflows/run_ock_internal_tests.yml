@@ -316,10 +316,6 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-e 'CA_RISCV_VF=1,S' \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-    - name: Ninja call
-      run: |
-        set -x
-        ninja -C $GITHUB_WORKSPACE/build check-ock
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
@@ -360,10 +356,6 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-e 'CA_RISCV_VF=1,S,VP' \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-    - name: Ninja call
-      run: |
-        set -x
-        ninja -C $GITHUB_WORKSPACE/build check-ock-UnitCL-group-vecz
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
@@ -475,11 +467,6 @@ jobs:
         run_cities_path: $GITHUB_WORKSPACE/scripts/testing
         run_cities_options: "-i $GITHUB_WORKSPACE/skipped.txt \
           ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
-    - name: Ninja call
-      run: |
-        set -x
-        ninja -C build check-ock
-        ninja -C build check-ock-UnitCL-half
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
