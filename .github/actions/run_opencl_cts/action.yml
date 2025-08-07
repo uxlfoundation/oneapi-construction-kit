@@ -86,8 +86,8 @@ runs:
         }
         if [ "${{ inputs.vector_factor }}" = "" ] ; then
           run_cities_call
-        else
+        else # rvv variant testing
           for VF in ${{ inputs.vector_factor }} ; do
-            run_cities_call "-e CA_RISCV_VF=$VF"
+            run_cities_call "-e CA_HOST_TARGET_FEATURES=+v -e CA_RISCV_VF=$VF"
           done
         fi
