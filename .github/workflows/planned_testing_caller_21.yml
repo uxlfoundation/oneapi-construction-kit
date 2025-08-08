@@ -7,6 +7,11 @@ on:
     # Run Tue, Fri at 7pm
     - cron: '0 19 * * 2,5'
   workflow_dispatch:
+    inputs:
+      dpcpp_repo_ref:
+        description: 'dpc++ repo reference'
+        type: string
+        default: ""
 
 permissions:
   packages: read
@@ -31,6 +36,7 @@ jobs:
       llvm_version: '21'
       llvm_branch: 'release/21.x'
       save_cache:  ${{ github.event_name == 'schedule' }}
+      dpcpp_repo_ref:  ${{ inputs.dpcpp_repo_ref }}
       # We can set ock, test_sycl_cts etc here optionally if this is used as a
       # pull request. Any parameters below this is intended for local testing
       # and should not be merged nor reviewed (other than checking it should not be merged).
