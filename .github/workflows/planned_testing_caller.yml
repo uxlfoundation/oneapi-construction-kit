@@ -76,6 +76,10 @@ on:
       save_cache:
         type: boolean
         default: false
+      dpcpp_repo_ref:
+        description: 'dpc++ repo reference'
+        type: string
+        default: ""
 permissions:
   packages: read
 
@@ -109,6 +113,7 @@ jobs:
       native_cpu: ${{ inputs.native_cpu }}
       llvm_branch: ${{ inputs.llvm_branch }}
       save_cache: ${{ inputs.save_cache }}
+      dpcpp_repo_ref: ${{ inputs.dpcpp_repo_ref }}
 
       # The following can be used to download from a previous workflow run (change id)
       download_ock_artefact: ${{ inputs.download_ock_artefact }}

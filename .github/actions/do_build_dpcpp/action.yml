@@ -12,6 +12,10 @@ inputs:
     description: 'save cache for build'
     type: boolean
     default: false
+  dpcpp_repo_ref:
+    description: 'dpc++ repo reference'
+    type: string
+    default: ""
 
 runs:
   using: "composite"
@@ -31,6 +35,7 @@ runs:
       with:
         repository: intel/llvm
         path: llvm
+        ref: ${{ inputs.dpcpp_repo_ref }}
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
