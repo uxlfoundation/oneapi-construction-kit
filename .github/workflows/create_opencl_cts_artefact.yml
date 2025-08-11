@@ -1,12 +1,9 @@
 # Workflow for creating and caching OpenCL-CTS artefact
 
-name: Create an cache OpenCL-CTS artefact
+name: Create a cache OpenCL-CTS artefact
 
 on:
-  # ALAN TODO: set to pull_request to build in PR.
-  #            for production restore workflow_dispatch - and usage of all inputs
   workflow_dispatch:
-  #pull_request:
     inputs:
       header_ref:
         required: false
@@ -47,8 +44,8 @@ jobs:
         uses: ./.github/actions/do_build_icd
         with:
           target: 'host_x86_64_linux'
-          header_ref: ${{ inputs.header_ref || 'v2025.06.13' }}
-          icd_loader_ref: ${{ inputs.icd_loader_ref || 'v2024.10.24 ' }}
+          header_ref: ${{ inputs.header_ref }}
+          icd_loader_ref: ${{ inputs.icd_loader_ref }}
 
   build_opencl_cts_artefact:
     name: Create OpenCL-CTS artefact
@@ -73,4 +70,4 @@ jobs:
         with:
           target: 'host_x86_64_linux'
           cache_update: true
-          opencl_cts_ref: ${{ inputs.opencl_cts_ref || 'v2025-04-21-00' }}
+          opencl_cts_ref: ${{ inputs.opencl_cts_ref }}

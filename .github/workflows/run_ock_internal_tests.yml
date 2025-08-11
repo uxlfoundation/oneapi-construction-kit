@@ -75,8 +75,7 @@ jobs:
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -111,8 +110,7 @@ jobs:
 
   # build and run clang-tidy
   run_clang_tidy_changes:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -167,7 +165,6 @@ jobs:
   run_clang_format:
 
     runs-on: ubuntu-22.04
-    if: false
 
     steps:
       - name: Checkout repo
@@ -189,8 +186,7 @@ jobs:
   # Based on: mr-windows-msvc-x86_64-llvm-previous-cl3.0-offline
   run_windows_msvc_x86_64_llvm_latest_cl3_0_offline:
     runs-on: windows-2025
-    #if: contains(inputs.target_list, 'host_x86_64_windows')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -214,8 +210,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3.0-unitcl_vecz
   run_ubuntu_gcc_x86_64_riscv_fp16_cl3_0_unitcl_vecz:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: false
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -237,8 +232,7 @@ jobs:
   # Based on: mr-ubuntu-clang-x86-llvm-previous-cl3-0-offline
   run-ubuntu-clang-x86-llvm-latest-cl3-0-offline:
     # do not run as PR job due to cross where we always install
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
-    if: false
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_i686_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -260,8 +254,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-fp16-cl3-0
   run-ubuntu-gcc-x86_64-riscv-fp16-cl3-0:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: false
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -282,8 +275,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: contains(inputs.target_list, 'host_x86_64_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     needs: [set_env_vars]
     env:
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
@@ -319,8 +311,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: contains(inputs.target_list, 'host_x86_64_linux')
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     needs: [set_env_vars]
     env:
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
@@ -359,8 +350,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -381,8 +371,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-aarch64-llvm-previous-cl3-0-fp16
   run-ubuntu-gcc-aarch64-llvm-latest-cl3-0-fp16:
-    #if: contains(inputs.target_list, 'host_aarch64_linux')
-    if: false
+    if: contains(inputs.target_list, 'host_aarch64_linux')
     runs-on: ubuntu-22.04-arm
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest
@@ -404,8 +393,7 @@ jobs:
   # Based on a combination of: mr-ubuntu-gcc-x86_64-clik
   #                       and: mr-ubuntu-gcc-x86_64-clik-refsi
   run-ubuntu-gcc-x86_64-clik-refsi:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: false
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -429,8 +417,7 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'refsi_riscv64_linux') }}
-    if: ${{ contains(inputs.target_list, 'host_x86_64_linux') }}
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'refsi_riscv64_linux') }}
     needs: [set_env_vars]
     env:
       COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
@@ -470,8 +457,7 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: false
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -492,8 +478,7 @@ jobs:
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-start:
   run-ubuntu-gcc-x86_64-refsi-tutorial-start:
-    #if: contains(inputs.target_list, 'refsi_riscv64_linux')
-    if: false
+    if: contains(inputs.target_list, 'refsi_riscv64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -517,8 +502,7 @@ jobs:
         
  # Based on: mr-ubuntu-build-ock-in-tree-llvm
   run-ubuntu-build-ock-in-tree-llvm:
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux')  && inputs.llvm_version != 'main' }}
-    if: false
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux')  && inputs.llvm_version != 'main' }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -601,8 +585,7 @@ jobs:
 
  # Based on: mr-ubuntu-gcc-x86_64-cpu
   run-ubuntu-gcc-x86_64-cpu:
-    #if: contains(inputs.target_list, 'host_x86_64_linux')
-    if: false
+    if: contains(inputs.target_list, 'host_x86_64_linux')
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -649,8 +632,7 @@ jobs:
 
 
   run-ubuntu-clang-tidy-x86_64:
-    #if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
-    if: false
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
