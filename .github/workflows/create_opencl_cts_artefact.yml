@@ -1,0 +1,73 @@
+# Workflow for creating and caching OpenCL-CTS artefact
+
+name: Create a cache OpenCL-CTS artefact
+
+on:
+  workflow_dispatch:
+    inputs:
+      header_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL Headers repo'
+        default: 'v2025.06.13'
+      icd_loader_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL ICD Loader repo'
+        default: 'v2024.10.24'
+      opencl_cts_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL-CTS repo'
+        default: 'v2025-04-21-00'
+     
+permissions:
+  packages: read
+
+jobs:
+
+  build_icd:
+    name: Create ICD artefact
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: clone ock platform
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            platform
+            .github
+      - name : build and upload icd
+        uses: ./.github/actions/do_build_icd
+        with:
+          target: 'host_x86_64_linux'
+          header_ref: ${{ inputs.header_ref }}
+          icd_loader_ref: ${{ inputs.icd_loader_ref }}
+
+  build_opencl_cts_artefact:
+    name: Create OpenCL-CTS artefact
+    needs: [ build_icd ]
+    #needs: [ build_icd, create_ock_artefact ]
+    runs-on: 'ubuntu-22.04'
+    container:
+      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
+      volumes:
+        - ${{github.workspace}}:${{github.workspace}}
+    steps:
+      - name: clone ock
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            source
+            platform
+            .github
+      - name : build and upload opencl_cts artefact
+        uses: ./.github/actions/do_build_opencl_cts
+        with:
+          target: 'host_x86_64_linux'
+          cache_update: true
+          opencl_cts_ref: ${{ inputs.opencl_cts_ref }}

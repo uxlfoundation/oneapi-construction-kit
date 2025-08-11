@@ -3,7 +3,19 @@ description: pull icd loader and build with a particular toolchain, uploading op
 
 inputs:
   target:
+    required: true
+    type: string
     description: 'target architecture'
+  header_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for OpenCL Headers repo'
+    default: ''
+  icd_loader_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for OpenCL ICD Loader repo'
+    default: ''
 
 runs:
   using: "composite"
@@ -22,6 +34,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-Headers
         path: headers
+        ref: ${{inputs.header_ref}}
 
     - name: cmake headers
       shell: bash
@@ -49,6 +62,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-ICD-Loader
         path: icd
+        ref: ${{inputs.icd_loader_ref}}
 
     - name: icd cmake
       shell: bash

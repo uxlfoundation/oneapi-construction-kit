@@ -3,7 +3,19 @@ description: build opencl cts
 
 inputs:
   target:
+    required: true
+    type: string
     description: 'target architecture'
+  cache_update:
+    required: false
+    type: boolean
+    description: 'flag indicating that a cache update for the built artifact is required'
+    default: false
+  opencl_cts_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for OpenCL-CTS repo'
+    default: ''
 
 runs:
   using: "composite"
@@ -34,6 +46,7 @@ runs:
       with:
         repository: KhronosGroup/OpenCL-CTS
         path: OpenCL-CTS
+        ref: ${{inputs.opencl_cts_ref}}
 
     - name: build opencl cts
       shell: bash
@@ -72,3 +85,26 @@ runs:
         path: build/test_conformance
         retention-days: 7
         needs_tar: 'true'
+
+    - name: check existence of opencl cts artifact cache
+      if: inputs.cache_update == 'true'
+      uses: actions/cache/restore@v4
+      id: cache_check
+      with:
+        key: opencl_cts_${{inputs.target}}
+        path: build/test_conformance
+        lookup-only: true
+
+    - name: error on attempt to overwrite existing opencl cts artifact cache
+      if: inputs.cache_update == 'true' && steps.cache_check.outputs.cache-hit == 'true'
+      shell: bash
+      run: |
+        echo "Error: attempt to overwrite existing opencl cts cache: opencl_cts_${{inputs.target}}"
+        exit 1
+
+    - name: create opencl cts artifact cache
+      if: inputs.cache_update == 'true' && steps.cache_check.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        key: opencl_cts_${{inputs.target}}
+        path: build/test_conformance

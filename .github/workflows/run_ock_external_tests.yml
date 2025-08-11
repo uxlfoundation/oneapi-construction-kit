@@ -42,7 +42,7 @@ on:
         required: false
         type: boolean
         description: 'Enable testing opencl-cts'
-        default: true  
+        default: true
       target_list:
         required: false
         description: 'List of enabled targets'

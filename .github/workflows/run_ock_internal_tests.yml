@@ -59,6 +59,19 @@ permissions:
   packages: read
 
 jobs:
+  set_env_vars:
+    # Set inter-job env var for common run_cities options
+    runs-on: ubuntu-latest
+    outputs:
+      run_cities_options: ${{ steps.run_cities_id.outputs.COMMON_RUN_CITIES_OPTIONS }}
+    steps:
+      - name: set run_cities var
+        id: run_cities_id
+        run: |
+          echo "COMMON_RUN_CITIES_OPTIONS<<EOF" >> $GITHUB_OUTPUT
+          echo '-s $GITHUB_WORKSPACE/scripts/jenkins/cts_summary/opencl_conformance_tests_wimpy_very_quick.csv -b $GITHUB_WORKSPACE/build/test_conformance -L $GITHUB_WORKSPACE/build/lib -e OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/build/lib/libCL.so -e OCL_ICD_VENDORS=/dev/null --timeout 00:10:00 --verbose -l $GITHUB_WORKSPACE/build/cts.log -f $GITHUB_WORKSPACE/build/cts.fail' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
   # build and run host x86_64, execute UnitCL and lit tests and build and run offline
   run_host_x86_64:
@@ -263,6 +276,9 @@ jobs:
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0
   run-ubuntu-gcc-x86_64-riscv-cl3-0:
     if: contains(inputs.target_list, 'refsi_riscv64_linux')
+    needs: [set_env_vars]
+    env:
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -280,11 +296,25 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build and run ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_riscv_cl3_0
-    # TODO: add limited run-cities testing
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
+      with:
+        key: opencl_cts_host_x86_64_linux
+        path: build/test_conformance
+        fail-on-cache-miss: true
+    - name: run_cities call and run
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-e 'CA_RISCV_VF=1,S' \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
 
   # Based on: mr-ubuntu-gcc-x86_64-riscv-cl3-0-part2
   run-ubuntu-gcc-x86_64-riscv-cl3-0-part2:
     if: contains(inputs.target_list, 'refsi_riscv64_linux')
+    needs: [set_env_vars]
+    env:
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -305,7 +335,18 @@ jobs:
       with:
         build_targets: 'check-ock-UnitCL-group-vecz'
         disable_unitcl_vecz_checks: 'OFF'
-    # TODO: add limited run-cities testing
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
+      with:
+        key: opencl_cts_host_x86_64_linux
+        path: build/test_conformance
+        fail-on-cache-miss: true
+    - name: run_cities call and run
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-e 'CA_RISCV_VF=1,S,VP' \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
 
   # Based on: mr-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release
   run-ubuntu-gcc-x86-llvm-latest-x86_64-images-cl3-0-release:
@@ -376,8 +417,11 @@ jobs:
 
   # Based on: mr-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0
   run-ubuntu-gcc-x86_64-refsi-g1-wi-cl3-0:
-    # do not run as PR job for now to avoid flooding the concurrency
     if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'refsi_riscv64_linux') }}
+    needs: [set_env_vars]
+    env:
+      COMMON_RUN_CITIES_OPTIONS: ${{ needs.set_env_vars.outputs.run_cities_options }}
+    # do not run as PR job for now to avoid flooding the concurrency
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
@@ -395,11 +439,21 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: build ock
       uses: ./.github/actions/do_build_pr/run_ubuntu_gcc_x86_64_refsi_g1_wi_cl3_0
-
-    # TODO: add limited run-cities testing
-    - run: ninja -C build check-ock
-    - run: ninja -C build check-ock-UnitCL-half
-    # TODO: add upload of run-cities testing logs?
+    - name: download cached opencl_cts artifact
+      uses: actions/cache/restore@v4
+      with:
+        key: opencl_cts_host_x86_64_linux
+        path: build/test_conformance
+        fail-on-cache-miss: true
+    - name: set-up skipped.txt for run_cities.py
+      run: |
+        echo 'Subgroups,subgroups/test_subgroups barrier_functions_core' >> $GITHUB_WORKSPACE/skipped.txt
+    - name: run_cities call and run
+      uses: ./.github/actions/run_cities_internal
+      with:
+        run_cities_path: $GITHUB_WORKSPACE/scripts/testing
+        run_cities_options: "-i $GITHUB_WORKSPACE/skipped.txt \
+          ${{ env.COMMON_RUN_CITIES_OPTIONS }}"
 
  # Based on: mr-run-ubuntu-gcc-x86_64-refsi-tutorial-end
   run-ubuntu-gcc-x86_64-refsi-tutorial-end:
@@ -578,7 +632,7 @@ jobs:
 
 
   run-ubuntu-clang-tidy-x86_64:
-    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}  
+    if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_linux') }}
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest
