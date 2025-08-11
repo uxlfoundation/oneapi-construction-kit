@@ -145,14 +145,17 @@ These default values can also be set interactively on a per-run basis when calle
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
 ## Running planned_testing workflows
-### Planned_testing workflows in forks
-Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
+### Manually tailoring planned_testing workflows for a specific DPC++ branch
+Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger). Included in this process is the ability to specify a particular DPC++ branch as a per-run parameter. If it is not specified the default DPC++ branch will be used.
 
-### Tailoring planned_testing workflows
+### Further tailoring of planned_testing workflows
 The following planned_testing workflows call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
 ```
       run planned tests for llvm 19: planned_testing_caller_19.yml
       run planned tests for llvm 20: planned_testing_caller_20.yml
       run planned tests for llvm 21: planned_testing_caller_21.yml
 ```
-They can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. Note that tailored values should be set directly in the workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface. 
+These workflows can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the scripted `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. With the exception of DPC++ branches (see above) tailored values can only be set directly in workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface (i.e. `workflow_dispatch:`).
+
+### Planned_testing workflows in forks
+Planned_testing workflows can also be run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
