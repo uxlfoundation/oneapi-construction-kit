@@ -11,7 +11,7 @@ on:
       dpcpp_repo_ref:
         description: 'dpc++ repo reference'
         type: string
-        default: "TESTREF"
+        default: ""
 
 permissions:
   packages: read
