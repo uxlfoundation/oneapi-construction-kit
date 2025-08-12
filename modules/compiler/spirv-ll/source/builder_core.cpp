@@ -5944,6 +5944,9 @@ llvm::Error Builder::create<OpLifetimeStart>(const OpLifetimeStart *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+  IRBuilder.CreateLifetimeStart(pointer);
+#else
   const uint32_t size = op->Size();
 
   // IRBuilder handles size == nullptr as size of variable.
@@ -5951,8 +5954,8 @@ llvm::Error Builder::create<OpLifetimeStart>(const OpLifetimeStart *op) {
   if (size > 0) {
     sizeConstant = IRBuilder.getInt64(size);
   }
-
   IRBuilder.CreateLifetimeStart(pointer, sizeConstant);
+#endif
   return llvm::Error::success();
 }
 
@@ -5961,6 +5964,9 @@ llvm::Error Builder::create<OpLifetimeStop>(const OpLifetimeStop *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+  IRBuilder.CreateLifetimeEnd(pointer);
+#else
   const uint32_t size = op->Size();
 
   // IRBuilder handles size == nullptr as size of variable.
@@ -5968,8 +5974,8 @@ llvm::Error Builder::create<OpLifetimeStop>(const OpLifetimeStop *op) {
   if (size > 0) {
     sizeConstant = IRBuilder.getInt64(size);
   }
-
   IRBuilder.CreateLifetimeEnd(pointer, sizeConstant);
+#endif
   return llvm::Error::success();
 }
 
