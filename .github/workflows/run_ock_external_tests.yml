@@ -397,8 +397,6 @@ jobs:
           target: host_riscv64_linux
           llvm_version: ${{ inputs.llvm_version }}
           split_index: ${{ matrix.split_index }}
-          # set space-separated vector_factor string for riscv64 rvv variant testing
-          vector_factor: "1,S,VP 2,S 2,S,VP 4,S 4,S,VP 4,VP"
 
   build_dpcpp_native_x86_64:
     needs: [workflow_vars]
