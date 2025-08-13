@@ -76,4 +76,5 @@ runs:
           -e CL_PLATFORM_INDEX=0 \
           -s $CTS_CSV_FILE_PATH \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
-          -o override_combined.csv
+          -o override_combined.csv \
+          -e CA_HOST_TARGET_FEATURES=+v
