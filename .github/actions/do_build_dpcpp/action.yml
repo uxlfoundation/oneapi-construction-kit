@@ -45,6 +45,7 @@ runs:
         git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
         git checkout pr_branch 
         git log --oneline -9
+        git fetch origin sycl
         git checkout sycl 
         git log --oneline -9
         git merge -m "Merge temp PR branch" pr_branch sycl
