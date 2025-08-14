@@ -42,12 +42,12 @@ runs:
       run: |
         set -x
         cd llvm
+        git log --oneline -30
+        git fetch origin --depth=2147483647
+        git log --oneline -30
         git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
         git checkout pr_branch 
-        git log --oneline -9
-        git fetch origin sycl
-        git checkout sycl 
-        git log --oneline -9
+        git log --oneline -30
         git merge -m "Merge temp PR branch" pr_branch sycl
         #git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}
         #PR_COMMIT=`git ls-remote origin 'pull/*/head' | grep ${{ inputs.dpcpp_repo_pr_ref }} | awk '{ print $1 }'`
