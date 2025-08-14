@@ -8,8 +8,8 @@ on:
     - cron: '0 19 * * 0,3'
   workflow_dispatch:
     inputs:
-      dpcpp_repo_ref:
-        description: 'dpc++ repo reference'
+      dpcpp_repo_pr_ref:
+        description: 'dpc++ repo PR reference'
         type: string
         default: ""
 
@@ -29,7 +29,8 @@ jobs:
       llvm_branch: 'release/19.x'
       use_llvm_github_cache: true
       save_cache:  ${{ github.event_name == 'schedule' }}
-      dpcpp_repo_ref:  ${{ inputs.dpcpp_repo_ref }}
+      #dpcpp_repo_pr_ref:  ${{ inputs.dpcpp_repo_pr_ref }}
+      dpcpp_repo_pr_ref:  'refs/pull/19801/head'
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
       # target_list: '[ "host_x86_64_linux" ]'

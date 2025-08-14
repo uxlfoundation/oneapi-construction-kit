@@ -82,10 +82,10 @@ on:
         type: boolean
         description: 'save any caches required during building of any artefacts (usually on main only)'
         default: false
-      dpcpp_repo_ref:
+      dpcpp_repo_pr_ref:
         required: false
         type: string
-        description: 'dpc++ repo reference'
+        description: 'dpc++ repo PR reference'
         default: ""
      
 permissions:
@@ -426,7 +426,7 @@ jobs:
           target: host_x86_64_linux
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
           save_cache: ${{ inputs.save_cache }}
-          dpcpp_repo_ref: ${{ inputs.dpcpp_repo_ref }}
+          dpcpp_repo_pr_ref: ${{ inputs.dpcpp_repo_pr_ref }}
 
   build_dpcpp_native_aarch64:
     needs: [workflow_vars]
@@ -451,7 +451,7 @@ jobs:
           target: host_aarch64_linux
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
           save_cache: ${{ inputs.save_cache }}
-          dpcpp_repo_ref: ${{ inputs.dpcpp_repo_ref }}
+          dpcpp_repo_pr_ref: ${{ inputs.dpcpp_repo_pr_ref }}
 
   build_dpcpp_riscv64:
     needs: [workflow_vars, build_dpcpp_native_x86_64]  # cross builds need pre-built native artefact
@@ -482,7 +482,7 @@ jobs:
           target: ${{ matrix.target }}
           download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
           save_cache: ${{ inputs.save_cache }}
-          dpcpp_repo_ref: ${{ inputs.dpcpp_repo_ref }}
+          dpcpp_repo_pr_ref: ${{ inputs.dpcpp_repo_pr_ref }}
 
   build_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]

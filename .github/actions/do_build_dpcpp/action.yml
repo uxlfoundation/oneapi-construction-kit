@@ -12,8 +12,8 @@ inputs:
     description: 'save cache for build'
     type: boolean
     default: false
-  dpcpp_repo_ref:
-    description: 'dpc++ repo reference'
+  dpcpp_repo_pr_ref:
+    description: 'dpc++ repo PR reference'
     type: string
     default: ""
 
@@ -35,7 +35,15 @@ runs:
       with:
         repository: intel/llvm
         path: llvm
-        ref: ${{ inputs.dpcpp_repo_ref }}
+        ref: ${{ inputs.dpcpp_repo_pr_ref }}
+
+    - name: merge dpcpp repo PR ref and default branch (sycl)
+      if: inputs.dpcpp_repo_pr_ref != ''
+      shell: bash
+      run: |
+        cd llvm
+        git fetch origin sycl
+        git merge ${{ inputs.dpcpp_repo_pr_ref }} sycl
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
