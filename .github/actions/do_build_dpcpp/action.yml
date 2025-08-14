@@ -41,6 +41,7 @@ runs:
       shell: bash
       run: |
         cd llvm
+        git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}
         PR_COMMIT=`git ls-remote origin 'pull/*/head' | grep ${{ inputs.dpcpp_repo_pr_ref }} | awk '{ print $1 }'`
         echo $PR_COMMIT
         #git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
