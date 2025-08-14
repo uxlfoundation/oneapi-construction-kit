@@ -40,28 +40,19 @@ runs:
       if: inputs.dpcpp_repo_pr_ref != ''
       shell: bash
       run: |
-        set -x
+        #set -x
         cd llvm
         git config user.email "me@example.com"
         git config user.name "me"
-        git log --oneline -30
+        #git log --oneline -30
         git fetch origin --depth=2147483647
-        git log --oneline -30
+        #git log --oneline -30
         git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
-        git checkout pr_branch 
-        git log --oneline -30
-        git checkout sycl 
+        #git checkout pr_branch 
+        #git log --oneline -30
+        #git checkout sycl 
         git merge -m "Merge temp PR branch" pr_branch sycl
-        git log --oneline -30
-        #git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}
-        #PR_COMMIT=`git ls-remote origin 'pull/*/head' | grep ${{ inputs.dpcpp_repo_pr_ref }} | awk '{ print $1 }'`
-        #echo $PR_COMMIT
-        #git checkout $PR_COMMIT
-        #git log -3
-        #git fetch origin sycl
-        #git checkout sycl
-        #git log -3
-        #git merge -m "Merge temp PR branch" $PR_COMMIT sycl
+        #git log --oneline -30
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
