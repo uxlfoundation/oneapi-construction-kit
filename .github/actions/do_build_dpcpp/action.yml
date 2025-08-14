@@ -35,15 +35,14 @@ runs:
       with:
         repository: intel/llvm
         path: llvm
-        ref: ${{ inputs.dpcpp_repo_pr_ref }}
 
-    - name: merge dpcpp repo PR ref and default branch (sycl)
+    - name: merge PR ref (aka temporary branch 'pr_branch') into default branch (sycl)
       if: inputs.dpcpp_repo_pr_ref != ''
       shell: bash
       run: |
         cd llvm
-        git fetch origin sycl
-        git merge ${{ inputs.dpcpp_repo_pr_ref }} sycl
+        git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
+        git merge -m "Merge temp PR branch" pr_branch sycl
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
