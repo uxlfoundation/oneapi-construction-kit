@@ -41,16 +41,18 @@ runs:
       shell: bash
       run: |
         set -x
+        cd llvm
         git config user.email "me@example.com"
         git config user.name "me"
-        cd llvm
         git log --oneline -30
         git fetch origin --depth=2147483647
         git log --oneline -30
         git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}:pr_branch
         git checkout pr_branch 
         git log --oneline -30
+        git checkout sycl 
         git merge -m "Merge temp PR branch" pr_branch sycl
+        git log --oneline -30
         #git fetch origin ${{ inputs.dpcpp_repo_pr_ref }}
         #PR_COMMIT=`git ls-remote origin 'pull/*/head' | grep ${{ inputs.dpcpp_repo_pr_ref }} | awk '{ print $1 }'`
         #echo $PR_COMMIT
