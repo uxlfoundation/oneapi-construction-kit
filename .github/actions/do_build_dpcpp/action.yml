@@ -41,6 +41,8 @@ runs:
       shell: bash
       run: |
         set -x
+        git config user.email "me@example.com"
+        git config user.name "me"
         cd llvm
         git log --oneline -30
         git fetch origin --depth=2147483647
