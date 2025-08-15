@@ -85,7 +85,7 @@ on:
       dpcpp_repo_pr_no:
         required: false
         type: string
-        description: 'dpc++ repo PR number'
+        description: 'dpc++ repo ref: enter PR number (else default branch is used)'
         default: ""
      
 permissions:
