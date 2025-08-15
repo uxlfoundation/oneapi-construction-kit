@@ -13,7 +13,7 @@ inputs:
     type: boolean
     default: false
   dpcpp_repo_pr_no:
-    description: 'dpc++ repo PR number'
+    description: 'dpc++ repo ref: enter PR number (else default branch is used)'
     type: string
     default: ""
 
@@ -43,9 +43,9 @@ runs:
         cd llvm
         git config user.email "me@example.com"
         git config user.name "me"
-        git fetch origin --depth=2147483647 # deepen shallow sycl clone
+        git fetch origin --depth=2147483647 # deepen shallow repo clone
         git fetch origin pull/${{ inputs.dpcpp_repo_pr_no }}/head:pr_branch
-        git merge -q pr_branch sycl
+        git merge pr_branch sycl
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@63069e3931dedbf3b63792097479563182fe70d1 # v1.2.18
