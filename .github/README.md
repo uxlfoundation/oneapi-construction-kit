@@ -155,7 +155,7 @@ The following planned_testing workflows call `Run planned testing` (planned_test
       run planned tests for llvm 20: planned_testing_caller_20.yml
       run planned tests for llvm 21: planned_testing_caller_21.yml
 ```
-These workflows can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the scripted `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. With the exception of DPC++ branches (see above) tailored values can only be set directly in workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface (i.e. `workflow_dispatch:`).
+These workflows can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the scripted `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. With the exception of DPC++ PRs (see above) tailored values can only be set directly in workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface (i.e. `workflow_dispatch:`).
 
 ### Planned_testing workflows in forks
 Planned_testing workflows can also be run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
