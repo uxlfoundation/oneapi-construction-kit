@@ -38,6 +38,7 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/LoopUtils.h>
+#include <multi_llvm/lifetime_helper.h>
 #include <multi_llvm/llvm_version.h>
 #include <multi_llvm/multi_llvm.h>
 #include <multi_llvm/vector_type_helper.h>
@@ -2050,25 +2051,33 @@ ValuePacket Packetizer::Impl::packetizeCall(CallInst *CI) {
     auto IntrID = Intrinsic::ID(Callee->getIntrinsicID());
     if (IntrID == llvm::Intrinsic::lifetime_end ||
         IntrID == llvm::Intrinsic::lifetime_start) {
-      auto *ptr = CI->getOperand(1);
-      if (auto *const bcast = dyn_cast<BitCastInst>(ptr)) {
-        ptr = bcast->getOperand(0);
-      }
+#if LLVM_VERSION_LESS(22, 0) || 1
+      // LLVM 22 drops the size parameter
+      // Remove LifetimeHasSizeArg once intel llvm no longer has the extra
+      // argument
+      if (multi_llvm::LifeTimeHasSizeArg()) {
+        auto *ptr = CI->getOperand(1);
+        if (auto *const bcast = dyn_cast<BitCastInst>(ptr)) {
+          ptr = bcast->getOperand(0);
+        }
 
-      if (auto *const alloca = dyn_cast<AllocaInst>(ptr)) {
-        if (!needsInstantiation(Ctx, *alloca)) {
-          // If it's an alloca we can widen, we can just change the size
-          const llvm::TypeSize allocSize =
-              Ctx.dataLayout()->getTypeAllocSize(alloca->getAllocatedType());
-          const auto lifeSize =
-              allocSize.isScalable() || SimdWidth.isScalable()
-                  ? -1
-                  : allocSize.getKnownMinValue() * SimdWidth.getKnownMinValue();
-          CI->setOperand(
-              0, ConstantInt::get(CI->getOperand(0)->getType(), lifeSize));
-          results.push_back(CI);
+        if (auto *const alloca = dyn_cast<AllocaInst>(ptr)) {
+          if (!needsInstantiation(Ctx, *alloca)) {
+            // If it's an alloca we can widen, we can just change the size
+            const llvm::TypeSize allocSize =
+                Ctx.dataLayout()->getTypeAllocSize(alloca->getAllocatedType());
+            const auto lifeSize =
+                allocSize.isScalable() || SimdWidth.isScalable()
+                    ? -1
+                    : allocSize.getKnownMinValue() *
+                          SimdWidth.getKnownMinValue();
+            CI->setOperand(
+                0, ConstantInt::get(CI->getOperand(0)->getType(), lifeSize));
+            results.push_back(CI);
+          }
         }
       }
+#endif
       return results;
     }
 

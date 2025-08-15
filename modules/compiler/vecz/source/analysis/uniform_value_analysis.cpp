@@ -24,6 +24,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/Debug.h>
+#include <multi_llvm/lifetime_helper.h>
 
 #include <cstdlib>
 
@@ -358,6 +359,20 @@ void UniformValueResult::markVaryingValues(Value *V, Value *From) {
           return;
         }
       }
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+      // LLVM 22 drops the size parameter and requires the object
+      // to be an alloca or a pointer to an alloca, so we force uniformity.
+      // can drop the LifeTimeHasSizeArg() check once intel/llvm has
+      // the size parameter removed from the intrinsic
+      else if (auto *intrinsic = dyn_cast<llvm::IntrinsicInst>(CI)) {
+        const auto intrinsicID = intrinsic->getIntrinsicID();
+        if (!multi_llvm::LifeTimeHasSizeArg() &&
+            (intrinsicID == llvm::Intrinsic::lifetime_end ||
+             intrinsicID == llvm::Intrinsic::lifetime_start)) {
+          return;
+        }
+      }
+#endif
     }
   }
 
