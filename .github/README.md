@@ -145,8 +145,8 @@ These default values can also be set interactively on a per-run basis when calle
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.
 
 ## Running planned_testing workflows
-### Manually tailoring planned_testing workflows for a specific DPC++ branch
-Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger). Included in this process is the ability to specify a particular DPC++ branch as a per-run parameter. If it is not specified the default DPC++ branch will be used.
+### Manually tailoring planned_testing workflows for a specific DPC++ PR
+Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger). Included in this process is the ability to specify a particular DPC++ PR number as a per-run parameter. The number is converted into a repo reference representing a merge of the given PR into the default branch. If it is not specified the default DPC++ branch itself will be used as the reference.
 
 ### Further tailoring of planned_testing workflows
 The following planned_testing workflows call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
