@@ -146,7 +146,7 @@ At the point at which an update to the opencl_cts cache artifact is required (e.
 
 ## Running planned_testing workflows
 ### Manually tailoring planned_testing workflows for a specific DPC++ PR
-Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger). Included in this process is the ability to specify a particular DPC++ PR number as a per-run parameter. The number is converted into a repo reference representing a merge of the given PR into the default branch. If it is not specified the default DPC++ branch itself will be used as the reference.
+Planned_testing workflows are configured to run via `workflow_dispatch:` (manual event trigger). Included in this process is the ability to specify a particular DPC++ repo PR number as a per-run parameter. The number is converted into a repo reference representing a merge of the given PR into the default branch. If it is not specified the default DPC++ branch itself will be used as the reference.
 
 ### Further tailoring of planned_testing workflows
 The following planned_testing workflows call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
