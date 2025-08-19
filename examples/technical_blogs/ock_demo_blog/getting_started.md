@@ -32,7 +32,7 @@ written using portDNN, SYCL and C++.
 
 OCK demo package contains the build and install directories of all components. All the repositories mentioned above are open-sourced and can be cloned as follows.
 
-- [oneAPI Construction Kit](https://github.com/codeplaysoftware/oneapi-construction-kit.git)
+- [oneAPI Construction Kit](https://github.com/uxlfoundation/oneapi-construction-kit.git)
 - [portDNN](https://github.com/codeplaysoftware/portDNN.git)
 - [portBLAS](https://github.com/codeplaysoftware/portBLAS.git)
 - [oneAPI toolkit](https://github.com/intel/llvm/releases)
@@ -48,9 +48,9 @@ downloaded from `intel/llvm`:
     cd Release
 
     # As the current documentation, the latest ock-demo artifacts available is dated 2024-02-29.
-    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_artifacts.tar.gz
-    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_components.tar.gz
-    wget https://github.com/codeplaysoftware/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/network_artifacts.tar.gz
+    wget https://github.com/uxlfoundation/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_artifacts.tar.gz
+    wget https://github.com/uxlfoundation/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/ock_demo_components.tar.gz
+    wget https://github.com/uxlfoundation/oneapi-construction-kit/releases/download/ock-demo-2024-02-29-f0588da/network_artifacts.tar.gz
 
     tar -xf ock_demo_artifacts.tar.gz
     tar -xf ock_demo_components.tar.gz

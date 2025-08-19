@@ -60,13 +60,13 @@ report. Please complete the following steps in advance in order to help us deal
 with potential bugs as quickly and as smoothly as possible.
 
 * Make sure that you are using the latest release of the software, available
-  [here](https://github.com/codeplaysoftware/oneapi-construction-kit/releases).
+  [here](https://github.com/uxlfoundation/oneapi-construction-kit/releases).
 * If possible, check to see if the bug is still present on the
-  [main branch](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main).
+  [main branch](https://github.com/uxlfoundation/oneapi-construction-kit/blob/main).
 * Attempt to determine if your bug is really a bug and not an error on your end
   (e.g. incompatible environment, unsupported operating system, etc).
 * Check to see if a bug report has already been opened in
-  [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues).
+  [Issues](https://github.com/uxlfoundation/oneapi-construction-kit/issues).
   It may be the case that a temporary fix has been posted in a similar report.
 * Search the internet (e.g. Stack Overflow, etc) to see if users outside of the
   GitHub community have discussed the issue and discovered a workaround or fix.
@@ -96,7 +96,7 @@ Once you have prepared to submit your report, we ask that you follow these
 steps.
 
 * Open an
-  [issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
+  [issue](https://github.com/uxlfoundation/oneapi-construction-kit/issues/new/choose).
 * Select the **Bug** issue template and fill in the requested details.
 * Describe the expected behaviour and the actual behaviour you are seeing.
 * Provide as much context as you can about the bug and describe the steps
@@ -123,13 +123,13 @@ in preparation for your suggestion.
 
 * Make sure that you are using the latest version of the software, available on
   the
-  [main branch](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main).
+  [main branch](https://github.com/uxlfoundation/oneapi-construction-kit/blob/main).
 * Read the
   [Documentation](https://developer.codeplay.com/products/oneapi/construction-kit/guides)
   carefully and make sure your suggested functionality is not already covered
   by the project or by an individual configuration of the project.
 * Check to see if the enhancement has already been suggested in
-  [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/issues).
+  [Issues](https://github.com/uxlfoundation/oneapi-construction-kit/issues).
   Make sure to search for closed tickets in case the enhancement has been
   previously rejected.
 
@@ -196,7 +196,7 @@ Once you have prepared your code contribution, we ask that you follow these
 steps.
 
 * Open a
-  [pull request](https://github.com/codeplaysoftware/oneapi-construction-kit/compare).
+  [pull request](https://github.com/uxlfoundation/oneapi-construction-kit/compare).
 * Add the ![#d73a4a](https://placehold.co/20x20/d73a4a/d73a4a.png) **bug** or
   ![#a2eeef](https://placehold.co/20x20/a2eeef/a2eeef.png) **enhancement**
   labels as appropriate.

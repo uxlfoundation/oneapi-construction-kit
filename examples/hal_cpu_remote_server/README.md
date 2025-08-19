@@ -150,7 +150,7 @@ The `OneAPI Construction Kit` has some simple `SYCL` examples. To compile a
 simple vector add test you will need a `clang++` which has been built for
 `SYCL`. This can be downloaded from https://github.com/intel/llvm/releases,
 built from that repo or from the base toolkit (see
-https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/README.md
+https://github.com/uxlfoundation/oneapi-construction-kit/blob/main/README.md
 for more details). First of all start the server as above.
 
 Build and run simple-vector-add as follows from the build_client directory:-
