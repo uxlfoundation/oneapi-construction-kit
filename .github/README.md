@@ -36,16 +36,16 @@ create_llvm_artefacts.yml
 - description: runs limited planned_tests for experimental llvm main
 
 `Seed the cache for ock builds`: pr_tests_cache.yml
-- description: seeds the cache for OCK builds
+- description: builds the cache for OCK builds
 
 `publish docker images`: publish_docker_images.yml 
 - description: builds and publishes docker images
 
 `Run external tests`: run_ock_external_tests.yml
-- description: runs external OCK tests
+- description: runs external OCK tests - i.e any which are not provided by the ock repo e.g. opencl cts
 
 `Run ock internal tests`: run_ock_internal_tests.yml
-- description: runs internal OCK tests
+- description: runs internal OCK tests - i.e. tests built from within the ock repo, used for PR testing and overnight runs
 
 `Run ock tests for PR style testing`: run_pr_tests_caller.yml
 - description: runs PR-style tests
@@ -114,7 +114,9 @@ The `publish docker images` workflow is configured to rebuild the containers whe
 
 ## LLVM artefact management
 
-Planned_testing workflows each use a particular llvm artefact according to llvm version, OS and architecture (e.g. llvm 19/20/21, Ubuntu_24, x86_64). The specific version to use and branch to reference are contained in the .yml workflow definition. llvm artefacts can be installed, built or accessed as pre-built artefacts from Github cache. The default behavour is to use a cached version where available with the cached version being built if it does not exist.
+Planned_testing workflows each use a particular llvm artefact according to llvm version, OS and architecture (e.g. llvm 19/20/21, Ubuntu_24, x86_64). The specific version to use and branch to reference are contained in the .yml workflow definition. llvm artefacts can be installed, built or accessed as pre-built artefacts from Github cache. They are handled as follows:
+- PR testing: llvm artefact is installed as needed.
+- Planned testing: a flag is set depending on whether the llvm version is stable. If the cache flag is set, cache is used with llvm artefact being built if required. If the flag is not set, the llvm artefact is always built.
 
 Support for future llvm artefact versions can be added by copying the latest planned_testing workflow definition and updating the llvm variables accordingly (e.g. 21 to 22).
 
