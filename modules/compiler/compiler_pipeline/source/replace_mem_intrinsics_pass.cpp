@@ -40,7 +40,7 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
             break;
           case Intrinsic::memmove:
             // The expandMemMoveAsLoop fails if the address spaces differ so we
-            // will only do it if they are the same - see CA-4682
+            // will only do it if they are the same
             if (CI->getArgOperand(0)->getType()->getPointerAddressSpace() ==
                 CI->getArgOperand(1)->getType()->getPointerAddressSpace()) {
               CallsToProcess.push_back(CI);
