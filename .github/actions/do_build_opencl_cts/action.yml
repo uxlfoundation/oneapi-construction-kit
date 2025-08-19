@@ -11,11 +11,12 @@ inputs:
     type: boolean
     description: 'flag indicating that a cache update for the built artifact is required'
     default: false
+  # These should default to '' to get tip, but for now need to be fixed due to unified svm header work.
   opencl_cts_ref:
     required: false
     type: string
     description: 'Git checkout ref for OpenCL-CTS repo'
-    default: ''
+    default: 'v2025-04-21-00'
 
 runs:
   using: "composite"
