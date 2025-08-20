@@ -9,11 +9,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
+        By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/uxlfoundation/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
   - type: markdown
     attributes:
       value: |
-        We ask that you check to see if a similar bug report has already been opened in [Issues](https://github.com/codeplaysoftware/oneapi-construction-kit/labels/bug).
+        We ask that you check to see if a similar bug report has already been opened in [Issues](https://github.com/uxlfoundation/oneapi-construction-kit/labels/bug).
   - type: input
     id: version
     attributes:

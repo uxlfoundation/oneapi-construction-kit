@@ -25,7 +25,7 @@ function header()
   echo "// Exceptions; you may not use this file except in compliance with the License."
   echo "// You may obtain a copy of the License at"
   echo "//"
-  echo "//     https://github.com/codeplaysoftware/oneapi-construction-kit/blob/main/LICENSE.txt"
+  echo "//     https://github.com/uxlfoundation/oneapi-construction-kit/blob/main/LICENSE.txt"
   echo "//"
   echo "// Unless required by applicable law or agreed to in writing, software"
   echo "// distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT"

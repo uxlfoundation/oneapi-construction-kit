@@ -391,7 +391,7 @@ discussion or issue.
 If you would like to open a new question, we ask that you follow these steps:
 
 * [Open a new question](https://github.com/uxlfoundation/oneapi-construction-kit/discussions/new?category=q-a)
-* Alternatively, [open a new issue](https://github.com/codeplaysoftware/oneapi-construction-kit/issues/new/choose).
+* Alternatively, [open a new issue](https://github.com/uxlfoundation/oneapi-construction-kit/issues/new/choose).
   * Select the **Question** issue template and fill in the requested details.
 * Provide as much context as you can about the problem or question you have.
 * Provide project version and any relevant system details (e.g. operating
