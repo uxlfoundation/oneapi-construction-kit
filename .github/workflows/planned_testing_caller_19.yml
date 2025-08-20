@@ -29,8 +29,7 @@ jobs:
       llvm_branch: 'release/19.x'
       use_llvm_github_cache: true
       save_cache:  ${{ github.event_name == 'schedule' }}
-      #dpcpp_repo_pr_no:  ${{ inputs.dpcpp_repo_pr_no }}
-      dpcpp_repo_pr_no:  '19801'
+      dpcpp_repo_pr_no:  ${{ inputs.dpcpp_repo_pr_no }}
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
       # target_list: '[ "host_x86_64_linux" ]'
