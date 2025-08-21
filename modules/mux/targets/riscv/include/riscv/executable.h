@@ -37,9 +37,9 @@ struct executable_s final : mux::hal::executable {
   executable_s(mux::hal::device *device,
                mux::dynamic_array<uint8_t> &&object_code);
 
-  static cargo::expected<riscv::executable_s *, mux_result_t> create(
-      riscv::device_s *device, const void *binary, uint64_t binary_length,
-      mux::allocator allocator);
+  static cargo::expected<riscv::executable_s *, mux_result_t>
+  create(riscv::device_s *device, const void *binary, uint64_t binary_length,
+         mux::allocator allocator);
 
   static void destroy(riscv::device_s *device, riscv::executable_s *executable,
                       mux::allocator allocator);
@@ -49,6 +49,6 @@ struct executable_s final : mux::hal::executable {
 };
 
 /// @}
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_EXECUTABLE_H_INCLUDED
+#endif // RISCV_EXECUTABLE_H_INCLUDED

@@ -21,7 +21,7 @@
 #include <mux/utils/helpers.h>
 #include <stdint.h>
 
-#include <cstring>  // For memset.
+#include <cstring> // For memset.
 #include <thread>
 #include <vector>
 

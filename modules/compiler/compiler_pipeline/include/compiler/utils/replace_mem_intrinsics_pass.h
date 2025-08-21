@@ -35,12 +35,12 @@ namespace utils {
 /// pointer arguments
 class ReplaceMemIntrinsicsPass final
     : public llvm::PassInfoMixin<ReplaceMemIntrinsicsPass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 };
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_REPLACE_MEM_INTRINSICS_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_REPLACE_MEM_INTRINSICS_PASS_H_INCLUDED

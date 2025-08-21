@@ -26,7 +26,7 @@
 namespace testing::internal {
 enum class GTestColor { kDefault, kRed, kGreen, kYellow };
 extern void ColoredPrintf(GTestColor color, const char *fmt, ...);
-}  // namespace testing::internal
+} // namespace testing::internal
 
 #ifdef _WIN32
 #include <windows.h>
@@ -67,7 +67,7 @@ std::string get_path_relative_to_exe(const std::string &relative_path) {
   return path + relative_path;
 }
 
-}  // namespace
+} // namespace
 
 #elif defined(__linux__) || defined(__APPLE__) || defined(__QNX__)
 #include <unistd.h>
@@ -115,7 +115,7 @@ std::string get_path_relative_to_exe(const std::string &relative_path) {
   return path + relative_path;
 }
 
-}  // namespace
+} // namespace
 
 #else
 
@@ -124,12 +124,12 @@ namespace {
 const char *const KERNELS_EXE_RELATIVE_PATH = "source/cl/test/UnitCL/kernels";
 const char *const INCLUDE_EXE_RELATIVE_PATH =
     "source/cl/test/UnitCL/test_include";
-#warning \
+#warning                                                                       \
     "Unsupported platform - no code for determining current executable path, always using '.'"
 std::string get_path_relative_to_exe(const std::string &relative_path) {
   return relative_path;
 }
-}  // namespace
+} // namespace
 #endif
 
 namespace {
@@ -180,15 +180,14 @@ struct ArgumentParser {
             CL_DEVICE_TYPE_ALL | CL_DEVICE_TYPE_CUSTOM);
         if (!print_ok) {
           (void)fprintf(
-              stderr,
-              "WARNING: Unable to query and print OpenCL platform and "
-              "device info.\n");
+              stderr, "WARNING: Unable to query and print OpenCL platform and "
+                      "device info.\n");
         }
-        exit(0);  // Don't run any tests, just exit now we've dumped the info
+        exit(0); // Don't run any tests, just exit now we've dumped the info
       } else if (!starts_with(argv[i], "--gtest")) {
         (void)fprintf(stderr, "ERROR : Unknown argument '%s'.\n", argv[i]);
         printHelp(argv[0]);
-        exit(1);  // Don't run any tests, just exit
+        exit(1); // Don't run any tests, just exit
       }
     }
   }
@@ -201,9 +200,8 @@ struct ArgumentParser {
     printf("UnitCL Options:\n");
     ColoredPrintf(GTestColor::kGreen, "  --unitcl_test_include=");
     ColoredPrintf(GTestColor::kYellow, "DIRECTORY_PATH\n");
-    printf(
-        "      Provide the path to the supplied 'test_include' directory. "
-        "Default:\n");
+    printf("      Provide the path to the supplied 'test_include' directory. "
+           "Default:\n");
     ColoredPrintf(GTestColor::kYellow, "      %s\n", includePath.c_str());
 
     ColoredPrintf(GTestColor::kGreen, "  --unitcl_platform=");
@@ -216,9 +214,8 @@ struct ArgumentParser {
 
     ColoredPrintf(GTestColor::kGreen, "  --unitcl_kernel_directory=");
     ColoredPrintf(GTestColor::kYellow, "PATH\n");
-    printf(
-        "      Provide the path to the supplied 'kernels' directory. "
-        "Default:\n");
+    printf("      Provide the path to the supplied 'kernels' directory. "
+           "Default:\n");
     ColoredPrintf(GTestColor::kYellow, "      %s\n",
                   get_path_relative_to_exe(KERNELS_EXE_RELATIVE_PATH).c_str());
 
@@ -230,9 +227,8 @@ struct ArgumentParser {
 
     ColoredPrintf(GTestColor::kGreen, "  --unitcl_seed=");
     ColoredPrintf(GTestColor::kYellow, "NUMBER\n");
-    printf(
-        "      Provide an unsigned integer to seed the random number "
-        "generator with.\n");
+    printf("      Provide an unsigned integer to seed the random number "
+           "generator with.\n");
 
     ColoredPrintf(GTestColor::kGreen, "  --unitcl_math=");
     ColoredPrintf(GTestColor::kYellow, "(");
@@ -242,14 +238,12 @@ struct ArgumentParser {
     ColoredPrintf(GTestColor::kYellow, "|");
     ColoredPrintf(GTestColor::kGreen, "full");
     ColoredPrintf(GTestColor::kYellow, ")\n");
-    printf(
-        "      Run math builtins tests over an increasing data size, "
-        "defaults to wimpy.\n");
+    printf("      Run math builtins tests over an increasing data size, "
+           "defaults to wimpy.\n");
 
     ColoredPrintf(GTestColor::kGreen, "  --vecz-check\n");
-    printf(
-        "      Mark tests as failed if the vectorizer did not vectorize "
-        "them.\n");
+    printf("      Mark tests as failed if the vectorizer did not vectorize "
+           "them.\n");
 
     ColoredPrintf(GTestColor::kGreen, "  --opencl_info\n");
     printf("      Print OpenCL platform and platform devices info.\n\n");
@@ -265,9 +259,9 @@ struct ArgumentParser {
       get_path_relative_to_exe(KERNELS_EXE_RELATIVE_PATH);
   ucl::MathMode math_mode;
   bool vecz_check = false;
-  unsigned rand_seed = 0;  // InputGenerator picks a random value if this is 0.
+  unsigned rand_seed = 0; // InputGenerator picks a random value if this is 0.
 };
-}  // namespace
+} // namespace
 
 int main(int argc, char **argv) {
   // First parse UnitCL specific arguments.

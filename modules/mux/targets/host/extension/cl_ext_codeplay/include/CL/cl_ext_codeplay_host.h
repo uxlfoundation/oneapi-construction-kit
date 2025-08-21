@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif // __cplusplus
 
 // cl_codeplay_set_threads entry point function pointer
 typedef cl_int(CL_API_CALL *clSetNumThreadsCODEPLAY_fn)(cl_device_id device,
@@ -33,6 +33,6 @@ extern cl_int CL_API_CALL clSetNumThreadsCODEPLAY(cl_device_id device,
 
 #ifdef __cplusplus
 }
-#endif  // __cplusplus
+#endif // __cplusplus
 
-#endif  // CL_EXT_CODEPLAY_HOST_H_INCLUDED
+#endif // CL_EXT_CODEPLAY_HOST_H_INCLUDED

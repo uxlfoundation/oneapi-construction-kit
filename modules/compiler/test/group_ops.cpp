@@ -35,7 +35,7 @@ using namespace llvm;
 using namespace compiler::utils;
 
 class GroupOpsTest : public CompilerLLVMModuleTest {
- public:
+public:
   std::unique_ptr<PassMachinery> PassMach;
 
   void SetUp() override {
@@ -78,8 +78,10 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
   };
 
   static std::string getGroupBuiltinBaseName(GroupCollective::ScopeKind Scope) {
-    if (Scope == GroupCollective::ScopeKind::SubGroup) return "sub_group_";
-    if (Scope == GroupCollective::ScopeKind::VectorGroup) return "vec_group_";
+    if (Scope == GroupCollective::ScopeKind::SubGroup)
+      return "sub_group_";
+    if (Scope == GroupCollective::ScopeKind::VectorGroup)
+      return "vec_group_";
     return "work_group_";
   }
 
@@ -156,8 +158,9 @@ class GroupOpsTest : public CompilerLLVMModuleTest {
 
   // GroupOpKind = "" for reductions, "exclusive" for exclusive scans and
   // "inclusive" for inclusive scans.
-  std::vector<GroupOp> getGroupScandAndReductions(
-      GroupCollective::ScopeKind Scope, std::string GroupOpKind) {
+  std::vector<GroupOp>
+  getGroupScandAndReductions(GroupCollective::ScopeKind Scope,
+                             std::string GroupOpKind) {
     const std::string BaseName = getGroupBuiltinBaseName(Scope);
 
     NameMangler Mangler(&Context);
@@ -355,8 +358,7 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
   // single test function
   // * runs the LowerToMuxBuiltinsPass to replace calls to the mux builtins
   // * tests a round-trip between identifying and declaring those mux builtins
-  template <GroupCollective::ScopeKind GroupScope>
-  void doTestBody() {
+  template <GroupCollective::ScopeKind GroupScope> void doTestBody() {
     auto GroupOps = getGroupBuiltins(GroupScope);
 
     std::vector<std::string> BuiltinDecls;
@@ -366,8 +368,10 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       BuiltinDecls.push_back("declare " + Op.getLLVMFnString());
 
       const StringRef ParamName = [&]() -> StringRef {
-        if (Op.LLVMTy == "float") return "%f";
-        if (Op.LLVMTy == "i32") return "%i";
+        if (Op.LLVMTy == "float")
+          return "%f";
+        if (Op.LLVMTy == "i32")
+          return "%i";
         return "<err>";
       }();
       BuiltinCalls.push_back("%call" + std::to_string(Idx) + " = call " +
@@ -408,7 +412,8 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       auto Builtin = BI.analyzeBuiltin(*CalledFn);
       std::string InfoStr = " for function " + CalledFn->getName().str();
       ASSERT_TRUE(Builtin) << InfoStr;
-      if (!Builtin) return;
+      if (!Builtin)
+        return;
       InfoStr += " identified as ID " + std::to_string(Builtin->ID);
       EXPECT_TRUE(BI.isMuxBuiltinID(Builtin->ID)) << InfoStr;
 

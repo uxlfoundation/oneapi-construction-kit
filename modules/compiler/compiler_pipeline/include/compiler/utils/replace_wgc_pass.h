@@ -38,11 +38,11 @@ namespace utils {
 /// and therefore must be run before the ReplaceLocalModuleScopeVariablesPass
 /// on any target making use of that pass.
 class ReplaceWGCPass final : public llvm::PassInfoMixin<ReplaceWGCPass> {
- public:
+public:
   ReplaceWGCPass() {}
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_REPLACE_WGC_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_REPLACE_WGC_PASS_H_INCLUDED

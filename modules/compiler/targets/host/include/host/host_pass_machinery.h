@@ -31,7 +31,7 @@ class TargetMachine;
 namespace host {
 
 class HostPassMachinery final : public compiler::BaseModulePassMachinery {
- public:
+public:
   HostPassMachinery(llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
                     const compiler::utils::DeviceInfo &Info,
                     compiler::utils::BuiltinInfoAnalysis::CallbackFn BICallback,
@@ -65,6 +65,6 @@ class HostPassMachinery final : public compiler::BaseModulePassMachinery {
   llvm::ModulePassManager getLateTargetPasses();
 };
 
-}  // namespace host
+} // namespace host
 
 #endif

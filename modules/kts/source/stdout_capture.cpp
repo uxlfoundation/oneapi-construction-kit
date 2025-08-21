@@ -47,7 +47,7 @@ std::FILE *create_tmpfile() {
   // We want to store our temporary file in %TEMP%.
   const char *dir = std::getenv("TEMP");
   if (!dir) {
-    std::fflush(stdout);  // Try to not lose the error message in the log.
+    std::fflush(stdout); // Try to not lose the error message in the log.
     std::fprintf(stderr, "Could not find '%%TEMP%%'\n");
     return nullptr;
   }
@@ -61,7 +61,7 @@ std::FILE *create_tmpfile() {
   long pid = static_cast<long>(getpid());
   int count = std::snprintf(unique_name, BUF_SIZE, "UnitCL_Printf%ld", pid);
   if ((count < 0) || (count >= BUF_SIZE)) {
-    std::fflush(stdout);  // Try to not lose the error message in the log.
+    std::fflush(stdout); // Try to not lose the error message in the log.
     std::fprintf(stderr, "Could not create a temporary file name.\n");
     return nullptr;
   }
@@ -71,7 +71,7 @@ std::FILE *create_tmpfile() {
   // on a location of our choice.
   char *name = _tempnam(dir, unique_name);
   if (!name) {
-    std::fflush(stdout);  // Try to not lose the error message in the log.
+    std::fflush(stdout); // Try to not lose the error message in the log.
     std::fprintf(stderr, "Could not create a temporary name.\n");
     return nullptr;
   }
@@ -83,7 +83,7 @@ std::FILE *create_tmpfile() {
   std::FILE *file = std::fopen(name, "wb+TD");
   std::free(name);
   if (!file) {
-    std::fflush(stdout);  // Try to not lose the error message in the log.
+    std::fflush(stdout); // Try to not lose the error message in the log.
     std::fprintf(stderr, "Could not open temporary file.  Errno %d: %s\n",
                  errno, std::strerror(errno));
     return nullptr;
@@ -94,7 +94,7 @@ std::FILE *create_tmpfile() {
   return std::tmpfile();
 #endif
 }
-}  // namespace
+} // namespace
 
 namespace kts {
 
@@ -114,7 +114,7 @@ void StdoutCapture::RestoreStdout() {
   ASSERT_EQ(0, std::fflush(stdout));
 
   const int restored_fd = DUP2(original_fd, fileno(stdout));
-  ASSERT_NE(-1, restored_fd);  // If this has failed stdout is not restored.
+  ASSERT_NE(-1, restored_fd); // If this has failed stdout is not restored.
   close(original_fd);
   original_fd = -1;
 }
@@ -137,4 +137,4 @@ std::string StdoutCapture::ReadBuffer() {
   return str;
 }
 
-}  // namespace kts
+} // namespace kts

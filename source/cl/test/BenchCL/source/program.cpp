@@ -45,8 +45,8 @@ struct CreateProgramData {
 };
 
 template <>
-std::vector<const char *> CreateProgramData::generate<InputType::NOP>(
-    unsigned s) {
+std::vector<const char *>
+CreateProgramData::generate<InputType::NOP>(unsigned s) {
   std::vector<const char *> data;
   data.reserve(s);
   for (unsigned i = 0; i < s; i++) {
@@ -56,8 +56,8 @@ std::vector<const char *> CreateProgramData::generate<InputType::NOP>(
 }
 
 template <>
-std::vector<const char *> CreateProgramData::generate<InputType::NOBUILTINS>(
-    unsigned s) {
+std::vector<const char *>
+CreateProgramData::generate<InputType::NOBUILTINS>(unsigned s) {
   std::vector<const char *> data;
   data.push_back("void kernel foo(global int* o, global int* i) {\n");
   data.push_back("  const size_t id = get_global_id(0);\n");
@@ -70,28 +70,28 @@ std::vector<const char *> CreateProgramData::generate<InputType::NOBUILTINS>(
 }
 
 template <>
-std::vector<const char *> CreateProgramData::generate<InputType::MATHBUILTINS>(
-    unsigned s) {
+std::vector<const char *>
+CreateProgramData::generate<InputType::MATHBUILTINS>(unsigned s) {
   std::vector<const char *> data;
   data.push_back("void kernel foo(global float* o, global float* i) {\n");
   data.push_back("  const size_t id = get_global_id(0);\n");
   data.push_back("  o[id] = i[id];\n");
   for (unsigned i = 0; i < s; i++) {
     switch (i % 4) {
-      default:
-        break;  // shouldn't get here!
-      case 0:
-        data.push_back("  o[id] = sqrt(o[id]);\n");
-        break;
-      case 1:
-        data.push_back("  o[id] = tan(o[id]);\n");
-        break;
-      case 2:
-        data.push_back("  o[id] = pow(o[id], i[id]);\n");
-        break;
-      case 3:
-        data.push_back("  o[id] = clamp(o[id], 0.0f, i[id]);\n");
-        break;
+    default:
+      break; // shouldn't get here!
+    case 0:
+      data.push_back("  o[id] = sqrt(o[id]);\n");
+      break;
+    case 1:
+      data.push_back("  o[id] = tan(o[id]);\n");
+      break;
+    case 2:
+      data.push_back("  o[id] = pow(o[id], i[id]);\n");
+      break;
+    case 3:
+      data.push_back("  o[id] = clamp(o[id], 0.0f, i[id]);\n");
+      break;
     }
   }
   data.push_back("}\n");
@@ -272,14 +272,14 @@ static void BuildSingleStringProgram(benchmark::State &state) {
 
 #define TEMPLATE_ARGS() Arg(1)->Arg(1024)->Arg(8192)
 
-#define TEMPLATE_FOREACH(type)                                           \
-  BENCHMARK_TEMPLATE(CreateSingleStringProgram, type)->TEMPLATE_ARGS();  \
-  BENCHMARK_TEMPLATE(CompileSingleStringProgram, type)->TEMPLATE_ARGS(); \
-  BENCHMARK_TEMPLATE(LinkSingleStringProgram, type)->TEMPLATE_ARGS();    \
-  BENCHMARK_TEMPLATE(BuildSingleStringProgram, type)->TEMPLATE_ARGS();   \
-  BENCHMARK_TEMPLATE(CreateMultiStringProgram, type)->TEMPLATE_ARGS();   \
-  BENCHMARK_TEMPLATE(CompileMultiStringProgram, type)->TEMPLATE_ARGS();  \
-  BENCHMARK_TEMPLATE(LinkMultiStringProgram, type)->TEMPLATE_ARGS();     \
+#define TEMPLATE_FOREACH(type)                                                 \
+  BENCHMARK_TEMPLATE(CreateSingleStringProgram, type)->TEMPLATE_ARGS();        \
+  BENCHMARK_TEMPLATE(CompileSingleStringProgram, type)->TEMPLATE_ARGS();       \
+  BENCHMARK_TEMPLATE(LinkSingleStringProgram, type)->TEMPLATE_ARGS();          \
+  BENCHMARK_TEMPLATE(BuildSingleStringProgram, type)->TEMPLATE_ARGS();         \
+  BENCHMARK_TEMPLATE(CreateMultiStringProgram, type)->TEMPLATE_ARGS();         \
+  BENCHMARK_TEMPLATE(CompileMultiStringProgram, type)->TEMPLATE_ARGS();        \
+  BENCHMARK_TEMPLATE(LinkMultiStringProgram, type)->TEMPLATE_ARGS();           \
   BENCHMARK_TEMPLATE(BuildMultiStringProgram, type)->TEMPLATE_ARGS()
 
 TEMPLATE_FOREACH(InputType::NOP);

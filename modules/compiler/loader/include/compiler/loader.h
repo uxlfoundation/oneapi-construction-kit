@@ -27,7 +27,7 @@
 namespace compiler {
 /// @brief Library forward declaration.
 struct Library;
-}  // namespace compiler
+} // namespace compiler
 
 // When using the template std::unique_ptr<Library> where Library is an
 // incomplete type, we encounter compiler errors as the non-specialized
@@ -37,12 +37,11 @@ struct Library;
 // std::default_delete for compiler::Library that declares operator(), which we
 // define later on in a source file.
 namespace std {
-template <>
-struct default_delete<compiler::Library> {
+template <> struct default_delete<compiler::Library> {
   default_delete() noexcept = default;
   void operator()(compiler::Library *library) const;
 };
-}  // namespace std
+} // namespace std
 
 namespace compiler {
 /// @addtogroup compiler
@@ -103,6 +102,6 @@ const compiler::Info *getCompilerForDevice(Library *library,
 std::unique_ptr<compiler::Context> createContext(Library *library);
 
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // COMPILER_LOADER_H_INCLUDED
+#endif // COMPILER_LOADER_H_INCLUDED

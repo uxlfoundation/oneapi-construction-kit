@@ -22,13 +22,13 @@
 namespace extension {
 
 class codeplay_host_builtins final : public extension {
- public:
+public:
   codeplay_host_builtins();
 
   virtual cl_int GetDeviceInfo(cl_device_id device, cl_device_info param_name,
                                size_t param_value_size, void *param_value,
                                size_t *param_value_size_ret) const override;
 
-};  // class codeplay_host_builtins
-}  // namespace extension
-#endif  // EXTENSION_CODEPLAY_HOST_BUILTINS_INCLUDED
+}; // class codeplay_host_builtins
+} // namespace extension
+#endif // EXTENSION_CODEPLAY_HOST_BUILTINS_INCLUDED

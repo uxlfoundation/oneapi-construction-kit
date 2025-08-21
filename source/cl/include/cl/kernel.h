@@ -44,7 +44,7 @@ namespace cl {
 using user_func_t = void(CL_CALLBACK *)(void *args);
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
 /// @addtogroup cl
 /// @{
@@ -52,7 +52,7 @@ using user_func_t = void(CL_CALLBACK *)(void *args);
 /// @brief A wrapper over either a deferred compiled kernel or a pre-compiled
 /// Mux kernel, depending on whether deferred compilation is supported.
 class MuxKernelWrapper {
- public:
+public:
   /// @brief A Mux executable that contains a single kernel that has been
   /// optimized with specific runtime parameters.
   struct SpecializedKernel {
@@ -131,8 +131,8 @@ class MuxKernelWrapper {
   /// @retval `Result::INVALID_VALUE` if any of the specialization options are
   /// invalid.
   /// @retval `Result::FAILURE` if this kernel is not specializable.
-  cargo::expected<SpecializedKernel, compiler::Result> createSpecializedKernel(
-      const mux_ndrange_options_t &specialization_options);
+  cargo::expected<SpecializedKernel, compiler::Result>
+  createSpecializedKernel(const mux_ndrange_options_t &specialization_options);
 
   /// @brief If this kernel does not support specialization, this returns the
   /// generic Mux kernel that is not specialized for any particular config.
@@ -149,8 +149,9 @@ class MuxKernelWrapper {
   /// @return The maximum sub-group size that would result from the given local
   /// size. May return CL_INVALID_OPERATION if sub-groups are not supported, or
   /// an error code if it was unsuccessful.
-  cargo::expected<size_t, cl_int> getSubGroupSizeForLocalSize(
-      size_t local_size_x, size_t local_size_y, size_t local_size_z) const;
+  cargo::expected<size_t, cl_int>
+  getSubGroupSizeForLocalSize(size_t local_size_x, size_t local_size_y,
+                              size_t local_size_z) const;
 
   /// @brief Return the number of sub-groups that will be present when the
   /// kernel is enqueued with the given local size.
@@ -168,8 +169,9 @@ class MuxKernelWrapper {
   /// @return The number of sub-groups that would be present if the kernel was
   /// enqueued with the given local size. May return CL_INVALID_OPERATION if
   /// sub-groups are not supported, or an error code if it was unsuccessful.
-  cargo::expected<size_t, cl_int> getSubGroupCountForLocalSize(
-      size_t local_size_x, size_t local_size_y, size_t local_size_z) const;
+  cargo::expected<size_t, cl_int>
+  getSubGroupCountForLocalSize(size_t local_size_x, size_t local_size_y,
+                               size_t local_size_z) const;
 
   /// @brief Return the local size that would result in the given number of
   /// sub-groups.
@@ -182,8 +184,8 @@ class MuxKernelWrapper {
   /// @return The local size that would result in this number of sub-groups. May
   /// return CL_INVALID_OPERATION if sub-groups are not supported, or an
   /// error code if it was unsuccessful.
-  cargo::expected<std::array<size_t, 3>, cl_int> getLocalSizeForSubGroupCount(
-      size_t sub_group_count) const;
+  cargo::expected<std::array<size_t, 3>, cl_int>
+  getLocalSizeForSubGroupCount(size_t sub_group_count) const;
 
   /// @brief Return the maximum number of sub-groups that can be supported by
   /// the kernel.
@@ -208,7 +210,7 @@ class MuxKernelWrapper {
   /// @brief The amount of local memory used by this kernel.
   const size_t local_memory_size;
 
- private:
+private:
   mux_device_t mux_device;
   mux_allocator_info_t mux_allocator_info;
   mux_kernel_t precompiled_kernel;
@@ -327,7 +329,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
     storage_type stype;
   };
 
- private:
+private:
   /// @brief Private constructor, use _cl_kernel::create() instead.
   ///
   /// @param[in] program Program containing the kernel to create.
@@ -336,7 +338,7 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   _cl_kernel(cl_program program, std::string name,
              const compiler::KernelInfo *info);
 
- public:
+public:
   /// @brief Deleted copy constructor.
   ///
   /// The copy constructor is explicitly deleted to avoid accidentally using
@@ -354,8 +356,9 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   ///
   /// @return Returns a kernel object on success or an error code otherwise.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occured.
-  static cargo::expected<cl_kernel, cl_int> create(
-      cl_program program, std::string name, const compiler::KernelInfo *info);
+  static cargo::expected<cl_kernel, cl_int>
+  create(cl_program program, std::string name,
+         const compiler::KernelInfo *info);
 
   /// @brief Clone this kernel.
   ///
@@ -376,8 +379,8 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   ///
   /// @return Return the argument type on success, CL_INVALID_ARG_INDEX
   /// otherwise.
-  cargo::expected<const compiler::ArgumentType &, cl_int> GetArgType(
-      const cl_uint arg_index) const;
+  cargo::expected<const compiler::ArgumentType &, cl_int>
+  GetArgType(const cl_uint arg_index) const;
 
   /// @brief Set up the mux kernel execution options.
   ///
@@ -462,8 +465,9 @@ struct _cl_kernel final : public cl::base<_cl_kernel> {
   /// @param[in] work_dim Work dimensions.
   ///
   /// @return local work group dimensions.
-  std::array<size_t, cl::max::WORK_ITEM_DIM> getDefaultLocalSize(
-      cl_device_id device, const size_t *global_size, cl_uint work_dim);
+  std::array<size_t, cl::max::WORK_ITEM_DIM>
+  getDefaultLocalSize(cl_device_id device, const size_t *global_size,
+                      cl_uint work_dim);
 
   /// @brief Program the kernel was constructed from.
   cl_program program;
@@ -679,6 +683,6 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueNativeKernel(
     const cl_event *event_wait_list, cl_event *event);
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
-#endif  // CL_KERNEL_H_INCLUDED
+#endif // CL_KERNEL_H_INCLUDED

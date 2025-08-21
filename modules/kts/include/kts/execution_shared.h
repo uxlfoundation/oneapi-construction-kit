@@ -21,10 +21,10 @@
 #include <string>
 
 class SharedExecution {
- public:
+public:
   bool sharedTestsSupported() { return true; }
 
- protected:
+protected:
   SharedExecution() : is_parameterized_(false) {}
   void Fail(const std::string &message) {
     GTEST_NONFATAL_FAILURE_(message.c_str());
@@ -111,5 +111,5 @@ using std::isnan;
 using std::nan;
 using std::nanf;
 using std::nanl;
-#endif  // __ANDROID__
-}  // namespace stdcompat
+#endif // __ANDROID__
+} // namespace stdcompat

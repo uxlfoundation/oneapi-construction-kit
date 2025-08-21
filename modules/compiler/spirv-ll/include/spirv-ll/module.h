@@ -44,15 +44,15 @@
 namespace spirv_ll {
 /// @brief Enum class used to represent an Extended Instruction Set.
 enum class ExtendedInstrSet {
-  OpenCL,              ///< The "OpenCL.std" instruction set.
-  GroupAsyncCopies,    ///< The "Codeplay.GroupAsyncCopies" instruction set.
-  DebugInfo,           ///< The "DebugInfo" instruction set.
-  OpenCLDebugInfo100,  ///< The "OpenCL.DebugInfo.100" instruction set.
+  OpenCL,             ///< The "OpenCL.std" instruction set.
+  GroupAsyncCopies,   ///< The "Codeplay.GroupAsyncCopies" instruction set.
+  DebugInfo,          ///< The "DebugInfo" instruction set.
+  OpenCLDebugInfo100, ///< The "OpenCL.DebugInfo.100" instruction set.
 };
 
 /// @brief Interface to a binary SPIR-V module's header.
 class ModuleHeader {
- public:
+public:
   /// @brief SPIR-V magic number.
   static const uint32_t MAGIC = 0x07230203;
 
@@ -81,7 +81,7 @@ class ModuleHeader {
   /// @return Returns `true` if a valid magic number is found, false otherwise.
   bool isValid() const { return magic() == MAGIC; }
 
- protected:
+protected:
   /// View of the SPIR-V binary stream.
   llvm::ArrayRef<uint32_t> code;
   /// @brief Flag indicating the module's endianness needs swapped.
@@ -90,7 +90,7 @@ class ModuleHeader {
 
 /// @brief OpCode iterator for a SPIR-V module.
 class iterator {
- public:
+public:
   using difference_type = std::ptrdiff_t;
   using value_type = spirv_ll::OpCode;
   using pointer = const value_type *;
@@ -165,7 +165,7 @@ inline void swap(iterator &lhs, iterator &rhs) {
 
 /// @brief Container class for translating a binary SPIR-V module.
 class Module : public ModuleHeader {
- public:
+public:
   /// @brief Construct a SPIR-V module for translation.
   ///
   /// @param[in] context The SPIR-V context the module reside within.
@@ -294,8 +294,8 @@ class Module : public ModuleHeader {
   /// @param entryPoint ID of the entry point to get the execution modes for.
   ///
   /// @return Returns a list of execution modes for the given entry point.
-  llvm::ArrayRef<const OpExecutionMode *> getExecutionModes(
-      spv::Id entryPoint) const;
+  llvm::ArrayRef<const OpExecutionMode *>
+  getExecutionModes(spv::Id entryPoint) const;
 
   /// @brief Get the requested execution mode for the given entry point.
   ///
@@ -472,8 +472,8 @@ class Module : public ModuleHeader {
   /// @param decoration The decoration to match.
   ///
   /// @return Returns the list of decorations for the given ID.
-  llvm::SmallVector<const OpDecorateBase *, 2> getDecorations(
-      spv::Id id, spv::Decoration decoration) const;
+  llvm::SmallVector<const OpDecorateBase *, 2>
+  getDecorations(spv::Id id, spv::Decoration decoration) const;
 
   /// @brief Get the first matching decoration for the given ID.
   ///
@@ -502,8 +502,8 @@ class Module : public ModuleHeader {
   ///
   /// @return List of `OpDecorateBase` objects representing member decorations
   /// or empty list if there are none.
-  llvm::SmallVector<const OpDecorateBase *, 2> getMemberDecorations(
-      spv::Id structType, uint32_t member);
+  llvm::SmallVector<const OpDecorateBase *, 2>
+  getMemberDecorations(spv::Id structType, uint32_t member);
 
   /// @brief Apply the effects of any decorations associated with an ID.
   ///
@@ -516,8 +516,7 @@ class Module : public ModuleHeader {
   /// @param opCode Reference to the base `OpCode` object.
   ///
   /// @return Returns a pointer to the new `OpCode` derivative object.
-  template <class Op>
-  const Op *create(const OpCode &opCode) {
+  template <class Op> const Op *create(const OpCode &opCode) {
     static_assert(std::is_base_of_v<OpCode, Op>,
                   "Op must be derived from OpCode");
     OpCodes.emplace_back(new Op(opCode));
@@ -641,8 +640,8 @@ class Module : public ModuleHeader {
 
   /// @brief Return the LLVM address space for the given storage class, or an
   /// error if the storage class is unknown/unsupported.
-  llvm::Expected<unsigned> translateStorageClassToAddrSpace(
-      uint32_t storage_class) const;
+  llvm::Expected<unsigned>
+  translateStorageClassToAddrSpace(uint32_t storage_class) const;
 
   /// @brief Add a complete pointer.
   ///
@@ -743,8 +742,7 @@ class Module : public ModuleHeader {
   /// @param[in] id The ID for the Op to get.
   ///
   /// @return A pointer to the Op or nullptr if not found.
-  template <class Op = OpCode>
-  const Op *get_or_null(spv::Id id) const {
+  template <class Op = OpCode> const Op *get_or_null(spv::Id id) const {
     if (!id) {
       return nullptr;
     }
@@ -773,8 +771,7 @@ class Module : public ModuleHeader {
   /// @param[in] id The ID for the Op to get.
   ///
   /// @return A pointer to the Op.
-  template <class Op = OpCode>
-  const Op *get(spv::Id id) const {
+  template <class Op = OpCode> const Op *get(spv::Id id) const {
     auto *const op = get_or_null<Op>(id);
     SPIRV_LL_ASSERT(op, "OpCode for ID not found");
     return op;
@@ -785,8 +782,7 @@ class Module : public ModuleHeader {
   /// @param[in] o The LLVM object to find the Op for.
   ///
   /// @return A pointer to the Op or nullptr if not found.
-  template <class Op = OpCode>
-  const Op *get(LLVMObjectPtr o) const {
+  template <class Op = OpCode> const Op *get(LLVMObjectPtr o) const {
     auto found = std::find_if(LLVMObjects.begin(), LLVMObjects.end(),
                               [o](decltype(*LLVMObjects.begin()) &e) {
                                 return e.second.LLVMObject == o;
@@ -881,7 +877,7 @@ class Module : public ModuleHeader {
   /// debug information.
   bool useImplicitDebugScopes() const;
 
- private:
+private:
   /// @brief The set of enabled capabilities.
   llvm::SmallSet<spv::Capability, 16> capabilities;
 
@@ -997,6 +993,6 @@ class Module : public ModuleHeader {
   bool ImplicitDebugScopes = true;
 };
 
-}  // namespace spirv_ll
+} // namespace spirv_ll
 
-#endif  // SPIRV_LL_SPV_MODULE_H_INCLUDED
+#endif // SPIRV_LL_SPV_MODULE_H_INCLUDED

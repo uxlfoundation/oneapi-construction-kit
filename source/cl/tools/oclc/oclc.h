@@ -31,32 +31,31 @@
 #include <vector>
 
 /// @brief Print an error message and return failure.
-#define OCLC_CHECK(cond, msg)                    \
-  if ((cond)) {                                  \
-    (void)fprintf(stderr, "error: %s\n", (msg)); \
-    return oclc::failure;                        \
-  }                                              \
+#define OCLC_CHECK(cond, msg)                                                  \
+  if ((cond)) {                                                                \
+    (void)fprintf(stderr, "error: %s\n", (msg));                               \
+    return oclc::failure;                                                      \
+  }                                                                            \
   (void)0
 
 /// @brief Print a formatted error message and return failure.
-#define OCLC_CHECK_FMT(cond, fmt, ...)       \
-  if (cond) {                                \
-    (void)fprintf(stderr, fmt, __VA_ARGS__); \
-    return oclc::failure;                    \
-  }                                          \
+#define OCLC_CHECK_FMT(cond, fmt, ...)                                         \
+  if (cond) {                                                                  \
+    (void)fprintf(stderr, fmt, __VA_ARGS__);                                   \
+    return oclc::failure;                                                      \
+  }                                                                            \
   (void)0
 
 /// @brief Print an error message and return failure.
-#define OCLC_CHECK_CL(ret, msg)                                           \
-  if ((ret) != CL_SUCCESS) {                                              \
-    (void)fprintf(stderr, "error: %s (%s, %d)\n", (msg),                  \
-                  (oclc::cl_error_code_to_name_map[ret].c_str()), (ret)); \
-    return oclc::failure;                                                 \
-  }                                                                       \
+#define OCLC_CHECK_CL(ret, msg)                                                \
+  if ((ret) != CL_SUCCESS) {                                                   \
+    (void)fprintf(stderr, "error: %s (%s, %d)\n", (msg),                       \
+                  (oclc::cl_error_code_to_name_map[ret].c_str()), (ret));      \
+    return oclc::failure;                                                      \
+  }                                                                            \
   (void)0
 
-template <typename T>
-using vector2d = std::vector<std::vector<T>>;
+template <typename T> using vector2d = std::vector<std::vector<T>>;
 
 namespace oclc {
 
@@ -130,7 +129,7 @@ std::map<cl_int, std::string> cl_error_code_to_name_map = {
 
 /// @brief Drives the compilation and execution of OpenCL kernels
 class Driver {
- public:
+public:
   /// @brief Create a new instance of Driver.
   Driver();
   ~Driver();
@@ -158,7 +157,7 @@ class Driver {
   size_t execution_count_;
 
   // Methods:
- private:
+private:
   /// @brief Retrieve the program's binary from the built program.
   /// @return oclc::success or oclc::failure.
   bool GetProgramBinary();
@@ -251,15 +250,14 @@ class Driver {
   /// seed of engine_ to that value if it is.
   bool ApplySeed(const char *rawArg);
   /// @brief Generates a platform-independent uniform value in the given range.
-  template <typename T>
-  T NextUniform(T min, T max);
+  template <typename T> T NextUniform(T min, T max);
   /// @brief If the start of a string can be parsed as {...}, returns a pointer
   /// to the 1 pass the closing bracket, or returns nullptr otherwise.
   const char *VerifyRepeatExec(const char *arg);
   /// @brief Turns a vector of the form "{a,b}","{c,d}" to a vector of vectors,
   /// each set of curly braces filling a sub-vector.
-  vector2d<std::string> GetRepeatExecutionValues(
-      const std::vector<std::string> &vec);
+  vector2d<std::string>
+  GetRepeatExecutionValues(const std::vector<std::string> &vec);
   /// @brief If any work size is lower-dimensional than the largest work size in
   /// the program, all unspecified dimensions are filled with 1s.
   void FillSizeInfo(vector2d<size_t> &workSize);
@@ -275,11 +273,11 @@ class Driver {
   bool ReadListOrFile(const char *rawArg, std::string &argName,
                       std::vector<std::string> &splitVals);
   /// @brief Creates an RGBA OpenCL image of uint8s
-  bool CreateImage(
-      const std::vector<std::string> &imageData, const std::string &name,
-      vector2d<cl_uchar> &bufferHolder,
-      std::map<std::string, std::pair<cl_mem, std::string>> &buffer_map,
-      cl_mem &image, uint8_t dimensions);
+  bool
+  CreateImage(const std::vector<std::string> &imageData,
+              const std::string &name, vector2d<cl_uchar> &bufferHolder,
+              std::map<std::string, std::pair<cl_mem, std::string>> &buffer_map,
+              cl_mem &image, uint8_t dimensions);
   /// @brief Finds every non-struct / union typedef statement in a kernel.
   std::map<std::string, std::string> FindTypedefs();
   /// @brief Returns true if the ULP error of every element in `expectedVec` and
@@ -304,8 +302,7 @@ class Driver {
   /// @brief Returns a decimal string representation of a floating point number
   /// to the highest possible number of decimal places, as defined by
   /// std::numeric_limits<T>::digits10.
-  template <typename T>
-  std::string ToStringPrecise(T floating);
+  template <typename T> std::string ToStringPrecise(T floating);
   /// @brief Converts an OpenCL buffer to a comma seperated string list.
   std::string BufferToString(const unsigned char *buffer, size_t n,
                              const std::string &dataType);
@@ -420,7 +417,7 @@ struct Arguments {
   const char *TakeKeyValue(const char *key, bool &failed);
 
   // Attributes:
- private:
+private:
   /// @brief Number of command-line arguments.
   int argc_;
   /// @brief Array of command-line arguments.
@@ -428,6 +425,6 @@ struct Arguments {
   /// @brief Index of the current command-line argument.
   int pos_;
 };
-}  // namespace oclc
+} // namespace oclc
 
-#endif  // CL_TOOLS_OCLC_H_INCLUDED
+#endif // CL_TOOLS_OCLC_H_INCLUDED

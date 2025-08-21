@@ -33,13 +33,9 @@
 
 spirv_ll::Builder::Builder(spirv_ll::Context &context, spirv_ll::Module &module,
                            const spirv_ll::DeviceInfo &deviceInfo)
-    : context(context),
-      module(module),
-      deviceInfo(deviceInfo),
-      IRBuilder(*context.llvmContext),
-      DIBuilder(*module.llvmModule),
-      CurrentFunction(nullptr),
-      CurrentFunctionKernel(nullptr),
+    : context(context), module(module), deviceInfo(deviceInfo),
+      IRBuilder(*context.llvmContext), DIBuilder(*module.llvmModule),
+      CurrentFunction(nullptr), CurrentFunctionKernel(nullptr),
       CurrentFunctionLexicalScope(std::nullopt) {}
 
 llvm::IRBuilder<> &spirv_ll::Builder::getIRBuilder() { return IRBuilder; }
@@ -224,7 +220,7 @@ llvm::StringRef getBuiltinName(uint32_t builtin) {
   }
   return It->getSecond();
 }
-}  // namespace
+} // namespace
 
 void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
                                                  llvm::Type *builtinType,
@@ -234,111 +230,110 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
   auto dataLayout = module.llvmModule->getDataLayout();
 
   switch (builtin) {
-    case spv::BuiltInSubgroupId:                 // uint get_sub_group_id()
-    case spv::BuiltInSubgroupSize:               // uint get_sub_group_size()
-    case spv::BuiltInSubgroupLocalInvocationId:  // uint get_sub_group_local_id
-    case spv::BuiltInWorkDim: {                  // uint get_work_dim()
-      auto builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
+  case spv::BuiltInSubgroupId:                // uint get_sub_group_id()
+  case spv::BuiltInSubgroupSize:              // uint get_sub_group_size()
+  case spv::BuiltInSubgroupLocalInvocationId: // uint get_sub_group_local_id
+  case spv::BuiltInWorkDim: {                 // uint get_work_dim()
+    auto builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
 
-      // Builtin returns uint
-      auto builtinRetTy = IRBuilder.getInt32Ty();
+    // Builtin returns uint
+    auto builtinRetTy = IRBuilder.getInt32Ty();
 
-      // Create a call to the builtin
-      auto initVal =
-          createBuiltinCall(getBuiltinName(builtin), builtinRetTy, {});
+    // Create a call to the builtin
+    auto initVal = createBuiltinCall(getBuiltinName(builtin), builtinRetTy, {});
 
-      // Store the initializer in the builtin variable
-      IRBuilder.CreateStore(initVal, builtinVal);
-    } break;
-    case spv::BuiltInNumWorkgroups:            // size_t get_num_groups(uint)
-    case spv::BuiltInWorkgroupSize:            // size_t get_local_size(uint)
-    case spv::BuiltInWorkgroupId:              // size_t get_group_id(uint)
-    case spv::BuiltInLocalInvocationId:        // size_t get_local_id(uint)
-    case spv::BuiltInGlobalInvocationId:       // size_t get_global_id(uint)
-    case spv::BuiltInGlobalSize:               // size_t get_global_size(uint)
-    case spv::BuiltInGlobalOffset:             // size_t get_global_offset(uint)
-    case spv::BuiltInEnqueuedWorkgroupSize: {  // size_t
-                                               // get_enqueued_local_size(uint)
-      auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
+    // Store the initializer in the builtin variable
+    IRBuilder.CreateStore(initVal, builtinVal);
+  } break;
+  case spv::BuiltInNumWorkgroups:           // size_t get_num_groups(uint)
+  case spv::BuiltInWorkgroupSize:           // size_t get_local_size(uint)
+  case spv::BuiltInWorkgroupId:             // size_t get_group_id(uint)
+  case spv::BuiltInLocalInvocationId:       // size_t get_local_id(uint)
+  case spv::BuiltInGlobalInvocationId:      // size_t get_global_id(uint)
+  case spv::BuiltInGlobalSize:              // size_t get_global_size(uint)
+  case spv::BuiltInGlobalOffset:            // size_t get_global_offset(uint)
+  case spv::BuiltInEnqueuedWorkgroupSize: { // size_t
+                                            // get_enqueued_local_size(uint)
+    auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
 
-      // Builtin returns size_t, get the appropriate sized integer type.
-      llvm::Type *builtinRetTy = nullptr;
-      if (32 == dataLayout.getPointerSizeInBits()) {
-        builtinRetTy = IRBuilder.getInt32Ty();
-      } else {
-        SPIRV_LL_ASSERT(64 == dataLayout.getPointerSizeInBits(),
-                        "Datalayout is neither 32 nor 64 bits");
-        builtinRetTy = IRBuilder.getInt64Ty();
-      }
-      SPIRV_LL_ASSERT_PTR(builtinRetTy);
+    // Builtin returns size_t, get the appropriate sized integer type.
+    llvm::Type *builtinRetTy = nullptr;
+    if (32 == dataLayout.getPointerSizeInBits()) {
+      builtinRetTy = IRBuilder.getInt32Ty();
+    } else {
+      SPIRV_LL_ASSERT(64 == dataLayout.getPointerSizeInBits(),
+                      "Datalayout is neither 32 nor 64 bits");
+      builtinRetTy = IRBuilder.getInt64Ty();
+    }
+    SPIRV_LL_ASSERT_PTR(builtinRetTy);
 
-      // Create an undefined vector to store the builtin initializer.
-      llvm::Value *initVec = llvm::UndefValue::get(builtinType);
+    // Create an undefined vector to store the builtin initializer.
+    llvm::Value *initVec = llvm::UndefValue::get(builtinType);
 
-      // Loop over the vector elements, the assumption of 3 dimensions is
-      // baked into SPIR-V even if only a single dimension is actually used.
-      for (uint32_t index = 0; index < 3; index++) {
-        // Create a call to the builtin.
-        llvm::Value *initVal = createBuiltinCall(
-            getBuiltinName(builtin), builtinRetTy, {IRBuilder.getInt32(index)});
-        SPIRV_LL_ASSERT_PTR(initVal);
-
-        // Vulkan defines some builtin variables as hard coded int32s, so there
-        // is a chance we need to truncate returned values down to fit this.
-        if (builtinRetTy->getScalarSizeInBits() >
-            multi_llvm::getVectorElementType(builtinType)
-                ->getScalarSizeInBits()) {
-          initVal = IRBuilder.CreateTrunc(
-              initVal, multi_llvm::getVectorElementType(builtinType));
-        }
-
-        initVec = IRBuilder.CreateInsertElement(initVec, initVal, index);
-      }
-
-      // Store the initializer in the builtin variable.
-      IRBuilder.CreateStore(initVec, builtinVal);
-    } break;
-    case spv::BuiltInLocalInvocationIndex:  // size_t get_local_linear_id()
-    case spv::BuiltInGlobalLinearId: {      // size_t get_global_linear_id()
-      auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
-
-      // Builtin returns size_t, get the appropriate sized integer type.
-      llvm::Type *builtinRetTy = nullptr;
-      if (32 == dataLayout.getPointerSizeInBits()) {
-        builtinRetTy = IRBuilder.getInt32Ty();
-      } else {
-        SPIRV_LL_ASSERT(64 == dataLayout.getPointerSizeInBits(),
-                        "Datalayout is neither 32 nor 64 bits");
-        builtinRetTy = IRBuilder.getInt64Ty();
-      }
-      SPIRV_LL_ASSERT_PTR(builtinRetTy);
-
+    // Loop over the vector elements, the assumption of 3 dimensions is
+    // baked into SPIR-V even if only a single dimension is actually used.
+    for (uint32_t index = 0; index < 3; index++) {
       // Create a call to the builtin.
-      llvm::Value *initVal =
-          createBuiltinCall(getBuiltinName(builtin), builtinRetTy, {});
+      llvm::Value *initVal = createBuiltinCall(
+          getBuiltinName(builtin), builtinRetTy, {IRBuilder.getInt32(index)});
       SPIRV_LL_ASSERT_PTR(initVal);
 
-      // Because the following two builtins have different return types:
-      // GLSL: uint gl_LocalInvocationIndex
-      // CL C: size_t get_enqueued_local_size( uint dimindx)
-      // we need to make a cast on the GLSL path.
+      // Vulkan defines some builtin variables as hard coded int32s, so there
+      // is a chance we need to truncate returned values down to fit this.
       if (builtinRetTy->getScalarSizeInBits() >
-          builtinType->getScalarSizeInBits()) {
-        initVal = IRBuilder.CreateTrunc(initVal, builtinType->getScalarType());
+          multi_llvm::getVectorElementType(builtinType)
+              ->getScalarSizeInBits()) {
+        initVal = IRBuilder.CreateTrunc(
+            initVal, multi_llvm::getVectorElementType(builtinType));
       }
 
-      // Store the initializer in the builtin variable.
-      IRBuilder.CreateStore(initVal, builtinVal);
-    } break;
-#define UNSUPPORTED(BUILTIN)  \
-  case spv::BuiltIn##BUILTIN: \
+      initVec = IRBuilder.CreateInsertElement(initVec, initVal, index);
+    }
+
+    // Store the initializer in the builtin variable.
+    IRBuilder.CreateStore(initVec, builtinVal);
+  } break;
+  case spv::BuiltInLocalInvocationIndex: // size_t get_local_linear_id()
+  case spv::BuiltInGlobalLinearId: {     // size_t get_global_linear_id()
+    auto *builtinVal = IRBuilder.CreateAlloca(builtinType, builtinAddrSpace);
+
+    // Builtin returns size_t, get the appropriate sized integer type.
+    llvm::Type *builtinRetTy = nullptr;
+    if (32 == dataLayout.getPointerSizeInBits()) {
+      builtinRetTy = IRBuilder.getInt32Ty();
+    } else {
+      SPIRV_LL_ASSERT(64 == dataLayout.getPointerSizeInBits(),
+                      "Datalayout is neither 32 nor 64 bits");
+      builtinRetTy = IRBuilder.getInt64Ty();
+    }
+    SPIRV_LL_ASSERT_PTR(builtinRetTy);
+
+    // Create a call to the builtin.
+    llvm::Value *initVal =
+        createBuiltinCall(getBuiltinName(builtin), builtinRetTy, {});
+    SPIRV_LL_ASSERT_PTR(initVal);
+
+    // Because the following two builtins have different return types:
+    // GLSL: uint gl_LocalInvocationIndex
+    // CL C: size_t get_enqueued_local_size( uint dimindx)
+    // we need to make a cast on the GLSL path.
+    if (builtinRetTy->getScalarSizeInBits() >
+        builtinType->getScalarSizeInBits()) {
+      initVal = IRBuilder.CreateTrunc(initVal, builtinType->getScalarType());
+    }
+
+    // Store the initializer in the builtin variable.
+    IRBuilder.CreateStore(initVal, builtinVal);
+  } break;
+#define UNSUPPORTED(BUILTIN)                                                   \
+  case spv::BuiltIn##BUILTIN:                                                  \
     SPIRV_LL_ABORT("BuiltIn " #BUILTIN " not supported");
-      UNSUPPORTED(SubgroupMaxSize)       // uint get_max_sub_group_size()
-      UNSUPPORTED(NumSubgroups)          // uint get_num_sub_groups()
-      UNSUPPORTED(NumEnqueuedSubgroups)  // uint get_enqueued_num_sub_groups()
+    UNSUPPORTED(SubgroupMaxSize)      // uint get_max_sub_group_size()
+    UNSUPPORTED(NumSubgroups)         // uint get_num_sub_groups()
+    UNSUPPORTED(NumEnqueuedSubgroups) // uint get_enqueued_num_sub_groups()
 #undef UNSUPPORTED
-    default:
-      SPIRV_LL_ABORT("BuiltIn unknown");
+  default:
+    SPIRV_LL_ABORT("BuiltIn unknown");
   }
 }
 
@@ -623,9 +618,10 @@ llvm::Function *spirv_ll::Builder::declareBuiltinFunction(
   return func;
 }
 
-llvm::CallInst *spirv_ll::Builder::createBuiltinCall(
-    llvm::StringRef name, llvm::Type *retTy, llvm::ArrayRef<llvm::Value *> args,
-    bool convergent) {
+llvm::CallInst *
+spirv_ll::Builder::createBuiltinCall(llvm::StringRef name, llvm::Type *retTy,
+                                     llvm::ArrayRef<llvm::Value *> args,
+                                     bool convergent) {
   auto function = module.llvmModule->getFunction(name);
   SPIRV_LL_ASSERT(
       (nullptr == function) || (function->isConvergent() == convergent),
@@ -738,9 +734,10 @@ llvm::CallInst *spirv_ll::Builder::createImageAccessBuiltinCall(
                                   newArgMangleInfo);
 }
 
-llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
-    OpenCLLIB::Entrypoints opcode, spv::Id resTyId,
-    llvm::ArrayRef<spv::Id> args) {
+llvm::Value *
+spirv_ll::Builder::createOCLBuiltinCall(OpenCLLIB::Entrypoints opcode,
+                                        spv::Id resTyId,
+                                        llvm::ArrayRef<spv::Id> args) {
   llvm::Type *resultType = module.getLLVMType(resTyId);
   SPIRV_LL_ASSERT_PTR(resultType);
 
@@ -754,9 +751,9 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
 
   std::string fnName;
   switch (opcode) {
-#define _OCL_OP(LIB, OP) \
-  case LIB:              \
-    fnName = #OP;        \
+#define _OCL_OP(LIB, OP)                                                       \
+  case LIB:                                                                    \
+    fnName = #OP;                                                              \
     break;
     _OCL_OP(OpenCLLIB::Acos, acos)
     _OCL_OP(OpenCLLIB::Acosh, acosh)
@@ -920,124 +917,124 @@ llvm::Value *spirv_ll::Builder::createOCLBuiltinCall(
     _OCL_OP(OpenCLLIB::Vstore_halfn_r, vstore_half)
     _OCL_OP(OpenCLLIB::Vstorea_halfn_r, vstorea_half)
 #undef _OCL_OP
-    default:
-      SPIRV_LL_ABORT("Unhandled OpenCL builtin");
-      break;
+  default:
+    SPIRV_LL_ABORT("Unhandled OpenCL builtin");
+    break;
   }
 
   MangleInfo resMangleInfo = resTyId;
 
   // Some builtins have constraints on their operands
   switch (opcode) {
-    default:
-      break;
-    case OpenCLLIB::Frexp:
-    case OpenCLLIB::Ldexp:
-    case OpenCLLIB::Lgamma_r:
-    case OpenCLLIB::Pown:
-    case OpenCLLIB::Remquo:
-    case OpenCLLIB::Rootn:
-      // int* and intN* pointer operands are signed
-      argInfo.back().forceSign = MangleInfo::ForceSignInfo::ForceSigned;
-      break;
-    case OpenCLLIB::SAdd_sat:
-    case OpenCLLIB::SHadd:
-    case OpenCLLIB::SRhadd:
-    case OpenCLLIB::SClamp:
-    case OpenCLLIB::SMad_hi:
-    case OpenCLLIB::SMad_sat:
-    case OpenCLLIB::SMax:
-    case OpenCLLIB::SMin:
-    case OpenCLLIB::SMul_hi:
-    case OpenCLLIB::SSub_sat:
-    case OpenCLLIB::SMul24:
-    case OpenCLLIB::SMad24:
-      resMangleInfo = MangleInfo::getSigned(resTyId);
-      for (auto &arg : argInfo) {
-        arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
-      }
-      break;
-    case OpenCLLIB::SAbs:
-    case OpenCLLIB::SAbs_diff:
-      // Both abs and abs_diff always have an unsigned return type
-      resMangleInfo = MangleInfo::getUnsigned(resTyId);
-      for (auto &arg : argInfo) {
-        arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
-      }
-      break;
-    case OpenCLLIB::S_Upsample:
-      resMangleInfo = MangleInfo::getSigned(resTyId);
-      argInfo[0].forceSign = MangleInfo::ForceSignInfo::ForceSigned;
-      argInfo[1].forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
-      break;
-    case OpenCLLIB::Prefetch:
-      argInfo[0].typeQuals = MangleInfo::CONST;
-      break;
-    case OpenCLLIB::UAbs:
-    case OpenCLLIB::UAbs_diff:
-    case OpenCLLIB::UAdd_sat:
-    case OpenCLLIB::UHadd:
-    case OpenCLLIB::URhadd:
-    case OpenCLLIB::UClamp:
-    case OpenCLLIB::UMad_hi:
-    case OpenCLLIB::UMad_sat:
-    case OpenCLLIB::UMax:
-    case OpenCLLIB::UMin:
-    case OpenCLLIB::UMul_hi:
-    case OpenCLLIB::USub_sat:
-    case OpenCLLIB::U_Upsample:
-    case OpenCLLIB::UMad24:
-    case OpenCLLIB::UMul24:
-      resMangleInfo = MangleInfo::getUnsigned(resTyId);
-      for (auto &arg : argInfo) {
-        arg.forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
-      }
-      break;
-    case OpenCLLIB::Vloadn:
-    case OpenCLLIB::Vload_half:
-    case OpenCLLIB::Vload_halfn:
-    case OpenCLLIB::Vloada_halfn:
-      argInfo[1].typeQuals = MangleInfo::CONST;
-      break;
+  default:
+    break;
+  case OpenCLLIB::Frexp:
+  case OpenCLLIB::Ldexp:
+  case OpenCLLIB::Lgamma_r:
+  case OpenCLLIB::Pown:
+  case OpenCLLIB::Remquo:
+  case OpenCLLIB::Rootn:
+    // int* and intN* pointer operands are signed
+    argInfo.back().forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+    break;
+  case OpenCLLIB::SAdd_sat:
+  case OpenCLLIB::SHadd:
+  case OpenCLLIB::SRhadd:
+  case OpenCLLIB::SClamp:
+  case OpenCLLIB::SMad_hi:
+  case OpenCLLIB::SMad_sat:
+  case OpenCLLIB::SMax:
+  case OpenCLLIB::SMin:
+  case OpenCLLIB::SMul_hi:
+  case OpenCLLIB::SSub_sat:
+  case OpenCLLIB::SMul24:
+  case OpenCLLIB::SMad24:
+    resMangleInfo = MangleInfo::getSigned(resTyId);
+    for (auto &arg : argInfo) {
+      arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+    }
+    break;
+  case OpenCLLIB::SAbs:
+  case OpenCLLIB::SAbs_diff:
+    // Both abs and abs_diff always have an unsigned return type
+    resMangleInfo = MangleInfo::getUnsigned(resTyId);
+    for (auto &arg : argInfo) {
+      arg.forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+    }
+    break;
+  case OpenCLLIB::S_Upsample:
+    resMangleInfo = MangleInfo::getSigned(resTyId);
+    argInfo[0].forceSign = MangleInfo::ForceSignInfo::ForceSigned;
+    argInfo[1].forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
+    break;
+  case OpenCLLIB::Prefetch:
+    argInfo[0].typeQuals = MangleInfo::CONST;
+    break;
+  case OpenCLLIB::UAbs:
+  case OpenCLLIB::UAbs_diff:
+  case OpenCLLIB::UAdd_sat:
+  case OpenCLLIB::UHadd:
+  case OpenCLLIB::URhadd:
+  case OpenCLLIB::UClamp:
+  case OpenCLLIB::UMad_hi:
+  case OpenCLLIB::UMad_sat:
+  case OpenCLLIB::UMax:
+  case OpenCLLIB::UMin:
+  case OpenCLLIB::UMul_hi:
+  case OpenCLLIB::USub_sat:
+  case OpenCLLIB::U_Upsample:
+  case OpenCLLIB::UMad24:
+  case OpenCLLIB::UMul24:
+    resMangleInfo = MangleInfo::getUnsigned(resTyId);
+    for (auto &arg : argInfo) {
+      arg.forceSign = MangleInfo::ForceSignInfo::ForceUnsigned;
+    }
+    break;
+  case OpenCLLIB::Vloadn:
+  case OpenCLLIB::Vload_half:
+  case OpenCLLIB::Vload_halfn:
+  case OpenCLLIB::Vloada_halfn:
+    argInfo[1].typeQuals = MangleInfo::CONST;
+    break;
   }
 
   //  The vstore and vload builtins variously change the builtin name. Handle
   //  those here.
   switch (opcode) {
-    default:
-      break;
-    case OpenCLLIB::Vloadn:
-    case OpenCLLIB::Vload_halfn:
-    case OpenCLLIB::Vloada_halfn:
-      // The last argument is 'N' - the vector width. This is a literal integer
-      // in the binary format, which is passed to us as a spv::Id!
-      argVals.pop_back();
-      fnName += std::to_string(argInfo.pop_back_val().id);
-      break;
-    case OpenCLLIB::Vstoren:
-    case OpenCLLIB::Vstore_half:
-    case OpenCLLIB::Vstore_halfn:
-    case OpenCLLIB::Vstorea_halfn:
-      // The first operand has the data type
-      if (argVals[0]->getType()->isVectorTy()) {
-        fnName += std::to_string(
-            multi_llvm::getVectorNumElements(argVals[0]->getType()));
-      }
-      break;
-    case OpenCLLIB::Vstore_half_r:
-    case OpenCLLIB::Vstore_halfn_r:
-    case OpenCLLIB::Vstorea_halfn_r:
-      // The first operand has the data type
-      if (argVals[0]->getType()->isVectorTy()) {
-        fnName += std::to_string(
-            multi_llvm::getVectorNumElements(argVals[0]->getType()));
-      }
-      // The last operand is the rounding mode; pop that off and mangle it into
-      // the name. The mode is a spv::Id which is actually a literal of enum
-      // type spv::FPRoundingMode.
-      argVals.pop_back();
-      fnName += getFPRoundingModeSuffix(argInfo.pop_back_val().id);
-      break;
+  default:
+    break;
+  case OpenCLLIB::Vloadn:
+  case OpenCLLIB::Vload_halfn:
+  case OpenCLLIB::Vloada_halfn:
+    // The last argument is 'N' - the vector width. This is a literal integer
+    // in the binary format, which is passed to us as a spv::Id!
+    argVals.pop_back();
+    fnName += std::to_string(argInfo.pop_back_val().id);
+    break;
+  case OpenCLLIB::Vstoren:
+  case OpenCLLIB::Vstore_half:
+  case OpenCLLIB::Vstore_halfn:
+  case OpenCLLIB::Vstorea_halfn:
+    // The first operand has the data type
+    if (argVals[0]->getType()->isVectorTy()) {
+      fnName += std::to_string(
+          multi_llvm::getVectorNumElements(argVals[0]->getType()));
+    }
+    break;
+  case OpenCLLIB::Vstore_half_r:
+  case OpenCLLIB::Vstore_halfn_r:
+  case OpenCLLIB::Vstorea_halfn_r:
+    // The first operand has the data type
+    if (argVals[0]->getType()->isVectorTy()) {
+      fnName += std::to_string(
+          multi_llvm::getVectorNumElements(argVals[0]->getType()));
+    }
+    // The last operand is the rounding mode; pop that off and mangle it into
+    // the name. The mode is a spv::Id which is actually a literal of enum
+    // type spv::FPRoundingMode.
+    argVals.pop_back();
+    fnName += getFPRoundingModeSuffix(argInfo.pop_back_val().id);
+    break;
   }
 
   SPIRV_LL_ASSERT(
@@ -1231,9 +1228,9 @@ std::string spirv_ll::Builder::getMangledTypeName(
     return getMangledVecPrefix(ty) +
            getMangledTypeName(elementTy, componentMangleInfo, subTys);
   } else if (ty->isPointerTy()) {
-    SPIRV_LL_ASSERT(
-        mangleInfo && module.get<OpType>(mangleInfo->id)->isPointerType(),
-        "Parameter is not a pointer");
+    SPIRV_LL_ASSERT(mangleInfo &&
+                        module.get<OpType>(mangleInfo->id)->isPointerType(),
+                    "Parameter is not a pointer");
 
     const auto spvPointeeTy =
         module.get<OpType>(mangleInfo->id)->getTypePointer()->Type();
@@ -1268,16 +1265,16 @@ std::string spirv_ll::Builder::getMangledTypeName(
       auto arrayed =
           tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
       switch (dim) {
-        default:
-          break;
-        case compiler::utils::tgtext::ImageDim1D:
-          return arrayed ? "16ocl_image1darray" : "11ocl_image1d";
-        case compiler::utils::tgtext::ImageDim2D:
-          return arrayed ? "16ocl_image2darray" : "11ocl_image2d";
-        case compiler::utils::tgtext::ImageDim3D:
-          return "11ocl_image3d";
-        case compiler::utils::tgtext::ImageDimBuffer:
-          return "17ocl_image1dbuffer";
+      default:
+        break;
+      case compiler::utils::tgtext::ImageDim1D:
+        return arrayed ? "16ocl_image1darray" : "11ocl_image1d";
+      case compiler::utils::tgtext::ImageDim2D:
+        return arrayed ? "16ocl_image2darray" : "11ocl_image2d";
+      case compiler::utils::tgtext::ImageDim3D:
+        return "11ocl_image3d";
+      case compiler::utils::tgtext::ImageDimBuffer:
+        return "17ocl_image1dbuffer";
       }
     }
   }
@@ -1312,28 +1309,27 @@ void spirv_ll::Builder::checkMemberDecorations(
   for (uint64_t i = 1; i < indexes.size(); i++) {
     llvm::Type *nextType = nullptr;
     switch (traversed.back()->getTypeID()) {
-      case llvm::Type::StructTyID: {
-        auto index = llvm::cast<llvm::ConstantInt>(indexes[i]);
-        nextType =
-            traversed.back()->getStructElementType(index->getZExtValue());
-      } break;
-      case llvm::Type::ArrayTyID:
-        nextType = traversed.back()->getArrayElementType();
-        break;
-      case llvm::Type::FixedVectorTyID:
-        nextType = multi_llvm::getVectorElementType(traversed.back());
-        break;
-      case llvm::Type::PointerTyID: {
-        auto *opTy = module.get<OpType>(traversed.back());
-        SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
-        nextType = module.getLLVMType(opTy->getTypePointer()->Type());
-        break;
-      }
-      default:
-        // If we are here that means there is still another index left but the
-        // last type in the chain can't be indexed into, thus: invalid SPIR-V.
-        SPIRV_LL_ASSERT(nextType, "Bad type in OpAccessChain!");
-        break;
+    case llvm::Type::StructTyID: {
+      auto index = llvm::cast<llvm::ConstantInt>(indexes[i]);
+      nextType = traversed.back()->getStructElementType(index->getZExtValue());
+    } break;
+    case llvm::Type::ArrayTyID:
+      nextType = traversed.back()->getArrayElementType();
+      break;
+    case llvm::Type::FixedVectorTyID:
+      nextType = multi_llvm::getVectorElementType(traversed.back());
+      break;
+    case llvm::Type::PointerTyID: {
+      auto *opTy = module.get<OpType>(traversed.back());
+      SPIRV_LL_ASSERT(opTy && opTy->isPointerType(), "Type is not a pointer");
+      nextType = module.getLLVMType(opTy->getTypePointer()->Type());
+      break;
+    }
+    default:
+      // If we are here that means there is still another index left but the
+      // last type in the chain can't be indexed into, thus: invalid SPIR-V.
+      SPIRV_LL_ASSERT(nextType, "Bad type in OpAccessChain!");
+      break;
     }
     traversed.push_back(nextType);
 
@@ -1409,47 +1405,45 @@ void spirv_ll::Builder::generateSpecConstantOps() {
     llvm::Value *result = nullptr;
 
     switch (op->Opcode()) {
-      case spv::OpFMod: {
-        llvm::Type *type = module.getLLVMType(op->IdResultType());
-        SPIRV_LL_ASSERT_PTR(type);
+    case spv::OpFMod: {
+      llvm::Type *type = module.getLLVMType(op->IdResultType());
+      SPIRV_LL_ASSERT_PTR(type);
 
-        llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-        SPIRV_LL_ASSERT_PTR(lhs);
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+      SPIRV_LL_ASSERT_PTR(lhs);
 
-        llvm::Value *rhs =
-            module.getValue(op->getValueAtOffset(secondArgIndex));
-        SPIRV_LL_ASSERT_PTR(rhs);
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+      SPIRV_LL_ASSERT_PTR(rhs);
 
-        // In order to be fully spec compliant we must use our FMod builtin and
-        // then copysign the result with rhs to ensure the correct sign is
-        // preserved.
-        llvm::Value *modResult = createMangledBuiltinCall(
-            "fmod", type, op->IdResultType(), {lhs, rhs},
-            {op->getValueAtOffset(firstArgIndex),
-             op->getValueAtOffset(secondArgIndex)});
+      // In order to be fully spec compliant we must use our FMod builtin and
+      // then copysign the result with rhs to ensure the correct sign is
+      // preserved.
+      llvm::Value *modResult =
+          createMangledBuiltinCall("fmod", type, op->IdResultType(), {lhs, rhs},
+                                   {op->getValueAtOffset(firstArgIndex),
+                                    op->getValueAtOffset(secondArgIndex)});
 
-        result = createMangledBuiltinCall("copysign", type, op->IdResultType(),
-                                          {modResult, rhs}, {});
-      } break;
-      case spv::OpFRem: {
-        llvm::Type *type = module.getLLVMType(op->IdResultType());
-        SPIRV_LL_ASSERT_PTR(type);
+      result = createMangledBuiltinCall("copysign", type, op->IdResultType(),
+                                        {modResult, rhs}, {});
+    } break;
+    case spv::OpFRem: {
+      llvm::Type *type = module.getLLVMType(op->IdResultType());
+      SPIRV_LL_ASSERT_PTR(type);
 
-        llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-        SPIRV_LL_ASSERT_PTR(lhs);
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+      SPIRV_LL_ASSERT_PTR(lhs);
 
-        llvm::Value *rhs =
-            module.getValue(op->getValueAtOffset(secondArgIndex));
-        SPIRV_LL_ASSERT_PTR(rhs);
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+      SPIRV_LL_ASSERT_PTR(rhs);
 
-        result = createMangledBuiltinCall(
-            "fmod", type, op->IdResultType(), {lhs, rhs},
-            {op->getValueAtOffset(firstArgIndex),
-             op->getValueAtOffset(secondArgIndex)});
-      } break;
-      default:
-        llvm_unreachable("Bad OpCode provided to OpSpecConstantOp");
-        break;
+      result =
+          createMangledBuiltinCall("fmod", type, op->IdResultType(), {lhs, rhs},
+                                   {op->getValueAtOffset(firstArgIndex),
+                                    op->getValueAtOffset(secondArgIndex)});
+    } break;
+    default:
+      llvm_unreachable("Bad OpCode provided to OpSpecConstantOp");
+      break;
     }
 
     // We need to use replaceID here because this may need to happen in
@@ -1493,14 +1487,14 @@ bool spirv_ll::MangleInfo::getSignedness(const spirv_ll::Module &module) const {
     }
   }
   switch (forceSign) {
-    default:
-      break;
-    case ForceSignInfo::ForceSigned:
-      tySignedness = true;
-      break;
-    case ForceSignInfo::ForceUnsigned:
-      tySignedness = false;
-      break;
+  default:
+    break;
+  case ForceSignInfo::ForceSigned:
+    tySignedness = true;
+    break;
+  case ForceSignInfo::ForceUnsigned:
+    tySignedness = false;
+    break;
   }
   // The default is signed
   return tySignedness.value_or(true);
@@ -1511,25 +1505,25 @@ std::string spirv_ll::getIntTypeName(llvm::Type *ty, bool isSigned) {
   SPIRV_LL_ASSERT(elemTy->isIntegerTy(), "not an integer type");
   std::string name;
   switch (elemTy->getIntegerBitWidth()) {
-    case 1:
-      name = isSigned ? "bool" : "ubool";
-      break;
-    case 8:
-      name = isSigned ? "char" : "uchar";
-      break;
-    case 16:
-      name = isSigned ? "short" : "ushort";
-      break;
-    case 32:
-      name = isSigned ? "int" : "uint";
-      break;
-    case 64:
-      name = isSigned ? "long" : "ulong";
-      break;
-    default:
-      // Arbitrary precision integer
-      name = (isSigned ? "" : "u") + std::string("int") +
-             std::to_string(elemTy->getIntegerBitWidth()) + "_t";
+  case 1:
+    name = isSigned ? "bool" : "ubool";
+    break;
+  case 8:
+    name = isSigned ? "char" : "uchar";
+    break;
+  case 16:
+    name = isSigned ? "short" : "ushort";
+    break;
+  case 32:
+    name = isSigned ? "int" : "uint";
+    break;
+  case 64:
+    name = isSigned ? "long" : "ulong";
+    break;
+  default:
+    // Arbitrary precision integer
+    name = (isSigned ? "" : "u") + std::string("int") +
+           std::to_string(elemTy->getIntegerBitWidth()) + "_t";
   }
   if (ty->isVectorTy()) {
     const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
@@ -1543,17 +1537,17 @@ std::string spirv_ll::getFPTypeName(llvm::Type *ty) {
   SPIRV_LL_ASSERT(elemTy->isFloatingPointTy(), "not a floating point type");
   std::string name;
   switch (elemTy->getScalarSizeInBits()) {
-    case 16:
-      name = "half";
-      break;
-    case 32:
-      name = "float";
-      break;
-    case 64:
-      name = "double";
-      break;
-    default:
-      llvm_unreachable("unsupported floating point bit width");
+  case 16:
+    name = "half";
+    break;
+  case 32:
+    name = "float";
+    break;
+  case 64:
+    name = "double";
+    break;
+  default:
+    llvm_unreachable("unsupported floating point bit width");
   }
   if (ty->isVectorTy()) {
     const uint32_t numElements = multi_llvm::getVectorNumElements(ty);

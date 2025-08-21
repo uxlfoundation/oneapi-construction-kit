@@ -28,10 +28,10 @@ namespace utils {
 
 class ComputeLocalMemoryUsagePass final
     : public llvm::PassInfoMixin<ComputeLocalMemoryUsagePass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_COMPUTE_LOCAL_MEMORY_USAGE_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_COMPUTE_LOCAL_MEMORY_USAGE_PASS_H_INCLUDED

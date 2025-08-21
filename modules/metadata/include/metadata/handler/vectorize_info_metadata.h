@@ -50,7 +50,7 @@ struct VectorizeInfoMetadata : GenericMetadata {
 /// API such that kernel metadata can be correctly read from and written to the
 /// binary representation.
 class VectorizeInfoMetadataHandler : GenericMetadataHandler {
- public:
+public:
   virtual ~VectorizeInfoMetadataHandler() override;
 
   /// @brief Initialize the metadata context.
@@ -77,13 +77,13 @@ class VectorizeInfoMetadataHandler : GenericMetadataHandler {
   /// @return true if the write completed successfully, false otherwise.
   bool write(const VectorizeInfoMetadata &md);
 
- private:
+private:
   char *vec_data = nullptr;
   size_t vec_data_len = 0;
   size_t vec_offset = 0;
 };
 
 /// @}
-}  // namespace handler
+} // namespace handler
 
-#endif  // MD_HANDLER_VECTORIZE_INFO_METADATA_H_INCLUDED
+#endif // MD_HANDLER_VECTORIZE_INFO_METADATA_H_INCLUDED

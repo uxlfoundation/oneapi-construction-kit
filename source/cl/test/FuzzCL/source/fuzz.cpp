@@ -47,7 +47,7 @@ struct arguments_t {
   bool verbose;
   bool callbacks;
 };
-}  // namespace
+} // namespace
 /// @brief Parse command line arguments into a dictionnary
 ///
 /// @param[in] argc Number of arguments
@@ -78,17 +78,17 @@ static arguments_t parse_arguments(int argc, char *argv[]) {
   if (auto error = parser.parse_args(argc, argv)) {
     std::cerr << "error: invalid arguments : " << error;
     switch (error) {
-      case cargo::success:
-        std::cerr << " not_found";
-        break;
-      case cargo::bad_argument:
-        std::cerr << " bad_argument";
-        break;
-      case cargo::bad_alloc:
-        std::cerr << " bad_alloc";
-        break;
-      default:
-        break;
+    case cargo::success:
+      std::cerr << " not_found";
+      break;
+    case cargo::bad_argument:
+      std::cerr << " bad_argument";
+      break;
+    case cargo::bad_alloc:
+      std::cerr << " bad_alloc";
+      break;
+    default:
+      break;
     }
     std::cerr << usage;
     exit(1);

@@ -37,28 +37,28 @@ mux_result_t muxCreateImage(mux_device_t device, mux_image_type_e type,
     };
 
     switch (type) {
-      case mux_image_type_1d:
-        if (checkMinMax(width, device->info->max_image_dimension_1d) ||
-            1 != height || 1 != depth) {
-          return mux_error_invalid_value;
-        }
-        break;
-      case mux_image_type_2d:
-        if (checkMinMax(width, device->info->max_image_dimension_2d) ||
-            checkMinMax(height, device->info->max_image_dimension_2d) ||
-            1 != depth) {
-          return mux_error_invalid_value;
-        }
-        break;
-      case mux_image_type_3d:
-        if (checkMinMax(width, device->info->max_image_dimension_3d) ||
-            checkMinMax(height, device->info->max_image_dimension_3d) ||
-            checkMinMax(depth, device->info->max_image_dimension_3d)) {
-          return mux_error_invalid_value;
-        }
-        break;
-      default:
+    case mux_image_type_1d:
+      if (checkMinMax(width, device->info->max_image_dimension_1d) ||
+          1 != height || 1 != depth) {
         return mux_error_invalid_value;
+      }
+      break;
+    case mux_image_type_2d:
+      if (checkMinMax(width, device->info->max_image_dimension_2d) ||
+          checkMinMax(height, device->info->max_image_dimension_2d) ||
+          1 != depth) {
+        return mux_error_invalid_value;
+      }
+      break;
+    case mux_image_type_3d:
+      if (checkMinMax(width, device->info->max_image_dimension_3d) ||
+          checkMinMax(height, device->info->max_image_dimension_3d) ||
+          checkMinMax(depth, device->info->max_image_dimension_3d)) {
+        return mux_error_invalid_value;
+      }
+      break;
+    default:
+      return mux_error_invalid_value;
     }
   }
 
@@ -145,12 +145,12 @@ mux_result_t muxGetSupportedImageFormats(mux_device_t device,
 
   const bool image_type_valid = [&] {
     switch (image_type) {
-      case mux_image_type_1d:
-      case mux_image_type_2d:
-      case mux_image_type_3d:
-        return true;
-      default:
-        return false;
+    case mux_image_type_1d:
+    case mux_image_type_2d:
+    case mux_image_type_3d:
+      return true;
+    default:
+      return false;
     }
   }();
   if (!image_type_valid) {
@@ -159,9 +159,9 @@ mux_result_t muxGetSupportedImageFormats(mux_device_t device,
 
   const bool allocation_type_valid = [&] {
     switch (allocation_type) {
-      case mux_allocation_type_alloc_host:
-      case mux_allocation_type_alloc_device:
-        return true;
+    case mux_allocation_type_alloc_host:
+    case mux_allocation_type_alloc_device:
+      return true;
     }
     return false;
   }();

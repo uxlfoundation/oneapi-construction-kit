@@ -396,7 +396,7 @@ namespace {
 // High precision 4/pi, 48 base 2 digits represented as hex  96 + 127 = 223
 ABACUS_CONSTANT static abacus_ushort payloadH[4] = {0x0000, 0xA2F9, 0x836E,
                                                     0x4E44};
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 // High precision 4/pi, 256 base 2 digits represented as hex  96 + 127 = 223
 ABACUS_CONSTANT static abacus_uint payload[8] = {
@@ -487,8 +487,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct ph_middle_filter_extract;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct ph_middle_filter_extract<T, abacus_ushort> {
+template <typename T> struct ph_middle_filter_extract<T, abacus_ushort> {
   static void _(const T &index, T &i0, T &i1, T &i2, T &i3) {
     using SignedType = typename TypeTraits<T>::SignedType;
 
@@ -506,10 +505,9 @@ struct ph_middle_filter_extract<T, abacus_ushort> {
     i3 = __abacus_select(p3, T(0), cond);
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <>
-struct ph_middle_filter_extract<abacus_uint, abacus_uint> {
+template <> struct ph_middle_filter_extract<abacus_uint, abacus_uint> {
   static void _(const abacus_uint &index, abacus_uint &i0, abacus_uint &i1,
                 abacus_uint &i2, abacus_uint &i3) {
     i0 = payload[index + 0];
@@ -519,8 +517,7 @@ struct ph_middle_filter_extract<abacus_uint, abacus_uint> {
   }
 };
 
-template <typename T>
-struct ph_middle_filter_extract<T, abacus_uint> {
+template <typename T> struct ph_middle_filter_extract<T, abacus_uint> {
   static void _(const T &index, T &i0, T &i1, T &i2, T &i3) {
     using SignedType = typename TypeTraits<T>::SignedType;
     // Doing this optimally requires a bit of lateral thinking (literally). The
@@ -554,8 +551,7 @@ struct ph_middle_filter_extract<T, abacus_uint> {
   }
 };
 
-template <>
-struct ph_middle_filter_extract<abacus_ulong, abacus_ulong> {
+template <> struct ph_middle_filter_extract<abacus_ulong, abacus_ulong> {
   static void _(const abacus_ulong &index, abacus_ulong &i0, abacus_ulong &i1,
                 abacus_ulong &i2, abacus_ulong &i3) {
     const abacus_ulong clampedIndex =
@@ -568,8 +564,7 @@ struct ph_middle_filter_extract<abacus_ulong, abacus_ulong> {
   }
 };
 
-template <typename T>
-struct ph_middle_filter_extract<T, abacus_ulong> {
+template <typename T> struct ph_middle_filter_extract<T, abacus_ulong> {
   static void _(const T &index, T &i0, T &i1, T &i2, T &i3) {
     const T clampedIndex = abacus::detail::common::min(index, (abacus_ulong)16);
 
@@ -689,8 +684,7 @@ struct ph_extract_fract;
 // from a 64bit number that is the output of  __Codeplay__mul96, this gets which
 // octet it's in and it's reduced value, or if the octet is odd (pi/2 - reduced)
 // in float format
-template <typename T>
-struct ph_extract_fract<T, abacus_float> {
+template <typename T> struct ph_extract_fract<T, abacus_float> {
   static T _(typename TypeTraits<T>::UnsignedType &hi,
              typename TypeTraits<T>::UnsignedType &lo,
              typename TypeTraits<T>::SignedType *octet) {
@@ -765,8 +759,7 @@ struct ph_extract_fract<T, abacus_float> {
 // from a 128 bit number that is the output of  __Codeplay__mul192, this gets
 // which octet it's in and it's reduced value, or if the octet is odd (pi/4 -
 // reduced) in double format
-template <typename T>
-struct ph_extract_fract<T, abacus_double> {
+template <typename T> struct ph_extract_fract<T, abacus_double> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
@@ -807,10 +800,9 @@ struct ph_extract_fract<T, abacus_double> {
     return fract;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <>
-struct payne_hanek_helper<abacus_float, abacus_float> {
+template <> struct payne_hanek_helper<abacus_float, abacus_float> {
   static abacus_float _(abacus_float x, abacus_int *out_octet) {
     typedef abacus_float T;
     typedef abacus_int SignedType;
@@ -828,7 +820,7 @@ struct payne_hanek_helper<abacus_float, abacus_float> {
     const UnsignedType xMantissa = extractMantissa(mantissa);
 
     // Check to see if our number is small enough to use a normal mod(pi/4) on
-    const SignedType exp_threshold = 1;  // MUST BE > 0!
+    const SignedType exp_threshold = 1; // MUST BE > 0!
 
     if (xExp < exp_threshold) {
       return tan_naive_reduction(x, out_octet);
@@ -853,8 +845,7 @@ struct payne_hanek_helper<abacus_float, abacus_float> {
   }
 };
 
-template <typename T>
-struct payne_hanek_helper<T, abacus_float> {
+template <typename T> struct payne_hanek_helper<T, abacus_float> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
@@ -879,7 +870,7 @@ struct payne_hanek_helper<T, abacus_float> {
     phoctet = __abacus_select(phoctet, ~phoctet, __abacus_signbit(x));
 
     // Check to see if our number is small enough to use a normal mod(pi/4) on
-    const SignedType exp_threshold = 1;  // MUST BE > 0!
+    const SignedType exp_threshold = 1; // MUST BE > 0!
     const SignedType cond = xExp < exp_threshold;
 
     SignedType tanoctet;
@@ -895,8 +886,7 @@ struct payne_hanek_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <>
-struct payne_hanek_helper<abacus_double, abacus_double> {
+template <> struct payne_hanek_helper<abacus_double, abacus_double> {
   typedef abacus_double T;
   typedef MakeType<abacus_int, TypeTraits<T>::num_elements>::type IntVectorType;
   static T _(T x, IntVectorType *octet) {
@@ -948,8 +938,7 @@ struct payne_hanek_helper<abacus_double, abacus_double> {
   }
 };
 
-template <typename T>
-struct payne_hanek_helper<T, abacus_double> {
+template <typename T> struct payne_hanek_helper<T, abacus_double> {
   typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
       IntVectorType;
   static T _(T x, IntVectorType *octet) {
@@ -1006,7 +995,7 @@ struct payne_hanek_helper<T, abacus_double> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // Payne-Hanek algorithm for half scalar values.
@@ -1067,17 +1056,17 @@ struct payne_hanek_helper_half<abacus_half, abacus_half> {
     // of the answer
 
     abacus_ushort m_pi1_lo =
-        pi_inverse_1 * xMantissa;  // Don't need the high part of this
-                                   // multiplication, these bits change the
-                                   // octet by a multiple of 8
+        pi_inverse_1 * xMantissa; // Don't need the high part of this
+                                  // multiplication, these bits change the
+                                  // octet by a multiple of 8
 
     abacus_ushort m_pi2_hi = __abacus_mul_hi(pi_inverse_2, xMantissa);
     abacus_ushort m_pi2_lo = pi_inverse_2 * xMantissa;
 
     abacus_ushort m_pi3_hi = __abacus_mul_hi(
-        pi_inverse_3, xMantissa);  // mant_by_pi3 >> 16; //mul_hi (dont need the
-                                   // low bit of this multiplication, overly
-                                   // accurate
+        pi_inverse_3, xMantissa); // mant_by_pi3 >> 16; //mul_hi (dont need the
+                                  // low bit of this multiplication, overly
+                                  // accurate
 
     // When adding these m_pi_123_hi_lo's overlap, so we need to add the
     // corresponding components:
@@ -1174,8 +1163,7 @@ struct payne_hanek_helper_half<abacus_half, abacus_half> {
 };
 
 // Vectorized half payne_hanek
-template <typename T>
-struct payne_hanek_helper_half<T, abacus_half> {
+template <typename T> struct payne_hanek_helper_half<T, abacus_half> {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Shape = FPShape<T>;
@@ -1223,17 +1211,17 @@ struct payne_hanek_helper_half<T, abacus_half> {
     // of the answer
 
     UnsignedType m_pi1_lo =
-        pi_inverse_1 * xMantissa;  // Don't need the high part of this
-                                   // multiplication, these bits change the
-                                   // octet by a multiple of 8
+        pi_inverse_1 * xMantissa; // Don't need the high part of this
+                                  // multiplication, these bits change the
+                                  // octet by a multiple of 8
 
     UnsignedType m_pi2_hi = __abacus_mul_hi(pi_inverse_2, xMantissa);
     UnsignedType m_pi2_lo = pi_inverse_2 * xMantissa;
 
     UnsignedType m_pi3_hi = __abacus_mul_hi(
-        pi_inverse_3, xMantissa);  // mant_by_pi3 >> 16; //mul_hi (dont need the
-                                   // low bit of this multiplication, overly
-                                   // accurate
+        pi_inverse_3, xMantissa); // mant_by_pi3 >> 16; //mul_hi (dont need the
+                                  // low bit of this multiplication, overly
+                                  // accurate
 
     // When adding these m_pi_[123]_hi_lo's overlap, so we need to add the
     // corresponding components:
@@ -1352,15 +1340,16 @@ struct payne_hanek_helper_half<T, abacus_half> {
     return ans;
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace
 
 namespace abacus {
 namespace internal {
 template <typename T>
-inline T payne_hanek(
-    T x, typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
-             *out_octet) {
+inline T
+payne_hanek(T x,
+            typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
+                *out_octet) {
   return payne_hanek_helper<T>::_(x, out_octet);
 }
 
@@ -1380,7 +1369,7 @@ inline abacus_float3 payne_hanek(abacus_float3 x, abacus_int3 *out_octet) {
   return r.xyz;
 }
 #endif
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_PAYNE_HANEK_H__
+#endif //__ABACUS_INTERNAL_PAYNE_HANEK_H__

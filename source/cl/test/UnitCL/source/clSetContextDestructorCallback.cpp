@@ -55,12 +55,12 @@ struct clSetContextDestructorCallbackTest : ucl::DeviceTest {
 
   std::string reasonFor(cl_int error) {
     switch (error) {
-      case CL_INVALID_VALUE:
-        return "destructor callback called before context callback";
-      case CL_INVALID_CONTEXT:
-        return "destructor callback called with different context";
-      default:
-        return "unknown reason: " + std::to_string(error);
+    case CL_INVALID_VALUE:
+      return "destructor callback called before context callback";
+    case CL_INVALID_CONTEXT:
+      return "destructor callback called with different context";
+    default:
+      return "unknown reason: " + std::to_string(error);
     }
   };
 
@@ -77,7 +77,7 @@ TEST_F(clSetContextDestructorCallbackTest, Default) {
   ASSERT_SUCCESS(clReleaseContext(context));
   ASSERT_EQ(1, destructorCallbackCalled);
   ASSERT_SUCCESS(destructorCallbackError) << reasonFor(destructorCallbackError);
-  context = nullptr;  // has already been destroyed
+  context = nullptr; // has already been destroyed
 }
 
 TEST_F(clSetContextDestructorCallbackTest, Concurrent) {
@@ -103,7 +103,7 @@ TEST_F(clSetContextDestructorCallbackTest, Concurrent) {
   }
   ASSERT_EQ(std::thread::hardware_concurrency(), destructorCallbackCalled);
   ASSERT_SUCCESS(destructorCallbackError) << reasonFor(destructorCallbackError);
-  context = nullptr;  // has already been destroyed
+  context = nullptr; // has already been destroyed
 }
 
 TEST_F(clSetContextDestructorCallbackTest, InvalidContext) {

@@ -30,10 +30,10 @@ std::string work_group_size_hint(const std::array<size_t, 3> sizes) {
   return "reqd_work_group_size(" + std::to_string(sizes[0]) + "," +
          std::to_string(sizes[1]) + "," + std::to_string(sizes[2]) + ")";
 }
-}  // namespace
+} // namespace
 
 class clGetKernelInfoTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -155,7 +155,7 @@ TEST_F(clGetKernelInfoTest, KernelProgram) {
 
 TEST_F(clGetKernelInfoTest, KernelAttributes) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection doesn't propogate kernel attributes.
+    GTEST_SKIP(); // Injection doesn't propogate kernel attributes.
   }
   size_t size = 0;
   ASSERT_SUCCESS(
@@ -177,7 +177,7 @@ TEST_F(clGetKernelInfoTest, KernelAttributes) {
 }
 
 class clGetKernelInfoTwoKernelsTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -271,7 +271,7 @@ TEST_F(clGetKernelInfoTwoKernelsTest, KernelProgram) {
 
 TEST_F(clGetKernelInfoTwoKernelsTest, KernelAttributes) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection doesn't propogate kernel attributes.
+    GTEST_SKIP(); // Injection doesn't propogate kernel attributes.
   }
   size_t size = 0;
   ASSERT_SUCCESS(
@@ -293,7 +293,7 @@ struct clGetKernelInfoAttributeTest : ucl::ContextTest,
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP();  // Injection doesn't propogate kernel attributes.
+      GTEST_SKIP(); // Injection doesn't propogate kernel attributes.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();

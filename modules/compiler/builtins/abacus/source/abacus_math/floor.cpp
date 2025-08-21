@@ -21,11 +21,9 @@
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {
-template <typename T, unsigned N = TypeTraits<T>::num_elements>
-struct helper;
+template <typename T, unsigned N = TypeTraits<T>::num_elements> struct helper;
 
-template <typename T, unsigned N>
-struct helper {
+template <typename T, unsigned N> struct helper {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T x) {
     // Truncate to int and find difference to float
@@ -52,8 +50,7 @@ struct helper {
   }
 };
 
-template <typename T>
-struct helper<T, 1u> {
+template <typename T> struct helper<T, 1u> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T x) {
     if (abacus::internal::is_denorm(x)) {
@@ -79,11 +76,8 @@ struct helper<T, 1u> {
   }
 };
 
-template <typename T>
-T floor(const T x) {
-  return helper<T>::_(x);
-}
-}  // namespace
+template <typename T> T floor(const T x) { return helper<T>::_(x); }
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_floor(abacus_half x) { return floor<>(x); }
@@ -92,7 +86,7 @@ abacus_half3 ABACUS_API __abacus_floor(abacus_half3 x) { return floor<>(x); }
 abacus_half4 ABACUS_API __abacus_floor(abacus_half4 x) { return floor<>(x); }
 abacus_half8 ABACUS_API __abacus_floor(abacus_half8 x) { return floor<>(x); }
 abacus_half16 ABACUS_API __abacus_floor(abacus_half16 x) { return floor<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_floor(abacus_float x) { return floor<>(x); }
 abacus_float2 ABACUS_API __abacus_floor(abacus_float2 x) { return floor<>(x); }
@@ -120,4 +114,4 @@ abacus_double8 ABACUS_API __abacus_floor(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_floor(abacus_double16 x) {
   return floor<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

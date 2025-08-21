@@ -24,8 +24,8 @@
 #include <llvm/IR/PassManager.h>
 
 class AddEntryHookPass final : public llvm::PassInfoMixin<AddEntryHookPass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
 
-#endif  // HOST_ADD_ENTRY_HOOK_PASS_H_INCLUDED
+#endif // HOST_ADD_ENTRY_HOOK_PASS_H_INCLUDED

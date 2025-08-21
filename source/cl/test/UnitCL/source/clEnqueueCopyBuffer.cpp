@@ -18,7 +18,7 @@
 #include "EventWaitList.h"
 
 class clEnqueueCopyBufferCheckTest : public ucl::CommandQueueTest {
- protected:
+protected:
   enum { buffer_size = 4 };
 
   void SetUp() override {
@@ -46,7 +46,7 @@ class clEnqueueCopyBufferCheckTest : public ucl::CommandQueueTest {
 
 class clEnqueueCopyBufferTest : public ucl::CommandQueueTest,
                                 TestWithEventWaitList {
- protected:
+protected:
   enum { elements = 10, buffer_size = 40 };
 
   void SetUp() override {
@@ -80,9 +80,9 @@ class clEnqueueCopyBufferTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueCopyBuffer(command_queue, src_buffer, dst_buffer, 0, 0,
-                                 buffer_size, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueCopyBuffer(command_queue, src_buffer,
+                                               dst_buffer, 0, 0, buffer_size,
+                                               num_events, events, event));
   }
 
   char src_data[buffer_size] = {};
@@ -121,10 +121,10 @@ TEST_F(clEnqueueCopyBufferCheckTest, BufferContextMismatch) {
   EXPECT_TRUE(dst_buffer);
   ASSERT_SUCCESS(errcode);
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueCopyBuffer(command_queue, src_buffer, dst_buffer, 0, 0,
-                          buffer_size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, dst_buffer,
+                                        0, 0, buffer_size, 0, nullptr,
+                                        nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(dst_buffer));
   ASSERT_SUCCESS(clReleaseContext(otherContext));
@@ -155,26 +155,26 @@ TEST_F(clEnqueueCopyBufferCheckTest, CopyOverlap) {
 
   // src_buffer [0, 4) -> src_buffer [0, 4)
   // OVERLAP!
-  ASSERT_EQ_ERRCODE(
-      CL_MEM_COPY_OVERLAP,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 0, 0,
-                          buffer_size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        0, 0, buffer_size, 0, nullptr,
+                                        nullptr));
 
   auto halfSize = buffer_size / 2;
 
   // src_buffer [1, 3) -> src_buffer [2, 4)
   // OVERLAP!
-  ASSERT_EQ_ERRCODE(
-      CL_MEM_COPY_OVERLAP,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 1, halfSize,
-                          halfSize, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        1, halfSize, halfSize, 0, nullptr,
+                                        nullptr));
 
   // src_buffer [2, 4) -> src_buffer [1, 3)
   // OVERLAP!
-  ASSERT_EQ_ERRCODE(
-      CL_MEM_COPY_OVERLAP,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, halfSize, 1,
-                          halfSize, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        halfSize, 1, halfSize, 0, nullptr,
+                                        nullptr));
 
   // src_buffer [2, 3) -> src_buffer [3, 4)
   // NO OVERLAP!
@@ -275,24 +275,24 @@ TEST_F(clEnqueueCopyBufferCheckTest, src_bufferOffsetTooLarge) {
 }
 
 TEST_F(clEnqueueCopyBufferCheckTest, dst_bufferOffsetTooLarge) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 0,
-                          buffer_size + 1, buffer_size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        0, buffer_size + 1, buffer_size, 0,
+                                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferCheckTest, src_bufferSizePlusOffsetTooLarge) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 1, 0,
-                          buffer_size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        1, 0, buffer_size, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferCheckTest, dst_bufferSizePlusOffsetTooLarge) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer, 0, 1,
-                          buffer_size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBuffer(command_queue, src_buffer, src_buffer,
+                                        0, 1, buffer_size, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferCheckTest, BufferSizeZero) {

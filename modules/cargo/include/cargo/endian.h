@@ -39,9 +39,9 @@ uint64_t byte_swap(uint64_t v);
 
 namespace detail {
 struct endianness_helper {
- private:
+private:
   static constexpr uint32_t dword = 0x01020304;
-#ifdef _MSC_VER  // ignore truncation warning to make this constexpr
+#ifdef _MSC_VER // ignore truncation warning to make this constexpr
 #pragma warning(disable : 4309)
 #endif
   static constexpr uint8_t first = static_cast<const uint8_t &>(dword);
@@ -49,12 +49,12 @@ struct endianness_helper {
 #pragma warning(default : 4309)
 #endif
 
- public:
+public:
   static constexpr bool little = first == 0x04;
   static constexpr bool big = first == 0x01;
   static_assert(little || big, "Unsupported endianness");
 };
-}  // namespace detail
+} // namespace detail
 
 /// @brief Detect if the system is little endian.
 ///
@@ -207,6 +207,6 @@ write_big_endian(Integer v, OutputIterator it) {
   return write_little_endian(byte_swap(v), it);
 }
 
-}  // namespace cargo
+} // namespace cargo
 
 #endif

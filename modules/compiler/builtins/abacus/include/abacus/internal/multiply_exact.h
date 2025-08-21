@@ -32,10 +32,8 @@
 // https://doi.org/10.1007/BF01397083
 
 namespace {
-template <typename E>
-struct multiply_exact_helper {
-  template <typename T>
-  static void split(const T &x, T *x_hi, T *x_lo) {
+template <typename E> struct multiply_exact_helper {
+  template <typename T> static void split(const T &x, T *x_hi, T *x_lo) {
     typedef typename TypeTraits<E>::SignedType SignedType;
     typedef typename TypeTraits<E>::UnsignedType UnsignedType;
 
@@ -52,10 +50,8 @@ struct multiply_exact_helper {
   }
 };
 
-template <>
-struct multiply_exact_helper<abacus_float> {
-  template <typename T>
-  static void split(const T &x, T *x_hi, T *x_lo) {
+template <> struct multiply_exact_helper<abacus_float> {
+  template <typename T> static void split(const T &x, T *x_hi, T *x_lo) {
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
     // Implementing split using this bitmask method means we don't need to
     // scale large inputs before calling multiply_exact() to prevent the final
@@ -72,7 +68,7 @@ struct multiply_exact_helper<abacus_float> {
     *x_lo = x - *x_hi;
   }
 };
-}  // namespace
+} // namespace
 
 namespace abacus {
 namespace internal {
@@ -103,7 +99,7 @@ inline T multiply_exact(const T x, const T y, T *out_remainder) {
   *out_remainder = t3 + x_lo * y_lo;
   return r1;
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_MULTIPLY_EXACT_H__
+#endif //__ABACUS_INTERNAL_MULTIPLY_EXACT_H__

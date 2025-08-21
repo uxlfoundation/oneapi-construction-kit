@@ -17,7 +17,7 @@
 #include "cl_khr_command_buffer.h"
 
 class clGetCommandBufferInfoTest : public cl_khr_command_buffer_Test {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
     cl_int err = !CL_SUCCESS;
@@ -147,7 +147,7 @@ TEST_F(clGetCommandBufferInfoTest, CommandBufferState) {
 }
 
 class clGetCommandBufferInfoPropertiesTest : public clGetCommandBufferInfoTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(clGetCommandBufferInfoTest::SetUp());
     simultaneous_support =

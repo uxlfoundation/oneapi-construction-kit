@@ -29,5 +29,5 @@ mux_result_t buffer::bind(mux_device_t device, mux::hal::memory *memory,
   targetPtr = memory->targetPtr + offset;
   return mux_success;
 }
-}  // namespace hal
-}  // namespace mux
+} // namespace hal
+} // namespace mux

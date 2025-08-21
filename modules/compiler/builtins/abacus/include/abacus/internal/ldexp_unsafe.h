@@ -56,7 +56,7 @@ inline T ldexp_unsafe(const T &x, const N &n) {
   // No overflow or underflow bounds checking as in safe ldexp
   return x * factor1 * factor2;
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_LDEXP_UNSAFE_H__
+#endif //__ABACUS_INTERNAL_LDEXP_UNSAFE_H__

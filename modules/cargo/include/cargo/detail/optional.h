@@ -29,17 +29,13 @@
 #include <cargo/utility.h>
 
 namespace cargo {
-template <class T>
-class optional;
+template <class T> class optional;
 
 namespace detail {
 // Trait for checking if a type is a cargo::optional
-template <class T>
-struct is_optional_impl : std::false_type {};
-template <class T>
-struct is_optional_impl<optional<T>> : std::true_type {};
-template <class T>
-using is_optional = is_optional_impl<std::decay_t<T>>;
+template <class T> struct is_optional_impl : std::false_type {};
+template <class T> struct is_optional_impl<optional<T>> : std::true_type {};
+template <class T> using is_optional = is_optional_impl<std::decay_t<T>>;
 
 // Change void to cargo::monostate
 template <class U>
@@ -49,8 +45,7 @@ template <class F, class U, class = invoke_result_t<F, U>>
 using get_map_return = optional<fixup_void<invoke_result_t<F, U>>>;
 
 // Check if invoking F for some Us returns void
-template <class F, class = void, class... U>
-struct returns_void_impl;
+template <class F, class = void, class... U> struct returns_void_impl;
 template <class F, class... U>
 struct returns_void_impl<F, std::void_t<invoke_result_t<F, U...>>, U...>
     : std::is_void<invoke_result_t<F, U...>> {};
@@ -131,8 +126,7 @@ struct optional_storage_base {
 };
 
 // This case is for when T is not trivially destructible
-template <class T>
-struct optional_storage_base<T, true> {
+template <class T> struct optional_storage_base<T, true> {
   constexpr optional_storage_base() : m_dummy(0), m_has_value(false) {}
 
   template <class... U>
@@ -151,8 +145,7 @@ struct optional_storage_base<T, true> {
 
 // This base class provides some handy member functions which can be used in
 // further derived classes
-template <class T>
-struct optional_operations_base : optional_storage_base<T> {
+template <class T> struct optional_operations_base : optional_storage_base<T> {
   using optional_storage_base<T>::optional_storage_base;
 
   void hard_reset() {
@@ -160,15 +153,13 @@ struct optional_operations_base : optional_storage_base<T> {
     this->m_has_value = false;
   }
 
-  template <class... Args>
-  void construct(Args &&...args) {
+  template <class... Args> void construct(Args &&...args) {
     new (static_cast<void *>(std::addressof(this->m_value)))
         T(std::forward<Args>(args)...);
     this->m_has_value = true;
   }
 
-  template <class Opt>
-  void assign(Opt &&rhs) {
+  template <class Opt> void assign(Opt &&rhs) {
     if (this->has_value()) {
       if (rhs.has_value()) {
         this->m_value = std::forward<Opt>(rhs).get();
@@ -224,8 +215,7 @@ struct optional_move_base : optional_copy_base<T> {
   using optional_copy_base<T>::optional_copy_base;
 };
 
-template <class T>
-struct optional_move_base<T, false> : optional_copy_base<T> {
+template <class T> struct optional_move_base<T, false> : optional_copy_base<T> {
   using optional_copy_base<T>::optional_copy_base;
 
   optional_move_base() = default;
@@ -262,8 +252,8 @@ struct optional_copy_assign_base<T, false> : optional_move_base<T> {
     this->assign(rhs);
     return *this;
   }
-  optional_copy_assign_base &operator=(optional_copy_assign_base &&rhs) =
-      default;
+  optional_copy_assign_base &
+  operator=(optional_copy_assign_base &&rhs) = default;
 };
 
 // This class manages conditionally having a trivial move assignment operator
@@ -282,14 +272,14 @@ struct optional_move_assign_base<T, false> : optional_copy_assign_base<T> {
   optional_move_assign_base(const optional_move_assign_base &rhs) = default;
 
   optional_move_assign_base(optional_move_assign_base &&rhs) = default;
-  optional_move_assign_base &operator=(const optional_move_assign_base &rhs) =
-      default;
+  optional_move_assign_base &
+  operator=(const optional_move_assign_base &rhs) = default;
   optional_move_assign_base &operator=(optional_move_assign_base &&rhs) {
     this->assign(std::move(rhs));
     return *this;
   }
 };
-}  // namespace detail
-}  // namespace cargo
+} // namespace detail
+} // namespace cargo
 
-#endif  // CARGO_DETAIL_OPTIONAL_H_INCLUDED
+#endif // CARGO_DETAIL_OPTIONAL_H_INCLUDED

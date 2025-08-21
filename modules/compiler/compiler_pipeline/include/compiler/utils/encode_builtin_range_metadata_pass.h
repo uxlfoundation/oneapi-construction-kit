@@ -37,16 +37,16 @@ struct EncodeBuiltinRangeMetadataOptions {
 struct EncodeBuiltinRangeMetadataPass
     : public llvm::PassInfoMixin<EncodeBuiltinRangeMetadataPass> {
   EncodeBuiltinRangeMetadataPass(EncodeBuiltinRangeMetadataOptions Opts)
-      : MaxLocalSizes(Opts.MaxLocalSizes),
-        MaxGlobalSizes(Opts.MaxGlobalSizes) {}
+      : MaxLocalSizes(Opts.MaxLocalSizes), MaxGlobalSizes(Opts.MaxGlobalSizes) {
+  }
 
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
- private:
+private:
   std::array<std::optional<uint64_t>, 3> MaxLocalSizes;
   std::array<std::optional<uint64_t>, 3> MaxGlobalSizes;
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_ENCODE_BUILTIN_RANGE_METADATA_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_ENCODE_BUILTIN_RANGE_METADATA_PASS_H_INCLUDED

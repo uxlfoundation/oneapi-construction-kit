@@ -32,7 +32,7 @@ namespace utils {
 /// @brief Sets (caches) function attributes concerning sub-group usage,
 /// assuming they will not become invalidated by later passes.
 class SubgroupUsagePass final : public llvm::PassInfoMixin<SubgroupUsagePass> {
- public:
+public:
   explicit SubgroupUsagePass() {}
 
   llvm::PreservedAnalyses run(llvm::Module &M,
@@ -48,7 +48,7 @@ class SubgroupUsagePass final : public llvm::PassInfoMixin<SubgroupUsagePass> {
   }
 };
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_SUB_GROUP_USAGE_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_SUB_GROUP_USAGE_PASS_H_INCLUDED

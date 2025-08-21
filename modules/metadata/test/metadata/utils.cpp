@@ -93,10 +93,10 @@ TEST_F(DecodeTest, DecodeBlockInfoWithInvalidBlockSize) {
       1};
   constexpr const size_t binary_len = 100;
   uint8_t block_info_data[] = {
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30,  // offset
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff,  // size (too long 255)
-      0x00, 0x00, 0x00, 0x10,                          // name_idx
-      0x00, 0x00, 0x00, 0x00                           // flags
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, // offset
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, // size (too long 255)
+      0x00, 0x00, 0x00, 0x10,                         // name_idx
+      0x00, 0x00, 0x00, 0x00                          // flags
   };
   md::CAMD_BlockInfo info;
   auto decoded_info = md::utils::decode_md_block_info(block_info_data, header,
@@ -162,14 +162,14 @@ TEST_F(DecodeTest, GetBlockInfoName) {
 
 TEST(UtilsTest, SerializeMDHeader) {
   // Generate a header for this binary
-  md::CAMD_Header header{
-      {md::MD_MAGIC_0, md::MD_MAGIC_1, md::MD_MAGIC_2,
-       md::MD_MAGIC_3} /* MAGIC */,
-      cargo::is_little_endian() ? MD_ENDIAN::LITTLE : MD_ENDIAN::BIG,
-      0x01 /* version */,
-      {0x00, 0x00} /* padding */,
-      static_cast<uint32_t>(16) /*block_list_offset*/,
-      static_cast<uint32_t>(0) /*n_blocks*/};
+  md::CAMD_Header header{{md::MD_MAGIC_0, md::MD_MAGIC_1, md::MD_MAGIC_2,
+                          md::MD_MAGIC_3} /* MAGIC */,
+                         cargo::is_little_endian() ? MD_ENDIAN::LITTLE
+                                                   : MD_ENDIAN::BIG,
+                         0x01 /* version */,
+                         {0x00, 0x00} /* padding */,
+                         static_cast<uint32_t>(16) /*block_list_offset*/,
+                         static_cast<uint32_t>(0) /*n_blocks*/};
 
   std::vector<uint8_t> output;
   md::utils::serialize_md_header(header, output);

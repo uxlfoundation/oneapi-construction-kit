@@ -116,11 +116,12 @@ mux_result_t muxQuerySubGroupSizeForLocalSize(mux_kernel_t kernel,
       kernel, local_size_x, local_size_y, local_size_z, out_sub_group_size);
 }
 
-mux_result_t muxQueryWFVInfoForLocalSize(
-    mux_kernel_t kernel, size_t local_size_x, size_t local_size_y,
-    size_t local_size_z, mux_wfv_status_e *out_wfv_status,
-    size_t *out_work_width_x, size_t *out_work_width_y,
-    size_t *out_work_width_z) {
+mux_result_t
+muxQueryWFVInfoForLocalSize(mux_kernel_t kernel, size_t local_size_x,
+                            size_t local_size_y, size_t local_size_z,
+                            mux_wfv_status_e *out_wfv_status,
+                            size_t *out_work_width_x, size_t *out_work_width_y,
+                            size_t *out_work_width_z) {
   const tracer::TraceGuard<tracer::Mux> guard(__func__);
   if (mux::objectIsInvalid(kernel)) {
     return mux_error_invalid_value;

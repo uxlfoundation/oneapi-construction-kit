@@ -73,4 +73,4 @@ uint64_t timestampNanoSeconds() {
 
   return tickCount;
 }
-}  // namespace utils
+} // namespace utils

@@ -34,7 +34,7 @@ namespace kts {
 namespace ucl {
 /// @brief Class for encapsulating generation of test inputs.
 class InputGenerator final {
- public:
+public:
   InputGenerator() = delete;
 
   /// @brief Constructor
@@ -158,8 +158,8 @@ class InputGenerator final {
   }
 
   template <typename T>
-  std::enable_if_t<std::is_floating_point_v<T>> GenerateData(
-      std::vector<T> &buffer) {
+  std::enable_if_t<std::is_floating_point_v<T>>
+  GenerateData(std::vector<T> &buffer) {
     GenerateFloatData(buffer);
   }
 
@@ -167,7 +167,7 @@ class InputGenerator final {
   /// in fma() where ideally they'd be tested across every input combination.
   static const std::array<cl_ushort, 26> half_edge_cases;
 
- private:
+private:
   /// @brief Mersenne twister engine for generating random 64-bit ints
   std::mt19937_64 gen_;
   /// @brief seed for random number generation
@@ -310,8 +310,7 @@ void InputGenerator::GenerateUniqueIntData(std::vector<T> &buffer, T min,
   std::shuffle(std::begin(buffer), std::end(buffer), gen_);
 }
 
-template <class T>
-T InputGenerator::GenerateInt(T min, T max) {
+template <class T> T InputGenerator::GenerateInt(T min, T max) {
   // This is a work around for the fact that std::uniform_int_distribution isn't
   // defined for 8 bit types. If we get an 8 bit type we use a wider integer
   // then cast back the result.
@@ -322,7 +321,7 @@ T InputGenerator::GenerateInt(T min, T max) {
   return static_cast<T>(dist(gen_));
 }
 
-}  // namespace ucl
-}  // namespace kts
+} // namespace ucl
+} // namespace kts
 
-#endif  // UNITCL_KTS_GENERATOR_H_INCLUDED
+#endif // UNITCL_KTS_GENERATOR_H_INCLUDED

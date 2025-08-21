@@ -40,14 +40,11 @@ struct SamplerDesc {
   SamplerDesc(cl_bool normalized_coords, cl_addressing_mode addressing_mode,
               cl_filter_mode filter_mode)
       : normalized_coords_(normalized_coords),
-        addressing_mode_(addressing_mode),
-        filter_mode_(filter_mode),
+        addressing_mode_(addressing_mode), filter_mode_(filter_mode),
         sampler_(nullptr) {}
   SamplerDesc()
-      : normalized_coords_(CL_FALSE),
-        addressing_mode_(CL_ADDRESS_NONE),
-        filter_mode_(CL_FILTER_NEAREST),
-        sampler_(nullptr) {}
+      : normalized_coords_(CL_FALSE), addressing_mode_(CL_ADDRESS_NONE),
+        filter_mode_(CL_FILTER_NEAREST), sampler_(nullptr) {}
 
   ~SamplerDesc() {
     if (sampler_) {
@@ -73,7 +70,7 @@ struct ImageDesc {
 
 // Describes a kernel argument and the values it can take.
 class Argument final : public ArgumentBase {
- public:
+public:
   Argument(ArgKind kind, size_t index)
       : ArgumentBase(kind, index), buffer_(nullptr) {}
 
@@ -105,7 +102,7 @@ class Argument final : public ArgumentBase {
   const ImageDesc &GetImageDesc() const { return image_; }
   void SetImageDesc(const ImageDesc &new_image) { image_ = new_image; }
 
- private:
+private:
   // Used to generate the argument's buffer (input) or validate the argument's
   // data.
   BufferDesc buffer_desc_;
@@ -126,7 +123,7 @@ class Argument final : public ArgumentBase {
 // are the same than the N-D range. All buffers must also have the same
 // element type since only one reference function is used.
 class ArgumentList final {
- public:
+public:
   size_t GetCount() const { return args_.size(); }
   Argument *GetArg(unsigned index);
   const BufferDesc &GetBufferDesc() const { return default_desc_; }
@@ -145,7 +142,7 @@ class ArgumentList final {
   void AddInputImage(const cl_image_format &format, const cl_image_desc &desc,
                      const BufferDesc &data);
 
- private:
+private:
   BufferDesc default_desc_;
   std::vector<std::unique_ptr<Argument>> args_;
 };
@@ -158,10 +155,9 @@ struct PointerPrimitive : public Primitive {
 
   size_t size_;
 };
-}  // namespace ucl
+} // namespace ucl
 
-template <>
-struct Validator<cl_char4> {
+template <> struct Validator<cl_char4> {
   bool validate(cl_char4 expected, cl_char4 actual) {
     Validator<cl_char> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -184,8 +180,7 @@ struct Validator<cl_char4> {
   }
 };
 
-template <>
-struct Validator<cl_char8> {
+template <> struct Validator<cl_char8> {
   bool validate(cl_char8 &expected, cl_char8 &actual) {
     Validator<cl_char> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -212,8 +207,7 @@ struct Validator<cl_char8> {
   }
 };
 
-template <>
-struct Validator<cl_char16> {
+template <> struct Validator<cl_char16> {
   bool validate(cl_char16 &expected, cl_char16 &actual) {
     Validator<cl_char> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -248,8 +242,7 @@ struct Validator<cl_char16> {
   }
 };
 
-template <>
-struct Validator<cl_int2> {
+template <> struct Validator<cl_int2> {
   bool validate(cl_int2 &expected, cl_int2 &actual) {
     Validator<cl_int> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -266,8 +259,7 @@ struct Validator<cl_int2> {
   }
 };
 
-template <>
-struct Validator<cl_uint2> {
+template <> struct Validator<cl_uint2> {
   bool validate(cl_uint2 &expected, cl_uint2 &actual) {
     Validator<cl_uint> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -284,8 +276,7 @@ struct Validator<cl_uint2> {
   }
 };
 
-template <>
-struct Validator<cl_short4> {
+template <> struct Validator<cl_short4> {
   bool validate(cl_short4 &expected, cl_short4 &actual) {
     Validator<cl_short> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -308,8 +299,7 @@ struct Validator<cl_short4> {
   }
 };
 
-template <>
-struct Validator<cl_int4> {
+template <> struct Validator<cl_int4> {
   bool validate(cl_int4 &expected, cl_int4 &actual) {
     Validator<cl_int> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -332,8 +322,7 @@ struct Validator<cl_int4> {
   }
 };
 
-template <>
-struct Validator<cl_uint4> {
+template <> struct Validator<cl_uint4> {
   bool validate(cl_uint4 &expected, cl_uint4 &actual) {
     Validator<cl_uint> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -356,8 +345,7 @@ struct Validator<cl_uint4> {
   }
 };
 
-template <>
-struct Validator<cl_long2> {
+template <> struct Validator<cl_long2> {
   bool validate(cl_long2 &expected, cl_long2 &actual) {
     Validator<cl_long> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -374,8 +362,7 @@ struct Validator<cl_long2> {
   }
 };
 
-template <>
-struct Validator<cl_ulong2> {
+template <> struct Validator<cl_ulong2> {
   bool validate(cl_ulong2 &expected, cl_ulong2 &actual) {
     Validator<cl_ulong> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -392,8 +379,7 @@ struct Validator<cl_ulong2> {
   }
 };
 
-template <>
-struct Validator<cl_long4> {
+template <> struct Validator<cl_long4> {
   bool validate(cl_long4 &expected, cl_long4 &actual) {
     Validator<cl_long> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -416,8 +402,7 @@ struct Validator<cl_long4> {
   }
 };
 
-template <>
-struct Validator<cl_float2> {
+template <> struct Validator<cl_float2> {
   bool validate(cl_float2 &expected, cl_float2 &actual) {
     Validator<cl_float> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -434,8 +419,7 @@ struct Validator<cl_float2> {
   }
 };
 
-template <>
-struct Validator<cl_float4> {
+template <> struct Validator<cl_float4> {
   bool validate(cl_float4 &expected, cl_float4 &actual) {
     Validator<cl_float> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -458,8 +442,7 @@ struct Validator<cl_float4> {
   }
 };
 
-template <>
-struct Validator<cl_float16> {
+template <> struct Validator<cl_float16> {
   bool validate(cl_float16 &expected, cl_float16 &actual) {
     Validator<cl_float> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -492,8 +475,7 @@ struct Validator<cl_float16> {
   }
 };
 
-template <>
-struct Validator<cl_double4> {
+template <> struct Validator<cl_double4> {
   bool validate(cl_double4 &expected, cl_double4 &actual) {
     Validator<cl_double> v;
     return v.validate(expected.s[0], actual.s[0]) &&
@@ -535,6 +517,6 @@ struct MemoryAccessor<::ucl::PackedVector3Type<T, Tag>> {
     memcpy(PtrPlusOffset, Val.data(), 3 * sizeof(value_type));
   }
 };
-}  // namespace kts
+} // namespace kts
 
-#endif  // UNITCL_KTS_ARGUMENTS_H_INCLUDED
+#endif // UNITCL_KTS_ARGUMENTS_H_INCLUDED

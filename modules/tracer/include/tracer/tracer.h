@@ -68,21 +68,16 @@ uint64_t getCurrentTimestamp();
 #endif
 
 /// @brief Benchmark base class for the Bench object.
-template <bool enable>
-struct BenchmarkCategory {
+template <bool enable> struct BenchmarkCategory {
   static constexpr bool enabled = enable;
 };
 
-template <class T>
-inline const char *getCategoryName();
+template <class T> inline const char *getCategoryName();
 
 /// @brief Helper to generate the types and category names
-#define TRACER_GUARD_CATEGORY(type, enabled)                             \
-  struct type : public BenchmarkCategory<static_cast<bool>(enabled)> {}; \
-  template <>                                                            \
-  inline const char *getCategoryName<type>() {                           \
-    return #type;                                                        \
-  }
+#define TRACER_GUARD_CATEGORY(type, enabled)                                   \
+  struct type : public BenchmarkCategory<static_cast<bool>(enabled)> {};       \
+  template <> inline const char *getCategoryName<type>() { return #type; }
 
 TRACER_GUARD_CATEGORY(OpenCL, CA_TRACE_CL)
 TRACER_GUARD_CATEGORY(Core, CA_TRACE_CORE)
@@ -93,8 +88,7 @@ TRACER_GUARD_CATEGORY(Impl, CA_TRACE_IMPLEMENTATION)
 
 /// @brief A scoped timer. Construct the TracerGuard object with one of the
 /// category types. eg: tracer::TraceGuard<OpenCL>("function");
-template <typename Category>
-struct TraceGuard {
+template <typename Category> struct TraceGuard {
   TraceGuard(const char *name) : trace_name(nullptr), start_time(0) {
     if (Category::enabled) {
       trace_name = name;
@@ -115,6 +109,6 @@ struct TraceGuard {
 };
 
 /// @}
-}  // namespace tracer
+} // namespace tracer
 
-#endif  // TRACER_H_INCLUDED
+#endif // TRACER_H_INCLUDED

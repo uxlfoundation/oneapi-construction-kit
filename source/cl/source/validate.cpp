@@ -160,7 +160,7 @@ cl_int CopyBufferArguments(cl_command_queue command_queue, cl_mem src_buffer,
 // overlap between the source and destination regions.  Note that we treat
 // ranges here as right-open intervals, i.e [START, END).
 #define IN_RANGE(X, START, END) (((X) >= (START)) && ((X) < (END)))
-#define RANGES_OVERLAP(STARTX, ENDX, STARTY, ENDY) \
+#define RANGES_OVERLAP(STARTX, ENDX, STARTY, ENDY)                             \
   (IN_RANGE(STARTY, STARTX, ENDX) || IN_RANGE((ENDY) - 1, STARTX, ENDX))
     OCL_CHECK(RANGES_OVERLAP(src_start, src_start + size, dst_start,
                              dst_start + size),
@@ -356,5 +356,5 @@ cl_int CopyBufferToImageArguments(cl_command_queue command_queue,
   return CL_SUCCESS;
 }
 
-}  // namespace validate
-}  // namespace cl
+} // namespace validate
+} // namespace cl

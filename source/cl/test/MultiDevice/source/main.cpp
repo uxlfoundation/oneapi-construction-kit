@@ -20,7 +20,7 @@
 
 namespace {
 static cl_platform_id selectedPlatform = nullptr;
-}  // namespace
+} // namespace
 
 cl_platform_id getPlatform() { return selectedPlatform; }
 

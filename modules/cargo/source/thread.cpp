@@ -27,12 +27,12 @@
 cargo::result cargo::thread::set_name(const std::string &name) noexcept {
 #if defined(CARGO_HAS_PTHREAD) && CARGO_HAS_PTHREAD_SETNAME_NP
   switch (pthread_setname_np(native_handle(), name.c_str())) {
-    case 0:
-      break;
-    case ERANGE:
-      return cargo::out_of_bounds;
-    default:
-      return cargo::unknown_error;
+  case 0:
+    break;
+  case ERANGE:
+    return cargo::out_of_bounds;
+  default:
+    return cargo::unknown_error;
   }
 #elif defined(_WIN32)
   constexpr size_t len = 1024;
@@ -67,5 +67,5 @@ cargo::result cargo::thread::set_name(const std::string &name) noexcept {
   return {buffer.data(), std::strlen(buffer.data())};
 #else
   return cargo::unsupported;
-#endif  // defined(_WIN32) || CARGO_HAS_PTHREAD_GETNAME_NP
+#endif // defined(_WIN32) || CARGO_HAS_PTHREAD_GETNAME_NP
 }

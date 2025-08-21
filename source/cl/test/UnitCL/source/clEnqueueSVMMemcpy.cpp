@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueSVMMemcpyTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -43,8 +43,8 @@ TEST_F(clEnqueueSVMMemcpyTest, NotImplemented) {
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueSVMMemcpy(command_queue, blocking_copy, dst_ptr, src_ptr, size,
-                         num_events_in_wait_list, event_wait_list, event));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueSVMMemcpy(command_queue, blocking_copy, dst_ptr,
+                                       src_ptr, size, num_events_in_wait_list,
+                                       event_wait_list, event));
 }

@@ -35,10 +35,10 @@ namespace utils {
 /// the name mangling ABI will cause this pass to break if it is not updated.
 class ReplaceC11AtomicFuncsPass final
     : public llvm::PassInfoMixin<ReplaceC11AtomicFuncsPass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_REPLACE_C11_ATOMIC_FUNCS_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_REPLACE_C11_ATOMIC_FUNCS_PASS_H_INCLUDED

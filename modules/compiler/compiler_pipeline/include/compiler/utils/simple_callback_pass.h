@@ -34,7 +34,7 @@ using CallbackFnTy = void(llvm::Module &);
 /// @brief Invokes a callback with the module when run.
 /// Important: all analyses must be preserved by the callback function.
 class SimpleCallbackPass : public llvm::PassInfoMixin<SimpleCallbackPass> {
- public:
+public:
   /// @param C Callback function to invoke when the pass is run.
   template <typename CallableT>
   SimpleCallbackPass(CallableT C) : Callback(std::move(C)) {}
@@ -45,11 +45,11 @@ class SimpleCallbackPass : public llvm::PassInfoMixin<SimpleCallbackPass> {
     return llvm::PreservedAnalyses::all();
   }
 
- private:
+private:
   std::function<CallbackFnTy> Callback;
 };
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_SIMPLE_CALLBACK_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_SIMPLE_CALLBACK_PASS_H_INCLUDED

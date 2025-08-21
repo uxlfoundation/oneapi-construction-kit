@@ -32,8 +32,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct helper<T, abacus_half> {
+template <typename T> struct helper<T, abacus_half> {
   static T _(const T x) {
     // To reduce precision errors, we evaluate the horner polynomial excluding
     // the final multiply-add, then manually perform the final step using
@@ -58,10 +57,9 @@ struct helper<T, abacus_half> {
     return poly_mul_add_hi + poly_mul_add_lo;
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T _(const T x) {
     const abacus_float polynomial[5] = {+3.1415926366204f, -5.1677096710978f,
                                         +2.5500695377459f, -0.59824115267029f,
@@ -72,8 +70,7 @@ struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T _(const T x) {
     const abacus_double polynomial[9] = {
         3.14159265358979323766,     -5.16771278004996952964,
@@ -85,10 +82,9 @@ struct helper<T, abacus_double> {
     return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-T sinpi(const T x) {
+template <typename T> T sinpi(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T xAbs = __abacus_fabs(x);
@@ -105,8 +101,8 @@ T sinpi(const T x) {
 
   return __abacus_select(result, -result, abacus::internal::is_odd(xAbs));
 }
-}  // namespace
-}  // namespace
+} // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sinpi(abacus_half x) { return sinpi<>(x); }
@@ -115,7 +111,7 @@ abacus_half3 ABACUS_API __abacus_sinpi(abacus_half3 x) { return sinpi<>(x); }
 abacus_half4 ABACUS_API __abacus_sinpi(abacus_half4 x) { return sinpi<>(x); }
 abacus_half8 ABACUS_API __abacus_sinpi(abacus_half8 x) { return sinpi<>(x); }
 abacus_half16 ABACUS_API __abacus_sinpi(abacus_half16 x) { return sinpi<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_sinpi(abacus_float x) { return sinpi<>(x); }
 abacus_float2 ABACUS_API __abacus_sinpi(abacus_float2 x) { return sinpi<>(x); }
@@ -143,4 +139,4 @@ abacus_double8 ABACUS_API __abacus_sinpi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_sinpi(abacus_double16 x) {
   return sinpi<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

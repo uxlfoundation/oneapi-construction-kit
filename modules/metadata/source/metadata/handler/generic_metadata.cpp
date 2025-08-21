@@ -22,18 +22,15 @@ namespace handler {
 GenericMetadata::GenericMetadata(std::string kernel_name,
                                  std::string source_name,
                                  uint64_t local_memory_usage)
-    : kernel_name(std::move(kernel_name)),
-      source_name(std::move(source_name)),
+    : kernel_name(std::move(kernel_name)), source_name(std::move(source_name)),
       local_memory_usage(local_memory_usage) {}
 
 GenericMetadata::GenericMetadata(
     std::string kernel_name, std::string source_name,
     uint64_t local_memory_usage,
     FixedOrScalableQuantity<uint32_t> sub_group_size)
-    : kernel_name(std::move(kernel_name)),
-      source_name(std::move(source_name)),
-      local_memory_usage(local_memory_usage),
-      sub_group_size(sub_group_size) {}
+    : kernel_name(std::move(kernel_name)), source_name(std::move(source_name)),
+      local_memory_usage(local_memory_usage), sub_group_size(sub_group_size) {}
 
 GenericMetadataHandler::~GenericMetadataHandler() {
   if (ctx) {
@@ -148,4 +145,4 @@ bool GenericMetadataHandler::write(const GenericMetadata &md) {
   return true;
 }
 
-}  // namespace handler
+} // namespace handler

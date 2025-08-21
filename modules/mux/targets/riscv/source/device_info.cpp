@@ -105,12 +105,12 @@ device_info_s::device_info_s()
   this->max_work_group_size_y = this->max_concurrent_work_items;
   this->max_work_group_size_z = this->max_concurrent_work_items;
   this->max_work_width = max_concurrent_work_items;
-  this->clock_frequency = 1;  // arbitrary default non-zero clock frequency to
-                              // satisfy OpenCL requirements
+  this->clock_frequency = 1; // arbitrary default non-zero clock frequency to
+                             // satisfy OpenCL requirements
   this->compute_units = 1;
   this->buffer_alignment = sizeof(uint64_t) * 16;
   this->memory_size =
-      10L * 1024 * 1024;  // default value - should be updated using hal values
+      10L * 1024 * 1024; // default value - should be updated using hal values
   // All memory could be allocated at once.
   this->allocation_size = this->memory_size;
   this->cache_size = 0;
@@ -158,7 +158,7 @@ device_info_s::device_info_s()
   // desirability.
   static std::array<size_t, 5> sg_sizes = {
       8, 4, 16, 32,
-      1,  // we can always produce a 'trivial' sub-group if asked.
+      1, // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();
   this->num_sub_group_sizes = sg_sizes.size();
@@ -213,7 +213,7 @@ static mux_result_t GetDeviceInfos(uint32_t device_types,
   return mux_success;
 }
 
-}  // namespace riscv
+} // namespace riscv
 
 mux_result_t riscvGetDeviceInfos(uint32_t device_types,
                                  uint64_t device_infos_length,

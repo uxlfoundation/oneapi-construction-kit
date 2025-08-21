@@ -32,7 +32,7 @@ inline T half_range_reduction(const T &x,
   T xAbs = __abacus_fabs(x);
 
   SignedType octet = abacus::detail::cast::convert<SignedType>(
-      xAbs * 1.27323949337005615234375f);  // 4/pi
+      xAbs * 1.27323949337005615234375f); // 4/pi
   T octetF = abacus::detail::cast::convert<T>(octet);
 
   // cody waithe constants for pi/4:
@@ -49,7 +49,7 @@ inline T half_range_reduction(const T &x,
   xReduced -= octetF * 2.419133961666e-4f;
 
   octet += __abacus_select((SignedType)0, (SignedType)1,
-                           xReduced > 0.392699092626571f);  // pi/8
+                           xReduced > 0.392699092626571f); // pi/8
   octetF = abacus::detail::cast::convert<T>(octet);
 
   // more accurate cody waithe
@@ -78,7 +78,7 @@ inline abacus_float3 half_range_reduction(const abacus_float3 &x,
   return r.xyz;
 }
 #endif
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_HALF_RANGE_REDUCTION_H__
+#endif //__ABACUS_INTERNAL_HALF_RANGE_REDUCTION_H__

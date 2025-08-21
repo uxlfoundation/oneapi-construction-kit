@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clCreateUserEventTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;
@@ -125,8 +125,8 @@ TEST_F(clCreateUserEventTest, DISABLED_OutOfOrderQueue) {
                                  sizeof(properties), &properties, nullptr));
 
   if (0 == (CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE & properties)) {
-    return;  // we are essentially skipping this test case as our queue does't
-             // support out of order!
+    return; // we are essentially skipping this test case as our queue does't
+            // support out of order!
   }
 
   cl_int errorcode = !CL_SUCCESS;

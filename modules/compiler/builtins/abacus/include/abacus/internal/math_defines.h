@@ -32,7 +32,7 @@
 #define F_HIDDEN_BIT 0x00800000
 
 #define I_GET_EXPONENT(x) (x & F_EXP_MASK)
-#define I_IS_DENORM(x) \
+#define I_IS_DENORM(x)                                                         \
   (((x & F_EXP_MASK) == 0x00000000) && ((x & F_MANT_MASK) != 0x00000000))
 
 // TODO F_IS_DENORM should be able to use ^ to simplify calculation.
@@ -42,12 +42,12 @@
 
 #define I_IS_EVEN(x) (x % 2 == 0)
 #define I_IS_ODD(x) (x % 2)
-#define F_HAS_FRACT_PART(x) \
+#define F_HAS_FRACT_PART(x)                                                    \
   (((as_uint(x) & F_EXP_MASK) >> F_MANT_SIZE) < (F_EXP_BIAS + F_MANT_SIZE))
 #define I_4IPI_UINT 0xA2F983U
-#define I_GET_UNBIASED_EXPONENT(x)         \
-  (((x & F_NO_SIGN_MASK) >> F_MANT_SIZE) - \
-   F_EXP_BIAS);  // TODO couldn't we use _unsafe_ilogb? update vecmath.
+#define I_GET_UNBIASED_EXPONENT(x)                                             \
+  (((x & F_NO_SIGN_MASK) >> F_MANT_SIZE) -                                     \
+   F_EXP_BIAS); // TODO couldn't we use _unsafe_ilogb? update vecmath.
 #define I_GET_MANT(x) ((x & F_MANT_MASK) | F_HIDDEN_BIT)
 
-#endif  //__ABACUS_INTERNAL_MATH_DEFINES_H__
+#endif //__ABACUS_INTERNAL_MATH_DEFINES_H__

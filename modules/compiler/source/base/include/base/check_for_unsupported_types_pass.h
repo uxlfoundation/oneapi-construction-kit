@@ -96,6 +96,6 @@ struct CheckForUnsupportedTypesPass final
 };
 
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // BASE_CHECK_FOR_UNSUPPORTED_TYPES_PASS_H_INCLUDED
+#endif // BASE_CHECK_FOR_UNSUPPORTED_TYPES_PASS_H_INCLUDED

@@ -486,9 +486,9 @@ enum Type : uint32_t {
   R_RISCV_RVC_BRANCH = 44,
   R_RISCV_RVC_JUMP = 45,
 };
-}  // namespace RISCV
+} // namespace RISCV
 
-}  // namespace RelocationTypes
-}  // namespace loader
+} // namespace RelocationTypes
+} // namespace loader
 
 #endif

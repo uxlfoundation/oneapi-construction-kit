@@ -30,14 +30,14 @@ namespace host {
 /// Runs over all kernels with "kernel" metadata.
 class AddFloatingPointControlPass final
     : public llvm::PassInfoMixin<AddFloatingPointControlPass> {
- public:
+public:
   AddFloatingPointControlPass(bool FTZ) : SetFTZ(FTZ) {}
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 
- private:
+private:
   bool SetFTZ;
 };
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_ADD_FLOATING_POINT_CONTROL_PASS_H_INCLUDED
+#endif // HOST_ADD_FLOATING_POINT_CONTROL_PASS_H_INCLUDED

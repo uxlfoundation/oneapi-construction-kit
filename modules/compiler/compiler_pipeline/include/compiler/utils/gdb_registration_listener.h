@@ -24,4 +24,4 @@ namespace compiler {
 namespace utils {
 std::unique_ptr<llvm::JITEventListener> createGDBRegistrationListener();
 }
-}  // namespace compiler
+} // namespace compiler

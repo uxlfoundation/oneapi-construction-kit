@@ -46,7 +46,7 @@ TEST_F(host_clGetDeviceInfoTest, Name) {
   // Does the first word match CA_HOST_CL_DEVICE_NAME_PREFIX?
   ASSERT_TRUE(words[0] == CA_HOST_CL_DEVICE_NAME_PREFIX);
 
-#if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) || \
+#if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) ||               \
     defined(_M_ARMT)
   const char *arch = "Arm";
 #elif defined(__aarch64__) || defined(_M_ARM64)

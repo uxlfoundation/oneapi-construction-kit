@@ -20,8 +20,7 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
-template <typename T>
-T atanpi(const T x) {
+template <typename T> T atanpi(const T x) {
   return __abacus_atan(x) * T(ABACUS_1_PI);
 }
 
@@ -34,8 +33,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_atanpi_coeff_halfH1[5] = {
     0.318359375f16, -0.10552978515625f16, 5.682373046875e-2f16,
     -2.47955322265625e-2f16, 5.168914794921875e-3f16};
 
-template <typename T>
-T atanpi_half(const T x) {
+template <typename T> T atanpi_half(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T x_local = x;
@@ -53,8 +51,7 @@ T atanpi_half(const T x) {
   return ans;
 }
 
-template <>
-abacus_half atanpi_half(const abacus_half x) {
+template <> abacus_half atanpi_half(const abacus_half x) {
   abacus_half x_local = x;
 
   bool inverse = false;
@@ -73,8 +70,8 @@ abacus_half atanpi_half(const abacus_half x) {
 
   return __abacus_copysign(0.5f16, ans) - ans;
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_atanpi(abacus_half x) {
@@ -95,7 +92,7 @@ abacus_half8 ABACUS_API __abacus_atanpi(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_atanpi(abacus_half16 x) {
   return atanpi_half<>(x);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_atanpi(abacus_float x) { return atanpi<>(x); }
 abacus_float2 ABACUS_API __abacus_atanpi(abacus_float2 x) {
@@ -133,4 +130,4 @@ abacus_double8 ABACUS_API __abacus_atanpi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_atanpi(abacus_double16 x) {
   return atanpi<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

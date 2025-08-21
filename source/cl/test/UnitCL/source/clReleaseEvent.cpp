@@ -19,7 +19,7 @@
 #include "Common.h"
 
 class clReleaseEventTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;
@@ -48,7 +48,7 @@ class clReleaseEventWithQueueTest : public ucl::ContextTest {
    boilerplate is in SetUp() and the actual meat of the test is simply the
    destruction of the bits that exposed this issue
    */
- protected:
+protected:
   void SetUp() override {
     const char *src[] = {
         "__kernel void array_copy("

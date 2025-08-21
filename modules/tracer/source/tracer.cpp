@@ -119,8 +119,7 @@ struct TracerVirtualMemFileImpl {
     consumed = std::snprintf(
         buf, sizeof(buf),
         "\n\t\t{\"name\":\"%s\", "
-        "\"cat\":\"%s\",\"ph\":\"X\",\"pid\":%d,\"tid\":%d,\"ts\":%" PRIu64
-        ","
+        "\"cat\":\"%s\",\"ph\":\"X\",\"pid\":%d,\"tid\":%d,\"ts\":%" PRIu64 ","
         "\"dur\":%" PRIu64 "}",
         "tracer-startup", "tracer-startup", pid, tid, start, end - start);
 
@@ -132,9 +131,8 @@ struct TracerVirtualMemFileImpl {
       const char *ending = "\n\t]\n}\n";
 
       if (std::strlen(ending) + offset > max_offset) {
-        (void)fprintf(stderr,
-                      "Trace overflow, failed to write data, increase "
-                      "CA_TRACE_FILE_BUFFER_MB");
+        (void)fprintf(stderr, "Trace overflow, failed to write data, increase "
+                              "CA_TRACE_FILE_BUFFER_MB");
       }
 
       writeToMemMap(ending, std::strlen(ending));
@@ -167,14 +165,13 @@ struct TracerVirtualMemFileImpl {
     const int consumed = std::snprintf(
         buf, sizeof(buf),
         ",\n\t\t{\"name\":\"%s\", "
-        "\"cat\":\"%s\",\"ph\":\"X\",\"pid\":%d,\"tid\":%d,\"ts\":%" PRIu64
-        ","
+        "\"cat\":\"%s\",\"ph\":\"X\",\"pid\":%d,\"tid\":%d,\"ts\":%" PRIu64 ","
         "\"dur\":%" PRIu64 "}",
         name, category, pid, tid, start, end - start);
     writeToMemMap(buf, consumed);
   }
 
- private:
+private:
   void writeToMemMap(const char *buf, int size) {
     if (map == nullptr || size <= 0) {
       return;
@@ -271,14 +268,14 @@ struct TracerVirtualMemFileImpl {
 };
 #endif
 
-#if defined(__linux__) || defined(__APPLE__) || defined(__QNX__) || \
+#if defined(__linux__) || defined(__APPLE__) || defined(__QNX__) ||            \
     defined(__MCOS_POSIX__)
 TracerVirtualMemFileImpl trace_impl;
 #elif defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
 TracerFileImpl trace_impl;
 #endif
 
-}  // namespace
+} // namespace
 
 uint64_t tracer::getCurrentTimestamp() {
   return utils::timestampMicroSeconds();

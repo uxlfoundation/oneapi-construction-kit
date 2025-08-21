@@ -29,7 +29,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif // __cplusplus
 
 /// @addtogroup mux
 /// @{
@@ -1124,10 +1124,11 @@ mux_result_t muxGetSupportedImageFormats(mux_device_t device,
 /// @param[out] out_count Return the total count of supported query counters.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t muxGetSupportedQueryCounters(
-    mux_device_t device, mux_queue_type_e queue_type, uint32_t count,
-    mux_query_counter_t *out_counters,
-    mux_query_counter_description_t *out_descriptions, uint32_t *out_count);
+mux_result_t
+muxGetSupportedQueryCounters(mux_device_t device, mux_queue_type_e queue_type,
+                             uint32_t count, mux_query_counter_t *out_counters,
+                             mux_query_counter_description_t *out_descriptions,
+                             uint32_t *out_count);
 
 /// @brief Get a queue from the owning device.
 ///
@@ -1409,11 +1410,12 @@ mux_result_t muxQuerySubGroupSizeForLocalSize(mux_kernel_t kernel,
 /// queried local size.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t muxQueryWFVInfoForLocalSize(
-    mux_kernel_t kernel, size_t local_size_x, size_t local_size_y,
-    size_t local_size_z, mux_wfv_status_e *out_wfv_status,
-    size_t *out_work_width_x, size_t *out_work_width_y,
-    size_t *out_work_width_z);
+mux_result_t
+muxQueryWFVInfoForLocalSize(mux_kernel_t kernel, size_t local_size_x,
+                            size_t local_size_y, size_t local_size_z,
+                            mux_wfv_status_e *out_wfv_status,
+                            size_t *out_work_width_x, size_t *out_work_width_y,
+                            size_t *out_work_width_z);
 
 /// @brief Destroy a kernel.
 ///
@@ -1894,11 +1896,12 @@ mux_result_t muxUpdateDescriptors(mux_command_buffer_t command_buffer,
 /// on.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t muxCommandUserCallback(
-    mux_command_buffer_t command_buffer,
-    mux_command_user_callback_t user_function, void *user_data,
-    uint32_t num_sync_points_in_wait_list,
-    const mux_sync_point_t *sync_point_wait_list, mux_sync_point_t *sync_point);
+mux_result_t
+muxCommandUserCallback(mux_command_buffer_t command_buffer,
+                       mux_command_user_callback_t user_function,
+                       void *user_data, uint32_t num_sync_points_in_wait_list,
+                       const mux_sync_point_t *sync_point_wait_list,
+                       mux_sync_point_t *sync_point);
 
 /// @brief Push a begin query command to the command buffer.
 ///
@@ -2002,13 +2005,14 @@ mux_result_t muxResetCommandBuffer(mux_command_buffer_t command_buffer);
 /// callback on completion, may be null.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t muxDispatch(
-    mux_queue_t queue, mux_command_buffer_t command_buffer, mux_fence_t fence,
-    mux_semaphore_t *wait_semaphores, uint32_t wait_semaphores_length,
-    mux_semaphore_t *signal_semaphores, uint32_t signal_semaphores_length,
-    void (*user_function)(mux_command_buffer_t command_buffer,
-                          mux_result_t error, void *const user_data),
-    void *user_data);
+mux_result_t
+muxDispatch(mux_queue_t queue, mux_command_buffer_t command_buffer,
+            mux_fence_t fence, mux_semaphore_t *wait_semaphores,
+            uint32_t wait_semaphores_length, mux_semaphore_t *signal_semaphores,
+            uint32_t signal_semaphores_length,
+            void (*user_function)(mux_command_buffer_t command_buffer,
+                                  mux_result_t error, void *const user_data),
+            void *user_data);
 
 /// @brief Try to wait for a fence to be signaled.
 ///
@@ -2753,7 +2757,7 @@ struct mux_buffer_region_info_s {
 /// @}
 
 #ifdef __cplusplus
-}  // extern "C"
-#endif  // __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
-#endif  // MUX_MUX_H_INCLUDED
+#endif // MUX_MUX_H_INCLUDED

@@ -20,8 +20,9 @@
 
 using namespace llvm;
 
-PreservedAnalyses compiler::utils::MakeFunctionNameUniquePass::run(
-    Function &F, FunctionAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::MakeFunctionNameUniquePass::run(Function &F,
+                                                 FunctionAnalysisManager &) {
   if (isKernelEntryPt(F)) {
     F.setName(UniqueName);
   }

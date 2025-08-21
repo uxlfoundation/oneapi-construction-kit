@@ -156,10 +156,10 @@ struct thread {
   /// @brief Operator for implict conversion to std::thread.
   operator std::thread &() { return Thread; }
 
- private:
+private:
   std::thread Thread;
 };
-}  // namespace cargo
+} // namespace cargo
 
 namespace std {
 template <>
@@ -167,6 +167,6 @@ inline void swap<cargo::thread>(cargo::thread &lhs,
                                 cargo::thread &rhs) noexcept {
   lhs.swap(rhs);
 }
-}  // namespace std
+} // namespace std
 
-#endif  // CARGO_THREAD_H_INCLUDED
+#endif // CARGO_THREAD_H_INCLUDED

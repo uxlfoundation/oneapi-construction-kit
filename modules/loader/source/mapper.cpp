@@ -30,8 +30,8 @@
 #include <emcos/emcos_device_info.h>
 #endif
 
-loader::MemoryProtection loader::getSectionProtection(
-    const loader::ElfFile::Section &section) {
+loader::MemoryProtection
+loader::getSectionProtection(const loader::ElfFile::Section &section) {
   MemoryProtection mp = MEM_READABLE;
   if (section.flags() & ElfFields::SectionFlags::Type::WRITE) {
     mp = static_cast<MemoryProtection>(mp | MEM_WRITABLE);
@@ -103,7 +103,7 @@ loader::PageRange::~PageRange() {
 
 cargo::result loader::PageRange::allocate(size_t bytes) {
   if (0 == bytes) {
-    return cargo::bad_argument;  // Can't map zero bytes.
+    return cargo::bad_argument; // Can't map zero bytes.
   }
   if (pages_end != nullptr) {
     return cargo::bad_argument;
@@ -138,10 +138,10 @@ cargo::result loader::PageRange::protect(MemoryProtection protection) {
     return cargo::bad_argument;
   }
 #ifdef _WIN32
-  std::array<int, 8> vals;  // indexed by protection
+  std::array<int, 8> vals; // indexed by protection
   vals[0] = PAGE_NOACCESS;
   vals[MEM_READABLE] = PAGE_READONLY;
-  vals[MEM_WRITABLE] = PAGE_READWRITE;  // no write-only variant
+  vals[MEM_WRITABLE] = PAGE_READWRITE; // no write-only variant
   vals[MEM_EXECUTABLE] = PAGE_EXECUTE;
   vals[MEM_READABLE | MEM_WRITABLE] = PAGE_READWRITE;
   vals[MEM_READABLE | MEM_EXECUTABLE] = PAGE_EXECUTE_READ;

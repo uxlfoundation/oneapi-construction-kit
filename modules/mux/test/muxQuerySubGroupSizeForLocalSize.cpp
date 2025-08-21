@@ -54,10 +54,10 @@ TEST_P(muxQuerySubGroupSizeForLocalSizeBaseTest, Unsupported) {
   local_size_y = 1;
   local_size_z = 1;
 
-  ASSERT_ERROR_EQ(
-      mux_error_feature_unsupported,
-      muxQuerySubGroupSizeForLocalSize(kernel, local_size_x, local_size_y,
-                                       local_size_z, &sub_group_size));
+  ASSERT_ERROR_EQ(mux_error_feature_unsupported,
+                  muxQuerySubGroupSizeForLocalSize(kernel, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   &sub_group_size));
 }
 
 struct muxQuerySubGroupSizeForLocalSizeTest
@@ -72,44 +72,44 @@ struct muxQuerySubGroupSizeForLocalSizeTest
 INSTANTIATE_DEVICE_TEST_SUITE_P(muxQuerySubGroupSizeForLocalSizeTest);
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, InvalidKernel) {
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxQuerySubGroupSizeForLocalSize(nullptr, local_size_x, local_size_y,
-                                       local_size_z, &sub_group_size));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxQuerySubGroupSizeForLocalSize(nullptr, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   &sub_group_size));
 }
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, InvalidLocalSizeX) {
   local_size_x = 0;
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxQuerySubGroupSizeForLocalSize(kernel, local_size_x, local_size_y,
-                                       local_size_z, &sub_group_size));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxQuerySubGroupSizeForLocalSize(kernel, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   &sub_group_size));
 }
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, InvalidLocalSizeY) {
   local_size_y = 0;
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxQuerySubGroupSizeForLocalSize(kernel, local_size_x, local_size_y,
-                                       local_size_z, &sub_group_size));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxQuerySubGroupSizeForLocalSize(kernel, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   &sub_group_size));
 }
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, InvalidLocalSizeZ) {
   local_size_z = 0;
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxQuerySubGroupSizeForLocalSize(kernel, local_size_x, local_size_y,
-                                       local_size_z, &sub_group_size));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxQuerySubGroupSizeForLocalSize(kernel, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   &sub_group_size));
 }
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, InvalidSubGroupSize) {
   local_size_x = 4;
   local_size_y = 1;
   local_size_z = 1;
-  ASSERT_ERROR_EQ(
-      mux_error_null_out_parameter,
-      muxQuerySubGroupSizeForLocalSize(kernel, local_size_x, local_size_y,
-                                       local_size_z, nullptr));
+  ASSERT_ERROR_EQ(mux_error_null_out_parameter,
+                  muxQuerySubGroupSizeForLocalSize(kernel, local_size_x,
+                                                   local_size_y, local_size_z,
+                                                   nullptr));
 }
 
 TEST_P(muxQuerySubGroupSizeForLocalSizeTest, ValidateSubGroupSize) {

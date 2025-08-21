@@ -75,14 +75,16 @@ static auto parsePassParameters(ParametersParseCallableT &&Parser,
 
 static bool checkParametrizedPassName(llvm::StringRef Name,
                                       llvm::StringRef PassName) {
-  if (!Name.consume_front(PassName)) return false;
+  if (!Name.consume_front(PassName))
+    return false;
   // normal pass name w/o parameters == default parameters
-  if (Name.empty()) return true;
+  if (Name.empty())
+    return true;
   return Name.starts_with("<") && Name.ends_with(">");
 }
 
-inline llvm::Expected<llvm::StringRef> parseSinglePassStringRef(
-    llvm::StringRef Params) {
+inline llvm::Expected<llvm::StringRef>
+parseSinglePassStringRef(llvm::StringRef Params) {
   llvm::StringRef Result = "";
   while (!Params.empty()) {
     llvm::StringRef ParamName;
@@ -93,7 +95,7 @@ inline llvm::Expected<llvm::StringRef> parseSinglePassStringRef(
   return Result;
 }
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_PIPELINE_PARSE_HELPERS_H_INCLUDED
+#endif // COMPILER_UTILS_PIPELINE_PARSE_HELPERS_H_INCLUDED

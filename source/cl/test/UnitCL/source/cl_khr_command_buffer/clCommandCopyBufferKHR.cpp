@@ -100,10 +100,10 @@ TEST_F(CommandBufferCopyBufferTest, Sync) {
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidCommandBuffer) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_BUFFER_KHR,
-      clCommandCopyBufferKHR(nullptr, nullptr, src_buffer, dst_buffer, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
+                    clCommandCopyBufferKHR(nullptr, nullptr, src_buffer,
+                                           dst_buffer, 0, 0, data_size_in_bytes,
+                                           0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
@@ -114,15 +114,15 @@ TEST_F(CommandBufferCopyBufferTest, InvalidCommandBuffer) {
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidMemObjects) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clCommandCopyBufferKHR(command_buffer, nullptr, nullptr, dst_buffer, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clCommandCopyBufferKHR(command_buffer, nullptr, nullptr,
+                                           dst_buffer, 0, 0, data_size_in_bytes,
+                                           0, nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, nullptr, 0, 0,
-                             data_size_in_bytes, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
+                                           nullptr, 0, 0, data_size_in_bytes, 0,
+                                           nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidContext) {
@@ -169,11 +169,11 @@ TEST_F(CommandBufferCopyBufferTest, CopyOverlap) {
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidOffset) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, dst_buffer,
-                             data_size_in_bytes + 1, 0, data_size_in_bytes, 0,
-                             nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
+                                           dst_buffer, data_size_in_bytes + 1,
+                                           0, data_size_in_bytes, 0, nullptr,
+                                           nullptr, nullptr));
 
   ASSERT_EQ_ERRCODE(
       CL_INVALID_VALUE,
@@ -193,10 +193,10 @@ TEST_F(CommandBufferCopyBufferTest, InvalidOffset) {
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidSize) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer, dst_buffer, 0,
-                             0, 0, 0, nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
+                                           dst_buffer, 0, 0, 0, 0, nullptr,
+                                           nullptr, nullptr));
 }
 
 TEST_F(CommandBufferCopyBufferTest, InvalidSyncPoints) {

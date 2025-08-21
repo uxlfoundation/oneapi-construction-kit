@@ -29,7 +29,7 @@ memory_s::memory_s(uint64_t size, uint32_t properties, void *data, bool useHost)
   this->properties = properties;
   this->handle = reinterpret_cast<uintptr_t>(data);
 }
-}  // namespace host
+} // namespace host
 
 mux_result_t hostAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
                                 uint32_t memory_properties,
@@ -48,13 +48,13 @@ mux_result_t hostAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
   // in future this should be removed when an example of a mux target which
   // requires multiple memory heaps is provided.
   switch (heap) {
-    case host::memory_s::HEAP_ALL:
-    case host::memory_s::HEAP_BUFFER:
-    case host::memory_s::HEAP_IMAGE:
-      break;
-    default:                           // GCOVR_EXCL_LINE ...
-      return mux_error_invalid_value;  // GCOVR_EXCL_LINE ...
-                                       // non-deterministically executed
+  case host::memory_s::HEAP_ALL:
+  case host::memory_s::HEAP_BUFFER:
+  case host::memory_s::HEAP_IMAGE:
+    break;
+  default:                          // GCOVR_EXCL_LINE ...
+    return mux_error_invalid_value; // GCOVR_EXCL_LINE ...
+                                    // non-deterministically executed
   }
 
   // Align all allocations to at least 128 bytes to match the size of the

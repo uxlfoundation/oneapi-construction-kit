@@ -68,9 +68,9 @@ struct clEnqueueReadImageTestBase : ucl::CommandQueueTest,
     size_t origin[3] = {0, 0, 0};
     size_t region[3] = {width, height, depth};
     UCL::AlignedBuffer<cl_uchar4> result_data(num_pixels);
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueReadImage(command_queue, image, CL_TRUE, origin, region,
-                                0, 0, result_data, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueReadImage(command_queue, image, CL_TRUE,
+                                              origin, region, 0, 0, result_data,
+                                              num_events, events, event));
   }
 
   cl_image_format image_format = {};

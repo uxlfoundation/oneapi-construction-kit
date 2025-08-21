@@ -69,4 +69,4 @@ cargo::array_view<riscv::device_info_s> GetDeviceInfosArray() {
   return riscv::device_infos;
 }
 
-}  // namespace riscv
+} // namespace riscv

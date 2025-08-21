@@ -36,5 +36,5 @@ struct fence_s : mux_fence_s {
   std::atomic<bool> thread_pool_signal;
   mux_result_t result;
 };
-}  // namespace host
-#endif  // MUX_HOST_FENCE_H_INCLUDED
+} // namespace host
+#endif // MUX_HOST_FENCE_H_INCLUDED

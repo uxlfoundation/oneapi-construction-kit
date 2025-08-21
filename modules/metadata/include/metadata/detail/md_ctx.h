@@ -35,7 +35,7 @@ namespace md {
 /// @tparam AllocatorType Defaulted to callback_allocator.
 template <template <class U> class AllocatorType = md::callback_allocator>
 class basic_context {
- public:
+public:
   using string_t =
       std::basic_string<char, std::char_traits<char>, AllocatorType<char>>;
   using allocator_helper_t = AllocatorHelper<AllocatorType>;
@@ -51,11 +51,8 @@ class basic_context {
   /// @param userdata A pointer to user-supplied data which is passed as a
   /// parameter into supported callback hooks.
   basic_context(md_hooks *hooks, void *userdata)
-      : hooks(hooks),
-        userdata(userdata),
-        alloc(hooks, userdata),
-        stack_map(alloc),
-        endianness(utils::get_mach_endianness()) {}
+      : hooks(hooks), userdata(userdata), alloc(hooks, userdata),
+        stack_map(alloc), endianness(utils::get_mach_endianness()) {}
 
   /// @brief Default virtual destructor for inheritance.
   virtual ~basic_context() = default;
@@ -255,7 +252,7 @@ class basic_context {
   /// @return MD_ENDIAN
   MD_ENDIAN get_endianness() { return endianness; }
 
- private:
+private:
   /// @brief Add a block to the metadata context using a BlockInfo.
   ///
   /// @param info The Block Info from which to add the block.
@@ -274,35 +271,35 @@ class basic_context {
     const string_t stack_name(utils::get_block_info_name(bin_start, info),
                               alloc.template get_allocator<char>());
     switch (stack.get_out_fmt()) {
-      case md_fmt::MD_FMT_RAW_BYTES: {
-        RawStackSerializer<stack_t>::deserialize(
-            stack, utils::get_block_start(bin_start, info), info.size,
-            endianness);
-        const auto inserted = stack_map.insert(std::make_pair(
-            stack_name,
-            alloc.template allocate_shared<stack_t>(std::move(stack))));
-        if (!inserted.second) {
-          return md_err::MD_E_INVALID_BINARY;
-        }
-      } break;
-      case md_fmt::MD_FMT_MSGPACK: {
-        BasicMsgPackStackSerializer<stack_t>::deserialize(
-            stack, utils::get_block_start(bin_start, info), info.size,
-            endianness);
-        const auto inserted = stack_map.insert(std::make_pair(
-            stack_name,
-            alloc.template allocate_shared<stack_t>(std::move(stack))));
-        if (!inserted.second) {
-          return md_err::MD_E_INVALID_BINARY;
-        }
-        break;
-      }
-      case md_fmt::MD_FMT_JSON:
-      case md_fmt::MD_FMT_LLVM_BC_MD:
-      case md_fmt::MD_FMT_LLVM_TEXT_MD:
-      default:
-        assert(false && "Unsupported Format type.");
+    case md_fmt::MD_FMT_RAW_BYTES: {
+      RawStackSerializer<stack_t>::deserialize(
+          stack, utils::get_block_start(bin_start, info), info.size,
+          endianness);
+      const auto inserted = stack_map.insert(std::make_pair(
+          stack_name,
+          alloc.template allocate_shared<stack_t>(std::move(stack))));
+      if (!inserted.second) {
         return md_err::MD_E_INVALID_BINARY;
+      }
+    } break;
+    case md_fmt::MD_FMT_MSGPACK: {
+      BasicMsgPackStackSerializer<stack_t>::deserialize(
+          stack, utils::get_block_start(bin_start, info), info.size,
+          endianness);
+      const auto inserted = stack_map.insert(std::make_pair(
+          stack_name,
+          alloc.template allocate_shared<stack_t>(std::move(stack))));
+      if (!inserted.second) {
+        return md_err::MD_E_INVALID_BINARY;
+      }
+      break;
+    }
+    case md_fmt::MD_FMT_JSON:
+    case md_fmt::MD_FMT_LLVM_BC_MD:
+    case md_fmt::MD_FMT_LLVM_TEXT_MD:
+    default:
+      assert(false && "Unsupported Format type.");
+      return md_err::MD_E_INVALID_BINARY;
     }
     return md_err::MD_SUCCESS;
   }
@@ -315,7 +312,7 @@ class basic_context {
 };
 
 /// @}
-}  // namespace md
+} // namespace md
 
 /// @brief Implement the API definition of md_ctx_ as a specific
 /// instantiation of basic_ctx
@@ -323,4 +320,4 @@ struct md_ctx_ final : public md::basic_context<> {
   using basic_context::basic_context;
 };
 
-#endif  // MD_DETAIL_MD_CTX_H_INCLUDED
+#endif // MD_DETAIL_MD_CTX_H_INCLUDED

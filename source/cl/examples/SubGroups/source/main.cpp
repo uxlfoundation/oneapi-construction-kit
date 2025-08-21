@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#define CL_CHECK(ERROR)                            \
-  if (ERROR) {                                     \
-    std::cerr << "OpenCL error: " << ERROR << "\n" \
-              << "at line: " << __LINE__ << "\n";  \
-    std::exit(1);                                  \
+#define CL_CHECK(ERROR)                                                        \
+  if (ERROR) {                                                                 \
+    std::cerr << "OpenCL error: " << ERROR << "\n"                             \
+              << "at line: " << __LINE__ << "\n";                              \
+    std::exit(1);                                                              \
   }
 
 int main(const int argc, const char **argv) {

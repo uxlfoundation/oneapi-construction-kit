@@ -35,20 +35,21 @@ namespace extension {
 /// @{
 
 class intel_unified_shared_memory final : public extension {
- public:
+public:
   /// @brief Default constructor.
   intel_unified_shared_memory();
 
   /// @copydoc extension::extension::GetExtensionFunctionAddressForPlatform
-  void *GetExtensionFunctionAddressForPlatform(
-      cl_platform_id platform, const char *func_name) const override;
+  void *
+  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
+                                         const char *func_name) const override;
 
   /// @copydoc extension::extension::GetDeviceInfo
   cl_int GetDeviceInfo(cl_device_id device, cl_device_info param_name,
                        size_t param_value_size, void *param_value,
                        size_t *param_value_size_ret) const override;
 
-#if (defined(CL_VERSION_3_0) || \
+#if (defined(CL_VERSION_3_0) ||                                                \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
   /// @copydoc extension::extension::SetKernelExecInfo
   cl_int SetKernelExecInfo(cl_kernel kernel,
@@ -73,13 +74,13 @@ enum kernel_exec_info_flags_e {
 /// @brief Abstract class which different USM allocations types can inherit
 /// from.
 class allocation_info {
- protected:
+protected:
   /// @brief Private constructor, use the `create()` functions instead.
   allocation_info(const cl_context context, const size_t size);
 
   allocation_info(const allocation_info &) = delete;
 
- public:
+public:
   /// @brief Destructor.
   virtual ~allocation_info();
 
@@ -160,7 +161,7 @@ class host_allocation_info final : public allocation_info {
     size_t size;
   };
 
- public:
+public:
   /// @brief Create a host-side USM allocation
   ///
   /// @param[in] context Context the allocation will belong to.
@@ -168,9 +169,9 @@ class host_allocation_info final : public allocation_info {
   /// enable.
   /// @param[in] size Bytes to allocate.
   /// @param[in] alignment Minimum alignment of allocation.
-  static cargo::expected<std::unique_ptr<host_allocation_info>, cl_int> create(
-      cl_context context, const cl_mem_properties_intel *properties,
-      const size_t size, cl_uint alignment);
+  static cargo::expected<std::unique_ptr<host_allocation_info>, cl_int>
+  create(cl_context context, const cl_mem_properties_intel *properties,
+         const size_t size, cl_uint alignment);
 
   /// @brief Destructor.
   ~host_allocation_info() override;
@@ -218,7 +219,7 @@ class device_allocation_info final : public allocation_info {
 
   device_allocation_info(const device_allocation_info &) = delete;
 
- public:
+public:
   /// @brief Create a device-side USM allocation
   ///
   /// @param[in] context Context the allocation will belong to.
@@ -279,7 +280,7 @@ class shared_allocation_info final : public allocation_info {
 
   shared_allocation_info(const shared_allocation_info &) = delete;
 
- public:
+public:
   /// @brief Create a shared USM allocation
   ///
   /// @param[in] context Context the allocation will belong to.
@@ -349,8 +350,8 @@ class shared_allocation_info final : public allocation_info {
 /// @return Bitfield of flags set for CL_MEM_ALLOC_FLAGS_INTEL property, or
 /// an OpenCL error code if properties are malformed according to extension
 /// spec.
-cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
-    const cl_mem_properties_intel *properties, bool is_shared);
+cargo::expected<cl_mem_alloc_flags_intel, cl_int>
+parseProperties(const cl_mem_properties_intel *properties, bool is_shared);
 
 /// @brief Finds if a pointer belongs to the memory addresses of any USM memory
 /// allocations existing in the context.
@@ -401,9 +402,9 @@ bool deviceSupportsSharedAllocations(cl_device_id device);
 cl_int createBlockingEventForKernel(cl_command_queue queue, cl_kernel kernel,
                                     const cl_command_type type,
                                     cl_event &event);
-}  // namespace usm
-#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
+} // namespace usm
+#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // EXTENSION_INTEL_UNIFIED_SHARED_MEMORY_H_INCLUDED
+#endif // EXTENSION_INTEL_UNIFIED_SHARED_MEMORY_H_INCLUDED

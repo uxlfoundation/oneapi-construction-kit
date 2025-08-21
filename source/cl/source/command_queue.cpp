@@ -34,22 +34,15 @@
 _cl_command_queue::_cl_command_queue(cl_context context, cl_device_id device,
                                      cl_command_queue_properties properties,
                                      mux_queue_t mux_queue)
-    : base(cl::ref_count_type::EXTERNAL),
-      context(context),
-      device(device),
+    : base(cl::ref_count_type::EXTERNAL), context(context), device(device),
       properties(properties),
       profiling_start(
           cl::validate::IsInBitSet(properties, CL_QUEUE_PROFILING_ENABLE)
               ? utils::timestampNanoSeconds()
               : 0),
-      mux_queue(mux_queue),
-      counter_queries(nullptr),
-      pending_command_buffers(),
-      pending_dispatches(),
-      running_command_buffers(),
-      finish_state(),
-      cached_command_buffers(),
-      in_flush(false) {
+      mux_queue(mux_queue), counter_queries(nullptr), pending_command_buffers(),
+      pending_dispatches(), running_command_buffers(), finish_state(),
+      cached_command_buffers(), in_flush(false) {
   cl::retainInternal(context);
   cl::retainInternal(device);
 }
@@ -148,35 +141,35 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
       const cl_bitfield property = current[0];
       const cl_command_queue_properties value = current[1];
       switch (property) {
-        case CL_QUEUE_PROPERTIES:
-          if (value & ~valid_properties_mask) {
-            return cargo::make_unexpected(CL_INVALID_VALUE);
+      case CL_QUEUE_PROPERTIES:
+        if (value & ~valid_properties_mask) {
+          return cargo::make_unexpected(CL_INVALID_VALUE);
 #ifndef CA_ENABLE_OUT_OF_ORDER_EXEC_MODE
-          } else if (value & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) {
-            // TODO(CA-1123): Support out of order command queues.
-            return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
-#endif
-#if defined(CL_VERSION_3_0)
-          } else if (value & CL_QUEUE_ON_DEVICE ||
-                     value & CL_QUEUE_ON_DEVICE_DEFAULT) {
-            return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
-#endif
-          } else {
-            command_queue_properties |= value;
-          }
-          break;
-#if defined(CL_VERSION_3_0)
-        case CL_QUEUE_SIZE:
+        } else if (value & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) {
+          // TODO(CA-1123): Support out of order command queues.
           return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
 #endif
-        default:
-          // Extensions can add support for additional properties, do not
-          // remove the call to this function.
-          if (auto error = extension::ApplyPropertyToCommandQueue(
-                  command_queue.get(), property, value)) {
-            return cargo::make_unexpected(error);
-          }
-          break;
+#if defined(CL_VERSION_3_0)
+        } else if (value & CL_QUEUE_ON_DEVICE ||
+                   value & CL_QUEUE_ON_DEVICE_DEFAULT) {
+          return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
+#endif
+        } else {
+          command_queue_properties |= value;
+        }
+        break;
+#if defined(CL_VERSION_3_0)
+      case CL_QUEUE_SIZE:
+        return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
+#endif
+      default:
+        // Extensions can add support for additional properties, do not
+        // remove the call to this function.
+        if (auto error = extension::ApplyPropertyToCommandQueue(
+                command_queue.get(), property, value)) {
+          return cargo::make_unexpected(error);
+        }
+        break;
       }
       current += 2;
     } while (current[0] != 0);
@@ -430,12 +423,13 @@ _cl_command_queue::getCommandBuffer(
       .or_else(setEventFailure);
 }
 
-[[nodiscard]] cl_int _cl_command_queue::registerDispatchCallback(
-    mux_command_buffer_t command_buffer, cl_event event,
-    std::function<void()> callback) {
-  OCL_ASSERT(
-      pending_dispatches.end() != pending_dispatches.find(command_buffer),
-      "command_buffer not found in pending_dispatches");
+[[nodiscard]] cl_int
+_cl_command_queue::registerDispatchCallback(mux_command_buffer_t command_buffer,
+                                            cl_event event,
+                                            std::function<void()> callback) {
+  OCL_ASSERT(pending_dispatches.end() !=
+                 pending_dispatches.find(command_buffer),
+             "command_buffer not found in pending_dispatches");
   if (event && (properties & CL_QUEUE_PROFILING_ENABLE)) {
     if (auto mux_error = muxCommandEndQuery(command_buffer,
                                             event->profiling.duration_queries,
@@ -470,8 +464,8 @@ _cl_command_queue::getCommandBufferPending(
                  &pending_dispatches)
         : semaphores(semaphores), pending_dispatches(pending_dispatches) {}
 
-    cargo::expected<mux_command_buffer_t, cl_int> operator()(
-        mux_command_buffer_t command_buffer) {
+    cargo::expected<mux_command_buffer_t, cl_int>
+    operator()(mux_command_buffer_t command_buffer) {
       if (!semaphores.empty()) {
         auto &dispatch = pending_dispatches[command_buffer];
         auto wait_sems_size = dispatch.wait_semaphores.size();
@@ -675,11 +669,11 @@ _cl_command_queue::getCommandBufferPending(
       // Make sure we return a valid error code for the calling OpenCL APIs.
       auto cl_error = cl::getErrorFrom(error);
       switch (cl_error) {
-        default:
-          return CL_INVALID_COMMAND_QUEUE;
-        case CL_OUT_OF_RESOURCES:
-        case CL_OUT_OF_HOST_MEMORY:
-          return cl_error;
+      default:
+        return CL_INVALID_COMMAND_QUEUE;
+      case CL_OUT_OF_RESOURCES:
+      case CL_OUT_OF_HOST_MEMORY:
+        return cl_error;
       }
     }
 
@@ -690,11 +684,11 @@ _cl_command_queue::getCommandBufferPending(
       // Make sure we return a valid error code for the calling OpenCL APIs.
       auto cl_error = cl::getErrorFrom(error);
       switch (cl_error) {
-        default:
-          return CL_INVALID_COMMAND_QUEUE;
-        case CL_OUT_OF_RESOURCES:
-        case CL_OUT_OF_HOST_MEMORY:
-          return cl_error;
+      default:
+        return CL_INVALID_COMMAND_QUEUE;
+      case CL_OUT_OF_RESOURCES:
+      case CL_OUT_OF_HOST_MEMORY:
+        return cl_error;
       }
     }
 
@@ -785,7 +779,7 @@ cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
 cl_int _cl_command_queue::removeFromPending(
     cargo::array_view<mux_command_buffer_t> command_buffers) {
   if (command_buffers.empty()) {
-    return CL_SUCCESS;  // GCOVR_EXCL_LINE non-deterministically executed
+    return CL_SUCCESS; // GCOVR_EXCL_LINE non-deterministically executed
   }
 
   // Remove the command buffers dispatch info.
@@ -821,8 +815,9 @@ cl_int _cl_command_queue::removeFromPending(
   return CL_SUCCESS;
 }
 
-cl_int _cl_command_queue::dropDispatchesPending(
-    cl_event user_event, cl_int event_command_exec_status) {
+cl_int
+_cl_command_queue::dropDispatchesPending(cl_event user_event,
+                                         cl_int event_command_exec_status) {
   const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
 
   cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
@@ -919,8 +914,8 @@ _cl_command_queue::createCommandBuffer() {
   return command_buffer;
 }
 
-cl_int _cl_command_queue::destroyCommandBuffer(
-    mux_command_buffer_t command_buffer) {
+cl_int
+_cl_command_queue::destroyCommandBuffer(mux_command_buffer_t command_buffer) {
   // First, reset the command buffer.
   if (mux_success != muxResetCommandBuffer(command_buffer)) {
     // Command buffer reset failed, destroy it.
@@ -999,8 +994,8 @@ void _cl_command_queue::userEventDispatch(cl_event user_event,
   return CL_SUCCESS;
 }
 
-[[nodiscard]] cl_int _cl_command_queue::dispatch_state_t::addSignalEvent(
-    cl_event event) {
+[[nodiscard]] cl_int
+_cl_command_queue::dispatch_state_t::addSignalEvent(cl_event event) {
   if (event) {
     if (signal_events.push_back(event)) {
       return CL_OUT_OF_RESOURCES;
@@ -1107,12 +1102,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
   const tracer::TraceGuard<tracer::OpenCL> guard("clGetCommandQueueInfo");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
 
-#define COMMAND_QUEUE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)    \
-  case TYPE: {                                                     \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);           \
-    OCL_CHECK(param_value && (param_value_size < SIZE_RET),        \
-              return CL_INVALID_VALUE);                            \
-    OCL_SET_IF_NOT_NULL(static_cast<POINTER>(param_value), VALUE); \
+#define COMMAND_QUEUE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)                \
+  case TYPE: {                                                                 \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                       \
+    OCL_CHECK(param_value && (param_value_size < SIZE_RET),                    \
+              return CL_INVALID_VALUE);                                        \
+    OCL_SET_IF_NOT_NULL(static_cast<POINTER>(param_value), VALUE);             \
   } break
 
   switch (param_name) {
@@ -1128,32 +1123,32 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
 #if defined(CL_VERSION_3_0)
     COMMAND_QUEUE_INFO_CASE(CL_QUEUE_DEVICE_DEFAULT, sizeof(cl_command_queue),
                             cl_command_queue *, nullptr);
-    case CL_QUEUE_SIZE:
-      return CL_INVALID_COMMAND_QUEUE;
-    case CL_QUEUE_PROPERTIES_ARRAY:
-      if (command_queue->properties_list.empty()) {
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
-      } else {
-        OCL_SET_IF_NOT_NULL(
-            param_value_size_ret,
-            sizeof(cl_bitfield) * command_queue->properties_list.size());
-        OCL_CHECK(param_value && param_value_size <
-                                     sizeof(cl_bitfield) *
-                                         command_queue->properties_list.size(),
-                  return CL_INVALID_VALUE);
-        if (param_value) {
-          std::copy(command_queue->properties_list.begin(),
-                    command_queue->properties_list.end(),
-                    static_cast<cl_bitfield *>(param_value));
-        }
+  case CL_QUEUE_SIZE:
+    return CL_INVALID_COMMAND_QUEUE;
+  case CL_QUEUE_PROPERTIES_ARRAY:
+    if (command_queue->properties_list.empty()) {
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
+    } else {
+      OCL_SET_IF_NOT_NULL(param_value_size_ret,
+                          sizeof(cl_bitfield) *
+                              command_queue->properties_list.size());
+      OCL_CHECK(param_value && param_value_size <
+                                   sizeof(cl_bitfield) *
+                                       command_queue->properties_list.size(),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        std::copy(command_queue->properties_list.begin(),
+                  command_queue->properties_list.end(),
+                  static_cast<cl_bitfield *>(param_value));
       }
-      break;
-#endif
-    default: {
-      return extension::GetCommandQueueInfo(command_queue, param_name,
-                                            param_value_size, param_value,
-                                            param_value_size_ret);
     }
+    break;
+#endif
+  default: {
+    return extension::GetCommandQueueInfo(command_queue, param_name,
+                                          param_value_size, param_value,
+                                          param_value_size_ret);
+  }
   }
 
   return CL_SUCCESS;

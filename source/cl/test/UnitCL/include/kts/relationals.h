@@ -32,7 +32,7 @@ namespace ucl {
 
 /// @brief Class for testing relational OpenCL 1.2 builtins from table 6.14
 class RelationalTest : public ::ucl::CommandQueueTest {
- public:
+public:
   /// @brief Sets up the text fixture.
   void SetUp() override;
 
@@ -57,8 +57,7 @@ class RelationalTest : public ::ucl::CommandQueueTest {
   /// @tparam T floating point scalar type to fill with
   ///
   /// @param num_elements Number of T elements to write to buffer
-  template <class T>
-  void FillInputBuffers(unsigned num_elements);
+  template <class T> void FillInputBuffers(unsigned num_elements);
 
   /// @brief Maps all the bytes of the first N buffers to void* pointers
   ///
@@ -99,7 +98,7 @@ class RelationalTest : public ::ucl::CommandQueueTest {
 
 /// @brief Tests builtins with a single input argument
 class OneArgRelational : public RelationalTest {
- public:
+public:
   /// @brief Creates OpenCL buffers to use, and sets buffer_size_
   void SetUp() override;
 
@@ -133,7 +132,7 @@ class OneArgRelational : public RelationalTest {
 
 /// @brief Tests builtins with a two input arguments
 class TwoArgRelational : public RelationalTest {
- public:
+public:
   /// @brief Creates OpenCL buffers to use, and sets buffer_size_
   void SetUp() override;
 
@@ -181,7 +180,7 @@ class TwoArgRelational : public RelationalTest {
 
 /// @brief Tests builtins with a three input arguments
 class ThreeArgRelational : public RelationalTest {
- public:
+public:
   /// @brief Creates OpenCL buffers to use, and sets buffer_size_
   void SetUp() override;
 
@@ -194,7 +193,7 @@ class ThreeArgRelational : public RelationalTest {
 
 /// @brief Tests the `bitselect()` builtin
 class BitSelectTest : public ThreeArgRelational {
- public:
+public:
   /// @brief Called from gtest test fixture to run test
   ///
   /// Needs two template parameters because floats which are signalling NaNs can
@@ -208,7 +207,7 @@ class BitSelectTest : public ThreeArgRelational {
   template <class T, class U>
   void TestAgainstReference(const std::function<U(U, U, U)> &ref);
 
- private:
+private:
   /// @brief Create an OpenCL-C program for testing the bitselect builtin.
   ///
   /// Substitutes type in OpenCL-C kernel string then compiles program
@@ -222,7 +221,7 @@ class BitSelectTest : public ThreeArgRelational {
 
 /// @brief Tests the `select()` builtin
 class SelectTest : public ThreeArgRelational {
- public:
+public:
   /// @brief Called from gtest test fixture to run test
   ///
   /// Needs two template parameters because floats which are signalling NaNs can
@@ -237,7 +236,7 @@ class SelectTest : public ThreeArgRelational {
   template <class T, class U>
   void TestAgainstReference(const std::function<T(T, T, U)> &ref, bool scalar);
 
- private:
+private:
   /// @brief Create an OpenCL-C program for testing the select builtin.
   ///
   /// Substitutes types in OpenCL-C kernel string then compiles program
@@ -250,7 +249,7 @@ class SelectTest : public ThreeArgRelational {
   cl_kernel ConstructProgram(const char *float_type, const char *int_type);
 };
 
-}  // namespace ucl
-}  // namespace kts
+} // namespace ucl
+} // namespace kts
 
-#endif  // UNITCL_KTS_RELATIONALS_H_INCLUDED
+#endif // UNITCL_KTS_RELATIONALS_H_INCLUDED

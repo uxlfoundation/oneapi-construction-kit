@@ -79,11 +79,11 @@ TEST_F(MultiDeviceCommandQueue, SubBuffers) {
     for (size_t subBufferIndex = 0; subBufferIndex < subBuffers.size();
          subBufferIndex++) {
       cl_int result = -1;
-      ASSERT_EQ_ERRCODE(
-          CL_SUCCESS,
-          clEnqueueReadBuffer(command_queues[commandQueueIndex],
-                              subBuffers[subBufferIndex], CL_TRUE, 0,
-                              sizeof(cl_int), &result, 0, nullptr, nullptr));
+      ASSERT_EQ_ERRCODE(CL_SUCCESS,
+                        clEnqueueReadBuffer(command_queues[commandQueueIndex],
+                                            subBuffers[subBufferIndex], CL_TRUE,
+                                            0, sizeof(cl_int), &result, 0,
+                                            nullptr, nullptr));
 
       EXPECT_EQ(subBufferIndex, result)
           << "\tdata in "

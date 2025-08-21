@@ -165,7 +165,7 @@ struct BasePrintfExecution : BaseExecution {
   void RunPrintf1DConcurrent(size_t globalX, size_t localX,
                              size_t expectedTotalPrintSize);
 
- private:
+private:
   std::unique_ptr<PrintfReference> reader;
   StdoutCapture stdout_capture;
 };
@@ -177,8 +177,8 @@ struct PrintfExecution : BasePrintfExecution,
     source_type = GetParam();
   }
 
-  static std::string getParamName(
-      const testing::TestParamInfo<kts::ucl::SourceType> &info) {
+  static std::string
+  getParamName(const testing::TestParamInfo<kts::ucl::SourceType> &info) {
     return to_string(info.param);
   }
 };
@@ -203,7 +203,7 @@ struct PrintfExecutionWithParam
            std::to_string(info.index);
   }
 };
-}  // namespace ucl
-}  // namespace kts
+} // namespace ucl
+} // namespace kts
 
-#endif  // UNITCL_KTS_PRINTF_H_INCLUDED
+#endif // UNITCL_KTS_PRINTF_H_INCLUDED

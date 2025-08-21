@@ -47,13 +47,13 @@ TEST_P(Execution, Task_04_03_Mul_FMA_Uniform_Offset_Load) {
     const size_t argID = static_cast<cl_int>(x / kts::N);
     const cl_int srcID = static_cast<cl_int>(x % kts::N);
     switch (argID) {
-      default:
-      case 0:
-        return kts::Ref_PlusOne(srcID);
-      case 1:
-        return kts::Ref_MinusOne(srcID);
-      case 2:
-        return kts::Ref_Triple(srcID);
+    default:
+    case 0:
+      return kts::Ref_PlusOne(srcID);
+    case 1:
+      return kts::Ref_MinusOne(srcID);
+    case 2:
+      return kts::Ref_Triple(srcID);
     }
   };
 
@@ -69,11 +69,11 @@ TEST_P(Execution, Task_04_04_Mul_FMA_Uniform_Offset_Store) {
     const size_t argID = static_cast<cl_int>(x / kts::N);
     const cl_int srcID = static_cast<cl_int>(x % kts::N);
     switch (argID) {
-      default:
-      case 0:
-        return kts::Ref_Mul(srcID);
-      case 1:
-        return kts::Ref_FMA(srcID);
+    default:
+    case 0:
+      return kts::Ref_Mul(srcID);
+    case 1:
+      return kts::Ref_FMA(srcID);
     }
   };
 
@@ -110,13 +110,13 @@ TEST_P(Execution, Task_04_07_Mul_FMA_Uniform_Addr_Load) {
     const cl_int srcID =
         static_cast<cl_int>((groupID * kts::localN) + (localID % kts::localN));
     switch (argID) {
-      default:
-      case 0:
-        return kts::Ref_PlusOne(srcID);
-      case 1:
-        return kts::Ref_MinusOne(srcID);
-      case 2:
-        return kts::Ref_Triple(srcID);
+    default:
+    case 0:
+      return kts::Ref_PlusOne(srcID);
+    case 1:
+      return kts::Ref_MinusOne(srcID);
+    case 2:
+      return kts::Ref_Triple(srcID);
     }
   };
 
@@ -136,11 +136,11 @@ TEST_P(Execution, Task_04_08_Mul_FMA_Uniform_Addr_Store) {
     const cl_int srcID =
         static_cast<cl_int>((groupID * kts::localN) + (localID % kts::localN));
     switch (argID) {
-      default:
-      case 0:
-        return kts::Ref_Mul(srcID);
-      case 1:
-        return kts::Ref_FMA(srcID);
+    default:
+    case 0:
+      return kts::Ref_Mul(srcID);
+    case 1:
+      return kts::Ref_FMA(srcID);
     }
   };
 
@@ -187,8 +187,7 @@ struct work_item {
 
 namespace kts {
 
-template <>
-struct Validator<work_item> {
+template <> struct Validator<work_item> {
   bool validate(work_item expected, work_item actual) {
     Validator<cl_uint4> v;
     return v.validate(expected.global_id, actual.global_id) &&
@@ -204,7 +203,7 @@ struct Validator<work_item> {
     s << " }";
   }
 };
-}  // namespace kts
+} // namespace kts
 
 TEST_P(Execution, Task_04_12_Work_Item) {
   kts::Reference1D<work_item> refOut = [](size_t idx) {
@@ -231,8 +230,7 @@ struct SampleBuffer {
 
 namespace kts {
 
-template <>
-struct Validator<SampleBuffer> {
+template <> struct Validator<SampleBuffer> {
   bool validate(SampleBuffer expected, SampleBuffer actual) {
     Validator<float> v;
     for (unsigned i = 0; i < NUM_SAMPLES; i++) {
@@ -247,13 +245,14 @@ struct Validator<SampleBuffer> {
     Validator<float> v;
     s << "{";
     for (unsigned i = 0; i < NUM_SAMPLES; i++) {
-      if (i > 0) s << ", ";
+      if (i > 0)
+        s << ", ";
       v.print(s, value.samples[i]);
     }
     s << " }";
   }
 };
-}  // namespace kts
+} // namespace kts
 
 TEST_P(Execution, Task_04_13_Struct_Offset) {
   const cl_int numChannels = 2;
@@ -316,7 +315,7 @@ TEST_P(Execution, Task_04_17_Local_Array) {
 
   AddInputBuffer(kts::N, kts::Ref_A);
   AddOutputBuffer(kts::N, kts::Ref_A);
-  RunGeneric1D(kts::N, 1);  // Kernel has local array of size 1.
+  RunGeneric1D(kts::N, 1); // Kernel has local array of size 1.
 }
 
 TEST_P(Execution, Task_04_18_Private_Array) {

@@ -73,17 +73,15 @@ namespace detail {
 /// struct must be specialized for new Mux objects.
 ///
 /// @tparam Object Type of the object to get the ID from.
-template <typename Object>
-struct get_object_id_t;
+template <typename Object> struct get_object_id_t;
 
 /// @brief Helper macro to stamp out specializations of get_object_id_t.
 ///
 /// @param OBJECT_TYPE The object type, ensure use of the `mux_<name>_s` type.
 /// @param OBJECT_ID The object ID from `::mux_object_id_e`.
-#define STAMP_GET_OBJECT_ID_T(OBJECT_TYPE, OBJECT_ID) \
-  template <>                                         \
-  struct get_object_id_t<OBJECT_TYPE> {               \
-    static const mux_object_id_e id = OBJECT_ID;      \
+#define STAMP_GET_OBJECT_ID_T(OBJECT_TYPE, OBJECT_ID)                          \
+  template <> struct get_object_id_t<OBJECT_TYPE> {                            \
+    static const mux_object_id_e id = OBJECT_ID;                               \
   }
 
 // NOTE: To enable object validity checking for new objects add the new call to
@@ -105,7 +103,7 @@ STAMP_GET_OBJECT_ID_T(mux_sync_point_s, mux_object_id_sync_point);
 STAMP_GET_OBJECT_ID_T(mux_fence_s, mux_object_id_fence);
 
 #undef STAMP_GET_OBJECT_ID_T
-}  // namespace detail
+} // namespace detail
 
 /// @addtogroup mux_utils
 /// @{
@@ -116,14 +114,12 @@ STAMP_GET_OBJECT_ID_T(mux_fence_s, mux_object_id_fence);
 /// @param object Object to validate.
 ///
 /// @return Returns true if the object is not valid, false otherwise.
-template <typename Object>
-inline bool objectIsInvalid(Object *object) {
+template <typename Object> inline bool objectIsInvalid(Object *object) {
   return nullptr == object ||
          detail::get_object_id_t<Object>::id != getObjectId(object->id);
 }
 
-template <>
-inline bool objectIsInvalid(mux_device_t object) {
+template <> inline bool objectIsInvalid(mux_device_t object) {
   return nullptr == object ||
          detail::get_object_id_t<mux_device_s>::id != getObjectId(object->id);
 }
@@ -141,6 +137,6 @@ inline bool allocatorInfoIsInvalid(mux_allocator_info_t allocator_info) {
 }
 
 /// @}
-}  // namespace mux
+} // namespace mux
 
-#endif  // MUX_UTILS_H_INCLUDED
+#endif // MUX_UTILS_H_INCLUDED

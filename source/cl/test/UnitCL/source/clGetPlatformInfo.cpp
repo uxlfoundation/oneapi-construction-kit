@@ -39,7 +39,7 @@ TEST_P(clGetPlatformInfoTest, EnsureReturnedStringsHaveRightSizes) {
 
   ASSERT_SUCCESS(
       clGetPlatformInfo(platform, GetParam(), size, buffer, nullptr));
-  ASSERT_EQ(size, strlen(buffer) + 1);  // + 1 for the nullptr Terminator
+  ASSERT_EQ(size, strlen(buffer) + 1); // + 1 for the nullptr Terminator
 }
 
 TEST_P(clGetPlatformInfoTest, EnsureReturnedStringsAreNullTerminated) {
@@ -69,7 +69,7 @@ TEST_P(clGetPlatformInfoTest, InvalidValueSize) {
       CL_INVALID_VALUE,
       clGetPlatformInfo(
           platform, GetParam(), size - 1, buffer,
-          nullptr));  // size - 1 so that it fails with not right size
+          nullptr)); // size - 1 so that it fails with not right size
 }
 
 static cl_platform_info param_infos[] = {
@@ -144,10 +144,10 @@ TEST_P(clGetPlatformInfoTestOpenCL30, CheckIncorrectSizeQueryFails) {
   auto query_enum_value = std::get<1>(GetParam());
   // Query for the value with buffer that is too small.
   UCL::Buffer<char> value_buffer{value_size_in_bytes};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetPlatformInfo(platform, query_enum_value, value_buffer.size() - 1,
-                        value_buffer.data(), nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetPlatformInfo(platform, query_enum_value,
+                                      value_buffer.size() - 1,
+                                      value_buffer.data(), nullptr));
 }
 
 INSTANTIATE_TEST_CASE_P(
@@ -208,11 +208,11 @@ TEST_F(clGetPlatformInfoTest, EXTENSIONS_WITH_VERSION) {
 
   // Query for the value with buffer that is too small.
   UCL::Buffer<char> value_buffer_too_small{size - 1};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS_WITH_VERSION,
-                        value_buffer_too_small.size(),
-                        value_buffer_too_small.data(), nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetPlatformInfo(platform,
+                                      CL_PLATFORM_EXTENSIONS_WITH_VERSION,
+                                      value_buffer_too_small.size(),
+                                      value_buffer_too_small.data(), nullptr));
 }
 
 TEST_F(clGetPlatformInfoTest, ValidateExtensionsWithVersion) {

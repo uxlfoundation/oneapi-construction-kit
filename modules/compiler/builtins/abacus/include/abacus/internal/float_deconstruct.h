@@ -36,7 +36,7 @@ inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
   const UInt shift = ix << 1;
   return __abacus_select(mantissa, shift, zeroExp);
 }
-}  // namespace
+} // namespace
 
 namespace abacus {
 namespace internal {
@@ -71,7 +71,7 @@ inline abacus_ushort16 float_deconstruct(abacus_half16 x,
                                          abacus_ushort16 *unBiasedExp) {
   return deconstruct_helper<abacus_half16>(x, unBiasedExp);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 inline abacus_uint float_deconstruct(abacus_float x, abacus_uint *unBiasedExp) {
   return deconstruct_helper<abacus_float>(x, unBiasedExp);
@@ -132,8 +132,8 @@ inline abacus_ulong16 float_deconstruct(abacus_double16 x,
                                         abacus_ulong16 *unBiasedExp) {
   return deconstruct_helper<abacus_double16>(x, unBiasedExp);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-}  // namespace internal
-}  // namespace abacus
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_FLOAT_DECONSTRUCT_H__
+#endif //__ABACUS_INTERNAL_FLOAT_DECONSTRUCT_H__

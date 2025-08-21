@@ -48,15 +48,15 @@ extern "C" {
 extern void __chkstk();
 #else
 extern void _chkstk();
-#endif  // UTILS_SYSTEM_64_BIT
-#else   // _MSC_VER || !UTILS_SYSTEM_X86
+#endif // UTILS_SYSTEM_64_BIT
+#else  // _MSC_VER || !UTILS_SYSTEM_X86
 #if defined(UTILS_SYSTEM_64_BIT)
 extern void ___chkstk_ms();
 #else
 extern void(_alloca)();
-#endif  // UTILS_SYSTEM_64_BIT
-#endif  // _MSC_VER || !UTILS_SYSTEM_X86
-#endif  // _MSC_VER || __MINGW32__ || __MINGW64__
+#endif // UTILS_SYSTEM_64_BIT
+#endif // _MSC_VER || !UTILS_SYSTEM_X86
+#endif // _MSC_VER || __MINGW32__ || __MINGW64__
 
 #if defined(UTILS_SYSTEM_32_BIT)
 // On 32-bit (both x86 and Arm) long division is done in software.
@@ -76,7 +76,7 @@ extern void __floatdidf();
 extern void __floatdisf();
 #endif
 
-#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) && \
+#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) &&               \
     defined(CA_HOST_ENABLE_FP16)
 // Truncation of fp64 to fp16 is done in software.
 extern void __truncdfhf2();
@@ -115,7 +115,7 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
       std::abort();
     }
   }
-#endif  // !_MSC_VER
+#endif // !_MSC_VER
 
   for (size_t i = 0; i < count; ++i) {
     d[i] = s[i];
@@ -141,15 +141,15 @@ void *dbg_memset(void *dest, int ch, size_t count) {
       std::abort();
     }
   }
-#endif  // !_MSC_VER
+#endif // !_MSC_VER
 
   for (size_t i = 0; i < count; ++i) {
     d[i] = c;
   }
   return dest;
 }
-#endif  // NDEBUG
-}  // namespace
+#endif // NDEBUG
+} // namespace
 
 namespace host {
 namespace utils {
@@ -162,7 +162,7 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
 #else
       {"memcpy", reinterpret_cast<uint64_t>(&memcpy)},
       {"memset", reinterpret_cast<uint64_t>(&memset)},
-#endif  // NDEBUG
+#endif // NDEBUG
       {"memmove", reinterpret_cast<uint64_t>(&memmove)},
 
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
@@ -171,22 +171,22 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
       {"__chkstk", reinterpret_cast<uint64_t>(&__chkstk)},
 #else
       {"_chkstk", reinterpret_cast<uint64_t>(&_chkstk)},
-#endif  // UTILS_SYSTEM_64_BIT
-#else   // _MSC_VER || !UTILS_SYSTEM_X86
+#endif // UTILS_SYSTEM_64_BIT
+#else  // _MSC_VER || !UTILS_SYSTEM_X86
 #if defined(UTILS_SYSTEM_64_BIT)
       {"___chkstk_ms", reinterpret_cast<uint64_t>(&___chkstk_ms)},
 #else
       {"_alloca", reinterpret_cast<uint64_t>(&_alloca)},
-#endif  // UTILS_SYSTEM_64_BIT
-#endif  // _MSC_VER || !UTILS_SYSTEM_X86
-#endif  // _MSC_VER || __MINGW32__ || __MINGW64__
+#endif // UTILS_SYSTEM_64_BIT
+#endif // _MSC_VER || !UTILS_SYSTEM_X86
+#endif // _MSC_VER || __MINGW32__ || __MINGW64__
 
 #if defined(UTILS_SYSTEM_32_BIT)
       {"__divdi3", reinterpret_cast<uint64_t>(&__divdi3)},
       {"__udivdi3", reinterpret_cast<uint64_t>(&__udivdi3)},
       {"__moddi3", reinterpret_cast<uint64_t>(&__moddi3)},
       {"__umoddi3", reinterpret_cast<uint64_t>(&__umoddi3)},
-#endif  // defined(UTILS_SYSTEM_X86) && defined(UTILS_SYSTEM_32_BIT)
+#endif // defined(UTILS_SYSTEM_X86) && defined(UTILS_SYSTEM_32_BIT)
 
 #if defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
       // EABI combined div/mod helpers.
@@ -205,16 +205,16 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
       // floating-point min/max reductions.
       {"fminf", reinterpret_cast<uint64_t>(&fminf)},
       {"fmaxf", reinterpret_cast<uint64_t>(&fmaxf)},
-#endif  // defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
+#endif // defined(UTILS_SYSTEM_ARM) && defined(UTILS_SYSTEM_32_BIT)
 
-#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) && \
+#if defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) &&               \
     defined(CA_HOST_ENABLE_FP16)
       {"__truncdfhf2", reinterpret_cast<uint64_t>(&__truncdfhf2)},
-#endif  // defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) &&
-        // defined(CA_HOST_ENABLE_FP16)
+#endif // defined(UTILS_SYSTEM_X86) && defined(CA_HOST_ENABLE_FP64) &&
+       // defined(CA_HOST_ENABLE_FP16)
   }};
 }
-}  // namespace utils
-}  // namespace host
+} // namespace utils
+} // namespace host
 
-#endif  // HOST_UTILS_HAVE_RELOCATIONS
+#endif // HOST_UTILS_HAVE_RELOCATIONS

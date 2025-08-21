@@ -46,7 +46,7 @@ namespace cargo {
 /// print(std::string("I'm a std::string");
 /// ```
 class string_view {
- public:
+public:
   using traits_type = std::char_traits<char>;
   using value_type = traits_type::char_type;
   using pointer = value_type *;
@@ -92,7 +92,7 @@ class string_view {
   string_view(const String &string)
       : Begin(string.data()), Size(string.size()) {
     while (Begin + Size - 1 >= Begin && Begin[Size - 1] == '\0') {
-      --Size;  // Trailing null terminator found, remove it
+      --Size; // Trailing null terminator found, remove it
     }
   }
 
@@ -355,9 +355,9 @@ class string_view {
   int compare(size_type position1, size_type count1, string_view view,
               size_type position2, size_type count2) const {
     count1 = std::min(Size - position1, count1);
-    CARGO_ASSERT(
-        (position1 == 0 && count1 == 0) || position1 + count1 <= size(),
-        "out of bounds, position1 + count1 is larger than size()");
+    CARGO_ASSERT((position1 == 0 && count1 == 0) ||
+                     position1 + count1 <= size(),
+                 "out of bounds, position1 + count1 is larger than size()");
     count2 = std::min(view.size() - position2, count2);
     CARGO_ASSERT(
         (position2 == 0 && count2 == 0) || position2 + count2 <= view.size(),
@@ -863,7 +863,7 @@ class string_view {
   /// @brief Special value to signify an index is not valid.
   static const size_type npos = std::numeric_limits<size_type>::max();
 
- private:
+private:
   const_pointer Begin;
   size_type Size;
 };
@@ -948,11 +948,10 @@ inline std::ostream &operator<<(std::ostream &stream,
 }
 /// @}
 
-}  // namespace cargo
+} // namespace cargo
 
 namespace std {
-template <>
-struct hash<cargo::string_view> {
+template <> struct hash<cargo::string_view> {
   size_t operator()(const cargo::string_view &sv) const {
     // FNV-1a hash
     if (sizeof(size_t) == 8) {
@@ -976,6 +975,6 @@ struct hash<cargo::string_view> {
     }
   }
 };
-}  // namespace std
+} // namespace std
 
-#endif  // CARGO_STRING_VIEW_H_INCLUDED
+#endif // CARGO_STRING_VIEW_H_INCLUDED

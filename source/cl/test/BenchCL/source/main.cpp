@@ -19,10 +19,10 @@
 #include <benchmark/benchmark.h>
 #include <cargo/argument_parser.h>
 
-#define CHECK(RESULT) \
-  if (RESULT) {       \
-    return -1;        \
-  }                   \
+#define CHECK(RESULT)                                                          \
+  if (RESULT) {                                                                \
+    return -1;                                                                 \
+  }                                                                            \
   (void)0
 
 benchcl::env *benchcl::env::instance = nullptr;

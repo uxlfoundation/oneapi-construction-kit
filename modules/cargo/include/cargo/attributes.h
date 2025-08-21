@@ -27,15 +27,15 @@
 /// @brief Clang-specific `[[clang::reinitializes]]` attribute.
 #if __has_cpp_attribute(clang::reinitializes)
 #define CARGO_REINITIALIZES [[clang::reinitializes]]
-#endif  // __has_cpp_attribute(clang::reinitializes)
+#endif // __has_cpp_attribute(clang::reinitializes)
 
-#endif  // __has_cpp_attribute
+#endif // __has_cpp_attribute
 
 // Ensure that all attribute macros are defined even when the attribute is not
 // supported by the compiler.
 
 #ifndef CARGO_REINITIALIZES
 #define CARGO_REINITIALIZES
-#endif  // CARGO_REINITIALIZES
+#endif // CARGO_REINITIALIZES
 
-#endif  // CARGO_ATTRIBUTE_H_INCLUDED
+#endif // CARGO_ATTRIBUTE_H_INCLUDED

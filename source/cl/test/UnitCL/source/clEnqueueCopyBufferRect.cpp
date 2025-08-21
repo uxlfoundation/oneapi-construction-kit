@@ -19,7 +19,7 @@
 
 class clEnqueueCopyBufferRectTest : public ucl::CommandQueueTest,
                                     TestWithEventWaitList {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     src_origin.resize(3, 0);
@@ -52,12 +52,12 @@ class clEnqueueCopyBufferRectTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err,
-        clEnqueueCopyBufferRect(
-            command_queue, src_buffer, dst_buffer, src_origin.data(),
-            dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-            dst_row_pitch, dst_slice_pitch, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err,
+                      clEnqueueCopyBufferRect(
+                          command_queue, src_buffer, dst_buffer,
+                          src_origin.data(), dst_origin.data(), region.data(),
+                          src_row_pitch, src_slice_pitch, dst_row_pitch,
+                          dst_slice_pitch, num_events, events, event));
   }
 
   UCL::vector<size_t> src_origin;
@@ -93,12 +93,12 @@ TEST_F(clEnqueueCopyBufferRectTest, ZeroPitch) {
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidCommandQueue) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_QUEUE,
-      clEnqueueCopyBufferRect(
-          nullptr, src_buffer, dst_buffer, src_origin.data(), dst_origin.data(),
-          region.data(), src_row_pitch, src_slice_pitch, dst_row_pitch,
-          dst_slice_pitch, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
+                    clEnqueueCopyBufferRect(
+                        nullptr, src_buffer, dst_buffer, src_origin.data(),
+                        dst_origin.data(), region.data(), src_row_pitch,
+                        src_slice_pitch, dst_row_pitch, dst_slice_pitch, 0,
+                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidContext) {
@@ -117,24 +117,24 @@ TEST_F(clEnqueueCopyBufferRectTest, InvalidContext) {
   EXPECT_TRUE(event);
   EXPECT_SUCCESS(errcode);
 
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueCopyBufferRect(
-          command_queue, otherBuffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, otherBuffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 1, &event, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, otherBuffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, otherBuffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 1, &event, nullptr));
 
   EXPECT_SUCCESS(clReleaseEvent(event));
   EXPECT_SUCCESS(clReleaseMemObject(otherBuffer));
@@ -142,26 +142,26 @@ TEST_F(clEnqueueCopyBufferRectTest, InvalidContext) {
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidMemObject) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueCopyBufferRect(
-          command_queue, nullptr, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, nullptr, dst_buffer, src_origin.data(),
+                        dst_origin.data(), region.data(), src_row_pitch,
+                        src_slice_pitch, dst_row_pitch, dst_slice_pitch, 0,
+                        nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, nullptr, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, nullptr, src_origin.data(),
+                        dst_origin.data(), region.data(), src_row_pitch,
+                        src_slice_pitch, dst_row_pitch, dst_slice_pitch, 0,
+                        nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueCopyBufferRect(
-          command_queue, nullptr, nullptr, src_origin.data(), dst_origin.data(),
-          region.data(), src_row_pitch, src_slice_pitch, dst_row_pitch,
-          dst_slice_pitch, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueCopyBufferRect(
+                        command_queue, nullptr, nullptr, src_origin.data(),
+                        dst_origin.data(), region.data(), src_row_pitch,
+                        src_slice_pitch, dst_row_pitch, dst_slice_pitch, 0,
+                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueSrcOrigin) {
@@ -193,151 +193,151 @@ TEST_F(clEnqueueCopyBufferRectTest, InvalidValueRegion) {
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueOutOfBounds) {
   src_origin.assign(3, 33);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   src_origin.assign(3, 0);
 
   dst_origin.assign(3, 33);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   dst_origin.assign(3, 0);
 
   region.assign(3, 33);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   region.assign(3, 32);
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueRegionElementZero) {
   region[0] = 0;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   region[0] = 32;
 
   region[1] = 0;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   region[1] = 32;
 
   region[2] = 0;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   region[2] = 32;
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueRowPitch) {
   src_row_pitch = 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
 
   src_row_pitch = region[0] - 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   src_row_pitch = 0;
 
   dst_row_pitch = 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
 
   dst_row_pitch = region[0] - 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   dst_row_pitch = 0;
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueSlicePitch) {
   src_slice_pitch = 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
 
   src_slice_pitch = (region[1] * src_row_pitch) - 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   src_slice_pitch = 0;
 
   dst_slice_pitch = 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
 
   dst_slice_pitch = (region[1] * dst_row_pitch) - 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   dst_slice_pitch = 0;
 }
 
 TEST_F(clEnqueueCopyBufferRectTest, InvalidValueSameBufferPitchMismatch) {
   dst_row_pitch -= 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, src_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, src_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   dst_row_pitch += 1;
 
   dst_slice_pitch -= 1;
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueCopyBufferRect(
-          command_queue, src_buffer, dst_buffer, src_origin.data(),
-          dst_origin.data(), region.data(), src_row_pitch, src_slice_pitch,
-          dst_row_pitch, dst_slice_pitch, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueCopyBufferRect(
+                        command_queue, src_buffer, dst_buffer,
+                        src_origin.data(), dst_origin.data(), region.data(),
+                        src_row_pitch, src_slice_pitch, dst_row_pitch,
+                        dst_slice_pitch, 0, nullptr, nullptr));
   dst_slice_pitch += 1;
 }
 

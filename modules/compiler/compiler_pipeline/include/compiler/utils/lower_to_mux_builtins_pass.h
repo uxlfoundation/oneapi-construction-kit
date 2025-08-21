@@ -30,10 +30,10 @@ namespace utils {
 
 class LowerToMuxBuiltinsPass final
     : public llvm::PassInfoMixin<LowerToMuxBuiltinsPass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_LOWER_TO_MUX_BUILTINS_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_LOWER_TO_MUX_BUILTINS_PASS_H_INCLUDED

@@ -50,7 +50,7 @@ struct ManualTypeLegalizationPass final
                               llvm::FunctionAnalysisManager &FAM);
 };
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_MANUAL_TYPE_LEGALIZATION_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_MANUAL_TYPE_LEGALIZATION_PASS_H_INCLUDED

@@ -48,8 +48,7 @@ enum class ref_count_type {
 /// @tparam T Type of the object.
 ///
 /// @return Returns the `CL_INVALID_<OBJECT>` which relates to `T`.
-template <class T>
-cl_int invalid();
+template <class T> cl_int invalid();
 
 /// @brief Base class of all OpenCL API object definitions.
 ///
@@ -66,8 +65,7 @@ cl_int invalid();
 /// counts are zero in the body of the `::cl::releaseInternal` or
 /// `::cl::releaseExternal` template functions, whichever is the last to reach
 /// zero.
-template <typename T>
-class base {
+template <typename T> class base {
   friend T;
 
   /// @brief Pointer to the ICD dispatch table.
@@ -111,7 +109,7 @@ class base {
   /// Also deletes the copy constructor and the assignment operators.
   base(base &&) = delete;
 
- public:
+public:
   /// @brief Increment the external reference count.
   ///
   /// @note This should only be invoked by `::cl::retainExternal`.
@@ -229,7 +227,7 @@ class base {
   /// @return Returns the internal reference count.
   cl_uint refCountInternal() const { return ref_count_internal; };
 
- private:
+private:
   /// @brief The external reference count, exposed to the OpenCL application.
   std::atomic<cl_uint> ref_count_external;
   /// @brief The internal reference count.
@@ -239,9 +237,8 @@ class base {
 /// @brief Guard object to release an object on scope exit.
 ///
 /// @tparam T Type of the object to release.
-template <class T>
-class release_guard {
- public:
+template <class T> class release_guard {
+public:
   using object_type = T;
 
   /// @brief Constructor.
@@ -260,16 +257,16 @@ class release_guard {
   ~release_guard() {
     if (object) {
       switch (type) {
-        case ref_count_type::EXTERNAL: {
-          const cl_int retcode = releaseExternal(object);
-          OCL_ASSERT(CL_SUCCESS == retcode, "External release failed!");
-          OCL_UNUSED(retcode);
-          return;
-        }
-        case ref_count_type::INTERNAL: {
-          releaseInternal(object);
-          return;
-        }
+      case ref_count_type::EXTERNAL: {
+        const cl_int retcode = releaseExternal(object);
+        OCL_ASSERT(CL_SUCCESS == retcode, "External release failed!");
+        OCL_UNUSED(retcode);
+        return;
+      }
+      case ref_count_type::INTERNAL: {
+        releaseInternal(object);
+        return;
+      }
       }
 
       OCL_ABORT("Unknown cl::ref_count_type!");
@@ -305,7 +302,7 @@ class release_guard {
     return ret;
   }
 
- private:
+private:
   /// @brief Object to be guarded.
   object_type object;
   /// @brief Type of reference counter to release.
@@ -319,8 +316,7 @@ class release_guard {
 ///
 /// @return Returns CL_SUCCESS, CL_OUT_OF_RESOURCES if an overflow occurs,
 /// CL_INVALID_<OBJECT> if the external reference count is zero.
-template <class T>
-cl_int retainExternal(T object) {
+template <class T> cl_int retainExternal(T object) {
   if (!object) {
     return invalid<T>();
   }
@@ -335,8 +331,7 @@ cl_int retainExternal(T object) {
 ///
 /// @return Returns CL_SUCCESS, CL_INVALID_<OBJECT> if the external reference
 /// count is zero.
-template <class T>
-cl_int releaseExternal(T object) {
+template <class T> cl_int releaseExternal(T object) {
   if (!object) {
     return invalid<T>();
   }
@@ -363,8 +358,7 @@ cl_int releaseExternal(T object) {
 ///
 /// @return Returns CL_SUCCESS, CL_INVALID_<OBJECT> if the external reference
 /// count is zero.
-template <>
-cl_int releaseExternal<cl_mem>(cl_mem object);
+template <> cl_int releaseExternal<cl_mem>(cl_mem object);
 
 /// @brief Increment an object's internal reference count.
 ///
@@ -373,8 +367,7 @@ cl_int releaseExternal<cl_mem>(cl_mem object);
 ///
 /// @return Returns CL_SUCCESS, CL_OUT_OF_RESOURCES if an overflow occurs,
 /// or CL_INVALID_<OBJECT> if @p object is not valid.
-template <class T>
-cl_int retainInternal(T object) {
+template <class T> cl_int retainInternal(T object) {
   if (!object) {
     return invalid<T>();
   }
@@ -386,8 +379,7 @@ cl_int retainInternal(T object) {
 /// @tparam T Type of the object.
 /// @param object Object to decrement the reference count on, must not be
 /// allocated with `new T[]`.
-template <class T>
-void releaseInternal(T object) {
+template <class T> void releaseInternal(T object) {
   if (!object) {
     return;
   }
@@ -407,10 +399,9 @@ void releaseInternal(T object) {
 ///
 /// @param object Object to decrement the reference count on, must not be
 /// allocated with `new T[]`.
-template <>
-void releaseInternal<cl_mem>(cl_mem object);
+template <> void releaseInternal<cl_mem>(cl_mem object);
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
-#endif  // CL_BASE_H_INCLUDED
+#endif // CL_BASE_H_INCLUDED

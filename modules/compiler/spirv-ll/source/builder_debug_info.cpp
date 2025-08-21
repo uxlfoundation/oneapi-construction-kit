@@ -252,8 +252,8 @@ static std::unordered_map<uint32_t, llvm::dwarf::LocationAtom>
         {167, llvm::dwarf::DW_OP_LLVM_tag_offset},
 };
 
-static llvm::DINode::DIFlags translateLRValueReferenceFlags(
-    uint32_t spv_flags) {
+static llvm::DINode::DIFlags
+translateLRValueReferenceFlags(uint32_t spv_flags) {
   llvm::DINode::DIFlags flags = llvm::DINode::FlagZero;
   if (spv_flags & OpenCLDebugInfo100FlagLValueReference) {
     flags |= llvm::DINode::FlagLValueReference;
@@ -306,8 +306,8 @@ multi_llvm::DIBuilder &DebugInfoBuilder::getDefaultDIBuilder() const {
   return *debug_builder_map.begin()->second;
 }
 
-llvm::Expected<std::optional<uint64_t>> DebugInfoBuilder::getConstantIntValue(
-    spv::Id id) const {
+llvm::Expected<std::optional<uint64_t>>
+DebugInfoBuilder::getConstantIntValue(spv::Id id) const {
   if (isDebugInfoNone(id)) {
     return std::nullopt;
   }
@@ -324,7 +324,7 @@ llvm::Expected<std::optional<uint64_t>> DebugInfoBuilder::getConstantIntValue(
 //===----------------------------------------------------------------------===//
 
 class DebugCompilationUnit : public OpExtInst {
- public:
+public:
   DebugCompilationUnit(const OpCode &other) : OpExtInst(other) {}
   uint32_t Version() const { return getOpExtInstOperand(0); }
   uint32_t DWARFVersion() const { return getOpExtInstOperand(1); }
@@ -335,8 +335,8 @@ class DebugCompilationUnit : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugCompilationUnit *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugCompilationUnit *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -345,15 +345,15 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   const std::string flags = "";
   unsigned lang = llvm::dwarf::DW_LANG_OpenCL;
   switch (op->SourceLanguage()) {
-    default:
-      break;
-    case spv::SourceLanguageOpenCL_CPP:
-      lang = llvm::dwarf::SourceLanguage::DW_LANG_C_plus_plus_14;
-      break;
-    case spv::SourceLanguageSYCL:
-    case spv::SourceLanguageCPP_for_OpenCL:
-      lang = llvm::dwarf::SourceLanguage::DW_LANG_C_plus_plus_17;
-      break;
+  default:
+    break;
+  case spv::SourceLanguageOpenCL_CPP:
+    lang = llvm::dwarf::SourceLanguage::DW_LANG_C_plus_plus_14;
+    break;
+  case spv::SourceLanguageSYCL:
+  case spv::SourceLanguageCPP_for_OpenCL:
+    lang = llvm::dwarf::SourceLanguage::DW_LANG_C_plus_plus_17;
+    break;
   }
 
   llvm::DIFile *const file = file_or_error.get();
@@ -388,7 +388,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugSource : public OpExtInst {
- public:
+public:
   DebugSource(const OpCode &other) : OpExtInst(other) {}
   spv::Id File() const { return getOpExtInstOperand(0); }
   std::optional<spv::Id> Text() const {
@@ -398,8 +398,8 @@ class DebugSource : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugSource *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugSource *op) {
   const std::string filePath = module.getDebugString(op->File()).value_or("");
   const std::string fileName =
       filePath.substr(filePath.find_last_of("\\/") + 1);
@@ -445,7 +445,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugTypeBasic : public OpExtInst {
- public:
+public:
   DebugTypeBasic(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Size() const { return getOpExtInstOperand(1); }
@@ -453,8 +453,8 @@ class DebugTypeBasic : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeBasic *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeBasic *op) {
   std::optional<std::string> name = module.getDebugString(op->Name());
   if (!name) {
     return makeStringError(
@@ -482,7 +482,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypePointer : public OpExtInst {
- public:
+public:
   DebugTypePointer(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t StorageClass() const {
@@ -492,8 +492,8 @@ class DebugTypePointer : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypePointer *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypePointer *op) {
   auto base_ty = translateDebugInst<llvm::DIType>(op->BaseType());
   if (auto err = base_ty.takeError()) {
     return std::move(err);
@@ -541,15 +541,15 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeQualifier : public OpExtInst {
- public:
+public:
   DebugTypeQualifier(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t TypeQualifier() const { return getOpExtInstOperand(1); }
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeQualifier *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeQualifier *op) {
   auto base_ty_or_error = translateDebugInst<llvm::DIType>(op->BaseType());
   if (auto err = base_ty_or_error.takeError()) {
     return std::move(err);
@@ -572,7 +572,7 @@ static uint64_t getDerivedSizeInBits(const llvm::DIType *Ty) {
 }
 
 class DebugTypeArray : public OpExtInst {
- public:
+public:
   DebugTypeArray(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
 
@@ -595,8 +595,8 @@ class DebugTypeArray : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeArray *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeArray *op) {
   auto base_ty_or_error = translateDebugInst<llvm::DIType>(op->BaseType());
   if (auto err = base_ty_or_error.takeError()) {
     return std::move(err);
@@ -636,15 +636,15 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeVector : public OpExtInst {
- public:
+public:
   DebugTypeVector(const OpCode &other) : OpExtInst(other) {}
   spv::Id BaseType() const { return getOpExtInstOperand(0); }
   uint32_t ComponentCount() const { return getOpExtInstOperand(1); }
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeVector *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeVector *op) {
   auto base_ty_or_error = translateDebugInst<llvm::DIType>(op->BaseType());
   if (auto err = base_ty_or_error.takeError()) {
     return std::move(err);
@@ -667,7 +667,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypedef : public OpExtInst {
- public:
+public:
   DebugTypedef(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id BaseType() const { return getOpExtInstOperand(1); }
@@ -679,8 +679,8 @@ class DebugTypedef : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypedef *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypedef *op) {
   auto base_ty_or_error = translateDebugInst<llvm::DIType>(op->BaseType());
   if (auto err = base_ty_or_error.takeError()) {
     return std::move(err);
@@ -709,7 +709,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeFunction : public OpExtInst {
- public:
+public:
   DebugTypeFunction(const OpCode &other) : OpExtInst(other) {}
   uint32_t Flags() const { return getOpExtInstOperand(0); }
   spv::Id ReturnType() const { return getOpExtInstOperand(1); }
@@ -723,8 +723,8 @@ class DebugTypeFunction : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeFunction *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeFunction *op) {
   const llvm::DINode::DIFlags flags =
       translateLRValueReferenceFlags(op->Flags());
 
@@ -744,7 +744,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeEnum : public OpExtInst {
- public:
+public:
   DebugTypeEnum(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id UnderlyingType() const { return getOpExtInstOperand(1); }
@@ -766,8 +766,8 @@ class DebugTypeEnum : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeEnum *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeEnum *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -834,7 +834,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeComposite : public OpExtInst {
- public:
+public:
   DebugTypeComposite(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   uint32_t Tag() const { return getOpExtInstOperand(1); }
@@ -856,8 +856,8 @@ class DebugTypeComposite : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeComposite *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeComposite *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -914,30 +914,29 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   llvm::DIBuilder &dib = getDIBuilder(op);
 
   switch (op->Tag()) {
-    case OpenCLDebugInfo100Class:
-      // TODO: This would ideally be createClassType, but LLVM has a bug where
-      // it creates a composite type with the llvm::dwarf::DW_TAG_struct_type
-      // tag instead.
-      composite_type = dib.createReplaceableCompositeType(
-          llvm::dwarf::DW_TAG_class_type, *name, scope, file, op->Line(),
-          /*RuntimeLang*/ 0, *size, align, flags, linkage_name);
-      composite_type = llvm::MDNode::replaceWithDistinct(
-          llvm::TempDICompositeType(composite_type));
-      break;
-    case OpenCLDebugInfo100Structure:
-      composite_type = dib.createStructType(
-          scope, *name, file, op->Line(), *size, align, flags, derived_from,
-          /*Elements*/ llvm::DINodeArray(), /*RunTimeLang*/ 0,
-          /*VTableHolder*/ nullptr, linkage_name);
-      break;
-    case OpenCLDebugInfo100Union:
-      composite_type =
-          dib.createUnionType(scope, *name, file, op->Line(), *size, align,
-                              flags, llvm::DINodeArray(),
-                              /*RunTimeLang*/ 0, linkage_name);
-      break;
-    default:
-      break;
+  case OpenCLDebugInfo100Class:
+    // TODO: This would ideally be createClassType, but LLVM has a bug where
+    // it creates a composite type with the llvm::dwarf::DW_TAG_struct_type
+    // tag instead.
+    composite_type = dib.createReplaceableCompositeType(
+        llvm::dwarf::DW_TAG_class_type, *name, scope, file, op->Line(),
+        /*RuntimeLang*/ 0, *size, align, flags, linkage_name);
+    composite_type = llvm::MDNode::replaceWithDistinct(
+        llvm::TempDICompositeType(composite_type));
+    break;
+  case OpenCLDebugInfo100Structure:
+    composite_type = dib.createStructType(
+        scope, *name, file, op->Line(), *size, align, flags, derived_from,
+        /*Elements*/ llvm::DINodeArray(), /*RunTimeLang*/ 0,
+        /*VTableHolder*/ nullptr, linkage_name);
+    break;
+  case OpenCLDebugInfo100Union:
+    composite_type = dib.createUnionType(scope, *name, file, op->Line(), *size,
+                                         align, flags, llvm::DINodeArray(),
+                                         /*RunTimeLang*/ 0, linkage_name);
+    break;
+  default:
+    break;
   }
 
   // Make a note of this composite type, so that we'll come back to it later
@@ -948,7 +947,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeMember : public OpExtInst {
- public:
+public:
   DebugTypeMember(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
@@ -966,8 +965,8 @@ class DebugTypeMember : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeMember *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeMember *op) {
   std::optional<std::string> name = module.getDebugString(op->Name());
   if (!name) {
     return makeStringError(
@@ -1039,7 +1038,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeInheritance : public OpExtInst {
- public:
+public:
   DebugTypeInheritance(const OpCode &other) : OpExtInst(other) {}
   spv::Id Child() const { return getOpExtInstOperand(0); }
   static constexpr size_t ParentIdx = 1;
@@ -1050,8 +1049,8 @@ class DebugTypeInheritance : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeInheritance *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeInheritance *op) {
   const llvm::DINode::DIFlags flags = translateAccessFlags(op->Flags());
 
   auto child_or_error = translateDebugInst<llvm::DIType>(op->Child());
@@ -1081,7 +1080,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypePtrToMember : public OpExtInst {
- public:
+public:
   DebugTypePtrToMember(const OpCode &other) : OpExtInst(other) {}
   spv::Id MemberType() const { return getOpExtInstOperand(0); }
   static constexpr size_t ParentIdx = 1;
@@ -1089,8 +1088,8 @@ class DebugTypePtrToMember : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypePtrToMember *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypePtrToMember *op) {
   auto member_ty_or_error = translateDebugInst<llvm::DIType>(op->MemberType());
   if (auto err = member_ty_or_error.takeError()) {
     return std::move(err);
@@ -1109,7 +1108,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugTypeTemplate : public OpExtInst {
- public:
+public:
   DebugTypeTemplate(const OpCode &other) : OpExtInst(other) {}
   spv::Id Target() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 4> Parameters() const {
@@ -1122,8 +1121,8 @@ class DebugTypeTemplate : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeTemplate *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeTemplate *op) {
   const spv::Id target_id = op->Target();
   auto target_or_error = translateDebugInst(target_id);
   if (auto err = target_or_error.takeError()) {
@@ -1165,7 +1164,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeTemplateParameter : public OpExtInst {
- public:
+public:
   DebugTypeTemplateParameter(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id ActualType() const { return getOpExtInstOperand(1); }
@@ -1176,8 +1175,8 @@ class DebugTypeTemplateParameter : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeTemplateParameter *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeTemplateParameter *op) {
   // We can't know the scope in which this template parameter type is defined.
   llvm::DIScope *const scope = nullptr;
 
@@ -1212,7 +1211,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeTemplateTemplateParameter : public OpExtInst {
- public:
+public:
   DebugTypeTemplateTemplateParameter(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id TemplateName() const { return getOpExtInstOperand(1); }
@@ -1222,8 +1221,8 @@ class DebugTypeTemplateTemplateParameter : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeTemplateTemplateParameter *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeTemplateTemplateParameter *op) {
   std::optional<std::string> name = module.getDebugString(op->Name());
   if (!name) {
     return makeStringError("Could not find OpString 'Name' " +
@@ -1250,7 +1249,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugTypeTemplateParameterPack : public OpExtInst {
- public:
+public:
   DebugTypeTemplateParameterPack(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Source() const { return getOpExtInstOperand(1); }
@@ -1266,8 +1265,8 @@ class DebugTypeTemplateParameterPack : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugTypeTemplateParameterPack *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugTypeTemplateParameterPack *op) {
   auto scope_or_error = translateDebugInst<llvm::DIScope>(op->Source());
   if (auto err = scope_or_error.takeError()) {
     return std::move(err);
@@ -1276,10 +1275,9 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 
   std::optional<std::string> name = module.getDebugString(op->Name());
   if (!name) {
-    return makeStringError(
-        "Could not find OpString 'Name' for "
-        "DebugTypeTemplateParameterPack " +
-        getIDAsStr(op->IdResult(), &module));
+    return makeStringError("Could not find OpString 'Name' for "
+                           "DebugTypeTemplateParameterPack " +
+                           getIDAsStr(op->IdResult(), &module));
   }
 
   llvm::SmallVector<llvm::Metadata *, 8> pack_elements;
@@ -1302,7 +1300,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugGlobalVariable : public OpExtInst {
- public:
+public:
   DebugGlobalVariable(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
@@ -1320,8 +1318,8 @@ class DebugGlobalVariable : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugGlobalVariable *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugGlobalVariable *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -1394,7 +1392,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugFunctionDeclaration : public OpExtInst {
- public:
+public:
   DebugFunctionDeclaration(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
@@ -1407,8 +1405,8 @@ class DebugFunctionDeclaration : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugFunctionDeclaration *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugFunctionDeclaration *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -1495,7 +1493,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugFunction : public OpExtInst {
- public:
+public:
   DebugFunction(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
@@ -1515,8 +1513,8 @@ class DebugFunction : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugFunction *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugFunction *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -1615,7 +1613,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugLexicalBlock : public OpExtInst {
- public:
+public:
   DebugLexicalBlock(const OpCode &other) : OpExtInst(other) {}
   spv::Id Source() const { return getOpExtInstOperand(0); }
   uint32_t Line() const { return getOpExtInstOperand(1); }
@@ -1629,8 +1627,8 @@ class DebugLexicalBlock : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugLexicalBlock *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugLexicalBlock *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -1659,7 +1657,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugLexicalBlockDiscriminator : public OpExtInst {
- public:
+public:
   DebugLexicalBlockDiscriminator(const OpCode &other) : OpExtInst(other) {}
   spv::Id Source() const { return getOpExtInstOperand(0); }
   uint32_t Discriminator() const { return getOpExtInstOperand(1); }
@@ -1668,8 +1666,8 @@ class DebugLexicalBlockDiscriminator : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugLexicalBlockDiscriminator *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugLexicalBlockDiscriminator *op) {
   auto file_or_error = translateDebugInst<llvm::DIFile>(op->Source());
   if (auto err = file_or_error.takeError()) {
     return std::move(err);
@@ -1691,7 +1689,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugScope : public OpExtInst {
- public:
+public:
   DebugScope(const OpCode &other) : OpExtInst(other) {}
   static constexpr size_t ScopeIdx = 0;
   spv::Id Scope() const { return getOpExtInstOperand(ScopeIdx); }
@@ -1737,7 +1735,7 @@ llvm::Error DebugInfoBuilder::create<DebugScope>(const OpExtInst &opc) {
 }
 
 class DebugNoScope : public OpExtInst {
- public:
+public:
   DebugNoScope(const OpCode &other) : OpExtInst(other) {}
 };
 
@@ -1748,7 +1746,7 @@ llvm::Error DebugInfoBuilder::create<DebugNoScope>(const OpExtInst &) {
 }
 
 class DebugInlinedAt : public OpExtInst {
- public:
+public:
   DebugInlinedAt(const OpCode &other) : OpExtInst(other) {}
   uint32_t Line() const { return getOpExtInstOperand(0); }
   static constexpr size_t ScopeIdx = 1;
@@ -1760,8 +1758,8 @@ class DebugInlinedAt : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugInlinedAt *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugInlinedAt *op) {
   const unsigned column = 0;
 
   auto scope_or_error = translateDebugInst<llvm::DIScope>(op->Scope());
@@ -1793,7 +1791,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 //===----------------------------------------------------------------------===//
 
 class DebugLocalVariable : public OpExtInst {
- public:
+public:
   DebugLocalVariable(const OpCode &other) : OpExtInst(other) {}
   spv::Id Name() const { return getOpExtInstOperand(0); }
   spv::Id Type() const { return getOpExtInstOperand(1); }
@@ -1810,8 +1808,8 @@ class DebugLocalVariable : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugLocalVariable *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugLocalVariable *op) {
   std::optional<std::string> name = module.getDebugString(op->Name());
 
   if (!name) {
@@ -1868,7 +1866,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 }
 
 class DebugDeclare : public OpExtInst {
- public:
+public:
   DebugDeclare(const OpCode &other) : OpExtInst(other) {}
   spv::Id LocalVariable() const { return getOpExtInstOperand(0); }
   spv::Id Variable() const { return getOpExtInstOperand(1); }
@@ -1929,7 +1927,7 @@ llvm::Error DebugInfoBuilder::create<DebugDeclare>(const OpExtInst &opc) {
 }
 
 class DebugValue : public OpExtInst {
- public:
+public:
   DebugValue(const OpCode &other) : OpExtInst(other) {}
   spv::Id LocalVariable() const { return getOpExtInstOperand(0); }
   spv::Id Variable() const { return getOpExtInstOperand(1); }
@@ -1993,7 +1991,7 @@ llvm::Error DebugInfoBuilder::create<DebugValue>(const OpExtInst &opc) {
 }
 
 class DebugOperation : public OpExtInst {
- public:
+public:
   DebugOperation(const OpCode &other) : OpExtInst(other) {}
   spv::Id Operation() const { return getOpExtInstOperand(0); }
   llvm::SmallVector<spv::Id, 4> Operands() const {
@@ -2006,7 +2004,7 @@ class DebugOperation : public OpExtInst {
 };
 
 class DebugExpression : public OpExtInst {
- public:
+public:
   DebugExpression(const OpCode &other) : OpExtInst(other) {}
   llvm::SmallVector<spv::Id, 4> Operation() const {
     llvm::SmallVector<spv::Id, 4> operations;
@@ -2018,8 +2016,8 @@ class DebugExpression : public OpExtInst {
 };
 
 template <>
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
-    const DebugExpression *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translate(const DebugExpression *op) {
   std::vector<uint64_t> address_expr_ops;
 
   for (const spv::Id operation_id : op->Operation()) {
@@ -2050,7 +2048,7 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
 // dummy parameter in the 3rd position! We work around this by optionally
 // skipping it, depending on the number of operands in the instruction.
 class DebugImportedEntity : public OpExtInst {
- public:
+public:
   DebugImportedEntity(const OpCode &other) : OpExtInst(other) {
     dummy_offset = opExtInstOperandCount() == 7 ? 0 : 1;
   }
@@ -2064,13 +2062,13 @@ class DebugImportedEntity : public OpExtInst {
 
   size_t getScopeIdx() const { return 6 + dummy_offset; }
 
- private:
+private:
   size_t dummy_offset = 0;
 };
 
 template <>
-llvm::Error DebugInfoBuilder::create<DebugImportedEntity>(
-    const OpExtInst &opc) {
+llvm::Error
+DebugInfoBuilder::create<DebugImportedEntity>(const OpExtInst &opc) {
   auto *op = module.create<DebugImportedEntity>(opc);
   uint32_t line = op->Line();
 
@@ -2231,12 +2229,12 @@ DebugInfoBuilder::translateTemplateTemplateParameterOrTemplateParameterPack(
   return nullptr;
 }
 
-llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translateDebugInstImpl(
-    const OpExtInst *op) {
+llvm::Expected<llvm::MDNode *>
+DebugInfoBuilder::translateDebugInstImpl(const OpExtInst *op) {
   assert(isDebugInfoSet(op->Set()) && "Unexpected extended instruction set");
 
-#define TRANSLATE_CASE(Opcode, DebugInst) \
-  case Opcode:                            \
+#define TRANSLATE_CASE(Opcode, DebugInst)                                      \
+  case Opcode:                                                                 \
     return translate(cast<DebugInst>(op));
 
   switch (op->Instruction()) {
@@ -2267,30 +2265,30 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translateDebugInstImpl(
     TRANSLATE_CASE(OpenCLDebugInfo100DebugTypeTemplateParameter,
                    DebugTypeTemplateParameter)
     TRANSLATE_CASE(OpenCLDebugInfo100DebugTypeTemplate, DebugTypeTemplate)
-    case OpenCLDebugInfo100DebugInfoNone:
-      // DebugInfoNone is translated to 'nullptr'. All consumers have to
-      // accommodate this as a valid value; various LLVM APIs accept nullptr as
-      // a valid value, others will assert on null values.
-      return nullptr;
-    case OpenCLDebugInfo100DebugInlinedVariable:
-    case OpenCLDebugInfo100DebugMacroDef:
-    case OpenCLDebugInfo100DebugMacroUndef:
-      // Note: LLVM has no meaningful translation for DebugInlinedVariable,
-      // DebugMacroDef, or DebugMacroUndef.
-      return nullptr;
-    case OpenCLDebugInfo100DebugTypeTemplateTemplateParameter:
-      if (workarounds & Workarounds::TemplateTemplateSwappedWithParameterPack) {
-        return translateTemplateTemplateParameterOrTemplateParameterPack(op);
-      }
-      return translate(cast<DebugTypeTemplateTemplateParameter>(op));
-    case OpenCLDebugInfo100DebugTypeTemplateParameterPack: {
-      if (workarounds & Workarounds::TemplateTemplateSwappedWithParameterPack) {
-        return translateTemplateTemplateParameterOrTemplateParameterPack(op);
-      }
-      return translate(cast<DebugTypeTemplateParameterPack>(op));
+  case OpenCLDebugInfo100DebugInfoNone:
+    // DebugInfoNone is translated to 'nullptr'. All consumers have to
+    // accommodate this as a valid value; various LLVM APIs accept nullptr as
+    // a valid value, others will assert on null values.
+    return nullptr;
+  case OpenCLDebugInfo100DebugInlinedVariable:
+  case OpenCLDebugInfo100DebugMacroDef:
+  case OpenCLDebugInfo100DebugMacroUndef:
+    // Note: LLVM has no meaningful translation for DebugInlinedVariable,
+    // DebugMacroDef, or DebugMacroUndef.
+    return nullptr;
+  case OpenCLDebugInfo100DebugTypeTemplateTemplateParameter:
+    if (workarounds & Workarounds::TemplateTemplateSwappedWithParameterPack) {
+      return translateTemplateTemplateParameterOrTemplateParameterPack(op);
     }
-    default:
-      break;
+    return translate(cast<DebugTypeTemplateTemplateParameter>(op));
+  case OpenCLDebugInfo100DebugTypeTemplateParameterPack: {
+    if (workarounds & Workarounds::TemplateTemplateSwappedWithParameterPack) {
+      return translateTemplateTemplateParameterOrTemplateParameterPack(op);
+    }
+    return translate(cast<DebugTypeTemplateParameterPack>(op));
+  }
+  default:
+    break;
   }
 
 #undef TRANSLATE_CASE
@@ -2329,8 +2327,8 @@ llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
     return llvm::Error::success();
   }
 
-#define CREATE_CASE(Opcode, ExtInst)           \
-  case OpenCLDebugInfo100Instructions::Opcode: \
+#define CREATE_CASE(Opcode, ExtInst)                                           \
+  case OpenCLDebugInfo100Instructions::Opcode:                                 \
     return create<ExtInst>(opc);
 
   switch (opc.Instruction()) {
@@ -2339,50 +2337,50 @@ llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
     CREATE_CASE(OpenCLDebugInfo100DebugScope, DebugScope)
     CREATE_CASE(OpenCLDebugInfo100DebugNoScope, DebugNoScope)
     CREATE_CASE(OpenCLDebugInfo100DebugImportedEntity, DebugImportedEntity)
-    case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugCompilationUnit:
-      debug_builder_map[opc.IdResult()] =
-          std::make_unique<multi_llvm::DIBuilder>(*module.llvmModule);
-      break;
-    case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugFunction: {
-      // Translate and register the DISubprogram for the function.
-      auto subprogram_or_error =
-          translateDebugInst<llvm::DISubprogram>(opc.IdResult());
-      if (auto err = subprogram_or_error.takeError()) {
-        return err;
-      }
-      llvm::DISubprogram *const subprogram = subprogram_or_error.get();
-      if (!subprogram) {
-        return llvm::Error::success();
-      }
-      module.addDebugFunctionScope(cast<DebugFunction>(&opc)->Function(),
-                                   subprogram);
-      break;
+  case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugCompilationUnit:
+    debug_builder_map[opc.IdResult()] =
+        std::make_unique<multi_llvm::DIBuilder>(*module.llvmModule);
+    break;
+  case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugFunction: {
+    // Translate and register the DISubprogram for the function.
+    auto subprogram_or_error =
+        translateDebugInst<llvm::DISubprogram>(opc.IdResult());
+    if (auto err = subprogram_or_error.takeError()) {
+      return err;
     }
-    case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugTypeTemplate:
-      // These describe an instantiated template of class, struct, or function
-      // in C++. These are not necessarily referenced by other nodes, so we
-      // handle them in 'create'.
-      // Unfortunately, despite the specification saying that forward
-      // references are not allowed in general, we have seen that in real-world
-      // SPIR-V binaries that nodes can in fact forward-reference such
-      // 'dangling' DebugTypeTemplate instructions, e.g.,
-      //     11 ExtInst 15 3634 2 DebugTypeQualifier 3589 0
-      //     7 ExtInst 15 3589 2 DebugTypeTemplate 3643 3644
-      // As such, we collect all DebugTypeTemplate nodes and process them at
-      // the very end. If any are referenced by other nodes in the mean time
-      // we'll process them, but if those are forward referenced, we'll crash.
-      template_types.push_back(opc.IdResult());
-      break;
-    default:
-      break;
+    llvm::DISubprogram *const subprogram = subprogram_or_error.get();
+    if (!subprogram) {
+      return llvm::Error::success();
+    }
+    module.addDebugFunctionScope(cast<DebugFunction>(&opc)->Function(),
+                                 subprogram);
+    break;
+  }
+  case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugTypeTemplate:
+    // These describe an instantiated template of class, struct, or function
+    // in C++. These are not necessarily referenced by other nodes, so we
+    // handle them in 'create'.
+    // Unfortunately, despite the specification saying that forward
+    // references are not allowed in general, we have seen that in real-world
+    // SPIR-V binaries that nodes can in fact forward-reference such
+    // 'dangling' DebugTypeTemplate instructions, e.g.,
+    //     11 ExtInst 15 3634 2 DebugTypeQualifier 3589 0
+    //     7 ExtInst 15 3589 2 DebugTypeTemplate 3643 3644
+    // As such, we collect all DebugTypeTemplate nodes and process them at
+    // the very end. If any are referenced by other nodes in the mean time
+    // we'll process them, but if those are forward referenced, we'll crash.
+    template_types.push_back(opc.IdResult());
+    break;
+  default:
+    break;
   }
 
 #undef CREATE_CASE
   return llvm::Error::success();
 }
 
-multi_llvm::DIBuilder &DebugInfoBuilder::getDIBuilder(
-    const OpExtInst *op) const {
+multi_llvm::DIBuilder &
+DebugInfoBuilder::getDIBuilder(const OpExtInst *op) const {
   assert(debug_builder_map.size() != 0 && "No DIBuilders");
   multi_llvm::DIBuilder &default_dib = getDefaultDIBuilder();
 
@@ -2392,32 +2390,32 @@ multi_llvm::DIBuilder &DebugInfoBuilder::getDIBuilder(
       [&](const OpExtInst *op) -> std::optional<size_t> {
     assert(isDebugInfoSet(op->Set()) && "Unexpected extended instruction set");
     switch (op->Instruction()) {
-      default:
-        return std::nullopt;
-      case OpenCLDebugInfo100DebugTypedef:
-        return DebugTypedef::ScopeIdx;
-      case OpenCLDebugInfo100DebugTypeEnum:
-        return DebugTypeEnum::ScopeIdx;
-      case OpenCLDebugInfo100DebugTypeComposite:
-        return DebugTypeComposite::ScopeIdx;
-      case OpenCLDebugInfo100DebugTypeInheritance:
-        return DebugTypeInheritance::ParentIdx;
-      case OpenCLDebugInfo100DebugTypePtrToMember:
-        return DebugTypePtrToMember::ParentIdx;
-      case OpenCLDebugInfo100DebugFunction:
-        return DebugFunction::ScopeIdx;
-      case OpenCLDebugInfo100DebugLexicalBlock:
-        return DebugLexicalBlock::ScopeIdx;
-      case OpenCLDebugInfo100DebugLexicalBlockDiscriminator:
-        return DebugLexicalBlockDiscriminator::ScopeIdx;
-      case OpenCLDebugInfo100DebugScope:
-        return DebugScope::ScopeIdx;
-      case OpenCLDebugInfo100DebugInlinedAt:
-        return DebugInlinedAt::ScopeIdx;
-      case OpenCLDebugInfo100DebugLocalVariable:
-        return DebugLocalVariable::ScopeIdx;
-      case OpenCLDebugInfo100DebugImportedEntity:
-        return cast<DebugImportedEntity>(op)->getScopeIdx();
+    default:
+      return std::nullopt;
+    case OpenCLDebugInfo100DebugTypedef:
+      return DebugTypedef::ScopeIdx;
+    case OpenCLDebugInfo100DebugTypeEnum:
+      return DebugTypeEnum::ScopeIdx;
+    case OpenCLDebugInfo100DebugTypeComposite:
+      return DebugTypeComposite::ScopeIdx;
+    case OpenCLDebugInfo100DebugTypeInheritance:
+      return DebugTypeInheritance::ParentIdx;
+    case OpenCLDebugInfo100DebugTypePtrToMember:
+      return DebugTypePtrToMember::ParentIdx;
+    case OpenCLDebugInfo100DebugFunction:
+      return DebugFunction::ScopeIdx;
+    case OpenCLDebugInfo100DebugLexicalBlock:
+      return DebugLexicalBlock::ScopeIdx;
+    case OpenCLDebugInfo100DebugLexicalBlockDiscriminator:
+      return DebugLexicalBlockDiscriminator::ScopeIdx;
+    case OpenCLDebugInfo100DebugScope:
+      return DebugScope::ScopeIdx;
+    case OpenCLDebugInfo100DebugInlinedAt:
+      return DebugInlinedAt::ScopeIdx;
+    case OpenCLDebugInfo100DebugLocalVariable:
+      return DebugLocalVariable::ScopeIdx;
+    case OpenCLDebugInfo100DebugImportedEntity:
+      return cast<DebugImportedEntity>(op)->getScopeIdx();
     }
     return std::nullopt;
   };
@@ -2499,4 +2497,4 @@ llvm::Error DebugInfoBuilder::finalizeCompositeTypes() {
   return llvm::Error::success();
 }
 
-}  // namespace spirv_ll
+} // namespace spirv_ll

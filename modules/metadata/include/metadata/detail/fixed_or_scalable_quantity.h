@@ -20,9 +20,8 @@
 
 /// @brief A fixed quantity 'k', optionally made "scalable" denoting a
 /// multiplication by an unknown non-zero runtime value.
-template <typename ValueTy>
-class FixedOrScalableQuantity {
- public:
+template <typename ValueTy> class FixedOrScalableQuantity {
+public:
   FixedOrScalableQuantity() = default;
 
   FixedOrScalableQuantity(ValueTy Quantity, bool Scalable)
@@ -59,9 +58,9 @@ class FixedOrScalableQuantity {
     return getKnownMinValue();
   }
 
- private:
+private:
   ValueTy Quantity = 0;
   bool Scalable = false;
 };
 
-#endif  // MD_FIXED_OR_SCALABLE_QUANTITY_H_INCLUDED
+#endif // MD_FIXED_OR_SCALABLE_QUANTITY_H_INCLUDED

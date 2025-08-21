@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class cl_codeplay_extra_build_options_BuildFlags : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!(isPlatformExtensionSupported("cl_codeplay_extra_build_options") &&
@@ -66,7 +66,7 @@ TEST_F(cl_codeplay_extra_build_options_BuildFlags, clBuildPrevecAllTest) {
 TEST_F(cl_codeplay_extra_build_options_BuildFlags,
        clCompilePrecacheLocalSizes) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr,
                                   "-cl-precache-local-sizes=16,:256,32,1", 0,
@@ -134,19 +134,19 @@ TEST_F(cl_codeplay_extra_build_options_BuildFlags,
                     clBuildProgram(program, 0, nullptr,
                                    "-cl-precache-local-sizes=8:16:4,apples",
                                    nullptr, nullptr));
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_BUILD_OPTIONS,
-      clBuildProgram(program, 0, nullptr, "-cl-precache-local-sizes=4zz",
-                     nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_BUILD_OPTIONS,
+                    clBuildProgram(program, 0, nullptr,
+                                   "-cl-precache-local-sizes=4zz", nullptr,
+                                   nullptr));
   // Finally check extreme values: zero and negative.
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_BUILD_OPTIONS,
-      clBuildProgram(program, 0, nullptr, "-cl-precache-local-sizes=0", nullptr,
-                     nullptr));
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_BUILD_OPTIONS,
-      clBuildProgram(program, 0, nullptr, "-cl-precache-local-sizes=-4",
-                     nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_BUILD_OPTIONS,
+                    clBuildProgram(program, 0, nullptr,
+                                   "-cl-precache-local-sizes=0", nullptr,
+                                   nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_BUILD_OPTIONS,
+                    clBuildProgram(program, 0, nullptr,
+                                   "-cl-precache-local-sizes=-4", nullptr,
+                                   nullptr));
 }
 
 // Disabled because this test sets the global variable `Enabled`
@@ -155,7 +155,7 @@ TEST_F(cl_codeplay_extra_build_options_BuildFlags,
 TEST_F(cl_codeplay_extra_build_options_BuildFlags,
        DISABLED_clCompileLLVMStatsTest) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "-cl-llvm-stats", 0,
                                   nullptr, nullptr, nullptr, nullptr));

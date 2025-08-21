@@ -77,7 +77,8 @@ uint32_t kts::Ref_Clz(size_t x) {
   uint32_t i = 0;
   while (((uint32_t)x & (1 << (31 - i))) == 0) {
     i++;
-    if (i == 32) break;
+    if (i == 32)
+      break;
   }
   return i;
 }

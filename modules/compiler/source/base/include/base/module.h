@@ -54,7 +54,7 @@ class PassMachinery;
 /// @brief A class that drives the compilation process and stores the compiled
 /// binary.
 class BaseModule : public Module {
- public:
+public:
   enum class MacroDefType { Def, Undef };
 
   using OpenCLOptVec = std::vector<std::string>;
@@ -114,11 +114,11 @@ class BaseModule : public Module {
   /// is `compiler::Options::Mode::BUILD`.
   /// @retval `Result::COMPILE_PROGRAM_FAILURE` if compilation failed and `mode`
   /// is `compiler::Options::Mode::COMPILE`.
-  cargo::expected<spirv::ModuleInfo, Result> compileSPIRV(
-      cargo::array_view<const std::uint32_t> buffer,
-      const spirv::DeviceInfo &spirv_device_info,
-      cargo::optional<const spirv::SpecializationInfo &> spirv_spec_info)
-      override;
+  cargo::expected<spirv::ModuleInfo, Result>
+  compileSPIRV(cargo::array_view<const std::uint32_t> buffer,
+               const spirv::DeviceInfo &spirv_device_info,
+               cargo::optional<const spirv::SpecializationInfo &>
+                   spirv_spec_info) override;
 
   /// @brief Compile an OpenCL C program.
   ///
@@ -178,9 +178,9 @@ class BaseModule : public Module {
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when finalization failed. See
   /// the error log for more information.
-  Result finalize(
-      ProgramInfo *program_info,
-      std::vector<builtins::printf::descriptor> &printf_calls) override;
+  Result
+  finalize(ProgramInfo *program_info,
+           std::vector<builtins::printf::descriptor> &printf_calls) override;
 
   /// @brief Returns an object that represents a kernel contained within this
   /// module.
@@ -215,17 +215,18 @@ class BaseModule : public Module {
   ModuleState getState() const override final { return state; }
 
   /// @brief Return a new pass machinery to be used for the compilation pipeline
-  virtual std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
-      llvm::LLVMContext &);
+  virtual std::unique_ptr<compiler::utils::PassMachinery>
+  createPassMachinery(llvm::LLVMContext &);
 
   /// @brief Initialize a pass machinery for running in BaseModule's frontend
   /// pipelines.
-  virtual void initializePassMachineryForFrontend(
-      compiler::utils::PassMachinery &, const clang::CodeGenOptions &) const;
+  virtual void
+  initializePassMachineryForFrontend(compiler::utils::PassMachinery &,
+                                     const clang::CodeGenOptions &) const;
 
   /// @brief Initialize a pass machinery for running in BaseModule::finalize.
-  virtual void initializePassMachineryForFinalize(
-      compiler::utils::PassMachinery &) const;
+  virtual void
+  initializePassMachineryForFinalize(compiler::utils::PassMachinery &) const;
 
   /// @brief Custom diagnostic handler which intercepts ComputeMux diagnostics
   /// and logs them in the build log.
@@ -254,8 +255,7 @@ class BaseModule : public Module {
     ScopedDiagnosticHandler(
         BaseModule &base_module, llvm::LLVMContext &context,
         DiagnosticHandler::DiagnosticFilterTy filter_fn = nullptr)
-        : base_module(base_module),
-          context(context),
+        : base_module(base_module), context(context),
           old_handler(context.getDiagnosticHandler()) {
       context.setDiagnosticHandler(
           std::make_unique<DiagnosticHandler>(base_module, filter_fn));
@@ -269,7 +269,7 @@ class BaseModule : public Module {
     std::unique_ptr<llvm::DiagnosticHandler> old_handler;
   };
 
- protected:
+protected:
   /// @brief Create a module pass manager populated with target-specific
   /// middle-end compiler passes.
   ///
@@ -277,8 +277,8 @@ class BaseModule : public Module {
   /// `BaseModule::finalize`.
   ///
   /// @return LLVM module pass manager populated with target passes.
-  virtual llvm::ModulePassManager getLateTargetPasses(
-      compiler::utils::PassMachinery &) = 0;
+  virtual llvm::ModulePassManager
+  getLateTargetPasses(compiler::utils::PassMachinery &) = 0;
 
   /// @brief Creates a compiler::Kernel object from the module.
   ///
@@ -326,7 +326,7 @@ class BaseModule : public Module {
   /// is then emitted into the build log and passed to the notify callback if
   /// set.
   class FrontendDiagnosticPrinter : public clang::TextDiagnosticPrinter {
-   public:
+  public:
     FrontendDiagnosticPrinter(BaseModule &base_module,
                               clang::DiagnosticOptions &diags);
 
@@ -394,8 +394,8 @@ class BaseModule : public Module {
   ///
   /// @param[in] lang_opts Reference to clang lang options to be modified.
   /// @return Clang language standard matching the OpenCL version in use.
-  clang::LangStandard::Kind setClangOpenCLStandard(
-      clang::LangOptions &lang_opts) const;
+  clang::LangStandard::Kind
+  setClangOpenCLStandard(clang::LangOptions &lang_opts) const;
 
   /// @brief Populate clang preprocessor options with the macro directives
   /// specified in macro_defs.
@@ -503,7 +503,7 @@ class BaseModule : public Module {
   /// @brief Reference on the context this module belongs to.
   compiler::BaseContext &context;
 
- private:
+private:
   /// @brief Check if the opencl.kernels metadata exists in the binary's module,
   /// and create them if they don't.
   ///
@@ -528,8 +528,8 @@ class BaseModule : public Module {
   // between creating kernels and scheduled kernels those are locked directly.
   std::mutex kernel_mutex;
   std::map<std::string, std::unique_ptr<Kernel>> kernel_map;
-};  // class Module
+}; // class Module
 
 /// @}
-}  // namespace compiler
-#endif  // BASE_MODULE_H_INCLUDED
+} // namespace compiler
+#endif // BASE_MODULE_H_INCLUDED

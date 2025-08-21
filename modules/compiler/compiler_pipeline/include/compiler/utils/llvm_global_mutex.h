@@ -37,7 +37,7 @@ namespace utils {
 ///
 /// @return Returns a reference to the global LLVM mutex object.
 std::mutex &getLLVMGlobalMutex();
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_LLVM_GLOBAL_MUTEX_H_INCLUDED
+#endif // COMPILER_UTILS_LLVM_GLOBAL_MUTEX_H_INCLUDED

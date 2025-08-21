@@ -28,12 +28,11 @@ spv::Op getOpCode(const uint32_t *data, bool endianSwap) {
                                   ? cargo::byte_swap(*data) & spv::OpCodeMask
                                   : *data & spv::OpCodeMask);
 }
-}  // namespace
+} // namespace
 
 namespace spirv_ll {
 OpCode::OpCode(const iterator &iter)
-    : code(getOpCode(iter.word, iter.endianSwap)),
-      data(iter.word),
+    : code(getOpCode(iter.word, iter.endianSwap)), data(iter.word),
       endianSwap(iter.endianSwap) {}
 
 OpCode::OpCode(const OpCode &other, spv::Op code)
@@ -57,298 +56,297 @@ uint32_t OpCode::getValueAtOffset(int offset) const {
 uint64_t OpCode::getValueAtOffset(int offset, int words) const {
   uint64_t value = 0;
   switch (words) {
-    case 1:
-      value =
-          endianSwap ? cargo::byte_swap(*(data + offset)) : *(data + offset);
-      break;
-    case 2:
-      // We can't guarantee that data+offset is uint64_t aligned, so memcpy.
-      uint64_t load;
-      memcpy(&load, data + offset, sizeof(uint64_t));
-      value = endianSwap ? cargo::byte_swap(load) : load;
-      break;
-    default:
-      SPIRV_LL_ABORT("Unsupported value width in getValueAtOffset!");
+  case 1:
+    value = endianSwap ? cargo::byte_swap(*(data + offset)) : *(data + offset);
+    break;
+  case 2:
+    // We can't guarantee that data+offset is uint64_t aligned, so memcpy.
+    uint64_t load;
+    memcpy(&load, data + offset, sizeof(uint64_t));
+    value = endianSwap ? cargo::byte_swap(load) : load;
+    break;
+  default:
+    SPIRV_LL_ABORT("Unsupported value width in getValueAtOffset!");
   }
   return value;
 }
 
 bool OpCode::isType() const {
   switch (code) {
-    case spv::OpTypeVoid:
-    case spv::OpTypeBool:
-    case spv::OpTypeInt:
-    case spv::OpTypeFloat:
-    case spv::OpTypeVector:
-    case spv::OpTypeMatrix:
-    case spv::OpTypeImage:
-    case spv::OpTypeSampler:
-    case spv::OpTypeSampledImage:
-    case spv::OpTypeArray:
-    case spv::OpTypeRuntimeArray:
-    case spv::OpTypeStruct:
-    case spv::OpTypeOpaque:
-    case spv::OpTypePointer:
-    case spv::OpTypeFunction:
-    case spv::OpTypeEvent:
-    case spv::OpTypeDeviceEvent:
-    case spv::OpTypeReserveId:
-    case spv::OpTypeQueue:
-    case spv::OpTypePipe:
-    case spv::OpTypeForwardPointer:
-      return true;
-    default:
-      return false;
+  case spv::OpTypeVoid:
+  case spv::OpTypeBool:
+  case spv::OpTypeInt:
+  case spv::OpTypeFloat:
+  case spv::OpTypeVector:
+  case spv::OpTypeMatrix:
+  case spv::OpTypeImage:
+  case spv::OpTypeSampler:
+  case spv::OpTypeSampledImage:
+  case spv::OpTypeArray:
+  case spv::OpTypeRuntimeArray:
+  case spv::OpTypeStruct:
+  case spv::OpTypeOpaque:
+  case spv::OpTypePointer:
+  case spv::OpTypeFunction:
+  case spv::OpTypeEvent:
+  case spv::OpTypeDeviceEvent:
+  case spv::OpTypeReserveId:
+  case spv::OpTypeQueue:
+  case spv::OpTypePipe:
+  case spv::OpTypeForwardPointer:
+    return true;
+  default:
+    return false;
   }
 }
 
 bool OpCode::hasResult() const {
   switch (code) {
-    case spv::OpAccessChain:
-    case spv::OpAll:
-    case spv::OpAny:
-    case spv::OpArrayLength:
-    case spv::OpAtomicAnd:
-    case spv::OpAtomicCompareExchange:
-    case spv::OpAtomicCompareExchangeWeak:
-    case spv::OpAtomicExchange:
-    case spv::OpAtomicFlagTestAndSet:
-    case spv::OpAtomicIAdd:
-    case spv::OpAtomicIDecrement:
-    case spv::OpAtomicIIncrement:
-    case spv::OpAtomicISub:
-    case spv::OpAtomicLoad:
-    case spv::OpAtomicOr:
-    case spv::OpAtomicSMax:
-    case spv::OpAtomicSMin:
-    case spv::OpAtomicUMax:
-    case spv::OpAtomicUMin:
-    case spv::OpAtomicFAddEXT:
-    case spv::OpAtomicFMaxEXT:
-    case spv::OpAtomicFMinEXT:
-    case spv::OpAtomicXor:
-    case spv::OpBitCount:
-    case spv::OpBitFieldInsert:
-    case spv::OpBitFieldSExtract:
-    case spv::OpBitFieldUExtract:
-    case spv::OpBitReverse:
-    case spv::OpBitcast:
-    case spv::OpBitwiseAnd:
-    case spv::OpBitwiseOr:
-    case spv::OpBitwiseXor:
-    case spv::OpBuildNDRange:
-    case spv::OpGetKernelLocalSizeForSubgroupCount:
-    case spv::OpGetKernelMaxNumSubgroups:
-    case spv::OpCompositeConstruct:
-    case spv::OpCompositeExtract:
-    case spv::OpCompositeInsert:
-    case spv::OpConstant:
-    case spv::OpConstantComposite:
-    case spv::OpConstantFalse:
-    case spv::OpConstantNull:
-    case spv::OpConstantSampler:
-    case spv::OpConstantTrue:
-    case spv::OpConvertFToS:
-    case spv::OpConvertFToU:
-    case spv::OpConvertPtrToU:
-    case spv::OpConvertSToF:
-    case spv::OpConvertUToF:
-    case spv::OpConvertUToPtr:
-    case spv::OpCopyObject:
-    case spv::OpCreateUserEvent:
-    case spv::OpDPdx:
-    case spv::OpDPdxCoarse:
-    case spv::OpDPdxFine:
-    case spv::OpDPdy:
-    case spv::OpDPdyCoarse:
-    case spv::OpDPdyFine:
-    case spv::OpDot:
-    case spv::OpEnqueueKernel:
-    case spv::OpEnqueueMarker:
-    case spv::OpExtInst:
-    case spv::OpFAdd:
-    case spv::OpFConvert:
-    case spv::OpFDiv:
-    case spv::OpFMod:
-    case spv::OpFMul:
-    case spv::OpFNegate:
-    case spv::OpFOrdEqual:
-    case spv::OpFOrdGreaterThan:
-    case spv::OpFOrdGreaterThanEqual:
-    case spv::OpFOrdLessThan:
-    case spv::OpFOrdLessThanEqual:
-    case spv::OpFOrdNotEqual:
-    case spv::OpFRem:
-    case spv::OpFSub:
-    case spv::OpFUnordEqual:
-    case spv::OpFUnordGreaterThan:
-    case spv::OpFUnordGreaterThanEqual:
-    case spv::OpFUnordLessThan:
-    case spv::OpFUnordLessThanEqual:
-    case spv::OpFUnordNotEqual:
-    case spv::OpFunction:
-    case spv::OpFunctionCall:
-    case spv::OpFunctionParameter:
-    case spv::OpFwidth:
-    case spv::OpFwidthCoarse:
-    case spv::OpFwidthFine:
-    case spv::OpGenericCastToPtr:
-    case spv::OpGenericCastToPtrExplicit:
-    case spv::OpGenericPtrMemSemantics:
-    case spv::OpGetDefaultQueue:
-    case spv::OpGetKernelNDrangeMaxSubGroupSize:
-    case spv::OpGetKernelNDrangeSubGroupCount:
-    case spv::OpGetKernelPreferredWorkGroupSizeMultiple:
-    case spv::OpGetKernelWorkGroupSize:
-    case spv::OpGetMaxPipePackets:
-    case spv::OpGetNumPipePackets:
-    case spv::OpGroupAll:
-    case spv::OpGroupAny:
-    case spv::OpGroupAsyncCopy:
-    case spv::OpGroupBroadcast:
-    case spv::OpGroupFAdd:
-    case spv::OpGroupFMax:
-    case spv::OpGroupFMin:
-    case spv::OpGroupIAdd:
-    case spv::OpGroupReserveReadPipePackets:
-    case spv::OpGroupReserveWritePipePackets:
-    case spv::OpGroupSMax:
-    case spv::OpGroupSMin:
-    case spv::OpGroupUMax:
-    case spv::OpGroupUMin:
-    case spv::OpGroupFMulKHR:
-    case spv::OpGroupIMulKHR:
-    case spv::OpGroupBitwiseAndKHR:
-    case spv::OpGroupLogicalAndKHR:
-    case spv::OpGroupBitwiseOrKHR:
-    case spv::OpGroupLogicalOrKHR:
-    case spv::OpGroupBitwiseXorKHR:
-    case spv::OpGroupLogicalXorKHR:
-    case spv::OpIAdd:
-    case spv::OpIAddCarry:
-    case spv::OpIEqual:
-    case spv::OpIMul:
-    case spv::OpINotEqual:
-    case spv::OpISub:
-    case spv::OpISubBorrow:
-    case spv::OpImage:
-    case spv::OpImageDrefGather:
-    case spv::OpImageFetch:
-    case spv::OpImageGather:
-    case spv::OpImageQueryFormat:
-    case spv::OpImageQueryLevels:
-    case spv::OpImageQueryLod:
-    case spv::OpImageQueryOrder:
-    case spv::OpImageQuerySamples:
-    case spv::OpImageQuerySize:
-    case spv::OpImageQuerySizeLod:
-    case spv::OpImageRead:
-    case spv::OpImageSampleDrefExplicitLod:
-    case spv::OpImageSampleDrefImplicitLod:
-    case spv::OpImageSampleExplicitLod:
-    case spv::OpImageSampleImplicitLod:
-    case spv::OpImageSampleProjDrefExplicitLod:
-    case spv::OpImageSampleProjDrefImplicitLod:
-    case spv::OpImageSampleProjExplicitLod:
-    case spv::OpImageSampleProjImplicitLod:
-    case spv::OpImageSparseDrefGather:
-    case spv::OpImageSparseFetch:
-    case spv::OpImageSparseGather:
-    case spv::OpImageSparseRead:
-    case spv::OpImageSparseSampleDrefExplicitLod:
-    case spv::OpImageSparseSampleDrefImplicitLod:
-    case spv::OpImageSparseSampleExplicitLod:
-    case spv::OpImageSparseSampleImplicitLod:
-    case spv::OpImageSparseSampleProjDrefExplicitLod:
-    case spv::OpImageSparseSampleProjDrefImplicitLod:
-    case spv::OpImageSparseSampleProjExplicitLod:
-    case spv::OpImageSparseSampleProjImplicitLod:
-    case spv::OpImageSparseTexelsResident:
-    case spv::OpImageTexelPointer:
-    case spv::OpInBoundsAccessChain:
-    case spv::OpInBoundsPtrAccessChain:
-    case spv::OpIsFinite:
-    case spv::OpIsInf:
-    case spv::OpIsNan:
-    case spv::OpIsNormal:
-    case spv::OpIsValidEvent:
-    case spv::OpIsValidReserveId:
-    case spv::OpLessOrGreater:
-    case spv::OpLoad:
-    case spv::OpLogicalAnd:
-    case spv::OpLogicalEqual:
-    case spv::OpLogicalNot:
-    case spv::OpLogicalNotEqual:
-    case spv::OpLogicalOr:
-    case spv::OpMatrixTimesMatrix:
-    case spv::OpMatrixTimesScalar:
-    case spv::OpMatrixTimesVector:
-    case spv::OpNot:
-    case spv::OpOrdered:
-    case spv::OpOuterProduct:
-    case spv::OpPhi:
-    case spv::OpPtrAccessChain:
-    case spv::OpPtrCastToGeneric:
-    case spv::OpQuantizeToF16:
-    case spv::OpReadPipe:
-    case spv::OpReserveReadPipePackets:
-    case spv::OpReserveWritePipePackets:
-    case spv::OpReservedReadPipe:
-    case spv::OpReservedWritePipe:
-    case spv::OpSConvert:
-    case spv::OpSDiv:
-    case spv::OpSGreaterThan:
-    case spv::OpSGreaterThanEqual:
-    case spv::OpSLessThan:
-    case spv::OpSLessThanEqual:
-    case spv::OpSMod:
-    case spv::OpSMulExtended:
-    case spv::OpSNegate:
-    case spv::OpSRem:
-    case spv::OpSampledImage:
-    case spv::OpSatConvertSToU:
-    case spv::OpSatConvertUToS:
-    case spv::OpSelect:
-    case spv::OpShiftLeftLogical:
-    case spv::OpShiftRightArithmetic:
-    case spv::OpShiftRightLogical:
-    case spv::OpSignBitSet:
-    case spv::OpSpecConstant:
-    case spv::OpSpecConstantComposite:
-    case spv::OpSpecConstantFalse:
-    case spv::OpSpecConstantOp:
-    case spv::OpSpecConstantTrue:
-    case spv::OpSubgroupAllEqualKHR:
-    case spv::OpSubgroupAllKHR:
-    case spv::OpSubgroupAnyKHR:
-    case spv::OpSubgroupBallotKHR:
-    case spv::OpSubgroupFirstInvocationKHR:
-    case spv::OpSubgroupReadInvocationKHR:
-    case spv::OpSubgroupShuffleINTEL:
-    case spv::OpSubgroupShuffleUpINTEL:
-    case spv::OpSubgroupShuffleDownINTEL:
-    case spv::OpSubgroupShuffleXorINTEL:
-    case spv::OpTranspose:
-    case spv::OpUConvert:
-    case spv::OpUDiv:
-    case spv::OpUGreaterThan:
-    case spv::OpUGreaterThanEqual:
-    case spv::OpULessThan:
-    case spv::OpULessThanEqual:
-    case spv::OpUMod:
-    case spv::OpUMulExtended:
-    case spv::OpUndef:
-    case spv::OpUnordered:
-    case spv::OpVariable:
-    case spv::OpVectorExtractDynamic:
-    case spv::OpVectorInsertDynamic:
-    case spv::OpVectorShuffle:
-    case spv::OpVectorTimesMatrix:
-    case spv::OpVectorTimesScalar:
-    case spv::OpWritePipe:
-      return true;
-    default:
-      return false;
+  case spv::OpAccessChain:
+  case spv::OpAll:
+  case spv::OpAny:
+  case spv::OpArrayLength:
+  case spv::OpAtomicAnd:
+  case spv::OpAtomicCompareExchange:
+  case spv::OpAtomicCompareExchangeWeak:
+  case spv::OpAtomicExchange:
+  case spv::OpAtomicFlagTestAndSet:
+  case spv::OpAtomicIAdd:
+  case spv::OpAtomicIDecrement:
+  case spv::OpAtomicIIncrement:
+  case spv::OpAtomicISub:
+  case spv::OpAtomicLoad:
+  case spv::OpAtomicOr:
+  case spv::OpAtomicSMax:
+  case spv::OpAtomicSMin:
+  case spv::OpAtomicUMax:
+  case spv::OpAtomicUMin:
+  case spv::OpAtomicFAddEXT:
+  case spv::OpAtomicFMaxEXT:
+  case spv::OpAtomicFMinEXT:
+  case spv::OpAtomicXor:
+  case spv::OpBitCount:
+  case spv::OpBitFieldInsert:
+  case spv::OpBitFieldSExtract:
+  case spv::OpBitFieldUExtract:
+  case spv::OpBitReverse:
+  case spv::OpBitcast:
+  case spv::OpBitwiseAnd:
+  case spv::OpBitwiseOr:
+  case spv::OpBitwiseXor:
+  case spv::OpBuildNDRange:
+  case spv::OpGetKernelLocalSizeForSubgroupCount:
+  case spv::OpGetKernelMaxNumSubgroups:
+  case spv::OpCompositeConstruct:
+  case spv::OpCompositeExtract:
+  case spv::OpCompositeInsert:
+  case spv::OpConstant:
+  case spv::OpConstantComposite:
+  case spv::OpConstantFalse:
+  case spv::OpConstantNull:
+  case spv::OpConstantSampler:
+  case spv::OpConstantTrue:
+  case spv::OpConvertFToS:
+  case spv::OpConvertFToU:
+  case spv::OpConvertPtrToU:
+  case spv::OpConvertSToF:
+  case spv::OpConvertUToF:
+  case spv::OpConvertUToPtr:
+  case spv::OpCopyObject:
+  case spv::OpCreateUserEvent:
+  case spv::OpDPdx:
+  case spv::OpDPdxCoarse:
+  case spv::OpDPdxFine:
+  case spv::OpDPdy:
+  case spv::OpDPdyCoarse:
+  case spv::OpDPdyFine:
+  case spv::OpDot:
+  case spv::OpEnqueueKernel:
+  case spv::OpEnqueueMarker:
+  case spv::OpExtInst:
+  case spv::OpFAdd:
+  case spv::OpFConvert:
+  case spv::OpFDiv:
+  case spv::OpFMod:
+  case spv::OpFMul:
+  case spv::OpFNegate:
+  case spv::OpFOrdEqual:
+  case spv::OpFOrdGreaterThan:
+  case spv::OpFOrdGreaterThanEqual:
+  case spv::OpFOrdLessThan:
+  case spv::OpFOrdLessThanEqual:
+  case spv::OpFOrdNotEqual:
+  case spv::OpFRem:
+  case spv::OpFSub:
+  case spv::OpFUnordEqual:
+  case spv::OpFUnordGreaterThan:
+  case spv::OpFUnordGreaterThanEqual:
+  case spv::OpFUnordLessThan:
+  case spv::OpFUnordLessThanEqual:
+  case spv::OpFUnordNotEqual:
+  case spv::OpFunction:
+  case spv::OpFunctionCall:
+  case spv::OpFunctionParameter:
+  case spv::OpFwidth:
+  case spv::OpFwidthCoarse:
+  case spv::OpFwidthFine:
+  case spv::OpGenericCastToPtr:
+  case spv::OpGenericCastToPtrExplicit:
+  case spv::OpGenericPtrMemSemantics:
+  case spv::OpGetDefaultQueue:
+  case spv::OpGetKernelNDrangeMaxSubGroupSize:
+  case spv::OpGetKernelNDrangeSubGroupCount:
+  case spv::OpGetKernelPreferredWorkGroupSizeMultiple:
+  case spv::OpGetKernelWorkGroupSize:
+  case spv::OpGetMaxPipePackets:
+  case spv::OpGetNumPipePackets:
+  case spv::OpGroupAll:
+  case spv::OpGroupAny:
+  case spv::OpGroupAsyncCopy:
+  case spv::OpGroupBroadcast:
+  case spv::OpGroupFAdd:
+  case spv::OpGroupFMax:
+  case spv::OpGroupFMin:
+  case spv::OpGroupIAdd:
+  case spv::OpGroupReserveReadPipePackets:
+  case spv::OpGroupReserveWritePipePackets:
+  case spv::OpGroupSMax:
+  case spv::OpGroupSMin:
+  case spv::OpGroupUMax:
+  case spv::OpGroupUMin:
+  case spv::OpGroupFMulKHR:
+  case spv::OpGroupIMulKHR:
+  case spv::OpGroupBitwiseAndKHR:
+  case spv::OpGroupLogicalAndKHR:
+  case spv::OpGroupBitwiseOrKHR:
+  case spv::OpGroupLogicalOrKHR:
+  case spv::OpGroupBitwiseXorKHR:
+  case spv::OpGroupLogicalXorKHR:
+  case spv::OpIAdd:
+  case spv::OpIAddCarry:
+  case spv::OpIEqual:
+  case spv::OpIMul:
+  case spv::OpINotEqual:
+  case spv::OpISub:
+  case spv::OpISubBorrow:
+  case spv::OpImage:
+  case spv::OpImageDrefGather:
+  case spv::OpImageFetch:
+  case spv::OpImageGather:
+  case spv::OpImageQueryFormat:
+  case spv::OpImageQueryLevels:
+  case spv::OpImageQueryLod:
+  case spv::OpImageQueryOrder:
+  case spv::OpImageQuerySamples:
+  case spv::OpImageQuerySize:
+  case spv::OpImageQuerySizeLod:
+  case spv::OpImageRead:
+  case spv::OpImageSampleDrefExplicitLod:
+  case spv::OpImageSampleDrefImplicitLod:
+  case spv::OpImageSampleExplicitLod:
+  case spv::OpImageSampleImplicitLod:
+  case spv::OpImageSampleProjDrefExplicitLod:
+  case spv::OpImageSampleProjDrefImplicitLod:
+  case spv::OpImageSampleProjExplicitLod:
+  case spv::OpImageSampleProjImplicitLod:
+  case spv::OpImageSparseDrefGather:
+  case spv::OpImageSparseFetch:
+  case spv::OpImageSparseGather:
+  case spv::OpImageSparseRead:
+  case spv::OpImageSparseSampleDrefExplicitLod:
+  case spv::OpImageSparseSampleDrefImplicitLod:
+  case spv::OpImageSparseSampleExplicitLod:
+  case spv::OpImageSparseSampleImplicitLod:
+  case spv::OpImageSparseSampleProjDrefExplicitLod:
+  case spv::OpImageSparseSampleProjDrefImplicitLod:
+  case spv::OpImageSparseSampleProjExplicitLod:
+  case spv::OpImageSparseSampleProjImplicitLod:
+  case spv::OpImageSparseTexelsResident:
+  case spv::OpImageTexelPointer:
+  case spv::OpInBoundsAccessChain:
+  case spv::OpInBoundsPtrAccessChain:
+  case spv::OpIsFinite:
+  case spv::OpIsInf:
+  case spv::OpIsNan:
+  case spv::OpIsNormal:
+  case spv::OpIsValidEvent:
+  case spv::OpIsValidReserveId:
+  case spv::OpLessOrGreater:
+  case spv::OpLoad:
+  case spv::OpLogicalAnd:
+  case spv::OpLogicalEqual:
+  case spv::OpLogicalNot:
+  case spv::OpLogicalNotEqual:
+  case spv::OpLogicalOr:
+  case spv::OpMatrixTimesMatrix:
+  case spv::OpMatrixTimesScalar:
+  case spv::OpMatrixTimesVector:
+  case spv::OpNot:
+  case spv::OpOrdered:
+  case spv::OpOuterProduct:
+  case spv::OpPhi:
+  case spv::OpPtrAccessChain:
+  case spv::OpPtrCastToGeneric:
+  case spv::OpQuantizeToF16:
+  case spv::OpReadPipe:
+  case spv::OpReserveReadPipePackets:
+  case spv::OpReserveWritePipePackets:
+  case spv::OpReservedReadPipe:
+  case spv::OpReservedWritePipe:
+  case spv::OpSConvert:
+  case spv::OpSDiv:
+  case spv::OpSGreaterThan:
+  case spv::OpSGreaterThanEqual:
+  case spv::OpSLessThan:
+  case spv::OpSLessThanEqual:
+  case spv::OpSMod:
+  case spv::OpSMulExtended:
+  case spv::OpSNegate:
+  case spv::OpSRem:
+  case spv::OpSampledImage:
+  case spv::OpSatConvertSToU:
+  case spv::OpSatConvertUToS:
+  case spv::OpSelect:
+  case spv::OpShiftLeftLogical:
+  case spv::OpShiftRightArithmetic:
+  case spv::OpShiftRightLogical:
+  case spv::OpSignBitSet:
+  case spv::OpSpecConstant:
+  case spv::OpSpecConstantComposite:
+  case spv::OpSpecConstantFalse:
+  case spv::OpSpecConstantOp:
+  case spv::OpSpecConstantTrue:
+  case spv::OpSubgroupAllEqualKHR:
+  case spv::OpSubgroupAllKHR:
+  case spv::OpSubgroupAnyKHR:
+  case spv::OpSubgroupBallotKHR:
+  case spv::OpSubgroupFirstInvocationKHR:
+  case spv::OpSubgroupReadInvocationKHR:
+  case spv::OpSubgroupShuffleINTEL:
+  case spv::OpSubgroupShuffleUpINTEL:
+  case spv::OpSubgroupShuffleDownINTEL:
+  case spv::OpSubgroupShuffleXorINTEL:
+  case spv::OpTranspose:
+  case spv::OpUConvert:
+  case spv::OpUDiv:
+  case spv::OpUGreaterThan:
+  case spv::OpUGreaterThanEqual:
+  case spv::OpULessThan:
+  case spv::OpULessThanEqual:
+  case spv::OpUMod:
+  case spv::OpUMulExtended:
+  case spv::OpUndef:
+  case spv::OpUnordered:
+  case spv::OpVariable:
+  case spv::OpVectorExtractDynamic:
+  case spv::OpVectorInsertDynamic:
+  case spv::OpVectorShuffle:
+  case spv::OpVectorTimesMatrix:
+  case spv::OpVectorTimesScalar:
+  case spv::OpWritePipe:
+    return true;
+  default:
+    return false;
   }
 }
 
@@ -1565,8 +1563,8 @@ spv::Id OpSwitch::Selector() const { return getValueAtOffset(1); }
 
 spv::Id OpSwitch::Default() const { return getValueAtOffset(2); }
 
-llvm::SmallVector<OpSwitch::TargetT, 4> OpSwitch::Target(
-    uint16_t literalWords) const {
+llvm::SmallVector<OpSwitch::TargetT, 4>
+OpSwitch::Target(uint16_t literalWords) const {
   llvm::SmallVector<TargetT, 4> targets;
   // Target pairs are an ID which is always one word and a literal which can be
   // one or two words.
@@ -2182,4 +2180,4 @@ std::optional<spv::Capability> getCapabilityFromString(const std::string &cap) {
       .Default(static_cast<spv::Capability>(0));
 }
 
-}  // namespace spirv_ll
+} // namespace spirv_ll

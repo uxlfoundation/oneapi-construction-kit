@@ -45,7 +45,7 @@ struct USMMemSetTest : public cl_intel_unified_shared_memory_Test {
 
   cl_command_queue queue = nullptr;
 };
-}  // namespace
+} // namespace
 
 TEST_F(USMMemSetTest, InvalidUsage) {
   // Test various error codes

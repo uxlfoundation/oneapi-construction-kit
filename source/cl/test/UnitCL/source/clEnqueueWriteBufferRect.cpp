@@ -30,11 +30,11 @@ enum {
 };
 
 static const cl_uchar INITIAL_BUFFER_DATA = 0xFF;
-}  // namespace
+} // namespace
 
 class clEnqueueWriteBufferRectTest : public ucl::CommandQueueTest,
                                      TestWithEventWaitList {
- protected:
+protected:
   cl_uchar write_data[TOTAL_LENGTH] = {};
   cl_uchar buffer_data[TOTAL_LENGTH] = {};
   cl_mem buffer = nullptr;
@@ -99,11 +99,11 @@ TEST_F(clEnqueueWriteBufferRectTest, NullBuffer) {
   const size_t region[DIMENSIONS] = {HALF_DIMENSION_LENGTH,
                                      HALF_DIMENSION_LENGTH, 1};
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueWriteBufferRect(command_queue, nullptr, CL_FALSE, buffer_origin,
-                               host_origin, region, 0, 0, 0, 0, write_data, 0,
-                               nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueWriteBufferRect(command_queue, nullptr, CL_FALSE,
+                                             buffer_origin, host_origin, region,
+                                             0, 0, 0, 0, write_data, 0, nullptr,
+                                             nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferRectTest, NullPtr) {
@@ -134,12 +134,12 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidRegion) {
   const size_t host_row_pitch = DIMENSION_LENGTH;
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, nullptr,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, nullptr, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferRectTest, InvalidBufferOrigin) {
@@ -152,12 +152,12 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidBufferOrigin) {
   const size_t host_row_pitch = DIMENSION_LENGTH;
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, nullptr, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, nullptr, host_origin,
+                        region, buffer_row_pitch, buffer_slice_pitch,
+                        host_row_pitch, host_slice_pitch, write_data, 0,
+                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferRectTest, InvalidHostOrigin) {
@@ -170,12 +170,12 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidHostOrigin) {
   const size_t host_row_pitch = DIMENSION_LENGTH;
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, nullptr, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin, nullptr,
+                        region, buffer_row_pitch, buffer_slice_pitch,
+                        host_row_pitch, host_slice_pitch, write_data, 0,
+                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferRectTest, RegionElementZero) {
@@ -189,28 +189,28 @@ TEST_F(clEnqueueWriteBufferRectTest, RegionElementZero) {
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
   region[0] = 0;
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
   region[1] = 0;
   region[0] = 8 * sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
   region[2] = 0;
   region[1] = 8 * sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteBufferRectTest, InvalidPitchValues) {
@@ -224,21 +224,21 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidPitchValues) {
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
   // Not zero, less than region[0]
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE, buffer_origin,
-                               host_origin, region, buffer_row_pitch - 1, 0, 0,
-                               0, write_data, 0, nullptr, nullptr));
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE, buffer_origin,
-                               host_origin, region, 0, buffer_slice_pitch - 1,
-                               0, 0, write_data, 0, nullptr, nullptr));
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE, buffer_origin,
-                               host_origin, region, 0, 0, host_row_pitch - 1, 0,
-                               write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
+                                             buffer_origin, host_origin, region,
+                                             buffer_row_pitch - 1, 0, 0, 0,
+                                             write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
+                                             buffer_origin, host_origin, region,
+                                             0, buffer_slice_pitch - 1, 0, 0,
+                                             write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
+                                             buffer_origin, host_origin, region,
+                                             0, 0, host_row_pitch - 1, 0,
+                                             write_data, 0, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
                                              buffer_origin, host_origin, region,
@@ -246,11 +246,11 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidPitchValues) {
                                              write_data, 0, nullptr, nullptr));
 
   // One more than valid, not multiple
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE, buffer_origin,
-                               host_origin, region, 0, buffer_slice_pitch + 1,
-                               0, 0, write_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
+                                             buffer_origin, host_origin, region,
+                                             0, buffer_slice_pitch + 1, 0, 0,
+                                             write_data, 0, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clEnqueueWriteBufferRect(command_queue, buffer, CL_FALSE,
                                              buffer_origin, host_origin, region,
@@ -269,24 +269,24 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidEventWaitList) {
   const size_t host_row_pitch = DIMENSION_LENGTH;
   const size_t host_slice_pitch = host_row_pitch * DIMENSION_LENGTH;
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_EVENT_WAIT_LIST,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 1, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_EVENT_WAIT_LIST,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 1, nullptr, nullptr));
 
   cl_int errcode;
   cl_event event = clCreateUserEvent(context, &errcode);
   EXPECT_TRUE(event);
   ASSERT_SUCCESS(errcode);
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_EVENT_WAIT_LIST,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_FALSE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, &event, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_EVENT_WAIT_LIST,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, &event, nullptr));
 
   ASSERT_SUCCESS(clReleaseEvent(event));
 }
@@ -307,24 +307,24 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidOperation) {
       context, CL_MEM_HOST_READ_ONLY, TOTAL_LENGTH, nullptr, &errcode);
   EXPECT_TRUE(host_read_only_buffer);
   EXPECT_SUCCESS(errcode);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueWriteBufferRect(
-          command_queue, host_read_only_buffer, CL_TRUE, buffer_origin,
-          host_origin, region, buffer_row_pitch, buffer_slice_pitch,
-          host_row_pitch, host_slice_pitch, write_data, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueWriteBufferRect(
+                        command_queue, host_read_only_buffer, CL_TRUE,
+                        buffer_origin, host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
   EXPECT_SUCCESS(clReleaseMemObject(host_read_only_buffer));
 
   cl_mem hostNoAccessBuffer = clCreateBuffer(context, CL_MEM_HOST_READ_ONLY,
                                              TOTAL_LENGTH, nullptr, &errcode);
   EXPECT_TRUE(hostNoAccessBuffer);
   EXPECT_SUCCESS(errcode);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueWriteBufferRect(
-          command_queue, hostNoAccessBuffer, CL_FALSE, buffer_origin,
-          host_origin, region, buffer_row_pitch, buffer_slice_pitch,
-          host_row_pitch, host_slice_pitch, write_data, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueWriteBufferRect(
+                        command_queue, hostNoAccessBuffer, CL_FALSE,
+                        buffer_origin, host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
   EXPECT_SUCCESS(clReleaseMemObject(hostNoAccessBuffer));
 }
 
@@ -351,24 +351,24 @@ TEST_F(clEnqueueWriteBufferRectTest, InvalidContext) {
   EXPECT_SUCCESS(errcode);
 
   // check command_queue/buffer context mismatch
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueWriteBufferRect(
-          command_queue, other_buffer, CL_FALSE, buffer_origin, host_origin,
-          region, buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueWriteBufferRect(
+                        command_queue, other_buffer, CL_FALSE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 0, nullptr, nullptr));
 
   cl_event event = clCreateUserEvent(other_context, &errcode);
   EXPECT_TRUE(event);
   EXPECT_SUCCESS(errcode);
 
   // check command_queue/event_wait_list context mismatch
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueWriteBufferRect(
-          command_queue, buffer, CL_TRUE, buffer_origin, host_origin, region,
-          buffer_row_pitch, buffer_slice_pitch, host_row_pitch,
-          host_slice_pitch, write_data, 1, &event, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueWriteBufferRect(
+                        command_queue, buffer, CL_TRUE, buffer_origin,
+                        host_origin, region, buffer_row_pitch,
+                        buffer_slice_pitch, host_row_pitch, host_slice_pitch,
+                        write_data, 1, &event, nullptr));
 
   EXPECT_SUCCESS(clReleaseEvent(event));
   EXPECT_SUCCESS(clReleaseMemObject(other_buffer));

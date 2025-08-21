@@ -556,7 +556,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     cargo::dynamic_array<unsigned char> constant_buffer;
     ASSERT_EQ(cargo::success, constant_buffer.alloc(type_size));
     if (test_value_types) {
-      {  // <type> t
+      { // <type> t
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_PRIVATE, arg.address_qualifier)
@@ -572,7 +572,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // const <type> ct
+      { // const <type> ct
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_PRIVATE, arg.address_qualifier)
@@ -589,7 +589,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // volatile <type> vt
+      { // volatile <type> vt
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_PRIVATE, arg.address_qualifier)
@@ -606,7 +606,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // const volatile <type> cvt
+      { // const volatile <type> cvt
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error) << "Argument index: " << arg_index;
         EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_PRIVATE, arg.address_qualifier)
@@ -633,20 +633,20 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
           CL_KERNEL_ARG_ADDRESS_CONSTANT}) {
       std::string addrspace;
       switch (address_qualifier) {
-        case CL_KERNEL_ARG_ADDRESS_LOCAL:
-          addrspace = "lo";
-          break;
-        case CL_KERNEL_ARG_ADDRESS_GLOBAL:
-          addrspace = "gl";
-          break;
-        case CL_KERNEL_ARG_ADDRESS_CONSTANT:
-          addrspace = "co";
-          break;
-        default:
-          FAIL() << "Unexpected address qualifier.";
+      case CL_KERNEL_ARG_ADDRESS_LOCAL:
+        addrspace = "lo";
+        break;
+      case CL_KERNEL_ARG_ADDRESS_GLOBAL:
+        addrspace = "gl";
+        break;
+      case CL_KERNEL_ARG_ADDRESS_CONSTANT:
+        addrspace = "co";
+        break;
+      default:
+        FAIL() << "Unexpected address qualifier.";
       }
 
-      {  // <address_qualifier> <type>* <addrspace>p
+      { // <address_qualifier> <type>* <addrspace>p
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -667,7 +667,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> const <type>* <addrspace>cp
+      { // <address_qualifier> const <type>* <addrspace>cp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -684,7 +684,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> volatile <type>* <addrspace>vp
+      { // <address_qualifier> volatile <type>* <addrspace>vp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error) << "Argument index: " << arg_index;
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -707,7 +707,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> <type>* restrict <addrspace>rp
+      { // <address_qualifier> <type>* restrict <addrspace>rp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error) << "Argument index: " << arg_index;
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -730,7 +730,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> const volatile <type>* <addrspace>vp
+      { // <address_qualifier> const volatile <type>* <addrspace>vp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -748,7 +748,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> const volatile <type>* <addrspace>vp
+      { // <address_qualifier> const volatile <type>* <addrspace>vp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -766,7 +766,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> volatile <type>* restrict <addrspace>vp
+      { // <address_qualifier> volatile <type>* restrict <addrspace>vp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -791,7 +791,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
         arg_index++;
       }
 
-      {  // <address_qualifier> const volatile <type>* restrict <addrspace>cvrp
+      { // <address_qualifier> const volatile <type>* restrict <addrspace>cvrp
         auto arg = getKernelArgInfo(arg_index, &error);
         EXPECT_SUCCESS(error);
         EXPECT_EQ(address_qualifier, arg.address_qualifier)
@@ -830,7 +830,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
     cl_int error;
     cl_uint arg_index = 0;
 
-    {  // <image_type> i
+    { // <image_type> i
       auto arg = getKernelArgInfo(arg_index, &error);
       EXPECT_SUCCESS(error) << "Argument index: " << arg_index;
       EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_GLOBAL, arg.address_qualifier)
@@ -845,7 +845,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
           clSetKernelArg(kernel, arg_index, sizeof(cl_mem), nullptr));
     }
 
-    {  // read_only <image_type> roi
+    { // read_only <image_type> roi
       arg_index++;
       auto arg = getKernelArgInfo(arg_index, &error);
       EXPECT_SUCCESS(error) << "Argument index: " << arg_index;
@@ -861,7 +861,7 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
           clSetKernelArg(kernel, arg_index, sizeof(cl_mem), nullptr));
     }
 
-    {  // write_only <image_type> woi
+    { // write_only <image_type> woi
       const bool image3d_writes =
           UCL::hasDeviceExtensionSupport(device, "cl_khr_3d_image_writes");
       size_t size;
@@ -902,24 +902,24 @@ struct hostBuiltInKernelsArgsTest : ucl::ContextTest {
   cl_kernel kernel = nullptr;
 };
 
-#define TEST_BUILTIN_KERNEL_NUMERIC_ARGS(TYPE, SIZE)    \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE) {     \
-    test_numeric_args(#TYPE, SIZE);                     \
-  }                                                     \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##2) {  \
-    test_numeric_args(#TYPE STR(2), SIZE * 2);          \
-  }                                                     \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##3) {  \
-    test_numeric_args(#TYPE STR(3), SIZE * 4);          \
-  }                                                     \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##4) {  \
-    test_numeric_args(#TYPE STR(4), SIZE * 4);          \
-  }                                                     \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##8) {  \
-    test_numeric_args(#TYPE STR(8), SIZE * 8);          \
-  }                                                     \
-  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##16) { \
-    test_numeric_args(#TYPE STR(16), SIZE * 16);        \
+#define TEST_BUILTIN_KERNEL_NUMERIC_ARGS(TYPE, SIZE)                           \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE) {                            \
+    test_numeric_args(#TYPE, SIZE);                                            \
+  }                                                                            \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##2) {                         \
+    test_numeric_args(#TYPE STR(2), SIZE * 2);                                 \
+  }                                                                            \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##3) {                         \
+    test_numeric_args(#TYPE STR(3), SIZE * 4);                                 \
+  }                                                                            \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##4) {                         \
+    test_numeric_args(#TYPE STR(4), SIZE * 4);                                 \
+  }                                                                            \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##8) {                         \
+    test_numeric_args(#TYPE STR(8), SIZE * 8);                                 \
+  }                                                                            \
+  TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE##16) {                        \
+    test_numeric_args(#TYPE STR(16), SIZE * 16);                               \
   }
 
 TEST_BUILTIN_KERNEL_NUMERIC_ARGS(char, sizeof(cl_char))
@@ -957,7 +957,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_address_qualifiers) {
   cl_mem buffer = clCreateBuffer(context, 0, 16, nullptr, &error);
   ASSERT_SUCCESS(error);
 
-  {  // __local int loi
+  { // __local int loi
     auto arg = getKernelArgInfo(0, &error);
     ASSERT_SUCCESS(error);
     EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_LOCAL, arg.address_qualifier);
@@ -968,7 +968,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_address_qualifiers) {
     EXPECT_SUCCESS(clSetKernelArg(kernel, 0, sizeof(nullptr), nullptr));
   }
 
-  {  // __global int gli
+  { // __global int gli
     auto arg = getKernelArgInfo(1, &error);
     ASSERT_SUCCESS(error);
     EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_GLOBAL, arg.address_qualifier);
@@ -979,7 +979,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_address_qualifiers) {
     EXPECT_SUCCESS(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&buffer));
   }
 
-  {  // __constant int coi
+  { // __constant int coi
     auto arg = getKernelArgInfo(2, &error);
     ASSERT_SUCCESS(error);
     EXPECT_EQ(CL_KERNEL_ARG_ADDRESS_CONSTANT, arg.address_qualifier);
@@ -993,7 +993,7 @@ TEST_F(hostBuiltInKernelsArgsTest, args_address_qualifiers) {
   EXPECT_SUCCESS(clReleaseMemObject(buffer));
 }
 
-#define TEST_BUILTIN_KERNEL_IMAGE_ARGS(TYPE) \
+#define TEST_BUILTIN_KERNEL_IMAGE_ARGS(TYPE)                                   \
   TEST_F(hostBuiltInKernelsArgsTest, args_##TYPE) { test_image_args(#TYPE); }
 
 TEST_BUILTIN_KERNEL_IMAGE_ARGS(image1d_t)

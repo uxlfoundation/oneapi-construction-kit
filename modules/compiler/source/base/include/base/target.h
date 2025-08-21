@@ -31,7 +31,7 @@ class BaseContext;
 
 /// @brief Compiler target class.
 class BaseTarget : public Target {
- public:
+public:
   BaseTarget(const compiler::Info *compiler_info, compiler::Context *context,
              compiler::NotifyCallbackFn callback);
 
@@ -110,7 +110,7 @@ class BaseTarget : public Target {
     return static_cast<ResultTy>(*resultPtr.value());
   }
 
- protected:
+protected:
   /// @brief Initialize the compiler target after loading the builtins module.
   ///
   /// @param builtins an LLVM module containing the embedded builtins based on
@@ -135,7 +135,7 @@ class BaseTarget : public Target {
 /// This target owns the LLVMContext and dependent LLVM resources like the
 /// builtins module, if used.
 class BaseAOTTarget : public BaseTarget {
- public:
+public:
   BaseAOTTarget(const compiler::Info *compiler_info, compiler::Context *context,
                 NotifyCallbackFn callback);
 
@@ -146,7 +146,7 @@ class BaseAOTTarget : public BaseTarget {
   /// @see BaseTarget::getBuiltins
   llvm::Module *getBuiltins() const override { return builtins.get(); };
 
- protected:
+protected:
   /// @brief LLVM context.
   llvm::LLVMContext llvm_context;
 
@@ -159,6 +159,6 @@ class BaseAOTTarget : public BaseTarget {
   std::unique_ptr<llvm::Module> builtins;
 };
 
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // COMPILER_BASE_TARGET_H
+#endif // COMPILER_BASE_TARGET_H

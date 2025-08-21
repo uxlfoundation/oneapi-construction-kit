@@ -21,8 +21,7 @@
 #include <abacus/internal/lgamma_positive.h>
 
 namespace {
-template <typename T>
-T lgamma_vector(const T x) {
+template <typename T> T lgamma_vector(const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Traits = abacus::internal::lgamma_traits<T>;
   static_assert(1 != TypeTraits<T>::num_elements,
@@ -42,17 +41,16 @@ T lgamma_vector(const T x) {
   const T underflow_limit =
       abacus::detail::cast::as<T>(UnsignedType(Traits::underflow_limit));
 
-  result = __abacus_select(
-      result, ABACUS_INFINITY,
-      (x > overflow_limit) | (x <= underflow_limit) | (x == T(0)));
+  result = __abacus_select(result, ABACUS_INFINITY,
+                           (x > overflow_limit) | (x <= underflow_limit) |
+                               (x == T(0)));
 
   result = __abacus_select(result, x, __abacus_isnan(x));
 
   return result;
 }
 
-template <typename T>
-T lgamma_scalar(const T x) {
+template <typename T> T lgamma_scalar(const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Traits = abacus::internal::lgamma_traits<T>;
   static_assert(1 == TypeTraits<T>::num_elements,
@@ -84,7 +82,7 @@ T lgamma_scalar(const T x) {
   const T euler = (Traits::one_over_pi * x) * __abacus_sinpi(x);
   return -(posResult + __abacus_log(__abacus_fabs(euler)));
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_lgamma(abacus_half x) {
@@ -105,7 +103,7 @@ abacus_half8 ABACUS_API __abacus_lgamma(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_lgamma(abacus_half16 x) {
   return lgamma_vector(x);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_lgamma(abacus_float x) {
   return lgamma_scalar(x);
@@ -153,18 +151,17 @@ abacus_double ABACUS_API __abacus_lgamma(abacus_double x) {
   return -(posResult +
            __abacus_log(__abacus_fabs((ABACUS_1_PI * x) * __abacus_sinpi(x))));
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 namespace {
-template <typename T>
-T lgamma_splat(const T x) {
+template <typename T> T lgamma_splat(const T x) {
   T result;
   for (unsigned i = 0; i < TypeTraits<T>::num_elements; i++) {
     result[i] = __abacus_lgamma(x[i]);
   }
   return result;
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 abacus_double2 ABACUS_API __abacus_lgamma(abacus_double2 x) {
@@ -182,4 +179,4 @@ abacus_double8 ABACUS_API __abacus_lgamma(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_lgamma(abacus_double16 x) {
   return lgamma_splat<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

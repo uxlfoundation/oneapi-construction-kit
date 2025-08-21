@@ -86,9 +86,9 @@ const uint8_t *get_block_end(const uint8_t *binary,
   return binary + info.offset + info.size;
 }
 
-cargo::expected<int, std::string> decode_md_block_info(
-    const uint8_t *block_info_start, const CAMD_Header &header,
-    CAMD_BlockInfo &block_info, size_t bin_size) {
+cargo::expected<int, std::string>
+decode_md_block_info(const uint8_t *block_info_start, const CAMD_Header &header,
+                     CAMD_BlockInfo &block_info, size_t bin_size) {
   // read the offset
   const uint64_t offset =
       read_value<uint64_t>(block_info_start, header.endianness);
@@ -163,7 +163,7 @@ void serialize_int(T val, std::vector<uint8_t> &output, uint8_t endianness) {
   auto *start = reinterpret_cast<uint8_t *>(&out_val);
   output.insert(output.end(), start, &start[width]);
 }
-}  // namespace
+} // namespace
 
 void serialize_md_header(const CAMD_Header &header,
                          std::vector<uint8_t> &output) {
@@ -212,5 +212,5 @@ void pad_to_alignment(std::vector<uint8_t> &binary, size_t alignment,
     binary.push_back(padding_byte);
   }
 }
-}  // namespace utils
-}  // namespace md
+} // namespace utils
+} // namespace md

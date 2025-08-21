@@ -115,6 +115,6 @@ std::vector<Relocation> collectSectionRelocations(
     ElfFile &file, ElfMap &map, const loader::ElfFile::Section &section,
     cargo::string_view prefix, ElfFields::SectionType type);
 
-}  // namespace loader
+} // namespace loader
 
 #endif

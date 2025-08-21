@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueSVMFreeTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -44,9 +44,9 @@ TEST_F(clEnqueueSVMFreeTest, NotImplemented) {
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueSVMFree(command_queue, num_svm_pointers, svm_pointers,
-                       pfn_free_func, user_data, num_events_in_wait_list,
-                       event_wait_list, event));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueSVMFree(command_queue, num_svm_pointers,
+                                     svm_pointers, pfn_free_func, user_data,
+                                     num_events_in_wait_list, event_wait_list,
+                                     event));
 }

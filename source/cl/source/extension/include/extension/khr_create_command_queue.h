@@ -28,7 +28,7 @@ namespace extension {
 /// @{
 
 class khr_create_command_queue final : public extension {
- public:
+public:
   /// @brief Default constructor.
   khr_create_command_queue();
 
@@ -46,11 +46,12 @@ class khr_create_command_queue final : public extension {
   ///
   /// @return Returns a pointer to the extension function or nullptr if no
   /// function with the name func_name exists.
-  void *GetExtensionFunctionAddressForPlatform(
-      cl_platform_id platform, const char *func_name) const override;
+  void *
+  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
+                                         const char *func_name) const override;
 };
 
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // EXTENSION_KHR_CREATE_COMMAND_QUEUE_H_INCLUDED
+#endif // EXTENSION_KHR_CREATE_COMMAND_QUEUE_H_INCLUDED

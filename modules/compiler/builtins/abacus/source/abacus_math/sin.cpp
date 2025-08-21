@@ -20,8 +20,7 @@
 #include <abacus/internal/sincos_approx.h>
 
 namespace {
-template <typename T>
-T sin(const T x) {
+template <typename T> T sin(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type octet = 0;
@@ -43,8 +42,7 @@ T sin(const T x) {
 }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-T sin_half(const T x) {
+template <typename T> T sin_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   SignedType octet = 0;
@@ -74,8 +72,8 @@ T sin_half(const T x) {
 
   return ans;
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sin(abacus_half x) { return sin_half<>(x); }
@@ -84,7 +82,7 @@ abacus_half3 ABACUS_API __abacus_sin(abacus_half3 x) { return sin_half<>(x); }
 abacus_half4 ABACUS_API __abacus_sin(abacus_half4 x) { return sin_half<>(x); }
 abacus_half8 ABACUS_API __abacus_sin(abacus_half8 x) { return sin_half<>(x); }
 abacus_half16 ABACUS_API __abacus_sin(abacus_half16 x) { return sin_half<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_sin(abacus_float x) { return sin<>(x); }
 abacus_float2 ABACUS_API __abacus_sin(abacus_float2 x) { return sin<>(x); }
@@ -100,4 +98,4 @@ abacus_double3 ABACUS_API __abacus_sin(abacus_double3 x) { return sin<>(x); }
 abacus_double4 ABACUS_API __abacus_sin(abacus_double4 x) { return sin<>(x); }
 abacus_double8 ABACUS_API __abacus_sin(abacus_double8 x) { return sin<>(x); }
 abacus_double16 ABACUS_API __abacus_sin(abacus_double16 x) { return sin<>(x); }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

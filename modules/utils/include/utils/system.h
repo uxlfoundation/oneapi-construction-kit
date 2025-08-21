@@ -26,17 +26,17 @@
 /// @addtogroup utils
 /// @{
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) ||          \
     defined(_M_ARM64) || (defined(__riscv) && __riscv_xlen == 64)
 #define UTILS_SYSTEM_64_BIT 1
 #else
 #define UTILS_SYSTEM_32_BIT 1
 #endif
 
-#if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) || \
+#if defined(__arm__) || defined(__thumb__) || defined(_M_ARM) ||               \
     defined(_M_ARMT) || defined(__aarch64__) || defined(_M_ARM64)
 #define UTILS_SYSTEM_ARM 1
-#elif defined(__i386__) || defined(_M_IX86) || defined(__x86_64__) || \
+#elif defined(__i386__) || defined(_M_IX86) || defined(__x86_64__) ||          \
     defined(_M_X64)
 #define UTILS_SYSTEM_X86 1
 #elif defined(__riscv)
@@ -62,6 +62,6 @@ uint64_t timestampMicroSeconds();
 uint64_t timestampNanoSeconds();
 
 /// @}
-}  // namespace utils
+} // namespace utils
 
-#endif  // UTILS_SYSTEM_H_INCLUDED
+#endif // UTILS_SYSTEM_H_INCLUDED

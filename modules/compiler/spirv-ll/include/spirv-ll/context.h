@@ -32,7 +32,7 @@
 
 namespace llvm {
 class LLVMContext;
-}  // namespace llvm
+} // namespace llvm
 
 namespace spirv_ll {
 /// @addtogroup spirv-ll
@@ -73,9 +73,9 @@ struct Error {
 
 /// @brief Enumeration of constant types which can be specialized.
 enum class SpecializationType : uint8_t {
-  BOOL,   ///< OpTypeBool specialization constant.
-  INT,    ///< OpTypeInt specialization constant.
-  FLOAT,  ///< OpTypeFloat specialization constant.
+  BOOL,  ///< OpTypeBool specialization constant.
+  INT,   ///< OpTypeInt specialization constant.
+  FLOAT, ///< OpTypeFloat specialization constant.
 };
 
 /// @brief Description of a constant which can be specialized.
@@ -143,7 +143,7 @@ struct SpecializationInfo {
 /// This class is similar to the LLVM context class. It holds the types and
 /// values defined, as well as their matching LLVM Types and Values.
 class Context {
- public:
+public:
   /// @brief Default construct the SPIR-V translation context.
   ///
   /// This constructor creates an `llvm::LLVMContext` which is owned by the
@@ -187,19 +187,20 @@ class Context {
   ///
   /// @return Returns a `spirv_ll::Module` on success, otherwise a
   /// `spirv_ll::Error`.
-  cargo::expected<spirv_ll::Module, spirv_ll::Error> translate(
-      llvm::ArrayRef<uint32_t> code, const spirv_ll::DeviceInfo &deviceInfo,
-      cargo::optional<const spirv_ll::SpecializationInfo &> specInfo);
+  cargo::expected<spirv_ll::Module, spirv_ll::Error>
+  translate(llvm::ArrayRef<uint32_t> code,
+            const spirv_ll::DeviceInfo &deviceInfo,
+            cargo::optional<const spirv_ll::SpecializationInfo &> specInfo);
 
   /// @brief LLVM context used for translation to LLVM IR.
   llvm::LLVMContext *llvmContext;
 
- private:
+private:
   /// @brief Flag to specify the ownership of `llvmContext`.
   const bool llvmContextIsOwned;
 };
 
 /// @}
-}  // namespace spirv_ll
+} // namespace spirv_ll
 
-#endif  // SPIRV_LL_SPV_CONTEXT_H_INCLUDED
+#endif // SPIRV_LL_SPV_CONTEXT_H_INCLUDED

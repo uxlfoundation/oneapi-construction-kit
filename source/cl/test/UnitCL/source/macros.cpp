@@ -157,7 +157,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 template <cl_device_info device_option>
 class OptionalMacrosTest : public MacrosTest {
- protected:
+protected:
   OptionalMacrosTest() : MacrosTest() {}
 
   void Test() {
@@ -185,8 +185,8 @@ class OptionalMacrosTest : public MacrosTest {
   }
 };
 
-#define TEST_P_OPTIONAL(NAME, DEVICE_INFO)      \
-  using NAME = OptionalMacrosTest<DEVICE_INFO>; \
+#define TEST_P_OPTIONAL(NAME, DEVICE_INFO)                                     \
+  using NAME = OptionalMacrosTest<DEVICE_INFO>;                                \
   TEST_P(NAME, Default) { Test(); }
 
 TEST_P_OPTIONAL(EndianMacrosTest, CL_DEVICE_ENDIAN_LITTLE)

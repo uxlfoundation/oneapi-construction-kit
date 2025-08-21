@@ -172,8 +172,7 @@ struct muxUpdateDescriptorsBufferTest : public muxUpdateDescriptorsTest {
 
   /// @brief Constructor.
   muxUpdateDescriptorsBufferTest()
-      : data_in(buffer_size, input_value),
-        data_out(buffer_size, 0x00),
+      : data_in(buffer_size, input_value), data_out(buffer_size, 0x00),
         data_out_updated(buffer_size, 0x00) {};
 
   /// @brief Virtual method used to setup any resources for the test fixture

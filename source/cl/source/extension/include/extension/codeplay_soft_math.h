@@ -29,12 +29,12 @@ namespace extension {
 
 /// @brief Definition of cl_codeplay_soft_math extension.
 class codeplay_soft_math final : public extension {
- public:
+public:
   /// @brief Default constructor.
   codeplay_soft_math();
 };
 
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // EXTENSION_CODEPLAY_SOFT_MATH_H_INCLUDED
+#endif // EXTENSION_CODEPLAY_SOFT_MATH_H_INCLUDED

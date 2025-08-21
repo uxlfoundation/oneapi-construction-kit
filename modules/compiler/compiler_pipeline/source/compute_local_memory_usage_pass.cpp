@@ -100,5 +100,5 @@ PreservedAnalyses ComputeLocalMemoryUsagePass::run(Module &M,
   return PreservedAnalyses::all();
 }
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler

@@ -36,8 +36,7 @@ _cl_mem_buffer::_cl_mem_buffer(
     cargo::dynamic_array<mux_buffer_t> &&mux_buffers)
     : _cl_mem(context, flags, size, CL_MEM_OBJECT_BUFFER, nullptr, host_ptr,
               cl::ref_count_type::EXTERNAL, std::move(mux_memories)),
-      offset(0),
-      mux_buffers(std::move(mux_buffers)) {}
+      offset(0), mux_buffers(std::move(mux_buffers)) {}
 
 _cl_mem_buffer::_cl_mem_buffer(
     const cl_mem_flags flags, const size_t offset, const size_t size,
@@ -45,8 +44,7 @@ _cl_mem_buffer::_cl_mem_buffer(
     cargo::dynamic_array<mux_buffer_t> &&mux_buffers)
     : _cl_mem(parent->context, flags, size, CL_MEM_OBJECT_BUFFER, parent,
               nullptr, cl::ref_count_type::EXTERNAL, std::move(mux_memories)),
-      offset(offset),
-      mux_buffers(std::move(mux_buffers)) {
+      offset(offset), mux_buffers(std::move(mux_buffers)) {
   if (parent->host_ptr) {
     host_ptr = static_cast<char *>(parent->host_ptr) + offset;
   }
@@ -59,8 +57,9 @@ _cl_mem_buffer::~_cl_mem_buffer() {
   }
 }
 
-cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int> _cl_mem_buffer::create(
-    cl_context context, cl_mem_flags flags, size_t size, void *host_ptr) {
+cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int>
+_cl_mem_buffer::create(cl_context context, cl_mem_flags flags, size_t size,
+                       void *host_ptr) {
   cargo::dynamic_array<mux_memory_t> mux_memories;
   cargo::dynamic_array<mux_buffer_t> mux_buffers;
   if (cargo::success != mux_memories.alloc(context->devices.size()) ||
@@ -350,9 +349,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
 
   OCL_CHECK(region[0] * region[1] * region[2] > buffer->size,
             return CL_INVALID_VALUE);
-  OCL_CHECK(
-      buffer_origin[0] * buffer_origin[1] * buffer_origin[2] > buffer->size,
-      return CL_INVALID_VALUE);
+  OCL_CHECK(buffer_origin[0] * buffer_origin[1] * buffer_origin[2] >
+                buffer->size,
+            return CL_INVALID_VALUE);
   OCL_CHECK(((buffer_origin[0] + region[0]) * (buffer_origin[1] + region[1]) *
              (buffer_origin[2] + region[2])) > buffer->size,
             return CL_INVALID_VALUE);
@@ -369,9 +368,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
   OCL_CHECK((buffer_slice_pitch != 0) &&
                 (buffer_slice_pitch < region[1] * buffer_row_pitch),
             return CL_INVALID_VALUE);
-  OCL_CHECK(
-      (buffer_slice_pitch != 0) && (buffer_slice_pitch % buffer_row_pitch != 0),
-      return CL_INVALID_VALUE);
+  OCL_CHECK((buffer_slice_pitch != 0) &&
+                (buffer_slice_pitch % buffer_row_pitch != 0),
+            return CL_INVALID_VALUE);
   OCL_CHECK((host_slice_pitch != 0) &&
                 (host_slice_pitch < region[1] * host_row_pitch),
             return CL_INVALID_VALUE);
@@ -495,9 +494,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBufferRect(
 
   OCL_CHECK(region[0] * region[1] * region[2] > buffer->size,
             return CL_INVALID_VALUE);
-  OCL_CHECK(
-      buffer_origin[0] * buffer_origin[1] * buffer_origin[2] > buffer->size,
-      return CL_INVALID_VALUE);
+  OCL_CHECK(buffer_origin[0] * buffer_origin[1] * buffer_origin[2] >
+                buffer->size,
+            return CL_INVALID_VALUE);
   OCL_CHECK(((buffer_origin[0] + region[0]) * (buffer_origin[1] + region[1]) *
              (buffer_origin[2] + region[2])) > buffer->size,
             return CL_INVALID_VALUE);
@@ -514,12 +513,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBufferRect(
   OCL_CHECK(buffer_slice_pitch != 0 &&
                 buffer_slice_pitch < region[1] * buffer_row_pitch,
             return CL_INVALID_VALUE);
-  OCL_CHECK(
-      buffer_slice_pitch != 0 && (buffer_slice_pitch % buffer_row_pitch != 0),
-      return CL_INVALID_VALUE);
-  OCL_CHECK(
-      host_slice_pitch != 0 && host_slice_pitch < region[1] * host_row_pitch,
-      return CL_INVALID_VALUE);
+  OCL_CHECK(buffer_slice_pitch != 0 &&
+                (buffer_slice_pitch % buffer_row_pitch != 0),
+            return CL_INVALID_VALUE);
+  OCL_CHECK(host_slice_pitch != 0 &&
+                host_slice_pitch < region[1] * host_row_pitch,
+            return CL_INVALID_VALUE);
   OCL_CHECK(host_slice_pitch != 0 && (host_slice_pitch % host_row_pitch != 0),
             return CL_INVALID_VALUE);
 

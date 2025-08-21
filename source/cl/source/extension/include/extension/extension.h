@@ -37,7 +37,7 @@ namespace extension {
 
 /// @brief Base class for extensions.
 class extension {
- public:
+public:
   /// @brief Extension usage category.
   enum class usage_category : unsigned int {
     /// @brief Do not expose the extension string.
@@ -48,7 +48,7 @@ class extension {
     DEVICE,
   };
 
- protected:
+protected:
   /// @brief Constructor.
   ///
   /// Does not take ownership of name.
@@ -63,7 +63,7 @@ class extension {
 #endif
   );
 
- public:
+public:
   /// @brief Deleted move constructor.
   ///
   /// Also deletes the copy constructor and the assignment operators.
@@ -157,9 +157,10 @@ class extension {
   /// @retval `CL_INVALID_QUEUE_PROPERTIES` if `property` is invalid.
   /// @retval `CL_INVALID_VALUE` if `value` is invalid.
   /// @retval `cargo::nullopt` if the entry point is not supported.
-  virtual cargo::optional<cl_int> ApplyPropertyToCommandQueue(
-      cl_command_queue command_queue, cl_queue_properties_khr property,
-      cl_queue_properties_khr value) const;
+  virtual cargo::optional<cl_int>
+  ApplyPropertyToCommandQueue(cl_command_queue command_queue,
+                              cl_queue_properties_khr property,
+                              cl_queue_properties_khr value) const;
 
   /// @brief Query for command queue info.
   ///
@@ -396,7 +397,7 @@ class extension {
                                        size_t *param_value_size_ret) const;
 #endif
 
-#if (defined(CL_VERSION_3_0) || \
+#if (defined(CL_VERSION_3_0) ||                                                \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
   /// @brief Passes additional information other than argument values to a
   /// kernel.
@@ -469,8 +470,9 @@ class extension {
   ///
   /// @return Returns a pointer to the extension function or nullptr if no
   /// function with the name `func_name` exists.
-  virtual void *GetExtensionFunctionAddressForPlatform(
-      cl_platform_id platform, const char *func_name) const;
+  virtual void *
+  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
+                                         const char *func_name) const;
 
 #if defined(CL_VERSION_3_0)
   /// @brief  Constructs a cl_name_version_khr object for this extension.
@@ -703,7 +705,7 @@ cl_int GetKernelSubGroupInfo(cl_kernel kernel, cl_device_id device,
                              size_t *param_value_size_ret);
 #endif
 
-#if (defined(CL_VERSION_3_0) || \
+#if (defined(CL_VERSION_3_0) ||                                                \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
 /// @brief Passes additional information other than argument values to a kernel.
 ///
@@ -761,8 +763,9 @@ void *GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
 /// @param[out] extensions_ret Space-separated view of extensions.
 ///
 /// @return CL_SUCCESS for success or an error code otherwise.
-[[nodiscard]] cl_int GetRuntimeExtensionsForDevice(
-    cl_device_id device, cargo::string_view &extensions_ret);
+[[nodiscard]] cl_int
+GetRuntimeExtensionsForDevice(cl_device_id device,
+                              cargo::string_view &extensions_ret);
 
 /// @brief Get list of compiler extensions supported by the device.
 ///
@@ -770,9 +773,10 @@ void *GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
 /// @param[out] extensions_ret Space-separated view of extensions.
 ///
 /// @return CL_SUCCESS for success or an error code otherwise.
-[[nodiscard]] cl_int GetCompilerExtensionsForDevice(
-    cl_device_id device, cargo::string_view &extensions_ret);
+[[nodiscard]] cl_int
+GetCompilerExtensionsForDevice(cl_device_id device,
+                               cargo::string_view &extensions_ret);
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // EXTENSION_EXTENSION_H_INCLUDED
+#endif // EXTENSION_EXTENSION_H_INCLUDED

@@ -35,11 +35,11 @@ namespace utils {
 /// in any case, we might as well add this attribute to everything.
 class RemoveExceptionsPass final
     : public llvm::PassInfoMixin<RemoveExceptionsPass> {
- public:
+public:
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_REMOVE_EXCEPTIONS_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_REMOVE_EXCEPTIONS_PASS_H_INCLUDED

@@ -57,9 +57,9 @@ TEST_P(Execution, Regression_77_Masked_Interleaved_Group) {
   const cl_uint read_local = 4;
 
   // it is just a bunch of "random" numbers
-  char InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
-                     29, 86, 57, 34, 37, 15, 91, 56,  //
-                     51, 48, 19, 95, 20, 78, 73, 32,  //
+  char InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63, //
+                     29, 86, 57, 34, 37, 15, 91, 56, //
+                     51, 48, 19, 95, 20, 78, 73, 32, //
                      75, 51, 8,  29, 56, 34, 85, 45};
 
   kts::Reference1D<cl_uchar> refIn = [=, &InBuffer](size_t x) -> char {
@@ -544,15 +544,15 @@ TEST_P(Execution, Regression_89_Multiple_Local_Memory_Kernels) {
 TEST_P(Execution, Regression_90_Offline_Local_Memcpy) {
   AddLocalBuffer<cl_int>(kts::localN);
   AddOutputBuffer(kts::localN, kts::Ref_Identity);
-  RunGeneric1D(kts::localN, kts::localN);  // Only the first WG is valid.
+  RunGeneric1D(kts::localN, kts::localN); // Only the first WG is valid.
 }
 
 TEST_P(Execution, Regression_90_Offline_Local_Memcpy_Fixed) {
   fail_if_not_vectorized_ = false;
-  const size_t local_size = 17;  // Kernel uses reqd_work_group_size(17,1,1);
+  const size_t local_size = 17; // Kernel uses reqd_work_group_size(17,1,1);
   AddLocalBuffer<cl_int>(local_size);
   AddOutputBuffer(local_size, kts::Ref_Identity);
-  RunGeneric1D(local_size, local_size);  // Only the first WG is valid.
+  RunGeneric1D(local_size, local_size); // Only the first WG is valid.
 }
 
 TEST_P(Execution, Regression_91_Loop_Bypass_Branch) {

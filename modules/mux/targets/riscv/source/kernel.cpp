@@ -30,9 +30,9 @@ kernel_s::kernel_s(
     : mux::hal::kernel<mux::hal::kernel_variant_s>(
           device, name, object_code, allocator, std::move(variant_data)) {}
 
-cargo::expected<riscv::kernel_s *, mux_result_t> kernel_s::create(
-    riscv::device_s *device, riscv::executable_s *executable,
-    cargo::string_view name, mux::allocator allocator) {
+cargo::expected<riscv::kernel_s *, mux_result_t>
+kernel_s::create(riscv::device_s *device, riscv::executable_s *executable,
+                 cargo::string_view name, mux::allocator allocator) {
   auto *hal_device_info = static_cast<const riscv::hal_device_info_riscv_t *>(
       device->hal_device->get_info());
 
@@ -223,7 +223,7 @@ mux_result_t kernel_s::getKernelVariantForWGSize(
   return mux_success;
 }
 
-}  // namespace riscv
+} // namespace riscv
 
 mux_result_t riscvCreateBuiltInKernel(mux_device_t device, const char *name,
                                       uint64_t name_length,

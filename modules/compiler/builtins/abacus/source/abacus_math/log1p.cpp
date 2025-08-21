@@ -49,8 +49,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_log1p_coeff_halfH2[9] = {
     -0.1241455078125f16,
     0.12432861328125f16};
 
-template <>
-struct helper<abacus_half, abacus_half> {
+template <> struct helper<abacus_half, abacus_half> {
   static abacus_half _(const abacus_half x) {
     // Check for special cases: +/-ABACUS_INFINITY, ABACUS_NAN, negative numbers
     if (__abacus_isnan(x) || x < -1.0f16) {
@@ -134,8 +133,7 @@ struct helper<abacus_half, abacus_half> {
 };
 
 // Vectorized version:
-template <typename T>
-struct helper<T, abacus_half> {
+template <typename T> struct helper<T, abacus_half> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -177,7 +175,7 @@ struct helper<T, abacus_half> {
                              (x == -1.0f16) | __abacus_isinf(x));
 
     result = __abacus_select(result, FPShape<T>::NaN(),
-                             (x < -1.0f16) | __abacus_isnan(x));  // nan
+                             (x < -1.0f16) | __abacus_isnan(x)); // nan
 
     // Special case for 1.6708984375 (0x3eaf), which has a ULP error of 2.01428.
     result =
@@ -186,7 +184,7 @@ struct helper<T, abacus_half> {
     return result;
   }
 };
-#endif  //__CA_BUILTINS_HALF_SUPPORT
+#endif //__CA_BUILTINS_HALF_SUPPORT
 
 // see maple worksheet for polynomial derivation
 static ABACUS_CONSTANT abacus_float __codeplay_log1p_coeff[30] = {
@@ -221,8 +219,7 @@ static ABACUS_CONSTANT abacus_float __codeplay_log1p_coeff[30] = {
     -0.5233163279e-1f,
     0.1288876423e-1f};
 
-template <>
-struct helper<abacus_float, abacus_float> {
+template <> struct helper<abacus_float, abacus_float> {
   static abacus_float _(const abacus_float x) {
     // Check for special cases: +/-ABACUS_INFINITY, ABACUS_NAN, negative numbers
     if (__abacus_isnan(x) || x < -1.0f) {
@@ -248,14 +245,14 @@ struct helper<abacus_float, abacus_float> {
     abacus_int polynomial_select = 0;
 
     const abacus_float approx_threshold_1 =
-        __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
+        __abacus_as_float(0x3f2610c3); // 6.48693263530731201171875E-1
     if (x <= approx_threshold_1 && x >= 0) {
       polynomial_select = 2;
       significand = x;
     }
 
     const abacus_float approx_threshold_2 =
-        __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
+        __abacus_as_float(0xbec974cf); //-3.934693038463592529296875E-1
     if (x < 0 && x >= approx_threshold_2) {
       significand = x;
       polynomial_select = 1;
@@ -278,8 +275,7 @@ struct helper<abacus_float, abacus_float> {
   }
 };
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -306,7 +302,7 @@ struct helper<T, abacus_float> {
         result + (abacus::detail::cast::convert<T>(exponent) * ABACUS_LN2_F);
 
     const T approx_threshold_1 =
-        __abacus_as_float(0x3f2610c3);  // 6.48693263530731201171875E-1
+        __abacus_as_float(0x3f2610c3); // 6.48693263530731201171875E-1
 
     result = __abacus_select(
         result,
@@ -314,7 +310,7 @@ struct helper<T, abacus_float> {
         (x <= approx_threshold_1) & (x >= 0));
 
     const T approx_threshold_2 =
-        __abacus_as_float(0xbec974cf);  //-3.934693038463592529296875E-1
+        __abacus_as_float(0xbec974cf); //-3.934693038463592529296875E-1
 
     result = __abacus_select(
         result,
@@ -368,8 +364,7 @@ static ABACUS_CONSTANT abacus_double polynomialD3[16] = {
     -0.1460752166319748750839019e-4, 0.4311915376956372242612062e-5,
     -0.8657183573415959274002373e-6, 0.8596505513189088569636363e-7};
 
-template <>
-struct helper<abacus_double, abacus_double> {
+template <> struct helper<abacus_double, abacus_double> {
   static abacus_double _(abacus_double x) {
     if (-0.5 <= x && x < 0.0) {
       return x * abacus::internal::horner_polynomial(x, polynomialD1);
@@ -383,8 +378,7 @@ struct helper<abacus_double, abacus_double> {
   }
 };
 
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -408,15 +402,12 @@ struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+} // namespace
 
 namespace {
-template <typename T>
-T log1p(const T x) {
-  return helper<T>::_(x);
-}
-}  // namespace
+template <typename T> T log1p(const T x) { return helper<T>::_(x); }
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
@@ -427,7 +418,7 @@ abacus_half4 ABACUS_API __abacus_log1p(abacus_half4 x) { return log1p<>(x); }
 abacus_half8 ABACUS_API __abacus_log1p(abacus_half8 x) { return log1p<>(x); }
 abacus_half16 ABACUS_API __abacus_log1p(abacus_half16 x) { return log1p<>(x); }
 
-#endif  //__CA_BUILTINS_HALF_SUPPORT
+#endif //__CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_log1p(abacus_float x) { return log1p<>(x); }
 abacus_float2 ABACUS_API __abacus_log1p(abacus_float2 x) { return log1p<>(x); }
@@ -455,4 +446,4 @@ abacus_double8 ABACUS_API __abacus_log1p(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_log1p(abacus_double16 x) {
   return log1p<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -17,9 +17,9 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                              \
-  TYPE ABACUS_API __abacus_radians(TYPE x) {   \
-    return abacus::detail::common::radians(x); \
+#define DEF(TYPE)                                                              \
+  TYPE ABACUS_API __abacus_radians(TYPE x) {                                   \
+    return abacus::detail::common::radians(x);                                 \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -29,7 +29,7 @@ DEF(abacus_half3)
 DEF(abacus_half4)
 DEF(abacus_half8)
 DEF(abacus_half16)
-#endif  //  __CA_BUILTINS_HALF_SUPPORT
+#endif //  __CA_BUILTINS_HALF_SUPPORT
 
 DEF(abacus_float)
 DEF(abacus_float2)
@@ -45,4 +45,4 @@ DEF(abacus_double3)
 DEF(abacus_double4)
 DEF(abacus_double8)
 DEF(abacus_double16)
-#endif  //  __CA_BUILTINS_DOUBLE_SUPPORT
+#endif //  __CA_BUILTINS_DOUBLE_SUPPORT

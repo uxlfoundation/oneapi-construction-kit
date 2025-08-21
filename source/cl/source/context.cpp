@@ -29,10 +29,10 @@
 #include <cstring>
 #include <mutex>
 
-cargo::expected<cl_context, cl_int> _cl_context::create(
-    cargo::array_view<const cl_device_id> devices,
-    cargo::array_view<const cl_context_properties> properties,
-    notify_callback_t notify_callback) {
+cargo::expected<cl_context, cl_int>
+_cl_context::create(cargo::array_view<const cl_device_id> devices,
+                    cargo::array_view<const cl_context_properties> properties,
+                    notify_callback_t notify_callback) {
   std::unique_ptr<_cl_context> context(new _cl_context);
   if (!context) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -214,24 +214,24 @@ cl_int parseProperties(const cl_context_properties *properties,
   const cl_context_properties *property = properties;
   while (0 != property[0]) {
     switch (property[0]) {
-      case CL_CONTEXT_PLATFORM:
-        platformid = reinterpret_cast<cl_platform_id>(property[1]);
+    case CL_CONTEXT_PLATFORM:
+      platformid = reinterpret_cast<cl_platform_id>(property[1]);
 
-        if (parsedPlatform || (platformid != _cl_platform_id::getInstance())) {
-          return CL_INVALID_PROPERTY;
-        }
-
-        parsedPlatform = true;
-        break;
-      case CL_CONTEXT_INTEROP_USER_SYNC:
-        if (parsedInterop) {
-          return CL_INVALID_PROPERTY;
-        }
-        parsedInterop = true;
-        // No-op for now
-        break;
-      default:
+      if (parsedPlatform || (platformid != _cl_platform_id::getInstance())) {
         return CL_INVALID_PROPERTY;
+      }
+
+      parsedPlatform = true;
+      break;
+    case CL_CONTEXT_INTEROP_USER_SYNC:
+      if (parsedInterop) {
+        return CL_INVALID_PROPERTY;
+      }
+      parsedInterop = true;
+      // No-op for now
+      break;
+    default:
+      return CL_INVALID_PROPERTY;
     }
 
     // Skip the property we just processed and its value
@@ -245,7 +245,7 @@ cl_int parseProperties(const cl_context_properties *properties,
   propertiesLength = length;
   return CL_SUCCESS;
 }
-}  // namespace
+} // namespace
 
 CL_API_ENTRY cl_context CL_API_CALL cl::CreateContext(
     const cl_context_properties *properties, cl_uint num_devices,
@@ -383,50 +383,48 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetContextInfo(
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
 
   switch (param_name) {
-    case CL_CONTEXT_REFERENCE_COUNT:
-      if (param_value) {
-        OCL_CHECK(param_value_size < sizeof(cl_uint), return CL_INVALID_VALUE);
-        *(static_cast<cl_uint *>(param_value)) = context->refCountExternal();
-      }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_uint));
-      break;
-    case CL_CONTEXT_NUM_DEVICES:
-      if (param_value) {
-        OCL_CHECK(param_value_size < sizeof(cl_uint), return CL_INVALID_VALUE);
-        *(static_cast<cl_uint *>(param_value)) = context->devices.size();
-      }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_uint));
-      break;
-    case CL_CONTEXT_DEVICES: {
-      const size_t devices_size =
-          sizeof(cl_device_id) * context->devices.size();
-      OCL_CHECK(param_value && (param_value_size < devices_size),
-                return CL_INVALID_VALUE);
-      if (param_value) {
-        std::uninitialized_copy(context->devices.begin(),
-                                context->devices.end(),
-                                static_cast<cl_device_id *>(param_value));
-      }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, devices_size);
-      break;
+  case CL_CONTEXT_REFERENCE_COUNT:
+    if (param_value) {
+      OCL_CHECK(param_value_size < sizeof(cl_uint), return CL_INVALID_VALUE);
+      *(static_cast<cl_uint *>(param_value)) = context->refCountExternal();
     }
-    case CL_CONTEXT_PROPERTIES: {
-      const size_t properties_size =
-          sizeof(cl_context_properties) * context->properties.size();
-      OCL_CHECK(param_value && (param_value_size < properties_size),
-                return CL_INVALID_VALUE);
-      if (param_value) {
-        std::uninitialized_copy(
-            context->properties.begin(), context->properties.end(),
-            static_cast<cl_context_properties *>(param_value));
-      }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, properties_size);
-      break;
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_uint));
+    break;
+  case CL_CONTEXT_NUM_DEVICES:
+    if (param_value) {
+      OCL_CHECK(param_value_size < sizeof(cl_uint), return CL_INVALID_VALUE);
+      *(static_cast<cl_uint *>(param_value)) = context->devices.size();
     }
-    default: {
-      return extension::GetContextInfo(context, param_name, param_value_size,
-                                       param_value, param_value_size_ret);
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_uint));
+    break;
+  case CL_CONTEXT_DEVICES: {
+    const size_t devices_size = sizeof(cl_device_id) * context->devices.size();
+    OCL_CHECK(param_value && (param_value_size < devices_size),
+              return CL_INVALID_VALUE);
+    if (param_value) {
+      std::uninitialized_copy(context->devices.begin(), context->devices.end(),
+                              static_cast<cl_device_id *>(param_value));
     }
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, devices_size);
+    break;
+  }
+  case CL_CONTEXT_PROPERTIES: {
+    const size_t properties_size =
+        sizeof(cl_context_properties) * context->properties.size();
+    OCL_CHECK(param_value && (param_value_size < properties_size),
+              return CL_INVALID_VALUE);
+    if (param_value) {
+      std::uninitialized_copy(
+          context->properties.begin(), context->properties.end(),
+          static_cast<cl_context_properties *>(param_value));
+    }
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, properties_size);
+    break;
+  }
+  default: {
+    return extension::GetContextInfo(context, param_name, param_value_size,
+                                     param_value, param_value_size_ret);
+  }
   }
   return CL_SUCCESS;
 }

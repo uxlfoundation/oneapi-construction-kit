@@ -65,7 +65,7 @@ using pfn_notify_context_destructor_t = void(CL_CALLBACK *)(cl_context context,
 #endif
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
 /// @addtogroup cl
 /// @{
@@ -116,10 +116,10 @@ struct _cl_context final : public cl::base<_cl_context> {
   /// @param devices List of devices for context to target.
   /// @param properties List of properties to for context to enable.
   /// @param notify User provided notification callback.
-  static cargo::expected<cl_context, cl_int> create(
-      cargo::array_view<const cl_device_id> devices,
-      cargo::array_view<const cl_context_properties> properties,
-      notify_callback_t notify);
+  static cargo::expected<cl_context, cl_int>
+  create(cargo::array_view<const cl_device_id> devices,
+         cargo::array_view<const cl_context_properties> properties,
+         notify_callback_t notify);
 
   /// @brief Deleted move constructor.
   ///
@@ -197,8 +197,8 @@ struct _cl_context final : public cl::base<_cl_context> {
   ///
   /// @return Returns device specific SPIR-V information, or nullopt if there's
   /// no SPIR-V device info for a given Mux device.
-  cargo::optional<const compiler::spirv::DeviceInfo &> getSPIRVDeviceInfo(
-      mux_device_info_t device_info);
+  cargo::optional<const compiler::spirv::DeviceInfo &>
+  getSPIRVDeviceInfo(mux_device_info_t device_info);
 #endif
 
   /// @brief List of devices the context targets.
@@ -224,11 +224,10 @@ struct _cl_context final : public cl::base<_cl_context> {
 #endif
   std::mutex &getCommandQueueMutex() { return command_queue_mutex; }
 
- private:
+private:
   /// @brief Default constructor, made private to enforce use of `create`.
   _cl_context()
-      : base<_cl_context>(cl::ref_count_type::EXTERNAL),
-        notify_callback{},
+      : base<_cl_context>(cl::ref_count_type::EXTERNAL), notify_callback{},
         mux_callback{} {}
 
   /// @brief Whether the compiler context has already been initialized.
@@ -338,6 +337,6 @@ CL_API_ENTRY cl_int CL_API_CALL GetContextInfo(cl_context context,
                                                size_t *param_value_size_ret);
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
-#endif  // CL_CONTEXT_H_INCLUDED
+#endif // CL_CONTEXT_H_INCLUDED

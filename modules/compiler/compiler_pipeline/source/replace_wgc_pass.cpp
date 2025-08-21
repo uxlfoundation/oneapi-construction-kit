@@ -70,58 +70,58 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
   using namespace compiler::utils;
   BuiltinID ReductionID;
   switch (WGC.Recurrence) {
-    default:
-      return nullptr;
-    case RecurKind::And:
-      if (WGC.isAnyAll()) {
-        ReductionID = eMuxBuiltinSubgroupAll;
-      } else {
-        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceAnd
-                                     : eMuxBuiltinSubgroupReduceLogicalAnd;
-      }
-      break;
-    case RecurKind::Or:
-      if (WGC.isAnyAll()) {
-        ReductionID = eMuxBuiltinSubgroupAny;
-      } else {
-        ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceOr
-                                     : eMuxBuiltinSubgroupReduceLogicalOr;
-      }
-      break;
-    case RecurKind::Add:
-      ReductionID = eMuxBuiltinSubgroupReduceAdd;
-      break;
-    case RecurKind::FAdd:
-      ReductionID = eMuxBuiltinSubgroupReduceFAdd;
-      break;
-    case RecurKind::UMin:
-      ReductionID = eMuxBuiltinSubgroupReduceUMin;
-      break;
-    case RecurKind::SMin:
-      ReductionID = eMuxBuiltinSubgroupReduceSMin;
-      break;
-    case RecurKind::FMin:
-      ReductionID = eMuxBuiltinSubgroupReduceFMin;
-      break;
-    case RecurKind::UMax:
-      ReductionID = eMuxBuiltinSubgroupReduceUMax;
-      break;
-    case RecurKind::SMax:
-      ReductionID = eMuxBuiltinSubgroupReduceSMax;
-      break;
-    case RecurKind::FMax:
-      ReductionID = eMuxBuiltinSubgroupReduceFMax;
-      break;
-    case RecurKind::Mul:
-      ReductionID = eMuxBuiltinSubgroupReduceMul;
-      break;
-    case RecurKind::FMul:
-      ReductionID = eMuxBuiltinSubgroupReduceFMul;
-      break;
-    case RecurKind::Xor:
-      ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceXor
-                                   : eMuxBuiltinSubgroupReduceLogicalXor;
-      break;
+  default:
+    return nullptr;
+  case RecurKind::And:
+    if (WGC.isAnyAll()) {
+      ReductionID = eMuxBuiltinSubgroupAll;
+    } else {
+      ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceAnd
+                                   : eMuxBuiltinSubgroupReduceLogicalAnd;
+    }
+    break;
+  case RecurKind::Or:
+    if (WGC.isAnyAll()) {
+      ReductionID = eMuxBuiltinSubgroupAny;
+    } else {
+      ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceOr
+                                   : eMuxBuiltinSubgroupReduceLogicalOr;
+    }
+    break;
+  case RecurKind::Add:
+    ReductionID = eMuxBuiltinSubgroupReduceAdd;
+    break;
+  case RecurKind::FAdd:
+    ReductionID = eMuxBuiltinSubgroupReduceFAdd;
+    break;
+  case RecurKind::UMin:
+    ReductionID = eMuxBuiltinSubgroupReduceUMin;
+    break;
+  case RecurKind::SMin:
+    ReductionID = eMuxBuiltinSubgroupReduceSMin;
+    break;
+  case RecurKind::FMin:
+    ReductionID = eMuxBuiltinSubgroupReduceFMin;
+    break;
+  case RecurKind::UMax:
+    ReductionID = eMuxBuiltinSubgroupReduceUMax;
+    break;
+  case RecurKind::SMax:
+    ReductionID = eMuxBuiltinSubgroupReduceSMax;
+    break;
+  case RecurKind::FMax:
+    ReductionID = eMuxBuiltinSubgroupReduceFMax;
+    break;
+  case RecurKind::Mul:
+    ReductionID = eMuxBuiltinSubgroupReduceMul;
+    break;
+  case RecurKind::FMul:
+    ReductionID = eMuxBuiltinSubgroupReduceFMul;
+    break;
+  case RecurKind::Xor:
+    ReductionID = !WGC.IsLogical ? eMuxBuiltinSubgroupReduceXor
+                                 : eMuxBuiltinSubgroupReduceLogicalXor;
+    break;
   }
 
   auto *const Ty = Src->getType();
@@ -139,77 +139,75 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
   using namespace compiler::utils;
   BuiltinID ScanBuiltinID;
   switch (Kind) {
-    default:
-      return nullptr;
-    case RecurKind::Add:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAddInclusive
-                                  : eMuxBuiltinSubgroupScanAddExclusive;
-      break;
-    case RecurKind::FAdd:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFAddInclusive
-                                  : eMuxBuiltinSubgroupScanFAddExclusive;
-      break;
-    case RecurKind::SMin:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMinInclusive
-                                  : eMuxBuiltinSubgroupScanSMinExclusive;
-      break;
-    case RecurKind::UMin:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMinInclusive
-                                  : eMuxBuiltinSubgroupScanUMinExclusive;
-      break;
-    case RecurKind::FMin:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMinInclusive
-                                  : eMuxBuiltinSubgroupScanFMinExclusive;
-      break;
-    case RecurKind::SMax:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMaxInclusive
-                                  : eMuxBuiltinSubgroupScanSMaxExclusive;
-      break;
-    case RecurKind::UMax:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMaxInclusive
-                                  : eMuxBuiltinSubgroupScanUMaxExclusive;
-      break;
-    case RecurKind::FMax:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMaxInclusive
-                                  : eMuxBuiltinSubgroupScanFMaxExclusive;
-      break;
-    case RecurKind::Mul:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanMulInclusive
-                                  : eMuxBuiltinSubgroupScanMulExclusive;
-      break;
-    case RecurKind::FMul:
-      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMulInclusive
-                                  : eMuxBuiltinSubgroupScanFMulExclusive;
-      break;
-    case RecurKind::And:
-      if (!IsLogical) {
-        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAndInclusive
-                                    : eMuxBuiltinSubgroupScanAndExclusive;
-      } else {
-        ScanBuiltinID = IsInclusive
-                            ? eMuxBuiltinSubgroupScanLogicalAndInclusive
-                            : eMuxBuiltinSubgroupScanLogicalAndExclusive;
-      }
-      break;
-    case RecurKind::Or:
-      if (!IsLogical) {
-        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanOrInclusive
-                                    : eMuxBuiltinSubgroupScanOrExclusive;
-      } else {
-        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanLogicalOrInclusive
-                                    : eMuxBuiltinSubgroupScanLogicalOrExclusive;
-      }
-      break;
-    case RecurKind::Xor:
-      if (!IsLogical) {
-        ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanXorInclusive
-                                    : eMuxBuiltinSubgroupScanXorExclusive;
-      } else {
-        ScanBuiltinID = IsInclusive
-                            ? eMuxBuiltinSubgroupScanLogicalXorInclusive
-                            : eMuxBuiltinSubgroupScanLogicalXorExclusive;
-      }
-      break;
+  default:
+    return nullptr;
+  case RecurKind::Add:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAddInclusive
+                                : eMuxBuiltinSubgroupScanAddExclusive;
+    break;
+  case RecurKind::FAdd:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFAddInclusive
+                                : eMuxBuiltinSubgroupScanFAddExclusive;
+    break;
+  case RecurKind::SMin:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMinInclusive
+                                : eMuxBuiltinSubgroupScanSMinExclusive;
+    break;
+  case RecurKind::UMin:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMinInclusive
+                                : eMuxBuiltinSubgroupScanUMinExclusive;
+    break;
+  case RecurKind::FMin:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMinInclusive
+                                : eMuxBuiltinSubgroupScanFMinExclusive;
+    break;
+  case RecurKind::SMax:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanSMaxInclusive
+                                : eMuxBuiltinSubgroupScanSMaxExclusive;
+    break;
+  case RecurKind::UMax:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanUMaxInclusive
+                                : eMuxBuiltinSubgroupScanUMaxExclusive;
+    break;
+  case RecurKind::FMax:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMaxInclusive
+                                : eMuxBuiltinSubgroupScanFMaxExclusive;
+    break;
+  case RecurKind::Mul:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanMulInclusive
+                                : eMuxBuiltinSubgroupScanMulExclusive;
+    break;
+  case RecurKind::FMul:
+    ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanFMulInclusive
+                                : eMuxBuiltinSubgroupScanFMulExclusive;
+    break;
+  case RecurKind::And:
+    if (!IsLogical) {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanAndInclusive
+                                  : eMuxBuiltinSubgroupScanAndExclusive;
+    } else {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanLogicalAndInclusive
+                                  : eMuxBuiltinSubgroupScanLogicalAndExclusive;
+    }
+    break;
+  case RecurKind::Or:
+    if (!IsLogical) {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanOrInclusive
+                                  : eMuxBuiltinSubgroupScanOrExclusive;
+    } else {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanLogicalOrInclusive
+                                  : eMuxBuiltinSubgroupScanLogicalOrExclusive;
+    }
+    break;
+  case RecurKind::Xor:
+    if (!IsLogical) {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanXorInclusive
+                                  : eMuxBuiltinSubgroupScanXorExclusive;
+    } else {
+      ScanBuiltinID = IsInclusive ? eMuxBuiltinSubgroupScanLogicalXorInclusive
+                                  : eMuxBuiltinSubgroupScanLogicalXorExclusive;
+    }
+    break;
   }
 
   auto *const Ty = Src->getType();
@@ -578,26 +576,26 @@ void emitWorkGroupCollectiveBody(Function &F,
                                  const compiler::utils::GroupCollective &WGC,
                                  compiler::utils::BuiltinInfo &BI) {
   switch (WGC.Op) {
-    case compiler::utils::GroupCollective::OpKind::All:
-    case compiler::utils::GroupCollective::OpKind::Any:
-    case compiler::utils::GroupCollective::OpKind::Reduction:
-      emitWorkGroupReductionBody(F, WGC, BI);
-      break;
-    case compiler::utils::GroupCollective::OpKind::Broadcast:
-      emitWorkGroupBroadcastBody(F, WGC, BI);
-      break;
-    case compiler::utils::GroupCollective::OpKind::ScanExclusive:
-    case compiler::utils::GroupCollective::OpKind::ScanInclusive:
-      emitWorkGroupScanBody(F, WGC, BI);
-      break;
-    default:
-      llvm_unreachable("unhandled work-group collective");
+  case compiler::utils::GroupCollective::OpKind::All:
+  case compiler::utils::GroupCollective::OpKind::Any:
+  case compiler::utils::GroupCollective::OpKind::Reduction:
+    emitWorkGroupReductionBody(F, WGC, BI);
+    break;
+  case compiler::utils::GroupCollective::OpKind::Broadcast:
+    emitWorkGroupBroadcastBody(F, WGC, BI);
+    break;
+  case compiler::utils::GroupCollective::OpKind::ScanExclusive:
+  case compiler::utils::GroupCollective::OpKind::ScanInclusive:
+    emitWorkGroupScanBody(F, WGC, BI);
+    break;
+  default:
+    llvm_unreachable("unhandled work-group collective");
   }
 }
-}  // namespace
+} // namespace
 
-PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::utils::ReplaceWGCPass::run(Module &M, ModuleAnalysisManager &AM) {
   // Only run this pass on OpenCL 2.0+ modules.
   auto Version = getOpenCLVersion(M);
   if (Version < OpenCLC20) {

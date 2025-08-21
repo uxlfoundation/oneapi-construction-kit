@@ -47,7 +47,7 @@ struct AddKernelWrapperPassOptions {
 /// added as necessary.
 class AddKernelWrapperPass final
     : public llvm::PassInfoMixin<AddKernelWrapperPass> {
- public:
+public:
   AddKernelWrapperPass(AddKernelWrapperPassOptions Opts)
       : IsPacked(Opts.IsPackedStruct),
         PassLocalBuffersBySize(Opts.PassLocalBuffersBySize) {}
@@ -68,7 +68,7 @@ class AddKernelWrapperPass final
     int PackedStructFieldIdx = -1;
   };
 
- private:
+private:
   void createNewFunctionArgTypes(
       llvm::Module &M, const llvm::Function &F,
       const llvm::SmallVectorImpl<compiler::utils::BuiltinInfo::SchedParamInfo>
@@ -81,7 +81,7 @@ class AddKernelWrapperPass final
   bool PassLocalBuffersBySize;
 };
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_ADD_KERNEL_WRAPPER_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_ADD_KERNEL_WRAPPER_PASS_H_INCLUDED

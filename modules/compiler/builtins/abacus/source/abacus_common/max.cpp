@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                                \
-  TYPE ABACUS_API __abacus_max(TYPE x, TYPE y) { \
-    return abacus::detail::common::max(x, y);    \
+#define DEF(TYPE)                                                              \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE y) {                               \
+    return abacus::detail::common::max(x, y);                                  \
   }
-#define DEF2(TYPE, TYPE2)                         \
-  TYPE ABACUS_API __abacus_max(TYPE x, TYPE2 y) { \
-    return abacus::detail::common::max(x, y);     \
+#define DEF2(TYPE, TYPE2)                                                      \
+  TYPE ABACUS_API __abacus_max(TYPE x, TYPE2 y) {                              \
+    return abacus::detail::common::max(x, y);                                  \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -39,7 +39,7 @@ DEF2(abacus_half3, abacus_half)
 DEF2(abacus_half4, abacus_half)
 DEF2(abacus_half8, abacus_half)
 DEF2(abacus_half16, abacus_half)
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 DEF(abacus_float)
 DEF(abacus_float2)
@@ -67,4 +67,4 @@ DEF2(abacus_double3, abacus_double)
 DEF2(abacus_double4, abacus_double)
 DEF2(abacus_double8, abacus_double)
 DEF2(abacus_double16, abacus_double)
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

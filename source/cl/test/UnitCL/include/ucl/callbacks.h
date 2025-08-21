@@ -41,6 +41,6 @@ void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info,
 ///
 /// @param program Program to print build log for.
 void CL_CALLBACK buildLogCallback(cl_program program, void *);
-}  // namespace ucl
+} // namespace ucl
 
-#endif  // UNITCL_CALLBACKS_H_INCLUDED
+#endif // UNITCL_CALLBACKS_H_INCLUDED

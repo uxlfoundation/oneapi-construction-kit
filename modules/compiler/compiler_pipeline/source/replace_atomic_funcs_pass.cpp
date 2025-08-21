@@ -420,10 +420,11 @@ bool RunOnFunction(Function &function) {
   return result;
 }
 
-}  // namespace
+} // namespace
 
-PreservedAnalyses compiler::utils::ReplaceAtomicFuncsPass::run(
-    Module &M, ModuleAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::ReplaceAtomicFuncsPass::run(Module &M,
+                                             ModuleAnalysisManager &) {
   bool Changed = false;
 
   for (auto &F : M) {

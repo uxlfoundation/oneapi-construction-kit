@@ -125,23 +125,23 @@ CL_API_ENTRY cl_int CL_API_CALL clGetMutableCommandInfoKHR(
 
   OCL_CHECK(!command, return CL_INVALID_MUTABLE_COMMAND_KHR);
 
-#define MUTABLE_COMMAND_INFO_CASE(TYPE, SIZE_RET, POINTER_TYPE, VALUE)  \
-  case TYPE: {                                                          \
-    OCL_CHECK(param_value && (param_value_size < SIZE_RET),             \
-              return CL_INVALID_VALUE);                                 \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                \
-    OCL_SET_IF_NOT_NULL(static_cast<POINTER_TYPE>(param_value), VALUE); \
+#define MUTABLE_COMMAND_INFO_CASE(TYPE, SIZE_RET, POINTER_TYPE, VALUE)         \
+  case TYPE: {                                                                 \
+    OCL_CHECK(param_value && (param_value_size < SIZE_RET),                    \
+              return CL_INVALID_VALUE);                                        \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                       \
+    OCL_SET_IF_NOT_NULL(static_cast<POINTER_TYPE>(param_value), VALUE);        \
   } break
 
-#define MUTABLE_COMMAND_ARRAY_INFO_CASE(TYPE, VALUE)        \
-  case TYPE: {                                              \
-    const size_t size = sizeof(size_t) * command->work_dim; \
-    OCL_CHECK(param_value && (param_value_size < size),     \
-              return CL_INVALID_VALUE);                     \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);        \
-    if (param_value) {                                      \
-      std::memcpy(param_value, VALUE.data(), size);         \
-    }                                                       \
+#define MUTABLE_COMMAND_ARRAY_INFO_CASE(TYPE, VALUE)                           \
+  case TYPE: {                                                                 \
+    const size_t size = sizeof(size_t) * command->work_dim;                    \
+    OCL_CHECK(param_value && (param_value_size < size),                        \
+              return CL_INVALID_VALUE);                                        \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);                           \
+    if (param_value) {                                                         \
+      std::memcpy(param_value, VALUE.data(), size);                            \
+    }                                                                          \
   } break
 
   switch (param_name) {
@@ -172,23 +172,23 @@ CL_API_ENTRY cl_int CL_API_CALL clGetMutableCommandInfoKHR(
     MUTABLE_COMMAND_ARRAY_INFO_CASE(CL_MUTABLE_DISPATCH_LOCAL_WORK_SIZE_KHR,
                                     command->local_size);
 
-    case CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR: {
-      const auto &properties_list = command->properties_list;
-      OCL_SET_IF_NOT_NULL(param_value_size_ret,
-                          sizeof(cl_ndrange_kernel_command_properties_khr) *
-                              properties_list.size());
-      OCL_CHECK(
-          param_value && param_value_size <
-                             sizeof(cl_ndrange_kernel_command_properties_khr) *
-                                 properties_list.size(),
-          return CL_INVALID_VALUE);
-      if (param_value) {
-        std::copy(std::begin(properties_list), std::end(properties_list),
-                  static_cast<cl_bitfield *>(param_value));
-      }
-    } break;
-    default:
-      return CL_INVALID_VALUE;
+  case CL_MUTABLE_DISPATCH_PROPERTIES_ARRAY_KHR: {
+    const auto &properties_list = command->properties_list;
+    OCL_SET_IF_NOT_NULL(param_value_size_ret,
+                        sizeof(cl_ndrange_kernel_command_properties_khr) *
+                            properties_list.size());
+    OCL_CHECK(param_value &&
+                  param_value_size <
+                      sizeof(cl_ndrange_kernel_command_properties_khr) *
+                          properties_list.size(),
+              return CL_INVALID_VALUE);
+    if (param_value) {
+      std::copy(std::begin(properties_list), std::end(properties_list),
+                static_cast<cl_bitfield *>(param_value));
+    }
+  } break;
+  default:
+    return CL_INVALID_VALUE;
   }
 #undef MUTABLE_COMMAND_INFO_CASE
 #undef MUTABLE_COMMAND_ARRAY_INFO_CASE

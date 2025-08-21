@@ -18,13 +18,10 @@
 #include <abacus/abacus_math.h>
 
 namespace {
-template <typename T>
-T _(T x, T y) {
-  return x / y;
-}
-}  // namespace
+template <typename T> T _(T x, T y) { return x / y; }
+} // namespace
 
-#define DEF(TYPE) \
+#define DEF(TYPE)                                                              \
   TYPE ABACUS_API __abacus_half_divide(TYPE x, TYPE y) { return _(x, y); }
 
 DEF(abacus_float)

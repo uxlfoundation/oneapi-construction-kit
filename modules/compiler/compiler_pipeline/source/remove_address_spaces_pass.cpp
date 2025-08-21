@@ -38,12 +38,14 @@ static Type *removeAddressSpaces(Type *T) {
   return nullptr;
 }
 
-PreservedAnalyses compiler::utils::RemoveAddressSpacesPass::run(
-    Function &F, FunctionAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::RemoveAddressSpacesPass::run(Function &F,
+                                              FunctionAnalysisManager &) {
   bool Changed = false;
 
   auto MaybeCastOperand = [&](Instruction &I, Use &Op, Type *T) {
-    if (Op->getType() == T) return false;
+    if (Op->getType() == T)
+      return false;
     IRBuilder<> B(&I);
     Op.set(B.CreateAddrSpaceCast(Op, T));
     return true;
@@ -51,7 +53,8 @@ PreservedAnalyses compiler::utils::RemoveAddressSpacesPass::run(
 
   auto MaybeCastResult = [&](Value &V, Type *OldTy, Type *NewTy,
                              BasicBlock::iterator InsertPt) {
-    if (V.use_empty()) return false;
+    if (V.use_empty())
+      return false;
     auto *CastV =
         new AddrSpaceCastInst(PoisonValue::get(OldTy), NewTy, "", InsertPt);
     V.mutateType(NewTy);

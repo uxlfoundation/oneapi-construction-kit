@@ -49,9 +49,9 @@ struct MutableDispatchTest : public cl_khr_command_buffer_Test {
     }
 
     // If it is supported get the addresses of all the APIs here.
-#define GET_EXTENSION_ADDRESS(FUNC)                               \
-  FUNC = reinterpret_cast<FUNC##_fn>(                             \
-      clGetExtensionFunctionAddressForPlatform(platform, #FUNC)); \
+#define GET_EXTENSION_ADDRESS(FUNC)                                            \
+  FUNC = reinterpret_cast<FUNC##_fn>(                                          \
+      clGetExtensionFunctionAddressForPlatform(platform, #FUNC));              \
   ASSERT_NE(nullptr, FUNC) << "Could not get address of " << #FUNC;
 
     GET_EXTENSION_ADDRESS(clUpdateMutableCommandsKHR);
@@ -63,4 +63,4 @@ struct MutableDispatchTest : public cl_khr_command_buffer_Test {
   clUpdateMutableCommandsKHR_fn clUpdateMutableCommandsKHR = nullptr;
   clGetMutableCommandInfoKHR_fn clGetMutableCommandInfoKHR = nullptr;
 };
-#endif  // UNITCL_MUTABLE_DISPATCH_H_INCLUDED
+#endif // UNITCL_MUTABLE_DISPATCH_H_INCLUDED

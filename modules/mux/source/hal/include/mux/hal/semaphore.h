@@ -37,8 +37,8 @@ struct semaphore : mux_semaphore_s {
 
   /// @see muxCreateSemaphore
   template <class Semaphore>
-  static cargo::expected<Semaphore *, mux_result_t> create(
-      mux_device_t device, mux::allocator allocator) {
+  static cargo::expected<Semaphore *, mux_result_t>
+  create(mux_device_t device, mux::allocator allocator) {
     static_assert(
         std::is_base_of_v<mux::hal::semaphore, Semaphore>,
         "template type Semaphore must derive from mux::hal::semaphore");
@@ -69,14 +69,14 @@ struct semaphore : mux_semaphore_s {
   void terminate();
   bool is_terminated();
 
- private:
+private:
   enum states : uint32_t {
     SIGNAL = 0x1,
     TERMINATE = 0x80000000,
   };
   std::atomic_uint32_t status;
 };
-}  // namespace hal
-}  // namespace mux
+} // namespace hal
+} // namespace mux
 
-#endif  // MUX_HAL_SEMAPHORE_H_INCLUDED
+#endif // MUX_HAL_SEMAPHORE_H_INCLUDED

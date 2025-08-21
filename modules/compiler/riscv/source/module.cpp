@@ -49,8 +49,8 @@ void RiscvModule::clear() {
   object_code.clear();
 }
 
-compiler::Result RiscvModule::createBinary(
-    cargo::array_view<std::uint8_t> &binary) {
+compiler::Result
+RiscvModule::createBinary(cargo::array_view<std::uint8_t> &binary) {
   if (!finalized_llvm_module) {
     return compiler::Result::FINALIZE_PROGRAM_FAILURE;
   }
@@ -136,7 +136,7 @@ compiler::Result RiscvModule::createBinary(
     }
 
 // copy the generated ELF file to a specified path if desired
-#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) || \
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) ||                    \
     defined(CA_RISCV_DEMO_MODE)
     if (!getTarget().env_debug_prefix.empty()) {
       const std::string env_name =
@@ -175,8 +175,8 @@ const riscv::RiscvTarget &RiscvModule::getTarget() const {
   return *static_cast<riscv::RiscvTarget *>(&target);
 }
 
-llvm::ModulePassManager RiscvModule::getLateTargetPasses(
-    compiler::utils::PassMachinery &pass_mach) {
+llvm::ModulePassManager
+RiscvModule::getLateTargetPasses(compiler::utils::PassMachinery &pass_mach) {
   if (getOptions().llvm_stats) {
     llvm::EnableStatistics();
   }
@@ -184,8 +184,8 @@ llvm::ModulePassManager RiscvModule::getLateTargetPasses(
   return static_cast<RiscvPassMachinery &>(pass_mach).getLateTargetPasses();
 }
 
-static llvm::TargetMachine *createTargetMachine(
-    const riscv::RiscvTarget &target) {
+static llvm::TargetMachine *
+createTargetMachine(const riscv::RiscvTarget &target) {
   // Init the llvm target machine.
   llvm::TargetOptions options;
   std::string error;
@@ -295,4 +295,4 @@ void RiscvModule::initializePassMachineryForFinalize(
   pass_mach.initializeFinish();
 }
 
-}  // namespace riscv
+} // namespace riscv

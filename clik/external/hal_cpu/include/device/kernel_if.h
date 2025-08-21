@@ -83,7 +83,6 @@ static uintptr_t start_dma(void *dst, const void *src, size_t size_in_bytes,
   return xfer_id;
 }
 
-static void wait_dma(uintptr_t xfer_id, struct exec_state *e) { /* No-op */
-}
+static void wait_dma(uintptr_t xfer_id, struct exec_state *e) { /* No-op */ }
 
 #endif  // _HAL_CPU_KERNEL_IF_H

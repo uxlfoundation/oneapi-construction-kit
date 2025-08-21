@@ -25,9 +25,9 @@
 #include "ucl/enums.h"
 #include "ucl/environment.h"
 
-#define CHECK_CL_SUCCESS(X) \
-  if (CL_SUCCESS != (X)) {  \
-    return nullptr;         \
+#define CHECK_CL_SUCCESS(X)                                                    \
+  if (CL_SUCCESS != (X)) {                                                     \
+    return nullptr;                                                            \
   }
 
 using namespace kts::ucl;
@@ -68,9 +68,10 @@ std::string OneArgRelational::source_fmt_string(std::string extension,
          "(in[gid]);\n" + "}\n";
 }
 
-std::string TwoArgRelational::source_fmt_string(
-    std::string extension, std::array<std::string, 2> in_types,
-    std::string out_type, std::string builtin) {
+std::string
+TwoArgRelational::source_fmt_string(std::string extension,
+                                    std::array<std::string, 2> in_types,
+                                    std::string out_type, std::string builtin) {
   return extension + "\n" + "void kernel RelationalKernel(global " +
          in_types[0] + " *in1, global " + in_types[1] + " *in2, global " +
          out_type + " *out) {\n" + "  size_t gid = get_global_id(0);\n" +
@@ -91,18 +92,18 @@ namespace {
 unsigned GetVecWidth(const std::string &type) {
   const char last = type.back();
   switch (last) {
-    case '2':
-      return 2;
-    case '3':
-      return 3;
-    case '4':
-      return 4;
-    case '8':
-      return 8;
-    case '6':
-      return 16;
-    default:
-      return 1;
+  case '2':
+    return 2;
+  case '3':
+    return 3;
+  case '4':
+    return 4;
+  case '8':
+    return 8;
+  case '6':
+    return 16;
+  default:
+    return 1;
   }
 }
 
@@ -118,8 +119,7 @@ void GetTestTypes(cargo::small_vector<std::string, 6> &types) {
 
 // Based on CTS test conformance_test_select `check_float()` verification
 // function in test_conformance/select/util_select.c
-template <class T>
-bool VerifyResult(const T reference, const T kernel) {
+template <class T> bool VerifyResult(const T reference, const T kernel) {
   if (std::isnan(reference) && std::isnan(kernel)) {
     return true;
   }
@@ -127,15 +127,14 @@ bool VerifyResult(const T reference, const T kernel) {
   return reference == kernel;
 }
 
-template <>
-bool VerifyResult(const cl_half reference, const cl_half kernel) {
+template <> bool VerifyResult(const cl_half reference, const cl_half kernel) {
   if (IsNaN(reference) && IsNaN(kernel)) {
     return true;
   }
 
   return reference == kernel;
 }
-}  // namespace
+} // namespace
 
 cl_ulong RelationalTest::GetBufferLimit() {
   return HalfInputSizes::getInputSize(getEnvironment()->math_mode) * 2ul;

@@ -40,7 +40,7 @@ compiler::Info *getCrossCompilerInfo(const char *device_name) {
   static HostInfo compiler_info{arch, os, &device_info};
   return &compiler_info;
 }
-}  // namespace
+} // namespace
 
 uint8_t HostInfo::arches = 0;
 
@@ -59,7 +59,7 @@ HostInfo::HostInfo(host::arch arch, host::os os,
   if (arch == host::arch::X86_64) {
     // x86_64 requires it's own calling convention.
     if (os == host::os::WINDOWS) {
-      cc = llvm::CallingConv::Win64;  // GCOVR_EXCL_LINE non-deterministic
+      cc = llvm::CallingConv::Win64; // GCOVR_EXCL_LINE non-deterministic
     } else {
       cc = llvm::CallingConv::X86_64_SysV;
     }
@@ -127,8 +127,9 @@ bool HostInfo::supports_deferred_compilation() const {
   return enabled;
 }
 
-std::unique_ptr<compiler::Target> HostInfo::createTarget(
-    compiler::Context *context, compiler::NotifyCallbackFn callback) const {
+std::unique_ptr<compiler::Target>
+HostInfo::createTarget(compiler::Context *context,
+                       compiler::NotifyCallbackFn callback) const {
   if (!context) {
     return nullptr;
   }
@@ -168,4 +169,4 @@ void HostInfo::get(compiler::AddCompilerFn add_compiler) {
       HOST_CROSS_DEVICE_NAME_RISCV64));
 #endif
 }
-}  // namespace host
+} // namespace host

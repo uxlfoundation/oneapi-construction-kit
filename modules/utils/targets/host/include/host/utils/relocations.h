@@ -44,9 +44,9 @@ inline std::vector<std::pair<std::string, uint64_t>> getRelocations() {
 /// may possibly be called from a host-compiled kernel executable will be
 /// resolved.
 std::vector<std::pair<std::string, uint64_t>> getRelocations();
-#endif  //  !defined(__riscv)
+#endif //  !defined(__riscv)
 
-}  // namespace utils
-}  // namespace host
+} // namespace utils
+} // namespace host
 
-#endif  // HOST_UTILS_RELOCATIONS_H_INCLUDED
+#endif // HOST_UTILS_RELOCATIONS_H_INCLUDED

@@ -41,7 +41,7 @@ namespace binary {
 std::pair<compiler::ArgumentType, std::string>
 getArgumentTypeFromParameterTypeString(const cargo::string_view &str);
 
-}  // namespace binary
-}  // namespace cl
+} // namespace binary
+} // namespace cl
 
-#endif  // CL_BINARY_ARGUMENT_H_INCLUDED
+#endif // CL_BINARY_ARGUMENT_H_INCLUDED

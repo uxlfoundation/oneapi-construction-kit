@@ -26,15 +26,12 @@
 using namespace llvm;
 
 class TargetExtTypeRemapper : public ValueMapTypeRemapper {
- public:
+public:
   TargetExtTypeRemapper(Module &M, compiler::utils::BuiltinInfo &BI,
                         bool ReplaceImages, bool ReplaceSamplers,
                         bool ReplaceEvents)
-      : M(M),
-        BI(BI),
-        ReplaceImages(ReplaceImages),
-        ReplaceSamplers(ReplaceSamplers),
-        ReplaceEvents(ReplaceEvents) {}
+      : M(M), BI(BI), ReplaceImages(ReplaceImages),
+        ReplaceSamplers(ReplaceSamplers), ReplaceEvents(ReplaceEvents) {}
 
   Type *remapType(Type *Ty) override {
     // Look up the cache in case we've seen this type before.
@@ -97,7 +94,7 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
     return Ty;
   }
 
- private:
+private:
   Module &M;
   compiler::utils::BuiltinInfo &BI;
   bool ReplaceImages = true;
@@ -106,8 +103,9 @@ class TargetExtTypeRemapper : public ValueMapTypeRemapper {
   DenseMap<Type *, Type *> TyReplacementCache;
 };
 
-PreservedAnalyses compiler::utils::ReplaceTargetExtTysPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::utils::ReplaceTargetExtTysPass::run(Module &M,
+                                              ModuleAnalysisManager &AM) {
   auto &BI = AM.getResult<compiler::utils::BuiltinInfoAnalysis>(M);
 
   ValueToValueMapTy VM;

@@ -46,69 +46,69 @@ void fuzzcl::fuzz_from_input(const uint8_t *data, size_t size,
 void fuzzcl::run_input(fuzzcl::context_t &fc, fuzzcl::input_t input) {
   while (input.index < input.data.size()) {
     switch (input.next(0, 18)) {
-      case 0:
-        fuzzcl::enqueueReadBuffer(fc, input);
-        break;
-      case 1:
-        fuzzcl::enqueueWriteBuffer(fc, input);
-        break;
-      case 2:
-        fuzzcl::enqueueReadBufferRect(fc, input);
-        break;
-      case 3:
-        fuzzcl::enqueueWriteBufferRect(fc, input);
-        break;
-      case 4:
-        fuzzcl::enqueueFillBuffer(fc, input);
-        break;
-      case 5:
-        fuzzcl::enqueueCopyBuffer(fc, input);
-        break;
-      case 6:
-        fuzzcl::enqueueCopyBufferRect(fc, input);
-        break;
-      case 7:
-        fuzzcl::enqueueMapBuffer(fc, input);
-        break;
-      case 8:
-        fuzzcl::enqueueReadImage(fc, input);
-        break;
-      case 9:
-        fuzzcl::enqueueWriteImage(fc, input);
-        break;
-      case 10:
-        fuzzcl::enqueueFillImage(fc, input);
-        break;
-      case 11:
-        fuzzcl::enqueueCopyImage(fc, input);
-        break;
-      case 12:
-        fuzzcl::enqueueCopyImageToBuffer(fc, input);
-        break;
-      case 13:
-        fuzzcl::enqueueCopyBufferToImage(fc, input);
-        break;
-      case 14:
-        fuzzcl::enqueueMapImage(fc, input);
-        break;
-      case 15:
-        fuzzcl::enqueueUnmapMemObject(fc, input);
-        break;
-      case 16:
-        fuzzcl::enqueueNDRangeKernel(fc, input);
-        break;
-      case 17:
-        fuzzcl::enqueueTask(fc, input);
-        break;
-      case 18:
-        // clSetEventCallback will only be run outside of callbacks, if
-        // callbacks are enabled
-        if (fc.enable_callbacks && !input.callback_id.has_value()) {
-          fuzzcl::setEventCallback(fc, input);
-        }
-        break;
-      default:
-        break;
+    case 0:
+      fuzzcl::enqueueReadBuffer(fc, input);
+      break;
+    case 1:
+      fuzzcl::enqueueWriteBuffer(fc, input);
+      break;
+    case 2:
+      fuzzcl::enqueueReadBufferRect(fc, input);
+      break;
+    case 3:
+      fuzzcl::enqueueWriteBufferRect(fc, input);
+      break;
+    case 4:
+      fuzzcl::enqueueFillBuffer(fc, input);
+      break;
+    case 5:
+      fuzzcl::enqueueCopyBuffer(fc, input);
+      break;
+    case 6:
+      fuzzcl::enqueueCopyBufferRect(fc, input);
+      break;
+    case 7:
+      fuzzcl::enqueueMapBuffer(fc, input);
+      break;
+    case 8:
+      fuzzcl::enqueueReadImage(fc, input);
+      break;
+    case 9:
+      fuzzcl::enqueueWriteImage(fc, input);
+      break;
+    case 10:
+      fuzzcl::enqueueFillImage(fc, input);
+      break;
+    case 11:
+      fuzzcl::enqueueCopyImage(fc, input);
+      break;
+    case 12:
+      fuzzcl::enqueueCopyImageToBuffer(fc, input);
+      break;
+    case 13:
+      fuzzcl::enqueueCopyBufferToImage(fc, input);
+      break;
+    case 14:
+      fuzzcl::enqueueMapImage(fc, input);
+      break;
+    case 15:
+      fuzzcl::enqueueUnmapMemObject(fc, input);
+      break;
+    case 16:
+      fuzzcl::enqueueNDRangeKernel(fc, input);
+      break;
+    case 17:
+      fuzzcl::enqueueTask(fc, input);
+      break;
+    case 18:
+      // clSetEventCallback will only be run outside of callbacks, if
+      // callbacks are enabled
+      if (fc.enable_callbacks && !input.callback_id.has_value()) {
+        fuzzcl::setEventCallback(fc, input);
+      }
+      break;
+    default:
+      break;
     }
   }
   IS_CL_SUCCESS(clFlush(fc.queue));
@@ -1121,19 +1121,19 @@ void fuzzcl::setEventCallback(fuzzcl::context_t &fc, fuzzcl::input_t &input) {
 
   cl_int command_exec_callback_type;
   switch (input.next(0, 2)) {
-    case 0:
-      command_exec_callback_type = CL_SUBMITTED;
-      break;
-    case 1:
-      command_exec_callback_type = CL_RUNNING;
-      break;
-    case 2:
-      command_exec_callback_type = CL_COMPLETE;
-      break;
-    default:
-      // not necessary since input.next(0, 2) returns either 0, 1 or 2
-      command_exec_callback_type = CL_COMPLETE;
-      break;
+  case 0:
+    command_exec_callback_type = CL_SUBMITTED;
+    break;
+  case 1:
+    command_exec_callback_type = CL_RUNNING;
+    break;
+  case 2:
+    command_exec_callback_type = CL_COMPLETE;
+    break;
+  default:
+    // not necessary since input.next(0, 2) returns either 0, 1 or 2
+    command_exec_callback_type = CL_COMPLETE;
+    break;
   }
 
   // get a part of the input data to be used in the callback
@@ -1216,8 +1216,9 @@ cl_platform_id fuzzcl::context_t::select_platform() {
   return platform;
 }
 
-cl_device_id fuzzcl::context_t::select_device(
-    cl_platform_id platform, const std::string &specified_device) {
+cl_device_id
+fuzzcl::context_t::select_device(cl_platform_id platform,
+                                 const std::string &specified_device) {
   cl_uint num_devices;
   IS_CL_SUCCESS(
       clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices));

@@ -23,8 +23,7 @@
 #include <abacus/internal/ldexp_unsafe.h>
 
 namespace {
-template <typename T>
-T native_exp(const T x) {
+template <typename T> T native_exp(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const abacus_float ln2recip =
@@ -44,7 +43,7 @@ T native_exp(const T x) {
   const T twoToTheF = abacus::internal::horner_polynomial(f, polynomial);
   return abacus::internal::ldexp_unsafe(twoToTheF, k);
 }
-}  // namespace
+} // namespace
 
 abacus_float ABACUS_API __abacus_native_exp(abacus_float x) {
   return native_exp<>(x);

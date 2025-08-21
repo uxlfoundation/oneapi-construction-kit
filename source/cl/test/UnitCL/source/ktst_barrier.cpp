@@ -35,7 +35,7 @@ cl_int refOut(size_t x) {
     return idx + 1;
   }
 }
-}  // namespace
+} // namespace
 
 TEST_P(Execution, Barrier_02_Barrier_No_Duplicates) {
   AddInputBuffer(kts::N, kts::Reference1D<cl_int>(kts::Ref_Identity));
@@ -292,24 +292,24 @@ TEST_P(MultipleLocalDimensions, Barrier_11_Barrier_With_Align) {
                     const cl_uint global_id = id / num_out_per_id;
                     const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
-                      case 0:
-                        // 32 bit align - bottom 2 bits set as we invert
-                        return static_cast<cl_uint>(0x3);
-                      case 1:
-                        // 64 bit align - bottom 3 bits set as we invert
-                        return static_cast<cl_uint>(0x7);
-                      case 2:
-                        // 1024 byte align - bottom 10 bits set as we invert
-                        return static_cast<cl_uint>(0x3ff);
-                      case 3:
-                        return static_cast<cl_uint>(global_id + 12);
-                      case 4:
-                        return static_cast<cl_uint>(global_id + 54);
-                      case 5:
-                        return static_cast<cl_uint>(0xdeadbeef & global_id);
-                      default:
-                        assert(false);
-                        return static_cast<cl_uint>(0);  // Shouldn't hit here.
+                    case 0:
+                      // 32 bit align - bottom 2 bits set as we invert
+                      return static_cast<cl_uint>(0x3);
+                    case 1:
+                      // 64 bit align - bottom 3 bits set as we invert
+                      return static_cast<cl_uint>(0x7);
+                    case 2:
+                      // 1024 byte align - bottom 10 bits set as we invert
+                      return static_cast<cl_uint>(0x3ff);
+                    case 3:
+                      return static_cast<cl_uint>(global_id + 12);
+                    case 4:
+                      return static_cast<cl_uint>(global_id + 54);
+                    case 5:
+                      return static_cast<cl_uint>(0xdeadbeef & global_id);
+                    default:
+                      assert(false);
+                      return static_cast<cl_uint>(0); // Shouldn't hit here.
                     }
                   }));
 
@@ -328,12 +328,12 @@ TEST_P(Execution, Barrier_12_Barrier_In_Sub_Function_Called_Twice) {
 TEST_P(Execution, Barrier_13_Barrier_Shift_loop) {
   const size_t block_size = 16;
   const size_t local_size =
-      block_size * block_size;  // If this changes regenerate SPIR-V
+      block_size * block_size; // If this changes regenerate SPIR-V
   const size_t global_size = block_size * local_size;
   const size_t global_range[] = {global_size, block_size};
   const size_t local_range[] = {local_size, 1};
 
-  const size_t blocks = block_size * 2;  // If this changes regenerate SPIR-V
+  const size_t blocks = block_size * 2; // If this changes regenerate SPIR-V
   // These macros will not affect SPIR-V or OFFLINE tests
   AddMacro("BLOCK_COLS", blocks);
   AddMacro("BLOCK_ROWS", blocks);
@@ -423,13 +423,13 @@ TEST_P(MultipleLocalDimensions, Barrier_18_Barrier_Store_Mask) {
                     const cl_uint global_id = id / num_out_per_id;
                     const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
-                      case 0:
-                        return static_cast<cl_uint>(0x3);
-                      case 1:
-                        return static_cast<cl_uint>(global_id);
-                      default:
-                        assert(false);
-                        return static_cast<cl_uint>(0);  // Shouldn't hit here.
+                    case 0:
+                      return static_cast<cl_uint>(0x3);
+                    case 1:
+                      return static_cast<cl_uint>(global_id);
+                    default:
+                      assert(false);
+                      return static_cast<cl_uint>(0); // Shouldn't hit here.
                     }
                   }));
 
@@ -447,14 +447,14 @@ TEST_P(MultipleLocalDimensions, Barrier_19_Barrier_Store_Mask) {
                     const cl_uint global_id = id / num_out_per_id;
                     const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
-                      case 0:
-                        // 32 bit align - bottom 2 bits set as we invert
-                        return static_cast<cl_uint>(0x3);
-                      case 1:
-                        return static_cast<cl_uint>(global_id + 12);
-                      default:
-                        assert(false);
-                        return static_cast<cl_uint>(0);  // Shouldn't hit here.
+                    case 0:
+                      // 32 bit align - bottom 2 bits set as we invert
+                      return static_cast<cl_uint>(0x3);
+                    case 1:
+                      return static_cast<cl_uint>(global_id + 12);
+                    default:
+                      assert(false);
+                      return static_cast<cl_uint>(0); // Shouldn't hit here.
                     }
                   }));
 

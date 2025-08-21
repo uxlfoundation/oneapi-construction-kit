@@ -25,7 +25,7 @@
 #include <abacus/internal/floor_unsafe.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/ldexp_unsafe.h>
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/log2_extended_precision.h>
 #include <abacus/internal/multiply_exact.h>
 #include <abacus/internal/multiply_exact_unsafe.h>
@@ -41,7 +41,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_pow_unsafe_coeffH[6] = {
     6.0699462890625e-2f16,
     3.490447998046875e-3f16,
     4.05120849609375e-3f16};
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 // 2^x for range [0.0, 1.0], see pow.sollya for derivation
 static ABACUS_CONSTANT abacus_float __codeplay_pow_unsafe_coeff[8] = {
@@ -66,19 +66,17 @@ static ABACUS_CONSTANT abacus_double __codeplay_pow_unsafe_coeffD[18] = {
     1.3691489511954971230628762315e-12, 6.7787256843162869264041638867e-14,
     3.1323713565579919861469734507e-15, 1.3570535861859933139810634493e-16,
     5.5680060148351051509171469418e-18, 2.1306677337585862223671406870e-19};
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+} // namespace
 
 namespace abacus {
 namespace internal {
-template <typename T>
-struct IntFloatPart {
+template <typename T> struct IntFloatPart {
   T float_part;
   typename TypeTraits<T>::SignedType int_part;
 };
 
-template <typename T>
-IntFloatPart<T> reduction(const T &x) {
+template <typename T> IntFloatPart<T> reduction(const T &x) {
   IntFloatPart<T> result;
   result.int_part = abacus::internal::trunc_unsafe(x);
   result.float_part = x - abacus::detail::cast::convert<T>(result.int_part);
@@ -89,8 +87,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct pow_unsafe_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct pow_unsafe_helper<T, abacus_half> {
+template <typename T> struct pow_unsafe_helper<T, abacus_half> {
   static T _(const T &x, const T &y) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -181,10 +178,9 @@ struct pow_unsafe_helper<T, abacus_half> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-struct pow_unsafe_helper<T, abacus_float> {
+template <typename T> struct pow_unsafe_helper<T, abacus_float> {
   static T _(const T &x, const T &y) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
@@ -259,8 +255,7 @@ struct pow_unsafe_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct pow_unsafe_helper<T, abacus_double> {
+template <typename T> struct pow_unsafe_helper<T, abacus_double> {
   static T _(const T &x, const T &y) {
     typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
         IntVecType;
@@ -356,14 +351,13 @@ struct pow_unsafe_helper<T, abacus_double> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 // Used for for x >= 0.0 via the identity pow(x, y) = exp2(y * log2(x))
-template <typename T>
-inline T pow_unsafe(const T &x, const T &y) {
+template <typename T> inline T pow_unsafe(const T &x, const T &y) {
   return pow_unsafe_helper<T>::_(x, y);
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_POW_UNSAFE_H__
+#endif //__ABACUS_INTERNAL_POW_UNSAFE_H__

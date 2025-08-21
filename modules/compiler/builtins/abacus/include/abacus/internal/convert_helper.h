@@ -27,8 +27,7 @@
 
 namespace {
 
-template <typename T, typename U>
-struct BitsToKeepHelper {
+template <typename T, typename U> struct BitsToKeepHelper {
   static typename TypeTraits<T>::UnsignedType _(const T &t) {
     using UnsignedType = typename TypeTraits<T>::UnsignedType;
     const UnsignedType leadingZeros = __abacus_clz(__abacus_abs(t));
@@ -427,8 +426,7 @@ inline T DownFloatConvertHelper(const U payload) {
 
 // conversion helpers:
 // for the default rounding mode there's nothing to do
-template <typename T, typename U>
-struct DefaultConvertHelper {
+template <typename T, typename U> struct DefaultConvertHelper {
   static T _(const U &u) { return abacus::detail::cast::convert<T>(u); }
 };
 
@@ -711,134 +709,124 @@ struct convert_sat_choice<T, U, C, abacus_half, NotFromInt, IsToInt,
 #endif
 
 // convert_*
-template <typename T, typename U>
-T convert(const U &u) {
+template <typename T, typename U> T convert(const U &u) {
   return DefaultConvertHelper<T, U>::_(u);
 }
 
-template <typename T, typename U>
-T convert_rte(const U &u) {
+template <typename T, typename U> T convert_rte(const U &u) {
   return ConvertHelper<T, U, RTEHelper>::_(u);
 }
 
-template <typename T, typename U>
-T convert_rtn(const U &u) {
+template <typename T, typename U> T convert_rtn(const U &u) {
   return ConvertHelper<T, U, RTNHelper>::_(u);
 }
 
-template <typename T, typename U>
-T convert_rtz(const U &u) {
+template <typename T, typename U> T convert_rtz(const U &u) {
   return ConvertHelper<T, U, RTZHelper>::_(u);
 }
 
-template <typename T, typename U>
-T convert_rtp(const U &u) {
+template <typename T, typename U> T convert_rtp(const U &u) {
   return ConvertHelper<T, U, RTPHelper>::_(u);
 }
 
 // convert_sat*
-template <typename T, typename U>
-T convert_sat(const U &u) {
+template <typename T, typename U> T convert_sat(const U &u) {
   return convert_sat_choice<T, U, DefaultConvertHelper<T, U>>::_(u);
 }
 
-template <typename T, typename U>
-T convert_sat_rte(const U &u) {
+template <typename T, typename U> T convert_sat_rte(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTEHelper>>::_(u);
 }
 
-template <typename T, typename U>
-T convert_sat_rtn(const U &u) {
+template <typename T, typename U> T convert_sat_rtn(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTNHelper>>::_(u);
 }
 
-template <typename T, typename U>
-T convert_sat_rtz(const U &u) {
+template <typename T, typename U> T convert_sat_rtz(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTZHelper>>::_(u);
 }
 
-template <typename T, typename U>
-T convert_sat_rtp(const U &u) {
+template <typename T, typename U> T convert_sat_rtp(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTPHelper>>::_(u);
 }
-}  // namespace
+} // namespace
 
-#define DEF_WITH_BOTH_TYPES(IN_TYPE, OUT_TYPE)                        \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE(           \
-      abacus_##IN_TYPE x) {                                           \
-    return convert<abacus_##OUT_TYPE>(x);                             \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rte(     \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_rte<abacus_##OUT_TYPE>(x);                         \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtn(     \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_rtn<abacus_##OUT_TYPE>(x);                         \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtz(     \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_rtz<abacus_##OUT_TYPE>(x);                         \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtp(     \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_rtp<abacus_##OUT_TYPE>(x);                         \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat(     \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_sat<abacus_##OUT_TYPE>(x);                         \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rte( \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_sat_rte<abacus_##OUT_TYPE>(x);                     \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtn( \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_sat_rtn<abacus_##OUT_TYPE>(x);                     \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtz( \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_sat_rtz<abacus_##OUT_TYPE>(x);                     \
-  }                                                                   \
-  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtp( \
-      abacus_##IN_TYPE x) {                                           \
-    return convert_sat_rtp<abacus_##OUT_TYPE>(x);                     \
+#define DEF_WITH_BOTH_TYPES(IN_TYPE, OUT_TYPE)                                 \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE(                    \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert<abacus_##OUT_TYPE>(x);                                      \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rte(              \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_rte<abacus_##OUT_TYPE>(x);                                  \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtn(              \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_rtn<abacus_##OUT_TYPE>(x);                                  \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtz(              \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_rtz<abacus_##OUT_TYPE>(x);                                  \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_rtp(              \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_rtp<abacus_##OUT_TYPE>(x);                                  \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat(              \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_sat<abacus_##OUT_TYPE>(x);                                  \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rte(          \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_sat_rte<abacus_##OUT_TYPE>(x);                              \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtn(          \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_sat_rtn<abacus_##OUT_TYPE>(x);                              \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtz(          \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_sat_rtz<abacus_##OUT_TYPE>(x);                              \
+  }                                                                            \
+  abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE##_sat_rtp(          \
+      abacus_##IN_TYPE x) {                                                    \
+    return convert_sat_rtp<abacus_##OUT_TYPE>(x);                              \
   }
 
-#define DEF_INTERGRAL_TYPES(TYPE, SIZE)         \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, char##SIZE)   \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, short##SIZE)  \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, int##SIZE)    \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, long##SIZE)   \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, uchar##SIZE)  \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, ushort##SIZE) \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, uint##SIZE)   \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, ulong##SIZE)  \
+#define DEF_INTERGRAL_TYPES(TYPE, SIZE)                                        \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, char##SIZE)                                  \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, short##SIZE)                                 \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, int##SIZE)                                   \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, long##SIZE)                                  \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, uchar##SIZE)                                 \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, ushort##SIZE)                                \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, uint##SIZE)                                  \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, ulong##SIZE)                                 \
   DEF_WITH_BOTH_TYPES(TYPE##SIZE, float##SIZE)
 
 #if defined(__CA_BUILTINS_DOUBLE_SUPPORT) && defined(__CA_BUILTINS_HALF_SUPPORT)
-#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE)    \
-  DEF_INTERGRAL_TYPES(TYPE, SIZE)             \
-  DEF_WITH_BOTH_TYPES(TYPE##SIZE, half##SIZE) \
+#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE)                                     \
+  DEF_INTERGRAL_TYPES(TYPE, SIZE)                                              \
+  DEF_WITH_BOTH_TYPES(TYPE##SIZE, half##SIZE)                                  \
   DEF_WITH_BOTH_TYPES(TYPE##SIZE, double##SIZE)
 #elif defined(__CA_BUILTINS_DOUBLE_SUPPORT)
-#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE) \
-  DEF_INTERGRAL_TYPES(TYPE, SIZE)          \
+#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE)                                     \
+  DEF_INTERGRAL_TYPES(TYPE, SIZE)                                              \
   DEF_WITH_BOTH_TYPES(TYPE##SIZE, double##SIZE)
 #elif defined(__CA_BUILTINS_HALF_SUPPORT)
-#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE) \
-  DEF_INTERGRAL_TYPES(TYPE, SIZE)          \
+#define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE)                                     \
+  DEF_INTERGRAL_TYPES(TYPE, SIZE)                                              \
   DEF_WITH_BOTH_TYPES(TYPE##SIZE, half##SIZE)
 #else
 #define DEF_WITH_TYPE_AND_SIZE(TYPE, SIZE) DEF_INTERGRAL_TYPES(TYPE, SIZE)
 #endif
 
-#define DEF(TYPE)                 \
-  DEF_WITH_TYPE_AND_SIZE(TYPE, )  \
-  DEF_WITH_TYPE_AND_SIZE(TYPE, 2) \
-  DEF_WITH_TYPE_AND_SIZE(TYPE, 3) \
-  DEF_WITH_TYPE_AND_SIZE(TYPE, 4) \
-  DEF_WITH_TYPE_AND_SIZE(TYPE, 8) \
+#define DEF(TYPE)                                                              \
+  DEF_WITH_TYPE_AND_SIZE(TYPE, )                                               \
+  DEF_WITH_TYPE_AND_SIZE(TYPE, 2)                                              \
+  DEF_WITH_TYPE_AND_SIZE(TYPE, 3)                                              \
+  DEF_WITH_TYPE_AND_SIZE(TYPE, 4)                                              \
+  DEF_WITH_TYPE_AND_SIZE(TYPE, 8)                                              \
   DEF_WITH_TYPE_AND_SIZE(TYPE, 16)
 
-#endif  //__ABACUS_CAST_CONVERT_HELPER_H__
+#endif //__ABACUS_CAST_CONVERT_HELPER_H__

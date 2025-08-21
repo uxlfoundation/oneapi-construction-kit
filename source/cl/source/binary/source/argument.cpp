@@ -47,7 +47,7 @@ getArgumentTypeFromParameterTypeString(const cargo::string_view &str) {
   std::string type_name_str;
   if (type_str.starts_with('u')) {
     type_name_str = 'u';
-    type_str.remove_prefix(1);  // Remove the 'u'
+    type_str.remove_prefix(1); // Remove the 'u'
   } else if (words_v.size() >= 2 &&
              !(words_v.crend() - 2)->compare("unsigned")) {
     type_name_str = 'u';
@@ -170,7 +170,7 @@ getArgumentTypeFromParameterTypeString(const cargo::string_view &str) {
     } else if (type_info.vector_width == 16) {
       type_info.kind = compiler::ArgumentKind::INT64_16;
     }
-  } else {  // "other" type or an error
+  } else { // "other" type or an error
     if (!type_str.compare("image1d_array_t")) {
       type_info.kind = compiler::ArgumentKind::IMAGE1D_ARRAY;
     } else if (!type_str.compare("image1d_buffer_t")) {
@@ -194,5 +194,5 @@ getArgumentTypeFromParameterTypeString(const cargo::string_view &str) {
   return std::make_pair(type_info, type_name_str);
 }
 
-}  // namespace binary
-}  // namespace cl
+} // namespace binary
+} // namespace cl

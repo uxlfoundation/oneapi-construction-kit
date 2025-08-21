@@ -20,8 +20,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T>
-struct SizeLaundry {
+template <typename T> struct SizeLaundry {
   static const unsigned num_elements;
 };
 
@@ -46,27 +45,27 @@ R shuffle2(const T x, const T y, const M m) {
 
   return r;
 }
-}  // namespace
+} // namespace
 
-#define DEF_WITH_BOTH_SIZES(TYPE, IN_SIZE, OUT_SIZE) \
-  TYPE##OUT_SIZE ABACUS_API __abacus_shuffle2(       \
-      TYPE##IN_SIZE x, TYPE##IN_SIZE y,              \
-      TypeTraits<TYPE##OUT_SIZE>::UnsignedType m) {  \
-    return shuffle2<TYPE##OUT_SIZE>(x, y, m);        \
+#define DEF_WITH_BOTH_SIZES(TYPE, IN_SIZE, OUT_SIZE)                           \
+  TYPE##OUT_SIZE ABACUS_API __abacus_shuffle2(                                 \
+      TYPE##IN_SIZE x, TYPE##IN_SIZE y,                                        \
+      TypeTraits<TYPE##OUT_SIZE>::UnsignedType m) {                            \
+    return shuffle2<TYPE##OUT_SIZE>(x, y, m);                                  \
   }
 
-#define DEF_WITH_SIZE(TYPE, SIZE)    \
-  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 2) \
-  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 3) \
-  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 4) \
-  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 8) \
+#define DEF_WITH_SIZE(TYPE, SIZE)                                              \
+  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 2)                                           \
+  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 3)                                           \
+  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 4)                                           \
+  DEF_WITH_BOTH_SIZES(TYPE, SIZE, 8)                                           \
   DEF_WITH_BOTH_SIZES(TYPE, SIZE, 16)
 
-#define DEF(TYPE)        \
-  DEF_WITH_SIZE(TYPE, 2) \
-  DEF_WITH_SIZE(TYPE, 3) \
-  DEF_WITH_SIZE(TYPE, 4) \
-  DEF_WITH_SIZE(TYPE, 8) \
+#define DEF(TYPE)                                                              \
+  DEF_WITH_SIZE(TYPE, 2)                                                       \
+  DEF_WITH_SIZE(TYPE, 3)                                                       \
+  DEF_WITH_SIZE(TYPE, 4)                                                       \
+  DEF_WITH_SIZE(TYPE, 8)                                                       \
   DEF_WITH_SIZE(TYPE, 16)
 
 DEF(abacus_char)
@@ -80,4 +79,4 @@ DEF(abacus_ulong)
 DEF(abacus_float)
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 DEF(abacus_double)
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

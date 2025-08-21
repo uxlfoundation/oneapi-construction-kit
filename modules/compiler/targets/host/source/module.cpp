@@ -182,8 +182,8 @@ HostModule::hostCompileObject(HostTarget &target,
   return std::move(binaryOrError.value());
 }
 
-compiler::Result HostModule::createBinary(
-    cargo::array_view<std::uint8_t> &buffer) {
+compiler::Result
+HostModule::createBinary(cargo::array_view<std::uint8_t> &buffer) {
   if (!finalized_llvm_module) {
     return compiler::Result::FINALIZE_PROGRAM_FAILURE;
   }
@@ -211,8 +211,8 @@ compiler::Result HostModule::createBinary(
   });
 }
 
-llvm::ModulePassManager HostModule::getLateTargetPasses(
-    compiler::utils::PassMachinery &pass_mach) {
+llvm::ModulePassManager
+HostModule::getLateTargetPasses(compiler::utils::PassMachinery &pass_mach) {
   if (options.llvm_stats) {
     llvm::EnableStatistics();
   }
@@ -274,8 +274,8 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
   return kernel;
 }
 
-std::unique_ptr<compiler::utils::PassMachinery> HostModule::createPassMachinery(
-    llvm::LLVMContext &C) {
+std::unique_ptr<compiler::utils::PassMachinery>
+HostModule::createPassMachinery(llvm::LLVMContext &C) {
   auto *TM = static_cast<HostTarget &>(target).target_machine.get();
   auto Info =
       compiler::initDeviceInfoFromMux(target.getCompilerInfo()->device_info);
@@ -322,4 +322,4 @@ void HostModule::initializePassMachineryForFinalize(
   host::initializePassMachineryForFinalize(passMach, getHostTarget());
 }
 
-}  // namespace host
+} // namespace host

@@ -146,13 +146,13 @@ TEST_P(Execution, Regression_57_Attribute_Aligned) {
                     const cl_uint global_id = id / num_out_per_id;
                     const cl_uint sub_index = id % num_out_per_id;
                     switch (sub_index) {
-                      case 0:
-                        // 1024 byte align - bottom 10 bits set as we invert
-                        return 0x3ffu;
-                      case 1:
-                        return static_cast<cl_uint>(0xdeadbeef & global_id);
-                      default:
-                        return 0u;  // Shouldn't hit here.
+                    case 0:
+                      // 1024 byte align - bottom 10 bits set as we invert
+                      return 0x3ffu;
+                    case 1:
+                      return static_cast<cl_uint>(0xdeadbeef & global_id);
+                    default:
+                      return 0u; // Shouldn't hit here.
                     }
                   }));
 
@@ -240,7 +240,7 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
 
   AddMacro("NUM_ELEMENTS", work_per_thread);
   AddOutputBuffer(num_threads, refOut);
-  AddPrimitive(unused_struct);  // Pass struct by value
+  AddPrimitive(unused_struct); // Pass struct by value
   AddInputBuffer(num_threads * work_per_thread, refIn);
 
   RunGeneric1D(num_threads);
@@ -470,9 +470,9 @@ TEST_P(Execution, Regression_68_Load16) {
   const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
-  unsigned char InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
-                              29, 86, 57, 34, 37, 15, 91, 56,  //
-                              51, 48, 19, 95, 20, 78, 73, 32,  //
+  unsigned char InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63, //
+                              29, 86, 57, 34, 37, 15, 91, 56, //
+                              51, 48, 19, 95, 20, 78, 73, 32, //
                               75, 51, 8,  29, 56, 34, 85, 45};
 
   kts::Reference1D<cl_uchar> refIn = [=, &InBuffer](size_t x) -> unsigned char {
@@ -499,14 +499,14 @@ TEST_P(Execution,
 
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t i) {
                     switch (i) {
-                      case 0:
-                      case 1:
-                      case 3:
-                        return 0;
-                      case 2:
-                        return 1;
-                      default:
-                        return -1;
+                    case 0:
+                    case 1:
+                    case 3:
+                      return 0;
+                    case 2:
+                      return 1;
+                    default:
+                      return -1;
                     }
                   }));
   AddPrimitive(1);
@@ -614,7 +614,7 @@ struct StrideMisaligned {
     // FIXME for supporting vectors. The static_assert below should cover any
     // scenario where the compiler still adds padding inside the struct, so we
     // can suppress the clang-tidy warning.
-    return memcmp  // NOLINT(bugprone-suspicious-memory-comparison,cert-exp42-c,cert-flp37-c)
+    return memcmp // NOLINT(bugprone-suspicious-memory-comparison,cert-exp42-c,cert-flp37-c)
            (this, &rhs, sizeof(StrideMisaligned)) == 0;
   }
 };
@@ -693,22 +693,28 @@ TEST_P(Execution, Regression_75_Partial_Linearization0) {
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t id) {
                     int ret = 0;
                     if (id % 5 == 0) {
-                      for (int i = 0; i < n * 2; i++) ret++;
+                      for (int i = 0; i < n * 2; i++)
+                        ret++;
                     } else {
-                      for (int i = 0; i < n / 4; i++) ret++;
+                      for (int i = 0; i < n / 4; i++)
+                        ret++;
                     }
                     if (n > 10) {
                       if (id % 2 == 0) {
-                        for (int i = 0; i < n + 10; i++) ret++;
+                        for (int i = 0; i < n + 10; i++)
+                          ret++;
                       } else {
-                        for (int i = 0; i < n + 10; i++) ret *= 2;
+                        for (int i = 0; i < n + 10; i++)
+                          ret *= 2;
                       }
                       ret += id * 10;
                     } else {
                       if (id % 2 == 0) {
-                        for (int i = 0; i < n + 8; i++) ret++;
+                        for (int i = 0; i < n + 8; i++)
+                          ret++;
                       } else {
-                        for (int i = 0; i < n + 8; i++) ret *= 2;
+                        for (int i = 0; i < n + 8; i++)
+                          ret *= 2;
                       }
                       ret += id / 2;
                     }
@@ -733,16 +739,20 @@ TEST_P(Execution, Regression_75_Partial_Linearization1) {
                           goto e;
                         }
                       } else {
-                        for (int i = 0; i < n + 10; i++) ret++;
+                        for (int i = 0; i < n + 10; i++)
+                          ret++;
                       }
-                      if (j++ <= 2) break;
+                      if (j++ <= 2)
+                        break;
                     }
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++) ret -= i;
+                    for (int i = 0; i < n * 2; i++)
+                      ret -= i;
                     ret /= n;
                     goto early;
                   e:
-                    for (int i = 0; i < n + 5; i++) ret /= 2;
+                    for (int i = 0; i < n + 5; i++)
+                      ret /= 2;
                     ret -= n;
                   early:
                     return ret;
@@ -852,8 +862,10 @@ TEST_P(Execution, Regression_75_Partial_Linearization4) {
                     int y = id % n;
                     int i = 0;
                     for (;;) {
-                      if (n > 20) goto e;
-                      if (x + y > n) goto f;
+                      if (n > 20)
+                        goto e;
+                      if (x + y > n)
+                        goto f;
                       y++;
                       x++;
                       i++;
@@ -929,7 +941,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization6) {
                       } else {
                         ret += n + 1;
                       }
-                      if (id == static_cast<size_t>(n)) break;
+                      if (id == static_cast<size_t>(n))
+                        break;
                     }
                     ret += n * 2;
                     ret /= n;
@@ -1002,8 +1015,10 @@ TEST_P(Execution, Regression_75_Partial_Linearization8) {
                     int y = id % n;
                     int i = 0;
                     for (;;) {
-                      if (i + id > 10) goto e;
-                      if (x + y > n) goto f;
+                      if (i + id > 10)
+                        goto e;
+                      if (x + y > n)
+                        goto f;
                       y++;
                       x++;
                       i++;
@@ -1032,9 +1047,11 @@ TEST_P(Execution, Regression_75_Partial_Linearization9) {
                     while (1) {
                       int j = 0;
                       for (;; i++) {
-                        if (j++ > n) break;
+                        if (j++ > n)
+                          break;
                       }
-                      if (i++ + id > 10) break;
+                      if (i++ + id > 10)
+                        break;
                     }
                     return i;
                   }));
@@ -1053,12 +1070,14 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                     int i = 0;
                     while (1) {
                       if (n > 0) {
-                        for (int i = 0; i < n * 2; i++) ret++;
+                        for (int i = 0; i < n * 2; i++)
+                          ret++;
                         if (n <= 10) {
                           goto f;
                         }
                       } else {
-                        for (int i = 0; i < n / 4; i++) ret++;
+                        for (int i = 0; i < n / 4; i++)
+                          ret++;
                       }
                       ret++;
                       while (1) {
@@ -1095,14 +1114,16 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                       }
                     }
                   r:
-                    for (int i = 0; i < n / 4; i++) ret++;
+                    for (int i = 0; i < n / 4; i++)
+                      ret++;
                     goto s;
 
                   f:
                     ret /= n;
                     goto p;
                   p:
-                    for (int i = 0; i < n * 2; i++) ret++;
+                    for (int i = 0; i < n * 2; i++)
+                      ret++;
                   s:
                     return ret;
                   }));
@@ -1122,7 +1143,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                     while (1) {
                       while (1) {
                         if (n > 5) {
-                          for (int i = 0; i < n * 2; i++) ret++;
+                          for (int i = 0; i < n * 2; i++)
+                            ret++;
                           if (n == 6) {
                             goto i;
                           }
@@ -1156,7 +1178,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                       }
                     }
                   m:
-                    for (int i = 0; i < n / 4; i++) ret++;
+                    for (int i = 0; i < n / 4; i++)
+                      ret++;
                     goto n;
                   i:
                     ret /= n;
@@ -1269,24 +1292,24 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                     } else if (id + 1 == read_local) {
                       const size_t leftovers = 1 + (read_local & 1);
                       switch (leftovers) {
-                        case 2:
-                          ret = 2 * n + 1;
-                          [[fallthrough]];
-                        case 1:
-                          ret += 3 * n - 1;
-                          break;
-                        default:
-                          abort();
+                      case 2:
+                        ret = 2 * n + 1;
+                        [[fallthrough]];
+                      case 1:
+                        ret += 3 * n - 1;
+                        break;
+                      default:
+                        abort();
                       }
                       switch (leftovers) {
-                        case 2:
-                          ret /= n;
-                          [[fallthrough]];
-                        case 1:
-                          ret--;
-                          break;
-                        default:
-                          abort();
+                      case 2:
+                        ret /= n;
+                        [[fallthrough]];
+                      case 1:
+                        ret--;
+                        break;
+                      default:
+                        abort();
                       }
                     }
                     return ret;
@@ -1306,7 +1329,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization14) {
                     int i = 0;
                     while (1) {
                       if (n > 0) {
-                        for (int i = 0; i < n; i++) ret++;
+                        for (int i = 0; i < n; i++)
+                          ret++;
                       } else {
                         if (id == static_cast<size_t>(n)) {
                           goto k;
@@ -1335,12 +1359,14 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                     int ret = 0;
                     while (1) {
                       if (n > 0) {
-                        for (size_t i = 0; i < n * 2; i++) ret++;
+                        for (size_t i = 0; i < n * 2; i++)
+                          ret++;
                         if (n <= 10) {
                           goto f;
                         }
                       } else {
-                        for (size_t i = 0; i < n / 4; i++) ret++;
+                        for (size_t i = 0; i < n / 4; i++)
+                          ret++;
                       }
                       ret++;
                       while (1) {
@@ -1368,13 +1394,15 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                       }
                     }
                   p:
-                    for (size_t i = 0; i < n / 4; i++) ret++;
+                    for (size_t i = 0; i < n / 4; i++)
+                      ret++;
                     goto q;
                   f:
                     ret /= n;
                     goto n;
                   n:
-                    for (size_t i = 0; i < n * 2; i++) ret++;
+                    for (size_t i = 0; i < n * 2; i++)
+                      ret++;
                   q:
                     return ret;
                   }));
@@ -1392,7 +1420,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
                     int ret = 0;
                     const int i = 0;
                     if (n < 5) {
-                      for (int i = 0; i < n + 10; i++) ret++;
+                      for (int i = 0; i < n + 10; i++)
+                        ret++;
                       goto h;
                     } else {
                       while (1) {
@@ -1401,20 +1430,25 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
                             goto f;
                           }
                         } else {
-                          for (int i = 0; i < n + 10; i++) ret++;
+                          for (int i = 0; i < n + 10; i++)
+                            ret++;
                         }
-                        if (n > 5) break;
+                        if (n > 5)
+                          break;
                       }
                     }
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++) ret -= i;
+                    for (int i = 0; i < n * 2; i++)
+                      ret -= i;
                     ret /= n;
                     goto early;
                   f:
-                    for (int i = 0; i < n + 5; i++) ret /= 2;
+                    for (int i = 0; i < n + 5; i++)
+                      ret /= 2;
                     ret -= n;
                   h:
-                    for (int i = 0; i < n * 2; i++) ret -= i;
+                    for (int i = 0; i < n * 2; i++)
+                      ret -= i;
                   early:
                     return ret;
                   }));
@@ -1441,14 +1475,17 @@ TEST_P(Execution, Regression_75_Partial_Linearization17) {
                         break;
                       }
                     }
-                    for (int i = 0; i < n + 10; i++) ret++;
+                    for (int i = 0; i < n + 10; i++)
+                      ret++;
                     goto m;
                   f:
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++) ret += i;
+                    for (int i = 0; i < n * 2; i++)
+                      ret += i;
                     goto m;
                   c:
-                    for (int i = 0; i < n + 5; i++) ret += 2;
+                    for (int i = 0; i < n + 5; i++)
+                      ret += 2;
                     if (id % 2 == 0) {
                       goto h;
                     } else {
@@ -1468,7 +1505,8 @@ TEST_P(Execution, Regression_75_Partial_Linearization17) {
                   l:
                     ret += id << 3;
                   o:
-                    for (int i = 0; i < n * 2; i++) ret += i;
+                    for (int i = 0; i < n * 2; i++)
+                      ret += i;
                   p:
                     return ret;
                   }));
@@ -1498,13 +1536,16 @@ TEST_P(Execution, Regression_75_Partial_Linearization18) {
                       }
                     }
                   f:
-                    for (int i = 0; i < n + 5; i++) ret += 2;
+                    for (int i = 0; i < n + 5; i++)
+                      ret += 2;
                     goto g;
                   g:
-                    for (int i = 1; i < n * 2; i++) ret -= i;
+                    for (int i = 1; i < n * 2; i++)
+                      ret -= i;
                     goto h;
                   e:
-                    for (int i = 0; i < n + 5; i++) ret++;
+                    for (int i = 0; i < n + 5; i++)
+                      ret++;
                     goto i;
                   h:
                     if (n > 3) {
@@ -1546,16 +1587,20 @@ TEST_P(Execution, Regression_75_Partial_Linearization19) {
                       goto i;
                     }
                   d:
-                    for (int i = 0; i < n + 5; i++) ret += 2;
+                    for (int i = 0; i < n + 5; i++)
+                      ret += 2;
                     goto i;
                   e:
-                    for (int i = 1; i < n * 2; i++) ret += i;
+                    for (int i = 1; i < n * 2; i++)
+                      ret += i;
                     goto h;
                   i:
-                    for (int i = 0; i < n + 5; i++) ret++;
+                    for (int i = 0; i < n + 5; i++)
+                      ret++;
                     goto j;
                   h:
-                    for (int i = 0; i < n; i++) ret++;
+                    for (int i = 0; i < n; i++)
+                      ret++;
                     goto j;
                   j:
                     return ret;

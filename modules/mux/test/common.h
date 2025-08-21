@@ -44,8 +44,8 @@ struct PrintError {
 
   std::string description() const {
     switch (error) {
-#define CASE(ERROR) \
-  case ERROR:       \
+#define CASE(ERROR)                                                            \
+  case ERROR:                                                                  \
     return #ERROR;
 
       CASE(mux_success)
@@ -64,8 +64,8 @@ struct PrintError {
 
 #undef CASE
 
-      default:
-        return "unknown mux_result_t: " + std::to_string(error);
+    default:
+      return "unknown mux_result_t: " + std::to_string(error);
     }
   }
 
@@ -73,7 +73,7 @@ struct PrintError {
     return error == other.error;
   }
 
- private:
+private:
   mux_result_t error;
 };
 
@@ -82,20 +82,20 @@ inline std::ostream &operator<<(std::ostream &out, const PrintError &error) {
 }
 
 #ifndef ASSERT_SUCCESS
-#define ASSERT_SUCCESS(actual) \
+#define ASSERT_SUCCESS(actual)                                                 \
   ASSERT_EQ(PrintError(mux_success), PrintError(actual))
 #endif
 #ifndef EXPECT_SUCCESS
-#define EXPECT_SUCCESS(actual) \
+#define EXPECT_SUCCESS(actual)                                                 \
   EXPECT_EQ(PrintError(mux_success), PrintError(actual))
 #endif
 
 #ifndef ASSERT_ERROR_EQ
-#define ASSERT_ERROR_EQ(expected, actual) \
+#define ASSERT_ERROR_EQ(expected, actual)                                      \
   ASSERT_EQ(PrintError(expected), PrintError(actual))
 #endif
 #ifndef EXPECT_ERROR_EQ
-#define EXPECT_ERROR_EQ(expected, actual) \
+#define EXPECT_ERROR_EQ(expected, actual)                                      \
   EXPECT_EQ(PrintError(expected), PrintError(actual))
 #endif
 
@@ -107,11 +107,11 @@ inline std::ostream &operator<<(std::ostream &out, const PrintError &error) {
 /// state.
 ///
 /// @param ... Expression to invoke.
-#define RETURN_ON_FATAL_FAILURE(...)      \
-  __VA_ARGS__;                            \
-  if (HasFatalFailure() || IsSkipped()) { \
-    return;                               \
-  }                                       \
+#define RETURN_ON_FATAL_FAILURE(...)                                           \
+  __VA_ARGS__;                                                                 \
+  if (HasFatalFailure() || IsSkipped()) {                                      \
+    return;                                                                    \
+  }                                                                            \
   (void)0
 
 /// @brief Get the number of devices.
@@ -206,8 +206,8 @@ inline uint32_t detectBuiltinCapabilities(mux_device_info_t device_info) {
 /// @param info Information about the test, used to get the device name.
 ///
 /// @return Returns a valid name for the device test param.
-inline std::string printDeviceParamName(
-    const testing::TestParamInfo<uint64_t> &info) {
+inline std::string
+printDeviceParamName(const testing::TestParamInfo<uint64_t> &info) {
   std::string name = getDeviceInfos()[info.param]->device_name;
   std::replace_if(
       name.begin(), name.end(),
@@ -392,8 +392,8 @@ struct DeviceCompilerTest : DeviceTest {
 /// @brief Instantiate a DeviceTest suite to test all devices.
 ///
 /// @param FIXTURE A test fixture type which inherits from DeviceTest.
-#define INSTANTIATE_DEVICE_TEST_SUITE_P(FIXTURE)                         \
-  INSTANTIATE_TEST_SUITE_P(, FIXTURE,                                    \
-                           testing::Range(uint64_t(0), getNumDevices()), \
+#define INSTANTIATE_DEVICE_TEST_SUITE_P(FIXTURE)                               \
+  INSTANTIATE_TEST_SUITE_P(, FIXTURE,                                          \
+                           testing::Range(uint64_t(0), getNumDevices()),       \
                            printDeviceParamName)
-#endif  // MUX_UNITMUX_COMMON_H_INCLUDED
+#endif // MUX_UNITMUX_COMMON_H_INCLUDED

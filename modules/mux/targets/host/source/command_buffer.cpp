@@ -40,23 +40,23 @@ size_t calcPackedArgsAllocSize(
     const auto descriptor = descriptors[i];
     size_t size;
     switch (descriptor.type) {
-      case mux_descriptor_info_type_sampler:
-        size = sizeof(size_t);
-        break;
-      case mux_descriptor_info_type_buffer:
-      case mux_descriptor_info_type_null_buffer:
-      case mux_descriptor_info_type_image:
-        size = sizeof(void *);
-        break;
-      case mux_descriptor_info_type_plain_old_data: {
-        size = descriptor.plain_old_data_descriptor.length;
-      } break;
-      case mux_descriptor_info_type_shared_local_buffer: {
-        size = sizeof(size_t);
-      } break;
-      default: {
-        size = 0;
-      } break;
+    case mux_descriptor_info_type_sampler:
+      size = sizeof(size_t);
+      break;
+    case mux_descriptor_info_type_buffer:
+    case mux_descriptor_info_type_null_buffer:
+    case mux_descriptor_info_type_image:
+      size = sizeof(void *);
+      break;
+    case mux_descriptor_info_type_plain_old_data: {
+      size = descriptor.plain_old_data_descriptor.length;
+    } break;
+    case mux_descriptor_info_type_shared_local_buffer: {
+      size = sizeof(size_t);
+    } break;
+    default: {
+      size = 0;
+    } break;
     }
     offsets[i] = offset;
     offset += size;
@@ -74,109 +74,106 @@ void populatePackedArgs(
   for (unsigned i = 0; i < descriptors.size(); i++) {
     const auto descriptor = descriptors[i];
     switch (descriptor.type) {
-      case mux_descriptor_info_type_buffer: {
-        const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
+    case mux_descriptor_info_type_buffer: {
+      const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
 
-        const ::host::buffer_s *const host_buffer =
-            static_cast<::host::buffer_s *>(info.buffer);
+      const ::host::buffer_s *const host_buffer =
+          static_cast<::host::buffer_s *>(info.buffer);
 
-        const uint8_t *const buffer_value =
-            static_cast<uint8_t *>(host_buffer->data) + info.offset;
+      const uint8_t *const buffer_value =
+          static_cast<uint8_t *>(host_buffer->data) + info.offset;
 
-        std::memcpy(packed_args_alloc + offset,
-                    static_cast<const void *>(&buffer_value), sizeof(void *));
-        offset += sizeof(void *);
-      } break;
-      case mux_descriptor_info_type_image: {
+      std::memcpy(packed_args_alloc + offset,
+                  static_cast<const void *>(&buffer_value), sizeof(void *));
+      offset += sizeof(void *);
+    } break;
+    case mux_descriptor_info_type_image: {
 #ifdef HOST_IMAGE_SUPPORT
-        const mux_descriptor_info_image_s info = descriptor.image_descriptor;
+      const mux_descriptor_info_image_s info = descriptor.image_descriptor;
 
-        host::image_s *const host_image =
-            static_cast<host::image_s *>(info.image);
+      host::image_s *const host_image =
+          static_cast<host::image_s *>(info.image);
 
-        void *const image_ptr =
-            libimg::HostGetImageKernelImagePtr(&host_image->image);
+      void *const image_ptr =
+          libimg::HostGetImageKernelImagePtr(&host_image->image);
 
-        std::memcpy(packed_args_alloc + offset,
-                    static_cast<const void *>(&image_ptr), sizeof(void *));
-        offset += sizeof(void *);
+      std::memcpy(packed_args_alloc + offset,
+                  static_cast<const void *>(&image_ptr), sizeof(void *));
+      offset += sizeof(void *);
 #endif
-      } break;
-      case mux_descriptor_info_type_sampler: {
+    } break;
+    case mux_descriptor_info_type_sampler: {
 #ifdef HOST_IMAGE_SUPPORT
-        const mux_descriptor_info_sampler_s info =
-            descriptor.sampler_descriptor;
+      const mux_descriptor_info_sampler_s info = descriptor.sampler_descriptor;
 
-        cl_addressing_mode addressing_mode = 0;
-        switch (info.sampler.address_mode) {
-          case mux_address_mode_none:
-            addressing_mode = CL_ADDRESS_NONE;
-            break;
-          case mux_address_mode_repeat:
-            addressing_mode = CL_ADDRESS_REPEAT;
-            break;
-          case mux_address_mode_repeat_mirror:
-            addressing_mode = CL_ADDRESS_MIRRORED_REPEAT;
-            break;
-          case mux_address_mode_clamp:
-            addressing_mode = CL_ADDRESS_CLAMP;
-            break;
-          case mux_address_mode_clamp_edge:
-            addressing_mode = CL_ADDRESS_CLAMP_TO_EDGE;
-            break;
-        }
-
-        cl_filter_mode filter_mode = 0;
-        switch (info.sampler.filter_mode) {
-          case mux_filter_mode_linear:
-            filter_mode = CL_FILTER_NEAREST;
-            break;
-          case mux_filter_mode_nearest:
-            filter_mode = CL_FILTER_LINEAR;
-            break;
-        }
-
-        uint64_t sampler_ptr = libimg::HostCreateSampler(
-            info.sampler.normalize_coords, addressing_mode, filter_mode);
-        std::memcpy(packed_args_alloc + offset, &sampler_ptr, sizeof(size_t));
-        offset += sizeof(size_t);
-#endif
-      } break;
-      case mux_descriptor_info_type_plain_old_data: {
-        const mux_descriptor_info_plain_old_data_s info =
-            descriptor.plain_old_data_descriptor;
-
-        std::memcpy(packed_args_alloc + offset, info.data, info.length);
-        offset += info.length;
-      } break;
-      case mux_descriptor_info_type_shared_local_buffer: {
-        mux_descriptor_info_shared_local_buffer_s info =
-            descriptor.shared_local_buffer_descriptor;
-
-        std::memcpy(packed_args_alloc + offset, &(info.size), sizeof(size_t));
-        offset += sizeof(size_t);
-      } break;
-      case mux_descriptor_info_type_null_buffer: {
-        const void *nullvar = nullptr;
-        std::memcpy(packed_args_alloc + offset, static_cast<void *>(&nullvar),
-                    sizeof(void *));
-        offset += sizeof(void *);
-      } break;
-      default:
+      cl_addressing_mode addressing_mode = 0;
+      switch (info.sampler.address_mode) {
+      case mux_address_mode_none:
+        addressing_mode = CL_ADDRESS_NONE;
         break;
+      case mux_address_mode_repeat:
+        addressing_mode = CL_ADDRESS_REPEAT;
+        break;
+      case mux_address_mode_repeat_mirror:
+        addressing_mode = CL_ADDRESS_MIRRORED_REPEAT;
+        break;
+      case mux_address_mode_clamp:
+        addressing_mode = CL_ADDRESS_CLAMP;
+        break;
+      case mux_address_mode_clamp_edge:
+        addressing_mode = CL_ADDRESS_CLAMP_TO_EDGE;
+        break;
+      }
+
+      cl_filter_mode filter_mode = 0;
+      switch (info.sampler.filter_mode) {
+      case mux_filter_mode_linear:
+        filter_mode = CL_FILTER_NEAREST;
+        break;
+      case mux_filter_mode_nearest:
+        filter_mode = CL_FILTER_LINEAR;
+        break;
+      }
+
+      uint64_t sampler_ptr = libimg::HostCreateSampler(
+          info.sampler.normalize_coords, addressing_mode, filter_mode);
+      std::memcpy(packed_args_alloc + offset, &sampler_ptr, sizeof(size_t));
+      offset += sizeof(size_t);
+#endif
+    } break;
+    case mux_descriptor_info_type_plain_old_data: {
+      const mux_descriptor_info_plain_old_data_s info =
+          descriptor.plain_old_data_descriptor;
+
+      std::memcpy(packed_args_alloc + offset, info.data, info.length);
+      offset += info.length;
+    } break;
+    case mux_descriptor_info_type_shared_local_buffer: {
+      mux_descriptor_info_shared_local_buffer_s info =
+          descriptor.shared_local_buffer_descriptor;
+
+      std::memcpy(packed_args_alloc + offset, &(info.size), sizeof(size_t));
+      offset += sizeof(size_t);
+    } break;
+    case mux_descriptor_info_type_null_buffer: {
+      const void *nullvar = nullptr;
+      std::memcpy(packed_args_alloc + offset, static_cast<void *>(&nullvar),
+                  sizeof(void *));
+      offset += sizeof(void *);
+    } break;
+    default:
+      break;
     }
   }
 }
-}  // namespace
+} // namespace
 
 namespace host {
 command_buffer_s::command_buffer_s(mux_device_t device,
                                    mux_allocator_info_t allocator_info,
                                    mux_fence_t fence)
-    : commands(allocator_info),
-      ndranges(allocator_info),
-      sync_points(allocator_info),
-      signal_semaphores(allocator_info),
+    : commands(allocator_info), ndranges(allocator_info),
+      sync_points(allocator_info), signal_semaphores(allocator_info),
       fence(static_cast<host::fence_s *>(fence)),
       allocator_info(allocator_info) {
   this->device = device;
@@ -240,7 +237,7 @@ ndrange_info_s::clone(mux_allocator_info_t allocator_info) const {
       clone_packed_args, clone_arg_addresses, clone_descriptors, global_size,
       global_offset, local_size, dimensions);
 }
-}  // namespace host
+} // namespace host
 
 mux_result_t hostCreateCommandBuffer(mux_device_t device,
                                      mux_callback_info_t callback_info,
@@ -373,12 +370,12 @@ mux_result_t hostCommandReadBufferRegions(
   return mux_success;
 }
 
-mux_result_t hostCommandWriteBuffer(
-    mux_command_buffer_t command_buffer, mux_buffer_t buffer, uint64_t offset,
-    const void *host_pointer, uint64_t size,
-    uint32_t num_sync_points_in_wait_list,
-    const mux_sync_point_t *sync_point_wait_list,
-    mux_sync_point_t *sync_point) {
+mux_result_t
+hostCommandWriteBuffer(mux_command_buffer_t command_buffer, mux_buffer_t buffer,
+                       uint64_t offset, const void *host_pointer, uint64_t size,
+                       uint32_t num_sync_points_in_wait_list,
+                       const mux_sync_point_t *sync_point_wait_list,
+                       mux_sync_point_t *sync_point) {
   // TODO CA-4364
   (void)num_sync_points_in_wait_list;
   (void)sync_point_wait_list;
@@ -1012,47 +1009,47 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
         nd_range_to_update.ndrange_command.ndrange_info->arg_addresses[index];
     auto arg_descriptor = descriptors[i];
     switch (arg_descriptor.type) {
-      default:
-        return mux_error_invalid_value;
-      case mux_descriptor_info_type_buffer: {
-        const mux_descriptor_info_buffer_s info =
-            descriptors[i].buffer_descriptor;
+    default:
+      return mux_error_invalid_value;
+    case mux_descriptor_info_type_buffer: {
+      const mux_descriptor_info_buffer_s info =
+          descriptors[i].buffer_descriptor;
 
-        auto *host_buffer = static_cast<host::buffer_s *>(info.buffer);
+      auto *host_buffer = static_cast<host::buffer_s *>(info.buffer);
 
-        auto *buffer_value =
-            static_cast<uint8_t *>(host_buffer->data) + info.offset;
+      auto *buffer_value =
+          static_cast<uint8_t *>(host_buffer->data) + info.offset;
 
-        std::memcpy(arg_address, static_cast<void *>(&buffer_value),
-                    sizeof(void *));
-      } break;
-      case mux_descriptor_info_type_plain_old_data: {
-        const mux_descriptor_info_plain_old_data_s info =
-            descriptors[i].plain_old_data_descriptor;
+      std::memcpy(arg_address, static_cast<void *>(&buffer_value),
+                  sizeof(void *));
+    } break;
+    case mux_descriptor_info_type_plain_old_data: {
+      const mux_descriptor_info_plain_old_data_s info =
+          descriptors[i].plain_old_data_descriptor;
 
-        std::memcpy(arg_address, info.data, info.length);
-      } break;
-      case mux_descriptor_info_type_shared_local_buffer: {
-        mux_descriptor_info_shared_local_buffer_s info =
-            descriptors[i].shared_local_buffer_descriptor;
+      std::memcpy(arg_address, info.data, info.length);
+    } break;
+    case mux_descriptor_info_type_shared_local_buffer: {
+      mux_descriptor_info_shared_local_buffer_s info =
+          descriptors[i].shared_local_buffer_descriptor;
 
-        std::memcpy(arg_address, &(info.size), sizeof(size_t));
-      } break;
-      case mux_descriptor_info_type_null_buffer: {
-        const void *null = nullptr;
-        std::memcpy(arg_address, static_cast<void *>(&null), sizeof(void *));
-      } break;
+      std::memcpy(arg_address, &(info.size), sizeof(size_t));
+    } break;
+    case mux_descriptor_info_type_null_buffer: {
+      const void *null = nullptr;
+      std::memcpy(arg_address, static_cast<void *>(&null), sizeof(void *));
+    } break;
     }
   }
   return mux_success;
 }
 
-mux_result_t hostCommandUserCallback(
-    mux_command_buffer_t command_buffer,
-    mux_command_user_callback_t user_function, void *user_data,
-    uint32_t num_sync_points_in_wait_list,
-    const mux_sync_point_t *sync_point_wait_list,
-    mux_sync_point_t *sync_point) {
+mux_result_t
+hostCommandUserCallback(mux_command_buffer_t command_buffer,
+                        mux_command_user_callback_t user_function,
+                        void *user_data, uint32_t num_sync_points_in_wait_list,
+                        const mux_sync_point_t *sync_point_wait_list,
+                        mux_sync_point_t *sync_point) {
   // TODO CA-4364
   (void)num_sync_points_in_wait_list;
   (void)sync_point_wait_list;
@@ -1155,12 +1152,13 @@ mux_result_t hostCommandEndQuery(mux_command_buffer_t command_buffer,
   return mux_success;
 }
 
-mux_result_t hostCommandResetQueryPool(
-    mux_command_buffer_t command_buffer, mux_query_pool_t query_pool,
-    uint32_t query_index, uint32_t query_count,
-    uint32_t num_sync_points_in_wait_list,
-    const mux_sync_point_t *sync_point_wait_list,
-    mux_sync_point_t *sync_point) {
+mux_result_t
+hostCommandResetQueryPool(mux_command_buffer_t command_buffer,
+                          mux_query_pool_t query_pool, uint32_t query_index,
+                          uint32_t query_count,
+                          uint32_t num_sync_points_in_wait_list,
+                          const mux_sync_point_t *sync_point_wait_list,
+                          mux_sync_point_t *sync_point) {
   // TODO CA-4364
   (void)num_sync_points_in_wait_list;
   (void)sync_point_wait_list;

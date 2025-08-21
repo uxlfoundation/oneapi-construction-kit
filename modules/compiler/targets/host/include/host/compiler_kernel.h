@@ -51,7 +51,7 @@ struct OptimizedKernel {
 };
 
 class HostKernel : public compiler::BaseKernel {
- public:
+public:
   HostKernel(HostTarget &target, compiler::Options &build_options,
              llvm::Module *module, std::string name,
              std::array<size_t, 3> preferred_local_sizes,
@@ -64,8 +64,9 @@ class HostKernel : public compiler::BaseKernel {
                                      size_t local_size_z) override;
 
   /// @see Kernel::getDynamicWorkWidth
-  cargo::expected<uint32_t, compiler::Result> getDynamicWorkWidth(
-      size_t local_size_x, size_t local_size_y, size_t local_size_z) override;
+  cargo::expected<uint32_t, compiler::Result>
+  getDynamicWorkWidth(size_t local_size_x, size_t local_size_y,
+                      size_t local_size_z) override;
 
   /// @see Kernel::createSpecializedKernel
   cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
@@ -73,8 +74,9 @@ class HostKernel : public compiler::BaseKernel {
       const mux_ndrange_options_t &specialization_options) override;
 
   /// @brief No-op implementation indicating sub-groups are not supported.
-  cargo::expected<uint32_t, compiler::Result> querySubGroupSizeForLocalSize(
-      size_t local_size_x, size_t local_size_y, size_t local_size_z) override;
+  cargo::expected<uint32_t, compiler::Result>
+  querySubGroupSizeForLocalSize(size_t local_size_x, size_t local_size_y,
+                                size_t local_size_z) override;
 
   /// @brief No-op implementation indicating sub-groups are not supported.
   cargo::expected<std::array<size_t, 3>, compiler::Result>
@@ -83,7 +85,7 @@ class HostKernel : public compiler::BaseKernel {
   /// @brief No-op implementation indicating sub-groups are not supported.
   cargo::expected<size_t, compiler::Result> queryMaxSubGroupCount() override;
 
- private:
+private:
   /// @brief Gets an `OptimizedKernel` object for the given local size.
   ///
   /// @param local_size Local size to optimize the kernel for.
@@ -109,6 +111,6 @@ class HostKernel : public compiler::BaseKernel {
   /// @brief Build options passed to the module this kernel was created from.
   compiler::Options &build_options;
 };
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_KERNEL_H_INCLUDED
+#endif // HOST_KERNEL_H_INCLUDED

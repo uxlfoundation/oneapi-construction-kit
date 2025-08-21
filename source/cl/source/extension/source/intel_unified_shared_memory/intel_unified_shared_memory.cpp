@@ -34,13 +34,12 @@ static constexpr bool isAlignmentValid(cl_uint alignment) {
 }
 
 /// Return whether multiple bits are set for the given value
-template <typename T>
-static constexpr bool areMultipleBitsSet(T value) {
+template <typename T> static constexpr bool areMultipleBitsSet(T value) {
   return value && (value & (value - 1)) != 0;
 }
 
-cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
-    const cl_mem_properties_intel *properties, bool is_shared) {
+cargo::expected<cl_mem_alloc_flags_intel, cl_int>
+parseProperties(const cl_mem_properties_intel *properties, bool is_shared) {
   cl_mem_alloc_flags_intel alloc_flags = 0;
   if (properties && properties[0] != 0) {
     auto current = properties;
@@ -49,35 +48,35 @@ cargo::expected<cl_mem_alloc_flags_intel, cl_int> parseProperties(
       const cl_mem_properties_intel property = current[0];
       const cl_mem_properties_intel value = current[1];
       switch (property) {
-        case CL_MEM_ALLOC_FLAGS_INTEL: {
-          if (0 == (seen & CL_MEM_ALLOC_FLAGS_INTEL)) {
-            constexpr auto PLACEMENT =
-                CL_MEM_ALLOC_INITIAL_PLACEMENT_DEVICE_INTEL |
-                CL_MEM_ALLOC_INITIAL_PLACEMENT_HOST_INTEL;
+      case CL_MEM_ALLOC_FLAGS_INTEL: {
+        if (0 == (seen & CL_MEM_ALLOC_FLAGS_INTEL)) {
+          constexpr auto PLACEMENT =
+              CL_MEM_ALLOC_INITIAL_PLACEMENT_DEVICE_INTEL |
+              CL_MEM_ALLOC_INITIAL_PLACEMENT_HOST_INTEL;
 
-            const auto valid_flags =
-                CL_MEM_ALLOC_WRITE_COMBINED_INTEL | (is_shared ? PLACEMENT : 0);
+          const auto valid_flags =
+              CL_MEM_ALLOC_WRITE_COMBINED_INTEL | (is_shared ? PLACEMENT : 0);
 
-            if (value & ~valid_flags) {
-              // Either an invalid flag is set, or one of the "placement" ones
-              // set on a non-shared pointer
-              return cargo::make_unexpected(CL_INVALID_PROPERTY);
-            }
-
-            if (areMultipleBitsSet(value & PLACEMENT)) {
-              // Options are mutually exclusive - Can't have both
-              return cargo::make_unexpected(CL_INVALID_PROPERTY);
-            }
-
-            seen |= property;
-            alloc_flags = value;
-            break;
+          if (value & ~valid_flags) {
+            // Either an invalid flag is set, or one of the "placement" ones
+            // set on a non-shared pointer
+            return cargo::make_unexpected(CL_INVALID_PROPERTY);
           }
-          // Fallthrough to error if we've seen property already
-          [[fallthrough]];
+
+          if (areMultipleBitsSet(value & PLACEMENT)) {
+            // Options are mutually exclusive - Can't have both
+            return cargo::make_unexpected(CL_INVALID_PROPERTY);
+          }
+
+          seen |= property;
+          alloc_flags = value;
+          break;
         }
-        default:
-          return cargo::make_unexpected(CL_INVALID_PROPERTY);
+        // Fallthrough to error if we've seen property already
+        [[fallthrough]];
+      }
+      default:
+        return cargo::make_unexpected(CL_INVALID_PROPERTY);
       }
       current += 2;
     } while (current[0] != 0);
@@ -318,8 +317,8 @@ cl_int host_allocation_info::allocate(cl_uint alignment) {
   return CL_SUCCESS;
 }
 
-mux_buffer_t host_allocation_info::getMuxBufferForDevice(
-    cl_device_id device) const {
+mux_buffer_t
+host_allocation_info::getMuxBufferForDevice(cl_device_id device) const {
   const auto device_index = context->getDeviceIndex(device);
   if (auto mux_buffer = mux_buffers.at(device_index)) {
     return *mux_buffer;
@@ -330,9 +329,7 @@ mux_buffer_t host_allocation_info::getMuxBufferForDevice(
 device_allocation_info::device_allocation_info(const cl_context context,
                                                const cl_device_id device,
                                                const size_t size)
-    : allocation_info(context, size),
-      device(device),
-      mux_memory(nullptr),
+    : allocation_info(context, size), device(device), mux_memory(nullptr),
       mux_buffer(nullptr) {
   cl::retainInternal(device);
 }
@@ -426,9 +423,7 @@ cl_int device_allocation_info::allocate(cl_uint alignment) {
 shared_allocation_info::shared_allocation_info(const cl_context context,
                                                const cl_device_id device,
                                                const size_t size)
-    : allocation_info(context, size),
-      device(device),
-      mux_memory(nullptr),
+    : allocation_info(context, size), device(device), mux_memory(nullptr),
       mux_buffer(nullptr) {
   if (device) {
     cl::retainInternal(device);
@@ -562,8 +557,8 @@ cl_int shared_allocation_info::allocate(cl_uint alignment) {
   return CL_SUCCESS;
 }
 
-}  // namespace usm
-#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
+} // namespace usm
+#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
 
 intel_unified_shared_memory::intel_unified_shared_memory()
     : extension("cl_intel_unified_shared_memory",
@@ -595,31 +590,31 @@ cl_int intel_unified_shared_memory::GetDeviceInfo(
   cl_device_unified_shared_memory_capabilities_intel result = 0;
 
   switch (param_name) {
-    case CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL:
-      if (!usm::deviceSupportsHostAllocations(device)) {
-        break;
-      }
-      [[fallthrough]];
-    case CL_DEVICE_DEVICE_MEM_CAPABILITIES_INTEL:
-      result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
+  case CL_DEVICE_HOST_MEM_CAPABILITIES_INTEL:
+    if (!usm::deviceSupportsHostAllocations(device)) {
       break;
-    case CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
-      if (!usm::deviceSupportsSharedAllocations(device)) {
-        break;
-      }
-      result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
+    }
+    [[fallthrough]];
+  case CL_DEVICE_DEVICE_MEM_CAPABILITIES_INTEL:
+    result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
+    break;
+  case CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
+    if (!usm::deviceSupportsSharedAllocations(device)) {
       break;
-    case CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
-      // Not supported yet
-      result = 0;
-      break;
-    case CL_DEVICE_SHARED_SYSTEM_MEM_CAPABILITIES_INTEL:
-      break;
-    default:
-      // Use default implementation that uses the name set in the constructor
-      // as the name usage specifies.
-      return extension::GetDeviceInfo(device, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
+    }
+    result = CL_UNIFIED_SHARED_MEMORY_ACCESS_INTEL;
+    break;
+  case CL_DEVICE_CROSS_DEVICE_SHARED_MEM_CAPABILITIES_INTEL:
+    // Not supported yet
+    result = 0;
+    break;
+  case CL_DEVICE_SHARED_SYSTEM_MEM_CAPABILITIES_INTEL:
+    break;
+  default:
+    // Use default implementation that uses the name set in the constructor
+    // as the name usage specifies.
+    return extension::GetDeviceInfo(device, param_name, param_value_size,
+                                    param_value, param_value_size_ret);
   }
 
   const size_t type_size =
@@ -631,69 +626,67 @@ cl_int intel_unified_shared_memory::GetDeviceInfo(
   }
   OCL_SET_IF_NOT_NULL(param_value_size_ret, type_size);
   return CL_SUCCESS;
-#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
+#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
 }
 
-#if (defined(CL_VERSION_3_0) || \
+#if (defined(CL_VERSION_3_0) ||                                                \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
 cl_int intel_unified_shared_memory::SetKernelExecInfo(
     cl_kernel kernel, cl_kernel_exec_info_codeplay param_name,
     size_t param_value_size, const void *param_value) const {
 #ifdef OCL_EXTENSION_cl_intel_unified_shared_memory
   switch (param_name) {
-    case CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL: {
-      OCL_CHECK(!param_value, return CL_INVALID_VALUE);
-      OCL_CHECK(
-          (param_value_size == 0) || (param_value_size % sizeof(void *) != 0),
-          return CL_INVALID_VALUE);
+  case CL_KERNEL_EXEC_INFO_USM_PTRS_INTEL: {
+    OCL_CHECK(!param_value, return CL_INVALID_VALUE);
+    OCL_CHECK((param_value_size == 0) ||
+                  (param_value_size % sizeof(void *) != 0),
+              return CL_INVALID_VALUE);
 
-      // Set the _cl_kernel list of indirect USM allocations
-      void *const *usm_pointers = static_cast<void *const *>(param_value);
-      const size_t num_pointers = param_value_size / sizeof(void *);
-      auto &indirect_allocs = kernel->indirect_usm_allocs;
-      if (indirect_allocs.alloc(num_pointers) != cargo::success) {
-        return CL_OUT_OF_HOST_MEMORY;
-      }
-
-      const cl_context context = kernel->program->context;
-      const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
-      for (size_t i = 0; i < num_pointers; i++) {
-        indirect_allocs[i] = usm::findAllocation(context, usm_pointers[i]);
-      }
-
-      return CL_SUCCESS;
+    // Set the _cl_kernel list of indirect USM allocations
+    void *const *usm_pointers = static_cast<void *const *>(param_value);
+    const size_t num_pointers = param_value_size / sizeof(void *);
+    auto &indirect_allocs = kernel->indirect_usm_allocs;
+    if (indirect_allocs.alloc(num_pointers) != cargo::success) {
+      return CL_OUT_OF_HOST_MEMORY;
     }
 
-#define INDIRECT_ACCESS_FLAG_CASE(arg_type, type)                            \
-  case arg_type: {                                                           \
-    OCL_CHECK(!param_value, return CL_INVALID_VALUE);                        \
-    OCL_CHECK(param_value_size != sizeof(cl_bool), return CL_INVALID_VALUE); \
-                                                                             \
-    const cl_bool flag_set = *(static_cast<const cl_bool *>(param_value));   \
-    if (flag_set) {                                                          \
-      kernel->kernel_exec_info_usm_flags |= type;                            \
-    } else {                                                                 \
-      kernel->kernel_exec_info_usm_flags &= ~type;                           \
-    }                                                                        \
-    return CL_SUCCESS;                                                       \
+    const cl_context context = kernel->program->context;
+    const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+    for (size_t i = 0; i < num_pointers; i++) {
+      indirect_allocs[i] = usm::findAllocation(context, usm_pointers[i]);
+    }
+
+    return CL_SUCCESS;
   }
 
-      INDIRECT_ACCESS_FLAG_CASE(CL_KERNEL_EXEC_INFO_INDIRECT_HOST_ACCESS_INTEL,
-                                usm::kernel_exec_info_indirect_host_access);
-      INDIRECT_ACCESS_FLAG_CASE(
-          CL_KERNEL_EXEC_INFO_INDIRECT_DEVICE_ACCESS_INTEL,
-          usm::kernel_exec_info_indirect_device_access);
-      INDIRECT_ACCESS_FLAG_CASE(
-          CL_KERNEL_EXEC_INFO_INDIRECT_SHARED_ACCESS_INTEL,
-          usm::kernel_exec_info_indirect_shared_access);
+#define INDIRECT_ACCESS_FLAG_CASE(arg_type, type)                              \
+  case arg_type: {                                                             \
+    OCL_CHECK(!param_value, return CL_INVALID_VALUE);                          \
+    OCL_CHECK(param_value_size != sizeof(cl_bool), return CL_INVALID_VALUE);   \
+                                                                               \
+    const cl_bool flag_set = *(static_cast<const cl_bool *>(param_value));     \
+    if (flag_set) {                                                            \
+      kernel->kernel_exec_info_usm_flags |= type;                              \
+    } else {                                                                   \
+      kernel->kernel_exec_info_usm_flags &= ~type;                             \
+    }                                                                          \
+    return CL_SUCCESS;                                                         \
+  }
+
+    INDIRECT_ACCESS_FLAG_CASE(CL_KERNEL_EXEC_INFO_INDIRECT_HOST_ACCESS_INTEL,
+                              usm::kernel_exec_info_indirect_host_access);
+    INDIRECT_ACCESS_FLAG_CASE(CL_KERNEL_EXEC_INFO_INDIRECT_DEVICE_ACCESS_INTEL,
+                              usm::kernel_exec_info_indirect_device_access);
+    INDIRECT_ACCESS_FLAG_CASE(CL_KERNEL_EXEC_INFO_INDIRECT_SHARED_ACCESS_INTEL,
+                              usm::kernel_exec_info_indirect_shared_access);
 #undef INDIRECT_ACCESS_FLAG_CASE
 
-    default:
-      break;
+  default:
+    break;
   }
-#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
+#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
   return extension::SetKernelExecInfo(kernel, param_name, param_value_size,
                                       param_value);
 }
-#endif  // CL_VERSION_3_0 || OCL_EXTENSION_cl_intel_unified_shared_memory
-}  // namespace extension
+#endif // CL_VERSION_3_0 || OCL_EXTENSION_cl_intel_unified_shared_memory
+} // namespace extension

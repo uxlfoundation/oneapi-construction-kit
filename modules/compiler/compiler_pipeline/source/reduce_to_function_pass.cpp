@@ -55,8 +55,8 @@ static void runOnFunction(Module &M, Function *const F,
   }
 }
 
-PreservedAnalyses compiler::utils::ReduceToFunctionPass::run(
-    Module &M, ModuleAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::ReduceToFunctionPass::run(Module &M, ModuleAnalysisManager &) {
   DenseSet<Function *> FnsToKeep;
 
   for (auto &F : M) {

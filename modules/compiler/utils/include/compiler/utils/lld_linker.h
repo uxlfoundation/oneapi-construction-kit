@@ -55,12 +55,13 @@ void appendMLLVMOptions(cargo::array_view<cargo::string_view> options,
 /// @note  This is kept as a header, so that targets are not forced to link with
 /// LLVM LLD libraries. Preserves CA_LLVM_OPTIONS but no other previously
 /// parsed command-line options.
-llvm::Expected<std::unique_ptr<llvm::MemoryBuffer>> lldLinkToBinary(
-    const llvm::ArrayRef<uint8_t> rawBinary, const std::string &linkerScriptStr,
-    const uint8_t *linkerLib, unsigned int linkerLibBytes,
-    const llvm::SmallVectorImpl<std::string> &additionalLinkArgs);
+llvm::Expected<std::unique_ptr<llvm::MemoryBuffer>>
+lldLinkToBinary(const llvm::ArrayRef<uint8_t> rawBinary,
+                const std::string &linkerScriptStr, const uint8_t *linkerLib,
+                unsigned int linkerLibBytes,
+                const llvm::SmallVectorImpl<std::string> &additionalLinkArgs);
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_LLD_LINKER_H_INCLUDED
+#endif // COMPILER_UTILS_LLD_LINKER_H_INCLUDED

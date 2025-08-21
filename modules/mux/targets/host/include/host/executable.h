@@ -121,6 +121,6 @@ struct executable_s final : public mux_executable_s {
 };
 
 /// @}
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_EXECUTABLE_H_INCLUDED
+#endif // HOST_EXECUTABLE_H_INCLUDED

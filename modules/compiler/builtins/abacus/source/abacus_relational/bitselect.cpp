@@ -17,9 +17,9 @@
 #include <abacus/abacus_detail_relational.h>
 #include <abacus/abacus_relational.h>
 
-#define DEF(TYPE)                                              \
-  TYPE ABACUS_API __abacus_bitselect(TYPE x, TYPE y, TYPE z) { \
-    return abacus::detail::relational::bitselect(x, y, z);     \
+#define DEF(TYPE)                                                              \
+  TYPE ABACUS_API __abacus_bitselect(TYPE x, TYPE y, TYPE z) {                 \
+    return abacus::detail::relational::bitselect(x, y, z);                     \
   }
 
 DEF(abacus_char)
@@ -101,4 +101,4 @@ DEF(abacus_double3)
 DEF(abacus_double4)
 DEF(abacus_double8)
 DEF(abacus_double16)
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
