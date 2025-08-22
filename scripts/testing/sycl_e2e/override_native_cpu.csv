@@ -1,6 +1,7 @@
 SYCL,AddressSanitizer/bad-free/bad-free-host.cpp,XFail
 SYCL,AddressSanitizer/bad-free/bad-free-minus1.cpp,XFail
 SYCL,AddressSanitizer/bad-free/bad-free-plus1.cpp,XFail
+SYCL,AddressSanitizer/common/kernel-filter-aot-cpu.cpp,XFail
 SYCL,AddressSanitizer/common/print-build-log.cpp,XFail
 SYCL,AddressSanitizer/double-free/double-free.cpp,XFail
 SYCL,AddressSanitizer/use-after-free/quarantine-free.cpp,XFail
@@ -10,13 +11,15 @@ SYCL,Basic/large-range.cpp,XFail
 SYCL,Basic/max_linear_work_group_size_props.cpp,XFail
 SYCL,Basic/max_work_group_size_props.cpp,XFail
 SYCL,Compression/no_zstd_warning.cpp,XFail
+SYCL,DeviceArchitecture/device_architecture_on_device_aot.cpp,XFail
+SYCL,DeviceCodeSplit/aot-cpu.cpp,XFail
 SYCL,DeviceImageDependencies/dynamic.cpp,XFail
-SYCL,DeviceImageDependencies/free_function_kernels.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/dynamic.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/objects.cpp,XFail
 SYCL,DeviceImageDependencies/NewOffloadDriver/singleDynamicLibrary.cpp,XFail
 SYCL,DeviceImageDependencies/objects.cpp,XFail
 SYCL,DeviceImageDependencies/singleDynamicLibrary.cpp,XFail
+SYCL,DeviceLib/assert-aot.cpp,XFail
 SYCL,DeviceLib/rand_test.cpp,XFail
 SYCL,DeviceLib/separate_compile_test.cpp,XFail
 SYCL,Experimental/launch_queries/max_sub_group_size.cpp,XFail
@@ -57,6 +60,7 @@ SYCL,SYCLBIN/optional_kernel_features_input.cpp,XFail
 SYCL,SYCLBIN/optional_kernel_features_object.cpp,XFail
 SYCL,syclcompat/device/device.cpp,XFail
 SYCL,syclcompat/math/math_compare.cpp,XFail
+SYCL,ThreadSanitizer/aot/cpu.cpp,XFail
 SYCL,Tracing/code_location_queue_parallel_for.cpp,XFail
 SYCL,USM/badmalloc.cpp,XFail
 SYCL,USM/memops2d/copy2d_device_to_device.cpp,XFail
