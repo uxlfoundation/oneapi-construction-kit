@@ -75,11 +75,13 @@ static auto parsePassParameters(ParametersParseCallableT &&Parser,
 
 static bool checkParametrizedPassName(llvm::StringRef Name,
                                       llvm::StringRef PassName) {
-  if (!Name.consume_front(PassName))
+  if (!Name.consume_front(PassName)) {
     return false;
+  }
   // normal pass name w/o parameters == default parameters
-  if (Name.empty())
+  if (Name.empty()) {
     return true;
+  }
   return Name.starts_with("<") && Name.ends_with(">");
 }
 

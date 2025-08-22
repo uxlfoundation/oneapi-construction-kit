@@ -29,12 +29,15 @@ kts::ucl::ArgumentList::GetBufferDescForArg(unsigned index) const {
   if (index < GetCount()) {
     auto &arg = args_[index];
     const kts::BufferDesc &arg_desc = arg->GetBufferDesc();
-    if (arg_desc.size_ > 0)
+    if (arg_desc.size_ > 0) {
       desc.size_ = arg_desc.size_;
-    if (arg_desc.streamer_)
+    }
+    if (arg_desc.streamer_) {
       desc.streamer_ = arg_desc.streamer_;
-    if (arg_desc.streamer2_)
+    }
+    if (arg_desc.streamer2_) {
       desc.streamer2_ = arg_desc.streamer2_;
+    }
   }
   return desc;
 }

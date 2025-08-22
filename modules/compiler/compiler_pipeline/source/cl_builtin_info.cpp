@@ -3154,12 +3154,14 @@ CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(CallInst &CI, BuiltinID ID,
     default:
       llvm_unreachable("unknown group operation for which to check the type");
     case eMuxBuiltinSubgroupReduceAdd:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupReduceFAdd;
+      }
       break;
     case eMuxBuiltinSubgroupReduceMul:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupReduceFMul;
+      }
       break;
     case eMuxBuiltinSubgroupReduceUMin:
       if (IsFP) {
@@ -3176,20 +3178,24 @@ CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(CallInst &CI, BuiltinID ID,
       }
       break;
     case eMuxBuiltinSubgroupScanAddInclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupScanFAddInclusive;
+      }
       break;
     case eMuxBuiltinSubgroupScanAddExclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupScanFAddExclusive;
+      }
       break;
     case eMuxBuiltinSubgroupScanMulInclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupScanFMulInclusive;
+      }
       break;
     case eMuxBuiltinSubgroupScanMulExclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinSubgroupScanFMulExclusive;
+      }
       break;
     case eMuxBuiltinSubgroupScanUMinInclusive:
       if (IsFP) {
@@ -3220,12 +3226,14 @@ CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(CallInst &CI, BuiltinID ID,
       }
       break;
     case eMuxBuiltinWorkgroupReduceAdd:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupReduceFAdd;
+      }
       break;
     case eMuxBuiltinWorkgroupReduceMul:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupReduceFMul;
+      }
       break;
     case eMuxBuiltinWorkgroupReduceUMin:
       if (IsFP) {
@@ -3242,20 +3250,24 @@ CLBuiltinInfo::lowerGroupBuiltinToMuxBuiltin(CallInst &CI, BuiltinID ID,
       }
       break;
     case eMuxBuiltinWorkgroupScanAddInclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupScanFAddInclusive;
+      }
       break;
     case eMuxBuiltinWorkgroupScanAddExclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupScanFAddExclusive;
+      }
       break;
     case eMuxBuiltinWorkgroupScanMulInclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupScanFMulInclusive;
+      }
       break;
     case eMuxBuiltinWorkgroupScanMulExclusive:
-      if (IsFP)
+      if (IsFP) {
         MuxBuiltinID = eMuxBuiltinWorkgroupScanFMulExclusive;
+      }
       break;
     case eMuxBuiltinWorkgroupScanUMinInclusive:
       if (IsFP) {

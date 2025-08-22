@@ -261,8 +261,9 @@ Function *cloneFunctionToVector(const VectorizationUnit &VU) {
 static DILocation *getDILocation(unsigned Line, unsigned Column, MDNode *Scope,
                                  MDNode *InlinedAt = nullptr) {
   // If no scope is available, this is an unknown location.
-  if (!Scope)
+  if (!Scope) {
     return DebugLoc();
+  }
   return DILocation::get(Scope->getContext(), Line, Column, Scope, InlinedAt,
                          /*ImplicitCode*/ false);
 }

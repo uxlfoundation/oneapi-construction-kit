@@ -693,28 +693,34 @@ TEST_P(Execution, Regression_75_Partial_Linearization0) {
   AddOutputBuffer(global, kts::Reference1D<cl_uint>([=](size_t id) {
                     int ret = 0;
                     if (id % 5 == 0) {
-                      for (int i = 0; i < n * 2; i++)
+                      for (int i = 0; i < n * 2; i++) {
                         ret++;
+                      }
                     } else {
-                      for (int i = 0; i < n / 4; i++)
+                      for (int i = 0; i < n / 4; i++) {
                         ret++;
+                      }
                     }
                     if (n > 10) {
                       if (id % 2 == 0) {
-                        for (int i = 0; i < n + 10; i++)
+                        for (int i = 0; i < n + 10; i++) {
                           ret++;
+                        }
                       } else {
-                        for (int i = 0; i < n + 10; i++)
+                        for (int i = 0; i < n + 10; i++) {
                           ret *= 2;
+                        }
                       }
                       ret += id * 10;
                     } else {
                       if (id % 2 == 0) {
-                        for (int i = 0; i < n + 8; i++)
+                        for (int i = 0; i < n + 8; i++) {
                           ret++;
+                        }
                       } else {
-                        for (int i = 0; i < n + 8; i++)
+                        for (int i = 0; i < n + 8; i++) {
                           ret *= 2;
+                        }
                       }
                       ret += id / 2;
                     }
@@ -739,20 +745,24 @@ TEST_P(Execution, Regression_75_Partial_Linearization1) {
                           goto e;
                         }
                       } else {
-                        for (int i = 0; i < n + 10; i++)
+                        for (int i = 0; i < n + 10; i++) {
                           ret++;
+                        }
                       }
-                      if (j++ <= 2)
+                      if (j++ <= 2) {
                         break;
+                      }
                     }
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret -= i;
+                    }
                     ret /= n;
                     goto early;
                   e:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret /= 2;
+                    }
                     ret -= n;
                   early:
                     return ret;
@@ -862,10 +872,12 @@ TEST_P(Execution, Regression_75_Partial_Linearization4) {
                     int y = id % n;
                     int i = 0;
                     for (;;) {
-                      if (n > 20)
+                      if (n > 20) {
                         goto e;
-                      if (x + y > n)
+                      }
+                      if (x + y > n) {
                         goto f;
+                      }
                       y++;
                       x++;
                       i++;
@@ -941,8 +953,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization6) {
                       } else {
                         ret += n + 1;
                       }
-                      if (id == static_cast<size_t>(n))
+                      if (id == static_cast<size_t>(n)) {
                         break;
+                      }
                     }
                     ret += n * 2;
                     ret /= n;
@@ -1015,10 +1028,12 @@ TEST_P(Execution, Regression_75_Partial_Linearization8) {
                     int y = id % n;
                     int i = 0;
                     for (;;) {
-                      if (i + id > 10)
+                      if (i + id > 10) {
                         goto e;
-                      if (x + y > n)
+                      }
+                      if (x + y > n) {
                         goto f;
+                      }
                       y++;
                       x++;
                       i++;
@@ -1047,11 +1062,13 @@ TEST_P(Execution, Regression_75_Partial_Linearization9) {
                     while (1) {
                       int j = 0;
                       for (;; i++) {
-                        if (j++ > n)
+                        if (j++ > n) {
                           break;
+                        }
                       }
-                      if (i++ + id > 10)
+                      if (i++ + id > 10) {
                         break;
+                      }
                     }
                     return i;
                   }));
@@ -1070,14 +1087,16 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                     int i = 0;
                     while (1) {
                       if (n > 0) {
-                        for (int i = 0; i < n * 2; i++)
+                        for (int i = 0; i < n * 2; i++) {
                           ret++;
+                        }
                         if (n <= 10) {
                           goto f;
                         }
                       } else {
-                        for (int i = 0; i < n / 4; i++)
+                        for (int i = 0; i < n / 4; i++) {
                           ret++;
+                        }
                       }
                       ret++;
                       while (1) {
@@ -1114,16 +1133,18 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                       }
                     }
                   r:
-                    for (int i = 0; i < n / 4; i++)
+                    for (int i = 0; i < n / 4; i++) {
                       ret++;
+                    }
                     goto s;
 
                   f:
                     ret /= n;
                     goto p;
                   p:
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret++;
+                    }
                   s:
                     return ret;
                   }));
@@ -1143,8 +1164,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                     while (1) {
                       while (1) {
                         if (n > 5) {
-                          for (int i = 0; i < n * 2; i++)
+                          for (int i = 0; i < n * 2; i++) {
                             ret++;
+                          }
                           if (n == 6) {
                             goto i;
                           }
@@ -1178,8 +1200,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                       }
                     }
                   m:
-                    for (int i = 0; i < n / 4; i++)
+                    for (int i = 0; i < n / 4; i++) {
                       ret++;
+                    }
                     goto n;
                   i:
                     ret /= n;
@@ -1329,8 +1352,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization14) {
                     int i = 0;
                     while (1) {
                       if (n > 0) {
-                        for (int i = 0; i < n; i++)
+                        for (int i = 0; i < n; i++) {
                           ret++;
+                        }
                       } else {
                         if (id == static_cast<size_t>(n)) {
                           goto k;
@@ -1359,14 +1383,16 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                     int ret = 0;
                     while (1) {
                       if (n > 0) {
-                        for (size_t i = 0; i < n * 2; i++)
+                        for (size_t i = 0; i < n * 2; i++) {
                           ret++;
+                        }
                         if (n <= 10) {
                           goto f;
                         }
                       } else {
-                        for (size_t i = 0; i < n / 4; i++)
+                        for (size_t i = 0; i < n / 4; i++) {
                           ret++;
+                        }
                       }
                       ret++;
                       while (1) {
@@ -1394,15 +1420,17 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                       }
                     }
                   p:
-                    for (size_t i = 0; i < n / 4; i++)
+                    for (size_t i = 0; i < n / 4; i++) {
                       ret++;
+                    }
                     goto q;
                   f:
                     ret /= n;
                     goto n;
                   n:
-                    for (size_t i = 0; i < n * 2; i++)
+                    for (size_t i = 0; i < n * 2; i++) {
                       ret++;
+                    }
                   q:
                     return ret;
                   }));
@@ -1420,8 +1448,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
                     int ret = 0;
                     const int i = 0;
                     if (n < 5) {
-                      for (int i = 0; i < n + 10; i++)
+                      for (int i = 0; i < n + 10; i++) {
                         ret++;
+                      }
                       goto h;
                     } else {
                       while (1) {
@@ -1430,25 +1459,30 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
                             goto f;
                           }
                         } else {
-                          for (int i = 0; i < n + 10; i++)
+                          for (int i = 0; i < n + 10; i++) {
                             ret++;
+                          }
                         }
-                        if (n > 5)
+                        if (n > 5) {
                           break;
+                        }
                       }
                     }
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret -= i;
+                    }
                     ret /= n;
                     goto early;
                   f:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret /= 2;
+                    }
                     ret -= n;
                   h:
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret -= i;
+                    }
                   early:
                     return ret;
                   }));
@@ -1475,17 +1509,20 @@ TEST_P(Execution, Regression_75_Partial_Linearization17) {
                         break;
                       }
                     }
-                    for (int i = 0; i < n + 10; i++)
+                    for (int i = 0; i < n + 10; i++) {
                       ret++;
+                    }
                     goto m;
                   f:
                     ret += n * 2;
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret += i;
+                    }
                     goto m;
                   c:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret += 2;
+                    }
                     if (id % 2 == 0) {
                       goto h;
                     } else {
@@ -1505,8 +1542,9 @@ TEST_P(Execution, Regression_75_Partial_Linearization17) {
                   l:
                     ret += id << 3;
                   o:
-                    for (int i = 0; i < n * 2; i++)
+                    for (int i = 0; i < n * 2; i++) {
                       ret += i;
+                    }
                   p:
                     return ret;
                   }));
@@ -1536,16 +1574,19 @@ TEST_P(Execution, Regression_75_Partial_Linearization18) {
                       }
                     }
                   f:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret += 2;
+                    }
                     goto g;
                   g:
-                    for (int i = 1; i < n * 2; i++)
+                    for (int i = 1; i < n * 2; i++) {
                       ret -= i;
+                    }
                     goto h;
                   e:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret++;
+                    }
                     goto i;
                   h:
                     if (n > 3) {
@@ -1587,20 +1628,24 @@ TEST_P(Execution, Regression_75_Partial_Linearization19) {
                       goto i;
                     }
                   d:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret += 2;
+                    }
                     goto i;
                   e:
-                    for (int i = 1; i < n * 2; i++)
+                    for (int i = 1; i < n * 2; i++) {
                       ret += i;
+                    }
                     goto h;
                   i:
-                    for (int i = 0; i < n + 5; i++)
+                    for (int i = 0; i < n + 5; i++) {
                       ret++;
+                    }
                     goto j;
                   h:
-                    for (int i = 0; i < n; i++)
+                    for (int i = 0; i < n; i++) {
                       ret++;
+                    }
                     goto j;
                   j:
                     return ret;

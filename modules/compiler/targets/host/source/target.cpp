@@ -272,8 +272,9 @@ HostTarget::initWithBuiltins(std::unique_ptr<llvm::Module> builtins_module) {
     if (!NewFeatures.empty()) {
       std::vector<std::string> NewFeatureVector;
       llvm::SubtargetFeatures::Split(NewFeatureVector, NewFeatures);
-      for (auto &NewFeature : NewFeatureVector)
+      for (auto &NewFeature : NewFeatureVector) {
         Features.AddFeature(NewFeature);
+      }
     }
   };
 

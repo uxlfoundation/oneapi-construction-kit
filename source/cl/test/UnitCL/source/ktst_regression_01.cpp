@@ -476,20 +476,24 @@ static cl_int calc_group_barrier(size_t x, int vector_width) {
           return linearIndex;
           break;
         case 4:
-          if (vector_width == 8)
+          if (vector_width == 8) {
             return i;
+          }
           break;
         case 5:
-          if (vector_width == 8)
+          if (vector_width == 8) {
             return j;
+          }
           break;
         case 6:
-          if (vector_width == 8)
+          if (vector_width == 8) {
             return k;
+          }
           break;
         case 7:
-          if (vector_width == 8)
+          if (vector_width == 8) {
             return linearIndex;
+          }
           break;
         default:
           break; // No match on this iteration.

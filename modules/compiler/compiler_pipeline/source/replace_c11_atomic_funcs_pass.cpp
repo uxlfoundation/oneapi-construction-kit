@@ -326,20 +326,24 @@ void replaceFlagClear(CallInst *C11FlagClear) {
 bool runOnInstruction(CallInst *Call) {
   if (auto *Callee = Call->getCalledFunction()) {
     auto Name{Callee->getName()};
-    if (!Name.starts_with("_Z"))
+    if (!Name.starts_with("_Z")) {
       return false;
+    }
     Name = Name.drop_front(2);
     unsigned KeyNameLength;
-    if (Name.consumeInteger(10, KeyNameLength))
+    if (Name.consumeInteger(10, KeyNameLength)) {
       return false;
+    }
     const StringRef MangledParams = Name.drop_front(KeyNameLength);
     Name = Name.take_front(KeyNameLength);
-    if (!Name.starts_with("atomic_"))
+    if (!Name.starts_with("atomic_")) {
       return false;
+    }
     Name = Name.drop_front(7);
     const bool Explicit = Name.ends_with("_explicit");
-    if (Explicit)
+    if (Explicit) {
       Name = Name.drop_back(9);
+    }
     if (Name == "init") {
       replaceInit(Call);
       return true;

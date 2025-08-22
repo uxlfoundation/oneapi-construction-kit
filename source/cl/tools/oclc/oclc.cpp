@@ -1122,24 +1122,28 @@ bool oclc::Driver::BuildProgram() {
     fin = stdin;
     while (true) {
       const size_t bytes_read = fread(buffer, 1, sizeof(buffer), fin);
-      if (bytes_read == 0)
+      if (bytes_read == 0) {
         break;
+      }
       source_.append(buffer, buffer + bytes_read);
     }
   } else {
     fin = fopen(input_file_.c_str(), mode);
     OCLC_CHECK(!fin, "Could not open input file");
     bool read_error = [&] {
-      if (fseek(fin, 0, SEEK_END))
+      if (fseek(fin, 0, SEEK_END)) {
         return true;
+      }
       source_.resize(ftell(fin));
-      if (fseek(fin, 0, SEEK_SET))
+      if (fseek(fin, 0, SEEK_SET)) {
         return true;
+      }
       const size_t bytes_read = fread(source_.data(), 1, source_.size(), fin);
       return source_.size() != bytes_read;
     }();
-    if (fclose(fin))
+    if (fclose(fin)) {
       read_error = true;
+    }
     OCLC_CHECK(read_error, "Could not read input file");
   }
 
@@ -2124,15 +2128,17 @@ bool oclc::Arguments::HasMore(int count) const {
 }
 
 const char *oclc::Arguments::Peek() {
-  if (!HasMore(1))
+  if (!HasMore(1)) {
     return nullptr;
+  }
   return argv_[pos_];
 }
 
 const char *oclc::Arguments::Take() {
   const char *arg = Peek();
-  if (!arg)
+  if (!arg) {
     return nullptr;
+  }
   pos_++;
   return arg;
 }

@@ -5939,10 +5939,12 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   // wrapper. This is important for distinguishing between smin/smax, for
   // example.
   const char *prefix = "";
-  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned)
+  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned) {
     prefix = "s";
-  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned)
+  }
+  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned) {
     prefix = "u";
+  }
   const std::string cacheName = prefix + opName;
   auto *&reductionWrapper =
       module.reductionWrapperMap[operation][cacheName]

@@ -115,8 +115,9 @@ static uint32_t os_cpu_frequency() {
       uint32_t i = wanted.size();
 
       while (i < size) {
-        if (buffer[i++] == ':')
+        if (buffer[i++] == ':') {
           break;
+        }
       }
 
       (void)fclose(file);

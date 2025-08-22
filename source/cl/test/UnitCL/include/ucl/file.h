@@ -43,8 +43,9 @@ struct File {
       const size_t objects =
           std::fread(buffer.data(), sizeof(value_type), buffer_size, file);
       content.insert(content.end(), buffer.data(), buffer.data() + objects);
-      if (objects < buffer_size)
+      if (objects < buffer_size) {
         break;
+      }
     }
     return content;
   }

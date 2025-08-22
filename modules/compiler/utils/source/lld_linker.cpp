@@ -86,19 +86,23 @@ lldLinkToBinary(const ArrayRef<uint8_t> rawBinary,
   };
 
   const TemporaryFile objFile("lld", "o");
-  if (objFile)
+  if (objFile) {
     return errorCodeToError(objFile.getErrorCode());
+  }
   const TemporaryFile elfFile("lld", "elf");
-  if (elfFile)
+  if (elfFile) {
     return errorCodeToError(elfFile.getErrorCode());
+  }
   const TemporaryFile linkerScript("lld", "ld");
-  if (linkerScript)
+  if (linkerScript) {
     return errorCodeToError(linkerScript.getErrorCode());
+  }
   TemporaryFile linkRTFile;
   if (linkerLib) {
     linkRTFile = TemporaryFile("lld_rt", "a");
-    if (linkRTFile)
+    if (linkRTFile) {
       return errorCodeToError(linkRTFile.getErrorCode());
+    }
     FILE *flinklib = fopen(linkRTFile.getFileName(), "wb+");
     if (nullptr != flinklib) {
       if (fwrite(linkerLib, 1, linkerLibBytes, flinklib) != linkerLibBytes) {

@@ -427,11 +427,13 @@ void DivergenceResult::markByAll(BasicBlock &src) {
           // If we are not in a loop, or the loop we live in does not diverge
           // nor does the one englobing us if it exists, then mark by_all.
           if (DLoopTag) {
-            if (DLoopTag->isLoopDivergent())
+            if (DLoopTag->isLoopDivergent()) {
               continue;
+            }
             Loop *parentLoop = DLoopTag->loop->getParentLoop();
-            if (parentLoop && !isByAll(*parentLoop->getHeader()))
+            if (parentLoop && !isByAll(*parentLoop->getHeader())) {
               continue;
+            }
           }
           queue.push(DIndex);
         }

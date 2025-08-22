@@ -502,8 +502,9 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
   // Set up all of our user PHIs
   for (unsigned i = 0, e = currIVs.size(); i != e; i++) {
     // For convenience to callers, permit nullptr and skip over it.
-    if (!currIVs[i])
+    if (!currIVs[i]) {
       continue;
+    }
 
     auto *const phi = loopIR.CreatePHI(currIVs[i]->getType(), 2);
     llvm::cast<llvm::PHINode>(phi)->addIncoming(currIVs[i],
@@ -528,8 +529,9 @@ llvm::BasicBlock *createLoop(llvm::BasicBlock *entry, llvm::BasicBlock *exit,
 
   // Update all of our PHIs
   for (unsigned i = 0, e = currIVs.size(); i != e; i++) {
-    if (!currIVs[i])
+    if (!currIVs[i]) {
       continue;
+    }
     llvm::cast<llvm::PHINode>(currIVs[i])->addIncoming(nextIVs[i], latch);
   }
 

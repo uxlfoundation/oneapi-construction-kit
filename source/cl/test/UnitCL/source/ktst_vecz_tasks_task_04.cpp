@@ -245,8 +245,9 @@ template <> struct Validator<SampleBuffer> {
     Validator<float> v;
     s << "{";
     for (unsigned i = 0; i < NUM_SAMPLES; i++) {
-      if (i > 0)
+      if (i > 0) {
         s << ", ";
+      }
       v.print(s, value.samples[i]);
     }
     s << " }";

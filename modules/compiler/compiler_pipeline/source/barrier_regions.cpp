@@ -1416,14 +1416,16 @@ BasicBlock *compiler::utils::Barrier::CloneBasicBlock(
     BasicBlock *bb, ValueToValueMapTy &vmap, const Twine &name_suffix,
     live_variable_mem_t &live_defs_info, Function *F) {
   BasicBlock *new_bb = BasicBlock::Create(bb->getContext(), "", F);
-  if (bb->hasName())
+  if (bb->hasName()) {
     new_bb->setName(bb->getName() + name_suffix);
+  }
 
   // Loop over all instructions, and copy them over.
   for (Instruction &i : *bb) {
     Instruction *new_inst = i.clone();
-    if (i.hasName())
+    if (i.hasName()) {
       new_inst->setName(i.getName() + name_suffix);
+    }
     new_inst->insertInto(new_bb, new_bb->end());
 
     // Record live variables' defs which are in current kernel.
@@ -1438,8 +1440,9 @@ BasicBlock *compiler::utils::Barrier::CloneBasicBlock(
 
 /// @brief Seperate kernel function with barrier boundary.
 void compiler::utils::Barrier::SeperateKernelWithBarrier() {
-  if (barriers_.empty())
+  if (barriers_.empty()) {
     return;
+  }
 
   for (auto &[i, region] : barrier_region_id_map_) {
     kernel_id_map_[region.id] = GenerateNewKernel(region);

@@ -78,10 +78,12 @@ public:
   };
 
   static std::string getGroupBuiltinBaseName(GroupCollective::ScopeKind Scope) {
-    if (Scope == GroupCollective::ScopeKind::SubGroup)
+    if (Scope == GroupCollective::ScopeKind::SubGroup) {
       return "sub_group_";
-    if (Scope == GroupCollective::ScopeKind::VectorGroup)
+    }
+    if (Scope == GroupCollective::ScopeKind::VectorGroup) {
       return "vec_group_";
+    }
     return "work_group_";
   }
 
@@ -368,10 +370,12 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       BuiltinDecls.push_back("declare " + Op.getLLVMFnString());
 
       const StringRef ParamName = [&]() -> StringRef {
-        if (Op.LLVMTy == "float")
+        if (Op.LLVMTy == "float") {
           return "%f";
-        if (Op.LLVMTy == "i32")
+        }
+        if (Op.LLVMTy == "i32") {
           return "%i";
+        }
         return "<err>";
       }();
       BuiltinCalls.push_back("%call" + std::to_string(Idx) + " = call " +
@@ -412,8 +416,9 @@ define void @test_wrapper(i32 %i, float %f, i32 %sg_lid, i64 %lid_x, i64 %lid_y,
       auto Builtin = BI.analyzeBuiltin(*CalledFn);
       std::string InfoStr = " for function " + CalledFn->getName().str();
       ASSERT_TRUE(Builtin) << InfoStr;
-      if (!Builtin)
+      if (!Builtin) {
         return;
+      }
       InfoStr += " identified as ID " + std::to_string(Builtin->ID);
       EXPECT_TRUE(BI.isMuxBuiltinID(Builtin->ID)) << InfoStr;
 
