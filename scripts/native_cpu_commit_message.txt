@@ -1,0 +1,7 @@
+[NATIVE_CPU][SYCL] Update CMakes to be more LLVM like and update directory structure
+
+Move directory structure of files required for native cpu into appropriate
+directory structure under lvm/lib/SYCLNativeCPUUtils.
+
+This also updates the CMakeLists.txt to be appropriate for llvm components,
+rather in the style of oneAPI Construction Kit.
