@@ -105,8 +105,6 @@ SYCL,NonUniformGroups/tangle_group.cpp,XFail
 SYCL,OptionalKernelFeatures/is_compatible/is_compatible_amdgcn.cpp,XFail
 SYCL,OptionalKernelFeatures/is_compatible/is_compatible_nvptx64.cpp,XFail
 SYCL,ProfilingTag/profiling_queue.cpp,XFail
-SYCL,SeparateCompile/sycl-external.cpp,XFail
-SYCL,SeparateCompile/sycl-external-within-staticlib.cpp,XFail
 SYCL,syclcompat/atomic/atomic_arith.cpp,XFail
 SYCL,syclcompat/atomic/atomics_verification_usmnone.cpp,XFail
 SYCL,syclcompat/launch/launch_policy.cpp,XFail
