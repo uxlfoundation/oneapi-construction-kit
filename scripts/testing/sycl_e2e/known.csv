@@ -594,7 +594,6 @@ SYCL,DeviceImageBackendContent/L0_interop_test.cpp
 SYCL,DeviceImageBackendContent/OCL_interop_test.cpp
 SYCL,DeviceImageDependencies/dynamic_compress.cpp
 SYCL,DeviceImageDependencies/dynamic.cpp
-SYCL,DeviceImageDependencies/free_function_kernels.cpp
 SYCL,DeviceImageDependencies/math_device_lib.cpp
 SYCL,DeviceImageDependencies/NewOffloadDriver/dynamic.cpp
 SYCL,DeviceImageDependencies/NewOffloadDriver/free_function_kernels.cpp
