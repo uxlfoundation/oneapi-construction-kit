@@ -76,7 +76,7 @@ size_t getSizeForJITKernel();
 /// @param jit_kernel A pointer to a JIT kernel to write to `buffer`
 /// @param buffer A buffer that is at least `getSizeForJITKernel()` bytes long.
 void serializeJITKernel(const jit_kernel_s *jit_kernel, uint8_t *buffer);
-}  // namespace utils
-}  // namespace host
+} // namespace utils
+} // namespace host
 
-#endif  // HOST_UTILS_JIT_KERNEL_INCLUDED
+#endif // HOST_UTILS_JIT_KERNEL_INCLUDED

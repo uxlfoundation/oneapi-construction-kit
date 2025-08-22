@@ -37,9 +37,8 @@ namespace cargo {
 /// @tparam T Element type of the ring buffer.
 /// @tparam N The number of elements in the array, N must be greater than one, a
 /// power of two, and less than std::numeric_limits<uint32_t>::max()!
-template <class T, uint32_t N>
-class ring_buffer final {
- public:
+template <class T, uint32_t N> class ring_buffer final {
+public:
   using value_type = T;
   using size_type = uint32_t;
   using const_reference = const value_type &;
@@ -123,7 +122,7 @@ class ring_buffer final {
     return std::move(payload[old_index]);
   }
 
- private:
+private:
   static const uint32_t mask = N - 1;
 
   /// @brief The data backing the ring buffer.
@@ -141,6 +140,6 @@ class ring_buffer final {
 };
 
 /// @}
-}  // namespace cargo
+} // namespace cargo
 
-#endif  // CARGO_RING_BUFFER_H_INCLUDED
+#endif // CARGO_RING_BUFFER_H_INCLUDED

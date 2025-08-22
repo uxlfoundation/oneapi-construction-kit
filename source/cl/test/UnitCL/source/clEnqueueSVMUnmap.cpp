@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueSVMUnmapTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -40,8 +40,8 @@ TEST_F(clEnqueueSVMUnmapTest, NotImplemented) {
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueSVMUnmap(command_queue, svm_ptr, num_events_in_wait_list,
-                        event_wait_list, event));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueSVMUnmap(command_queue, svm_ptr,
+                                      num_events_in_wait_list, event_wait_list,
+                                      event));
 }

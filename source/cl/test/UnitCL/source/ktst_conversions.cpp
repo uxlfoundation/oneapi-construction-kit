@@ -41,26 +41,24 @@ const std::array<RoundingMode, 5> roundings{
 
 cl_float roundFloat(const cl_float in, const RoundingMode rounding) {
   switch (rounding) {
-    case RoundingMode::RTE:
-      return std::rint(in);
-    case RoundingMode::RTZ:
-      return std::trunc(in);
-    case RoundingMode::RTP:
-      return std::ceil(in);
-    case RoundingMode::RTN:
-      return std::floor(in);
-    default:
-      return in;
+  case RoundingMode::RTE:
+    return std::rint(in);
+  case RoundingMode::RTZ:
+    return std::trunc(in);
+  case RoundingMode::RTP:
+    return std::ceil(in);
+  case RoundingMode::RTN:
+    return std::floor(in);
+  default:
+    return in;
   }
 }
 
 // Reference functions for explicit conversions
-template <typename StrongFrom, typename StrongTo>
-struct ConvertRefHelper;
+template <typename StrongFrom, typename StrongTo> struct ConvertRefHelper;
 
 // half -> float
-template <>
-struct ConvertRefHelper<CLhalf, CLfloat> {
+template <> struct ConvertRefHelper<CLhalf, CLfloat> {
   static cl_float reference(const cl_half x, const RoundingMode, const bool) {
     return ConvertHalfToFloat(x);
   }
@@ -70,8 +68,7 @@ struct ConvertRefHelper<CLhalf, CLfloat> {
 };
 
 // half -> double
-template <>
-struct ConvertRefHelper<CLhalf, CLdouble> {
+template <> struct ConvertRefHelper<CLhalf, CLdouble> {
   static cl_double reference(const cl_half x, const RoundingMode, const bool) {
     return ConvertHalfToFloat(x);
   }
@@ -81,8 +78,7 @@ struct ConvertRefHelper<CLhalf, CLdouble> {
 };
 
 // half -> half
-template <>
-struct ConvertRefHelper<CLhalf, CLhalf> {
+template <> struct ConvertRefHelper<CLhalf, CLhalf> {
   static cl_half reference(const cl_half x, const RoundingMode, const bool) {
     return x;
   }
@@ -91,8 +87,7 @@ struct ConvertRefHelper<CLhalf, CLhalf> {
 };
 
 // half -> bool
-template <>
-struct ConvertRefHelper<CLhalf, CLbool> {
+template <> struct ConvertRefHelper<CLhalf, CLbool> {
   static cl_bool reference(const cl_half x, const RoundingMode, const bool) {
     const cl_float as_float = ConvertHalfToFloat(x);
     const bool host_bool(as_float);
@@ -104,8 +99,7 @@ struct ConvertRefHelper<CLhalf, CLbool> {
 };
 
 // half -> {u}char/{u}short/{u}int/{u}long
-template <typename StrongTo>
-struct ConvertRefHelper<CLhalf, StrongTo> {
+template <typename StrongTo> struct ConvertRefHelper<CLhalf, StrongTo> {
   using WeakTo = typename StrongTo::WrappedT;
   static WeakTo reference(const cl_half x, const RoundingMode rounding,
                           const bool saturated) {
@@ -162,8 +156,7 @@ struct ConvertRefHelper<CLhalf, StrongTo> {
 };
 
 // {u}char/{u}short/{u}int/{u}long -> half
-template <typename StrongFrom>
-struct ConvertRefHelper<StrongFrom, CLhalf> {
+template <typename StrongFrom> struct ConvertRefHelper<StrongFrom, CLhalf> {
   using WeakFrom = typename StrongFrom::WrappedT;
   static cl_half reference(const WeakFrom x, const RoundingMode rounding,
                            const bool) {
@@ -193,8 +186,7 @@ struct ConvertRefHelper<StrongFrom, CLhalf> {
 };
 
 // float -> half
-template <>
-struct ConvertRefHelper<CLfloat, CLhalf> {
+template <> struct ConvertRefHelper<CLfloat, CLhalf> {
   static cl_half reference(const cl_float x, const RoundingMode rounding,
                            const bool) {
     return ConvertFloatToHalf(x, rounding);
@@ -205,8 +197,7 @@ struct ConvertRefHelper<CLfloat, CLhalf> {
 };
 
 // double -> half
-template <>
-struct ConvertRefHelper<CLdouble, CLhalf> {
+template <> struct ConvertRefHelper<CLdouble, CLhalf> {
   static cl_half reference(const cl_double x, const RoundingMode rounding,
                            const bool) {
     return ConvertFloatToHalf(x, rounding);
@@ -221,8 +212,7 @@ struct ConvertValidator : public kts::Validator<typename StrongT::WrappedT> {
   ConvertValidator(cl_device_id) {}
 };
 
-template <>
-struct ConvertValidator<CLhalf> {
+template <> struct ConvertValidator<CLhalf> {
   ConvertValidator(cl_device_id device) : device(device) {}
 
   bool validate(const cl_half &expected, const cl_half &actual) {
@@ -270,8 +260,7 @@ struct ConvertStreamer final
 
 // Fixture for testing cl_half being converted to other CL types
 struct HalfToGentypeConversions : public ExecutionWithParam<unsigned> {
-  template <typename StrongT>
-  void Run() {
+  template <typename StrongT> void Run() {
     using WeakT = typename StrongT::WrappedT;
     if (!UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
@@ -359,8 +348,7 @@ struct HalfToGentypeConversions : public ExecutionWithParam<unsigned> {
 };
 
 // Fills input buffer with integer data to test
-template <typename T>
-void PopulateData(std::vector<T> &buffer) {
+template <typename T> void PopulateData(std::vector<T> &buffer) {
   auto env = ucl::Environment::instance;
   env->GetInputGenerator().GenerateIntData(buffer);
 }
@@ -386,8 +374,7 @@ void PopulateData(std::vector<cl_double> &buffer) {
 
 // Fixture for testing CL types being converted to cl_half
 struct GentypeToHalfConversions : public ExecutionWithParam<unsigned> {
-  template <typename StrongT>
-  void Run() {
+  template <typename StrongT> void Run() {
     using WeakT = typename StrongT::WrappedT;
     if (!UCL::hasHalfSupport(device)) {
       GTEST_SKIP();
@@ -473,9 +460,8 @@ class ReinterpretAllVecWidthsTest : public ExecutionWithParam<unsigned> {
     }
   }
 
- public:
-  template <typename StrongFrom, typename StrongTo>
-  void Run() {
+public:
+  template <typename StrongFrom, typename StrongTo> void Run() {
     using WeakFrom = typename StrongFrom::WrappedT;
     using WeakTo = typename StrongTo::WrappedT;
 
@@ -533,7 +519,7 @@ class ReinterpretSingleTest : public Execution {
     AddMacro("AS_FUNC", "as_" + out_type_vec);
   }
 
- public:
+public:
   template <typename StrongFrom, typename StrongTo, unsigned vIn, unsigned vOut>
   void Run() {
     using WeakFrom = typename StrongFrom::WrappedT;
@@ -616,27 +602,26 @@ class ExplicitConvertTest : public ExecutionWithParam<ConvertConfigTriple> {
     }
 
     switch (rounding) {
-      case RoundingMode::RTE:
-        convert_str.append("_rte");
-        break;
-      case RoundingMode::RTZ:
-        convert_str.append("_rtz");
-        break;
-      case RoundingMode::RTP:
-        convert_str.append("_rtp");
-        break;
-      case RoundingMode::RTN:
-        convert_str.append("_rtn");
-        break;
-      default:
-        break;
+    case RoundingMode::RTE:
+      convert_str.append("_rte");
+      break;
+    case RoundingMode::RTZ:
+      convert_str.append("_rtz");
+      break;
+    case RoundingMode::RTP:
+      convert_str.append("_rtp");
+      break;
+    case RoundingMode::RTN:
+      convert_str.append("_rtn");
+      break;
+    default:
+      break;
     }
     AddMacro("CONVERT_FUNC", convert_str);
   }
 
- public:
-  template <typename StrongFrom, typename StrongTo>
-  void Run() {
+public:
+  template <typename StrongFrom, typename StrongTo> void Run() {
     using WeakFrom = typename StrongFrom::WrappedT;
     using WeakTo = typename StrongTo::WrappedT;
 
@@ -722,7 +707,7 @@ class ExplicitConvertTest : public ExecutionWithParam<ConvertConfigTriple> {
     RunGeneric1D(work_items);
   }
 };
-}  // namespace
+} // namespace
 
 using HalfToBoolConversions = HalfToGentypeConversions;
 TEST_P(HalfToBoolConversions, Conversion_01_Implicit_Cast) { Run<CLbool>(); }

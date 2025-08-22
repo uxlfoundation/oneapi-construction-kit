@@ -40,13 +40,13 @@ using pfn_notify_program_t = void(CL_CALLBACK *)(cl_program program,
 
 /// @brief Enumeration to specify the creation type of an OpenCL program.
 enum class program_type : uint8_t {
-  NONE,     ///< An unknown program type (likely something bad happened).
-  OPENCLC,  ///< A program created with clCreateProgramWithSource.
-  BINARY,   ///< A program created with clCreateProgramWithBinary.
-  LINK,     ///< A program created with clLinkProgram.
-  SPIRV,    ///< A program created with clCreateProgramWithILKHR when a SPIR-V
-            ///< binary was used.
-  BUILTIN,  ///< A program created with clCreateProgramWithBuiltInKernels.
+  NONE,    ///< An unknown program type (likely something bad happened).
+  OPENCLC, ///< A program created with clCreateProgramWithSource.
+  BINARY,  ///< A program created with clCreateProgramWithBinary.
+  LINK,    ///< A program created with clLinkProgram.
+  SPIRV,   ///< A program created with clCreateProgramWithILKHR when a SPIR-V
+           ///< binary was used.
+  BUILTIN, ///< A program created with clCreateProgramWithBuiltInKernels.
 };
 
 /// @brief Enumeration to specify the work-item ordering within a work-group
@@ -68,16 +68,16 @@ enum class program_work_item_order : uint8_t {
 
 /// @brief The type of device program.
 enum class device_program_type {
-  NONE,            ///< The device program does not represent any program.
-  BINARY,          ///< The device program stores binary program state.
-  BUILTIN,         ///< The device program stores builtin kernels.
-  COMPILER_MODULE  ///< The device program encapsulates a compiler module.
+  NONE,           ///< The device program does not represent any program.
+  BINARY,         ///< The device program stores binary program state.
+  BUILTIN,        ///< The device program stores builtin kernels.
+  COMPILER_MODULE ///< The device program encapsulates a compiler module.
 };
 
 /// @brief An object which manages mux_kernel_t's, either created from a
 /// mux_executable_t, or builtin kernels.
 class mux_kernel_cache {
- public:
+public:
   /// @brief Creates a mux_kernel_cache object that manages built-in kernels.
   mux_kernel_cache();
 
@@ -92,10 +92,10 @@ class mux_kernel_cache {
   ///
   /// @return Returns the relevant Mux kernel, or the mux_result_t if there
   /// was a failure to create the kernel.
-  cargo::expected<mux_kernel_t, mux_result_t> getOrCreateKernel(
-      cl_device_id device, const std::string &name);
+  cargo::expected<mux_kernel_t, mux_result_t>
+  getOrCreateKernel(cl_device_id device, const std::string &name);
 
- private:
+private:
   bool use_builtin_kernels;
   mux::unique_ptr<mux_executable_t> mux_executable;
 
@@ -170,7 +170,7 @@ struct device_program {
     cargo::expected<cargo::array_view<const uint8_t>, compiler::Result>
     getOrCreateMuxBinary();
 
-   private:
+  private:
     /// @brief Cached copy of a module binary created by Module::createBinary.
     cargo::optional<cargo::dynamic_array<uint8_t>> cached_mux_binary;
   };
@@ -222,8 +222,8 @@ struct device_program {
   /// @param device CL device this program is associated with.
   /// @param kernel_name
   /// @return Returns a MuxKernelWrapper object, or a CL error on failure.
-  cargo::expected<std::unique_ptr<MuxKernelWrapper>, cl_int> createKernel(
-      cl_device_id device, const std::string &kernel_name);
+  cargo::expected<std::unique_ptr<MuxKernelWrapper>, cl_int>
+  createKernel(cl_device_id device, const std::string &kernel_name);
 
   /// @brief Calculates the size of the binary representation of this device
   /// program.
@@ -263,11 +263,11 @@ struct device_program {
   /// represents.
   cl_program_binary_type getCLProgramBinaryType() const;
 
- private:
+private:
   /// @brief Clears the device_program state depending on the value of `type`.
   void clear();
 
- public:
+public:
   /// @brief Compilation options.
   std::string options;
 
@@ -291,7 +291,7 @@ struct device_program {
     CompilerModule compiler_module;
   };
 };
-}  // namespace cl
+} // namespace cl
 
 /// @addtogroup cl
 /// @{
@@ -361,7 +361,7 @@ struct _cl_program final : public cl::base<_cl_program> {
     /// @brief Map of specialization constants which can be specialized.
     compiler::spirv::SpecializableConstantsMap specializable;
 
-   private:
+  private:
     /// @brief Specialization constant value data.
     cargo::small_vector<uint8_t, 32> specData;
     /// @brief Constant specialization information.
@@ -369,14 +369,14 @@ struct _cl_program final : public cl::base<_cl_program> {
 #endif
   };
 
- private:
+private:
   /// @brief Private constructor, use _cl_program::create() instead.
   _cl_program(cl_context context);
 
   _cl_program(const _cl_program &) = delete;
   _cl_program(_cl_program &&) = delete;
 
- public:
+public:
   /// @brief Destructor.
   ~_cl_program();
 
@@ -390,9 +390,9 @@ struct _cl_program final : public cl::base<_cl_program> {
   ///
   /// @return Returns a program object on success, an OpenCL error on failure.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occurred.
-  static cargo::expected<std::unique_ptr<_cl_program>, cl_int> create(
-      cl_context context, cl_uint count, const char *const *strings,
-      const size_t *lengths);
+  static cargo::expected<std::unique_ptr<_cl_program>, cl_int>
+  create(cl_context context, cl_uint count, const char *const *strings,
+         const size_t *lengths);
 
   /// @brief Create program with intermediate language.
   ///
@@ -403,8 +403,8 @@ struct _cl_program final : public cl::base<_cl_program> {
   /// @return Returns a program object on success, an OpenCL error on failure.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occurred.
   /// @retval `CL_INVALID_VALUE` if the SPIR-V module is invalid.
-  static cargo::expected<std::unique_ptr<_cl_program>, cl_int> create(
-      cl_context context, const void *il, size_t length);
+  static cargo::expected<std::unique_ptr<_cl_program>, cl_int>
+  create(cl_context context, const void *il, size_t length);
 
   /// @brief Create program with binary.
   ///
@@ -420,10 +420,10 @@ struct _cl_program final : public cl::base<_cl_program> {
   ///
   /// @return Returns a program object on success, an OpenCL error on failure.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occurred.
-  static cargo::expected<std::unique_ptr<_cl_program>, cl_int> create(
-      cl_context context, cl_uint num_devices, const cl_device_id *device_list,
-      const size_t *lengths, const unsigned char *const *binaries,
-      cl_int *binary_status);
+  static cargo::expected<std::unique_ptr<_cl_program>, cl_int>
+  create(cl_context context, cl_uint num_devices,
+         const cl_device_id *device_list, const size_t *lengths,
+         const unsigned char *const *binaries, cl_int *binary_status);
 
   /// @brief Create program with built-in kernels.
   ///
@@ -435,9 +435,9 @@ struct _cl_program final : public cl::base<_cl_program> {
   /// @return Returns a program object on success, an OpenCL error on failure.
   /// @retval `CL_OUT_OF_HOST_MEMORY` if an allocation failure occurred.
   /// @retval `CL_INVALID_VALUE` if a kernel name is not valid.
-  static cargo::expected<std::unique_ptr<_cl_program>, cl_int> create(
-      cl_context context, cl_uint num_devices, const cl_device_id *device_list,
-      const char *kernel_names);
+  static cargo::expected<std::unique_ptr<_cl_program>, cl_int>
+  create(cl_context context, cl_uint num_devices,
+         const cl_device_id *device_list, const char *kernel_names);
 
   /// @brief Create program by linking multiple existing programs.
   ///
@@ -458,10 +458,10 @@ struct _cl_program final : public cl::base<_cl_program> {
   /// `param_name` for clGetDeviceInfo() is set to `CL_FALSE`.
   /// @retval `CL_LINK_PROGRAM_FAILURE` if there is a failure to link the
   /// compiled binaries and/or libraries.
-  static cargo::expected<std::unique_ptr<_cl_program>, cl_int> create(
-      cl_context context, cargo::array_view<const cl_device_id> devices,
-      cargo::string_view options,
-      cargo::array_view<const cl_program> input_programs);
+  static cargo::expected<std::unique_ptr<_cl_program>, cl_int>
+  create(cl_context context, cargo::array_view<const cl_device_id> devices,
+         cargo::string_view options,
+         cargo::array_view<const cl_program> input_programs);
 
   /// @brief Compile the program for each device.
   ///
@@ -501,8 +501,8 @@ struct _cl_program final : public cl::base<_cl_program> {
   /// @param[in] name Name of the kernel to query.
   ///
   /// @return Returns the kernel description if there is one.
-  cargo::optional<const compiler::KernelInfo *> getKernelInfo(
-      cargo::string_view name) const;
+  cargo::optional<const compiler::KernelInfo *>
+  getKernelInfo(cargo::string_view name) const;
 
   /// @brief Query the program for the number of kernels it contains.
   ///
@@ -812,6 +812,6 @@ CL_API_ENTRY cl_int CL_API_CALL UnloadCompiler();
 CL_API_ENTRY cl_int CL_API_CALL UnloadPlatformCompiler(cl_platform_id platform);
 
 /// @}
-}  // namespace cl
+} // namespace cl
 
-#endif  // CL_PROGRAM_H_INCLUDED
+#endif // CL_PROGRAM_H_INCLUDED

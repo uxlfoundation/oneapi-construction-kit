@@ -20,8 +20,9 @@
 
 using namespace llvm;
 
-PreservedAnalyses compiler::utils::LowerToMuxBuiltinsPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::utils::LowerToMuxBuiltinsPass::run(Module &M,
+                                             ModuleAnalysisManager &AM) {
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   SmallVector<CallInst *, 8> Calls;

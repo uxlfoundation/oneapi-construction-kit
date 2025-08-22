@@ -19,7 +19,7 @@
 #include "Common.h"
 
 class clCreateKernelTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -76,7 +76,7 @@ TEST_F(clCreateKernelTest, BadProgram) {
 
 TEST_F(clCreateKernelTest, OnlyCreatedProgram) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection erroneously succeeds.
+    GTEST_SKIP(); // Injection erroneously succeeds.
   }
   cl_int errorcode;
   const char *source =
@@ -94,7 +94,7 @@ TEST_F(clCreateKernelTest, OnlyCreatedProgram) {
 
 TEST_F(clCreateKernelTest, OnlyCompiledProgram) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   cl_int errorcode;
   const char *source =

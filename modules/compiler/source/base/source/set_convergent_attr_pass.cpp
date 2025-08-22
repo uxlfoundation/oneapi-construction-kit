@@ -25,8 +25,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses compiler::SetConvergentAttrPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::SetConvergentAttrPass::run(Module &M, ModuleAnalysisManager &AM) {
   SmallPtrSet<Function *, 4> ConvergentFns;
   SmallPriorityWorklist<Function *, 4> Worklist;
 

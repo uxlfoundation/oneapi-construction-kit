@@ -22,8 +22,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses compiler::utils::DefineMuxDmaPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::utils::DefineMuxDmaPass::run(Module &M, ModuleAnalysisManager &AM) {
   bool Changed = false;
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 

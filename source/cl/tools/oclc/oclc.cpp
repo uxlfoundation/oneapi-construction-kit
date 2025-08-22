@@ -38,24 +38,21 @@
 #define CL_LAMBDA_CALLBACK CL_CALLBACK
 #else
 #define CL_LAMBDA_CALLBACK
-#endif  // __GNUC__
+#endif // __GNUC__
 
 namespace {
-template <typename T>
-struct TypeConverter;
+template <typename T> struct TypeConverter;
 
-template <>
-struct TypeConverter<cl_float> {
+template <> struct TypeConverter<cl_float> {
   using type = cl_int;
 };
 
-template <>
-struct TypeConverter<cl_double> {
+template <> struct TypeConverter<cl_double> {
   using type = cl_long;
 };
 
 enum class SourceFileType { Spirv, OpenCL_C };
-}  // namespace
+} // namespace
 
 int main(int argc, char **argv) {
   // Parse the command-line arguments.
@@ -89,33 +86,17 @@ int main(int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 
 oclc::Driver::Driver()
-    : execution_limit_(1),
-      execution_count_(0),
-      platform_(nullptr),
-      device_(nullptr),
-      context_(nullptr),
-      program_(nullptr),
-      input_file_(),
-      output_file_(),
-      cl_device_name_(),
-      target_cpu_(),
-      target_features_(),
-      source_(),
-      binary_(),
-      enqueue_kernel_(),
-      kernel_arg_map_(),
+    : execution_limit_(1), execution_count_(0), platform_(nullptr),
+      device_(nullptr), context_(nullptr), program_(nullptr), input_file_(),
+      output_file_(), cl_device_name_(), target_cpu_(), target_features_(),
+      source_(), binary_(), enqueue_kernel_(), kernel_arg_map_(),
       printed_argument_map_(),
       // global_work_size_.size() == execution_limit_
       // global_work_size_[0].size() == work_dim_
       global_work_size_{{64, 4}},
       // default to initialising engine_ with it's default seed
-      engine_(),
-      argument_queue_(),
-      ulp_tolerance_(0),
-      work_dim_(2),
-      char_tolerance_(0),
-      verbose_(false),
-      execute_(false) {}
+      engine_(), argument_queue_(), ulp_tolerance_(0), work_dim_(2),
+      char_tolerance_(0), verbose_(false), execute_(false) {}
 
 oclc::Driver::~Driver() {
   if (program_) {
@@ -358,8 +339,8 @@ char *oclc::Driver::VerifyDouble(const std::string &str) {
   return (end != str.c_str() && errno == 0) ? end : nullptr;
 }
 
-vector2d<std::string> oclc::Driver::GetRepeatExecutionValues(
-    const std::vector<std::string> &vec) {
+vector2d<std::string>
+oclc::Driver::GetRepeatExecutionValues(const std::vector<std::string> &vec) {
   vector2d<std::string> repeatVec;
   bool multipleValues = true;
   for (auto &s : vec) {
@@ -615,7 +596,7 @@ char *oclc::Driver::VerifyRand(const char *arg) {
     return nullptr;
   }
 
-  arg = cEnd + 1;  // move past comma
+  arg = cEnd + 1; // move past comma
 
   cEnd = nullptr;
   (void)strtod(arg, &cEnd);
@@ -623,7 +604,7 @@ char *oclc::Driver::VerifyRand(const char *arg) {
   if (cEnd == arg || *cEnd != ')' || errno != 0) {
     return nullptr;
   }
-  return cEnd + 1;  // +1 for the closing ')'
+  return cEnd + 1; // +1 for the closing ')'
 }
 
 char *oclc::Driver::VerifyRandInt(const char *arg) {
@@ -640,7 +621,7 @@ char *oclc::Driver::VerifyRandInt(const char *arg) {
     return nullptr;
   }
 
-  arg = cEnd + 1;  // move past comma
+  arg = cEnd + 1; // move past comma
 
   cEnd = nullptr;
   (void)strtoll(arg, &cEnd, 10);
@@ -648,11 +629,10 @@ char *oclc::Driver::VerifyRandInt(const char *arg) {
   if (cEnd == arg || *cEnd != ')' || errno != 0) {
     return nullptr;
   }
-  return cEnd + 1;  // +1 for the closing ')'
+  return cEnd + 1; // +1 for the closing ')'
 }
 
-template <typename T>
-T oclc::Driver::NextUniform(T min, T max) {
+template <typename T> T oclc::Driver::NextUniform(T min, T max) {
   const double dScale =
       (1 + max - min) / (double)(engine_.max() - engine_.min());
   return ((engine_() - engine_.min()) * dScale) + min;
@@ -745,7 +725,7 @@ const char *oclc::Driver::VerifyRange(const char *arg,
     possibleLongLong = false;
   }
 
-  arg = cEndD + 1;  // move past comma
+  arg = cEndD + 1; // move past comma
 
   cEndD = nullptr;
   cEndLL = nullptr;
@@ -760,7 +740,7 @@ const char *oclc::Driver::VerifyRange(const char *arg,
     possibleLongLong = false;
   }
 
-  arg = cEndD + 1;  // move past comma or closing parenthesis
+  arg = cEndD + 1; // move past comma or closing parenthesis
 
   if (*cEndD == ')') {
     if (possibleLongLong) {
@@ -785,7 +765,7 @@ const char *oclc::Driver::VerifyRange(const char *arg,
   } else {
     vec = CreateRange<double>(aD, bD, strideD);
   }
-  return vec.empty() ? nullptr : cEndD + 1;  // +1 for the closing ')'
+  return vec.empty() ? nullptr : cEndD + 1; // +1 for the closing ')'
 }
 
 const char *oclc::Driver::VerifyRepeat(const char *arg,
@@ -802,7 +782,7 @@ const char *oclc::Driver::VerifyRepeat(const char *arg,
     return nullptr;
   }
 
-  arg = cEnd + 1;  // move past comma
+  arg = cEnd + 1; // move past comma
 
   std::vector<std::string> subList;
   arg += SplitAndExpandList(arg, ')', subList);
@@ -819,7 +799,7 @@ const char *oclc::Driver::VerifyRepeat(const char *arg,
     }
   }
 
-  return arg + 1;  // +1 for the closing ')'
+  return arg + 1; // +1 for the closing ')'
 }
 
 bool oclc::Driver::ParseKernelArgument(const char *rawArg) {
@@ -846,9 +826,8 @@ bool oclc::Driver::ParseKernelArgument(const char *rawArg) {
   return oclc::success;
 }
 
-template <typename T>
-std::string oclc::Driver::ToStringPrecise(T floating) {
-  std::stringstream stream;  // NOLINT(misc-const-correctness)
+template <typename T> std::string oclc::Driver::ToStringPrecise(T floating) {
+  std::stringstream stream; // NOLINT(misc-const-correctness)
   stream << std::setprecision(std::numeric_limits<T>::digits10 + 1);
   stream << floating;
   return stream.str();
@@ -1112,9 +1091,8 @@ bool oclc::Driver::InitCL() {
   // Create a context.
   context_ = clCreateContext(
       nullptr, 1, &device_,
-      [](const char *errinfo, const void *, size_t, void *) CL_LAMBDA_CALLBACK {
-        (void)std::fprintf(stderr, "%s\n", errinfo);
-      },
+      [](const char *errinfo, const void *, size_t, void *)
+          CL_LAMBDA_CALLBACK { (void)std::fprintf(stderr, "%s\n", errinfo); },
       nullptr, &err);
   OCLC_CHECK_CL(err, "Could not create an OpenCL context (%d).\n");
 
@@ -1144,20 +1122,28 @@ bool oclc::Driver::BuildProgram() {
     fin = stdin;
     while (true) {
       const size_t bytes_read = fread(buffer, 1, sizeof(buffer), fin);
-      if (bytes_read == 0) break;
+      if (bytes_read == 0) {
+        break;
+      }
       source_.append(buffer, buffer + bytes_read);
     }
   } else {
     fin = fopen(input_file_.c_str(), mode);
     OCLC_CHECK(!fin, "Could not open input file");
     bool read_error = [&] {
-      if (fseek(fin, 0, SEEK_END)) return true;
+      if (fseek(fin, 0, SEEK_END)) {
+        return true;
+      }
       source_.resize(ftell(fin));
-      if (fseek(fin, 0, SEEK_SET)) return true;
+      if (fseek(fin, 0, SEEK_SET)) {
+        return true;
+      }
       const size_t bytes_read = fread(source_.data(), 1, source_.size(), fin);
       return source_.size() != bytes_read;
     }();
-    if (fclose(fin)) read_error = true;
+    if (fclose(fin)) {
+      read_error = true;
+    }
     OCLC_CHECK(read_error, "Could not read input file");
   }
 
@@ -1751,9 +1737,9 @@ bool oclc::Driver::EnqueueKernel() {
     }
 
     if (is_buf) {
-      std::string type_name(
-          raw_type_name, 0,
-          raw_type_name.length() - 1);  // Trim off the following '*'
+      std::string type_name(raw_type_name, 0,
+                            raw_type_name.length() -
+                                1); // Trim off the following '*'
       if (is_vector) {
         type_name = type_name.substr(0, vecSizeIndex);
       }
@@ -2142,13 +2128,17 @@ bool oclc::Arguments::HasMore(int count) const {
 }
 
 const char *oclc::Arguments::Peek() {
-  if (!HasMore(1)) return nullptr;
+  if (!HasMore(1)) {
+    return nullptr;
+  }
   return argv_[pos_];
 }
 
 const char *oclc::Arguments::Take() {
   const char *arg = Peek();
-  if (!arg) return nullptr;
+  if (!arg) {
+    return nullptr;
+  }
   pos_++;
   return arg;
 }

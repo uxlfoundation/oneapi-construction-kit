@@ -59,7 +59,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
                                const cargo::string_view decl,
                                bool store_arg_metadata);
 
-}  // namespace binary
-}  // namespace cl
+} // namespace binary
+} // namespace cl
 
-#endif  // CL_BINARY_KERNEL_INFO_H_INCLUDED
+#endif // CL_BINARY_KERNEL_INFO_H_INCLUDED

@@ -20,8 +20,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T>
-inline T modf_helper_scalar(T x, T *out_whole_number) {
+template <typename T> inline T modf_helper_scalar(T x, T *out_whole_number) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
 
@@ -30,8 +29,7 @@ inline T modf_helper_scalar(T x, T *out_whole_number) {
   return __abacus_isinf(x) ? __abacus_copysign(T(0.0), x) : x - whole_number;
 }
 
-template <typename T>
-inline T modf_helper_vector(T x, T *out_whole_number) {
+template <typename T> inline T modf_helper_vector(T x, T *out_whole_number) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -40,7 +38,7 @@ inline T modf_helper_vector(T x, T *out_whole_number) {
   return __abacus_select(x - whole_number, __abacus_copysign(T(0.0), x),
                          __abacus_isinf(x));
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_modf(abacus_half x, abacus_half *o) {
@@ -61,7 +59,7 @@ abacus_half8 ABACUS_API __abacus_modf(abacus_half8 x, abacus_half8 *o) {
 abacus_half16 ABACUS_API __abacus_modf(abacus_half16 x, abacus_half16 *o) {
   return modf_helper_vector(x, o);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_modf(abacus_float x, abacus_float *o) {
   return modf_helper_scalar(x, o);
@@ -102,4 +100,4 @@ abacus_double16 ABACUS_API __abacus_modf(abacus_double16 x,
                                          abacus_double16 *o) {
   return modf_helper_vector(x, o);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

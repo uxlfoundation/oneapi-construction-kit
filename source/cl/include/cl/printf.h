@@ -91,7 +91,7 @@ mux_result_t createPrintfCallback(mux_command_buffer_t command_buffer,
 /// callback
 ///
 /// @return mux_success on completion, or a Mux error code on failure.
-mux_result_t createPrintfCallback(
-    mux_command_buffer_t command_buffer,
-    const std::unique_ptr<printf_info_t> &printf_info);
-#endif  // CL_PRINTF_H_INCLUDED
+mux_result_t
+createPrintfCallback(mux_command_buffer_t command_buffer,
+                     const std::unique_ptr<printf_info_t> &printf_info);
+#endif // CL_PRINTF_H_INCLUDED

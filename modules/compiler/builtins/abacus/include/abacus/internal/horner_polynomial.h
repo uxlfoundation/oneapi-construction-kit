@@ -42,7 +42,7 @@ template <typename T, size_t N, typename TCoef>
 inline T horner_polynomial(const T x, const TCoef (&coef)[N]) {
   return horner_polynomial(x, coef, N);
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_HORNER_POLYNOMIAL_H__
+#endif //__ABACUS_INTERNAL_HORNER_POLYNOMIAL_H__

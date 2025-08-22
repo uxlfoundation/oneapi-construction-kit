@@ -31,10 +31,10 @@ enum profile {
   FULL_PROFILE,
   EMBEDDED_PROFILE,
 };
-}  // namespace cl
+} // namespace cl
 
 class clGetDeviceInfoTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     auto profile_string = getDeviceProfile();
@@ -211,7 +211,7 @@ TEST_F(clGetDeviceInfoTest, EXTENSIONS) {
     ASSERT_SUCCESS(
         clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, size, payload, nullptr));
 
-    ASSERT_EQ(size, strlen(payload) + 1);  // +1 for terminating zero.
+    ASSERT_EQ(size, strlen(payload) + 1); // +1 for terminating zero.
     ASSERT_NE(nullptr, strstr(payload, "cl_khr_global_int32_base_atomics"));
     ASSERT_NE(nullptr, strstr(payload, "cl_khr_global_int32_extended_atomics"));
     ASSERT_NE(nullptr, strstr(payload, "cl_khr_local_int32_base_atomics"));
@@ -227,7 +227,7 @@ TEST_F(clGetDeviceInfoTest, EXTENSIONS) {
     UCL::Buffer<char> name(profile_str_size);
     ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, profile_str_size,
                                    name, nullptr));
-    ASSERT_EQ(profile_str_size, strlen(name) + 1);  // +1 for terminating zero.
+    ASSERT_EQ(profile_str_size, strlen(name) + 1); // +1 for terminating zero.
 
     if (strcmp(name.data(), "FULL_PROFILE") == 0) {
       ASSERT_EQ(nullptr, strstr(payload, "cles_khr_int64"));
@@ -382,10 +382,9 @@ TEST_F(clGetDeviceInfoTest, IMAGE_SUPPORT) {
   EXPECT_TRUE(context);
   ASSERT_SUCCESS(errorcode);
 
-  const char *src =
-      "#ifdef __IMAGE_SUPPORT__\n"
-      "void kernel foo() {}\n"
-      "#endif\n";
+  const char *src = "#ifdef __IMAGE_SUPPORT__\n"
+                    "void kernel foo() {}\n"
+                    "#endif\n";
   cl_program program =
       clCreateProgramWithSource(context, 1, &src, nullptr, &errorcode);
   EXPECT_TRUE(program);
@@ -421,12 +420,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE2D_MAX_WIDTH) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(8192u, image2d_max_width);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(2048u, image2d_max_width);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(8192u, image2d_max_width);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(2048u, image2d_max_width);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image2d_max_width);
@@ -444,12 +443,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE2D_MAX_HEIGHT) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(8192u, image2d_max_height);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(2048u, image2d_max_height);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(8192u, image2d_max_height);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(2048u, image2d_max_height);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image2d_max_height);
@@ -467,12 +466,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE3D_MAX_WIDTH) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(2048u, image3d_max_width);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(0u, image3d_max_width);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(2048u, image3d_max_width);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(0u, image3d_max_width);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image3d_max_width);
@@ -490,12 +489,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE3D_MAX_HEIGHT) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(2048u, image3d_max_height);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(0u, image3d_max_height);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(2048u, image3d_max_height);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(0u, image3d_max_height);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image3d_max_height);
@@ -513,12 +512,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE3D_MAX_DEPTH) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(2048u, image3d_max_depth);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(0u, image3d_max_depth);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(2048u, image3d_max_depth);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(0u, image3d_max_depth);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image3d_max_depth);
@@ -536,12 +535,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE_MAX_BUFFER_SIZE) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(65523u, image_max_buffer_size);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(2048u, image_max_buffer_size);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(65523u, image_max_buffer_size);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(2048u, image_max_buffer_size);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image_max_buffer_size);
@@ -559,12 +558,12 @@ TEST_F(clGetDeviceInfoTest, IMAGE_MAX_ARRAY_SIZE) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(2048u, image_max_array_size);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(256u, image_max_array_size);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(2048u, image_max_array_size);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(256u, image_max_array_size);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, image_max_array_size);
@@ -641,12 +640,12 @@ TEST_F(clGetDeviceInfoTest, MAX_CONSTANT_ARGS) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_MAX_CONSTANT_ARGS, size,
                                  &max_constant_args, nullptr));
   switch (profile) {
-    case cl::FULL_PROFILE: {
-      ASSERT_LE(8u, max_constant_args);
-    } break;
-    case cl::EMBEDDED_PROFILE: {
-      ASSERT_LE(4u, max_constant_args);
-    }
+  case cl::FULL_PROFILE: {
+    ASSERT_LE(8u, max_constant_args);
+  } break;
+  case cl::EMBEDDED_PROFILE: {
+    ASSERT_LE(4u, max_constant_args);
+  }
   }
 }
 
@@ -659,12 +658,12 @@ TEST_F(clGetDeviceInfoTest, MAX_CONSTANT_BUFFER_SIZE) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
                                  size, &max_constant_buffer_size, nullptr));
   switch (profile) {
-    case cl::FULL_PROFILE: {
-      ASSERT_LE(64ul * 1024ul, max_constant_buffer_size);
-    } break;
-    case cl::EMBEDDED_PROFILE: {
-      ASSERT_LE(1ul * 1024ul, max_constant_buffer_size);
-    } break;
+  case cl::FULL_PROFILE: {
+    ASSERT_LE(64ul * 1024ul, max_constant_buffer_size);
+  } break;
+  case cl::EMBEDDED_PROFILE: {
+    ASSERT_LE(1ul * 1024ul, max_constant_buffer_size);
+  } break;
   }
 }
 
@@ -684,23 +683,23 @@ TEST_F(clGetDeviceInfoTest, MAX_MEM_ALLOC_SIZE) {
   cl_ulong memsize;
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_SIZE,
                                  sizeof(cl_ulong), &memsize, nullptr));
-  ASSERT_GE(memsize, 1u);  // There must be at least 1 byte of memory.
+  ASSERT_GE(memsize, 1u); // There must be at least 1 byte of memory.
 
   // Max allocation can't exceed total amount of memory.
   ASSERT_LE(max_mem_alloc_size, memsize);
 
   switch (profile) {
-    case cl::FULL_PROFILE:
-      // The OpenCL 1.2 spec requires that CL_DEVICE_MAX_MEM_ALLOC_SIZE be at
-      // least max(memsize/4, 128MiB).
-      ASSERT_GE(max_mem_alloc_size,
-                std::max<cl_ulong>(memsize / 4u, 128ul * 1024ul * 1024ul));
-      break;
-    case cl::EMBEDDED_PROFILE:
-      // Embedded profile changes the 128MiB to 1MiB.
-      ASSERT_GE(max_mem_alloc_size,
-                std::max<cl_ulong>(memsize / 4u, 1ul * 1024ul * 1024ul));
-      break;
+  case cl::FULL_PROFILE:
+    // The OpenCL 1.2 spec requires that CL_DEVICE_MAX_MEM_ALLOC_SIZE be at
+    // least max(memsize/4, 128MiB).
+    ASSERT_GE(max_mem_alloc_size,
+              std::max<cl_ulong>(memsize / 4u, 128ul * 1024ul * 1024ul));
+    break;
+  case cl::EMBEDDED_PROFILE:
+    // Embedded profile changes the 128MiB to 1MiB.
+    ASSERT_GE(max_mem_alloc_size,
+              std::max<cl_ulong>(memsize / 4u, 1ul * 1024ul * 1024ul));
+    break;
   }
 }
 
@@ -714,12 +713,12 @@ TEST_F(clGetDeviceInfoTest, MAX_PARAMETER_SIZE) {
                                  &max_parameter_size, nullptr));
 
   switch (profile) {
-    case cl::FULL_PROFILE: {
-      ASSERT_LE(1024u, max_parameter_size);
-    } break;
-    case cl::EMBEDDED_PROFILE: {
-      ASSERT_LE(256u, max_parameter_size);
-    } break;
+  case cl::FULL_PROFILE: {
+    ASSERT_LE(1024u, max_parameter_size);
+  } break;
+  case cl::EMBEDDED_PROFILE: {
+    ASSERT_LE(256u, max_parameter_size);
+  } break;
   }
 }
 
@@ -735,12 +734,12 @@ TEST_F(clGetDeviceInfoTest, MAX_READ_IMAGE_ARGS) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE:
-        ASSERT_LE(128u, max_read_image_args);
-        break;
-      case cl::EMBEDDED_PROFILE:
-        ASSERT_LE(8u, max_read_image_args);
-        break;
+    case cl::FULL_PROFILE:
+      ASSERT_LE(128u, max_read_image_args);
+      break;
+    case cl::EMBEDDED_PROFILE:
+      ASSERT_LE(8u, max_read_image_args);
+      break;
     }
   } else {
     ASSERT_EQ(0u, max_read_image_args);
@@ -758,12 +757,12 @@ TEST_F(clGetDeviceInfoTest, MAX_WRITE_IMAGE_ARGS) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(8u, max_write_image_args);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(1u, max_write_image_args);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(8u, max_write_image_args);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(1u, max_write_image_args);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, max_write_image_args);
@@ -781,12 +780,12 @@ TEST_F(clGetDeviceInfoTest, MAX_SAMPLERS) {
 
   if (UCL::hasImageSupport(device)) {
     switch (profile) {
-      case cl::FULL_PROFILE: {
-        ASSERT_LE(16u, max_samplers);
-      } break;
-      case cl::EMBEDDED_PROFILE: {
-        ASSERT_LE(8u, max_samplers);
-      } break;
+    case cl::FULL_PROFILE: {
+      ASSERT_LE(16u, max_samplers);
+    } break;
+    case cl::EMBEDDED_PROFILE: {
+      ASSERT_LE(8u, max_samplers);
+    } break;
     }
   } else {
     ASSERT_EQ(0u, max_samplers);
@@ -973,7 +972,7 @@ TEST_F(clGetDeviceInfoTest, PARENT_DEVICE) {
   cl_device_id payload;
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PARENT_DEVICE, size,
                                  static_cast<void *>(&payload), nullptr));
-  ASSERT_EQ(0, payload);  // assume we are a parent device
+  ASSERT_EQ(0, payload); // assume we are a parent device
 }
 
 TEST_F(clGetDeviceInfoTest, PARTITION_MAX_SUB_DEVICES) {
@@ -1026,7 +1025,7 @@ TEST_F(clGetDeviceInfoTest, PARTITION_AFFINITY_DOMAIN) {
 
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PARTITION_AFFINITY_DOMAIN,
                                  size, &payload, nullptr));
-  ASSERT_EQ(0u, payload);  // assume we don't support any partition types
+  ASSERT_EQ(0u, payload); // assume we don't support any partition types
 }
 
 TEST_F(clGetDeviceInfoTest, PARTITION_TYPE) {
@@ -1042,7 +1041,7 @@ TEST_F(clGetDeviceInfoTest, PARTITION_TYPE) {
     ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PARTITION_TYPE, size,
                                    static_cast<void *>(payload), nullptr));
     ASSERT_EQ(1u, payload.size());
-    ASSERT_EQ(0u, payload[0]);  // we are not a sub-device
+    ASSERT_EQ(0u, payload[0]); // we are not a sub-device
   }
 }
 
@@ -1055,7 +1054,7 @@ TEST_F(clGetDeviceInfoTest, PLATFORM) {
 
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PLATFORM, size,
                                  static_cast<void *>(&payload), nullptr));
-  ASSERT_EQ(platform, payload);  // assume we don't support any partition types
+  ASSERT_EQ(platform, payload); // assume we don't support any partition types
 }
 
 TEST_F(clGetDeviceInfoTest, PREFERRED_VECTOR_WIDTH_CHAR) {
@@ -1155,12 +1154,12 @@ TEST_F(clGetDeviceInfoTest, PRINTF_BUFFER_SIZE) {
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PRINTF_BUFFER_SIZE, size,
                                  &printf_buffer_size, nullptr));
   switch (profile) {
-    case cl::FULL_PROFILE: {
-      ASSERT_LE(1024u * 1024u, printf_buffer_size);
-    } break;
-    case cl::EMBEDDED_PROFILE: {
-      ASSERT_LE(1024u, printf_buffer_size);
-    } break;
+  case cl::FULL_PROFILE: {
+    ASSERT_LE(1024u * 1024u, printf_buffer_size);
+  } break;
+  case cl::EMBEDDED_PROFILE: {
+    ASSERT_LE(1024u, printf_buffer_size);
+  } break;
   }
 }
 
@@ -1178,8 +1177,8 @@ TEST_F(clGetDeviceInfoTest, PREFERRED_INTEROP_USER_SYNC) {
 TEST_F(clGetDeviceInfoTest, PROFILE) {
   size_t size;
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, 0, nullptr, &size));
-  std::string profile(size - 1,  // std::string allocates the null terminator
-                      '\0');     // if not removed == fails due to wrong size
+  std::string profile(size - 1, // std::string allocates the null terminator
+                      '\0');    // if not removed == fails due to wrong size
   ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, size,
                                  profile.data(), nullptr));
   ASSERT_TRUE(size ? size == strlen(profile.data()) + 1 : true);
@@ -1266,13 +1265,13 @@ TEST_F(clGetDeviceInfoTest, SINGLE_FP_CONFIG) {
                                  &single_fp_config, nullptr));
 
   switch (profile) {
-    case cl::FULL_PROFILE: {
-      ASSERT_TRUE(single_fp_config & (CL_FP_ROUND_TO_NEAREST | CL_FP_INF_NAN));
-    } break;
-    case cl::EMBEDDED_PROFILE: {
-      ASSERT_TRUE(single_fp_config & CL_FP_ROUND_TO_ZERO ||
-                  single_fp_config & CL_FP_ROUND_TO_NEAREST);
-    } break;
+  case cl::FULL_PROFILE: {
+    ASSERT_TRUE(single_fp_config & (CL_FP_ROUND_TO_NEAREST | CL_FP_INF_NAN));
+  } break;
+  case cl::EMBEDDED_PROFILE: {
+    ASSERT_TRUE(single_fp_config & CL_FP_ROUND_TO_ZERO ||
+                single_fp_config & CL_FP_ROUND_TO_NEAREST);
+  } break;
   }
 
   // Mask out all valid bit to ensure there are no invalid bits.
@@ -1402,7 +1401,7 @@ TEST_F(clGetDeviceInfoTest, VerifyDeviceOpenCLCVersion) {
 class clGetDeviceInfoTestScalarQueryOpenCL30
     : public clGetDeviceInfoTest,
       public ::testing::WithParamInterface<std::tuple<size_t, int>> {
- protected:
+protected:
   void SetUp() override {
     clGetDeviceInfoTest::SetUp();
     // Skip for non OpenCL-3.0 implementations.
@@ -1448,10 +1447,10 @@ TEST_P(clGetDeviceInfoTestScalarQueryOpenCL30, CheckIncorrectSizeQueryFails) {
   auto query_enum_value = std::get<1>(GetParam());
   // Query for the value with buffer that is too small.
   UCL::Buffer<char> value_buffer{value_size_in_bytes};
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetDeviceInfo(device, query_enum_value, value_buffer.size() - 1,
-                      value_buffer.data(), nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetDeviceInfo(device, query_enum_value,
+                                    value_buffer.size() - 1,
+                                    value_buffer.data(), nullptr));
 }
 
 INSTANTIATE_TEST_CASE_P(
@@ -1510,7 +1509,7 @@ INSTANTIATE_TEST_CASE_P(
 class clGetDeviceInfoTestVectorQueryOpenCL30
     : public clGetDeviceInfoTest,
       public ::testing::WithParamInterface<std::tuple<int>> {
- protected:
+protected:
   void SetUp() override {
     clGetDeviceInfoTest::SetUp();
     // Skip for non OpenCL-3.0 implementations.
@@ -1554,10 +1553,10 @@ TEST_P(clGetDeviceInfoTestVectorQueryOpenCL30, CheckIncorrectSizeQueryFails) {
   // Query for the value with a size that is too small.
   if (size > 0) {
     UCL::Buffer<char> value_buffer{size};
-    EXPECT_EQ_ERRCODE(
-        CL_INVALID_VALUE,
-        clGetDeviceInfo(device, query_enum_value, value_buffer.size() - 1,
-                        value_buffer.data(), nullptr));
+    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                      clGetDeviceInfo(device, query_enum_value,
+                                      value_buffer.size() - 1,
+                                      value_buffer.data(), nullptr));
   }
 }
 
@@ -2017,14 +2016,14 @@ TEST_F(clGetDeviceInfoTest, ValidateILSWithVersion) {
     std::memcpy(name_version.name, il_prefix.data(), il_prefix.size());
     name_version.version = CL_MAKE_VERSION_KHR(
         std::atoi(major_version.c_str()), std::atoi(minor_version.c_str()), 0);
-    ASSERT_NE(
-        std::find_if(device_ils_with_version.begin(),
-                     device_ils_with_version.end(),
-                     [&name_version](cl_name_version_khr Nv) {
-                       return name_version.version == Nv.version &&
-                              (std::strcmp(name_version.name, Nv.name) == 0);
-                     }),
-        device_ils_with_version.end())
+    ASSERT_NE(std::find_if(device_ils_with_version.begin(),
+                           device_ils_with_version.end(),
+                           [&name_version](cl_name_version_khr Nv) {
+                             return name_version.version == Nv.version &&
+                                    (std::strcmp(name_version.name, Nv.name) ==
+                                     0);
+                           }),
+              device_ils_with_version.end())
         << "Missing IL in CL_DEVICE_ILS_WITH_VERSION";
   }
 }
@@ -2106,90 +2105,89 @@ TEST_F(clGetDeviceInfoTest, ValidateOpenCLCAllVersionsCompatibility) {
                                  opencl_c_all_versions.data(), nullptr));
   for (const auto &name_version : opencl_c_all_versions) {
     switch (name_version.version) {
-      default: {
-        FAIL() << "Unhandled OpenCL C Version: " << name_version.version
-               << '\n';
-      }
-      case CL_MAKE_VERSION_KHR(3, 0, 0): {
-        // Because OpenCL 3.0 is backwards compatible with OpenCL C 1.2,
-        // support for at least OpenCL C 3.0 and OpenCL C 1.2 is required
-        // for an OpenCL 3.0 device.
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 2, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-      } break;
-      case CL_MAKE_VERSION_KHR(2, 2, 0):
-        [[fallthrough]];
-      case CL_MAKE_VERSION_KHR(2, 1, 0): {
-        // Support for OpenCL C 2.0, OpenCL C 1.2, OpenCL C 1.1, and OpenCL
-        // C 1.0 is required for an OpenCL 2.0, OpenCL 2.1, or OpenCL 2.2
-        // device.
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(2, 0, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 2, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 1, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 0, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-      } break;
-      case CL_MAKE_VERSION_KHR(1, 2, 0): {
-        // Support for OpenCL C 1.2, OpenCL C 1.1, and OpenCL C 1.0 is required
-        // for an OpenCL 1.2 device.
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 1, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 0, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-      } break;
-      case CL_MAKE_VERSION_KHR(1, 1, 0): {
-        // Support for OpenCL C 1.1 and OpenCL C 1.0 is required for an
-        // OpenCL 1.1 device.
-        EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
-                               std::end(opencl_c_all_versions),
-                               [](cl_name_version_khr Nv) {
-                                 return Nv.version ==
-                                        CL_MAKE_VERSION_KHR(1, 0, 0);
-                               }),
-                  std::end(opencl_c_all_versions));
-      } break;
-      case CL_MAKE_VERSION_KHR(1, 0, 0): {
-        // Support for at least OpenCL C 1.0 is required for an OpenCL 1.0
-        // device.
-      } break;
+    default: {
+      FAIL() << "Unhandled OpenCL C Version: " << name_version.version << '\n';
+    }
+    case CL_MAKE_VERSION_KHR(3, 0, 0): {
+      // Because OpenCL 3.0 is backwards compatible with OpenCL C 1.2,
+      // support for at least OpenCL C 3.0 and OpenCL C 1.2 is required
+      // for an OpenCL 3.0 device.
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 2, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+    } break;
+    case CL_MAKE_VERSION_KHR(2, 2, 0):
+      [[fallthrough]];
+    case CL_MAKE_VERSION_KHR(2, 1, 0): {
+      // Support for OpenCL C 2.0, OpenCL C 1.2, OpenCL C 1.1, and OpenCL
+      // C 1.0 is required for an OpenCL 2.0, OpenCL 2.1, or OpenCL 2.2
+      // device.
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(2, 0, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 2, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 1, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 0, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+    } break;
+    case CL_MAKE_VERSION_KHR(1, 2, 0): {
+      // Support for OpenCL C 1.2, OpenCL C 1.1, and OpenCL C 1.0 is required
+      // for an OpenCL 1.2 device.
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 1, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 0, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+    } break;
+    case CL_MAKE_VERSION_KHR(1, 1, 0): {
+      // Support for OpenCL C 1.1 and OpenCL C 1.0 is required for an
+      // OpenCL 1.1 device.
+      EXPECT_NE(std::find_if(std::begin(opencl_c_all_versions),
+                             std::end(opencl_c_all_versions),
+                             [](cl_name_version_khr Nv) {
+                               return Nv.version ==
+                                      CL_MAKE_VERSION_KHR(1, 0, 0);
+                             }),
+                std::end(opencl_c_all_versions));
+    } break;
+    case CL_MAKE_VERSION_KHR(1, 0, 0): {
+      // Support for at least OpenCL C 1.0 is required for an OpenCL 1.0
+      // device.
+    } break;
     }
   }
 }

@@ -21,8 +21,7 @@
 #include <abacus/internal/sqrt.h>
 
 namespace {
-template <typename T>
-T asinpi(const T x) {
+template <typename T> T asinpi(const T x) {
   return __abacus_asin(x) * T(ABACUS_1_PI);
 }
 
@@ -36,8 +35,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_asinpi_coeff_halfH1[3] = {
 static ABACUS_CONSTANT abacus_half __codeplay_asinpi_coeff_halfH2[3] = {
     0.318359375f16, 5.1300048828125e-2f16, 3.4820556640625e-2f16};
 
-template <typename T>
-T asinpi_half(const T x) {
+template <typename T> T asinpi_half(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T xAbs = __abacus_fabs(x);
@@ -64,8 +62,7 @@ T asinpi_half(const T x) {
   return ans;
 }
 
-template <>
-abacus_half asinpi_half(const abacus_half x) {
+template <> abacus_half asinpi_half(const abacus_half x) {
   abacus_half xAbs = __abacus_fabs(x);
 
   // around x = 1 we want to estimate (asin(x) - pi/2)^2
@@ -83,8 +80,8 @@ abacus_half asinpi_half(const abacus_half x) {
   return x * abacus::internal::horner_polynomial(
                  x2, __codeplay_asinpi_coeff_halfH2);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_asinpi(abacus_half x) {
@@ -105,7 +102,7 @@ abacus_half8 ABACUS_API __abacus_asinpi(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_asinpi(abacus_half16 x) {
   return asinpi_half<>(x);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_asinpi(abacus_float x) { return asinpi<>(x); }
 abacus_float2 ABACUS_API __abacus_asinpi(abacus_float2 x) {
@@ -143,4 +140,4 @@ abacus_double8 ABACUS_API __abacus_asinpi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_asinpi(abacus_double16 x) {
   return asinpi<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -29,6 +29,6 @@ namespace riscv {
 using semaphore_s = mux::hal::semaphore;
 
 /// @}
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_SEMAPHORE_H_INCLUDED
+#endif // RISCV_SEMAPHORE_H_INCLUDED

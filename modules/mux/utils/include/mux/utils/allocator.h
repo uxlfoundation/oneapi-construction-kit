@@ -39,7 +39,7 @@ namespace mux {
 /// functionality. Upon exiting the Mux API function scope this object should
 /// be discarded.
 class allocator final {
- public:
+public:
   /// @brief Constructor.
   ///
   /// @param mux_allocator Reference to a ::mux_allocator_info_t.
@@ -56,8 +56,7 @@ class allocator final {
   /// @param size Size in bytes of the requested memory block.
   ///
   /// @return Return pointer to allocated memory, or null.
-  template <size_t Alignment = 1>
-  void *alloc(size_t size) {
+  template <size_t Alignment = 1> void *alloc(size_t size) {
     return mux_allocator.alloc(mux_allocator.user_data, size, Alignment);
   }
 
@@ -81,8 +80,7 @@ class allocator final {
   /// @param count Number of elements in the requested array.
   ///
   /// @return Return pointer to allocated array, or nullptr.
-  template <typename T, size_t Alignment = alignof(T)>
-  T *alloc(size_t count) {
+  template <typename T, size_t Alignment = alignof(T)> T *alloc(size_t count) {
     return static_cast<T *>(mux_allocator.alloc(mux_allocator.user_data,
                                                 sizeof(T) * count, Alignment));
   }
@@ -121,8 +119,7 @@ class allocator final {
   ///
   /// @tparam T Type of the object.
   /// @param object The object to destroy.
-  template <typename T>
-  void destroy(T *object) {
+  template <typename T> void destroy(T *object) {
     object->~T();
     mux_allocator.free(mux_allocator.user_data, object);
   }
@@ -132,16 +129,15 @@ class allocator final {
   /// @return Returns a copy of the allocator info.
   mux_allocator_info_t getAllocatorInfo() const { return mux_allocator; }
 
- private:
+private:
   mux_allocator_info_t &mux_allocator;
 };
 
 /// @brief Mux allocator for use with `cargo` containers.
 ///
 /// @tparam T Type of object to allocate.
-template <class T>
-class cargo_allocator {
- public:
+template <class T> class cargo_allocator {
+public:
   using value_type = T;
   using size_type = size_t;
 
@@ -190,8 +186,7 @@ class cargo_allocator {
   ///
   /// @return A constructed `value_type` pointer on success, `nullptr`
   /// otherwise.
-  template <class... Args>
-  value_type *create(Args &&...args) {
+  template <class... Args> value_type *create(Args &&...args) {
     value_type *object = alloc(1);
     new (static_cast<void *>(object)) value_type(std::forward<Args>(args)...);
     return object;
@@ -210,11 +205,11 @@ class cargo_allocator {
   /// @return Returns a copy of the allocator info.
   mux_allocator_info_t getAllocatorInfo() const { return Allocator; }
 
- private:
+private:
   mux_allocator_info_t Allocator;
 };
 
 /// @}
-}  // namespace mux
+} // namespace mux
 
-#endif  // MUX_UTILS_ALLOCATOR_H_INCLUDED
+#endif // MUX_UTILS_ALLOCATOR_H_INCLUDED

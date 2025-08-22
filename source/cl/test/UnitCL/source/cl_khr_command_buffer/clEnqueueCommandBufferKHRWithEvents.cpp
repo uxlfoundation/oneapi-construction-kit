@@ -869,7 +869,7 @@ TEST_F(cl_khr_command_buffer_Test, BlockQueueOnTwoUserEventsReversed) {
 // Abstracts common code for testing the event related APIs
 // when passed an event returned from clEnqueueCommandBufferKHR.
 class CommandBufferEventTest : public cl_khr_command_buffer_Test {
- public:
+public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
 
@@ -1035,7 +1035,7 @@ TEST_F(GetEventInfoTest, EventReferenceCount) {
 // Abstracts common code for testing the functionality of clSetEventCallback
 // when called on an event returned from clEnqueueCommandBufferKHR.
 class SetEventCallbackTest : public cl_khr_command_buffer_Test {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
     // Create an empty command queue we can get a signal event from.
@@ -1069,7 +1069,7 @@ class SetEventCallbackTest : public cl_khr_command_buffer_Test {
   cl_event user_event = nullptr;
   cl_event event = nullptr;
 
- public:
+public:
   struct event_status_pair {
     cl_event event;
     cl_int status;

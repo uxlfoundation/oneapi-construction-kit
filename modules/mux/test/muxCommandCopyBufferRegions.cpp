@@ -93,20 +93,20 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidHostPointer) {
   mux_buffer_region_info_t info = {
       {1, 1, 1}, {0, 0, 0}, {0, 0, 0}, {BUFFER_SIZE, 1}, {MEMORY_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, nullptr, &info, 1,
-                                  0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              nullptr, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, ZeroSizeRegion) {
   mux_buffer_region_info_t info = {
       {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, ValidSizeRegionX) {
@@ -146,10 +146,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeRegionX) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeRegionY) {
@@ -159,10 +159,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeRegionY) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeRegionZ) {
@@ -172,10 +172,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeRegionZ) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginX) {
@@ -185,10 +185,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginX) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginY) {
@@ -198,10 +198,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginY) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginZ) {
@@ -211,10 +211,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeSrcOriginZ) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginX) {
@@ -224,10 +224,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginX) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginY) {
@@ -237,10 +237,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginY) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginZ) {
@@ -250,10 +250,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSizeDstOriginZ) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, OverlappingSrcRegions) {
@@ -268,10 +268,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingSrcRegions) {
                                        {BUFFER_SIZE / 4, MEMORY_SIZE},
                                        {BUFFER_SIZE / 4, MEMORY_SIZE}}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, info,
-                                  2, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, info, 2, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsX) {
@@ -280,10 +280,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsX) {
         {{4, 1, 1}, {0, 0, 0}, {2, 0, 0}, {BUFFER_SIZE, 1}, {MEMORY_SIZE, 1}},
         {{4, 1, 1}, {0, 0, 0}, {0, 0, 0}, {BUFFER_SIZE, 1}, {BUFFER_SIZE, 1}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 
   {
@@ -291,10 +291,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsX) {
         {{4, 1, 1}, {0, 0, 0}, {0, 0, 0}, {BUFFER_SIZE, 1}, {MEMORY_SIZE, 1}},
         {{4, 1, 1}, {0, 0, 0}, {2, 0, 0}, {BUFFER_SIZE, 1}, {BUFFER_SIZE, 1}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 }
 
@@ -304,10 +304,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsY) {
         {{1, 2, 1}, {0, 0, 0}, {0, 1, 0}, {1, BUFFER_SIZE}, {1, MEMORY_SIZE}},
         {{1, 2, 1}, {0, 0, 0}, {0, 0, 0}, {1, BUFFER_SIZE}, {1, BUFFER_SIZE}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 
   {
@@ -315,10 +315,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsY) {
         {{1, 2, 1}, {0, 0, 0}, {0, 0, 0}, {1, BUFFER_SIZE}, {1, MEMORY_SIZE}},
         {{1, 2, 1}, {0, 0, 0}, {0, 1, 0}, {1, BUFFER_SIZE}, {1, BUFFER_SIZE}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 }
 
@@ -328,10 +328,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsZ) {
         {{1, 1, 6}, {0, 0, 0}, {0, 0, 3}, {1, 1}, {1, 1}},
         {{1, 1, 6}, {0, 0, 0}, {0, 0, 0}, {1, 1}, {1, 1}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 
   {
@@ -339,10 +339,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, OverlappingDstRegionsZ) {
         {{1, 1, 6}, {0, 0, 0}, {0, 0, 0}, {1, 1}, {1, 1}},
         {{1, 1, 6}, {0, 0, 0}, {0, 0, 3}, {1, 1}, {1, 1}}};
 
-    ASSERT_ERROR_EQ(
-        mux_error_invalid_value,
-        muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer,
-                                    info, 2, 0, nullptr, nullptr));
+    ASSERT_ERROR_EQ(mux_error_invalid_value,
+                    muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                                dst_buffer, info, 2, 0, nullptr,
+                                                nullptr));
   }
 }
 
@@ -353,10 +353,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidDstOriginX) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidDstOriginY) {
@@ -366,10 +366,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidDstOriginY) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidDstOriginZ) {
@@ -379,10 +379,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidDstOriginZ) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginX) {
@@ -392,10 +392,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginX) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginY) {
@@ -405,10 +405,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginY) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginZ) {
@@ -418,10 +418,10 @@ TEST_P(muxCommandCopyBufferRegionsTest, InvalidSrcOriginZ) {
                                    {BUFFER_SIZE, 1},
                                    {BUFFER_SIZE, 1}};
 
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCommandCopyBufferRegions(command_buffer, src_buffer, dst_buffer, &info,
-                                  1, 0, nullptr, nullptr));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCommandCopyBufferRegions(command_buffer, src_buffer,
+                                              dst_buffer, &info, 1, 0, nullptr,
+                                              nullptr));
 }
 
 TEST_P(muxCommandCopyBufferRegionsTest, Sync) {

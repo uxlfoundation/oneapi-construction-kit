@@ -20,7 +20,7 @@
 #include "Common.h"
 
 class clBuildProgramGoodTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     const char *source =
@@ -72,10 +72,10 @@ TEST_F(clBuildProgramGoodTest, InvalidDevice) {
     GTEST_SKIP();
   }
   std::vector<cl_device_id> devices(1, nullptr);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_DEVICE,
-      clBuildProgram(program, static_cast<cl_uint>(devices.size()),
-                     devices.data(), nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_DEVICE,
+                    clBuildProgram(program,
+                                   static_cast<cl_uint>(devices.size()),
+                                   devices.data(), nullptr, nullptr, nullptr));
 }
 
 // Redmine #5138: Check CL_INVALID_BINARY
@@ -250,12 +250,12 @@ TEST_F(clBuildProgramGoodTest, ConcurrentBuild) {
   // This error code is only overwritten if a non-success code is seen, thus
   // serialization should be avoided when there are no errors.
   std::atomic<cl_int> error{CL_SUCCESS};
-#define CHECK_ERROR(ERR_CODE)           \
-  {                                     \
-    const cl_int err_code = (ERR_CODE); \
-    if (CL_SUCCESS != err_code) {       \
-      error = err_code;                 \
-    }                                   \
+#define CHECK_ERROR(ERR_CODE)                                                  \
+  {                                                                            \
+    const cl_int err_code = (ERR_CODE);                                        \
+    if (CL_SUCCESS != err_code) {                                              \
+      error = err_code;                                                        \
+    }                                                                          \
   }
 
   auto worker = [this, &src, &error]() {
@@ -282,7 +282,7 @@ TEST_F(clBuildProgramGoodTest, ConcurrentBuild) {
 }
 
 class clBuildProgramBadTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -374,7 +374,7 @@ INSTANTIATE_TEST_CASE_P(
 
 TEST_F(BuildOptionsTest, CompileWithOptionFP32CorrectlyRoundedDivideSqrt) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection erroneously succeeds.
+    GTEST_SKIP(); // Injection erroneously succeeds.
   }
   const char *option = "-cl-fp32-correctly-rounded-divide-sqrt";
   if (UCL::hasCorrectlyRoundedDivideSqrtSupport(device)) {
@@ -390,7 +390,7 @@ TEST_F(BuildOptionsTest, CompileWithOptionFP32CorrectlyRoundedDivideSqrt) {
 }
 
 class clBuildProgramMacroTest : public ucl::CommandQueueTest {
- protected:
+protected:
   enum { SIZE = sizeof(cl_int) };
 
   void SetUp() override {
@@ -398,19 +398,18 @@ class clBuildProgramMacroTest : public ucl::CommandQueueTest {
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
     }
-    const char *source =
-        "kernel void foo(global int *i)\n"
-        "{\n"
-        "#ifdef TEST\n"
-        "#if TEST > 1\n"
-        "  i[get_global_id(0)] = TEST;\n"
-        "#else\n"
-        "  i[get_global_id(0)] = TEST;\n"
-        "#endif\n"
-        "#else\n"
-        "  i[get_global_id(0)] = 0;\n"
-        "#endif\n"
-        "}";
+    const char *source = "kernel void foo(global int *i)\n"
+                         "{\n"
+                         "#ifdef TEST\n"
+                         "#if TEST > 1\n"
+                         "  i[get_global_id(0)] = TEST;\n"
+                         "#else\n"
+                         "  i[get_global_id(0)] = TEST;\n"
+                         "#endif\n"
+                         "#else\n"
+                         "  i[get_global_id(0)] = 0;\n"
+                         "#endif\n"
+                         "}";
     cl_int status;
     program = clCreateProgramWithSource(context, 1, &source, nullptr, &status);
     EXPECT_TRUE(program);
@@ -441,7 +440,7 @@ class clBuildProgramMacroTest : public ucl::CommandQueueTest {
 
 TEST_F(clBuildProgramMacroTest, NotDefined) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // being passed the ValueDefined program
+    GTEST_SKIP(); // being passed the ValueDefined program
   }
   ASSERT_SUCCESS(clBuildProgram(program, 0, nullptr, "", nullptr, nullptr));
   cl_int status;
@@ -455,13 +454,13 @@ TEST_F(clBuildProgramMacroTest, NotDefined) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macro_value, CL_TRUE, 0,
                                      sizeof(cl_int), &value, 1, &taskEvent,
                                      nullptr));
-  EXPECT_EQ(0, value);  // macro TEST was not defined, kernel return 0
+  EXPECT_EQ(0, value); // macro TEST was not defined, kernel return 0
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
 }
 
 TEST_F(clBuildProgramMacroTest, DefaultDefined) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // being passed the ValueDefined program
+    GTEST_SKIP(); // being passed the ValueDefined program
   }
   ASSERT_SUCCESS(
       clBuildProgram(program, 0, nullptr, "-DTEST", nullptr, nullptr));
@@ -476,7 +475,7 @@ TEST_F(clBuildProgramMacroTest, DefaultDefined) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macro_value, CL_TRUE, 0,
                                      sizeof(cl_int), &value, 1, &taskEvent,
                                      nullptr));
-  EXPECT_EQ(1, value);  // macro TEST was defined with the default value 1
+  EXPECT_EQ(1, value); // macro TEST was defined with the default value 1
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
 }
 
@@ -494,7 +493,7 @@ TEST_F(clBuildProgramMacroTest, ValueDefined) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macro_value, CL_TRUE, 0,
                                      sizeof(cl_int), &value, 1, &taskEvent,
                                      nullptr));
-  EXPECT_EQ(42, value);  // macro TEST was defined with the value 42
+  EXPECT_EQ(42, value); // macro TEST was defined with the value 42
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
 }
 
@@ -512,22 +511,21 @@ TEST_F(clBuildProgramMacroTest, ValueDefinedThenSpace) {
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macro_value, CL_TRUE, 0,
                                      sizeof(cl_int), &value, 1, &taskEvent,
                                      nullptr));
-  EXPECT_EQ(42, value);  // macro TEST was defined with the value 42
+  EXPECT_EQ(42, value); // macro TEST was defined with the value 42
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
 }
 
 class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
     }
-    const char *source =
-        "kernel void foo(global int *i)\n"
-        "{\n"
-        "  i[get_global_id(0)] = TEST;\n"
-        "}";
+    const char *source = "kernel void foo(global int *i)\n"
+                         "{\n"
+                         "  i[get_global_id(0)] = TEST;\n"
+                         "}";
     cl_int status;
     program = clCreateProgramWithSource(context, 1, &source, nullptr, &status);
     EXPECT_TRUE(program);
@@ -550,7 +548,7 @@ class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
 
   void RunAndGetResult(cl_program program, cl_int *result, bool release_early,
                        bool release_late) {
-    ASSERT_FALSE(release_early && release_late);  // Can only release once.
+    ASSERT_FALSE(release_early && release_late); // Can only release once.
     cl_int status;
     kernel = clCreateKernel(program, "foo", &status);
     ASSERT_SUCCESS(status);
@@ -578,7 +576,7 @@ class clBuildProgramTwiceTest : public ucl::CommandQueueTest {
 
 TEST_F(clBuildProgramTwiceTest, RedefineMacro) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection does not support rebuilding a program.
+    GTEST_SKIP(); // Injection does not support rebuilding a program.
   }
   // This test was written to narrow down a timing failure (sometimes
   // clBuildProgram would return CL_INVALID_OPERATION from a second
@@ -589,10 +587,10 @@ TEST_F(clBuildProgramTwiceTest, RedefineMacro) {
     cl_int result1 = -1, result2 = -1;
     ASSERT_SUCCESS(
         clBuildProgram(program, 0, nullptr, "-DTEST=42", nullptr, nullptr));
-    RunAndGetResult(program, &result1, false, true);  // Release kernel late.
+    RunAndGetResult(program, &result1, false, true); // Release kernel late.
     ASSERT_SUCCESS(
         clBuildProgram(program, 0, nullptr, "-DTEST=43", nullptr, nullptr));
-    RunAndGetResult(program, &result2, true, false);  // Release kernel early.
+    RunAndGetResult(program, &result2, true, false); // Release kernel early.
     EXPECT_EQ(result1, 42);
     EXPECT_EQ(result2, 43);
   }
@@ -614,7 +612,7 @@ TEST_F(clBuildProgramTwiceTest, RetainKernel) {
 }
 
 class clBuildProgramIncludePathTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -716,7 +714,7 @@ TEST_F(clBuildProgramIncludePathTest, MissingDeclaration) {
 
 TEST_F(clBuildProgramIncludePathTest, BadPathWithSpace) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection erroneously succeeds.
+    GTEST_SKIP(); // Injection erroneously succeeds.
   }
   ASSERT_EQ_ERRCODE(
       CL_BUILD_PROGRAM_FAILURE,
@@ -725,7 +723,7 @@ TEST_F(clBuildProgramIncludePathTest, BadPathWithSpace) {
 
 TEST_F(clBuildProgramIncludePathTest, BadPathNoSpace) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection erroneously succeeds.
+    GTEST_SKIP(); // Injection erroneously succeeds.
   }
   ASSERT_EQ_ERRCODE(
       CL_BUILD_PROGRAM_FAILURE,
@@ -764,7 +762,7 @@ TEST_F(clBuildProgramTest, ReleaseInReverseOrder) {
 // clBuildProgram.  This is not a parameterized test simply so that it is easy
 // to give each test a descriptive name.
 class clBuildProgramBadKernelTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {

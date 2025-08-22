@@ -42,18 +42,18 @@ const size_t origin[3] = {0, 0, 0};
 const size_t region[3] = {image_width, image_height, 1};
 const cl_uchar image_data[image_width * image_height * image_channel_count] = {
     255, 0,   0,
-    255,  // Red
+    255, // Red
     0,   255, 0,
-    255,  // Green
+    255, // Green
     0,   0,   255,
-    255,  // Blue
+    255, // Blue
     255, 255, 0,
-    255  // Yellow
+    255 // Yellow
 };
 
 class clEnqueueWriteImageTest : public ucl::CommandQueueTest,
                                 TestWithEventWaitList {
- public:
+public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -78,9 +78,9 @@ class clEnqueueWriteImageTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueWriteImage(command_queue, image, CL_TRUE, origin, region,
-                                 0, 0, image_data, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueWriteImage(command_queue, image, CL_TRUE,
+                                               origin, region, 0, 0, image_data,
+                                               num_events, events, event));
   }
 
   cl_mem image = nullptr;
@@ -99,42 +99,42 @@ TEST_F(clEnqueueWriteImageTest, InvalidContext) {
   ASSERT_SUCCESS(error);
   cl_command_queue other_queue =
       clCreateCommandQueue(other_context, device, 0, &error);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueWriteImage(other_queue, image, CL_TRUE, origin, region, 0, 0,
-                          image_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueWriteImage(other_queue, image, CL_TRUE, origin,
+                                        region, 0, 0, image_data, 0, nullptr,
+                                        nullptr));
   ASSERT_SUCCESS(clReleaseCommandQueue(other_queue));
   ASSERT_SUCCESS(clReleaseContext(other_context));
 }
 
 TEST_F(clEnqueueWriteImageTest, InvalidMemObject) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueWriteImage(command_queue, nullptr, CL_TRUE, origin, region, 0, 0,
-                          image_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueWriteImage(command_queue, nullptr, CL_TRUE, origin,
+                                        region, 0, 0, image_data, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueWriteImageTest, InvalidValueNullPtr) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteImage(command_queue, image, CL_TRUE, origin, region, 0, 0,
-                          nullptr, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteImage(command_queue, image, CL_TRUE, origin,
+                                        region, 0, 0, nullptr, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueWriteImageTest, InvalidValueOrigin) {
   size_t bad_origin[3] = {image_width + 1, image_height + 1, 2};
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteImage(command_queue, image, CL_TRUE, bad_origin, region, 0,
-                          0, image_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteImage(command_queue, image, CL_TRUE,
+                                        bad_origin, region, 0, 0, image_data, 0,
+                                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteImageTest, InvalidValueRegion) {
   size_t bad_region[3] = {image_width + 1, image_height + 1, 2};
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteImage(command_queue, image, CL_TRUE, origin, bad_region, 0,
-                          0, image_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteImage(command_queue, image, CL_TRUE, origin,
+                                        bad_region, 0, 0, image_data, 0,
+                                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueWriteImageTest, InvalidSrcOriginRegionRules) {
@@ -142,10 +142,10 @@ TEST_F(clEnqueueWriteImageTest, InvalidSrcOriginRegionRules) {
   size_t origin[3] = {0, 0, 1};
   size_t region[3] = {image_width, image_height, 1};
 
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueWriteImage(command_queue, image, CL_TRUE, origin, region, 0, 0,
-                          image_data, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueWriteImage(command_queue, image, CL_TRUE, origin,
+                                        region, 0, 0, image_data, 0, nullptr,
+                                        nullptr));
 }
 
 // These are problematic to test with a single device as such they have been
@@ -177,18 +177,18 @@ TEST_F(clEnqueueWriteImageTest, InvalidOperationHostMem) {
       clCreateImage(context, CL_MEM_HOST_READ_ONLY, &image_format, &image_desc,
                     nullptr, &status);
   EXPECT_SUCCESS(status);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueWriteImage(command_queue, host_image, CL_TRUE, origin, region, 0,
-                          0, image_data, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueWriteImage(command_queue, host_image, CL_TRUE,
+                                        origin, region, 0, 0, image_data, 0,
+                                        nullptr, nullptr));
   ASSERT_SUCCESS(clReleaseMemObject(host_image));
   host_image = clCreateImage(context, CL_MEM_HOST_NO_ACCESS, &image_format,
                              &image_desc, nullptr, &status);
   EXPECT_SUCCESS(status);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueWriteImage(command_queue, host_image, CL_TRUE, origin, region, 0,
-                          0, image_data, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueWriteImage(command_queue, host_image, CL_TRUE,
+                                        origin, region, 0, 0, image_data, 0,
+                                        nullptr, nullptr));
   ASSERT_SUCCESS(clReleaseMemObject(host_image));
 }
 
@@ -203,7 +203,7 @@ TEST_F(clEnqueueWriteImageTest, InvalidOperationHostMem) {
 template <cl_mem_object_type image_type, size_t Width, size_t Height,
           size_t Depth, size_t ArraySize>
 class clEnqueueWriteImageTestBase : public ucl::CommandQueueTest {
- public:
+public:
   enum {
     width = Width,
     height = Height,

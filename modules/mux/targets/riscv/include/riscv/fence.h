@@ -30,6 +30,6 @@ namespace riscv {
 using fence_s = mux::hal::fence;
 
 /// @}
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_FENCE_H_INCLUDED
+#endif // RISCV_FENCE_H_INCLUDED

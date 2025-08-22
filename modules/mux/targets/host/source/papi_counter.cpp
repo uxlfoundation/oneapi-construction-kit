@@ -34,9 +34,9 @@ namespace host {
 /// enumerate events.
 /// @param counter_buffer Vector to return found event structs in.
 template <long unsigned N>
-inline mux_result_t queryEvents(
-    int event_code, int event_enum_modifier,
-    cargo::small_vector<host_papi_counter, N> &counter_buffer) {
+inline mux_result_t
+queryEvents(int event_code, int event_enum_modifier,
+            cargo::small_vector<host_papi_counter, N> &counter_buffer) {
   // Check to see if there are any events before looping (if ENUM_FIRST doesn't
   // get us one there just aren't any to report).
   if (PAPI_enum_event(&event_code, PAPI_ENUM_FIRST) == PAPI_OK) {
@@ -64,22 +64,22 @@ inline mux_result_t queryEvents(
   return mux_success;
 }
 
-cargo::expected<mux_query_counter_storage_e, mux_result_t> getMuxStorageType(
-    int papi_data_type) {
+cargo::expected<mux_query_counter_storage_e, mux_result_t>
+getMuxStorageType(int papi_data_type) {
   mux_query_counter_storage_e result_type;
   switch (papi_data_type) {
-    case PAPI_DATATYPE_INT64:
-      result_type = mux_query_counter_result_type_int64;
-      break;
-    case PAPI_DATATYPE_UINT64:
-    case PAPI_DATATYPE_BIT64:
-      result_type = mux_query_counter_result_type_uint64;
-      break;
-    case PAPI_DATATYPE_FP64:
-      result_type = mux_query_counter_result_type_float64;
-      break;
-    default:
-      return cargo::make_unexpected(mux_error_invalid_value);
+  case PAPI_DATATYPE_INT64:
+    result_type = mux_query_counter_result_type_int64;
+    break;
+  case PAPI_DATATYPE_UINT64:
+  case PAPI_DATATYPE_BIT64:
+    result_type = mux_query_counter_result_type_uint64;
+    break;
+  case PAPI_DATATYPE_FP64:
+    result_type = mux_query_counter_result_type_float64;
+    break;
+  default:
+    return cargo::make_unexpected(mux_error_invalid_value);
   }
   return result_type;
 }
@@ -118,4 +118,4 @@ initPapiCounters() {
   std::copy_n(counter_buffer.begin(), counter_buffer.size(), out_array.begin());
   return {std::move(out_array)};
 }
-}  // namespace host
+} // namespace host

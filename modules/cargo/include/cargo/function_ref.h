@@ -42,13 +42,11 @@ namespace cargo {
 ///
 /// foo([](int i) { return i*2; });
 /// ```
-template <class F>
-class function_ref;
+template <class F> class function_ref;
 
 /// Specialization for function types.
-template <class R, class... Args>
-class function_ref<R(Args...)> {
- public:
+template <class R, class... Args> class function_ref<R(Args...)> {
+public:
   constexpr function_ref() noexcept = delete;
 
   /// Creates a `function_ref` which refers to the same callable as `rhs`.
@@ -72,8 +70,8 @@ class function_ref<R(Args...)> {
   }
 
   /// Makes `*this` refer to the same callable as `rhs`.
-  constexpr function_ref<R(Args...)> &operator=(
-      const function_ref<R(Args...)> &rhs) noexcept = default;
+  constexpr function_ref<R(Args...)> &
+  operator=(const function_ref<R(Args...)> &rhs) noexcept = default;
 
   /// Makes `*this` refer to `f`.
   ///
@@ -103,7 +101,7 @@ class function_ref<R(Args...)> {
     return callback_(obj_, std::forward<Args>(args)...);
   }
 
- private:
+private:
   void *obj_ = nullptr;
   R (*callback_)(void *, Args...) = nullptr;
 };
@@ -123,6 +121,6 @@ function_ref(R (*)(Args...)) -> function_ref<R(Args...)>;
 // template <typename F>
 // function_ref(F) -> function_ref</* deduced if possible */>;
 #endif
-}  // namespace cargo
+} // namespace cargo
 
 #endif

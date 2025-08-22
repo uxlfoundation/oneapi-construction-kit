@@ -18,15 +18,12 @@
 #include <abacus/abacus_math.h>
 
 namespace {
-template <typename T>
-T native_divide(const T x, const T y) {
-  return x / y;
-}
-}  // namespace
+template <typename T> T native_divide(const T x, const T y) { return x / y; }
+} // namespace
 
-#define DEF(TYPE)                                          \
-  TYPE ABACUS_API __abacus_native_divide(TYPE x, TYPE y) { \
-    return native_divide<>(x, y);                          \
+#define DEF(TYPE)                                                              \
+  TYPE ABACUS_API __abacus_native_divide(TYPE x, TYPE y) {                     \
+    return native_divide<>(x, y);                                              \
   }
 
 DEF(abacus_float)

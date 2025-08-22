@@ -81,7 +81,7 @@ Type *getNewType(Type *type, const StructReplacementMap &map) {
 /// A pointer to this pass is passed in to CloneFunctionInto() for
 /// changing types when cloning instructions.
 class StructTypeRemapper final : public ValueMapTypeRemapper {
- public:
+public:
   /// @brief Callback called when remapping values
   /// @param[in] srcType Current type of Value being cloned
   /// @return Alternative type if one could be found, existing type otherwise.
@@ -97,7 +97,7 @@ class StructTypeRemapper final : public ValueMapTypeRemapper {
   /// @brief Constructor taking a struct map
   StructTypeRemapper(const StructReplacementMap &m) : map(m) {}
 
- private:
+private:
   /// @brief Reference to map between old and new structs
   const StructReplacementMap &map;
 };
@@ -526,10 +526,11 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
     g->eraseFromParent();
   }
 }
-}  // namespace
+} // namespace
 
-PreservedAnalyses compiler::utils::AlignModuleStructsPass::run(
-    Module &module, ModuleAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::AlignModuleStructsPass::run(Module &module,
+                                             ModuleAnalysisManager &) {
   // Find all struct types which are user defined
   SmallVector<StructType *, 2> structTypes;
 

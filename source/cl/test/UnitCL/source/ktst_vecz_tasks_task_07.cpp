@@ -103,7 +103,9 @@ TEST_P(Execution, Task_07_06_Copy_If_Even_Item_Phi) {
 TEST_P(Execution, Task_07_07_Masked_Loop_Uniform) {
   cl_int n = 16;
   kts::Reference1D<cl_int> refOut = [&n](size_t x) {
-    if ((x < 2) || (x > 6)) return 0;
+    if ((x < 2) || (x > 6)) {
+      return 0;
+    }
     cl_int sum = 0;
     for (cl_int i = 0; i < n; i++) {
       sum += kts::Ref_A(i);
@@ -119,7 +121,9 @@ TEST_P(Execution, Task_07_07_Masked_Loop_Uniform) {
 TEST_P(Execution, Task_07_08_Masked_Loop_Varying) {
   cl_int n = 16;
   kts::Reference1D<cl_int> refOut = [&n](size_t x) {
-    if ((size_t)(x + n) > kts::N) return 0;
+    if ((size_t)(x + n) > kts::N) {
+      return 0;
+    }
     cl_int sum = 0;
     for (cl_int i = 0; i < n; i++) {
       sum += kts::Ref_A(x + i);

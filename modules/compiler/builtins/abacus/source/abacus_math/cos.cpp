@@ -20,8 +20,7 @@
 #include <abacus/internal/sincos_approx.h>
 
 namespace {
-template <typename T>
-T cos(const T x) {
+template <typename T> T cos(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type octet = 0;
@@ -43,8 +42,7 @@ T cos(const T x) {
 }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-T cos_half(const T x) {
+template <typename T> T cos_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   SignedType octet = 0;
@@ -64,8 +62,8 @@ T cos_half(const T x) {
       abacus::detail::cast::convert<SignedType>(((octet + 2) & 0x4) == 0);
   return __abacus_select(-result, result, cond2);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_cos(abacus_half x) { return cos_half<>(x); }
@@ -74,7 +72,7 @@ abacus_half3 ABACUS_API __abacus_cos(abacus_half3 x) { return cos_half<>(x); }
 abacus_half4 ABACUS_API __abacus_cos(abacus_half4 x) { return cos_half<>(x); }
 abacus_half8 ABACUS_API __abacus_cos(abacus_half8 x) { return cos_half<>(x); }
 abacus_half16 ABACUS_API __abacus_cos(abacus_half16 x) { return cos_half<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_cos(abacus_float x) { return cos<>(x); }
 abacus_float2 ABACUS_API __abacus_cos(abacus_float2 x) { return cos<>(x); }
@@ -90,4 +88,4 @@ abacus_double3 ABACUS_API __abacus_cos(abacus_double3 x) { return cos<>(x); }
 abacus_double4 ABACUS_API __abacus_cos(abacus_double4 x) { return cos<>(x); }
 abacus_double8 ABACUS_API __abacus_cos(abacus_double8 x) { return cos<>(x); }
 abacus_double16 ABACUS_API __abacus_cos(abacus_double16 x) { return cos<>(x); }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -26,7 +26,7 @@ namespace spirv_ll {
 /// @brief Combined builder for the DebugInfo and OpenCLDebugInfo100 extended
 /// instruction sets.
 class DebugInfoBuilder : public ExtInstSetHandler {
- public:
+public:
   enum Workarounds {
     // Some versions of llvm-spirv mistakenly swap
     // DebugTypeTemplateTemplateParameter and DebugTypeTemplateParameterPack
@@ -49,7 +49,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
 
   virtual llvm::Error finishModuleProcessing() override;
 
- private:
+private:
   uint64_t workarounds = 0;
   /// @brief Map from DebugInfo instructions to the llvm::DIBuilder that builds
   /// them.
@@ -66,8 +66,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  template <typename T>
-  llvm::Error create(const OpExtInst &opc);
+  template <typename T> llvm::Error create(const OpExtInst &opc);
 
   /// @brief Returns the LLVM DIBuilder for the given instruction.
   ///
@@ -139,8 +138,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   translateTemplateTemplateParameterOrTemplateParameterPack(
       const OpExtInst *op);
 
-  template <typename T>
-  llvm::Expected<llvm::MDNode *> translate(const T *op);
+  template <typename T> llvm::Expected<llvm::MDNode *> translate(const T *op);
 
   /// @brief Process the DebugTypeComposite instructions once all other nodes
   /// have been visited.
@@ -158,6 +156,6 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   llvm::SmallVector<spv::Id, 4> composite_types;
 };
 
-}  // namespace spirv_ll
+} // namespace spirv_ll
 
-#endif  // SPIRV_LL_SPV_BUILDER_DEBUG_INFO_H_INCLUDED
+#endif // SPIRV_LL_SPV_BUILDER_DEBUG_INFO_H_INCLUDED

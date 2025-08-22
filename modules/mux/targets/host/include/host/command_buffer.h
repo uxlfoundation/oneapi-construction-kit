@@ -48,10 +48,8 @@ struct ndrange_info_s {
                  std::array<size_t, 3> local_size, size_t dimensions)
       : packed_args(std::move(packed_args)),
         arg_addresses(std::move(arg_addresses)),
-        descriptors(std::move(descriptors)),
-        global_size(global_size),
-        global_offset(global_offset),
-        local_size(local_size),
+        descriptors(std::move(descriptors)), global_size(global_size),
+        global_offset(global_offset), local_size(local_size),
         dimensions(dimensions) {}
 
   /// @brief Packed descriptors.
@@ -80,8 +78,8 @@ struct ndrange_info_s {
   size_t dimensions;
 
   /// @Brief Create a deep copy of the ndrange command
-  cargo::expected<std::unique_ptr<ndrange_info_s>, mux_result_t> clone(
-      mux_allocator_info_t allocator_info) const;
+  cargo::expected<std::unique_ptr<ndrange_info_s>, mux_result_t>
+  clone(mux_allocator_info_t allocator_info) const;
 };
 
 /// @brief Implementation of mux sync-point
@@ -318,6 +316,6 @@ struct command_buffer_s final : public mux_command_buffer_s {
 };
 
 /// @}
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_COMMAND_BUFFER_H_INCLUDED
+#endif // HOST_COMMAND_BUFFER_H_INCLUDED

@@ -31,7 +31,7 @@ namespace extension {
 
 /// @brief Definition of the cl_khr_fp16 extension.
 class khr_fp16 final : public extension {
- public:
+public:
   /// @brief Default constructor.
   khr_fp16();
 
@@ -66,6 +66,6 @@ class khr_fp16 final : public extension {
 };
 
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // EXTENSION_KHR_FP16_H_INCLUDED
+#endif // EXTENSION_KHR_FP16_H_INCLUDED

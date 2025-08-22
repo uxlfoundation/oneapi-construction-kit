@@ -118,6 +118,6 @@ struct device_s final : public mux_device_s {
 };
 
 /// @}
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_DEVICE_H_INCLUDED
+#endif // HOST_DEVICE_H_INCLUDED

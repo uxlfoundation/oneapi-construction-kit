@@ -73,7 +73,7 @@ mux_result_t fence_s::tryWait(uint64_t timeout) {
          "Thread pool was signalled yet no fence result was set");
   return result;
 }
-}  // namespace host
+} // namespace host
 
 mux_result_t hostCreateFence(mux_device_t device,
                              mux_allocator_info_t allocator_info,

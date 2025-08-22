@@ -84,7 +84,7 @@ struct AbsoluteErrValidator final {
     }
   }
 
- private:
+private:
   cl_device_id device;
   cl_float previous;
   bool previous_set;
@@ -118,7 +118,7 @@ struct ULPErrValidator final {
     }
   }
 
- private:
+private:
   cl_float previous;
   bool previous_set;
 };
@@ -127,15 +127,13 @@ template <class V>
 struct GeometricStreamer final : public kts::GenericStreamer<cl_float> {
   GeometricStreamer(kts::Reference1D<cl_float> ref,
                     std::function<cl_float(size_t)> e, V validator)
-      : kts::GenericStreamer<cl_float>(ref),
-        error_callback(e),
+      : kts::GenericStreamer<cl_float>(ref), error_callback(e),
         validator(validator) {}
   GeometricStreamer(kts::Reference1D<cl_float> ref,
                     std::function<cl_float(size_t)> e,
                     const std::vector<kts::Reference1D<float>> &&f, V validator)
       : kts::GenericStreamer<cl_float>(ref, std::forward<decltype(f)>(f)),
-        error_callback(e),
-        validator(validator) {}
+        error_callback(e), validator(validator) {}
 
   bool ValidateBuffer(kts::ArgumentBase &arg, const kts::BufferDesc &desc,
                       std::vector<std::string> *errors) override {
@@ -272,7 +270,7 @@ unsigned GeometricParamExecution::GeometricFillBuffers(
   }
   return length;
 }
-}  // namespace
+} // namespace
 
 using HalfGeometricBuiltins = GeometricParamExecution;
 TEST_P(HalfGeometricBuiltins, Geometric_01_Half_Dot) {
@@ -331,7 +329,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_01_Half_Dot) {
     }
 
     // HLF_EPSILON macro from fp16 extension spec
-    const cl_float half_epsilon = 0.0009765625f;  // 2^-10
+    const cl_float half_epsilon = 0.0009765625f; // 2^-10
     return err_tolerance * half_epsilon;
   };
 
@@ -371,12 +369,12 @@ TEST_P(HalfGeometricBuiltins, Geometric_02_Half_Length) {
   // Function used to determine ULP error threshold, which is dependent on
   // vectorization width
   const auto err_callback = [vec_width](size_t) -> cl_float {
-    cl_float max_ulp = 0.5f;  // error in sqrt(correctly rounded)
+    cl_float max_ulp = 0.5f; // error in sqrt(correctly rounded)
 
     max_ulp +=
-        0.5f *                         // effect on e of taking sqrt( x + e )
-        (0.5f * cl_float(vec_width) +  // cumulative error for multiplications
-         0.5f * cl_float(vec_width - 1));  // cumulative error for additions
+        0.5f *                        // effect on e of taking sqrt( x + e )
+        (0.5f * cl_float(vec_width) + // cumulative error for multiplications
+         0.5f * cl_float(vec_width - 1)); // cumulative error for additions
 
     return max_ulp;
   };
@@ -423,7 +421,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_03_Half_Distance) {
   // Function used to determine ULP error threshold, which is dependent on
   // vectorization width
   const auto err_callback = [vec_width](size_t) -> cl_float {
-    cl_float max_ulp = 0.5f;  // error in sqrt
+    cl_float max_ulp = 0.5f; // error in sqrt
 
     // Cumulative error for multiplications and additions
     max_ulp += (1.5f * cl_float(vec_width) + 0.5f * cl_float(vec_width - 1));
@@ -499,7 +497,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
     if (std::isinf(input)) {
       return std::copysign(rsqrt_dot, input);
     } else if (has_inf) {
-      input = 0.0f * input;  // evaluates to 0.0f or -0.0f or NAN
+      input = 0.0f * input; // evaluates to 0.0f or -0.0f or NAN
     }
     return input * rsqrt_dot;
   };
@@ -507,7 +505,7 @@ TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
   // Function used to determine ULP error threshold, which is dependent on
   // vectorization width
   const auto err_callback = [vec_width](size_t) -> cl_float {
-    cl_float max_ulp = 1.5f;  // error in rsqrt + error in multiply
+    cl_float max_ulp = 1.5f; // error in rsqrt + error in multiply
 
     // Cumulative error for multiplications and additions
     max_ulp += (0.5f * cl_float(vec_width) + 0.5f * cl_float(vec_width - 1));
@@ -595,7 +593,7 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
   const auto ref_lambda = [&ref_A, &ref_B, &vec_width](size_t id) -> cl_float {
     const size_t offset = id % vec_width;
     if (3 == offset) {
-      return 0.0f;  // 4th element of vec4 is defined as zero
+      return 0.0f; // 4th element of vec4 is defined as zero
     }
 
     cl_int a_offset = offset < 2 ? 1 : -2;
@@ -627,7 +625,7 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
   const auto err_callback = [&ref_A, ref_B, &vec_width](size_t id) -> cl_float {
     const size_t offset = id % vec_width;
     if (3 == offset) {
-      return 0.0f;  // 4th element of vec4 is defined as zero
+      return 0.0f; // 4th element of vec4 is defined as zero
     }
 
     size_t a_offset = offset < 2 ? 1 : -2;
@@ -667,7 +665,7 @@ TEST_P(HalfGeometricCross, Geometric_05_Half_Cross) {
     }
 
     // HLF_EPSILON macro from fp16 extension spec
-    const cl_float half_epsilon = 0.0009765625f;  // 2^-10
+    const cl_float half_epsilon = 0.0009765625f; // 2^-10
     return err_tolerance * half_epsilon;
   };
 

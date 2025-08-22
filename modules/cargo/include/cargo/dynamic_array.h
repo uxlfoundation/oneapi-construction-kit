@@ -43,9 +43,8 @@ namespace cargo {
 ///
 /// @tparam T Element type of the dynamic array.
 /// @tparam A The allocator class to use.
-template <class T, class A = cargo::mallocator<T>>
-class dynamic_array final {
- public:
+template <class T, class A = cargo::mallocator<T>> class dynamic_array final {
+public:
   using value_type = T;
   using allocator_type = A;
   using size_type = size_t;
@@ -284,7 +283,7 @@ class dynamic_array final {
     End = nullptr;
   }
 
- private:
+private:
   /// @brief Allocator used for free store memory allocations.
   allocator_type Allocator;
   /// @brief Pointer to beginning of the storage.
@@ -294,6 +293,6 @@ class dynamic_array final {
 };
 
 /// @}
-}  // namespace cargo
+} // namespace cargo
 
-#endif  // CARGO_DYNAMIC_ARRAY_H_INCLUDED
+#endif // CARGO_DYNAMIC_ARRAY_H_INCLUDED

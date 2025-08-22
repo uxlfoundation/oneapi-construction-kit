@@ -34,12 +34,12 @@ struct StdoutCapture {
   /// @return    Everything that was captured from stdout, as a string.
   std::string ReadBuffer();
 
- private:
+private:
   /// @brief Original file descriptor for stdout which needs to be restored
   int original_fd = -1;
   /// @brief Temporary file create to catch redirected stdout
   FILE *stdout_tmp = nullptr;
 };
-}  // namespace kts
+} // namespace kts
 
-#endif  // KTS_STDOUT_CAPTURE_H_INCLUDED
+#endif // KTS_STDOUT_CAPTURE_H_INCLUDED

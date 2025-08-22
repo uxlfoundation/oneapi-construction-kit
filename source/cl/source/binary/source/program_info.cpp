@@ -19,8 +19,9 @@
 namespace cl {
 namespace binary {
 
-cargo::optional<compiler::ProgramInfo> kernelDeclsToProgramInfo(
-    const cargo::small_vector<std::string, 8> &decls, bool store_arg_metadata) {
+cargo::optional<compiler::ProgramInfo>
+kernelDeclsToProgramInfo(const cargo::small_vector<std::string, 8> &decls,
+                         bool store_arg_metadata) {
   compiler::ProgramInfo program_info;
   if (const size_t num_kernels = decls.size()) {
     if (!program_info.resizeFromNumKernels(num_kernels)) {
@@ -37,5 +38,5 @@ cargo::optional<compiler::ProgramInfo> kernelDeclsToProgramInfo(
   return {std::move(program_info)};
 }
 
-}  // namespace binary
-}  // namespace cl
+} // namespace binary
+} // namespace cl

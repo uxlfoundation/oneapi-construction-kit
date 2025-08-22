@@ -31,14 +31,14 @@
 namespace llvm {
 class Module;
 class ModulePass;
-}  // namespace llvm
+} // namespace llvm
 
 namespace compiler {
 /// @addtogroup compiler
 /// @{
 
 class BaseModulePassMachinery : public compiler::utils::PassMachinery {
- public:
+public:
   BaseModulePassMachinery(
       llvm::LLVMContext &Ctx, llvm::TargetMachine *TM,
       std::optional<compiler::utils::DeviceInfo> Info,
@@ -46,9 +46,7 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
       bool verifyEach, compiler::utils::DebugLogging debugLogging,
       bool timePasses)
       : compiler::utils::PassMachinery(Ctx, TM, verifyEach, debugLogging),
-        TimePasses(timePasses),
-        Info(Info),
-        BICallback(BICallback) {}
+        TimePasses(timePasses), Info(Info), BICallback(BICallback) {}
 
   virtual void registerPasses() override;
   virtual void addClassToPassNames() override;
@@ -67,10 +65,10 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
     return false;
   }
 
- protected:
+protected:
   compiler::Options options;
 
- private:
+private:
   llvm::TimePassesHandler TimePasses;
 
   /// @brief Device-specific information about the ComputeMux target being
@@ -88,9 +86,9 @@ class BaseModulePassMachinery : public compiler::utils::PassMachinery {
 ///
 /// FIXME: Ideally we wouldn't have any mux in the compiler library. See
 /// CA-4236.
-compiler::utils::DeviceInfo initDeviceInfoFromMux(
-    mux_device_info_t device_info);
+compiler::utils::DeviceInfo
+initDeviceInfoFromMux(mux_device_info_t device_info);
 
 /// @}
-}  // namespace compiler
-#endif  // BASE_MODULE_PASS_MACHINERY_H_INCLUDED
+} // namespace compiler
+#endif // BASE_MODULE_PASS_MACHINERY_H_INCLUDED

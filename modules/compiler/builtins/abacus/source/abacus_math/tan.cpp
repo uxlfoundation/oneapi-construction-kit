@@ -26,8 +26,7 @@ namespace {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T numerator(const T x) {
     return (x * 0.999999986f) - (x * x * x * 0.0958010197f);
   }
@@ -38,8 +37,7 @@ struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T numerator(const T x) {
     const T xSq = x * x;
     // see maple worksheet for polynomial derivation
@@ -69,10 +67,9 @@ struct helper<T, abacus_double> {
     return (xSq * y * .85737772729049709971879473936502462) + 1.0;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-T tan(const T x) {
+template <typename T> T tan(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using IntType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
@@ -106,8 +103,7 @@ static ABACUS_CONSTANT abacus_half _tan2H[5] = {
     1.2734375f16, -0.264404296875f16, -1.54209136962890625e-3f16,
     -1.275634765625e-2f16, 5.283355712890625e-3f16};
 
-template <typename T>
-T tan_half(const T x) {
+template <typename T> T tan_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
@@ -264,9 +260,9 @@ T tan_half(const T x) {
 
   return ans;
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_tan(abacus_half x) { return tan_half(x); }
@@ -275,7 +271,7 @@ abacus_half3 ABACUS_API __abacus_tan(abacus_half3 x) { return tan_half(x); }
 abacus_half4 ABACUS_API __abacus_tan(abacus_half4 x) { return tan_half(x); }
 abacus_half8 ABACUS_API __abacus_tan(abacus_half8 x) { return tan_half(x); }
 abacus_half16 ABACUS_API __abacus_tan(abacus_half16 x) { return tan_half(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_tan(abacus_float x) { return tan<>(x); }
 abacus_float2 ABACUS_API __abacus_tan(abacus_float2 x) { return tan<>(x); }
@@ -291,4 +287,4 @@ abacus_double3 ABACUS_API __abacus_tan(abacus_double3 x) { return tan<>(x); }
 abacus_double4 ABACUS_API __abacus_tan(abacus_double4 x) { return tan<>(x); }
 abacus_double8 ABACUS_API __abacus_tan(abacus_double8 x) { return tan<>(x); }
 abacus_double16 ABACUS_API __abacus_tan(abacus_double16 x) { return tan<>(x); }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

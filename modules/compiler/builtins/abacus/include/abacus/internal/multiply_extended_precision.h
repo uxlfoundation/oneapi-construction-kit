@@ -27,10 +27,10 @@
 namespace abacus {
 namespace internal {
 template <typename T>
-inline T multiply_extended_precision(
-    T input_hi, T input_lo, T xExp_abacus_float,
-    typename TypeTraits<T>::SignedType n,
-    typename TypeTraits<T>::SignedType *floor_val) {
+inline T
+multiply_extended_precision(T input_hi, T input_lo, T xExp_abacus_float,
+                            typename TypeTraits<T>::SignedType n,
+                            typename TypeTraits<T>::SignedType *floor_val) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   // this returns the mantissa and the floor value of n*(xExp + input_hi +
@@ -70,7 +70,7 @@ inline T multiply_extended_precision(
 
   return (final_sum_hi - total_floor) + final_sum_lo;
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_MULTIPLY_EXTENDED_PRECISION_H__
+#endif //__ABACUS_INTERNAL_MULTIPLY_EXTENDED_PRECISION_H__

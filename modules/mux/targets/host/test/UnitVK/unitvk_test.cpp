@@ -22,14 +22,10 @@
 
 class Host_VKExample : public uvk::RecordCommandBufferTest,
                        public uvk::DeviceMemoryTest {
- public:
+public:
   Host_VKExample()
-      : DeviceMemoryTest(true),
-        queueFamilyIndex(0),
-        srcBuffer(VK_NULL_HANDLE),
-        dstBuffer(VK_NULL_HANDLE),
-        copy(),
-        submitInfo() {}
+      : DeviceMemoryTest(true), queueFamilyIndex(0), srcBuffer(VK_NULL_HANDLE),
+        dstBuffer(VK_NULL_HANDLE), copy(), submitInfo() {}
 
   virtual void SetUp() override {
     RETURN_ON_FATAL_FAILURE(RecordCommandBufferTest::SetUp());

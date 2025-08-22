@@ -26,6 +26,6 @@
 namespace riscv {
 /// @brief Pool of storage for query results.
 using query_pool_s = mux::hal::query_pool;
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_QUERY_POOL_H_INCLUDED
+#endif // RISCV_QUERY_POOL_H_INCLUDED

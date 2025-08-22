@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif // __cplusplus
 
 /// @addtogroup riscv
 /// @{
@@ -33,8 +33,8 @@ extern "C" {
 /// @brief Riscv patch version number.
 #define RISCV_PATCH_VERSION 0
 /// @brief Riscv combined version number.
-#define RISCV_VERSION                      \
-  (((uint32_t)RISCV_MAJOR_VERSION << 22) | \
+#define RISCV_VERSION                                                          \
+  (((uint32_t)RISCV_MAJOR_VERSION << 22) |                                     \
    ((uint32_t)RISCV_MINOR_VERSION << 12) | ((uint32_t)RISCV_PATCH_VERSION))
 
 /// @brief Gets Mux devices' information.
@@ -319,10 +319,11 @@ mux_result_t riscvBindImageMemory(mux_device_t device, mux_memory_t memory,
 ///
 /// @return Return mux_success on success, or a mux_error_* if an error
 /// occurred.
-mux_result_t riscvGetSupportedImageFormats(
-    mux_device_t device, mux_image_type_e image_type,
-    mux_allocation_type_e allocation_type, uint32_t count,
-    mux_image_format_e *out_formats, uint32_t *out_count);
+mux_result_t
+riscvGetSupportedImageFormats(mux_device_t device, mux_image_type_e image_type,
+                              mux_allocation_type_e allocation_type,
+                              uint32_t count, mux_image_format_e *out_formats,
+                              uint32_t *out_count);
 
 /// @brief Get the list of supported query counters for a device's queue type.
 ///
@@ -1103,11 +1104,12 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
 /// on.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t riscvCommandUserCallback(
-    mux_command_buffer_t command_buffer,
-    mux_command_user_callback_t user_function, void *user_data,
-    uint32_t num_sync_points_in_wait_list,
-    const mux_sync_point_t *sync_point_wait_list, mux_sync_point_t *sync_point);
+mux_result_t
+riscvCommandUserCallback(mux_command_buffer_t command_buffer,
+                         mux_command_user_callback_t user_function,
+                         void *user_data, uint32_t num_sync_points_in_wait_list,
+                         const mux_sync_point_t *sync_point_wait_list,
+                         mux_sync_point_t *sync_point);
 
 /// @brief Push a begin query command to the command buffer.
 ///
@@ -1246,7 +1248,7 @@ mux_result_t riscvWaitAll(mux_queue_t queue);
 /// @}
 
 #ifdef __cplusplus
-}  // extern "C"
-#endif  // __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
-#endif  // RISCV_RISCV_H_INCLUDED
+#endif // RISCV_RISCV_H_INCLUDED

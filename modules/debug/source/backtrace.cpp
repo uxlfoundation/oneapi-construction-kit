@@ -32,9 +32,8 @@ struct malloc_deleter {
   void operator()(void *ptr) { std::free(ptr); }
 };
 
-template <class T>
-using unique_malloc_ptr = std::unique_ptr<T, malloc_deleter>;
-}  // namespace
+template <class T> using unique_malloc_ptr = std::unique_ptr<T, malloc_deleter>;
+} // namespace
 
 namespace debug {
 void print_backtrace(FILE *out) {
@@ -96,4 +95,4 @@ void print_backtrace(FILE *out) {
   std::abort();
 #endif
 }
-}  // namespace debug
+} // namespace debug

@@ -47,9 +47,8 @@ static std::enable_if_t<UCL::is_cl_vector<T>::value, T> reference_ctz(T val) {
   return output;
 }
 
-template <typename T>
-class CtzTest : public ucl::CommandQueueTest {
- public:
+template <typename T> class CtzTest : public ucl::CommandQueueTest {
+public:
   CtzTest() {}
 
   virtual void SetUp() override {
@@ -186,8 +185,7 @@ using ScalarIntegerTypes = testing::Types<ucl::Int>;
 #endif
 INSTANTIATE_TYPED_TEST_SUITE_P(SingleIntger, CtzTest, IntegerTypes, );
 
-template <typename T>
-class CtzEdgeCaseTest : public CtzTest<T> {};
+template <typename T> class CtzEdgeCaseTest : public CtzTest<T> {};
 TYPED_TEST_SUITE_P(CtzEdgeCaseTest);
 TYPED_TEST_P(CtzEdgeCaseTest, EdgeCase) {
   CtzTest<TypeParam>::executeSingleElementCtz(TypeParam(0x0));

@@ -20,7 +20,7 @@
 #include "Common.h"
 
 class clCompileProgramGoodTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -46,7 +46,7 @@ class clCompileProgramGoodTest : public ucl::ContextTest {
 };
 
 class clCompileProgramBadTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -71,7 +71,7 @@ class clCompileProgramBadTest : public ucl::ContextTest {
 };
 
 class clCompileProgramCompilerlessTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (getDeviceCompilerAvailable()) {
@@ -98,7 +98,7 @@ class clCompileProgramCompilerlessTest : public ucl::ContextTest {
 
 TEST_F(clCompileProgramGoodTest, Default) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 1, &device, nullptr, 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -106,7 +106,7 @@ TEST_F(clCompileProgramGoodTest, Default) {
 
 TEST_F(clCompileProgramGoodTest, DefaultAllContextDevices) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, nullptr, 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -114,7 +114,7 @@ TEST_F(clCompileProgramGoodTest, DefaultAllContextDevices) {
 
 TEST_F(clCompileProgramGoodTest, Callback) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   struct UserData {
     int data;
@@ -160,7 +160,7 @@ TEST_F(clCompileProgramGoodTest, Callback) {
 
 TEST_F(clCompileProgramGoodTest, AttemptSecondCompile) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, nullptr, 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -170,7 +170,7 @@ TEST_F(clCompileProgramGoodTest, AttemptSecondCompile) {
 
 TEST_F(clCompileProgramGoodTest, UseEmbeddedHeaders) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection can't find dumped program.
+    GTEST_SKIP(); // Injection can't find dumped program.
   }
   const char *programSource = "#include <header>";
 
@@ -277,20 +277,20 @@ TEST_F(clCompileProgramGoodTest, UNSPECIFIED_InvalidHeader) {
 
 TEST_F(clCompileProgramGoodTest, DataWithoutCallback) {
   char something = 'a';
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clCompileProgram(program, 0, nullptr, nullptr, 0, nullptr, nullptr,
-                       nullptr, static_cast<void *>(&something)));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clCompileProgram(program, 0, nullptr, nullptr, 0, nullptr,
+                                     nullptr, nullptr,
+                                     static_cast<void *>(&something)));
 }
 
 TEST_F(clCompileProgramGoodTest, InvalidDevice) {
   UCL::vector<cl_device_id> devices(1, device);
   devices.push_back(nullptr);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_DEVICE,
-      clCompileProgram(program, static_cast<cl_uint>(devices.size()),
-                       devices.data(), nullptr, 0, nullptr, nullptr, nullptr,
-                       nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_DEVICE,
+                    clCompileProgram(program,
+                                     static_cast<cl_uint>(devices.size()),
+                                     devices.data(), nullptr, 0, nullptr,
+                                     nullptr, nullptr, nullptr));
 }
 
 TEST_F(clCompileProgramGoodTest, EmptySource) {
@@ -322,7 +322,7 @@ TEST_F(clCompileProgramGoodTest, EmptySource) {
 // there was no crash.
 TEST_F(clCompileProgramGoodTest, ConcurrentCompile) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
@@ -333,12 +333,12 @@ TEST_F(clCompileProgramGoodTest, ConcurrentCompile) {
   // This error code is only overwritten if a non-success code is seen, thus
   // serialization should be avoided when there are no errors.
   std::atomic<cl_int> error{CL_SUCCESS};
-#define CHECK_ERROR(ERR_CODE)           \
-  {                                     \
-    const cl_int err_code = (ERR_CODE); \
-    if (CL_SUCCESS != err_code) {       \
-      error = err_code;                 \
-    }                                   \
+#define CHECK_ERROR(ERR_CODE)                                                  \
+  {                                                                            \
+    const cl_int err_code = (ERR_CODE);                                        \
+    if (CL_SUCCESS != err_code) {                                              \
+      error = err_code;                                                        \
+    }                                                                          \
   }
 
   auto worker = [this, &src, &error]() {
@@ -402,7 +402,7 @@ struct CompileOptionsTest : ucl::ContextTest,
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+      GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -462,7 +462,7 @@ TEST_F(CompileOptionsTest, CompileWithOptionFP32CorrectlyRoundedDivideSqrt) {
 }
 
 class clCompileProgramMacroTest : public ucl::CommandQueueTest {
- protected:
+protected:
   enum { SIZE = sizeof(cl_int) };
 
   void SetUp() override {
@@ -470,19 +470,18 @@ class clCompileProgramMacroTest : public ucl::CommandQueueTest {
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
     }
-    const char *source =
-        "kernel void foo(global int *i)\n"
-        "{\n"
-        "#ifdef TEST\n"
-        "#if TEST > 1\n"
-        "  i[get_global_id(0)] = TEST;\n"
-        "#else\n"
-        "  i[get_global_id(0)] = TEST;\n"
-        "#endif\n"
-        "#else\n"
-        "  i[get_global_id(0)] = 0;\n"
-        "#endif\n"
-        "}";
+    const char *source = "kernel void foo(global int *i)\n"
+                         "{\n"
+                         "#ifdef TEST\n"
+                         "#if TEST > 1\n"
+                         "  i[get_global_id(0)] = TEST;\n"
+                         "#else\n"
+                         "  i[get_global_id(0)] = TEST;\n"
+                         "#endif\n"
+                         "#else\n"
+                         "  i[get_global_id(0)] = 0;\n"
+                         "#endif\n"
+                         "}";
     cl_int status;
     program = clCreateProgramWithSource(context, 1, &source, nullptr, &status);
     ASSERT_SUCCESS(status);
@@ -511,7 +510,7 @@ class clCompileProgramMacroTest : public ucl::CommandQueueTest {
 
 TEST_F(clCompileProgramMacroTest, NotDefined) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "", 0, nullptr, nullptr,
                                   nullptr, nullptr));
@@ -529,7 +528,7 @@ TEST_F(clCompileProgramMacroTest, NotDefined) {
   cl_int value;
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macroValue, CL_TRUE, 0,
                                      SIZE, &value, 1, &taskEvent, nullptr));
-  EXPECT_EQ(0, value);  // macro TEST was not defined, kernel returns 0
+  EXPECT_EQ(0, value); // macro TEST was not defined, kernel returns 0
 
   ASSERT_SUCCESS(clReleaseProgram(linkedProgram));
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
@@ -537,7 +536,7 @@ TEST_F(clCompileProgramMacroTest, NotDefined) {
 
 TEST_F(clCompileProgramMacroTest, DefaultDefined) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "-DTEST", 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -555,7 +554,7 @@ TEST_F(clCompileProgramMacroTest, DefaultDefined) {
   cl_int value;
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macroValue, CL_TRUE, 0,
                                      SIZE, &value, 1, &taskEvent, nullptr));
-  ASSERT_EQ(1, value);  // macro TEST was defined with the default value 1
+  ASSERT_EQ(1, value); // macro TEST was defined with the default value 1
 
   ASSERT_SUCCESS(clReleaseProgram(linkedProgram));
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
@@ -563,7 +562,7 @@ TEST_F(clCompileProgramMacroTest, DefaultDefined) {
 
 TEST_F(clCompileProgramMacroTest, ValueDefined) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "-DTEST=42", 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -581,14 +580,14 @@ TEST_F(clCompileProgramMacroTest, ValueDefined) {
   cl_int value;
   EXPECT_SUCCESS(clEnqueueReadBuffer(command_queue, macroValue, CL_TRUE, 0,
                                      SIZE, &value, 1, &taskEvent, nullptr));
-  EXPECT_EQ(42, value);  // macro TEST was defined with the value 42
+  EXPECT_EQ(42, value); // macro TEST was defined with the value 42
 
   ASSERT_SUCCESS(clReleaseProgram(linkedProgram));
   ASSERT_SUCCESS(clReleaseEvent(taskEvent));
 }
 
 class clCompileProgramIncludePathTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -666,10 +665,10 @@ TEST_F(clCompileProgramIncludePathTest, MissingHeader) {
 
   const std::string option = "-I ";
   const std::string options = option + UCL::getTestIncludePath();
-  ASSERT_EQ_ERRCODE(
-      CL_COMPILE_PROGRAM_FAILURE,
-      clCompileProgram(missing_header, 0, nullptr, options.c_str(), 0, nullptr,
-                       nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_COMPILE_PROGRAM_FAILURE,
+                    clCompileProgram(missing_header, 0, nullptr,
+                                     options.c_str(), 0, nullptr, nullptr,
+                                     nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseProgram(missing_header));
 }
@@ -710,7 +709,7 @@ TEST_F(clCompileProgramIncludePathTest, BadPathNoSpace) {
 }
 
 class clCompileLinkEmbeddedHeader : public ucl::ContextTest {
- protected:
+protected:
   clCompileLinkEmbeddedHeader(const char *source, const char *header_source)
       : source(source), header_source(header_source) {}
 
@@ -766,7 +765,7 @@ class clCompileLinkEmbeddedHeader : public ucl::ContextTest {
 
 class clCompileLinkEmbeddedHeaderPrototype
     : public clCompileLinkEmbeddedHeader {
- protected:
+protected:
   clCompileLinkEmbeddedHeaderPrototype()
       : clCompileLinkEmbeddedHeader(
             "extern int test(void);\n"
@@ -793,7 +792,7 @@ TEST_F(clCompileLinkEmbeddedHeaderPrototype, Default) {
 // prototype.
 class clCompileLinkEmbeddedHeaderDeclaration
     : public clCompileLinkEmbeddedHeader {
- protected:
+protected:
   clCompileLinkEmbeddedHeaderDeclaration()
       : clCompileLinkEmbeddedHeader(
             "extern int test();\n"

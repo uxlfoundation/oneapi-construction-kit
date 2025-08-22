@@ -45,8 +45,9 @@ void compiler::DiagnosticInfoHalfNoHalf::print(DiagnosticPrinter &P) const {
   P << formatMessage();
 }
 
-PreservedAnalyses compiler::CheckForUnsupportedTypesPass::run(
-    Function &F, FunctionAnalysisManager &AM) {
+PreservedAnalyses
+compiler::CheckForUnsupportedTypesPass::run(Function &F,
+                                            FunctionAnalysisManager &AM) {
   const auto &MAMProxy = AM.getResult<ModuleAnalysisManagerFunctionProxy>(F);
   const auto *DI =
       MAMProxy.getCachedResult<compiler::utils::DeviceInfoAnalysis>(

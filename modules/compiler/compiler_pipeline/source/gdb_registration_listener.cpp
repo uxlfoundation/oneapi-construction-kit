@@ -104,7 +104,7 @@ typedef llvm::DenseMap<JITEventListener::ObjectKey, RegisteredObjectInfo>
 /// calling notifyObjectLoaded or notifyFreeingObject as both methods
 /// access/modify global variables.
 class GDBJITRegistrationListener : public JITEventListener {
- public:
+public:
   /// A map of in-memory object files that have been registered with the
   /// JIT interface.
   RegisteredObjectBufferMap ObjectBufferMap;
@@ -125,7 +125,7 @@ class GDBJITRegistrationListener : public JITEventListener {
   /// frees associated resources.
   void notifyFreeingObject(ObjectKey K) override;
 
- private:
+private:
   /// Deregister the debug info for the given object file from the debugger
   /// and delete any temporary copies.  This private method does not remove
   /// the function from Map so that it can be called while iterating over Map.
@@ -226,7 +226,7 @@ void GDBJITRegistrationListener::deregisterObjectInternal(
   JITCodeEntry = nullptr;
 }
 
-}  // end namespace
+} // end namespace
 
 namespace compiler {
 namespace utils {
@@ -235,5 +235,5 @@ std::unique_ptr<llvm::JITEventListener> createGDBRegistrationListener() {
   return std::make_unique<GDBJITRegistrationListener>();
 }
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler

@@ -37,7 +37,7 @@ namespace utils {
 /// Runs over all kernels with "kernel entry point" metadata.
 class MakeFunctionNameUniquePass final
     : public llvm::PassInfoMixin<MakeFunctionNameUniquePass> {
- public:
+public:
   /// @brief Constructor.
   ///
   /// @param Name An LLVM StringRef of the name to replace the function name
@@ -50,10 +50,10 @@ class MakeFunctionNameUniquePass final
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 
- private:
+private:
   std::string UniqueName;
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_MAKE_FUNCTION_NAME_UNIQUE_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_MAKE_FUNCTION_NAME_UNIQUE_PASS_H_INCLUDED

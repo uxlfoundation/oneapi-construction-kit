@@ -30,6 +30,6 @@ namespace riscv {
 using buffer_s = mux::hal::buffer;
 
 /// @}
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_BUFFER_H_INCLUDED
+#endif // RISCV_BUFFER_H_INCLUDED

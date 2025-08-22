@@ -26,8 +26,7 @@
 
 namespace abacus {
 namespace internal {
-template <typename T>
-T atan_unsafe(const T &x) {
+template <typename T> T atan_unsafe(const T &x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   // if negative, use identity atan(-x) = -atan(x)
 
@@ -89,7 +88,7 @@ T atan_unsafe(const T &x) {
 
   return __abacus_copysign(r, x);
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_ATAN_UNSAFE_H__
+#endif //__ABACUS_INTERNAL_ATAN_UNSAFE_H__

@@ -31,17 +31,17 @@ std::function<cl_float(size_t)> createFTZValidator(T &reference_func) {
     return IsDenormalAsHalf(r) ? 0.0f : r;
   };
 }
-}  // namespace
+} // namespace
 
-unsigned kts::ucl::HalfInputSizes::getInputSize(
-    const ::ucl::MathMode math_mode) {
+unsigned
+kts::ucl::HalfInputSizes::getInputSize(const ::ucl::MathMode math_mode) {
   switch (math_mode) {
-    case ::ucl::MathMode::FULL:
-      return kts::ucl::HalfInputSizes::full;
-    case ::ucl::MathMode::QUICK:
-      return kts::ucl::HalfInputSizes::quick;
-    default:
-      return kts::ucl::HalfInputSizes::wimpy;
+  case ::ucl::MathMode::FULL:
+    return kts::ucl::HalfInputSizes::full;
+  case ::ucl::MathMode::QUICK:
+    return kts::ucl::HalfInputSizes::quick;
+  default:
+    return kts::ucl::HalfInputSizes::wimpy;
   }
 }
 
@@ -87,8 +87,8 @@ const std::vector<cl_ushort> &HalfParamExecution::GetEdgeCases() const {
 }
 
 template <size_t N>
-unsigned HalfParamExecution::FillInputBuffers(
-    std::array<input_details_t, N> &inputs) {
+unsigned
+HalfParamExecution::FillInputBuffers(std::array<input_details_t, N> &inputs) {
   const auto &edge_cases = GetEdgeCases();
 
   // The more parameters a functions takes, the more data we need for verifying
@@ -1687,5 +1687,5 @@ template void HalfParamExecution::TestAgainstRef<4_ULP>(
 template void HalfParamExecution::TestAgainstRef<2_ULP>(
     const std::function<cl_float(cl_float, cl_float)> &,
     const std::function<bool(cl_float, cl_float)> *);
-}  // namespace ucl
-}  // namespace kts
+} // namespace ucl
+} // namespace kts

@@ -34,7 +34,7 @@ bool isArgLocalBuffer(Type *const Ty) {
          Ty->getPointerAddressSpace() == compiler::utils::AddressSpace::Local;
 }
 
-}  // namespace
+} // namespace
 
 void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
     Module &M, const Function &F,
@@ -118,8 +118,9 @@ void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
   structTy->setBody(packedArgTypes, /*IsPacked*/ IsPacked);
 }
 
-PreservedAnalyses compiler::utils::AddKernelWrapperPass::run(
-    Module &M, ModuleAnalysisManager &AM) {
+PreservedAnalyses
+compiler::utils::AddKernelWrapperPass::run(Module &M,
+                                           ModuleAnalysisManager &AM) {
   bool Changed = false;
   SmallPtrSet<Function *, 4> NewKernels;
   auto &DL = M.getDataLayout();

@@ -23,10 +23,10 @@
 #include <abacus/internal/horner_polynomial.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/ldexp_unsafe.h>
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/log_extended_precision.h>
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/multiply_exact.h>
 #include <abacus/internal/multiply_exact_unsafe.h>
 
@@ -43,7 +43,7 @@ static ABACUS_CONSTANT abacus_half
     __codeplay_log2_extended_precision_coeffH[5] = {
         -0.72119140625f16, 0.4814453125f16, -0.369384765625f16, 0.2919921875f16,
         -0.1474609375f16};
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 // Aprroximation of log2(x+1) between [sqrt(0.5)-1;2*sqrt(0.5)-1]
 // See log2_extended_precision.sollya for derivation
@@ -51,15 +51,14 @@ static ABACUS_CONSTANT abacus_half
 static ABACUS_CONSTANT abacus_float __codeplay_log2_extended_precision_coeff[] =
     {0.33333301f,  -0.25000026f, 0.20002578f,   -0.16667923f, 0.14212508f,
      -0.12400908f, 0.11926104f,  -0.117190584f, 0.067263625f};
-}  // namespace
+} // namespace
 
 namespace abacus {
 namespace internal {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct log2_extended_precision_helper;
 
-template <typename T>
-struct log2_extended_precision_helper<T, abacus_float> {
+template <typename T> struct log2_extended_precision_helper<T, abacus_float> {
   static T _(const T &xMant, T *out_remainder) {
     T xMAnt1m = xMant - 1.0f;
 
@@ -101,8 +100,7 @@ struct log2_extended_precision_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct log2_extended_precision_helper<T, abacus_double> {
+template <typename T> struct log2_extended_precision_helper<T, abacus_double> {
   static T _(const T &xMant, T *out_remainder) {
     // Get the natural log, then convert it to log2
     T log_lo;
@@ -123,7 +121,7 @@ struct log2_extended_precision_helper<T, abacus_double> {
     return log2_hi_hi;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 inline T log2_extended_precision(const T &xMant, T *out_remainder) {
@@ -310,8 +308,8 @@ T log2_extended_precision_half_safe(const T &x, T *ans_lo, T *hiExp, T *loExp) {
   return ans;
 }
 
-#endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace internal
-}  // namespace abacus
+#endif // __CA_BUILTINS_HALF_SUPPORT
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_LOG2_EXTENDED_PRECISION_H__
+#endif //__ABACUS_INTERNAL_LOG2_EXTENDED_PRECISION_H__

@@ -23,5 +23,5 @@ executable::executable(mux::hal::device *device,
     : object_code(std::move(object_code)) {
   this->device = device;
 }
-}  // namespace hal
-}  // namespace mux
+} // namespace hal
+} // namespace mux

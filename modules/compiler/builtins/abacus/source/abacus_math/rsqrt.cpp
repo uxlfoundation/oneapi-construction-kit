@@ -29,8 +29,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct helper<T, abacus_half> {
+template <typename T> struct helper<T, abacus_half> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
@@ -41,7 +40,7 @@ struct helper<T, abacus_half> {
     // and by 2^5 at the end to rescale the answer back down
     SignedType xSmall =
         abacus::detail::cast::as<UnsignedType>(x) < UnsignedType(0x0800);
-    T processedX = __abacus_select(x, x * 1024.0f16, xSmall);  // 2^10
+    T processedX = __abacus_select(x, x * 1024.0f16, xSmall); // 2^10
 
     // estimate rsqrt
     T estimate = abacus::internal::rsqrt_unsafe(processedX);
@@ -64,10 +63,9 @@ struct helper<T, abacus_half> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
@@ -82,7 +80,7 @@ struct helper<T, abacus_float> {
     // dropped.
     const SignedType xSmall = abacus::internal::is_denorm(x);
 
-    const UnsignedType hiddenBit = 0x00800000u;  // Lowest exponent bit
+    const UnsignedType hiddenBit = 0x00800000u; // Lowest exponent bit
 
     // Scale denormal to improve fast rqsrt starting newton-raphson value.
     // Getting ldexp(x, 24) to normalise x without an ldexp call, since we know
@@ -132,8 +130,7 @@ struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -162,13 +159,10 @@ struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-T rsqrt(const T x) {
-  return helper<T>::_(x);
-}
-}  // namespace
+template <typename T> T rsqrt(const T x) { return helper<T>::_(x); }
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
@@ -179,7 +173,7 @@ abacus_half4 ABACUS_API __abacus_rsqrt(abacus_half4 x) { return rsqrt<>(x); }
 abacus_half8 ABACUS_API __abacus_rsqrt(abacus_half8 x) { return rsqrt<>(x); }
 abacus_half16 ABACUS_API __abacus_rsqrt(abacus_half16 x) { return rsqrt<>(x); }
 
-#endif  //__CA_BUILTINS_HALF_SUPPORT
+#endif //__CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_rsqrt(abacus_float x) { return rsqrt<>(x); }
 abacus_float2 ABACUS_API __abacus_rsqrt(abacus_float2 x) { return rsqrt<>(x); }
@@ -207,4 +201,4 @@ abacus_double8 ABACUS_API __abacus_rsqrt(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_rsqrt(abacus_double16 x) {
   return rsqrt<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

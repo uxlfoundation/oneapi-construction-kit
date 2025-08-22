@@ -28,8 +28,7 @@ namespace compiler {
 BaseTarget::BaseTarget(const compiler::Info *compiler_info,
                        compiler::Context *context, NotifyCallbackFn callback)
     : compiler_info(compiler_info),
-      context(*static_cast<BaseContext *>(context)),
-      callback{callback} {}
+      context(*static_cast<BaseContext *>(context)), callback{callback} {}
 
 Result BaseTarget::init(uint32_t builtins_capabilities) {
   if (callback) {
@@ -123,4 +122,4 @@ void BaseAOTTarget::withLLVMContextDo(void (*f)(llvm::LLVMContext &, void *),
   f(llvm_context, p);
 }
 
-}  // namespace compiler
+} // namespace compiler

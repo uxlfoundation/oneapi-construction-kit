@@ -39,5 +39,5 @@ struct device_s final : mux::hal::device {
   riscv::queue_s queue;
 };
 /// @}
-}  // namespace riscv
-#endif  // RISCV_DEVICE_H_INCLUDED
+} // namespace riscv
+#endif // RISCV_DEVICE_H_INCLUDED

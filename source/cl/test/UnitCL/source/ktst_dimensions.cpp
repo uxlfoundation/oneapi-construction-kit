@@ -23,7 +23,7 @@
 #include "kts/execution.h"
 
 class NDimensions {
- public:
+public:
   // The 'active' work group will write out 1s, all other work groups will write
   // out 0s.
   const std::vector<size_t> global;

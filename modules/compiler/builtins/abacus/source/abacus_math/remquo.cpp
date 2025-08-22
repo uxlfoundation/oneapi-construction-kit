@@ -35,13 +35,12 @@ struct scaleFactor;
 //
 // scaled value          (x * 2^6) + 2^-8 - 2^-8
 //                       (x * 2^6)
-template <typename T>
-struct scaleFactor<T, abacus_half> {
-  static constexpr abacus_float up = 64.0f16;            // 2^6
-  static constexpr abacus_float down = 0.015625f16;      // 2^-6
-  static constexpr abacus_float adjust = 0.00390625f16;  // 2^-8
+template <typename T> struct scaleFactor<T, abacus_half> {
+  static constexpr abacus_float up = 64.0f16;           // 2^6
+  static constexpr abacus_float down = 0.015625f16;     // 2^-6
+  static constexpr abacus_float adjust = 0.00390625f16; // 2^-8
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 // xUint | lowExpBit     sets the exponent to -126
 // 16777216              2^24
@@ -49,19 +48,17 @@ struct scaleFactor<T, abacus_half> {
 //
 // scaled value          (x * 2^24) + 2^-102 - 2^-102
 //                       (x * 2^24)
-template <typename T>
-struct scaleFactor<T, abacus_float> {
-  static constexpr abacus_float up = 16777216.0f;        // 2^24
-  static constexpr abacus_float down = 5.9604645E-8;     // 2^-24
-  static constexpr abacus_float adjust = 1.9721523E-31;  // 2^-102
+template <typename T> struct scaleFactor<T, abacus_float> {
+  static constexpr abacus_float up = 16777216.0f;       // 2^24
+  static constexpr abacus_float down = 5.9604645E-8;    // 2^-24
+  static constexpr abacus_float adjust = 1.9721523E-31; // 2^-102
 };
 
 // Scale denormal input 'x' up so that we can perform operations on 'x' without
 // the hardware flushing to zero. Done by setting the least significant exponent
 // bit to make 'x' a normal number before doing arithmetic to adjust for a
 // precision dependent scaling factor.
-template <typename T>
-T upscaleDenormal(const T x) {
+template <typename T> T upscaleDenormal(const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
   const UnsignedType lowExpBit = 0x1 << FPShape<T>::Mantissa();
@@ -164,7 +161,7 @@ abacus_double remquo_helper_scalar(const abacus_double x, const abacus_double m,
 
   return __abacus_select(result, -result, (abacus_long)(x < 0.0));
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T, typename IntVecType,
           typename E = typename TypeTraits<T>::ElementType>
@@ -267,7 +264,7 @@ struct helper<T, IntVecType, abacus_double> {
     return __abacus_select(result, (T)ABACUS_NAN, c3);
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 T remquo_helper_vector(
@@ -279,7 +276,7 @@ T remquo_helper_vector(
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   return helper<T, IntVecType>::remquo_impl(x, m, o);
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_remquo(abacus_half x, abacus_half m,
@@ -306,7 +303,7 @@ abacus_half16 ABACUS_API __abacus_remquo(abacus_half16 x, abacus_half16 m,
                                          abacus_int16 *o) {
   return remquo_helper_vector(x, m, o);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_remquo(abacus_float x, abacus_float m,
                                         abacus_int *o) {
@@ -358,4 +355,4 @@ abacus_double16 ABACUS_API __abacus_remquo(abacus_double16 x, abacus_double16 m,
                                            abacus_int16 *o) {
   return remquo_helper_vector(x, m, o);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

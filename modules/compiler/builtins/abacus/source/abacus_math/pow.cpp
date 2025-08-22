@@ -22,8 +22,7 @@
 #include <abacus/internal/pow_unsafe.h>
 
 namespace {
-template <typename T>
-inline T pow(const T x, const T y) {
+template <typename T> inline T pow(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -92,7 +91,7 @@ inline T pow(const T x, const T y) {
 
   return result;
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_pow(abacus_half x, abacus_half y) {
@@ -113,7 +112,7 @@ abacus_half8 ABACUS_API __abacus_pow(abacus_half8 x, abacus_half8 y) {
 abacus_half16 ABACUS_API __abacus_pow(abacus_half16 x, abacus_half16 y) {
   return pow<>(x, y);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_pow(abacus_float x, abacus_float y) {
   return pow<>(x, y);
@@ -153,4 +152,4 @@ abacus_double8 ABACUS_API __abacus_pow(abacus_double8 x, abacus_double8 y) {
 abacus_double16 ABACUS_API __abacus_pow(abacus_double16 x, abacus_double16 y) {
   return pow<>(x, y);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

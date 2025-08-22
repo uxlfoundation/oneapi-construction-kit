@@ -52,7 +52,7 @@ struct GenericMetadata {
 /// that kernel metadata can be correctly read from and written to the binary
 /// representation.
 class GenericMetadataHandler {
- public:
+public:
   GenericMetadataHandler() = default;
   virtual ~GenericMetadataHandler();
 
@@ -80,17 +80,17 @@ class GenericMetadataHandler {
   /// @return true if the write completed successfully, false otherwise.
   bool write(const GenericMetadata &md);
 
- protected:
+protected:
   md_ctx ctx = nullptr;
   md_hooks *hooks = nullptr;
   void *userdata = nullptr;
 
- private:
+private:
   char *data = nullptr;
   size_t data_len = 0;
   size_t offset = 0;
 };
 
 /// @}
-}  // namespace handler
-#endif  // MD_HANDLER_GENERIC_METADATA_H_INCLUDED
+} // namespace handler
+#endif // MD_HANDLER_GENERIC_METADATA_H_INCLUDED

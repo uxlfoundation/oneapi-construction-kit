@@ -26,8 +26,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct denorm_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct denorm_helper<T, abacus_half> {
+template <typename T> struct denorm_helper<T, abacus_half> {
   typedef typename TypeTraits<T>::SignedType IntTy;
   static IntTy _(const T &x) {
     const IntTy xAsInt = abacus::detail::cast::as<IntTy>(x);
@@ -42,8 +41,7 @@ struct denorm_helper<T, abacus_half> {
 };
 #endif
 
-template <typename T>
-struct denorm_helper<T, abacus_float> {
+template <typename T> struct denorm_helper<T, abacus_float> {
   typedef typename TypeTraits<T>::SignedType IntTy;
   static IntTy _(const T &x) {
     const IntTy xAsInt = abacus::detail::cast::as<IntTy>(x);
@@ -59,8 +57,7 @@ struct denorm_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct denorm_helper<T, abacus_double> {
+template <typename T> struct denorm_helper<T, abacus_double> {
   typedef typename TypeTraits<T>::SignedType IntTy;
   static IntTy _(const T &x) {
     const IntTy xAsInt = abacus::detail::cast::as<IntTy>(x);
@@ -80,7 +77,7 @@ template <typename T>
 inline typename TypeTraits<T>::SignedType isDenorm(const T &x) {
   return denorm_helper<T>::_(x);
 }
-}  // namespace
+} // namespace
 
 namespace abacus {
 namespace internal {
@@ -134,9 +131,9 @@ inline abacus_long4 is_denorm(abacus_double4 x) { return isDenorm<>(x); }
 inline abacus_long8 is_denorm(abacus_double8 x) { return isDenorm<>(x); }
 
 inline abacus_long16 is_denorm(abacus_double16 x) { return isDenorm<>(x); }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_IS_DENORM_H__
+#endif //__ABACUS_INTERNAL_IS_DENORM_H__

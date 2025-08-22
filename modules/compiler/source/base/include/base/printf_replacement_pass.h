@@ -28,7 +28,7 @@
 namespace llvm {
 class Type;
 class CallInst;
-}  // namespace llvm
+} // namespace llvm
 
 namespace compiler {
 /// @addtogroup cl_compiler
@@ -63,7 +63,7 @@ struct PrintfReplacementPass final
   llvm::PreservedAnalyses run(llvm::Module &module,
                               llvm::ModuleAnalysisManager &am);
 
- private:
+private:
   /// @brief Function that replace a printf call with a call to a custom
   /// function that loads the printf arguments into the printf buffer.
   ///
@@ -86,6 +86,6 @@ struct PrintfReplacementPass final
 };
 
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // BASE_PRINTF_REPLACEMENT_PASS_H_INCLUDED
+#endif // BASE_PRINTF_REPLACEMENT_PASS_H_INCLUDED

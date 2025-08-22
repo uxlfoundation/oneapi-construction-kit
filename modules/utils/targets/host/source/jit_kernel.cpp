@@ -62,5 +62,5 @@ void serializeJITKernel(const jit_kernel_s *jit_kernel, uint8_t *buffer) {
               sizeof(const jit_kernel_s *), buffer);
 }
 
-}  // namespace utils
-}  // namespace host
+} // namespace utils
+} // namespace host

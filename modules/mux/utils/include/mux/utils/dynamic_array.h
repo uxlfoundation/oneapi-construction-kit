@@ -37,6 +37,6 @@ namespace mux {
 /// @tparam T Type of contained elements.
 template <class T>
 using dynamic_array = cargo::dynamic_array<T, cargo_allocator<T>>;
-}  // namespace mux
+} // namespace mux
 
-#endif  // MUX_UTILS_DYNAMIC_ARRAY_H_INCLUDED
+#endif // MUX_UTILS_DYNAMIC_ARRAY_H_INCLUDED

@@ -35,14 +35,14 @@
 #include <malloc.h>
 #endif
 
-#define PRINT_PLATFORM_INFO(platform, param_name)                \
-  if (!print_platform_info(platform, param_name, #param_name)) { \
-    return false;                                                \
+#define PRINT_PLATFORM_INFO(platform, param_name)                              \
+  if (!print_platform_info(platform, param_name, #param_name)) {               \
+    return false;                                                              \
   }
 
-#define PRINTF(...)              \
-  if (printf(__VA_ARGS__) < 0) { \
-    return false;                \
+#define PRINTF(...)                                                            \
+  if (printf(__VA_ARGS__) < 0) {                                               \
+    return false;                                                              \
   }
 
 namespace {
@@ -63,9 +63,9 @@ bool print_platform_info(cl_platform_id platform,
   return true;
 }
 
-#define PRINT_DEVICE_INFO(device, param_name, print_fn)                 \
-  if (!print_device_info_##print_fn(device, param_name, #param_name)) { \
-    return false;                                                       \
+#define PRINT_DEVICE_INFO(device, param_name, print_fn)                        \
+  if (!print_device_info_##print_fn(device, param_name, #param_name)) {        \
+    return false;                                                              \
   }
 
 bool print_device_info_cl_device_type(cl_device_id device,
@@ -80,13 +80,13 @@ bool print_device_info_cl_device_type(cl_device_id device,
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)     \
-  if ((pname) & param_value) { \
-    if (matched) {             \
-      PRINTF(" | ");           \
-    }                          \
-    matched = true;            \
-    PRINTF(#pname);            \
+#define PRINT_MATCH(pname)                                                     \
+  if ((pname) & param_value) {                                                 \
+    if (matched) {                                                             \
+      PRINTF(" | ");                                                           \
+    }                                                                          \
+    matched = true;                                                            \
+    PRINTF(#pname);                                                            \
   }
 
   PRINT_MATCH(CL_DEVICE_TYPE_CPU);
@@ -191,13 +191,13 @@ bool print_device_info_cl_device_fp_config(cl_device_id device,
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)     \
-  if ((pname) & param_value) { \
-    if (matched) {             \
-      PRINTF(" | ");           \
-    }                          \
-    matched = true;            \
-    PRINTF(#pname);            \
+#define PRINT_MATCH(pname)                                                     \
+  if ((pname) & param_value) {                                                 \
+    if (matched) {                                                             \
+      PRINTF(" | ");                                                           \
+    }                                                                          \
+    matched = true;                                                            \
+    PRINTF(#pname);                                                            \
   }
 
   PRINT_MATCH(CL_FP_DENORM);
@@ -229,22 +229,22 @@ bool print_device_info_cl_device_mem_cache_type(cl_device_id device,
   PRINTF("%s : ", param_name_str);
 
   switch (param_value) {
-    case CL_NONE: {
-      PRINTF("CL_NONE");
-      break;
-    }
-    case CL_READ_ONLY_CACHE: {
-      PRINTF("CL_READ_ONLY_CACHE");
-      break;
-    }
-    case CL_READ_WRITE_CACHE: {
-      PRINTF("CL_READ_WRITE_CACHE");
-      break;
-    }
-    default: {
-      PRINTF("UNKNOWN");
-      break;
-    }
+  case CL_NONE: {
+    PRINTF("CL_NONE");
+    break;
+  }
+  case CL_READ_ONLY_CACHE: {
+    PRINTF("CL_READ_ONLY_CACHE");
+    break;
+  }
+  case CL_READ_WRITE_CACHE: {
+    PRINTF("CL_READ_WRITE_CACHE");
+    break;
+  }
+  default: {
+    PRINTF("UNKNOWN");
+    break;
+  }
   }
 
   PRINTF("\n");
@@ -262,22 +262,22 @@ bool print_device_info_cl_device_local_mem_type(cl_device_id device,
   PRINTF("%s : ", param_name_str);
 
   switch (param_value) {
-    case CL_LOCAL: {
-      PRINTF("CL_LOCAL");
-      break;
-    }
-    case CL_GLOBAL: {
-      PRINTF("CL_GLOBAL");
-      break;
-    }
-    case CL_NONE: {
-      PRINTF("CL_NONE");
-      break;
-    }
-    default: {
-      PRINTF("UNKNOWN");
-      break;
-    }
+  case CL_LOCAL: {
+    PRINTF("CL_LOCAL");
+    break;
+  }
+  case CL_GLOBAL: {
+    PRINTF("CL_GLOBAL");
+    break;
+  }
+  case CL_NONE: {
+    PRINTF("CL_NONE");
+    break;
+  }
+  default: {
+    PRINTF("UNKNOWN");
+    break;
+  }
   }
 
   PRINTF("\n");
@@ -296,13 +296,13 @@ bool print_device_info_cl_device_exec_capabilities(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)     \
-  if ((pname) & param_value) { \
-    if (matched) {             \
-      PRINTF(" | ");           \
-    }                          \
-    matched = true;            \
-    PRINTF(#pname);            \
+#define PRINT_MATCH(pname)                                                     \
+  if ((pname) & param_value) {                                                 \
+    if (matched) {                                                             \
+      PRINTF(" | ");                                                           \
+    }                                                                          \
+    matched = true;                                                            \
+    PRINTF(#pname);                                                            \
   }
 
   PRINT_MATCH(CL_EXEC_KERNEL);
@@ -329,13 +329,13 @@ bool print_device_info_cl_command_queue_properties(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)     \
-  if ((pname) & param_value) { \
-    if (matched) {             \
-      PRINTF(" | ");           \
-    }                          \
-    matched = true;            \
-    PRINTF(#pname);            \
+#define PRINT_MATCH(pname)                                                     \
+  if ((pname) & param_value) {                                                 \
+    if (matched) {                                                             \
+      PRINTF(" | ");                                                           \
+    }                                                                          \
+    matched = true;                                                            \
+    PRINTF(#pname);                                                            \
   }
 
   PRINT_MATCH(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE);
@@ -391,26 +391,26 @@ bool print_device_info_cl_device_partition_property_array(
 
     const cl_device_partition_property property = param_value[i];
     switch (property) {
-      case CL_DEVICE_PARTITION_EQUALLY: {
-        PRINTF("CL_DEVICE_PARTITION_EQUALLY");
-        break;
-      }
-      case CL_DEVICE_PARTITION_BY_COUNTS: {
-        PRINTF("CL_DEVICE_PARTITION_BY_COUNTS");
-        break;
-      }
-      case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN: {
-        PRINTF("CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN");
-        break;
-      }
-      case 0: {
-        PRINTF("UNSUPPORTED");
-        break;
-      }
-      default: {
-        PRINTF("UNKNOWN");
-        break;
-      }
+    case CL_DEVICE_PARTITION_EQUALLY: {
+      PRINTF("CL_DEVICE_PARTITION_EQUALLY");
+      break;
+    }
+    case CL_DEVICE_PARTITION_BY_COUNTS: {
+      PRINTF("CL_DEVICE_PARTITION_BY_COUNTS");
+      break;
+    }
+    case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN: {
+      PRINTF("CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN");
+      break;
+    }
+    case 0: {
+      PRINTF("UNSUPPORTED");
+      break;
+    }
+    default: {
+      PRINTF("UNKNOWN");
+      break;
+    }
     }
   }
   PRINTF("}\n");
@@ -429,13 +429,13 @@ bool print_device_info_cl_device_affinity_domain(
 
   bool matched = false;
 
-#define PRINT_MATCH(pname)     \
-  if ((pname) & param_value) { \
-    if (matched) {             \
-      PRINTF(" | ");           \
-    }                          \
-    matched = true;            \
-    PRINTF(#pname);            \
+#define PRINT_MATCH(pname)                                                     \
+  if ((pname) & param_value) {                                                 \
+    if (matched) {                                                             \
+      PRINTF(" | ");                                                           \
+    }                                                                          \
+    matched = true;                                                            \
+    PRINTF(#pname);                                                            \
   }
 
   PRINT_MATCH(CL_DEVICE_AFFINITY_DOMAIN_NUMA);
@@ -453,7 +453,7 @@ bool print_device_info_cl_device_affinity_domain(
   PRINTF("\n");
   return true;
 }
-}  // namespace
+} // namespace
 
 bool UCL::print_opencl_platform_and_device_info(
     const cl_device_type device_type) {
@@ -758,8 +758,8 @@ bool UCL::isImageFormatSupported(cl_context context,
     }
   }
 
-#define CASE(VALUE) \
-  case VALUE:       \
+#define CASE(VALUE)                                                            \
+  case VALUE:                                                                  \
     return #VALUE
 
   auto channelOrderStr = [](cl_channel_order order) {
@@ -778,8 +778,8 @@ bool UCL::isImageFormatSupported(cl_context context,
       CASE(CL_RGx);
       CASE(CL_RGBx);
       CASE(CL_DEPTH);
-      default:
-        return "UNKNOWN CHANNEL ORDER";
+    default:
+      return "UNKNOWN CHANNEL ORDER";
     }
   };
 
@@ -800,8 +800,8 @@ bool UCL::isImageFormatSupported(cl_context context,
       CASE(CL_UNSIGNED_INT32);
       CASE(CL_HALF_FLOAT);
       CASE(CL_FLOAT);
-      default:
-        return "UNKNOWN CHANNEL DATA TYPE";
+    default:
+      return "UNKNOWN CHANNEL DATA TYPE";
     }
   };
 
@@ -1055,7 +1055,7 @@ bool UCL::hasDeviceExtensionSupport(cl_device_id device,
 
 bool UCL::hasSupportForOpenCL_C_1_0(cl_device_id device) {
   // Assuming that OpenCL C 1.0 is always supported.
-  (void)device;  // Suppress unused warning.
+  (void)device; // Suppress unused warning.
   return true;
 }
 
@@ -1137,70 +1137,70 @@ void UCL::aligned_free(void *ptr) {
 }
 
 size_t UCL::getPixelSize(const cl_image_format &format) {
-#define SIZE(ELEMENTS, DATA_TYPE) \
-  switch (DATA_TYPE) {            \
-    case CL_SNORM_INT8:           \
-      return (ELEMENTS) * 1ul;    \
-    case CL_SNORM_INT16:          \
-      return (ELEMENTS) * 2ul;    \
-    case CL_UNORM_INT8:           \
-      return (ELEMENTS) * 1ul;    \
-    case CL_UNORM_INT16:          \
-      return (ELEMENTS) * 2ul;    \
-    case CL_UNORM_SHORT_565:      \
-      return 2;                   \
-    case CL_UNORM_SHORT_555:      \
-      return 2;                   \
-    case CL_UNORM_INT_101010:     \
-      return 4;                   \
-    case CL_SIGNED_INT8:          \
-      return (ELEMENTS) * 1ul;    \
-    case CL_SIGNED_INT16:         \
-      return (ELEMENTS) * 2ul;    \
-    case CL_SIGNED_INT32:         \
-      return (ELEMENTS) * 4ul;    \
-    case CL_UNSIGNED_INT8:        \
-      return (ELEMENTS) * 1ul;    \
-    case CL_UNSIGNED_INT16:       \
-      return (ELEMENTS) * 2ul;    \
-    case CL_UNSIGNED_INT32:       \
-      return (ELEMENTS) * 4ul;    \
-    case CL_HALF_FLOAT:           \
-      return (ELEMENTS) * 2ul;    \
-    case CL_FLOAT:                \
-      return (ELEMENTS) * 4ul;    \
-    default:                      \
-      return (ELEMENTS) * 0ul;    \
+#define SIZE(ELEMENTS, DATA_TYPE)                                              \
+  switch (DATA_TYPE) {                                                         \
+  case CL_SNORM_INT8:                                                          \
+    return (ELEMENTS) * 1ul;                                                   \
+  case CL_SNORM_INT16:                                                         \
+    return (ELEMENTS) * 2ul;                                                   \
+  case CL_UNORM_INT8:                                                          \
+    return (ELEMENTS) * 1ul;                                                   \
+  case CL_UNORM_INT16:                                                         \
+    return (ELEMENTS) * 2ul;                                                   \
+  case CL_UNORM_SHORT_565:                                                     \
+    return 2;                                                                  \
+  case CL_UNORM_SHORT_555:                                                     \
+    return 2;                                                                  \
+  case CL_UNORM_INT_101010:                                                    \
+    return 4;                                                                  \
+  case CL_SIGNED_INT8:                                                         \
+    return (ELEMENTS) * 1ul;                                                   \
+  case CL_SIGNED_INT16:                                                        \
+    return (ELEMENTS) * 2ul;                                                   \
+  case CL_SIGNED_INT32:                                                        \
+    return (ELEMENTS) * 4ul;                                                   \
+  case CL_UNSIGNED_INT8:                                                       \
+    return (ELEMENTS) * 1ul;                                                   \
+  case CL_UNSIGNED_INT16:                                                      \
+    return (ELEMENTS) * 2ul;                                                   \
+  case CL_UNSIGNED_INT32:                                                      \
+    return (ELEMENTS) * 4ul;                                                   \
+  case CL_HALF_FLOAT:                                                          \
+    return (ELEMENTS) * 2ul;                                                   \
+  case CL_FLOAT:                                                               \
+    return (ELEMENTS) * 4ul;                                                   \
+  default:                                                                     \
+    return (ELEMENTS) * 0ul;                                                   \
   }
   switch (format.image_channel_order) {
-    case CL_R:
-      SIZE(1, format.image_channel_data_type)
-    case CL_Rx:
-      SIZE(1, format.image_channel_data_type)
-    case CL_A:
-      SIZE(1, format.image_channel_data_type)
-    case CL_INTENSITY:
-      SIZE(1, format.image_channel_data_type)
-    case CL_LUMINANCE:
-      SIZE(1, format.image_channel_data_type)
-    case CL_RG:
-      SIZE(2, format.image_channel_data_type)
-    case CL_RGx:
-      SIZE(2, format.image_channel_data_type)
-    case CL_RA:
-      SIZE(2, format.image_channel_data_type)
-    case CL_RGB:
-      SIZE(3, format.image_channel_data_type)
-    case CL_RGBx:
-      SIZE(3, format.image_channel_data_type)
-    case CL_RGBA:
-      SIZE(4, format.image_channel_data_type)
-    case CL_ARGB:
-      SIZE(4, format.image_channel_data_type)
-    case CL_BGRA:
-      SIZE(4, format.image_channel_data_type)
-    default:
-      break;
+  case CL_R:
+    SIZE(1, format.image_channel_data_type)
+  case CL_Rx:
+    SIZE(1, format.image_channel_data_type)
+  case CL_A:
+    SIZE(1, format.image_channel_data_type)
+  case CL_INTENSITY:
+    SIZE(1, format.image_channel_data_type)
+  case CL_LUMINANCE:
+    SIZE(1, format.image_channel_data_type)
+  case CL_RG:
+    SIZE(2, format.image_channel_data_type)
+  case CL_RGx:
+    SIZE(2, format.image_channel_data_type)
+  case CL_RA:
+    SIZE(2, format.image_channel_data_type)
+  case CL_RGB:
+    SIZE(3, format.image_channel_data_type)
+  case CL_RGBx:
+    SIZE(3, format.image_channel_data_type)
+  case CL_RGBA:
+    SIZE(4, format.image_channel_data_type)
+  case CL_ARGB:
+    SIZE(4, format.image_channel_data_type)
+  case CL_BGRA:
+    SIZE(4, format.image_channel_data_type)
+  default:
+    break;
   }
 #undef SIZE
   return 0;
@@ -1268,12 +1268,12 @@ bool UCL::hasDenormSupport(cl_device_id device, cl_uint precision) {
   cl_device_fp_config config;
 
   switch (precision) {
-    case CL_DEVICE_HALF_FP_CONFIG:
-    case CL_DEVICE_SINGLE_FP_CONFIG:
-    case CL_DEVICE_DOUBLE_FP_CONFIG:
-      break;
-    default:
-      return false;
+  case CL_DEVICE_HALF_FP_CONFIG:
+  case CL_DEVICE_SINGLE_FP_CONFIG:
+  case CL_DEVICE_DOUBLE_FP_CONFIG:
+    break;
+  default:
+    return false;
   }
 
   if (CL_SUCCESS !=
@@ -1310,10 +1310,10 @@ bool UCL::hasAtomic64Support(cl_device_id device) {
 
 bool UCL::hasCompilerSupport(cl_device_id device) {
   cl_bool has_compiler;
-  UCL_ASSERT(
-      CL_SUCCESS == clGetDeviceInfo(device, CL_DEVICE_COMPILER_AVAILABLE,
-                                    sizeof(cl_bool), &has_compiler, nullptr),
-      "clGetDeviceInfo() failed.");
+  UCL_ASSERT(CL_SUCCESS == clGetDeviceInfo(device, CL_DEVICE_COMPILER_AVAILABLE,
+                                           sizeof(cl_bool), &has_compiler,
+                                           nullptr),
+             "clGetDeviceInfo() failed.");
   return has_compiler;
 }
 
@@ -1407,7 +1407,7 @@ float UCL::parse_hexfloat(const char *str) {
 
   // If the exponent is negative we have a denormal
   if (exponent >= 0) {
-    float_bits |= (exponent & 0xff) << 23;  // exponent starts at bit 23.
+    float_bits |= (exponent & 0xff) << 23; // exponent starts at bit 23.
   } else {
     // For denormals we need the 1 from the prefix we skipped over above
     mantissa |= 1 << 23;
@@ -1418,7 +1418,7 @@ float UCL::parse_hexfloat(const char *str) {
 
   return cargo::bit_cast<float>(float_bits);
 }
-#endif  // _MSC_VER
+#endif // _MSC_VER
 
 bool UCL::isDevice(cl_device_id device, const char *check_device_prefix,
                    cl_device_type check_device_type) {
@@ -1456,9 +1456,9 @@ std::string UCL::handleUnhandledCase(const std::string &type,
 
 std::string UCL::deviceQueryToString(cl_device_info query) {
   // Helper macro to case the query using stringification.
-#define DEVICE_QUERY_CASE(DEVICE_QUERY) \
-  case DEVICE_QUERY: {                  \
-    return #DEVICE_QUERY;               \
+#define DEVICE_QUERY_CASE(DEVICE_QUERY)                                        \
+  case DEVICE_QUERY: {                                                         \
+    return #DEVICE_QUERY;                                                      \
   } break
 
   switch (query) {
@@ -1592,18 +1592,18 @@ std::string UCL::deviceQueryToString(cl_device_info query) {
     DEVICE_QUERY_CASE(CL_DEVICE_PIPE_SUPPORT);
     DEVICE_QUERY_CASE(CL_DEVICE_LATEST_CONFORMANCE_VERSION_PASSED);
 #endif
-    default: {
-      return handleUnhandledCase("device query", query);
-    } break;
+  default: {
+    return handleUnhandledCase("device query", query);
+  } break;
   }
 #undef DEVICE_QUERY_CASE
 }
 
 std::string UCL::programQueryToString(cl_program_info query) {
   // Helper macro to case the query using stringification.
-#define PROGRAM_QUERY_CASE(PROGRAM_QUERY) \
-  case PROGRAM_QUERY: {                   \
-    return #PROGRAM_QUERY;                \
+#define PROGRAM_QUERY_CASE(PROGRAM_QUERY)                                      \
+  case PROGRAM_QUERY: {                                                        \
+    return #PROGRAM_QUERY;                                                     \
   } break
   switch (query) {
     PROGRAM_QUERY_CASE(CL_PROGRAM_REFERENCE_COUNT);
@@ -1624,17 +1624,17 @@ std::string UCL::programQueryToString(cl_program_info query) {
     PROGRAM_QUERY_CASE(CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT);
     PROGRAM_QUERY_CASE(CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT);
 #endif
-    default: {
-      return handleUnhandledCase("program query", query);
-    } break;
+  default: {
+    return handleUnhandledCase("program query", query);
+  } break;
   }
 }
 #undef PROGRAM_QUERY_CASE
 std::string UCL::platformQueryToString(cl_platform_info query) {
   // Helper macro to case the query using stringification.
-#define PLATFORM_QUERY_CASE(PLATFORM_QUERY) \
-  case PLATFORM_QUERY: {                    \
-    return #PLATFORM_QUERY;                 \
+#define PLATFORM_QUERY_CASE(PLATFORM_QUERY)                                    \
+  case PLATFORM_QUERY: {                                                       \
+    return #PLATFORM_QUERY;                                                    \
   } break
   switch (query) {
     PLATFORM_QUERY_CASE(CL_PLATFORM_PROFILE);
@@ -1649,18 +1649,18 @@ std::string UCL::platformQueryToString(cl_platform_info query) {
     PLATFORM_QUERY_CASE(CL_PLATFORM_NUMERIC_VERSION);
     PLATFORM_QUERY_CASE(CL_PLATFORM_EXTENSIONS_WITH_VERSION);
 #endif
-    default: {
-      return handleUnhandledCase("platform query", query);
-    } break;
+  default: {
+    return handleUnhandledCase("platform query", query);
+  } break;
   }
 }
 #undef PLATFORM_QUERY_CASE
 
 std::string UCL::programBuildQueryToString(cl_program_build_info query) {
   // Helper Maco to casee the query using stringification.
-#define PROGRAM_BUILD_QUERY_CASE(PROGRAM_BUILD_QUERY) \
-  case PROGRAM_BUILD_QUERY: {                         \
-    return #PROGRAM_BUILD_QUERY;                      \
+#define PROGRAM_BUILD_QUERY_CASE(PROGRAM_BUILD_QUERY)                          \
+  case PROGRAM_BUILD_QUERY: {                                                  \
+    return #PROGRAM_BUILD_QUERY;                                               \
   } break
   switch (query) {
     PROGRAM_BUILD_QUERY_CASE(CL_PROGRAM_BUILD_STATUS);
@@ -1672,39 +1672,39 @@ std::string UCL::programBuildQueryToString(cl_program_build_info query) {
 #ifdef CL_VERSION_2_0
     PROGRAM_BUILD_QUERY_CASE(CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE);
 #endif
-    default: {
-      return handleUnhandledCase("program build query", query);
-    } break;
+  default: {
+    return handleUnhandledCase("program build query", query);
+  } break;
   }
 }
 #undef PROGRAM_BUILD_QUERY_CASE
 
 std::string UCL::memObjectQueryToString(cl_mem_info query) {
   // Helper macro to case the query using stringification.
-#define MEM_OBJECT_QUERY_CASE(MEM_OBJECT_QUERY) \
-  case MEM_OBJECT_QUERY: {                      \
-    return #MEM_OBJECT_QUERY;                   \
+#define MEM_OBJECT_QUERY_CASE(MEM_OBJECT_QUERY)                                \
+  case MEM_OBJECT_QUERY: {                                                     \
+    return #MEM_OBJECT_QUERY;                                                  \
   } break
   switch (query) {
-    default: {
-      return handleUnhandledCase("memobject query", query);
-    } break;
-      MEM_OBJECT_QUERY_CASE(CL_MEM_TYPE);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_FLAGS);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_SIZE);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_HOST_PTR);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_MAP_COUNT);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_REFERENCE_COUNT);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_CONTEXT);
+  default: {
+    return handleUnhandledCase("memobject query", query);
+  } break;
+    MEM_OBJECT_QUERY_CASE(CL_MEM_TYPE);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_FLAGS);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_SIZE);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_HOST_PTR);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_MAP_COUNT);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_REFERENCE_COUNT);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_CONTEXT);
 #ifdef CL_VERSION_1_1
-      MEM_OBJECT_QUERY_CASE(CL_MEM_ASSOCIATED_MEMOBJECT);
-      MEM_OBJECT_QUERY_CASE(CL_MEM_OFFSET);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_ASSOCIATED_MEMOBJECT);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_OFFSET);
 #endif
 #ifdef CL_VERSION_2_0
-      MEM_OBJECT_QUERY_CASE(CL_MEM_USES_SVM_POINTER);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_USES_SVM_POINTER);
 #endif
 #if defined(CL_VERSION_3_0)
-      MEM_OBJECT_QUERY_CASE(CL_MEM_PROPERTIES);
+    MEM_OBJECT_QUERY_CASE(CL_MEM_PROPERTIES);
 #endif
   }
 }
@@ -1712,46 +1712,46 @@ std::string UCL::memObjectQueryToString(cl_mem_info query) {
 
 std::string UCL::commandQueueQueryToString(cl_command_queue_info query) {
   // Helper macro to case the query using stringification.
-#define COMMAND_QUEUE_QUERY_CASE(COMMAND_QUEUE_QUERY) \
-  case COMMAND_QUEUE_QUERY: {                         \
-    return #COMMAND_QUEUE_QUERY;                      \
+#define COMMAND_QUEUE_QUERY_CASE(COMMAND_QUEUE_QUERY)                          \
+  case COMMAND_QUEUE_QUERY: {                                                  \
+    return #COMMAND_QUEUE_QUERY;                                               \
   } break
   switch (query) {
-    default: {
-      return handleUnhandledCase("command queue query", query);
-    } break;
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_CONTEXT);
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_DEVICE);
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_REFERENCE_COUNT);
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_PROPERTIES);
+  default: {
+    return handleUnhandledCase("command queue query", query);
+  } break;
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_CONTEXT);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_DEVICE);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_REFERENCE_COUNT);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_PROPERTIES);
 #ifdef CL_VERSION_2_0
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_SIZE);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_SIZE);
 #endif
 #ifdef CL_VERSION_2_1
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_DEVICE_DEFAULT);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_DEVICE_DEFAULT);
 #endif
 #if defined(CL_VERSION_3_0)
-      COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_PROPERTIES_ARRAY);
+    COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_PROPERTIES_ARRAY);
 #endif
   }
 }
 #undef COMMAND_QUEUE_INFO_CASE
 
 std::string UCL::profilingQueryToString(cl_profiling_info query) {
-#define PROFILING_QUERY_CASE(PROFILING_QUERY) \
-  case PROFILING_QUERY: {                     \
-    return #PROFILING_QUERY;                  \
+#define PROFILING_QUERY_CASE(PROFILING_QUERY)                                  \
+  case PROFILING_QUERY: {                                                      \
+    return #PROFILING_QUERY;                                                   \
   } break
   switch (query) {
-    default: {
-      return handleUnhandledCase("profiling query", query);
-    } break;
-      PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_QUEUED);
-      PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_SUBMIT);
-      PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_START);
-      PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_END);
+  default: {
+    return handleUnhandledCase("profiling query", query);
+  } break;
+    PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_QUEUED);
+    PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_SUBMIT);
+    PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_START);
+    PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_END);
 #ifdef CL_VERSION_2_0
-      PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_COMPLETE);
+    PROFILING_QUERY_CASE(CL_PROFILING_COMMAND_COMPLETE);
 #endif
   }
 }
@@ -1768,8 +1768,8 @@ bool UCL::verifyOpenCLCVersionString(
   return std::regex_match(opencl_c_version_string, valid_version);
 }
 
-cargo::optional<std::pair<int, int>> UCL::parseOpenCLVersionString(
-    const std::string &opencl_version_string) {
+cargo::optional<std::pair<int, int>>
+UCL::parseOpenCLVersionString(const std::string &opencl_version_string) {
   if (!UCL::verifyOpenCLVersionString(opencl_version_string)) {
     return {};
   }

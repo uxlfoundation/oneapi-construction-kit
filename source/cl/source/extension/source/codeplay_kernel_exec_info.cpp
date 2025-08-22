@@ -54,7 +54,7 @@ cl_int CL_API_CALL clSetKernelExecInfoCODEPLAY(
   OCL_CHECK(!param_value_size, return CL_INVALID_VALUE);
   OCL_CHECK(!param_value, return CL_INVALID_VALUE);
 
-#if (defined(CL_VERSION_3_0) || \
+#if (defined(CL_VERSION_3_0) ||                                                \
      defined(OCL_EXTENSION_cl_codeplay_kernel_exec_info))
   return extension::SetKernelExecInfo(kernel, param_name, param_value_size,
                                       param_value);

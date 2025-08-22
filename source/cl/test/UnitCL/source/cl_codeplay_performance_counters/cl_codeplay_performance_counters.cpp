@@ -52,7 +52,7 @@ TEST_F(cl_codeplay_performance_counters_Test, Default) {
   size_t size;
   ASSERT_SUCCESS(clGetDeviceInfo(
       device, CL_DEVICE_PERFORMANCE_COUNTERS_CODEPLAY, 0, nullptr, &size));
-  if (size == 0) {  // There are no available performance counters.
+  if (size == 0) { // There are no available performance counters.
     return;
   }
   std::vector<cl_performance_counter_codeplay> counters{
@@ -100,26 +100,26 @@ TEST_F(cl_codeplay_performance_counters_Test, Default) {
   // Display the result, we don't know what the valid range of values is so
   // there is no way to expect a specific value.
   switch (counters[0].storage) {
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT32_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.int32 << "\n";
-      break;
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT64_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.int64 << "\n";
-      break;
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT32_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.uint32 << "\n";
-      break;
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT64_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.uint64 << "\n";
-      break;
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT32_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.float32 << "\n";
-      break;
-    case CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT64_CODEPLAY:
-      std::cout << counters[0].name << " has value: " << result.float64 << "\n";
-      break;
-    default:
-      UCL_ABORT("invalid storage type %d", (int)counters[0].storage);
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT32_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.int32 << "\n";
+    break;
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT64_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.int64 << "\n";
+    break;
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT32_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.uint32 << "\n";
+    break;
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT64_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.uint64 << "\n";
+    break;
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT32_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.float32 << "\n";
+    break;
+  case CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT64_CODEPLAY:
+    std::cout << counters[0].name << " has value: " << result.float64 << "\n";
+    break;
+  default:
+    UCL_ABORT("invalid storage type %d", (int)counters[0].storage);
   }
   // Cleanup
   EXPECT_SUCCESS(clReleaseEvent(event));

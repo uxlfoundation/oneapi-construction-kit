@@ -34,9 +34,9 @@ struct Error {
   Error(cl_int error) : error(error) {}
 
   std::string description() const {
-#define ERRCODE_RET_WRAPPER_CASE(ERRCODE) \
-  case ERRCODE: {                         \
-    return #ERRCODE;                      \
+#define ERRCODE_RET_WRAPPER_CASE(ERRCODE)                                      \
+  case ERRCODE: {                                                              \
+    return #ERRCODE;                                                           \
   } break
 
     switch (error) {
@@ -106,9 +106,9 @@ struct Error {
       ERRCODE_RET_WRAPPER_CASE(CL_INCOMPATIBLE_COMMAND_QUEUE_KHR);
       ERRCODE_RET_WRAPPER_CASE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR);
       ERRCODE_RET_WRAPPER_CASE(CL_INVALID_MUTABLE_COMMAND_KHR);
-      default: {
-        return "Unknown error code: " + std::to_string(error);
-      } break;
+    default: {
+      return "Unknown error code: " + std::to_string(error);
+    } break;
     }
 
 #undef ERRCODE_RET_WRAPPER_CASE
@@ -122,15 +122,15 @@ struct Error {
 inline std::ostream &operator<<(std::ostream &os, const Error &error) {
   return os << error.description();
 }
-}  // namespace ucl
+} // namespace ucl
 
 #ifndef ASSERT_EQ_ERRCODE
-#define ASSERT_EQ_ERRCODE(val1, val2) \
+#define ASSERT_EQ_ERRCODE(val1, val2)                                          \
   ASSERT_EQ(ucl::Error(val1), ucl::Error(val2))
 #endif
 
 #ifndef EXPECT_EQ_ERRCODE
-#define EXPECT_EQ_ERRCODE(val1, val2) \
+#define EXPECT_EQ_ERRCODE(val1, val2)                                          \
   EXPECT_EQ(ucl::Error(val1), ucl::Error(val2))
 #endif
 
@@ -142,4 +142,4 @@ inline std::ostream &operator<<(std::ostream &os, const Error &error) {
 #define EXPECT_SUCCESS(ACTUAL) EXPECT_EQ_ERRCODE(CL_SUCCESS, ACTUAL)
 #endif
 
-#endif  // UNITCL_CHECKS_H_INCLUDED
+#endif // UNITCL_CHECKS_H_INCLUDED

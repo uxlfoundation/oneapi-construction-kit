@@ -23,4 +23,4 @@
 #include <windows.h>
 #endif
 
-#endif  // CL_WINDOWS_H_INCLUDED
+#endif // CL_WINDOWS_H_INCLUDED

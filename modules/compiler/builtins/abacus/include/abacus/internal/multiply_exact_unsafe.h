@@ -25,16 +25,14 @@ namespace {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct Helper;
 
-template <typename T>
-struct Helper<T, abacus_uint> {
+template <typename T> struct Helper<T, abacus_uint> {
   static const abacus_uint m = 0xFFFFF000u;
 };
 
-template <typename T>
-struct Helper<T, abacus_ulong> {
+template <typename T> struct Helper<T, abacus_ulong> {
   static const abacus_ulong m = 0xFFFFFFFFF8000000u;
 };
-}  // namespace
+} // namespace
 
 namespace abacus {
 namespace internal {
@@ -67,7 +65,7 @@ inline T multiply_exact_unsafe(const T x, const T y, T *out_remainder) {
   *out_remainder = t3 + x_lo * y_lo;
   return r1;
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_MULTIPLY_EXACT_UNSAFE_H__
+#endif //__ABACUS_INTERNAL_MULTIPLY_EXACT_UNSAFE_H__

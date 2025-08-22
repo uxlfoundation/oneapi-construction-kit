@@ -372,7 +372,7 @@ TEST_F(CommandBufferEnqueueTest, MixedCommands) {
 // This helper class allows us to quickly enqueue command buffers and regular
 // commands in different combinations.
 class InterleavedCommands : public cl_khr_command_buffer_Test {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
     // Requires a compiler to compile the kernels.
@@ -784,7 +784,7 @@ TEST_F(CommandBufferEnqueueTest, EnqueueInLoopWithoutBlockingRead) {
 }
 
 class SubstituteCommandQueueTest : public cl_khr_command_buffer_Test {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
     auto error = CL_SUCCESS;
@@ -835,10 +835,10 @@ TEST_F(SubstituteCommandQueueTest, CompatibleQueueSimultaneousNoFlag) {
 
   EXPECT_SUCCESS(clEnqueueCommandBufferKHR(1, &command_queue, command_buffer, 1,
                                            &user_event, nullptr));
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueCommandBufferKHR(1, &compatible_command_queue, command_buffer, 0,
-                                nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueCommandBufferKHR(1, &compatible_command_queue,
+                                              command_buffer, 0, nullptr,
+                                              nullptr));
 
   EXPECT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));
   EXPECT_SUCCESS(clFinish(command_queue));
@@ -942,10 +942,10 @@ TEST_F(SubstituteCommandQueueTest, IncompatibleQueueProperties) {
   EXPECT_SUCCESS(error);
 
   // Enqueue the command buffer substituting with incompatible command queue.
-  EXPECT_EQ_ERRCODE(
-      CL_INCOMPATIBLE_COMMAND_QUEUE_KHR,
-      clEnqueueCommandBufferKHR(1, &incompatible_command_queue, command_buffer,
-                                0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INCOMPATIBLE_COMMAND_QUEUE_KHR,
+                    clEnqueueCommandBufferKHR(1, &incompatible_command_queue,
+                                              command_buffer, 0, nullptr,
+                                              nullptr));
 
   // Cleanup resources.
   EXPECT_SUCCESS(clReleaseCommandQueue(incompatible_command_queue));
@@ -984,10 +984,10 @@ TEST_F(SubstituteCommandQueueTest, DISABLED_IncompatibleQueueDevice) {
   EXPECT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
 
   // Enqueue the command buffer substituting with incompatible command queue.
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_COMMAND_QUEUE,
-      clEnqueueCommandBufferKHR(1, &substitute_command_queue, command_buffer, 0,
-                                nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
+                    clEnqueueCommandBufferKHR(1, &substitute_command_queue,
+                                              command_buffer, 0, nullptr,
+                                              nullptr));
 
   // Cleanup resources.
   EXPECT_SUCCESS(clReleaseCommandBufferKHR(command_buffer));
@@ -1008,10 +1008,10 @@ TEST_F(SubstituteCommandQueueTest, IncompatibleQueueContext) {
   EXPECT_SUCCESS(error);
 
   // Enqueue the command buffer substituting with incompatible command queue.
-  EXPECT_EQ_ERRCODE(
-      CL_INCOMPATIBLE_COMMAND_QUEUE_KHR,
-      clEnqueueCommandBufferKHR(1, &incompatible_command_queue, command_buffer,
-                                0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INCOMPATIBLE_COMMAND_QUEUE_KHR,
+                    clEnqueueCommandBufferKHR(1, &incompatible_command_queue,
+                                              command_buffer, 0, nullptr,
+                                              nullptr));
 
   // Cleanup resources.
   EXPECT_SUCCESS(clReleaseCommandQueue(incompatible_command_queue));

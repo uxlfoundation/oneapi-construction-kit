@@ -44,4 +44,4 @@ const compiler::Info *getCompilerForDevice(mux_device_info_t device_info) {
 std::unique_ptr<Context> createContext() {
   return std::unique_ptr<Context>{new BaseContext};
 }
-}  // namespace compiler
+} // namespace compiler

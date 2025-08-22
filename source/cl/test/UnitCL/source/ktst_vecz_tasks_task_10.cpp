@@ -78,7 +78,7 @@ using OneArgRelationals = ExecutionWithParam<TypeAndFunctionParam>;
 
 TEST_P(OneArgRelationals, Task_10_04_OneArg_Relationals) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection does not support rebuilding a program.
+    GTEST_SKIP(); // Injection does not support rebuilding a program.
   }
   auto Param = getParam();
   const std::string InTy = Param.first;

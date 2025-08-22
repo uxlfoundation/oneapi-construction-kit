@@ -31,12 +31,10 @@ namespace mux {
 /// @brief Custom `std::unique_ptr` deleter for Mux API objects.
 ///
 /// @tparam T Type of the Mux API object.
-template <class T>
-struct deleter;
+template <class T> struct deleter;
 
 /// @brief Custom deleter for `mux_device_t` objects.
-template <>
-struct deleter<mux_device_t> {
+template <> struct deleter<mux_device_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param allocator_info Core allocator used for destruction.
@@ -54,8 +52,7 @@ struct deleter<mux_device_t> {
 };
 
 /// @brief Custom deleter for `mux_memory_t` objects.
-template <>
-struct deleter<mux_memory_t> {
+template <> struct deleter<mux_memory_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -75,8 +72,7 @@ struct deleter<mux_memory_t> {
 };
 
 /// @brief Custom deleter for `mux_buffer_t` objects.
-template <>
-struct deleter<mux_buffer_t> {
+template <> struct deleter<mux_buffer_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -96,8 +92,7 @@ struct deleter<mux_buffer_t> {
 };
 
 /// @brief Custom deleter for `mux_image_t` objects.
-template <>
-struct deleter<mux_image_t> {
+template <> struct deleter<mux_image_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -117,8 +112,7 @@ struct deleter<mux_image_t> {
 };
 
 /// @brief Custom deleter for `mux_fence_t` objects.
-template <>
-struct deleter<mux_fence_t> {
+template <> struct deleter<mux_fence_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -138,8 +132,7 @@ struct deleter<mux_fence_t> {
 };
 
 /// @brief Custom deleter for `mux_semaphore_t` objects.
-template <>
-struct deleter<mux_semaphore_t> {
+template <> struct deleter<mux_semaphore_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -159,8 +152,7 @@ struct deleter<mux_semaphore_t> {
 };
 
 /// @brief Custom deleter for `mux_command_buffer_t` objects.
-template <>
-struct deleter<mux_command_buffer_t> {
+template <> struct deleter<mux_command_buffer_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -180,8 +172,7 @@ struct deleter<mux_command_buffer_t> {
 };
 
 /// @brief Custom deleter for `mux_executable_t` objects.
-template <>
-struct deleter<mux_executable_t> {
+template <> struct deleter<mux_executable_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -201,8 +192,7 @@ struct deleter<mux_executable_t> {
 };
 
 /// @brief Custom deleter for `mux_kernel_t` objects.
-template <>
-struct deleter<mux_kernel_t> {
+template <> struct deleter<mux_kernel_t> {
   /// @brief Deleter state constructor.
   ///
   /// @param device Mux device used for destruction.
@@ -226,6 +216,6 @@ struct deleter<mux_kernel_t> {
 /// @tparam T Type of the Mux API object.
 template <class T>
 using unique_ptr = std::unique_ptr<std::remove_pointer_t<T>, mux::deleter<T>>;
-}  // namespace mux
+} // namespace mux
 
-#endif  // MUX_MUX_HPP_INCLUDED
+#endif // MUX_MUX_HPP_INCLUDED

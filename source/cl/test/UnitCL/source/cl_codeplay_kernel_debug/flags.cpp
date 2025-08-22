@@ -42,7 +42,7 @@ struct cl_codeplay_kernel_debug : ucl::ContextTest {
 
 TEST_F(cl_codeplay_kernel_debug, compileDebugInfoFlag) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "-g", 0, nullptr,
                                   nullptr, nullptr, nullptr));
@@ -54,7 +54,7 @@ TEST_F(cl_codeplay_kernel_debug, buildDebugInfoFlag) {
 
 TEST_F(cl_codeplay_kernel_debug, compileSourceFlag) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr, "-S /path/to/cl/source",
                                   0, nullptr, nullptr, nullptr, nullptr));
@@ -67,7 +67,7 @@ TEST_F(cl_codeplay_kernel_debug, buildSourceFlag) {
 
 TEST_F(cl_codeplay_kernel_debug, compileSourceAndDebugInfoFlags) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
   }
   ASSERT_SUCCESS(clCompileProgram(program, 0, nullptr,
                                   "-S /path/to/cl/source -g", 0, nullptr,

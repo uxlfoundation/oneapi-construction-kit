@@ -30,18 +30,10 @@ _cl_mem::_cl_mem(const cl_context context, const cl_mem_flags flags,
                  cl_mem optional_parent, void *host_ptr,
                  const cl::ref_count_type ref_count_init_type,
                  cargo::dynamic_array<mux_memory_t> &&mux_memories)
-    : base<_cl_mem>(ref_count_init_type),
-      context(context),
-      flags(flags),
-      size(size),
-      type(type),
-      optional_parent(optional_parent),
-      host_ptr(host_ptr),
-      mux_memories(std::move(mux_memories)),
-      callbacks(),
-      callback_datas(),
-      mapCount(0),
-      map_base_pointer(nullptr),
+    : base<_cl_mem>(ref_count_init_type), context(context), flags(flags),
+      size(size), type(type), optional_parent(optional_parent),
+      host_ptr(host_ptr), mux_memories(std::move(mux_memories)), callbacks(),
+      callback_datas(), mapCount(0), map_base_pointer(nullptr),
       device_owner(nullptr)
 #if defined(CL_VERSION_3_0)
       ,
@@ -138,7 +130,7 @@ cl_int _cl_mem::allocateMemory(mux_device_t mux_device,
   }
 
   const uint32_t heap = mux::findFirstSupportedHeap(supported_heaps);
-  const uint32_t alignment = 0;  // No alignment preference
+  const uint32_t alignment = 0; // No alignment preference
   mux_result_t error =
       muxAllocateMemory(mux_device, size, heap, memoryProperties,
                         allocationType, alignment, mux_allocator, out_memory);
@@ -244,10 +236,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
     mapping_state_t(cl_mem mem, size_t offset, size_t size, void *ptr,
                     cl_uint device_index)
         : mem(mem->optional_parent ? mem->optional_parent : mem),
-          offset(offset),
-          size(size),
-          ptr(ptr),
-          device_index(device_index) {}
+          offset(offset), size(size), ptr(ptr), device_index(device_index) {}
 
     void flushMemoryFromDevice() {
       mux_device_t device = mem->context->devices[device_index]->mux_device;
@@ -379,12 +368,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
   const tracer::TraceGuard<tracer::OpenCL> guard("clGetMemObjectInfo");
   OCL_CHECK(!memobj, return CL_INVALID_MEM_OBJECT);
 
-#define MEM_OBJECT_INFO_CASE(NAME, TYPE, VALUE)                   \
-  case NAME: {                                                    \
-    OCL_CHECK(param_value &&param_value_size < sizeof(TYPE),      \
-              return CL_INVALID_VALUE);                           \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(TYPE));      \
-    OCL_SET_IF_NOT_NULL(static_cast<TYPE *>(param_value), VALUE); \
+#define MEM_OBJECT_INFO_CASE(NAME, TYPE, VALUE)                                \
+  case NAME: {                                                                 \
+    OCL_CHECK(param_value && param_value_size < sizeof(TYPE),                  \
+              return CL_INVALID_VALUE);                                        \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(TYPE));                   \
+    OCL_SET_IF_NOT_NULL(static_cast<TYPE *>(param_value), VALUE);              \
   } break
 
   switch (param_name) {
@@ -401,51 +390,50 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
                          memobj->refCountExternal());
     MEM_OBJECT_INFO_CASE(CL_MEM_CONTEXT, cl_context, memobj->context);
 
-    case CL_MEM_ASSOCIATED_MEMOBJECT: {
-      OCL_CHECK(param_value && param_value_size < sizeof(cl_mem),
-                return CL_INVALID_VALUE);
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_mem));
+  case CL_MEM_ASSOCIATED_MEMOBJECT: {
+    OCL_CHECK(param_value && param_value_size < sizeof(cl_mem),
+              return CL_INVALID_VALUE);
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_mem));
 
-      if (CL_MEM_OBJECT_BUFFER == memobj->type) {
-        OCL_SET_IF_NOT_NULL(static_cast<cl_mem *>(param_value),
-                            memobj->optional_parent);
-      } else {
-        OCL_SET_IF_NOT_NULL(static_cast<cl_mem *>(param_value), nullptr);
-      }
-    } break;
-
-    case CL_MEM_OFFSET: {
-      OCL_CHECK(param_value && param_value_size < sizeof(size_t),
-                return CL_INVALID_VALUE);
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-
-      if (CL_MEM_OBJECT_BUFFER == memobj->type &&
-          nullptr != memobj->optional_parent) {
-        OCL_SET_IF_NOT_NULL(static_cast<size_t *>(param_value),
-                            static_cast<_cl_mem_buffer *>(memobj)->offset);
-      } else {
-        OCL_SET_IF_NOT_NULL(static_cast<size_t *>(param_value), size_t(0));
-      }
-    } break;
-#if defined(CL_VERSION_3_0)
-    case CL_MEM_PROPERTIES: {
-      const size_t size = sizeof(cl_mem_properties) * memobj->properties.size();
-      OCL_CHECK(param_value && param_value_size < size,
-                return CL_INVALID_VALUE);
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
-      if (param_value) {
-        auto *value = static_cast<cl_mem_properties *>(param_value);
-        std::copy(memobj->properties.begin(), memobj->properties.end(), value);
-      }
-    } break;
-      MEM_OBJECT_INFO_CASE(CL_MEM_USES_SVM_POINTER,
-                           decltype(memobj->uses_svm_pointer),
-                           memobj->uses_svm_pointer);
-#endif
-    default: {
-      return extension::GetMemObjectInfo(memobj, param_name, param_value_size,
-                                         param_value, param_value_size_ret);
+    if (CL_MEM_OBJECT_BUFFER == memobj->type) {
+      OCL_SET_IF_NOT_NULL(static_cast<cl_mem *>(param_value),
+                          memobj->optional_parent);
+    } else {
+      OCL_SET_IF_NOT_NULL(static_cast<cl_mem *>(param_value), nullptr);
     }
+  } break;
+
+  case CL_MEM_OFFSET: {
+    OCL_CHECK(param_value && param_value_size < sizeof(size_t),
+              return CL_INVALID_VALUE);
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+
+    if (CL_MEM_OBJECT_BUFFER == memobj->type &&
+        nullptr != memobj->optional_parent) {
+      OCL_SET_IF_NOT_NULL(static_cast<size_t *>(param_value),
+                          static_cast<_cl_mem_buffer *>(memobj)->offset);
+    } else {
+      OCL_SET_IF_NOT_NULL(static_cast<size_t *>(param_value), size_t(0));
+    }
+  } break;
+#if defined(CL_VERSION_3_0)
+  case CL_MEM_PROPERTIES: {
+    const size_t size = sizeof(cl_mem_properties) * memobj->properties.size();
+    OCL_CHECK(param_value && param_value_size < size, return CL_INVALID_VALUE);
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+    if (param_value) {
+      auto *value = static_cast<cl_mem_properties *>(param_value);
+      std::copy(memobj->properties.begin(), memobj->properties.end(), value);
+    }
+  } break;
+    MEM_OBJECT_INFO_CASE(CL_MEM_USES_SVM_POINTER,
+                         decltype(memobj->uses_svm_pointer),
+                         memobj->uses_svm_pointer);
+#endif
+  default: {
+    return extension::GetMemObjectInfo(memobj, param_name, param_value_size,
+                                       param_value, param_value_size_ret);
+  }
   }
 
 #undef MEM_OBJECT_INFO_CASE

@@ -31,13 +31,13 @@ namespace utils {
 /// This pass will manually link in any functions required from a given
 /// `builtins` module, into the current module.
 class LinkBuiltinsPass final : public llvm::PassInfoMixin<LinkBuiltinsPass> {
- public:
+public:
   ///
   LinkBuiltinsPass() {}
 
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
- private:
+private:
   void cloneStructs(llvm::Module &M, llvm::Module &BuiltinsModule,
                     compiler::utils::StructMap &Map);
   void cloneBuiltins(
@@ -45,7 +45,7 @@ class LinkBuiltinsPass final : public llvm::PassInfoMixin<LinkBuiltinsPass> {
       llvm::SmallVectorImpl<std::pair<llvm::Function *, bool>> &BuiltinFnDecls,
       compiler::utils::StructTypeRemapper *StructMap);
 };
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler
 
-#endif  // COMPILER_UTILS_LINK_BUILTINS_PASS_H_INCLUDED
+#endif // COMPILER_UTILS_LINK_BUILTINS_PASS_H_INCLUDED

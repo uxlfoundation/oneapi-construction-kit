@@ -39,8 +39,7 @@ class basic_value {
   struct type_concept {
     virtual ~type_concept() = default;
   };
-  template <class BasicType>
-  struct storage final : type_concept {
+  template <class BasicType> struct storage final : type_concept {
     storage(BasicType x) : m_data(std::move(x)) {}
     BasicType m_data;
   };
@@ -49,7 +48,7 @@ class basic_value {
   md_value_type m_type;
   std::shared_ptr<type_concept> m_data;
 
- public:
+public:
   /// @brief Construct a new basic value object.
   ///
   /// @tparam T The concrete type of the value to be stored.
@@ -61,8 +60,7 @@ class basic_value {
   template <class T, class... Args>
   basic_value(allocator_helper_t alloc, md_value_type value_type, T &&obj,
               Args... args)
-      : m_alloc(std::move(alloc)),
-        m_type(value_type),
+      : m_alloc(std::move(alloc)), m_type(value_type),
         m_data(m_alloc.template allocate_shared<storage<T>>(
             std::forward<T>(obj, args...))) {}
 
@@ -76,8 +74,7 @@ class basic_value {
   ///
   /// @tparam T The underlying data type.
   /// @return T* to the stored data object.
-  template <class T>
-  T *get() const {
+  template <class T> T *get() const {
     auto *store = static_cast<storage<T> *>(m_data.get());
     return static_cast<T *>(&store->m_data);
   }
@@ -102,7 +99,7 @@ class basic_value {
 };
 
 /// @}
-}  // namespace md
+} // namespace md
 
 /// @brief Implement the API definition of md_value_ as a specific
 /// instantiation of basic_value
@@ -110,4 +107,4 @@ struct md_value_ final : public md::basic_value<> {
   using basic_value::basic_value;
 };
 
-#endif  // MD_DETAIL_MD_VALUE_H_INCLUDED
+#endif // MD_DETAIL_MD_VALUE_H_INCLUDED

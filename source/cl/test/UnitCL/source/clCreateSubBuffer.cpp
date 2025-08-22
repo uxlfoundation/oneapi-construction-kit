@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clCreateSubBufferTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     cl_uint mem_base_addr_align = 0;

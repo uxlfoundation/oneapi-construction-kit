@@ -25,4 +25,4 @@ inline std::ostream &operator<<(std::ostream &out,
   out << kts::ucl::ConvertHalfToFloat(scalar.value()) << "fp16";
   return out;
 }
-}  // namespace ucl
+} // namespace ucl

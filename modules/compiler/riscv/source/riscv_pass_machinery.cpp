@@ -143,9 +143,9 @@ RiscvPassMachinery::processOptimizationOptions(
   return env_var_opts;
 }
 
-static bool riscvVeczPassOpts(
-    llvm::Function &F, llvm::ModuleAnalysisManager &AM,
-    llvm::SmallVectorImpl<vecz::VeczPassOptions> &PassOpts) {
+static bool
+riscvVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &AM,
+                  llvm::SmallVectorImpl<vecz::VeczPassOptions> &PassOpts) {
   auto vecz_mode = compiler::getVectorizationMode(F);
   if (!compiler::utils::isKernelEntryPt(F) ||
       F.hasFnAttribute(llvm::Attribute::OptimizeNone) ||
@@ -171,16 +171,16 @@ static bool riscvVeczPassOpts(
 void RiscvPassMachinery::addClassToPassNames() {
   BaseModulePassMachinery::addClassToPassNames();
 // Register compiler passes
-#define MODULE_PASS(NAME, CREATE_PASS) \
+#define MODULE_PASS(NAME, CREATE_PASS)                                         \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
-#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
 
 #include "riscv_pass_registry.def"
 }
 
 void RiscvPassMachinery::registerPasses() {
-#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
   MAM.registerPass([&] { return CREATE_PASS; });
 #include "riscv_pass_registry.def"
   compiler::BaseModulePassMachinery::registerPasses();
@@ -190,7 +190,7 @@ llvm::ModulePassManager RiscvPassMachinery::getLateTargetPasses() {
   llvm::ModulePassManager PM;
 
   std::optional<std::string> env_debug_prefix;
-#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) || \
+#if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT) ||                    \
     defined(CA_RISCV_DEMO_MODE)
   env_debug_prefix = target.env_debug_prefix;
 #endif
@@ -280,10 +280,10 @@ void RiscvPassMachinery::registerPassCallbacks() {
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
          llvm::ArrayRef<llvm::PassBuilder::PipelineElement>) {
-#define MODULE_PASS(NAME, CREATE_PASS) \
-  if (Name == NAME) {                  \
-    PM.addPass(CREATE_PASS);           \
-    return true;                       \
+#define MODULE_PASS(NAME, CREATE_PASS)                                         \
+  if (Name == NAME) {                                                          \
+    PM.addPass(CREATE_PASS);                                                   \
+    return true;                                                               \
   }
 #include "riscv_pass_registry.def"
         return false;
@@ -309,7 +309,7 @@ void RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
 #include "riscv_pass_registry.def"
 
   OS << "Module analyses:\n";
-#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
   compiler::utils::printPassName(NAME, OS);
 #include "riscv_pass_registry.def"
 
@@ -319,4 +319,4 @@ void RiscvPassMachinery::printPassNames(llvm::raw_ostream &OS) {
   OS << "    Runs the pipeline for BaseModule::getLateTargetPasses\n";
 }
 
-}  // namespace riscv
+} // namespace riscv

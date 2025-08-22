@@ -29,7 +29,7 @@ static const kts::ucl::SourceType source_types[] = {
     kts::ucl::OFFLINESPIRV};
 
 class C11AtomicTestBase : public kts::ucl::Execution {
- public:
+public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());
     // The C11 atomic were introduced in 2.0 however here we only test
@@ -43,9 +43,8 @@ class C11AtomicTestBase : public kts::ucl::Execution {
 };
 
 class InitTest : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local = false) {
+public:
+  template <typename T> void doTest(bool local = false) {
     // Generate the random input.
     std::vector<T> input_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
@@ -191,9 +190,8 @@ TEST_P(FenceTest, C11Atomics_08_Fence_Local) {
 UCL_EXECUTION_TEST_SUITE(FenceTest, testing::ValuesIn(source_types))
 
 class LoadStoreTest : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local = false) {
+public:
+  template <typename T> void doTest(bool local = false) {
     // Generate the random input.
     std::vector<T> input_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
@@ -317,9 +315,8 @@ TEST_P(LoadStoreTest, C11Atomics_12_Load_Global_Double) {
 UCL_EXECUTION_TEST_SUITE(LoadStoreTest, testing::ValuesIn(source_types))
 
 class ExchangeTest : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local = false) {
+public:
+  template <typename T> void doTest(bool local = false) {
     // Generate the random input.
     std::vector<T> initializer_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(
@@ -408,7 +405,7 @@ TEST_P(ExchangeTest, C11Atomics_14_Exchange_Global_Double) {
 UCL_EXECUTION_TEST_SUITE(ExchangeTest, testing::ValuesIn(source_types))
 
 class FlagTest : public kts::ucl::Execution {
- protected:
+protected:
   static const kts::Reference1D<cl_int> false_reference;
   static const kts::Reference1D<cl_int> true_reference;
 };
@@ -498,9 +495,8 @@ TEST_P(FlagTest, C11Atomics_20_Flag_Global_Set_Once) {
 UCL_EXECUTION_TEST_SUITE(FlagTest, testing::ValuesIn(source_types))
 
 class FetchTest : public C11AtomicTestBase {
- protected:
-  template <typename T>
-  void doCheckReturnTest(bool local = false) {
+protected:
+  template <typename T> void doCheckReturnTest(bool local = false) {
     // Generate the random input.
     std::vector<T> input_data(kts::N, T{});
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
@@ -523,10 +519,10 @@ class FetchTest : public C11AtomicTestBase {
   }
 
   template <typename T>
-  void doTest(
-      const std::function<T(size_t, const std::vector<T> &)> &init_ref_fn,
-      const std::function<T(size_t, const std::vector<T> &)> &op_ref_fn,
-      bool clamp = false) {
+  void
+  doTest(const std::function<T(size_t, const std::vector<T> &)> &init_ref_fn,
+         const std::function<T(size_t, const std::vector<T> &)> &op_ref_fn,
+         bool clamp = false) {
     // Generate the random input.
     std::vector<T> input_data(kts::N, T{});
     if (!clamp) {
@@ -611,8 +607,7 @@ class FetchTest : public C11AtomicTestBase {
   }
 };
 
-template <typename T>
-static T zeroReference(size_t, const std::vector<T> &) {
+template <typename T> static T zeroReference(size_t, const std::vector<T> &) {
   return T{0};
 }
 
@@ -1440,7 +1435,7 @@ using TruthTableInputs = std::pair<unsigned, unsigned>;
 // 1 1 1   1 1 0   1 0 1
 class FetchTruthTableTest
     : public kts::ucl::ExecutionWithParam<TruthTableInputs> {
- public:
+public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());
     // The C11 atomic were introduced in 2.0 however here we only test
@@ -1455,8 +1450,7 @@ class FetchTruthTableTest
     this->fail_if_not_vectorized_ = false;
   }
 
-  template <typename T>
-  void doTest(const std::function<T(T, T)> &ref_fn) {
+  template <typename T> void doTest(const std::function<T(T, T)> &ref_fn) {
     const auto &inputs = std::get<1>(GetParam());
     // Set up references.
     kts::Reference1D<T> initializer_reference = [&inputs](size_t) {
@@ -1481,8 +1475,7 @@ class FetchTruthTableTest
     this->RunGeneric1D(1);
   }
 
-  template <typename T>
-  void doLocalTest(const std::function<T(T, T)> &ref_fn) {
+  template <typename T> void doLocalTest(const std::function<T(T, T)> &ref_fn) {
     const auto &inputs = std::get<1>(GetParam());
     // Set up references.
     kts::Reference1D<T> input_reference = [&inputs](size_t index) {
@@ -1651,7 +1644,7 @@ UCL_EXECUTION_TEST_SUITE(
                      testing::ValuesIn(truth_table_domain)))
 
 class Strong : public C11AtomicTestBase {
- public:
+public:
   template <typename T>
   void doTest(bool local = false, bool local_local = false) {
     // Generate the random input.
@@ -1816,9 +1809,8 @@ TEST_P(Strong, C11Atomics_60_Compare_Exchange_Strong_Local_Private_Ulong) {
 UCL_EXECUTION_TEST_SUITE(Strong, testing::ValuesIn(source_types))
 
 class StrongGlobalSingle : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local = false) {
+public:
+  template <typename T> void doTest(bool local = false) {
     // Set up references.
     const size_t success_index =
         ucl::Environment::instance->GetInputGenerator().GenerateInt<T>(
@@ -1956,9 +1948,8 @@ TEST_P(StrongGlobalSingle,
 UCL_EXECUTION_TEST_SUITE(StrongGlobalSingle, testing::ValuesIn(source_types))
 
 class StrongLocalSingle : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local_local = false) {
+public:
+  template <typename T> void doTest(bool local_local = false) {
     // Set up references.
     const size_t work_group_count = kts::N / kts::localN;
 
@@ -2117,7 +2108,7 @@ TEST_P(StrongLocalSingle,
 UCL_EXECUTION_TEST_SUITE(StrongLocalSingle, testing::ValuesIn(source_types))
 
 class Weak : public C11AtomicTestBase {
- public:
+public:
   template <typename T>
   void doTest(bool local = false, bool local_local = false) {
     // Generate the random input.
@@ -2147,44 +2138,44 @@ class Weak : public C11AtomicTestBase {
       return (index % 2) ? expected_value : !expected_value;
     };
     std::vector<size_t> failed_comparison_indices;
-    kts::Reference1D<T> output_reference = [input_data, desired_data,
-                                            &failed_comparison_indices](
-                                               size_t index, T value) {
-      // Weak compare-exchange operations may fail spuriously, returning 0
-      // when the contents of memory in expected and the atomic are equal,
-      // it may return zero and store back to expected the same memory
-      // contents that were originally there.
+    kts::Reference1D<T> output_reference =
+        [input_data, desired_data, &failed_comparison_indices](size_t index,
+                                                               T value) {
+          // Weak compare-exchange operations may fail spuriously, returning 0
+          // when the contents of memory in expected and the atomic are equal,
+          // it may return zero and store back to expected the same memory
+          // contents that were originally there.
 
-      // Check if we are at success index.
-      if (index % 2) {
-        // Check if the operation succeeded.
-        if (value == desired_data[index]) {
-          return true;
-        }
-        // If not the memory shouldn't have been updated and we need to
-        // record which exchanges didn't succeed.
-        failed_comparison_indices.push_back(index);
-      }
-      // Failure index and we need to check the memory wasn't updated.
-      return value == input_data[index];
-    };
+          // Check if we are at success index.
+          if (index % 2) {
+            // Check if the operation succeeded.
+            if (value == desired_data[index]) {
+              return true;
+            }
+            // If not the memory shouldn't have been updated and we need to
+            // record which exchanges didn't succeed.
+            failed_comparison_indices.push_back(index);
+          }
+          // Failure index and we need to check the memory wasn't updated.
+          return value == input_data[index];
+        };
     kts::Reference1D<T> desired_reference = [desired_data](size_t index) {
       return desired_data[index];
     };
-    kts::Reference1D<cl_int> bool_reference = [&failed_comparison_indices](
-                                                  size_t index, cl_int value) {
-      // Check if we are at success index that didn't fail.
-      if ((index % 2) &&
-          std::find(std::begin(failed_comparison_indices),
-                    std::end(failed_comparison_indices),
-                    index) == std::end(failed_comparison_indices)) {
-        return value == true;
-      }
+    kts::Reference1D<cl_int> bool_reference =
+        [&failed_comparison_indices](size_t index, cl_int value) {
+          // Check if we are at success index that didn't fail.
+          if ((index % 2) &&
+              std::find(std::begin(failed_comparison_indices),
+                        std::end(failed_comparison_indices),
+                        index) == std::end(failed_comparison_indices)) {
+            return value == true;
+          }
 
-      // Otherwise we are either at failure index, or a success index that
-      // failed.
-      return value == false;
-    };
+          // Otherwise we are either at failure index, or a success index that
+          // failed.
+          return value == false;
+        };
 
     // Set up the buffers.
     AddInOutBuffer(kts::N, random_reference, output_reference);
@@ -2320,9 +2311,8 @@ TEST_P(Weak, C11Atomics_72_Compare_Exchange_Weak_Local_Private_Ulong) {
 UCL_EXECUTION_TEST_SUITE(Weak, testing::ValuesIn(source_types))
 
 class WeakGlobalSingle : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local = false) {
+public:
+  template <typename T> void doTest(bool local = false) {
     bool weak_exchange_failed = false;
     // Set up references.
     const size_t success_index =
@@ -2465,9 +2455,8 @@ TEST_P(WeakGlobalSingle,
 UCL_EXECUTION_TEST_SUITE(WeakGlobalSingle, testing::ValuesIn(source_types))
 
 class WeakLocalSingle : public C11AtomicTestBase {
- public:
-  template <typename T>
-  void doTest(bool local_local = false) {
+public:
+  template <typename T> void doTest(bool local_local = false) {
     std::vector<size_t> success_indices(kts::N / kts::localN, 0);
     std::vector<bool> weak_exchanges_failed(kts::N / kts::localN, false);
     // Set up references.

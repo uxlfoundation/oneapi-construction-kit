@@ -20,14 +20,13 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T>
-inline T nan_helper() {
+template <typename T> inline T nan_helper() {
   // Return NaN with all exponent bits and least significant bit set
   const typename TypeTraits<T>::UnsignedType nanVal =
       FPShape<T>::ExponentMask() | 0x1;
   return abacus::detail::cast::as<T>(nanVal);
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_nan(abacus_ushort) {
@@ -48,7 +47,7 @@ abacus_half8 ABACUS_API __abacus_nan(abacus_ushort8) {
 abacus_half16 ABACUS_API __abacus_nan(abacus_ushort16) {
   return nan_helper<abacus_half16>();
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_nan(abacus_uint) {
   return nan_helper<abacus_float>();
@@ -88,4 +87,4 @@ abacus_double8 ABACUS_API __abacus_nan(abacus_ulong8) {
 abacus_double16 ABACUS_API __abacus_nan(abacus_ulong16) {
   return nan_helper<abacus_double16>();
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

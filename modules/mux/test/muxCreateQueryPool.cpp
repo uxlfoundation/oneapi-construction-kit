@@ -51,18 +51,18 @@ TEST_P(muxCreateQueryPoolTest, DefaultCounter) {
     mux_query_counter_config_t query_counter_config;
     query_counter_config.uuid = counters.front().uuid;
     mux_query_pool_t query_pool;
-    ASSERT_ERROR_EQ(
-        mux_success,
-        muxCreateQueryPool(queue, mux_query_type_counter, 1,
-                           &query_counter_config, allocator, &query_pool));
+    ASSERT_ERROR_EQ(mux_success,
+                    muxCreateQueryPool(queue, mux_query_type_counter, 1,
+                                       &query_counter_config, allocator,
+                                       &query_pool));
     muxDestroyQueryPool(queue, query_pool, allocator);
   } else {
     const mux_query_counter_config_t query_counter_config = {};
     mux_query_pool_t query_pool;
-    ASSERT_ERROR_EQ(
-        mux_error_feature_unsupported,
-        muxCreateQueryPool(queue, mux_query_type_counter, 1,
-                           &query_counter_config, allocator, &query_pool));
+    ASSERT_ERROR_EQ(mux_error_feature_unsupported,
+                    muxCreateQueryPool(queue, mux_query_type_counter, 1,
+                                       &query_counter_config, allocator,
+                                       &query_pool));
   }
 }
 
@@ -79,10 +79,10 @@ TEST_P(muxCreateQueryPoolTest, InvalidDevice) {
 
 TEST_P(muxCreateQueryPoolTest, InvalidQueryType) {
   mux_query_pool_t query_pool;
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxCreateQueryPool(queue, static_cast<mux_query_type_e>(0xFFFFFFFF), 1,
-                         nullptr, allocator, &query_pool));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxCreateQueryPool(queue,
+                                     static_cast<mux_query_type_e>(0xFFFFFFFF),
+                                     1, nullptr, allocator, &query_pool));
 }
 
 TEST_P(muxCreateQueryPoolTest, InvalidQueryCount) {

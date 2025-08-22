@@ -340,14 +340,14 @@ struct code_generator_t {
     p->blockings.push_back(std::to_string(blocking_map));
 
     switch (map_flag) {
-      case CL_MAP_READ:
-        p->map_flags.push_back("CL_MAP_READ");
-        break;
-      case CL_MAP_WRITE:
-        p->map_flags.push_back("CL_MAP_WRITE");
-        break;
-      default:
-        assert(0 && "invalid map flag");
+    case CL_MAP_READ:
+      p->map_flags.push_back("CL_MAP_READ");
+      break;
+    case CL_MAP_WRITE:
+      p->map_flags.push_back("CL_MAP_WRITE");
+      break;
+    default:
+      assert(0 && "invalid map flag");
     }
 
     p->offsets.push_back(std::to_string(offset));
@@ -556,14 +556,14 @@ struct code_generator_t {
     p->blockings.push_back(std::to_string(blocking_map));
 
     switch (map_flag) {
-      case CL_MAP_READ:
-        p->map_flags.push_back("CL_MAP_READ");
-        break;
-      case CL_MAP_WRITE:
-        p->map_flags.push_back("CL_MAP_WRITE");
-        break;
-      default:
-        assert(0 && "invalid map flag");
+    case CL_MAP_READ:
+      p->map_flags.push_back("CL_MAP_READ");
+      break;
+    case CL_MAP_WRITE:
+      p->map_flags.push_back("CL_MAP_WRITE");
+      break;
+    default:
+      assert(0 && "invalid map flag");
     }
 
     p->image_origins.push_back('{' + std::to_string(origin[0]) + ", " +
@@ -633,7 +633,7 @@ struct code_generator_t {
     callback_exec_params.emplace_back(fuzzcl::exec_params_t{});
   }
 
- private:
+private:
   fuzzcl::exec_params_t main_exec_params;
   std::vector<fuzzcl::exec_params_t> callback_exec_params;
 
@@ -1585,7 +1585,7 @@ TEST_F(FuzzTest, Default) {
   }
 )";
   }
-};  // struct code_generator_t
-}  // namespace fuzzcl
+}; // struct code_generator_t
+} // namespace fuzzcl
 
 #endif

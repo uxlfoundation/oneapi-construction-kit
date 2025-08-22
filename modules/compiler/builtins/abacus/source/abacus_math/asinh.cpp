@@ -159,8 +159,7 @@ abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
 }
 
 namespace {
-template <typename T>
-T asinh(const T x) {
+template <typename T> T asinh(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
@@ -190,7 +189,7 @@ T asinh(const T x) {
 
   return __abacus_select(result, x, __abacus_isinf(x) | __abacus_isnan(x));
 }
-}  // namespace
+} // namespace
 
 abacus_float2 ABACUS_API __abacus_asinh(abacus_float2 x) { return asinh<>(x); }
 abacus_float3 ABACUS_API __abacus_asinh(abacus_float3 x) { return asinh<>(x); }
@@ -220,8 +219,7 @@ namespace {
   c) asinh(x) = log(x + sqrt(x * x + 1)), the inverse hyperbolic identity
   d) asinh(x) = log(x) + log(2)
 */
-template <typename T>
-T asinhD(const T x) {
+template <typename T> T asinhD(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   const T xAbs = __abacus_fabs(x);
   const abacus_double ln2 =
@@ -254,7 +252,7 @@ T asinhD(const T x) {
 
   return __abacus_copysign(result, x);
 }
-}  // namespace
+} // namespace
 
 abacus_double ABACUS_API __abacus_asinh(abacus_double x) { return asinhD<>(x); }
 abacus_double2 ABACUS_API __abacus_asinh(abacus_double2 x) {
@@ -272,7 +270,7 @@ abacus_double8 ABACUS_API __abacus_asinh(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_asinh(abacus_double16 x) {
   return asinhD<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 namespace {
@@ -284,8 +282,7 @@ static ABACUS_CONSTANT abacus_half _asinhH2[2] = {0.99951171875f16,
                                                   -0.148193359375f16};
 
 // See scalar implementation for more details about the algorithm.
-template <typename T>
-T asinhH(const T x) {
+template <typename T> T asinhH(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   const T xBigBound = 10.0f16;
@@ -325,8 +322,7 @@ T asinhH(const T x) {
   return ans;
 }
 
-template <>
-abacus_half asinhH(const abacus_half x) {
+template <> abacus_half asinhH(const abacus_half x) {
   const abacus_half xAbs = __abacus_fabs(x);
 
   // When denormals are unavailable, we need to handle the smallest FP16 value
@@ -363,7 +359,7 @@ abacus_half asinhH(const abacus_half x) {
 
   return sign * ans;
 }
-}  // namespace
+} // namespace
 
 abacus_half ABACUS_API __abacus_asinh(abacus_half x) { return asinhH<>(x); }
 abacus_half2 ABACUS_API __abacus_asinh(abacus_half2 x) { return asinhH<>(x); }
@@ -371,4 +367,4 @@ abacus_half3 ABACUS_API __abacus_asinh(abacus_half3 x) { return asinhH<>(x); }
 abacus_half4 ABACUS_API __abacus_asinh(abacus_half4 x) { return asinhH<>(x); }
 abacus_half8 ABACUS_API __abacus_asinh(abacus_half8 x) { return asinhH<>(x); }
 abacus_half16 ABACUS_API __abacus_asinh(abacus_half16 x) { return asinhH<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT

@@ -50,6 +50,6 @@ struct BitShiftFixupPass final : public llvm::PassInfoMixin<BitShiftFixupPass> {
 };
 
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // BASE_BIT_SHIFT_FIXUP_PASS_H_INCLUDED
+#endif // BASE_BIT_SHIFT_FIXUP_PASS_H_INCLUDED

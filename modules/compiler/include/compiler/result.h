@@ -57,6 +57,6 @@ enum class Result {
 };
 
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // COMPILER_RESULT_H_INCLUDED
+#endif // COMPILER_RESULT_H_INCLUDED

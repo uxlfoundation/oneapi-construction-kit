@@ -34,7 +34,7 @@ namespace extension {
 /// @{
 
 class khr_command_buffer_mutable_dispatch : public extension {
- public:
+public:
   khr_command_buffer_mutable_dispatch();
   /// @brief Queries for the extension function associated with
   /// `func_name`.
@@ -51,8 +51,9 @@ class khr_command_buffer_mutable_dispatch : public extension {
   ///
   /// @return Returns a pointer to the extension function with
   /// `func_name` or `nullptr` if it does not exist.
-  void *GetExtensionFunctionAddressForPlatform(
-      cl_platform_id platform, const char *func_name) const override;
+  void *
+  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
+                                         const char *func_name) const override;
 
   /// @copydoc extension::extension::GetDeviceInfo
   cl_int GetDeviceInfo(cl_device_id device, cl_device_info param_name,
@@ -61,6 +62,6 @@ class khr_command_buffer_mutable_dispatch : public extension {
 };
 
 /// @}
-}  // namespace extension
+} // namespace extension
 
-#endif  // CL_EXTENSION_KHR_MUTABLE_DISPATCH_H_INCLUDED
+#endif // CL_EXTENSION_KHR_MUTABLE_DISPATCH_H_INCLUDED

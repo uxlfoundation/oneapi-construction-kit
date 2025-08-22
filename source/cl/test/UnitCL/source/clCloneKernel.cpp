@@ -151,10 +151,10 @@ TEST_F(clCloneKernelRunTest, Default) {
     ASSERT_EQ(index, results[index]) << "at index: " << index;
   }
   // Check that source_kernel doens't have the clone_kernel argument set.
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_KERNEL_ARGS,
-      clEnqueueNDRangeKernel(command_queue, source_kernel, 1, nullptr,
-                             &work_size, nullptr, 0, nullptr, &ndRangeEvent));
+  ASSERT_EQ_ERRCODE(CL_INVALID_KERNEL_ARGS,
+                    clEnqueueNDRangeKernel(command_queue, source_kernel, 1,
+                                           nullptr, &work_size, nullptr, 0,
+                                           nullptr, &ndRangeEvent));
 
   EXPECT_SUCCESS(clReleaseEvent(ndRangeEvent));
 }

@@ -73,7 +73,7 @@ struct holder {
 
   cargo::ostream_lock_guard<std::ostream> out() { return {stream, mutex}; }
 
- private:
+private:
   std::ostream &stream;
   std::mutex mutex;
 };

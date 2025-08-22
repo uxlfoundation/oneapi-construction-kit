@@ -40,7 +40,7 @@ fuzzcl::options_t options;
 std::vector<std::vector<unsigned char>> kernel_binaries;
 std::vector<const unsigned char *> kernel_binary_pointers;
 std::vector<size_t> kernel_binary_sizes;
-}  // namespace
+} // namespace
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
   cargo::argument_parser<1> parser(cargo::KEEP_UNRECOGNIZED);
@@ -76,17 +76,17 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
   if (auto error = parser.parse_args(*argc, *argv)) {
     std::cerr << "error: invalid arguments : " << error;
     switch (error) {
-      case cargo::success:
-        std::cerr << " not_found";
-        break;
-      case cargo::bad_argument:
-        std::cerr << " bad_argument";
-        break;
-      case cargo::bad_alloc:
-        std::cerr << " bad_alloc";
-        break;
-      default:
-        break;
+    case cargo::success:
+      std::cerr << " not_found";
+      break;
+    case cargo::bad_argument:
+      std::cerr << " bad_argument";
+      break;
+    case cargo::bad_alloc:
+      std::cerr << " bad_alloc";
+      break;
+    default:
+      break;
     }
     std::cerr << usage;
     exit(1);

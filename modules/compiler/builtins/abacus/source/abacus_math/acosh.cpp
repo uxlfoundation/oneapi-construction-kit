@@ -22,8 +22,7 @@
 #include <abacus/internal/sqrt.h>
 
 namespace {
-template <typename T>
-T acosh(const T x) {
+template <typename T> T acosh(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T y = x - 1.0f;
@@ -43,7 +42,7 @@ T acosh(const T x) {
   const SignedType cond3 = x < 1.0f;
   return __abacus_select(result, (T)ABACUS_NAN, cond3);
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // See acosh sollya script for derivation
@@ -51,8 +50,7 @@ static ABACUS_CONSTANT abacus_half _acoshH[3] = {
     1.4140625f16, -0.11505126953125f16, 1.80816650390625e-2f16};
 
 // See scalar implementation for more details about the algorithm.
-template <typename T>
-T acosh_half(const T x) {
+template <typename T> T acosh_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   const T xBigBound = 11.7f16;
@@ -82,8 +80,7 @@ T acosh_half(const T x) {
   return ans;
 }
 
-template <>
-abacus_half acosh_half(const abacus_half x) {
+template <> abacus_half acosh_half(const abacus_half x) {
   if (x < 2.0f16) {
     return abacus::internal::sqrt(x - 1.0f16) *
            abacus::internal::horner_polynomial(x - 1.0f16, _acoshH);
@@ -121,7 +118,7 @@ abacus_half8 ABACUS_API __abacus_acosh(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_acosh(abacus_half16 x) {
   return acosh_half<>(x);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_acosh(abacus_float x) { return acosh<>(x); }
 abacus_float2 ABACUS_API __abacus_acosh(abacus_float2 x) { return acosh<>(x); }
@@ -149,4 +146,4 @@ abacus_double8 ABACUS_API __abacus_acosh(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_acosh(abacus_double16 x) {
   return acosh<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

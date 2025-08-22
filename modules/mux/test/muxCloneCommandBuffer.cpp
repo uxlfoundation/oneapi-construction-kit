@@ -141,26 +141,26 @@ TEST_P(muxCloneCommandBufferTest, UninitializedAllocator) {
   mux_allocator_info_t uninitialized_allocator{};
   uninitialized_allocator.free = nop_free;
   ASSERT_SUCCESS(muxFinalizeCommandBuffer(command_buffer_to_clone));
-  ASSERT_EQ(
-      mux_error_null_allocator_callback,
-      muxCloneCommandBuffer(device, uninitialized_allocator,
-                            command_buffer_to_clone, &out_command_buffer));
+  ASSERT_EQ(mux_error_null_allocator_callback,
+            muxCloneCommandBuffer(device, uninitialized_allocator,
+                                  command_buffer_to_clone,
+                                  &out_command_buffer));
 
   // Then with a null free function.
   uninitialized_allocator.alloc = nop_alloc;
   uninitialized_allocator.free = nullptr;
-  ASSERT_EQ(
-      mux_error_null_allocator_callback,
-      muxCloneCommandBuffer(device, uninitialized_allocator,
-                            command_buffer_to_clone, &out_command_buffer));
+  ASSERT_EQ(mux_error_null_allocator_callback,
+            muxCloneCommandBuffer(device, uninitialized_allocator,
+                                  command_buffer_to_clone,
+                                  &out_command_buffer));
 
   // Then with a null alloc and null free functions.
   uninitialized_allocator.alloc = nullptr;
   uninitialized_allocator.free = nullptr;
-  ASSERT_EQ(
-      mux_error_null_allocator_callback,
-      muxCloneCommandBuffer(device, uninitialized_allocator,
-                            command_buffer_to_clone, &out_command_buffer));
+  ASSERT_EQ(mux_error_null_allocator_callback,
+            muxCloneCommandBuffer(device, uninitialized_allocator,
+                                  command_buffer_to_clone,
+                                  &out_command_buffer));
 }
 
 TEST_P(muxCloneCommandBufferTest, NullCommandBuffer) {

@@ -108,7 +108,7 @@ U RTZeroMantissa(U x, bool to_zero) {
   }
   return out;
 }
-}  // end namespace
+} // end namespace
 
 namespace kts {
 namespace ucl {
@@ -161,7 +161,7 @@ cl_float ConvertHalfToFloat(const cl_half x) {
     // no-op.
     // Note: lowering the exponent is done via addition in the loop, because
     // it is subtracted at the end.
-    cl_int exponent = -1;  // No bias taken into account
+    cl_int exponent = -1; // No bias taken into account
     cl_ushort mantissa = x & TypeInfo<cl_half>::mantissa_mask;
     do {
       exponent++;
@@ -213,7 +213,7 @@ cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
     return fp16;
   }
 
-  int exponent = std::ilogb(x);  // Unbiased exponent
+  int exponent = std::ilogb(x); // Unbiased exponent
   unsigned_t mantissa = as_unsigned & TypeInfo<T>::mantissa_mask;
   const unsigned lost_mantissa_bits =
       TypeInfo<T>::mantissa_bits - TypeInfo<cl_half>::mantissa_bits;
@@ -222,26 +222,26 @@ cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
     // Inf or Nan case
     fp16 |= TypeInfo<cl_half>::exponent_mask;
     if (mantissa) {
-      fp16 |= 0x1;  // Can set any mantissa bit for NaN
+      fp16 |= 0x1; // Can set any mantissa bit for NaN
     }
   } else if (exponent > TypeInfo<cl_half>::bias) {
     // Exponents greater than 15 cannot be represented in half.
     const cl_ushort infinity = TypeInfo<cl_half>::exponent_mask;
     const cl_ushort max_value = TypeInfo<cl_half>::max_float_bits;
     switch (rounding) {
-      case RoundingMode::NONE:
-      case RoundingMode::RTE:
-        fp16 |= infinity;
-        break;
-      case RoundingMode::RTZ:
-        fp16 |= max_value;
-        break;
-      case RoundingMode::RTP:
-        fp16 |= std::signbit(x) ? max_value : infinity;
-        break;
-      case RoundingMode::RTN:
-        fp16 |= std::signbit(x) ? infinity : max_value;
-        break;
+    case RoundingMode::NONE:
+    case RoundingMode::RTE:
+      fp16 |= infinity;
+      break;
+    case RoundingMode::RTZ:
+      fp16 |= max_value;
+      break;
+    case RoundingMode::RTP:
+      fp16 |= std::signbit(x) ? max_value : infinity;
+      break;
+    case RoundingMode::RTN:
+      fp16 |= std::signbit(x) ? infinity : max_value;
+      break;
     }
   } else if (exponent < -14) {
     // Exponents less than -14 are represented using denormal numbers in half,
@@ -267,17 +267,17 @@ cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
       // We've shifted away all the bits
       // Number is too small to be representable by half
       switch (rounding) {
-        case RoundingMode::NONE:
-        case RoundingMode::RTE:
-        case RoundingMode::RTZ:
-          // return signed zero
-          return fp16;
-        case RoundingMode::RTP:
-          // round up to -0 or smallest positive denormal
-          return std::signbit(x) ? 0x8000 : 0x0001;
-        case RoundingMode::RTN:
-          // round down to +0 or smallest negative denormal
-          return std::signbit(x) ? 0x8001 : 0x0000;
+      case RoundingMode::NONE:
+      case RoundingMode::RTE:
+      case RoundingMode::RTZ:
+        // return signed zero
+        return fp16;
+      case RoundingMode::RTP:
+        // round up to -0 or smallest positive denormal
+        return std::signbit(x) ? 0x8000 : 0x0001;
+      case RoundingMode::RTN:
+        // round down to +0 or smallest negative denormal
+        return std::signbit(x) ? 0x8001 : 0x0000;
       }
     }
 
@@ -326,27 +326,27 @@ cl_half ConvertFloatToHalf(const T x, RoundingMode rounding) {
     }
   } else {
     // Normal number we can represent
-    exponent += TypeInfo<cl_half>::bias;  // Take into account the half exponent
-                                          // bias of 15
+    exponent += TypeInfo<cl_half>::bias; // Take into account the half exponent
+                                         // bias of 15
 
     // Round away the last 13-bits of mantissa since this precision is not
     // available in half.
     unsigned_t rounded_mantissa = 0;
     switch (rounding) {
-      case RoundingMode::NONE:
-      case RoundingMode::RTE:
-        rounded_mantissa = RTEMantissa<T>(mantissa);
-        break;
-      case RoundingMode::RTZ:
-        rounded_mantissa =
-            RTZeroMantissa<T>(mantissa, true /* always round to zero */);
-        break;
-      case RoundingMode::RTP:
-        rounded_mantissa = RTZeroMantissa<T>(mantissa, std::signbit(x));
-        break;
-      case RoundingMode::RTN:
-        rounded_mantissa = RTZeroMantissa<T>(mantissa, !std::signbit(x));
-        break;
+    case RoundingMode::NONE:
+    case RoundingMode::RTE:
+      rounded_mantissa = RTEMantissa<T>(mantissa);
+      break;
+    case RoundingMode::RTZ:
+      rounded_mantissa =
+          RTZeroMantissa<T>(mantissa, true /* always round to zero */);
+      break;
+    case RoundingMode::RTP:
+      rounded_mantissa = RTZeroMantissa<T>(mantissa, std::signbit(x));
+      break;
+    case RoundingMode::RTN:
+      rounded_mantissa = RTZeroMantissa<T>(mantissa, !std::signbit(x));
+      break;
     }
 
     if (std::numeric_limits<unsigned_t>::max() == rounded_mantissa) {
@@ -501,7 +501,7 @@ void InputGenerator::GenerateFloatData(std::vector<cl_half> &buffer) {
   // Generate half types by bitcasting ushorts. In the future
   // we should refine this to normal/denormal values. Or check
   // if all the half types can fit in the buffer.
-  const size_t num_half_variants = 65536u;  // 2^16
+  const size_t num_half_variants = 65536u; // 2^16
   const size_t N = buffer.size();
   typedef typename TypeInfo<cl_half>::AsUnsigned UInt;
 
@@ -525,5 +525,5 @@ void InputGenerator::GenerateFloatData(std::vector<cl_half> &buffer) {
   std::shuffle(buffer.begin(), buffer.end(), gen_);
 }
 
-}  // namespace ucl
-}  // namespace kts
+} // namespace ucl
+} // namespace kts

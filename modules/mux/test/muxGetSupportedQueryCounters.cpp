@@ -54,10 +54,10 @@ TEST_P(muxGetSupportedQueryCountersTest, InvalidDevice) {
                   muxGetSupportedQueryCounters(nullptr, mux_queue_type_compute,
                                                0, nullptr, nullptr, &count));
   mux_device_s invalid_device = {};
-  ASSERT_ERROR_EQ(
-      mux_error_invalid_value,
-      muxGetSupportedQueryCounters(&invalid_device, mux_queue_type_compute, 0,
-                                   nullptr, nullptr, &count));
+  ASSERT_ERROR_EQ(mux_error_invalid_value,
+                  muxGetSupportedQueryCounters(&invalid_device,
+                                               mux_queue_type_compute, 0,
+                                               nullptr, nullptr, &count));
 }
 
 TEST_P(muxGetSupportedQueryCountersTest, InvalidQueueType) {
@@ -77,10 +77,10 @@ TEST_P(muxGetSupportedQueryCountersTest, InvalidCount) {
   }
   mux_query_counter_t counter;
   mux_query_counter_description_t description;
-  ASSERT_ERROR_EQ(
-      mux_error_null_out_parameter,
-      muxGetSupportedQueryCounters(device, mux_queue_type_compute, 0, &counter,
-                                   &description, nullptr));
+  ASSERT_ERROR_EQ(mux_error_null_out_parameter,
+                  muxGetSupportedQueryCounters(device, mux_queue_type_compute,
+                                               0, &counter, &description,
+                                               nullptr));
 }
 
 TEST_P(muxGetSupportedQueryCountersTest, NullOutPointer) {

@@ -37,7 +37,7 @@ kts::Reference1D<cl_int> vaddInB = [](size_t x) {
 kts::Reference1D<cl_int> vaddOutC = [](size_t x) {
   return vaddInA(x) + vaddInB(x);
 };
-}  // namespace
+} // namespace
 
 TEST_P(Execution, Ext_Async_01_Simple_2D) {
   // The extension isn't supported in SPIRV yet, only test CL C

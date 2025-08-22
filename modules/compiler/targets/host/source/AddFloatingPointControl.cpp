@@ -186,24 +186,24 @@ Function *runOnFunction(Function &F, bool SetFTZ) {
 
   const Triple triple(M.getTargetTriple());
   switch (triple.getArch()) {
-    case Triple::arm:
-      arch_helper = configArmFP;
+  case Triple::arm:
+    arch_helper = configArmFP;
+    break;
+  case Triple::aarch64:
+    if (SetFTZ) {
+      arch_helper = configAarch64FP;
       break;
-    case Triple::aarch64:
-      if (SetFTZ) {
-        arch_helper = configAarch64FP;
-        break;
-      }
-      return nullptr;
-    case Triple::x86:
-    case Triple::x86_64:
-      if (SetFTZ) {
-        arch_helper = configX86FP;
-        break;
-      }
-      return nullptr;
-    default:
-      return nullptr;
+    }
+    return nullptr;
+  case Triple::x86:
+  case Triple::x86_64:
+    if (SetFTZ) {
+      arch_helper = configX86FP;
+      break;
+    }
+    return nullptr;
+  default:
+    return nullptr;
   }
 
   // create our new function
@@ -217,10 +217,10 @@ Function *runOnFunction(Function &F, bool SetFTZ) {
   return newFunction;
 }
 
-}  // namespace
+} // namespace
 
-PreservedAnalyses host::AddFloatingPointControlPass::run(
-    Module &M, ModuleAnalysisManager &) {
+PreservedAnalyses
+host::AddFloatingPointControlPass::run(Module &M, ModuleAnalysisManager &) {
   SmallPtrSet<Function *, 4> newFunctions;
   for (auto &F : M.functions()) {
     if (compiler::utils::isKernelEntryPt(F) && !newFunctions.contains(&F)) {

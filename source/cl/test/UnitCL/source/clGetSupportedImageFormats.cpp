@@ -19,7 +19,7 @@
 #include "Common.h"
 
 class clGetSupportedImageFormatsTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -30,9 +30,9 @@ class clGetSupportedImageFormatsTest : public ucl::ContextTest {
 
 static void printImageFormats(cl_mem_object_type type,
                               UCL::vector<cl_image_format> &formats) {
-#define CASE(TYPE)           \
-  case TYPE:                 \
-    (void)printf(#TYPE " "); \
+#define CASE(TYPE)                                                             \
+  case TYPE:                                                                   \
+    (void)printf(#TYPE " ");                                                   \
     break;
   switch (type) {
     CASE(CL_MEM_OBJECT_IMAGE1D)
@@ -41,9 +41,9 @@ static void printImageFormats(cl_mem_object_type type,
     CASE(CL_MEM_OBJECT_IMAGE3D)
     CASE(CL_MEM_OBJECT_IMAGE1D_ARRAY)
     CASE(CL_MEM_OBJECT_IMAGE2D_ARRAY)
-    default:
-      (void)fprintf(stderr, "unknown image type!\n");
-      abort();
+  default:
+    (void)fprintf(stderr, "unknown image type!\n");
+    abort();
   }
 #undef CASE
   if (!formats.size()) {
@@ -51,9 +51,9 @@ static void printImageFormats(cl_mem_object_type type,
     return;
   }
   for (auto &format : formats) {
-#define CASE(DATA_TYPE)                 \
-  case DATA_TYPE:                       \
-    (void)printf("  %20s", #DATA_TYPE); \
+#define CASE(DATA_TYPE)                                                        \
+  case DATA_TYPE:                                                              \
+    (void)printf("  %20s", #DATA_TYPE);                                        \
     break;
     switch (format.image_channel_data_type) {
       CASE(CL_SNORM_INT8)
@@ -71,14 +71,14 @@ static void printImageFormats(cl_mem_object_type type,
       CASE(CL_UNSIGNED_INT32)
       CASE(CL_HALF_FLOAT)
       CASE(CL_FLOAT)
-      default:
-        (void)fprintf(stderr, "unknown image channel data type!\n");
-        abort();
+    default:
+      (void)fprintf(stderr, "unknown image channel data type!\n");
+      abort();
     }
 #undef CASE
-#define CASE(ORDER)                \
-  case ORDER:                      \
-    (void)printf(" %s\n", #ORDER); \
+#define CASE(ORDER)                                                            \
+  case ORDER:                                                                  \
+    (void)printf(" %s\n", #ORDER);                                             \
     break;
     switch (format.image_channel_order) {
       CASE(CL_R)
@@ -94,9 +94,9 @@ static void printImageFormats(cl_mem_object_type type,
       CASE(CL_RGBA)
       CASE(CL_ARGB)
       CASE(CL_BGRA)
-      default:
-        (void)fprintf(stderr, "unknown image channel order!\n");
-        abort();
+    default:
+      (void)fprintf(stderr, "unknown image channel order!\n");
+      abort();
     }
 #undef CASE
   }
@@ -202,25 +202,25 @@ struct clGetSupportedImageFormatsFlagsTest
 
 TEST_P(clGetSupportedImageFormatsFlagsTest, InvalidValue) {
   cl_uint numEntries = 0;
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetSupportedImageFormats(context, GetParam(), CL_MEM_OBJECT_IMAGE1D, 0,
-                                 nullptr, &numEntries));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetSupportedImageFormats(context, GetParam(),
+                                               CL_MEM_OBJECT_IMAGE1D, 0,
+                                               nullptr, &numEntries));
   ASSERT_EQ(0u, numEntries);
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetSupportedImageFormats(context, GetParam(),
                                                CL_MEM_OBJECT_IMAGE1D_BUFFER, 0,
                                                nullptr, &numEntries));
   ASSERT_EQ(0u, numEntries);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetSupportedImageFormats(context, GetParam(), CL_MEM_OBJECT_IMAGE2D, 0,
-                                 nullptr, &numEntries));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetSupportedImageFormats(context, GetParam(),
+                                               CL_MEM_OBJECT_IMAGE2D, 0,
+                                               nullptr, &numEntries));
   ASSERT_EQ(0u, numEntries);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clGetSupportedImageFormats(context, GetParam(), CL_MEM_OBJECT_IMAGE3D, 0,
-                                 nullptr, &numEntries));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clGetSupportedImageFormats(context, GetParam(),
+                                               CL_MEM_OBJECT_IMAGE3D, 0,
+                                               nullptr, &numEntries));
   ASSERT_EQ(0u, numEntries);
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetSupportedImageFormats(context, GetParam(),

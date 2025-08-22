@@ -102,8 +102,8 @@ HostTarget::HostTarget(const HostInfo *compiler_info,
     : BaseTarget(compiler_info, context, callback),
       llvm_ts_context(std::make_unique<llvm::LLVMContext>()) {}
 
-compiler::Result HostTarget::initWithBuiltins(
-    std::unique_ptr<llvm::Module> builtins_module) {
+compiler::Result
+HostTarget::initWithBuiltins(std::unique_ptr<llvm::Module> builtins_module) {
   builtins = std::move(builtins_module);
   gdb_registration_listener = compiler::utils::createGDBRegistrationListener();
 
@@ -178,38 +178,38 @@ compiler::Result HostTarget::initWithBuiltins(
       static_cast<host::device_info_s &>(*compiler_info->device_info);
 
   switch (host_device_info.os) {
-    case host::os::ANDROID:
-    case host::os::LINUX:
-      // For Linux, we support cross compilation, which means we cannot rely on
-      // sys::getProcessTriple to determine our target. Instead, we set it to a
-      // known working triple.
-      switch (host_device_info.arch) {
-        case host::arch::ARM:
-          triple = llvm::Triple("armv7-unknown-linux-gnueabihf-elf");
-          break;
-        case host::arch::AARCH64:
-          triple = llvm::Triple("aarch64-linux-gnu-elf");
-          break;
-        case host::arch::RISCV32:
-          triple = llvm::Triple("riscv32-unknown-elf");
-          break;
-        case host::arch::RISCV64:
-          triple = llvm::Triple("riscv64-unknown-elf");
-          break;
-        case host::arch::X86:
-          triple = llvm::Triple("i386-unknown-unknown-elf");
-          break;
-        case host::arch::X86_64:
-          triple = llvm::Triple("x86_64-unknown-unknown-elf");
-          break;
-      }
+  case host::os::ANDROID:
+  case host::os::LINUX:
+    // For Linux, we support cross compilation, which means we cannot rely on
+    // sys::getProcessTriple to determine our target. Instead, we set it to a
+    // known working triple.
+    switch (host_device_info.arch) {
+    case host::arch::ARM:
+      triple = llvm::Triple("armv7-unknown-linux-gnueabihf-elf");
       break;
-    case host::os::WINDOWS:
-    case host::os::MACOS:
-      assert(host_device_info.native &&
-             "Cross compilation only supported for Linux");
-      triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
+    case host::arch::AARCH64:
+      triple = llvm::Triple("aarch64-linux-gnu-elf");
       break;
+    case host::arch::RISCV32:
+      triple = llvm::Triple("riscv32-unknown-elf");
+      break;
+    case host::arch::RISCV64:
+      triple = llvm::Triple("riscv64-unknown-elf");
+      break;
+    case host::arch::X86:
+      triple = llvm::Triple("i386-unknown-unknown-elf");
+      break;
+    case host::arch::X86_64:
+      triple = llvm::Triple("x86_64-unknown-unknown-elf");
+      break;
+    }
+    break;
+  case host::os::WINDOWS:
+  case host::os::MACOS:
+    assert(host_device_info.native &&
+           "Cross compilation only supported for Linux");
+    triple = llvm::Triple(llvm::sys::getProcessTriple() + "-elf");
+    break;
   }
 
   std::string CPU;
@@ -217,51 +217,51 @@ compiler::Result HostTarget::initWithBuiltins(
 
   switch (triple.getArch()) {
 #ifdef HOST_LLVM_ARM
-    case llvm::Triple::arm:
-      // We do not support denormals for single precision floating points, but
-      // we do for double precision. To support that we use neon (which is FTZ)
-      // for single precision floating points, and use the VFP with denormal
-      // support enabled for doubles. The neonfp feature enables the use of neon
-      // for single precision floating points.
-      Features.AddFeature("strict-align", true);
-      Features.AddFeature("neonfp", true);
-      // We need hardware FMA support which is only available as of VFP4.
-      // VFP4 also includes FP16.
-      Features.AddFeature("vfp4", true);
-      // Hardware division instructions might not exist on all ARMv7 CPUs, but
-      // they probably exist on all the ones we might care about.
-      Features.AddFeature("hwdiv", true);
-      Features.AddFeature("hwdiv-arm", true);
-      break;
+  case llvm::Triple::arm:
+    // We do not support denormals for single precision floating points, but
+    // we do for double precision. To support that we use neon (which is FTZ)
+    // for single precision floating points, and use the VFP with denormal
+    // support enabled for doubles. The neonfp feature enables the use of neon
+    // for single precision floating points.
+    Features.AddFeature("strict-align", true);
+    Features.AddFeature("neonfp", true);
+    // We need hardware FMA support which is only available as of VFP4.
+    // VFP4 also includes FP16.
+    Features.AddFeature("vfp4", true);
+    // Hardware division instructions might not exist on all ARMv7 CPUs, but
+    // they probably exist on all the ones we might care about.
+    Features.AddFeature("hwdiv", true);
+    Features.AddFeature("hwdiv-arm", true);
+    break;
 #endif
 #ifdef HOST_LLVM_RISCV
-    case llvm::Triple::riscv32:
-    case llvm::Triple::riscv64:
-      CPU = triple.getArch() == llvm::Triple::riscv32 ? "generic-rv32"
-                                                      : "generic-rv64";
-      // The following features are important for OpenCL, and generally
-      // constitute a minimum requirement for non-embedded profile. Without
-      // these features, we'd need compiler-rt support. Atomics are absolutely
-      // essential.
-      Features.AddFeature("m", true);  // Integer multiplication and division
-      Features.AddFeature("f", true);  // Floating point support
-      Features.AddFeature("a", true);  // Atomics
+  case llvm::Triple::riscv32:
+  case llvm::Triple::riscv64:
+    CPU = triple.getArch() == llvm::Triple::riscv32 ? "generic-rv32"
+                                                    : "generic-rv64";
+    // The following features are important for OpenCL, and generally
+    // constitute a minimum requirement for non-embedded profile. Without
+    // these features, we'd need compiler-rt support. Atomics are absolutely
+    // essential.
+    Features.AddFeature("m", true); // Integer multiplication and division
+    Features.AddFeature("f", true); // Floating point support
+    Features.AddFeature("a", true); // Atomics
 #if defined(CA_HOST_ENABLE_FP64)
-      Features.AddFeature("d", true);  // Double support
+    Features.AddFeature("d", true); // Double support
 #endif
 #if defined(CA_HOST_ENABLE_FP16)
-      Features.AddFeature("zfh", true);  // Half support
+    Features.AddFeature("zfh", true); // Half support
 #endif
-      break;
+    break;
 #endif
 #ifdef HOST_LLVM_X86
-    case llvm::Triple::x86:
-    case llvm::Triple::x86_64:
-      CPU = "x86-64-v3";
-      break;
+  case llvm::Triple::x86:
+  case llvm::Triple::x86_64:
+    CPU = "x86-64-v3";
+    break;
 #endif
-    default:
-      break;
+  default:
+    break;
   }
 
   auto SetCPUFeatures = [&](std::string NewCPU, std::string NewFeatures) {
@@ -272,78 +272,77 @@ compiler::Result HostTarget::initWithBuiltins(
     if (!NewFeatures.empty()) {
       std::vector<std::string> NewFeatureVector;
       llvm::SubtargetFeatures::Split(NewFeatureVector, NewFeatures);
-      for (auto &NewFeature : NewFeatureVector) Features.AddFeature(NewFeature);
+      for (auto &NewFeature : NewFeatureVector) {
+        Features.AddFeature(NewFeature);
+      }
     }
   };
 
   switch (triple.getArch()) {
 #ifdef HOST_LLVM_ARM
-    case llvm::Triple::arm:
+  case llvm::Triple::arm:
 #ifndef CA_HOST_TARGET_ARM_CPU
 #define CA_HOST_TARGET_ARM_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_ARM_FEATURES
 #define CA_HOST_TARGET_ARM_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_ARM_CPU, CA_HOST_TARGET_ARM_FEATURES);
-      break;
+    SetCPUFeatures(CA_HOST_TARGET_ARM_CPU, CA_HOST_TARGET_ARM_FEATURES);
+    break;
 #endif
 #ifdef HOST_LLVM_AARCH64
-    case llvm::Triple::aarch64:
+  case llvm::Triple::aarch64:
 #ifndef CA_HOST_TARGET_AARCH64_CPU
 #define CA_HOST_TARGET_AARCH64_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_AARCH64_FEATURES
 #define CA_HOST_TARGET_AARCH64_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_AARCH64_CPU,
-                     CA_HOST_TARGET_AARCH64_FEATURES);
-      break;
+    SetCPUFeatures(CA_HOST_TARGET_AARCH64_CPU, CA_HOST_TARGET_AARCH64_FEATURES);
+    break;
 #endif
 #ifdef HOST_LLVM_RISCV
-    case llvm::Triple::riscv32:
+  case llvm::Triple::riscv32:
 #ifndef CA_HOST_TARGET_RISCV32_CPU
 #define CA_HOST_TARGET_RISCV32_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_RISCV32_FEATURES
 #define CA_HOST_TARGET_RISCV32_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_RISCV32_CPU,
-                     CA_HOST_TARGET_RISCV32_FEATURES);
-      break;
-    case llvm::Triple::riscv64:
+    SetCPUFeatures(CA_HOST_TARGET_RISCV32_CPU, CA_HOST_TARGET_RISCV32_FEATURES);
+    break;
+  case llvm::Triple::riscv64:
 #ifndef CA_HOST_TARGET_RISCV64_CPU
 #define CA_HOST_TARGET_RISCV64_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_RISCV64_FEATURES
 #define CA_HOST_TARGET_RISCV64_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_RISCV64_CPU,
-                     CA_HOST_TARGET_RISCV64_FEATURES);
-      break;
+    SetCPUFeatures(CA_HOST_TARGET_RISCV64_CPU, CA_HOST_TARGET_RISCV64_FEATURES);
+    break;
 #endif
 #ifdef HOST_LLVM_X86
-    case llvm::Triple::x86:
+  case llvm::Triple::x86:
 #ifndef CA_HOST_TARGET_X86_CPU
 #define CA_HOST_TARGET_X86_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_X86_FEATURES
 #define CA_HOST_TARGET_X86_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_X86_CPU, CA_HOST_TARGET_X86_FEATURES);
-      break;
-    case llvm::Triple::x86_64:
+    SetCPUFeatures(CA_HOST_TARGET_X86_CPU, CA_HOST_TARGET_X86_FEATURES);
+    break;
+  case llvm::Triple::x86_64:
 #ifndef CA_HOST_TARGET_X86_64_CPU
 #define CA_HOST_TARGET_X86_64_CPU ""
 #endif
 #ifndef CA_HOST_TARGET_X86_64_FEATURES
 #define CA_HOST_TARGET_X86_64_FEATURES ""
 #endif
-      SetCPUFeatures(CA_HOST_TARGET_X86_64_CPU, CA_HOST_TARGET_X86_64_FEATURES);
-      break;
+    SetCPUFeatures(CA_HOST_TARGET_X86_64_CPU, CA_HOST_TARGET_X86_64_FEATURES);
+    break;
 #endif
-    default:
-      break;
+  default:
+    break;
   }
 
 #if !defined(NDEBUG) || defined(CA_ENABLE_DEBUG_SUPPORT)
@@ -454,4 +453,4 @@ void HostTarget::withLLVMContextDo(void (*f)(llvm::LLVMContext &, void *),
 
 llvm::Module *HostTarget::getBuiltins() const { return builtins.get(); }
 
-}  // namespace host
+} // namespace host

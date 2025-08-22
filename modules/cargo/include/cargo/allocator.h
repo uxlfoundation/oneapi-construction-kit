@@ -58,9 +58,8 @@ void free(void *pointer);
 /// defined.
 ///
 /// @tparam T Type of object to allocate.
-template <class T>
-class mallocator {
- public:
+template <class T> class mallocator {
+public:
   using value_type = T;
   using size_type = size_t;
 
@@ -87,8 +86,7 @@ class mallocator {
   ///
   /// @return A constructed `value_type` pointer on success, or `nullptr`
   /// otherwise.
-  template <class... Args>
-  value_type *create(Args &&...args) {
+  template <class... Args> value_type *create(Args &&...args) {
     value_type *object = static_cast<T *>(cargo::alloc(sizeof(T), alignof(T)));
     new (object) value_type(std::forward<Args>(args)...);
     return object;
@@ -113,9 +111,8 @@ class mallocator {
 /// number of contained elements.
 ///
 /// @tparam T Type of the object to allocate.
-template <class T>
-class nullacator {
- public:
+template <class T> class nullacator {
+public:
   using value_type = T;
   using size_type = size_t;
 
@@ -132,10 +129,7 @@ class nullacator {
   /// @tparam Args Constructor argument parameter type pack.
   ///
   /// @return Returns a `nullptr`, always.
-  template <class... Args>
-  value_type *create(Args &&...) {
-    return nullptr;
-  }
+  template <class... Args> value_type *create(Args &&...) { return nullptr; }
 
   /// @brief Destroy and free a constructed object.
   void destroy(value_type *) {}
@@ -159,9 +153,8 @@ class nullacator {
 /// ```
 ///
 /// @tparam T Type of the object to delete.
-template <class T>
-class deleter {
- public:
+template <class T> class deleter {
+public:
   /// @brief Destroy and deallocate object.
   ///
   /// @param ptr Pointer to object to be destroyed.
@@ -172,6 +165,6 @@ class deleter {
 };
 
 /// @}
-}  // namespace cargo
+} // namespace cargo
 
-#endif  // CARGO_ALLOCATOR_H_INCLUDED
+#endif // CARGO_ALLOCATOR_H_INCLUDED

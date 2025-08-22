@@ -19,7 +19,7 @@
 
 class clEnqueueReadBufferTest : public ucl::CommandQueueTest,
                                 TestWithEventWaitList {
- protected:
+protected:
   enum { SIZE = 128, INT_SIZE = (SIZE * sizeof(cl_int)) };
 
   void SetUp() override {
@@ -61,9 +61,9 @@ class clEnqueueReadBufferTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0, INT_SIZE,
-                                 inBuffer, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0,
+                                               INT_SIZE, inBuffer, num_events,
+                                               events, event));
   }
 
   cl_mem inMem = nullptr;
@@ -190,24 +190,24 @@ TEST_F(clEnqueueReadBufferTest, InvalidCommandQueue) {
 }
 
 TEST_F(clEnqueueReadBufferTest, InvalidMemObject) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueReadBuffer(command_queue, nullptr, CL_TRUE, 0, INT_SIZE,
-                          inBuffer, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueReadBuffer(command_queue, nullptr, CL_TRUE, 0,
+                                        INT_SIZE, inBuffer, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueReadBufferTest, InvalidBufferSize) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, INT_SIZE, INT_SIZE,
-                          inBuffer, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, INT_SIZE,
+                                        INT_SIZE, inBuffer, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueReadBufferTest, InvalidBuffer) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0, INT_SIZE, nullptr,
-                          0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0,
+                                        INT_SIZE, nullptr, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueReadBufferTest, InvalidSize) {
@@ -217,10 +217,10 @@ TEST_F(clEnqueueReadBufferTest, InvalidSize) {
 }
 
 TEST_F(clEnqueueReadBufferTest, NullWaitList) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_EVENT_WAIT_LIST,
-      clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0, INT_SIZE, inBuffer,
-                          1, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_EVENT_WAIT_LIST,
+                    clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0,
+                                        INT_SIZE, inBuffer, 1, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueReadBufferTest, WaitListWithBadNumber) {
@@ -236,10 +236,10 @@ TEST_F(clEnqueueReadBufferTest, ReadFromWriteOnly) {
                                    nullptr, &errorcode);
   ASSERT_TRUE(otherMem);
   EXPECT_SUCCESS(errorcode);
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueReadBuffer(command_queue, otherMem, CL_TRUE, 0, INT_SIZE,
-                          inBuffer, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueReadBuffer(command_queue, otherMem, CL_TRUE, 0,
+                                        INT_SIZE, inBuffer, 0, nullptr,
+                                        nullptr));
   EXPECT_SUCCESS(clReleaseMemObject(otherMem));
 }
 
@@ -249,10 +249,10 @@ TEST_F(clEnqueueReadBufferTest, ReadFromHostNoAccess) {
                                    nullptr, &errorcode);
   ASSERT_TRUE(otherMem);
   EXPECT_SUCCESS(errorcode);
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_OPERATION,
-      clEnqueueReadBuffer(command_queue, otherMem, CL_TRUE, 0, INT_SIZE,
-                          inBuffer, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
+                    clEnqueueReadBuffer(command_queue, otherMem, CL_TRUE, 0,
+                                        INT_SIZE, inBuffer, 0, nullptr,
+                                        nullptr));
   EXPECT_SUCCESS(clReleaseMemObject(otherMem));
 }
 

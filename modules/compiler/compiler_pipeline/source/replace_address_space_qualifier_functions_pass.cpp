@@ -35,7 +35,7 @@ Value *replaceAddressSpaceQualifierFunction(CallBase &call, StringRef name) {
   return B.CreatePointerBitCastOrAddrSpaceCast(ptr, call.getType(), name);
 }
 
-}  // namespace
+} // namespace
 
 PreservedAnalyses
 compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass::run(

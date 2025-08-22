@@ -23,15 +23,21 @@ kts::ucl::Argument *kts::ucl::ArgumentList::GetArg(unsigned index) {
   return args_[index].get();
 }
 
-kts::BufferDesc kts::ucl::ArgumentList::GetBufferDescForArg(
-    unsigned index) const {
+kts::BufferDesc
+kts::ucl::ArgumentList::GetBufferDescForArg(unsigned index) const {
   kts::BufferDesc desc = default_desc_;
   if (index < GetCount()) {
     auto &arg = args_[index];
     const kts::BufferDesc &arg_desc = arg->GetBufferDesc();
-    if (arg_desc.size_ > 0) desc.size_ = arg_desc.size_;
-    if (arg_desc.streamer_) desc.streamer_ = arg_desc.streamer_;
-    if (arg_desc.streamer2_) desc.streamer2_ = arg_desc.streamer2_;
+    if (arg_desc.size_ > 0) {
+      desc.size_ = arg_desc.size_;
+    }
+    if (arg_desc.streamer_) {
+      desc.streamer_ = arg_desc.streamer_;
+    }
+    if (arg_desc.streamer2_) {
+      desc.streamer2_ = arg_desc.streamer2_;
+    }
   }
   return desc;
 }

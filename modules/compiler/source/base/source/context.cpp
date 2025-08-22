@@ -69,18 +69,18 @@ BaseContext::getSpecializableConstants(cargo::array_view<const uint32_t> code) {
   for (const auto &entry : *specializable) {
     auto &constant = constants_map[entry.getFirst()];
     switch (entry.getSecond().constantType) {
-      case spirv_ll::SpecializationType::BOOL:
-        constant.constant_type = spirv::SpecializationType::BOOL;
-        break;
-      case spirv_ll::SpecializationType::INT:
-        constant.constant_type = spirv::SpecializationType::INT;
-        break;
-      case spirv_ll::SpecializationType::FLOAT:
-        constant.constant_type = spirv::SpecializationType::FLOAT;
-        break;
+    case spirv_ll::SpecializationType::BOOL:
+      constant.constant_type = spirv::SpecializationType::BOOL;
+      break;
+    case spirv_ll::SpecializationType::INT:
+      constant.constant_type = spirv::SpecializationType::INT;
+      break;
+    case spirv_ll::SpecializationType::FLOAT:
+      constant.constant_type = spirv::SpecializationType::FLOAT;
+      break;
     }
     constant.size_in_bits = entry.getSecond().sizeInBits;
   }
   return {std::move(constants_map)};
 }
-}  // namespace compiler
+} // namespace compiler

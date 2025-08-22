@@ -201,7 +201,7 @@ bool replaceFastMathCalls(Module &M) {
   }
   return replacements.size();
 }
-}  // namespace
+} // namespace
 
 namespace compiler {
 PreservedAnalyses FastMathPass::run(Module &M, ModuleAnalysisManager &) {
@@ -223,4 +223,4 @@ PreservedAnalyses FastMathPass::run(Module &M, ModuleAnalysisManager &) {
   }
   return preserved;
 }
-}  // namespace compiler
+} // namespace compiler

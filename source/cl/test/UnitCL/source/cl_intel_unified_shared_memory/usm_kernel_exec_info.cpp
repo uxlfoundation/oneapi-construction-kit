@@ -380,7 +380,7 @@ void kernel foo(__global ptr_wrapper* input, __global uchar* output) {
   input->inputB_ptr[id] += id;
 }
 )";
-}  // namespace
+} // namespace
 
 #if defined(CL_VERSION_3_0)
 TEST_F(USMIndirectAccessTest, IndirectDevicePointer) {

@@ -35,7 +35,7 @@ class RiscvTarget;
 /// @brief A class that drives the compilation process and stores the compiled
 /// binary.
 class RiscvModule : public compiler::BaseModule {
- public:
+public:
   RiscvModule(riscv::RiscvTarget &target, compiler::BaseContext &context,
               uint32_t &num_errors, std::string &log);
 
@@ -43,12 +43,12 @@ class RiscvModule : public compiler::BaseModule {
   void clear() override;
 
   /// @see Module::createBinary
-  compiler::Result createBinary(
-      cargo::array_view<std::uint8_t> &buffer) override;
+  compiler::Result
+  createBinary(cargo::array_view<std::uint8_t> &buffer) override;
 
   /// @see Module::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
-      llvm::LLVMContext &) override;
+  std::unique_ptr<compiler::utils::PassMachinery>
+  createPassMachinery(llvm::LLVMContext &) override;
 
   /// @see BaseModule::initializePassMachineryForFrontend
   void initializePassMachineryForFrontend(
@@ -70,22 +70,22 @@ class RiscvModule : public compiler::BaseModule {
   /// this module.
   llvm::TargetMachine *getTargetMachine();
 
- protected:
+protected:
   /// @see BaseModule::getLateTargetPasses
-  llvm::ModulePassManager getLateTargetPasses(
-      compiler::utils::PassMachinery &) override;
+  llvm::ModulePassManager
+  getLateTargetPasses(compiler::utils::PassMachinery &) override;
 
   /// @see Module::createKernel
   compiler::Kernel *createKernel(const std::string &name) override;
 
   const riscv::RiscvTarget &getTarget() const;
 
- private:
+private:
   cargo::dynamic_array<uint8_t> object_code;
 
   /// @brief Target machine to use to compile IR to assembly.
   std::unique_ptr<llvm::TargetMachine> target_machine;
-};  // class RiscvModule
-}  // namespace riscv
+}; // class RiscvModule
+} // namespace riscv
 
-#endif  // RISCV_MODULE_H_INCLUDED
+#endif // RISCV_MODULE_H_INCLUDED

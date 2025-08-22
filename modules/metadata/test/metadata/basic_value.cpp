@@ -59,8 +59,8 @@ TEST_F(MD_ValueTest, CopyAssignable) {
   {
     // We can copy values, which copies the shared_ptr but the underlying data
     // remains the same
-    md_value_ val_cpy = value;  // NOLINT: value is not modified so
-                                // clang-tidy warns unnecessary copy
+    md_value_ val_cpy = value; // NOLINT: value is not modified so
+                               // clang-tidy warns unnecessary copy
     auto *cpy_v = val_cpy.get<unsigned>();
     EXPECT_EQ(*cpy_v, 3);
     *cpy_v = 13;

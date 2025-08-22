@@ -96,23 +96,23 @@ cl_int extension::khr_command_buffer::GetDeviceInfo(
 #else
   cl_device_command_buffer_capabilities_khr result = 0;
   switch (param_name) {
-    case CL_DEVICE_COMMAND_BUFFER_CAPABILITIES_KHR: {
-      result = CL_COMMAND_BUFFER_CAPABILITY_KERNEL_PRINTF_KHR;
+  case CL_DEVICE_COMMAND_BUFFER_CAPABILITIES_KHR: {
+    result = CL_COMMAND_BUFFER_CAPABILITY_KERNEL_PRINTF_KHR;
 
-      const auto device_info = device->mux_device->info;
-      if (device_info->can_clone_command_buffers) {
-        result |= CL_COMMAND_BUFFER_CAPABILITY_SIMULTANEOUS_USE_KHR;
-      }
-    } break;
-    case CL_DEVICE_COMMAND_BUFFER_REQUIRED_QUEUE_PROPERTIES_KHR:
-      // We don't have any required properties for a queue to run
-      // command-buffers on
-      break;
-    default:
-      // Use default implementation that uses the name set in the constructor
-      // as the name usage specifies.
-      return extension::GetDeviceInfo(device, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
+    const auto device_info = device->mux_device->info;
+    if (device_info->can_clone_command_buffers) {
+      result |= CL_COMMAND_BUFFER_CAPABILITY_SIMULTANEOUS_USE_KHR;
+    }
+  } break;
+  case CL_DEVICE_COMMAND_BUFFER_REQUIRED_QUEUE_PROPERTIES_KHR:
+    // We don't have any required properties for a queue to run
+    // command-buffers on
+    break;
+  default:
+    // Use default implementation that uses the name set in the constructor
+    // as the name usage specifies.
+    return extension::GetDeviceInfo(device, param_name, param_value_size,
+                                    param_value, param_value_size_ret);
   }
 
   constexpr size_t type_size = sizeof(result);
@@ -150,12 +150,8 @@ _cl_mutable_command_khr::create(cl_uint id, cl_kernel kernel) {
 }
 
 _cl_command_buffer_khr::_cl_command_buffer_khr(cl_command_queue queue)
-    : base(cl::ref_count_type::EXTERNAL),
-      next_command_index(0u),
-      flags(0),
-      is_finalized(false),
-      command_queue(queue),
-      execution_refcount(0u) {
+    : base(cl::ref_count_type::EXTERNAL), next_command_index(0u), flags(0),
+      is_finalized(false), command_queue(queue), execution_refcount(0u) {
   cl::retainInternal(command_queue);
 }
 
@@ -222,38 +218,38 @@ _cl_command_buffer_khr::create(
     do {
       const cl_command_buffer_properties_khr property = current[0];
       switch (property) {
-        case CL_COMMAND_BUFFER_FLAGS_KHR:
-          if (0 == (seen & CL_COMMAND_BUFFER_FLAGS_KHR)) {
-            const cl_command_buffer_flags_khr flags_mask =
+      case CL_COMMAND_BUFFER_FLAGS_KHR:
+        if (0 == (seen & CL_COMMAND_BUFFER_FLAGS_KHR)) {
+          const cl_command_buffer_flags_khr flags_mask =
 #ifdef OCL_EXTENSION_cl_khr_command_buffer_mutable_dispatch
-                CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR |
-                CL_COMMAND_BUFFER_MUTABLE_KHR;
+              CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR |
+              CL_COMMAND_BUFFER_MUTABLE_KHR;
 #else
-                CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR;
+              CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR;
 #endif
 
-            const cl_command_buffer_flags_khr value = current[1];
+          const cl_command_buffer_flags_khr value = current[1];
 
-            // Check flag is defined by the specification
-            if (value & ~flags_mask) {
-              return cargo::make_unexpected(CL_INVALID_VALUE);
-            }
-
-            // simultaneous-use is not possible on all devices, support for
-            // cloning command-buffers is required.
-            const auto device_info = command_queue->device->mux_device->info;
-            if (!device_info->can_clone_command_buffers &&
-                (value & CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR)) {
-              return cargo::make_unexpected(CL_INVALID_PROPERTY);
-            }
-
-            command_buffer->flags = value;
-            seen |= property;
-            break;
+          // Check flag is defined by the specification
+          if (value & ~flags_mask) {
+            return cargo::make_unexpected(CL_INVALID_VALUE);
           }
-          [[fallthrough]];
-        default:
-          return cargo::make_unexpected(CL_INVALID_VALUE);
+
+          // simultaneous-use is not possible on all devices, support for
+          // cloning command-buffers is required.
+          const auto device_info = command_queue->device->mux_device->info;
+          if (!device_info->can_clone_command_buffers &&
+              (value & CL_COMMAND_BUFFER_SIMULTANEOUS_USE_KHR)) {
+            return cargo::make_unexpected(CL_INVALID_PROPERTY);
+          }
+
+          command_buffer->flags = value;
+          seen |= property;
+          break;
+        }
+        [[fallthrough]];
+      default:
+        return cargo::make_unexpected(CL_INVALID_VALUE);
       }
       current += 2;
     } while (current[0] != 0);
@@ -948,9 +944,9 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
 }
 
 namespace {
-cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
-    const cl_mutable_dispatch_arg_khr &arg, cl_kernel kernel,
-    cl_device_id device) {
+cargo::expected<mux_descriptor_info_s, cl_int>
+createArgumentDescriptor(const cl_mutable_dispatch_arg_khr &arg,
+                         cl_kernel kernel, cl_device_id device) {
   const auto arg_index = arg.arg_index;
   const void *arg_value = arg.arg_value;
   const auto arg_size = arg.arg_size;
@@ -960,120 +956,120 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
   // Construct a descriptor from this data.
   mux_descriptor_info_s descriptor;
   switch (arg_type->kind) {
-    default:
-      return cargo::make_unexpected(CL_INVALID_MUTABLE_COMMAND_KHR);
+  default:
+    return cargo::make_unexpected(CL_INVALID_MUTABLE_COMMAND_KHR);
 
-    // TODO CA-4144 - Support updating image arguments,
-    // hardcoded to return an error for now
-    case compiler::ArgumentKind::IMAGE2D:
-    case compiler::ArgumentKind::IMAGE3D:
-    case compiler::ArgumentKind::IMAGE2D_ARRAY:
-    case compiler::ArgumentKind::IMAGE1D:
-    case compiler::ArgumentKind::IMAGE1D_ARRAY:
-    case compiler::ArgumentKind::IMAGE1D_BUFFER:
-    case compiler::ArgumentKind::SAMPLER:
-      return cargo::make_unexpected(CL_INVALID_ARG_VALUE);
+  // TODO CA-4144 - Support updating image arguments,
+  // hardcoded to return an error for now
+  case compiler::ArgumentKind::IMAGE2D:
+  case compiler::ArgumentKind::IMAGE3D:
+  case compiler::ArgumentKind::IMAGE2D_ARRAY:
+  case compiler::ArgumentKind::IMAGE1D:
+  case compiler::ArgumentKind::IMAGE1D_ARRAY:
+  case compiler::ArgumentKind::IMAGE1D_BUFFER:
+  case compiler::ArgumentKind::SAMPLER:
+    return cargo::make_unexpected(CL_INVALID_ARG_VALUE);
 
-    case compiler::ArgumentKind::POINTER: {
-      if (arg_type->address_space == compiler::AddressSpace::GLOBAL ||
-          arg_type->address_space == compiler::AddressSpace::CONSTANT) {
-        OCL_CHECK(sizeof(cl_mem) != arg_size,
-                  return cargo::make_unexpected(CL_INVALID_ARG_SIZE));
-        // Check if the argument is nullptr or is a pointer to a nullptr.
-        if (nullptr == arg_value ||
-            (nullptr == *static_cast<const cl_mem *>(arg_value))) {
-          descriptor.type =
-              mux_descriptor_info_type_e::mux_descriptor_info_type_null_buffer;
-        } else {
-          cl_mem mem = *static_cast<const cl_mem *>(arg_value);
-          OCL_CHECK(CL_MEM_OBJECT_BUFFER != mem->type,
-                    return cargo::make_unexpected(CL_INVALID_ARG_VALUE));
-
-          auto *buffer = static_cast<const cl_mem_buffer *>(arg_value);
-          // Look up the device id from the queue associated to the
-          // command buffer.
-          const auto device_index =
-              kernel->program->context->getDeviceIndex(device);
-          auto *mux_buffer = (*buffer)->mux_buffers[device_index];
-
-          descriptor.type =
-              mux_descriptor_info_type_e::mux_descriptor_info_type_buffer;
-          descriptor.buffer_descriptor =
-              mux_descriptor_info_buffer_s{mux_buffer, 0};
-        }
-      } else if (arg_type->address_space == compiler::AddressSpace::LOCAL) {
-        OCL_CHECK(nullptr != arg_value,
-                  return cargo::make_unexpected(CL_INVALID_VALUE));
-        OCL_CHECK(arg_size == 0,
-                  return cargo::make_unexpected(CL_INVALID_ARG_SIZE));
-        descriptor.type = mux_descriptor_info_type_e::
-            mux_descriptor_info_type_shared_local_buffer;
-        descriptor.shared_local_buffer_descriptor =
-            mux_descriptor_info_shared_local_buffer_s{arg_size};
-      } else {
-        // Unhandled address space.
-        return cargo::make_unexpected(CL_INVALID_MUTABLE_COMMAND_KHR);
-      }
-    } break;
-
-      // For POD arguments we need to consider all types.
-    case compiler::ArgumentKind::INT8:
-    case compiler::ArgumentKind::INT8_2:
-    case compiler::ArgumentKind::INT8_3:
-    case compiler::ArgumentKind::INT8_4:
-    case compiler::ArgumentKind::INT8_8:
-    case compiler::ArgumentKind::INT8_16:
-    case compiler::ArgumentKind::INT16:
-    case compiler::ArgumentKind::INT16_2:
-    case compiler::ArgumentKind::INT16_3:
-    case compiler::ArgumentKind::INT16_4:
-    case compiler::ArgumentKind::INT16_8:
-    case compiler::ArgumentKind::INT16_16:
-    case compiler::ArgumentKind::INT32:
-    case compiler::ArgumentKind::INT32_2:
-    case compiler::ArgumentKind::INT32_3:
-    case compiler::ArgumentKind::INT32_4:
-    case compiler::ArgumentKind::INT32_8:
-    case compiler::ArgumentKind::INT32_16:
-    case compiler::ArgumentKind::INT64:
-    case compiler::ArgumentKind::INT64_2:
-    case compiler::ArgumentKind::INT64_3:
-    case compiler::ArgumentKind::INT64_4:
-    case compiler::ArgumentKind::INT64_8:
-    case compiler::ArgumentKind::INT64_16:
-    case compiler::ArgumentKind::HALF:
-    case compiler::ArgumentKind::HALF_2:
-    case compiler::ArgumentKind::HALF_3:
-    case compiler::ArgumentKind::HALF_4:
-    case compiler::ArgumentKind::HALF_8:
-    case compiler::ArgumentKind::HALF_16:
-    case compiler::ArgumentKind::FLOAT:
-    case compiler::ArgumentKind::FLOAT_2:
-    case compiler::ArgumentKind::FLOAT_3:
-    case compiler::ArgumentKind::FLOAT_4:
-    case compiler::ArgumentKind::FLOAT_8:
-    case compiler::ArgumentKind::FLOAT_16:
-    case compiler::ArgumentKind::DOUBLE:
-    case compiler::ArgumentKind::DOUBLE_2:
-    case compiler::ArgumentKind::DOUBLE_3:
-    case compiler::ArgumentKind::DOUBLE_4:
-    case compiler::ArgumentKind::DOUBLE_8:
-    case compiler::ArgumentKind::DOUBLE_16:
-    case compiler::ArgumentKind::STRUCTBYVAL: {
-      const auto struct_arg = kernel->saved_args[arg_index];
-      const size_t original_size = struct_arg.value.size;
-      OCL_CHECK(original_size != arg_size,
+  case compiler::ArgumentKind::POINTER: {
+    if (arg_type->address_space == compiler::AddressSpace::GLOBAL ||
+        arg_type->address_space == compiler::AddressSpace::CONSTANT) {
+      OCL_CHECK(sizeof(cl_mem) != arg_size,
                 return cargo::make_unexpected(CL_INVALID_ARG_SIZE));
+      // Check if the argument is nullptr or is a pointer to a nullptr.
+      if (nullptr == arg_value ||
+          (nullptr == *static_cast<const cl_mem *>(arg_value))) {
+        descriptor.type =
+            mux_descriptor_info_type_e::mux_descriptor_info_type_null_buffer;
+      } else {
+        cl_mem mem = *static_cast<const cl_mem *>(arg_value);
+        OCL_CHECK(CL_MEM_OBJECT_BUFFER != mem->type,
+                  return cargo::make_unexpected(CL_INVALID_ARG_VALUE));
 
-      descriptor.type =
-          mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
-      descriptor.plain_old_data_descriptor =
-          mux_descriptor_info_plain_old_data_s{arg_value, arg_size};
-    } break;
+        auto *buffer = static_cast<const cl_mem_buffer *>(arg_value);
+        // Look up the device id from the queue associated to the
+        // command buffer.
+        const auto device_index =
+            kernel->program->context->getDeviceIndex(device);
+        auto *mux_buffer = (*buffer)->mux_buffers[device_index];
+
+        descriptor.type =
+            mux_descriptor_info_type_e::mux_descriptor_info_type_buffer;
+        descriptor.buffer_descriptor =
+            mux_descriptor_info_buffer_s{mux_buffer, 0};
+      }
+    } else if (arg_type->address_space == compiler::AddressSpace::LOCAL) {
+      OCL_CHECK(nullptr != arg_value,
+                return cargo::make_unexpected(CL_INVALID_VALUE));
+      OCL_CHECK(arg_size == 0,
+                return cargo::make_unexpected(CL_INVALID_ARG_SIZE));
+      descriptor.type = mux_descriptor_info_type_e::
+          mux_descriptor_info_type_shared_local_buffer;
+      descriptor.shared_local_buffer_descriptor =
+          mux_descriptor_info_shared_local_buffer_s{arg_size};
+    } else {
+      // Unhandled address space.
+      return cargo::make_unexpected(CL_INVALID_MUTABLE_COMMAND_KHR);
+    }
+  } break;
+
+    // For POD arguments we need to consider all types.
+  case compiler::ArgumentKind::INT8:
+  case compiler::ArgumentKind::INT8_2:
+  case compiler::ArgumentKind::INT8_3:
+  case compiler::ArgumentKind::INT8_4:
+  case compiler::ArgumentKind::INT8_8:
+  case compiler::ArgumentKind::INT8_16:
+  case compiler::ArgumentKind::INT16:
+  case compiler::ArgumentKind::INT16_2:
+  case compiler::ArgumentKind::INT16_3:
+  case compiler::ArgumentKind::INT16_4:
+  case compiler::ArgumentKind::INT16_8:
+  case compiler::ArgumentKind::INT16_16:
+  case compiler::ArgumentKind::INT32:
+  case compiler::ArgumentKind::INT32_2:
+  case compiler::ArgumentKind::INT32_3:
+  case compiler::ArgumentKind::INT32_4:
+  case compiler::ArgumentKind::INT32_8:
+  case compiler::ArgumentKind::INT32_16:
+  case compiler::ArgumentKind::INT64:
+  case compiler::ArgumentKind::INT64_2:
+  case compiler::ArgumentKind::INT64_3:
+  case compiler::ArgumentKind::INT64_4:
+  case compiler::ArgumentKind::INT64_8:
+  case compiler::ArgumentKind::INT64_16:
+  case compiler::ArgumentKind::HALF:
+  case compiler::ArgumentKind::HALF_2:
+  case compiler::ArgumentKind::HALF_3:
+  case compiler::ArgumentKind::HALF_4:
+  case compiler::ArgumentKind::HALF_8:
+  case compiler::ArgumentKind::HALF_16:
+  case compiler::ArgumentKind::FLOAT:
+  case compiler::ArgumentKind::FLOAT_2:
+  case compiler::ArgumentKind::FLOAT_3:
+  case compiler::ArgumentKind::FLOAT_4:
+  case compiler::ArgumentKind::FLOAT_8:
+  case compiler::ArgumentKind::FLOAT_16:
+  case compiler::ArgumentKind::DOUBLE:
+  case compiler::ArgumentKind::DOUBLE_2:
+  case compiler::ArgumentKind::DOUBLE_3:
+  case compiler::ArgumentKind::DOUBLE_4:
+  case compiler::ArgumentKind::DOUBLE_8:
+  case compiler::ArgumentKind::DOUBLE_16:
+  case compiler::ArgumentKind::STRUCTBYVAL: {
+    const auto struct_arg = kernel->saved_args[arg_index];
+    const size_t original_size = struct_arg.value.size;
+    OCL_CHECK(original_size != arg_size,
+              return cargo::make_unexpected(CL_INVALID_ARG_SIZE));
+
+    descriptor.type =
+        mux_descriptor_info_type_e::mux_descriptor_info_type_plain_old_data;
+    descriptor.plain_old_data_descriptor =
+        mux_descriptor_info_plain_old_data_s{arg_value, arg_size};
+  } break;
   }
   return descriptor;
 }
-}  // anonymous namespace
+} // anonymous namespace
 
 [[nodiscard]] cl_int _cl_command_buffer_khr::updateCommandBuffer(
     const cl_mutable_base_config_khr &mutable_config) {
@@ -1168,7 +1164,7 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
       update_info.descriptors[update_index] = descriptor;
       update_index++;
     }
-#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
+#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
     if (updates.push_back(std::move(update_info))) {
       return CL_OUT_OF_HOST_MEMORY;
     }
@@ -1605,28 +1601,28 @@ CL_API_ENTRY cl_int CL_API_CALL clCommandNDRangeKernelKHR(
     do {
       const cl_command_buffer_properties_khr property = current[0];
       switch (property) {
-        case CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR:
-          if (0 == (seen & CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR)) {
-            updatable_fields = current[1];
-            if (updatable_fields) {
-              // CL_MUTABLE_DISPATCH_EXEC_INFO_KHR is the largest defined value
-              // in the cl_mutable_dispatch_fields_khr bitfield
-              constexpr cl_mutable_dispatch_fields_khr bitfield_overflow =
-                  CL_MUTABLE_DISPATCH_EXEC_INFO_KHR << 1;
-              if (updatable_fields >= bitfield_overflow) {
-                return CL_INVALID_VALUE;
-              }
-              // We only support argument update
-              if (updatable_fields != CL_MUTABLE_DISPATCH_ARGUMENTS_KHR) {
-                return CL_INVALID_OPERATION;
-              }
+      case CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR:
+        if (0 == (seen & CL_MUTABLE_DISPATCH_UPDATABLE_FIELDS_KHR)) {
+          updatable_fields = current[1];
+          if (updatable_fields) {
+            // CL_MUTABLE_DISPATCH_EXEC_INFO_KHR is the largest defined value
+            // in the cl_mutable_dispatch_fields_khr bitfield
+            constexpr cl_mutable_dispatch_fields_khr bitfield_overflow =
+                CL_MUTABLE_DISPATCH_EXEC_INFO_KHR << 1;
+            if (updatable_fields >= bitfield_overflow) {
+              return CL_INVALID_VALUE;
             }
-            seen |= property;
-            break;
+            // We only support argument update
+            if (updatable_fields != CL_MUTABLE_DISPATCH_ARGUMENTS_KHR) {
+              return CL_INVALID_OPERATION;
+            }
           }
-          [[fallthrough]];
-        default:
-          return CL_INVALID_VALUE;
+          seen |= property;
+          break;
+        }
+        [[fallthrough]];
+      default:
+        return CL_INVALID_VALUE;
       }
       current += 2;
     } while (current[0] != 0);
@@ -1683,12 +1679,12 @@ CL_API_ENTRY cl_int CL_API_CALL clGetCommandBufferInfoKHR(
 
   OCL_CHECK(!command_buffer, return CL_INVALID_COMMAND_BUFFER_KHR);
 
-#define COMMAND_BUFFER_INFO_CASE(TYPE, SIZE_RET, POINTER_TYPE, VALUE)   \
-  case TYPE: {                                                          \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                \
-    OCL_CHECK(param_value && (param_value_size < SIZE_RET),             \
-              return CL_INVALID_VALUE);                                 \
-    OCL_SET_IF_NOT_NULL(static_cast<POINTER_TYPE>(param_value), VALUE); \
+#define COMMAND_BUFFER_INFO_CASE(TYPE, SIZE_RET, POINTER_TYPE, VALUE)          \
+  case TYPE: {                                                                 \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                       \
+    OCL_CHECK(param_value && (param_value_size < SIZE_RET),                    \
+              return CL_INVALID_VALUE);                                        \
+    OCL_SET_IF_NOT_NULL(static_cast<POINTER_TYPE>(param_value), VALUE);        \
   } break
 
   switch (param_name) {
@@ -1703,22 +1699,22 @@ CL_API_ENTRY cl_int CL_API_CALL clGetCommandBufferInfoKHR(
     COMMAND_BUFFER_INFO_CASE(
         CL_COMMAND_BUFFER_STATE_KHR, sizeof(cl_command_buffer_state_khr),
         cl_command_buffer_state_khr *, command_buffer->getState());
-    case CL_COMMAND_BUFFER_PROPERTIES_ARRAY_KHR: {
-      const auto &properties_list = command_buffer->properties_list;
-      OCL_SET_IF_NOT_NULL(
-          param_value_size_ret,
-          sizeof(cl_command_buffer_properties_khr) * properties_list.size());
-      OCL_CHECK(param_value && param_value_size <
-                                   sizeof(cl_command_buffer_properties_khr) *
-                                       properties_list.size(),
-                return CL_INVALID_VALUE);
-      if (param_value) {
-        std::copy(std::begin(properties_list), std::end(properties_list),
-                  static_cast<cl_bitfield *>(param_value));
-      }
-    } break;
-    default:
-      return CL_INVALID_VALUE;
+  case CL_COMMAND_BUFFER_PROPERTIES_ARRAY_KHR: {
+    const auto &properties_list = command_buffer->properties_list;
+    OCL_SET_IF_NOT_NULL(param_value_size_ret,
+                        sizeof(cl_command_buffer_properties_khr) *
+                            properties_list.size());
+    OCL_CHECK(param_value &&
+                  param_value_size < sizeof(cl_command_buffer_properties_khr) *
+                                         properties_list.size(),
+              return CL_INVALID_VALUE);
+    if (param_value) {
+      std::copy(std::begin(properties_list), std::end(properties_list),
+                static_cast<cl_bitfield *>(param_value));
+    }
+  } break;
+  default:
+    return CL_INVALID_VALUE;
   }
 #undef COMMAND_BUFFER_INFO_CASE
 
@@ -1726,9 +1722,8 @@ CL_API_ENTRY cl_int CL_API_CALL clGetCommandBufferInfoKHR(
 }
 
 namespace cl {
-template <>
-cl_int invalid<cl_command_buffer_khr>() {
+template <> cl_int invalid<cl_command_buffer_khr>() {
   return CL_INVALID_COMMAND_BUFFER_KHR;
 }
-}  // namespace cl
-#endif  // OCL_EXTENSION_cl_khr_command_buffer
+} // namespace cl
+#endif // OCL_EXTENSION_cl_khr_command_buffer

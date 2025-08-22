@@ -46,10 +46,11 @@ static bool ExtractIntegerConstant(llvm::Value *val, uint64_t &outVal) {
   outVal = 0;
   return false;
 }
-}  // namespace
+} // namespace
 
-llvm::PreservedAnalyses compiler::BitShiftFixupPass::run(
-    llvm::Function &F, llvm::FunctionAnalysisManager &) {
+llvm::PreservedAnalyses
+compiler::BitShiftFixupPass::run(llvm::Function &F,
+                                 llvm::FunctionAnalysisManager &) {
   bool modified = false;
   for (auto &BB : F) {
     for (auto &I : BB) {

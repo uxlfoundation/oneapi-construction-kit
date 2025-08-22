@@ -33,6 +33,6 @@ hal::hal_t *hal_get();
 /// @brief Unload the hal library.
 void hal_unload();
 
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_HAL_H_INCLUDED
+#endif // RISCV_HAL_H_INCLUDED

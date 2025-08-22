@@ -3,7 +3,7 @@
 #include "Common.h"
 
 class FuzzTest : public ucl::CommandQueueTest {
- protected:
+protected:
   void TearDown() override {
     for (size_t i = 0; i < buffers.size(); i++) {
       clReleaseMemObject(buffers[i]);
@@ -94,58 +94,58 @@ TEST_F(FuzzTest, DISABLED_ReadAndWriteTest) {
 
   for (size_t i = 0; i < commands.size(); i++) {
     switch (commands[i]) {
-      case CREATE_BUFFER: {
-        cl_int errorCode;
-        buffers.push_back(clCreateBuffer(context, CL_MEM_READ_WRITE, sizes[i],
-                                         NULL, &errorCode));
-        eventStacks.push_back(std::stack<cl_event>());
-        EXPECT_TRUE(buffers.back());
-        ASSERT_SUCCESS(errorCode);
-        break;
-      }
-      case READ_BUFFER: {
-        const cl_mem buffer = buffers[buffer_ids[i]];
+    case CREATE_BUFFER: {
+      cl_int errorCode;
+      buffers.push_back(clCreateBuffer(context, CL_MEM_READ_WRITE, sizes[i],
+                                       NULL, &errorCode));
+      eventStacks.push_back(std::stack<cl_event>());
+      EXPECT_TRUE(buffers.back());
+      ASSERT_SUCCESS(errorCode);
+      break;
+    }
+    case READ_BUFFER: {
+      const cl_mem buffer = buffers[buffer_ids[i]];
 
-        const cl_bool blocking = blockings[i];
-        const size_t offset = offsets[i];
-        const size_t size = sizes[i];
+      const cl_bool blocking = blockings[i];
+      const size_t offset = offsets[i];
+      const size_t size = sizes[i];
 
-        hostBuffers.push_back(std::vector<cl_int>(sizes[i]));
+      hostBuffers.push_back(std::vector<cl_int>(sizes[i]));
 
-        const cl_uint num_events_in_wait_list = num_events_in_wait_lists[i];
-        const cl_event *event_wait_list =
-            num_events_in_wait_list == 1 ? &eventStacks[buffer_ids[i]].top()
-                                         : NULL;
-        cl_event event;
+      const cl_uint num_events_in_wait_list = num_events_in_wait_lists[i];
+      const cl_event *event_wait_list = num_events_in_wait_list == 1
+                                            ? &eventStacks[buffer_ids[i]].top()
+                                            : NULL;
+      cl_event event;
 
-        ASSERT_SUCCESS(clEnqueueReadBuffer(
-            command_queue, buffer, blocking, offset, size,
-            hostBuffers.back().data(), num_events_in_wait_list, event_wait_list,
-            &event));
-        eventStacks[buffer_ids[i]].push(event);
-        break;
-      }
-      case WRITE_BUFFER: {
-        const cl_mem buffer = buffers[buffer_ids[i]];
+      ASSERT_SUCCESS(clEnqueueReadBuffer(
+          command_queue, buffer, blocking, offset, size,
+          hostBuffers.back().data(), num_events_in_wait_list, event_wait_list,
+          &event));
+      eventStacks[buffer_ids[i]].push(event);
+      break;
+    }
+    case WRITE_BUFFER: {
+      const cl_mem buffer = buffers[buffer_ids[i]];
 
-        const cl_bool blocking = blockings[i];
-        const size_t offset = offsets[i];
-        const size_t size = sizes[i];
+      const cl_bool blocking = blockings[i];
+      const size_t offset = offsets[i];
+      const size_t size = sizes[i];
 
-        hostBuffers.push_back(std::vector<cl_int>(sizes[i]));
+      hostBuffers.push_back(std::vector<cl_int>(sizes[i]));
 
-        const cl_uint num_events_in_wait_list = num_events_in_wait_lists[i];
-        const cl_event *event_wait_list =
-            num_events_in_wait_list == 1 ? &eventStacks[buffer_ids[i]].top()
-                                         : NULL;
-        cl_event event;
+      const cl_uint num_events_in_wait_list = num_events_in_wait_lists[i];
+      const cl_event *event_wait_list = num_events_in_wait_list == 1
+                                            ? &eventStacks[buffer_ids[i]].top()
+                                            : NULL;
+      cl_event event;
 
-        ASSERT_SUCCESS(clEnqueueWriteBuffer(
-            command_queue, buffer, blocking, offset, size,
-            hostBuffers.back().data(), num_events_in_wait_list, event_wait_list,
-            &event));
-        eventStacks[buffer_ids[i]].push(event);
-      }
+      ASSERT_SUCCESS(clEnqueueWriteBuffer(
+          command_queue, buffer, blocking, offset, size,
+          hostBuffers.back().data(), num_events_in_wait_list, event_wait_list,
+          &event));
+      eventStacks[buffer_ids[i]].push(event);
+    }
     }
   }
 

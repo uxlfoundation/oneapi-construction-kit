@@ -70,5 +70,5 @@ md_hooks getElfMetadataWriteHooks() {
 
   return md_hooks;
 }
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler

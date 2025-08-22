@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clRetainProgramTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;

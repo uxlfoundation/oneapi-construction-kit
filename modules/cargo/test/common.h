@@ -34,7 +34,7 @@ struct copyable_t {
   }
   int get() const { return value; }
 
- private:
+private:
   int value;
 };
 
@@ -49,8 +49,8 @@ struct movable_t {
   }
   int get() const { return value; }
 
- private:
+private:
   int value;
 };
 
-#endif  // CARGO_COMMON_H_INCLUDED
+#endif // CARGO_COMMON_H_INCLUDED

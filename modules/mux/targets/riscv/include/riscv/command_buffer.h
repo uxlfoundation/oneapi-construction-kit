@@ -120,8 +120,9 @@ struct command_begin_query_s {
   uint32_t index;
   uint32_t count;
 
-  [[nodiscard]] mux_query_duration_result_t operator()(
-      riscv::device_s *device, mux_query_duration_result_t duration_query);
+  [[nodiscard]] mux_query_duration_result_t
+  operator()(riscv::device_s *device,
+             mux_query_duration_result_t duration_query);
 };
 
 struct command_end_query_s {
@@ -129,8 +130,9 @@ struct command_end_query_s {
   uint32_t index;
   uint32_t count;
 
-  [[nodiscard]] mux_query_duration_result_t operator()(
-      riscv::device_s *device, mux_query_duration_result_t duration_query);
+  [[nodiscard]] mux_query_duration_result_t
+  operator()(riscv::device_s *device,
+             mux_query_duration_result_t duration_query);
 };
 
 struct command_reset_query_pool_s {
@@ -194,14 +196,14 @@ struct command_buffer_s final : public mux_command_buffer_s {
   mux_result_t execute(riscv::queue_s *queue) CARGO_TS_REQUIRES(mutex);
 
   mux::small_vector<riscv::command_s, 16> commands CARGO_TS_GUARDED_BY(mutex);
-  mux::small_vector<mux::dynamic_array<uint8_t>, 16> pod_data_allocs
-      CARGO_TS_GUARDED_BY(mutex);
-  mux::small_vector<mux::dynamic_array<hal::hal_arg_t>, 16> kernel_arg_allocs
-      CARGO_TS_GUARDED_BY(mutex);
+  mux::small_vector<mux::dynamic_array<uint8_t>, 16>
+      pod_data_allocs CARGO_TS_GUARDED_BY(mutex);
+  mux::small_vector<mux::dynamic_array<hal::hal_arg_t>, 16>
+      kernel_arg_allocs CARGO_TS_GUARDED_BY(mutex);
   mux::small_vector<mux::dynamic_array<mux_descriptor_info_t>, 16>
       kernel_descriptor_allocs CARGO_TS_GUARDED_BY(mutex);
-  mux::small_vector<riscv::sync_point_s *, 4> sync_points
-      CARGO_TS_GUARDED_BY(mutex);
+  mux::small_vector<riscv::sync_point_s *, 4>
+      sync_points CARGO_TS_GUARDED_BY(mutex);
   cargo::mutex mutex;
 
   // TODO: Move this explicit fence out the mux layer into the user i.e. CL and
@@ -211,6 +213,6 @@ struct command_buffer_s final : public mux_command_buffer_s {
 };
 
 /// @}
-}  // namespace riscv
+} // namespace riscv
 
-#endif  // RISCV_COMMAND_BUFFER_H_INCLUDED
+#endif // RISCV_COMMAND_BUFFER_H_INCLUDED

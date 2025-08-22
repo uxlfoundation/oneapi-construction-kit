@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clWaitForEventsTest : public ucl::CommandQueueTest {
- protected:
+protected:
   enum { NUM_BUFFERS = 4 };
 
   void SetUp() override {

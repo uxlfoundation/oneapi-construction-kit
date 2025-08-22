@@ -21,11 +21,9 @@
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {
-template <typename T, unsigned N = TypeTraits<T>::num_elements>
-struct helper;
+template <typename T, unsigned N = TypeTraits<T>::num_elements> struct helper;
 
-template <typename T, unsigned N>
-struct helper {
+template <typename T, unsigned N> struct helper {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T x) {
     // Truncate to int and find difference to float
@@ -37,7 +35,7 @@ struct helper {
     const SignedType is_positive = (diff > 0.0) & (x >= 0.0);
     const T incremented = truncated + 1.0;
     T result = __abacus_select(truncated, incremented, is_positive);
-    result = __abacus_copysign(result, x);  // 0.0 -> -0.0
+    result = __abacus_copysign(result, x); // 0.0 -> -0.0
 
     // Return the original input for INF, NaN, and floats which already
     // represent integers
@@ -49,20 +47,19 @@ struct helper {
     // 1.0 if positive.
     const SignedType is_denorm = abacus::internal::is_denorm(x);
     T denorm_round = __abacus_copysign((T)0.5, x) + 0.5;
-    denorm_round = __abacus_copysign(denorm_round, x);  // 0.0 -> -0.0
+    denorm_round = __abacus_copysign(denorm_round, x); // 0.0 -> -0.0
     return __abacus_select(result, denorm_round, is_denorm);
   }
 };
 
-template <typename T>
-struct helper<T, 1u> {
+template <typename T> struct helper<T, 1u> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T x) {
     if (abacus::internal::is_denorm(x)) {
       // Denormal numbers will be close to zero. So go to -0.0 if negative, and
       // 1.0 if positive.
       const T zero_or_one = __abacus_copysign((T)0.5, x) + (T)0.5;
-      return __abacus_copysign(zero_or_one, x);  // Turns 0.0 -> -0.0
+      return __abacus_copysign(zero_or_one, x); // Turns 0.0 -> -0.0
     } else if (!__abacus_isnormal(x) || abacus::internal::is_integer_quick(x)) {
       // Return the original input for INF, NaN, and floats which already
       // represent integers
@@ -83,11 +80,8 @@ struct helper<T, 1u> {
   }
 };
 
-template <typename T>
-T ceil(const T x) {
-  return helper<T>::_(x);
-}
-}  // namespace
+template <typename T> T ceil(const T x) { return helper<T>::_(x); }
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_ceil(abacus_half x) { return ceil<>(x); }
@@ -96,7 +90,7 @@ abacus_half3 ABACUS_API __abacus_ceil(abacus_half3 x) { return ceil<>(x); }
 abacus_half4 ABACUS_API __abacus_ceil(abacus_half4 x) { return ceil<>(x); }
 abacus_half8 ABACUS_API __abacus_ceil(abacus_half8 x) { return ceil<>(x); }
 abacus_half16 ABACUS_API __abacus_ceil(abacus_half16 x) { return ceil<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_ceil(abacus_float x) { return ceil<>(x); }
 abacus_float2 ABACUS_API __abacus_ceil(abacus_float2 x) { return ceil<>(x); }
@@ -114,4 +108,4 @@ abacus_double8 ABACUS_API __abacus_ceil(abacus_double8 x) { return ceil<>(x); }
 abacus_double16 ABACUS_API __abacus_ceil(abacus_double16 x) {
   return ceil<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

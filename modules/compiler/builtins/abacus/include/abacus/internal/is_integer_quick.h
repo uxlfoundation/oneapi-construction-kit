@@ -53,7 +53,7 @@ inline typename TypeTraits<T>::SignedType is_integer_quick(const T &x) {
   return (((xAsInt & exponentMask) >> mantissaSize) >=
           (exponentBias + mantissaSize));
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_IS_INTEGER_QUICK_H__
+#endif //__ABACUS_INTERNAL_IS_INTEGER_QUICK_H__

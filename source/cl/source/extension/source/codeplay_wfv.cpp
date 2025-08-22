@@ -23,7 +23,7 @@ namespace wfv {
 bool deviceSupportsVectorization(cl_device_id device) {
   return device->compiler_info ? device->compiler_info->vectorizable : false;
 }
-}  // namespace wfv
+} // namespace wfv
 
 extension::codeplay_wfv::codeplay_wfv()
     : extension("cl_codeplay_wfv",
@@ -133,14 +133,14 @@ cl_int CL_API_CALL clGetKernelWFVInfoCODEPLAY(
   size_t size;
 
   switch (param_name) {
-    default:
-      return CL_INVALID_VALUE;
-    case CL_KERNEL_WFV_STATUS_CODEPLAY:
-      size = sizeof(cl_kernel_wfv_status_codeplay);
-      break;
-    case CL_KERNEL_WFV_WIDTHS_CODEPLAY:
-      size = sizeof(size_t) * work_dim;
-      break;
+  default:
+    return CL_INVALID_VALUE;
+  case CL_KERNEL_WFV_STATUS_CODEPLAY:
+    size = sizeof(cl_kernel_wfv_status_codeplay);
+    break;
+  case CL_KERNEL_WFV_WIDTHS_CODEPLAY:
+    size = sizeof(size_t) * work_dim;
+    break;
   }
 
   if (param_value != nullptr) {
@@ -165,27 +165,27 @@ cl_int CL_API_CALL clGetKernelWFVInfoCODEPLAY(
     }();
 
     switch (param_name) {
-      default:
-        return CL_INVALID_VALUE;
-      case CL_KERNEL_WFV_STATUS_CODEPLAY: {
-        cl_kernel_wfv_status_codeplay *result =
-            static_cast<cl_kernel_wfv_status_codeplay *>(param_value);
-        if (max_work_width > 1) {
-          *result = CL_WFV_SUCCESS_CODEPLAY;
-        } else {
-          *result = CL_WFV_NONE_CODEPLAY;
-        }
-        break;
+    default:
+      return CL_INVALID_VALUE;
+    case CL_KERNEL_WFV_STATUS_CODEPLAY: {
+      cl_kernel_wfv_status_codeplay *result =
+          static_cast<cl_kernel_wfv_status_codeplay *>(param_value);
+      if (max_work_width > 1) {
+        *result = CL_WFV_SUCCESS_CODEPLAY;
+      } else {
+        *result = CL_WFV_NONE_CODEPLAY;
       }
-      case CL_KERNEL_WFV_WIDTHS_CODEPLAY: {
-        size_t *result = static_cast<size_t *>(param_value);
-        for (size_t i = 0; i < work_dim; ++i) {
-          result[i] = 1;
-        }
+      break;
+    }
+    case CL_KERNEL_WFV_WIDTHS_CODEPLAY: {
+      size_t *result = static_cast<size_t *>(param_value);
+      for (size_t i = 0; i < work_dim; ++i) {
+        result[i] = 1;
+      }
 
-        result[0] = max_work_width;
-        break;
-      }
+      result[0] = max_work_width;
+      break;
+    }
     }
   }
 

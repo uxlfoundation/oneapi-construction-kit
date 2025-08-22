@@ -140,15 +140,15 @@ Result emitCodeGenFile(llvm::Module &M, TargetMachine *TM,
 
 void encodeVectorizationMode(Function &F, VectorizationMode mode) {
   switch (mode) {
-    case VectorizationMode::AUTO:
-      F.addFnAttr("vecz-mode", "auto");
-      break;
-    case VectorizationMode::ALWAYS:
-      F.addFnAttr("vecz-mode", "always");
-      break;
-    case VectorizationMode::NEVER:
-      F.addFnAttr("vecz-mode", "never");
-      break;
+  case VectorizationMode::AUTO:
+    F.addFnAttr("vecz-mode", "auto");
+    break;
+  case VectorizationMode::ALWAYS:
+    F.addFnAttr("vecz-mode", "always");
+    break;
+  case VectorizationMode::NEVER:
+    F.addFnAttr("vecz-mode", "never");
+    break;
   }
 }
 
@@ -165,4 +165,4 @@ std::optional<VectorizationMode> getVectorizationMode(const Function &F) {
   return std::nullopt;
 }
 
-}  // namespace compiler
+} // namespace compiler

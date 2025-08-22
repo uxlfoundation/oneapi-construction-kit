@@ -21,7 +21,7 @@
 
 class clEnqueueWriteBufferTest : public ucl::CommandQueueTest,
                                  TestWithEventWaitList {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     cl_int errorcode;
@@ -40,9 +40,9 @@ class clEnqueueWriteBufferTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueWriteBuffer(command_queue, mem, CL_TRUE, 0, size,
-                                  buffer.data(), num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueWriteBuffer(command_queue, mem, CL_TRUE, 0,
+                                                size, buffer.data(), num_events,
+                                                events, event));
   }
 
   size_t size = 128;

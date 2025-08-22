@@ -18,12 +18,11 @@
 #include <abacus/abacus_math.h>
 
 namespace {
-template <typename T>
-T half_exp10(T x) {
+template <typename T> T half_exp10(T x) {
   const T log_e_base10 = (T)3.32192809489f;
   return __abacus_half_exp2(log_e_base10 * x);
 }
-}  // namespace
+} // namespace
 
 abacus_float ABACUS_API __abacus_half_exp10(abacus_float x) {
   return half_exp10<>(x);

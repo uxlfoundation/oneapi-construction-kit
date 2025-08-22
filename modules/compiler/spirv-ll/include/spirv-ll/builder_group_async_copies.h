@@ -23,7 +23,7 @@ namespace spirv_ll {
 
 /// @brief builder for the Codeplay.GroupAsyncCopies extended instruction set.
 class GroupAsyncCopiesBuilder : public ExtInstSetHandler {
- public:
+public:
   /// @brief Constructor.
   ///
   /// @param[in] builder spirv_ll::Builder object that will own this object.
@@ -36,14 +36,14 @@ class GroupAsyncCopiesBuilder : public ExtInstSetHandler {
   // TODO(CA-4119): If this vendor extension lives beyond any official Khronos
   // extension, these definitions should be defined upstream in SPIRV-Headers.
   enum Instruction {
-    GroupAsyncCopy2D2D = 1,  ///< Represents async_work_group_copy_2D2D.
-    GroupAsyncCopy3D3D = 2,  ///< Represents async_work_group_copy_3D3D.
+    GroupAsyncCopy2D2D = 1, ///< Represents async_work_group_copy_2D2D.
+    GroupAsyncCopy3D3D = 2, ///< Represents async_work_group_copy_3D3D.
   };
 
   /// @see ExtInstSetHandler::create
   virtual llvm::Error create(const OpExtInst &opc) override;
 
- private:
+private:
   /// @brief Create a Codeplay.GroupAsyncCopies extended instruction
   /// transformation to LLVM IR.
   ///
@@ -53,10 +53,9 @@ class GroupAsyncCopiesBuilder : public ExtInstSetHandler {
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  template <Instruction inst>
-  llvm::Error create(const OpExtInst &opc);
+  template <Instruction inst> llvm::Error create(const OpExtInst &opc);
 };
 
-}  // namespace spirv_ll
+} // namespace spirv_ll
 
-#endif  // SPIRV_LL_SPV_BUILDER_GROUP_ASYNC_COPIES_H_INCLUDED
+#endif // SPIRV_LL_SPV_BUILDER_GROUP_ASYNC_COPIES_H_INCLUDED

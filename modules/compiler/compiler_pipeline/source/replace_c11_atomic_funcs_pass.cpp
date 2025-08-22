@@ -247,16 +247,16 @@ void replaceFetchKey(CallInst *C11FetchKey, AtomicRMWInst::BinOp KeyOpCode,
   // we just look for "Atomic"
   if (AtomicRMWInst::Min == KeyOpCode || AtomicRMWInst::Max == KeyOpCode) {
     switch (MangledParams[MangledParams.find("Atomic") + 6]) {
-      case 'i':
-      case 'l':
-        break;
-      case 'j':
-      case 'm':
-        KeyOpCode = (KeyOpCode == AtomicRMWInst::Min) ? AtomicRMWInst::UMin
-                                                      : AtomicRMWInst::UMax;
-        break;
-      default:
-        llvm_unreachable("unhandled atomic type");
+    case 'i':
+    case 'l':
+      break;
+    case 'j':
+    case 'm':
+      KeyOpCode = (KeyOpCode == AtomicRMWInst::Min) ? AtomicRMWInst::UMin
+                                                    : AtomicRMWInst::UMax;
+      break;
+    default:
+      llvm_unreachable("unhandled atomic type");
     }
   }
 
@@ -326,16 +326,24 @@ void replaceFlagClear(CallInst *C11FlagClear) {
 bool runOnInstruction(CallInst *Call) {
   if (auto *Callee = Call->getCalledFunction()) {
     auto Name{Callee->getName()};
-    if (!Name.starts_with("_Z")) return false;
+    if (!Name.starts_with("_Z")) {
+      return false;
+    }
     Name = Name.drop_front(2);
     unsigned KeyNameLength;
-    if (Name.consumeInteger(10, KeyNameLength)) return false;
+    if (Name.consumeInteger(10, KeyNameLength)) {
+      return false;
+    }
     const StringRef MangledParams = Name.drop_front(KeyNameLength);
     Name = Name.take_front(KeyNameLength);
-    if (!Name.starts_with("atomic_")) return false;
+    if (!Name.starts_with("atomic_")) {
+      return false;
+    }
     Name = Name.drop_front(7);
     const bool Explicit = Name.ends_with("_explicit");
-    if (Explicit) Name = Name.drop_back(9);
+    if (Explicit) {
+      Name = Name.drop_back(9);
+    }
     if (Name == "init") {
       replaceInit(Call);
       return true;
@@ -414,7 +422,7 @@ bool runOnFunction(llvm::Function &Function) {
   return Result;
 }
 
-}  // namespace
+} // namespace
 
 /// @brief The entry point to the pass.
 ///
@@ -423,8 +431,9 @@ bool runOnFunction(llvm::Function &Function) {
 /// @param[in,out] M - The module provided to the pass.
 ///
 /// @return Return whether or not the pass changed anything.
-PreservedAnalyses compiler::utils::ReplaceC11AtomicFuncsPass::run(
-    Module &M, ModuleAnalysisManager &) {
+PreservedAnalyses
+compiler::utils::ReplaceC11AtomicFuncsPass::run(Module &M,
+                                                ModuleAnalysisManager &) {
   // Only run this pass for OpenCL 2.0+ modules.
   // FIXME: This would be better off inside BuiltinInfo, and combined with the
   // regular ReplaceAtomicFuncsPass.

@@ -17,10 +17,10 @@
 #include <abacus/abacus_detail_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-#define DEF(TYPE)                                                       \
-  TypeTraits<TYPE>::UnsignedType ABACUS_API __abacus_abs_diff(TYPE x,   \
-                                                              TYPE y) { \
-    return abacus::detail::integer::abs_diff(x, y);                     \
+#define DEF(TYPE)                                                              \
+  TypeTraits<TYPE>::UnsignedType ABACUS_API __abacus_abs_diff(TYPE x,          \
+                                                              TYPE y) {        \
+    return abacus::detail::integer::abs_diff(x, y);                            \
   }
 
 DEF(abacus_char)

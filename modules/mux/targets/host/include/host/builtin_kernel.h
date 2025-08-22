@@ -42,6 +42,6 @@ using builtin_kernel_map =
 builtin_kernel_map getBuiltinKernels(mux_device_info_t device_info);
 
 /// @}
-}  // namespace host
+} // namespace host
 
-#endif  // HOST_BUILTIN_KERNEL_H_INCLUDED
+#endif // HOST_BUILTIN_KERNEL_H_INCLUDED

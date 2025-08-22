@@ -27,8 +27,7 @@ namespace {
 
 // A helper info struct to carry around some constant types which are dependent
 // on the length of the floating point type.
-template <typename T>
-struct ilogb_info {
+template <typename T> struct ilogb_info {
   // The returned int value will be a vector of 32 bit integers and a length
   // matching the length of the floating point type T.
   using IntType =
@@ -78,8 +77,7 @@ typename ilogb_info<T>::IntType ilogb_helper_scalar(const T x) {
       abacus::internal::logb_unsafe(x));
 }
 
-template <typename T>
-typename ilogb_info<T>::IntType ilogb_helper(const T x) {
+template <typename T> typename ilogb_info<T>::IntType ilogb_helper(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "This function should only be called on vector types");
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -116,7 +114,7 @@ typename ilogb_info<T>::IntType ilogb_helper(const T x) {
   return __abacus_select(result, ilogb_info<T>::nan(), ~isInfAsI32);
 }
 
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_int ABACUS_API __abacus_ilogb(abacus_half x) {
@@ -177,4 +175,4 @@ abacus_int8 ABACUS_API __abacus_ilogb(abacus_double8 x) {
 abacus_int16 ABACUS_API __abacus_ilogb(abacus_double16 x) {
   return ilogb_helper<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

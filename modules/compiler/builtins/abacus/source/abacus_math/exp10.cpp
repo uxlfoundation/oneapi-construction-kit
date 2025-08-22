@@ -24,8 +24,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct helper<T, abacus_half> {
+template <typename T> struct helper<T, abacus_half> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
@@ -83,8 +82,7 @@ struct helper<T, abacus_half> {
 };
 #endif
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -114,15 +112,14 @@ struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
     const T codyWaite1 = __abacus_as_double(
-        (abacus_long)0x3FD34413509F7800);  // 3.0102999566395283181918784976e-1;
-    const T codyWaite2 = __abacus_as_double((
-        abacus_long)0x3D1FEF311F12B000);  // 2.8363394551042263094578877949e-14;
+        (abacus_long)0x3FD34413509F7800); // 3.0102999566395283181918784976e-1;
+    const T codyWaite2 = __abacus_as_double(
+        (abacus_long)0x3D1FEF311F12B000); // 2.8363394551042263094578877949e-14;
     const T codyWaite3 =
         2.7013429058980533685465482739654553714956252304807843727681772521181861721e-27;
     const T log10_2rcp = 3.3219280948873623478703194294893901758648313930246;
@@ -159,13 +156,10 @@ struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-T exp10(const T x) {
-  return helper<T>::_(x);
-}
-}  // namespace
+template <typename T> T exp10(const T x) { return helper<T>::_(x); }
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_exp10(abacus_half x) { return exp10<>(x); }
@@ -202,4 +196,4 @@ abacus_double8 ABACUS_API __abacus_exp10(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_exp10(abacus_double16 x) {
   return exp10<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

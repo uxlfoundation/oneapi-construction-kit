@@ -26,8 +26,7 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct helper<T, abacus_half> {
+template <typename T> struct helper<T, abacus_half> {
   static T numerator(const T x) {
     // Approximation of sin(pi * sqrt(x)) / sqrt(x)
     // See tanpi.sollya
@@ -72,10 +71,9 @@ struct helper<T, abacus_half> {
     return __abacus_select(ans, T(0.978027f16), SignedType(xAbs == 0.24646f16));
   }
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-struct helper<T, abacus_float> {
+template <typename T> struct helper<T, abacus_float> {
   static T numerator(const T x) {
     return (x * 3.14159260961f) - (x * x * x * 2.97043292307f);
   }
@@ -89,8 +87,7 @@ struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T>
-struct helper<T, abacus_double> {
+template <typename T> struct helper<T, abacus_double> {
   static T numerator(const T x) {
     const abacus_double polynomial[4] = {
         3.6490197133941196023, -4.6200497777346237839, 0.99735716184355045101,
@@ -109,10 +106,9 @@ struct helper<T, abacus_double> {
 
   static T handle_edge_cases(const T, const T ans) { return ans; }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-T tanpi(const T x) {
+template <typename T> T tanpi(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -127,8 +123,8 @@ T tanpi(const T x) {
   // Put x in polynomial range [0, 0.25]
   xfract = __abacus_select(xfract, xfract - xfract_part, cond1);
 
-  const T top = helper<T>::numerator(xfract);       // Approximation of sinpi()
-  const T bottom = helper<T>::denominator(xfract);  // Approximation of cospi()
+  const T top = helper<T>::numerator(xfract);      // Approximation of sinpi()
+  const T bottom = helper<T>::denominator(xfract); // Approximation of cospi()
 
   // Check if we want the cotangent -cos(x) / sin(x)
   const SignedType use_cotan = cond1 & cond2;
@@ -151,7 +147,7 @@ T tanpi(const T x) {
   const SignedType cond5 = x < T(0.0);
   return __abacus_select(ans, -ans, cond5);
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_tanpi(abacus_half x) { return tanpi<>(x); }
@@ -160,7 +156,7 @@ abacus_half3 ABACUS_API __abacus_tanpi(abacus_half3 x) { return tanpi<>(x); }
 abacus_half4 ABACUS_API __abacus_tanpi(abacus_half4 x) { return tanpi<>(x); }
 abacus_half8 ABACUS_API __abacus_tanpi(abacus_half8 x) { return tanpi<>(x); }
 abacus_half16 ABACUS_API __abacus_tanpi(abacus_half16 x) { return tanpi<>(x); }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_tanpi(abacus_float x) { return tanpi<>(x); }
 abacus_float2 ABACUS_API __abacus_tanpi(abacus_float2 x) { return tanpi<>(x); }
@@ -188,4 +184,4 @@ abacus_double8 ABACUS_API __abacus_tanpi(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_tanpi(abacus_double16 x) {
   return tanpi<>(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

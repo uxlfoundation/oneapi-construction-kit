@@ -33,8 +33,8 @@ static Printable printGenericMD(const handler::GenericMetadata &MD) {
   });
 }
 
-GenericMetadataAnalysis::Result GenericMetadataAnalysis::run(
-    Function &Fn, FunctionAnalysisManager &) {
+GenericMetadataAnalysis::Result
+GenericMetadataAnalysis::run(Function &Fn, FunctionAnalysisManager &) {
   auto local_memory_usage = getLocalMemoryUsage(Fn).value_or(0);
   auto kernel_name = Fn.getName().str();
   auto source_name = getOrigFnNameOrFnName(Fn).str();
@@ -74,8 +74,8 @@ static Printable printVectorizeMD(const handler::VectorizeInfoMetadata &MD) {
 
 AnalysisKey VectorizeMetadataAnalysis::Key;
 
-VectorizeMetadataAnalysis::Result VectorizeMetadataAnalysis::run(
-    Function &Fn, FunctionAnalysisManager &AM) {
+VectorizeMetadataAnalysis::Result
+VectorizeMetadataAnalysis::run(Function &Fn, FunctionAnalysisManager &AM) {
   handler::GenericMetadata &GenericMD =
       AM.getResult<GenericMetadataAnalysis>(Fn);
 
@@ -111,8 +111,8 @@ VectorizeMetadataAnalysis::Result VectorizeMetadataAnalysis::run(
                 GenericMD.sub_group_size, min_width, pref_width);
 }
 
-PreservedAnalyses VectorizeMetadataPrinterPass::run(
-    Function &F, FunctionAnalysisManager &AM) {
+PreservedAnalyses
+VectorizeMetadataPrinterPass::run(Function &F, FunctionAnalysisManager &AM) {
   const handler::VectorizeInfoMetadata md =
       AM.getResult<VectorizeMetadataAnalysis>(F);
   OS << "Cached vectorize metadata analysis:\n";
@@ -120,5 +120,5 @@ PreservedAnalyses VectorizeMetadataPrinterPass::run(
   return PreservedAnalyses::all();
 }
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler

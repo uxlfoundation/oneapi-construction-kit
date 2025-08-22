@@ -34,7 +34,7 @@
 namespace compiler {
 struct Library final {
   ~Library() {
-#if defined(CA_RUNTIME_COMPILER_ENABLED) && \
+#if defined(CA_RUNTIME_COMPILER_ENABLED) &&                                    \
     defined(CA_COMPILER_ENABLE_DYNAMIC_LOADER)
     if (library) {
 #if defined(_WIN32)
@@ -46,10 +46,9 @@ struct Library final {
 #endif
   }
 
-#if defined(CA_RUNTIME_COMPILER_ENABLED) && \
+#if defined(CA_RUNTIME_COMPILER_ENABLED) &&                                    \
     defined(CA_COMPILER_ENABLE_DYNAMIC_LOADER)
-  template <typename T>
-  bool loadFunction(T &function_ptr, const char *symbol) {
+  template <typename T> bool loadFunction(T &function_ptr, const char *symbol) {
 #if defined(_WIN32)
     function_ptr = reinterpret_cast<T>(GetProcAddress(library, symbol));
 #else
@@ -154,7 +153,7 @@ const compiler::Info *getCompilerForDevice(Library *handle,
 std::unique_ptr<Context> createContext(Library *handle) {
   return std::unique_ptr<Context>{handle ? handle->createContext() : nullptr};
 }
-}  // namespace compiler
+} // namespace compiler
 
 void std::default_delete<compiler::Library>::operator()(
     compiler::Library *library) const {

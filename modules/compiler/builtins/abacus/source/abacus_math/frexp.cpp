@@ -28,8 +28,7 @@ namespace {
  * needed can be calculated by that value. We use these template specialisations
  * to encode these values.
  */
-template <typename T>
-struct MagicNumbers {};
+template <typename T> struct MagicNumbers {};
 
 // Original comment:
 /* Only need this on platforms where denorm multiplication is not supported
@@ -46,8 +45,7 @@ struct MagicNumbers {};
  r = 3.3554432e7 * as_float(as_int(x) | 0x00800000) -
  3.94430452610505902705864282641E-31
 */
-template <>
-struct MagicNumbers<abacus_float> {
+template <> struct MagicNumbers<abacus_float> {
   static constexpr abacus_float Coeficent() { return 3.3554432e7f; }
   static constexpr abacus_float Subtraction() { return 3.944304526105059E-31f; }
   static constexpr abacus_int MultiplicationFactor() { return 25; }
@@ -69,15 +67,14 @@ struct MagicNumbers<abacus_float> {
  4.008336720017945555992216102695993318699958272e-292
 */
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <>
-struct MagicNumbers<abacus_double> {
+template <> struct MagicNumbers<abacus_double> {
   static constexpr abacus_double Coeficent() { return 1.8014398509481984e16; }
   static constexpr abacus_double Subtraction() {
     return 4.008336720017945555992216102695993318699958272e-292;
   }
   static constexpr abacus_int MultiplicationFactor() { return 54; }
 };
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 /*
@@ -87,8 +84,7 @@ struct MagicNumbers<abacus_double> {
  * multiplied by the number represented by just the least significant exponent
  * bit set (2^(1 - bias)).
  */
-template <>
-struct MagicNumbers<abacus_half> {
+template <> struct MagicNumbers<abacus_half> {
   static inline constexpr abacus_int MultiplicationFactor() { return 12; }
   static inline constexpr abacus_half Coeficent() { return 4096.0f16; }
   static inline constexpr abacus_half Subtraction() {
@@ -100,8 +96,7 @@ struct MagicNumbers<abacus_half> {
 
 #endif
 
-template <typename T>
-T frexp_denorm_multiplier(const T x) {
+template <typename T> T frexp_denorm_multiplier(const T x) {
   using ElemType = typename TypeTraits<T>::ElementType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Shape = FPShape<T>;
@@ -149,7 +144,7 @@ T frexp(const T x,
       exponent - offset, 0, abacus::detail::cast::convert<IntVecType>(cond));
   return __abacus_select(result, x, cond);
 }
-}  // namespace
+} // namespace
 
 abacus_float ABACUS_API __abacus_frexp(abacus_float x, abacus_int *o) {
   return frexp<>(x, o);
@@ -188,7 +183,7 @@ abacus_double8 ABACUS_API __abacus_frexp(abacus_double8 x, abacus_int8 *o) {
 abacus_double16 ABACUS_API __abacus_frexp(abacus_double16 x, abacus_int16 *o) {
   return frexp<>(x, o);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 

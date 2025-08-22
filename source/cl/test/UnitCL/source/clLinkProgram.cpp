@@ -17,11 +17,11 @@
 #include "Common.h"
 
 class clLinkProgramGoodTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
+      GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -300,7 +300,7 @@ TEST_F(clLinkProgramGoodTest, LinkProgramThenTryBuild) {
 }
 
 class clLinkProgramCompilerlessTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (getDeviceCompilerAvailable()) {
@@ -342,7 +342,7 @@ struct LinkOptionsTest : ucl::ContextTest, testing::WithParamInterface<Pair> {
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP();  // Injection creates programs from binaries, can't link.
+      GTEST_SKIP(); // Injection creates programs from binaries, can't link.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -414,7 +414,7 @@ struct LinkLibraryOptionsTest : ucl::ContextTest,
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP();  // Injection creates programs from binaries, can't link.
+      GTEST_SKIP(); // Injection creates programs from binaries, can't link.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();

@@ -34,9 +34,9 @@ namespace compiler {
 namespace spirv {
 /// @brief Enumeration of SPIR-V constant types which can be specialized.
 enum class SpecializationType : uint8_t {
-  BOOL,   ///< OpTypeBool specialization constant.
-  INT,    ///< OpTypeInt specialization constant.
-  FLOAT,  ///< OpTypeFloat specialization constant.
+  BOOL,  ///< OpTypeBool specialization constant.
+  INT,   ///< OpTypeInt specialization constant.
+  FLOAT, ///< OpTypeFloat specialization constant.
 };
 
 /// @brief Description of a SPIR-V constant which can be specialized.
@@ -51,14 +51,14 @@ struct SpecializationDesc {
 /// description.
 using SpecializableConstantsMap =
     std::unordered_map<std::uint32_t, SpecializationDesc>;
-}  // namespace spirv
+} // namespace spirv
 
 /// @brief Compiler context class.
 ///
 /// Satisfies the C++ named requirement 'Lockable' so it can be used as part
 /// of std::lock_guard or std::unique_lock.
 class Context {
- public:
+public:
   /// @brief Virtual destructor.
   virtual ~Context() = default;
 
@@ -78,8 +78,8 @@ class Context {
   /// otherwise returns an error string.
   virtual cargo::expected<spirv::SpecializableConstantsMap, std::string>
   getSpecializableConstants(cargo::array_view<const uint32_t> code) = 0;
-};  // class Context
+}; // class Context
 /// @}
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // COMPILER_CONTEXT_H_INCLUDED
+#endif // COMPILER_CONTEXT_H_INCLUDED

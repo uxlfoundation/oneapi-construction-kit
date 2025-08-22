@@ -17,9 +17,9 @@
 #include <abacus/abacus_detail_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-#define DEF(TYPE)                                                  \
-  TypeTraits<TYPE>::UnsignedType ABACUS_API __abacus_abs(TYPE x) { \
-    return abacus::detail::integer::abs(x);                        \
+#define DEF(TYPE)                                                              \
+  TypeTraits<TYPE>::UnsignedType ABACUS_API __abacus_abs(TYPE x) {             \
+    return abacus::detail::integer::abs(x);                                    \
   }
 
 DEF(abacus_char)

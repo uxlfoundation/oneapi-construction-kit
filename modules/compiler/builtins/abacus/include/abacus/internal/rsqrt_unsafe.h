@@ -38,10 +38,8 @@ inline T rsqrt_unsafe(const T &x, unsigned newton_raphson_iterations) {
 }
 
 // For non-half call the original function:
-template <typename T>
-struct rsqrt_unsafe_helper {
-  template <typename T2>
-  static T2 _(const T2 &x) {
+template <typename T> struct rsqrt_unsafe_helper {
+  template <typename T2> static T2 _(const T2 &x) {
     // N == 3 for float, N == 6 for double
     // Approximate 1/sqrt(x)
     const unsigned s = sizeof(typename TypeTraits<T2>::ElementType);
@@ -52,10 +50,8 @@ struct rsqrt_unsafe_helper {
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // We have to specialise for half precision as it needs a bit more finesse
-template <>
-struct rsqrt_unsafe_helper<abacus_half> {
-  template <typename T>
-  inline static T _(const T &x) {
+template <> struct rsqrt_unsafe_helper<abacus_half> {
+  template <typename T> inline static T _(const T &x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
     typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
@@ -90,14 +86,13 @@ struct rsqrt_unsafe_helper<abacus_half> {
     return result;
   }
 };
-#endif  //__CA_BUILTINS_HALF_SUPPORT
+#endif //__CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-inline T rsqrt_unsafe(const T &x) {
+template <typename T> inline T rsqrt_unsafe(const T &x) {
   typedef typename TypeTraits<T>::ElementType ElementType;
   return rsqrt_unsafe_helper<ElementType>::_(x);
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_RSQRT_UNSAFE_H__
+#endif //__ABACUS_INTERNAL_RSQRT_UNSAFE_H__

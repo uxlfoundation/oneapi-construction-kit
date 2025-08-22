@@ -31,7 +31,7 @@ namespace llvm {
 class Module;
 class PassBuilder;
 class TargetMachine;
-}  // namespace llvm
+} // namespace llvm
 
 namespace compiler {
 
@@ -106,6 +106,6 @@ Result emitCodeGenFile(llvm::Module &M, llvm::TargetMachine *TM,
 void encodeVectorizationMode(llvm::Function &, VectorizationMode);
 std::optional<VectorizationMode> getVectorizationMode(const llvm::Function &);
 
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // BASE_PASS_PIPELINES_H_INCLUDED
+#endif // BASE_PASS_PIPELINES_H_INCLUDED

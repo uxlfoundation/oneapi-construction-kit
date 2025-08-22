@@ -50,9 +50,7 @@ HostKernel::HostKernel(HostTarget &target, compiler::Options &build_options,
                        size_t local_memory_used)
     : BaseKernel(name, preferred_local_sizes[0], preferred_local_sizes[1],
                  preferred_local_sizes[2], local_memory_used),
-      module(module),
-      target(target),
-      build_options(build_options) {}
+      module(module), target(target), build_options(build_options) {}
 
 HostKernel::~HostKernel() {
   if (target.orc_engine) {
@@ -87,8 +85,9 @@ compiler::Result HostKernel::precacheLocalSize(size_t local_size_x,
   return compiler::Result::SUCCESS;
 }
 
-cargo::expected<uint32_t, compiler::Result> HostKernel::getDynamicWorkWidth(
-    size_t local_size_x, size_t local_size_y, size_t local_size_z) {
+cargo::expected<uint32_t, compiler::Result>
+HostKernel::getDynamicWorkWidth(size_t local_size_x, size_t local_size_y,
+                                size_t local_size_z) {
   auto optimized_kernel =
       lookupOrCreateOptimizedKernel({local_size_x, local_size_y, local_size_z});
   if (!optimized_kernel) {
@@ -215,242 +214,252 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
     return optimized_kernel_map[local_size];
   }
 
-  return target.withLLVMContextDo([&](llvm::LLVMContext &C)
-                                      -> cargo::expected<
-                                          const OptimizedKernel &,
-                                          compiler::Result> {
-    std::unique_ptr<llvm::Module> optimized_module(llvm::CloneModule(*module));
-    if (nullptr == optimized_module) {
-      return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
-    }
-
-    // max length of a uint64_t is 20 digits, 64 just to be comfortable with the
-    // prefix of '__mux_host_'
-    const unsigned unique_name_data_length = 64;
-    char unique_name_data[unique_name_data_length];
-    if (snprintf(unique_name_data, unique_name_data_length,
-                 "__mux_host_%" PRIu64, target.unique_identifier++) < 0) {
-      return cargo::make_unexpected(compiler::Result::FAILURE);
-    }
-    std::string unique_name(unique_name_data);
-
-    auto device_info = target.getCompilerInfo()->device_info;
-
-    // FIXME: Ideally we'd be able to call/reuse HostModule::createPassMachinery
-    // but we only have access to the HostTarget
-    auto *const TM = target.target_machine.get();
-    auto builtinInfoCallback = [&](const llvm::Module &) {
-      return compiler::utils::BuiltinInfo(
-          std::make_unique<HostBIMuxInfo>(),
-          compiler::utils::createCLBuiltinInfo(target.getBuiltins()));
-    };
-    auto deviceInfo = compiler::initDeviceInfoFromMux(device_info);
-    HostPassMachinery pass_mach(module->getContext(), TM, deviceInfo,
-                                builtinInfoCallback,
-                                target.getContext().isLLVMVerifyEachEnabled(),
-                                target.getContext().getLLVMDebugLoggingLevel(),
-                                target.getContext().isLLVMTimePassesEnabled());
-    pass_mach.setCompilerOptions(build_options);
-    host::initializePassMachineryForFinalize(pass_mach, target);
-
-    llvm::ModulePassManager pm;
-    // Set up the kernel metadata which informs later passes which kernel we're
-    // interested in optimizing. We've already done this when initially
-    // creating the kernel, but now we have more accurate local size data.
-    compiler::utils::EncodeKernelMetadataPassOptions pass_opts;
-    pass_opts.KernelName = name;
-    pass_opts.LocalSizes = {static_cast<uint64_t>(local_size[0]),
-                            static_cast<uint64_t>(local_size[1]),
-                            static_cast<uint64_t>(local_size[2])};
-    pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
-
-    pm.addPass(pass_mach.getKernelFinalizationPasses(unique_name));
-
-    {
-      // Using the CrashRecoveryContext and statistics touches LLVM's global
-      // state.
-      const std::lock_guard<std::mutex> globalLock(
-          compiler::utils::getLLVMGlobalMutex());
-      llvm::CrashRecoveryContext CRC;
-      llvm::CrashRecoveryContext::Enable();
-      const bool crashed = !CRC.RunSafely(
-          [&] { pm.run(*optimized_module, pass_mach.getMAM()); });
-      llvm::CrashRecoveryContext::Disable();
-      if (crashed) {
-        return cargo::make_unexpected(
-            compiler::Result::FINALIZE_PROGRAM_FAILURE);
-      }
-
-      if (llvm::AreStatisticsEnabled()) {
-        llvm::PrintStatistics();
-      }
-    }
-
-    // Retrieve the vectorization width and amount of local memory used.
-    auto default_work_width = FixedOrScalableQuantity<uint32_t>::getOne();
-    handler::VectorizeInfoMetadata fn_metadata(
-        unique_name, unique_name,
-        /* local_memory_usage */ 0,
-        /* sub_group_size */ FixedOrScalableQuantity<uint32_t>(),
-        /* min_work_item_factor= */ default_work_width,
-        /* pref_work_item_factor */ default_work_width);
-    if (auto *f = optimized_module->getFunction(unique_name)) {
-      fn_metadata =
-          pass_mach.getFAM()
-              .getResult<compiler::utils::VectorizeMetadataAnalysis>(*f);
-    }
-
-    // Host doesn't support scalable values.
-    if (fn_metadata.min_work_item_factor.isScalable() ||
-        fn_metadata.pref_work_item_factor.isScalable() ||
-        fn_metadata.sub_group_size.isScalable()) {
-      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
-    }
-
-    // Note that we grab a handle to the module here, which we use to reference
-    // the module going forward. This is despite us passing ownership of the
-    // module off to the JITDylib. As long as the JITDylib outlives all uses of
-    // the optimized kernels, this should be okay; the JIT has the same lifetime
-    // as this HostKernel.
-    llvm::Module *optimized_module_ptr = optimized_module.get();
-
-    // Create a unique JITDylib for this instance of the kernel, so that its
-    // symbols don't clash with any other kernel's symbols.
-    auto jd = target.orc_engine->createJITDylib(unique_name + ".dylib");
-    if (auto err = jd.takeError()) {
-      if (auto callback = target.getNotifyCallbackFn()) {
-        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-                 /*data_size*/ 0);
-      } else {
-        llvm::consumeError(std::move(err));
-      }
-      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
-    }
-    // Register this JITDylib so we can clear up its resources later.
-    kernel_jit_dylibs.insert(jd->getName());
-
-    if (auto relocs = host::utils::getRelocations(); relocs.size()) {
-      llvm::orc::SymbolMap symbols;
-      llvm::orc::MangleAndInterner mangle(
-          target.orc_engine->getExecutionSession(),
-          target.orc_engine->getDataLayout());
-
-      for (const auto &reloc : relocs) {
-        symbols[mangle(reloc.first)] = {llvm::orc::ExecutorAddr(reloc.second),
-                                        llvm::JITSymbolFlags::Exported};
-      }
-
-      // Define our runtime library symbols required for the JIT to successfully
-      // link.
-      if (auto err =
-              jd->define(llvm::orc::absoluteSymbols(std::move(symbols)))) {
-        if (auto callback = target.getNotifyCallbackFn()) {
-          callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-                   /*data_size*/ 0);
-        } else {
-          llvm::consumeError(std::move(err));
+  return target.withLLVMContextDo(
+      [&](llvm::LLVMContext &C)
+          -> cargo::expected<const OptimizedKernel &, compiler::Result> {
+        std::unique_ptr<llvm::Module> optimized_module(
+            llvm::CloneModule(*module));
+        if (nullptr == optimized_module) {
+          return cargo::make_unexpected(compiler::Result::OUT_OF_MEMORY);
         }
-        return cargo::make_unexpected(
-            compiler::Result::FINALIZE_PROGRAM_FAILURE);
-      }
-    }
 
-    // Add the module.
-    if (auto err = target.orc_engine->addIRModule(
-            *jd, llvm::orc::ThreadSafeModule(std::move(optimized_module),
-                                             target.llvm_ts_context))) {
-      if (auto callback = target.getNotifyCallbackFn()) {
-        callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-                 /*data_size*/ 0);
-      } else {
-        llvm::consumeError(std::move(err));
-      }
-      return cargo::make_unexpected(compiler::Result::FINALIZE_PROGRAM_FAILURE);
-    }
+        // max length of a uint64_t is 20 digits, 64 just to be comfortable with
+        // the prefix of '__mux_host_'
+        const unsigned unique_name_data_length = 64;
+        char unique_name_data[unique_name_data_length];
+        if (snprintf(unique_name_data, unique_name_data_length,
+                     "__mux_host_%" PRIu64, target.unique_identifier++) < 0) {
+          return cargo::make_unexpected(compiler::Result::FAILURE);
+        }
+        std::string unique_name(unique_name_data);
 
-    // Retrieve the kernel address.
-    uint64_t hook;
-    {
-      // Compiling the kernel may touch the global LLVM state
-      const std::lock_guard<std::mutex> globalLock(
-          compiler::utils::getLLVMGlobalMutex());
+        auto device_info = target.getCompilerInfo()->device_info;
 
-      // We cannot safely look up any symbol inside a CrashRecoveryContext
-      // because the CRC handles errors by a longjmp back to safety, skipping
-      // over destructors of objects that do need to be destroyed. We do so
-      // anyway because the effect is less bad than crashing right away.
-      std::promise<uint64_t> promise;
-      llvm::Error err = llvm::Error::success();
-      llvm::cantFail(std::move(err));
+        // FIXME: Ideally we'd be able to call/reuse
+        // HostModule::createPassMachinery but we only have access to the
+        // HostTarget
+        auto *const TM = target.target_machine.get();
+        auto builtinInfoCallback = [&](const llvm::Module &) {
+          return compiler::utils::BuiltinInfo(
+              std::make_unique<HostBIMuxInfo>(),
+              compiler::utils::createCLBuiltinInfo(target.getBuiltins()));
+        };
+        auto deviceInfo = compiler::initDeviceInfoFromMux(device_info);
+        HostPassMachinery pass_mach(
+            module->getContext(), TM, deviceInfo, builtinInfoCallback,
+            target.getContext().isLLVMVerifyEachEnabled(),
+            target.getContext().getLLVMDebugLoggingLevel(),
+            target.getContext().isLLVMTimePassesEnabled());
+        pass_mach.setCompilerOptions(build_options);
+        host::initializePassMachineryForFinalize(pass_mach, target);
 
-      auto &es = target.orc_engine->getExecutionSession();
-      auto so = makeJITDylibSearchOrder(
-          &*jd, llvm::orc::JITDylibLookupFlags::MatchAllSymbols);
-      auto name = target.orc_engine->mangleAndIntern(unique_name);
-      llvm::orc::SymbolLookupSet names({name});
-      llvm::orc::SymbolsResolvedCallback notifyComplete =
-          [&](llvm::Expected<llvm::orc::SymbolMap> r) {
-            if (r) {
-              assert(r->size() == 1 && "Unexpected number of results");
-              assert(r->contains(name) && "Missing result for symbol");
-              auto address = r->begin()->second.getAddress();
-              promise.set_value(address.getValue());
+        llvm::ModulePassManager pm;
+        // Set up the kernel metadata which informs later passes which kernel
+        // we're interested in optimizing. We've already done this when
+        // initially creating the kernel, but now we have more accurate local
+        // size data.
+        compiler::utils::EncodeKernelMetadataPassOptions pass_opts;
+        pass_opts.KernelName = name;
+        pass_opts.LocalSizes = {static_cast<uint64_t>(local_size[0]),
+                                static_cast<uint64_t>(local_size[1]),
+                                static_cast<uint64_t>(local_size[2])};
+        pm.addPass(compiler::utils::EncodeKernelMetadataPass(pass_opts));
+
+        pm.addPass(pass_mach.getKernelFinalizationPasses(unique_name));
+
+        {
+          // Using the CrashRecoveryContext and statistics touches LLVM's global
+          // state.
+          const std::lock_guard<std::mutex> globalLock(
+              compiler::utils::getLLVMGlobalMutex());
+          llvm::CrashRecoveryContext CRC;
+          llvm::CrashRecoveryContext::Enable();
+          const bool crashed = !CRC.RunSafely(
+              [&] { pm.run(*optimized_module, pass_mach.getMAM()); });
+          llvm::CrashRecoveryContext::Disable();
+          if (crashed) {
+            return cargo::make_unexpected(
+                compiler::Result::FINALIZE_PROGRAM_FAILURE);
+          }
+
+          if (llvm::AreStatisticsEnabled()) {
+            llvm::PrintStatistics();
+          }
+        }
+
+        // Retrieve the vectorization width and amount of local memory used.
+        auto default_work_width = FixedOrScalableQuantity<uint32_t>::getOne();
+        handler::VectorizeInfoMetadata fn_metadata(
+            unique_name, unique_name,
+            /* local_memory_usage */ 0,
+            /* sub_group_size */ FixedOrScalableQuantity<uint32_t>(),
+            /* min_work_item_factor= */ default_work_width,
+            /* pref_work_item_factor */ default_work_width);
+        if (auto *f = optimized_module->getFunction(unique_name)) {
+          fn_metadata =
+              pass_mach.getFAM()
+                  .getResult<compiler::utils::VectorizeMetadataAnalysis>(*f);
+        }
+
+        // Host doesn't support scalable values.
+        if (fn_metadata.min_work_item_factor.isScalable() ||
+            fn_metadata.pref_work_item_factor.isScalable() ||
+            fn_metadata.sub_group_size.isScalable()) {
+          return cargo::make_unexpected(
+              compiler::Result::FINALIZE_PROGRAM_FAILURE);
+        }
+
+        // Note that we grab a handle to the module here, which we use to
+        // reference the module going forward. This is despite us passing
+        // ownership of the module off to the JITDylib. As long as the JITDylib
+        // outlives all uses of the optimized kernels, this should be okay; the
+        // JIT has the same lifetime as this HostKernel.
+        llvm::Module *optimized_module_ptr = optimized_module.get();
+
+        // Create a unique JITDylib for this instance of the kernel, so that its
+        // symbols don't clash with any other kernel's symbols.
+        auto jd = target.orc_engine->createJITDylib(unique_name + ".dylib");
+        if (auto err = jd.takeError()) {
+          if (auto callback = target.getNotifyCallbackFn()) {
+            callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                     /*data_size*/ 0);
+          } else {
+            llvm::consumeError(std::move(err));
+          }
+          return cargo::make_unexpected(
+              compiler::Result::FINALIZE_PROGRAM_FAILURE);
+        }
+        // Register this JITDylib so we can clear up its resources later.
+        kernel_jit_dylibs.insert(jd->getName());
+
+        if (auto relocs = host::utils::getRelocations(); relocs.size()) {
+          llvm::orc::SymbolMap symbols;
+          llvm::orc::MangleAndInterner mangle(
+              target.orc_engine->getExecutionSession(),
+              target.orc_engine->getDataLayout());
+
+          for (const auto &reloc : relocs) {
+            symbols[mangle(reloc.first)] = {
+                llvm::orc::ExecutorAddr(reloc.second),
+                llvm::JITSymbolFlags::Exported};
+          }
+
+          // Define our runtime library symbols required for the JIT to
+          // successfully link.
+          if (auto err =
+                  jd->define(llvm::orc::absoluteSymbols(std::move(symbols)))) {
+            if (auto callback = target.getNotifyCallbackFn()) {
+              callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                       /*data_size*/ 0);
             } else {
-              const llvm::ErrorAsOutParameter _(&err);
-              err = r.takeError();
-              promise.set_value(0);
+              llvm::consumeError(std::move(err));
             }
-          };
-
-      bool crashed;
-      {
-        llvm::CrashRecoveryContext crc;
-        llvm::CrashRecoveryContext::Enable();
-        crashed = !crc.RunSafely([&] {
-          es.lookup(llvm::orc::LookupKind::Static, std::move(so),
-                    std::move(names), llvm::orc::SymbolState::Ready,
-                    std::move(notifyComplete),
-                    llvm::orc::NoDependenciesToRegister);
-          hook = promise.get_future().get();
-        });
-        llvm::CrashRecoveryContext::Disable();
-      }
-
-      if (crashed) {
-        // If we crashed, remove the dylib now so that the lookup callback
-        // runs right away and does not try to access the promise after it has
-        // already been destroyed. Note that this guarantees err will be set and
-        // we return an error.
-        llvm::cantFail(es.removeJITDylib(*jd));
-        promise.get_future().get();
-      }
-
-      if (err) {
-        if (auto callback = target.getNotifyCallbackFn()) {
-          callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
-                   /*data_size*/ 0);
-        } else {
-          llvm::consumeError(
-              std::move(err));  // NOLINT(clang-analyzer-cplusplus.Move)
+            return cargo::make_unexpected(
+                compiler::Result::FINALIZE_PROGRAM_FAILURE);
+          }
         }
-        return cargo::make_unexpected(
-            compiler::Result::FINALIZE_PROGRAM_FAILURE);
-      }
-    }
 
-    const uint32_t min_width = fn_metadata.min_work_item_factor.getFixedValue();
-    const uint32_t pref_width =
-        fn_metadata.pref_work_item_factor.getFixedValue();
-    const uint32_t sub_group_size = fn_metadata.sub_group_size.getFixedValue();
+        // Add the module.
+        if (auto err = target.orc_engine->addIRModule(
+                *jd, llvm::orc::ThreadSafeModule(std::move(optimized_module),
+                                                 target.llvm_ts_context))) {
+          if (auto callback = target.getNotifyCallbackFn()) {
+            callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                     /*data_size*/ 0);
+          } else {
+            llvm::consumeError(std::move(err));
+          }
+          return cargo::make_unexpected(
+              compiler::Result::FINALIZE_PROGRAM_FAILURE);
+        }
 
-    std::unique_ptr<host::utils::jit_kernel_s> jit_kernel(
-        new host::utils::jit_kernel_s{
-            name, hook, static_cast<uint32_t>(fn_metadata.local_memory_usage),
-            min_width, pref_width, sub_group_size});
-    optimized_kernel_map.emplace(
-        local_size,
-        OptimizedKernel{optimized_module_ptr, std::move(jit_kernel)});
-    return optimized_kernel_map[local_size];
-  });
+        // Retrieve the kernel address.
+        uint64_t hook;
+        {
+          // Compiling the kernel may touch the global LLVM state
+          const std::lock_guard<std::mutex> globalLock(
+              compiler::utils::getLLVMGlobalMutex());
+
+          // We cannot safely look up any symbol inside a CrashRecoveryContext
+          // because the CRC handles errors by a longjmp back to safety,
+          // skipping over destructors of objects that do need to be destroyed.
+          // We do so anyway because the effect is less bad than crashing right
+          // away.
+          std::promise<uint64_t> promise;
+          llvm::Error err = llvm::Error::success();
+          llvm::cantFail(std::move(err));
+
+          auto &es = target.orc_engine->getExecutionSession();
+          auto so = makeJITDylibSearchOrder(
+              &*jd, llvm::orc::JITDylibLookupFlags::MatchAllSymbols);
+          auto name = target.orc_engine->mangleAndIntern(unique_name);
+          llvm::orc::SymbolLookupSet names({name});
+          llvm::orc::SymbolsResolvedCallback notifyComplete =
+              [&](llvm::Expected<llvm::orc::SymbolMap> r) {
+                if (r) {
+                  assert(r->size() == 1 && "Unexpected number of results");
+                  assert(r->contains(name) && "Missing result for symbol");
+                  auto address = r->begin()->second.getAddress();
+                  promise.set_value(address.getValue());
+                } else {
+                  const llvm::ErrorAsOutParameter _(&err);
+                  err = r.takeError();
+                  promise.set_value(0);
+                }
+              };
+
+          bool crashed;
+          {
+            llvm::CrashRecoveryContext crc;
+            llvm::CrashRecoveryContext::Enable();
+            crashed = !crc.RunSafely([&] {
+              es.lookup(llvm::orc::LookupKind::Static, std::move(so),
+                        std::move(names), llvm::orc::SymbolState::Ready,
+                        std::move(notifyComplete),
+                        llvm::orc::NoDependenciesToRegister);
+              hook = promise.get_future().get();
+            });
+            llvm::CrashRecoveryContext::Disable();
+          }
+
+          if (crashed) {
+            // If we crashed, remove the dylib now so that the lookup callback
+            // runs right away and does not try to access the promise after it
+            // has already been destroyed. Note that this guarantees err will be
+            // set and we return an error.
+            llvm::cantFail(es.removeJITDylib(*jd));
+            promise.get_future().get();
+          }
+
+          if (err) {
+            if (auto callback = target.getNotifyCallbackFn()) {
+              callback(llvm::toString(std::move(err)).c_str(), /*data*/ nullptr,
+                       /*data_size*/ 0);
+            } else {
+              llvm::consumeError(
+                  std::move(err)); // NOLINT(clang-analyzer-cplusplus.Move)
+            }
+            return cargo::make_unexpected(
+                compiler::Result::FINALIZE_PROGRAM_FAILURE);
+          }
+        }
+
+        const uint32_t min_width =
+            fn_metadata.min_work_item_factor.getFixedValue();
+        const uint32_t pref_width =
+            fn_metadata.pref_work_item_factor.getFixedValue();
+        const uint32_t sub_group_size =
+            fn_metadata.sub_group_size.getFixedValue();
+
+        std::unique_ptr<host::utils::jit_kernel_s> jit_kernel(
+            new host::utils::jit_kernel_s{
+                name, hook,
+                static_cast<uint32_t>(fn_metadata.local_memory_usage),
+                min_width, pref_width, sub_group_size});
+        optimized_kernel_map.emplace(
+            local_size,
+            OptimizedKernel{optimized_module_ptr, std::move(jit_kernel)});
+        return optimized_kernel_map[local_size];
+      });
 }
-}  // namespace host
+} // namespace host

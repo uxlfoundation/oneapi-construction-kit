@@ -50,17 +50,17 @@ struct query_pool : mux_query_pool_s {
   /// `mux_error_out_of_memory` on failure.
   // TODO(CA-4313): Use mux::hal::queue once its been ported.
   template <class QueryPool>
-  static cargo::expected<QueryPool *, mux_result_t> create(
-      mux_queue_t queue, mux_query_type_e query_type, uint32_t query_count,
-      const mux_query_counter_config_t *query_configs,
-      mux::allocator allocator) {
+  static cargo::expected<QueryPool *, mux_result_t>
+  create(mux_queue_t queue, mux_query_type_e query_type, uint32_t query_count,
+         const mux_query_counter_config_t *query_configs,
+         mux::allocator allocator) {
     (void)queue;
     (void)query_configs;
     const bool query_type_valid = [&] {
       switch (query_type) {
-        case mux_query_type_duration:
-        case mux_query_type_counter:
-          return true;
+      case mux_query_type_duration:
+      case mux_query_type_counter:
+        return true;
       }
 
       return false;
@@ -160,7 +160,7 @@ struct query_pool : mux_query_pool_s {
   /// @brief Size in bytes of memory pointed to by `data`.
   size_t size;
 };
-}  // namespace hal
-}  // namespace mux
+} // namespace hal
+} // namespace mux
 
-#endif  // MUX_HAL_QUERY_POOL_H_INCLUDED
+#endif // MUX_HAL_QUERY_POOL_H_INCLUDED

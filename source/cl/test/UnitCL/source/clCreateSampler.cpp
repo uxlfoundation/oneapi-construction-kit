@@ -19,8 +19,7 @@
 struct sampler_params {
   sampler_params(cl_bool normalized_coords, cl_addressing_mode addressing_mode,
                  cl_filter_mode filter_mode)
-      : normalized_coords(normalized_coords),
-        addressing_mode(addressing_mode),
+      : normalized_coords(normalized_coords), addressing_mode(addressing_mode),
         filter_mode(filter_mode) {}
 
   cl_bool normalized_coords;
@@ -35,9 +34,9 @@ static std::ostream &operator<<(std::ostream &out, sampler_params params) {
       << ".normalized_coords{" << normalized_coords << "}, "
       << ".addressing_mode{";
   switch (params.addressing_mode) {
-#define CASE(MODE) \
-  case MODE:       \
-    out << #MODE;  \
+#define CASE(MODE)                                                             \
+  case MODE:                                                                   \
+    out << #MODE;                                                              \
     break;
     CASE(CL_ADDRESS_NONE)
     CASE(CL_ADDRESS_CLAMP_TO_EDGE)
@@ -45,22 +44,22 @@ static std::ostream &operator<<(std::ostream &out, sampler_params params) {
     CASE(CL_ADDRESS_REPEAT)
     CASE(CL_ADDRESS_MIRRORED_REPEAT)
 #undef CASE
-    default:
-      out << "UNKNOWN";
-      break;
+  default:
+    out << "UNKNOWN";
+    break;
   }
   out << "}, .filter_mode{";
   switch (params.filter_mode) {
-#define CASE(MODE) \
-  case MODE:       \
-    out << #MODE;  \
+#define CASE(MODE)                                                             \
+  case MODE:                                                                   \
+    out << #MODE;                                                              \
     break;
     CASE(CL_FILTER_NEAREST)
     CASE(CL_FILTER_LINEAR)
 #undef CASE
-    default:
-      out << "UNKNOWN";
-      break;
+  default:
+    out << "UNKNOWN";
+    break;
   }
   out << "}}";
   return out;

@@ -42,8 +42,9 @@ RiscvInfo::RiscvInfo(mux_device_info_t mux_device_info,
   kernel_debug = true;
 }
 
-std::unique_ptr<compiler::Target> RiscvInfo::createTarget(
-    compiler::Context *context, compiler::NotifyCallbackFn callback) const {
+std::unique_ptr<compiler::Target>
+RiscvInfo::createTarget(compiler::Context *context,
+                        compiler::NotifyCallbackFn callback) const {
   if (!context) {
     return nullptr;
   }
@@ -51,4 +52,4 @@ std::unique_ptr<compiler::Target> RiscvInfo::createTarget(
                                               context, callback);
 }
 
-}  // namespace riscv
+} // namespace riscv

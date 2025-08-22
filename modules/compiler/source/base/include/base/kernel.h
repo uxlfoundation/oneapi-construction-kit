@@ -26,9 +26,9 @@
 
 namespace compiler {
 class BaseKernel : public Kernel {
- public:
+public:
   using Kernel::Kernel;
 };
-}  // namespace compiler
+} // namespace compiler
 
-#endif  // BASE_KERNEL_H_INCLUDED
+#endif // BASE_KERNEL_H_INCLUDED

@@ -27,16 +27,14 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct lgamma_traits;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-struct lgamma_traits<T, abacus_half> {
+template <typename T> struct lgamma_traits<T, abacus_half> {
   static constexpr abacus_half one_over_pi = ABACUS_1_PI_H;
-  static const abacus_ushort overflow_limit = 0x6ffd;   // 8180.0
-  static const abacus_ushort underflow_limit = 0xef30;  // -7360.0
+  static const abacus_ushort overflow_limit = 0x6ffd;  // 8180.0
+  static const abacus_ushort underflow_limit = 0xef30; // -7360.0
 };
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T>
-struct lgamma_traits<T, abacus_float> {
+template <typename T> struct lgamma_traits<T, abacus_float> {
   static constexpr abacus_float one_over_pi = ABACUS_1_PI_F;
   static const abacus_uint overflow_limit = 0x7c44af8d;
   static const abacus_uint underflow_limit = 0xcb000000;
@@ -81,7 +79,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_lgamma_positive_coeff_half[64] = {
     0.8525159415e1f16, 0.2015670265e1f16, 0.6650204212e-1f16,
     -0.2892357977e-2f16, 0.1708553190e-3f16, -0.9290151673e-5f16,
     0.3465180358e-6f16, -5.9605E-8f16};
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 static ABACUS_CONSTANT abacus_float _lgamma_translation[8] = {
     0.0f, 1.0f, 1.0f, 2.0f, 2.0f, 3.0f, 5.0f, 8.0f};
@@ -114,7 +112,7 @@ static ABACUS_CONSTANT abacus_float __codeplay_lgamma_positive_coeff[64] = {
     // Interval 8
     0.8525159415e1f, 0.2015670265e1f, 0.6650204212e-1f, -0.2892357977e-2f,
     0.1708553190e-3f, -0.9290151673e-5f, 0.3465180358e-6f, -0.6069832791e-8f};
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 inline abacus_half lgamma_positive(abacus_half x) {
@@ -135,7 +133,7 @@ inline abacus_half lgamma_positive(abacus_half x) {
 
   return (interval) ? semi : semi - logx;
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 inline abacus_float lgamma_positive(abacus_float x) {
   const abacus_float logx = __abacus_log(x);
@@ -160,8 +158,7 @@ inline abacus_float lgamma_positive(abacus_float x) {
   return (interval) ? semi : semi - logx;
 }
 
-template <typename T>
-inline T lgamma_positive(const T &x) {
+template <typename T> inline T lgamma_positive(const T &x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using UnsignedElementType = typename TypeTraits<UnsignedType>::ElementType;
@@ -198,8 +195,7 @@ inline T lgamma_positive(const T &x) {
 }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T>
-inline T lgamma_positive_half(const T &x) {
+template <typename T> inline T lgamma_positive_half(const T &x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using UnsignedElementType = typename TypeTraits<UnsignedType>::ElementType;
@@ -230,29 +226,24 @@ inline T lgamma_positive_half(const T &x) {
   return result;
 }
 
-template <>
-inline abacus_half2 lgamma_positive(const abacus_half2 &x) {
+template <> inline abacus_half2 lgamma_positive(const abacus_half2 &x) {
   return lgamma_positive_half(x);
 }
 
-template <>
-inline abacus_half3 lgamma_positive(const abacus_half3 &x) {
+template <> inline abacus_half3 lgamma_positive(const abacus_half3 &x) {
   return lgamma_positive_half(x);
 }
 
-template <>
-inline abacus_half4 lgamma_positive(const abacus_half4 &x) {
+template <> inline abacus_half4 lgamma_positive(const abacus_half4 &x) {
   return lgamma_positive_half(x);
 }
-template <>
-inline abacus_half8 lgamma_positive(const abacus_half8 &x) {
+template <> inline abacus_half8 lgamma_positive(const abacus_half8 &x) {
   return lgamma_positive_half(x);
 }
-template <>
-inline abacus_half16 lgamma_positive(const abacus_half16 &x) {
+template <> inline abacus_half16 lgamma_positive(const abacus_half16 &x) {
   return lgamma_positive_half(x);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 // Gets the value of lgamma in the range [1,2]
@@ -471,9 +462,9 @@ inline abacus_double lgamma_positive(abacus_double x) {
   // Now we merely need a way to calculate Gamma(x) from [4 , 1.0e6]
   return lgamma_1to2(x);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
-#endif  //__ABACUS_INTERNAL_LGAMMA_POSITIVE_H__
+#endif //__ABACUS_INTERNAL_LGAMMA_POSITIVE_H__

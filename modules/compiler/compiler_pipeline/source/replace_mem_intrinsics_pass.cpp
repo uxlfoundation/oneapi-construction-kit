@@ -34,20 +34,20 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
     for (Instruction &I : B) {
       if (auto *CI = dyn_cast<CallInst>(&I)) {
         switch (CI->getIntrinsicID()) {
-          case Intrinsic::memcpy:
-          case Intrinsic::memset:
+        case Intrinsic::memcpy:
+        case Intrinsic::memset:
+          CallsToProcess.push_back(CI);
+          break;
+        case Intrinsic::memmove:
+          // The expandMemMoveAsLoop fails if the address spaces differ so we
+          // will only do it if they are the same
+          if (CI->getArgOperand(0)->getType()->getPointerAddressSpace() ==
+              CI->getArgOperand(1)->getType()->getPointerAddressSpace()) {
             CallsToProcess.push_back(CI);
-            break;
-          case Intrinsic::memmove:
-            // The expandMemMoveAsLoop fails if the address spaces differ so we
-            // will only do it if they are the same
-            if (CI->getArgOperand(0)->getType()->getPointerAddressSpace() ==
-                CI->getArgOperand(1)->getType()->getPointerAddressSpace()) {
-              CallsToProcess.push_back(CI);
-            }
-            break;
-          default:
-            break;
+          }
+          break;
+        default:
+          break;
         }
       }
     }
@@ -55,17 +55,17 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
 
   for (auto *CI : CallsToProcess) {
     switch (CI->getIntrinsicID()) {
-      case Intrinsic::memcpy:
-        expandMemCpyAsLoop(cast<MemCpyInst>(CI), TTI);
-        break;
-      case Intrinsic::memset:
-        expandMemSetAsLoop(cast<MemSetInst>(CI));
-        break;
-      case Intrinsic::memmove:
-        expandMemMoveAsLoop(cast<MemMoveInst>(CI), TTI);
-        break;
-      default:
-        break;
+    case Intrinsic::memcpy:
+      expandMemCpyAsLoop(cast<MemCpyInst>(CI), TTI);
+      break;
+    case Intrinsic::memset:
+      expandMemSetAsLoop(cast<MemSetInst>(CI));
+      break;
+    case Intrinsic::memmove:
+      expandMemMoveAsLoop(cast<MemMoveInst>(CI), TTI);
+      break;
+    default:
+      break;
     }
     CI->eraseFromParent();
   }
@@ -74,5 +74,5 @@ PreservedAnalyses ReplaceMemIntrinsicsPass::run(Function &F,
                                  : PreservedAnalyses::all();
 }
 
-}  // namespace utils
-}  // namespace compiler
+} // namespace utils
+} // namespace compiler

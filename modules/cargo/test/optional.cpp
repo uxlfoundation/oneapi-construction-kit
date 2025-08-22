@@ -16,7 +16,7 @@
 // Derived from CC0-licensed `tl::optional` library which can be found
 // at https://github.com/TartanLlama/optional.  See optional.LICENSE.txt.
 
-#include <cargo/expected.h>  // Must compile with this included.
+#include <cargo/expected.h> // Must compile with this included.
 #include <cargo/optional.h>
 #include <gtest/gtest.h>
 

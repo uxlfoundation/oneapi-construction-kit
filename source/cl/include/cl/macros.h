@@ -34,12 +34,12 @@
 ///
 /// @param CONDITION Condition to test.
 /// @param MESSAGE Message to display on assertion failure.
-#define OCL_ASSERT(CONDITION, MESSAGE)                               \
-  if (!(CONDITION)) {                                                \
-    (void)std::fprintf(stderr, "%s:%d: %s %s\n", __FILE__, __LINE__, \
-                       #CONDITION, MESSAGE);                         \
-    std::abort();                                                    \
-  }                                                                  \
+#define OCL_ASSERT(CONDITION, MESSAGE)                                         \
+  if (!(CONDITION)) {                                                          \
+    (void)std::fprintf(stderr, "%s:%d: %s %s\n", __FILE__, __LINE__,           \
+                       #CONDITION, MESSAGE);                                   \
+    std::abort();                                                              \
+  }                                                                            \
   (void)0
 #else
 #define OCL_ASSERT(CONDITION, MESSAGE) (void)0
@@ -48,11 +48,11 @@
 /// @brief Display a message to stderr and abort.
 ///
 /// @param MESSAGE Message to display prior to aborting.
-#define OCL_ABORT(MESSAGE)                                                  \
-  {                                                                         \
-    (void)std::fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE); \
-    std::abort();                                                           \
-  }                                                                         \
+#define OCL_ABORT(MESSAGE)                                                     \
+  {                                                                            \
+    (void)std::fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, MESSAGE);    \
+    std::abort();                                                              \
+  }                                                                            \
   (void)0
 
 /// @brief Provides hints to the compiler about the likelihood of a condition
@@ -71,10 +71,10 @@
 ///             validation checking.
 /// @param      CONDITION - A bool condition.
 /// @param      ACTION - The code to execute on bool condition being true.
-#define OCL_CHECK(CONDITION, ACTION) \
-  if (OCL_UNLIKELY(CONDITION)) {     \
-    ACTION;                          \
-  }                                  \
+#define OCL_CHECK(CONDITION, ACTION)                                           \
+  if (OCL_UNLIKELY(CONDITION)) {                                               \
+    ACTION;                                                                    \
+  }                                                                            \
   (void)0
 
 /// @brief      OCL_SET_IF_NOT_NULL is mainly used to check OpenCL API
@@ -82,10 +82,10 @@
 ///             via that object if given.
 /// @param      POINTER - A bool condition compare pointer to NULL.
 /// @param      VALUE - Assign the object pointed to by the pointer a value.
-#define OCL_SET_IF_NOT_NULL(POINTER, VALUE) \
-  if ((POINTER) != nullptr) {               \
-    *(POINTER) = VALUE;                     \
-  }                                         \
+#define OCL_SET_IF_NOT_NULL(POINTER, VALUE)                                    \
+  if ((POINTER) != nullptr) {                                                  \
+    *(POINTER) = VALUE;                                                        \
+  }                                                                            \
   (void)0
 
 #define OCL_UNUSED(x) ((void)(x))
@@ -95,10 +95,10 @@
 /// Useful macro for reducing boilerplate when conditionally defining
 /// extension versions.
 #if defined(CL_VERSION_3_0)
-#define CA_CL_EXT_VERSION(MAJOR, MINOR, PATCH) \
+#define CA_CL_EXT_VERSION(MAJOR, MINOR, PATCH)                                 \
   , CL_MAKE_VERSION_KHR(MAJOR, MINOR, PATCH)
 #else
 #define CA_CL_EXT_VERSION(MAJOR, MINOR, PATCH)
 #endif
 
-#endif  // CL_MACROS_H_INCLUDED
+#endif // CL_MACROS_H_INCLUDED

@@ -98,8 +98,7 @@ void list_dir(const std::string &name, std::vector<std::string> &files) {
 /// @tparam T The type of the read data
 ///
 /// @return Returns an array of bytes
-template <class T>
-std::vector<T> read_file(const std::string &filepath) {
+template <class T> std::vector<T> read_file(const std::string &filepath) {
   std::ifstream fs;
   // std::ios::ate moves the cursor at the end of the file
   fs.open(filepath, std::ios::binary | std::ios::in | std::ios::ate);
@@ -172,6 +171,6 @@ void add_argument(cargo::argument_parser<1> &parser, bool &storage,
     exit(1);
   }
 }
-}  // namespace fuzzcl
+} // namespace fuzzcl
 
 #endif

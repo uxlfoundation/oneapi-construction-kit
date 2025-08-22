@@ -19,8 +19,7 @@
 #include "Common.h"
 #include "EventWaitList.h"
 
-template <typename T>
-struct BufferRAII {
+template <typename T> struct BufferRAII {
   T *payload;
   BufferRAII(const unsigned int size) : payload(new T[size]) {}
   ~BufferRAII() { delete[] payload; }
@@ -28,7 +27,7 @@ struct BufferRAII {
 
 class clEnqueueFillBufferTest : public ucl::CommandQueueTest,
                                 TestWithEventWaitList {
- protected:
+protected:
   enum { size = 128 };
 
   void SetUp() override {
@@ -51,9 +50,9 @@ class clEnqueueFillBufferTest : public ucl::CommandQueueTest,
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(
-        err, clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size,
-                                 0, size, num_events, events, event));
+    ASSERT_EQ_ERRCODE(err, clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                               pattern_size, 0, size,
+                                               num_events, events, event));
   }
 
   cl_mem buffer = nullptr;
@@ -78,10 +77,10 @@ TEST_F(clEnqueueFillBufferTest, CommandQueueBufferContextMismatch) {
   EXPECT_TRUE(otherBuffer);
   ASSERT_SUCCESS(errcode);
 
-  EXPECT_EQ_ERRCODE(
-      CL_INVALID_CONTEXT,
-      clEnqueueFillBuffer(command_queue, otherBuffer, &pattern, pattern_size, 0,
-                          size, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
+                    clEnqueueFillBuffer(command_queue, otherBuffer, &pattern,
+                                        pattern_size, 0, size, 0, nullptr,
+                                        nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(otherBuffer));
   EXPECT_SUCCESS(clReleaseContext(otherContext));
@@ -89,31 +88,31 @@ TEST_F(clEnqueueFillBufferTest, CommandQueueBufferContextMismatch) {
 
 TEST_F(clEnqueueFillBufferTest, NullBuffer) {
   cl_uint pattern[4] = {1u, 2u, 3u, 4u};
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_MEM_OBJECT,
-      clEnqueueFillBuffer(command_queue, nullptr, &pattern, pattern_size, 0,
-                          size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
+                    clEnqueueFillBuffer(command_queue, nullptr, &pattern,
+                                        pattern_size, 0, size, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, OffsetRangeOutOfBounds) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size,
-                          size + 1, size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                        pattern_size, size + 1, size, 0,
+                                        nullptr, nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, OffsetSizeRangeOutOfBounds) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size,
-                          (size / 2) + 1, size / 2, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                        pattern_size, (size / 2) + 1, size / 2,
+                                        0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, NullPattern) {
-  ASSERT_EQ_ERRCODE(
-      CL_INVALID_VALUE,
-      clEnqueueFillBuffer(command_queue, buffer, nullptr, pattern_size, 0, size,
-                          0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
+                    clEnqueueFillBuffer(command_queue, buffer, nullptr,
+                                        pattern_size, 0, size, 0, nullptr,
+                                        nullptr));
 }
 
 TEST_F(clEnqueueFillBufferTest, ZeroPatternSize) {
@@ -160,16 +159,16 @@ TEST_F(clEnqueueFillBufferTest, BadPatternSizes) {
 
 TEST_F(clEnqueueFillBufferTest, OffsetNotMultipleOfPatternSize) {
   for (size_t i = 1; i < pattern_size; ++i) {
-    EXPECT_EQ_ERRCODE(
-        CL_INVALID_VALUE,
-        clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size, i,
-                            size, 0, nullptr, nullptr));
+    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                      clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                          pattern_size, i, size, 0, nullptr,
+                                          nullptr));
   }
   for (size_t i = pattern_size + 1; i < pattern_size * 2; ++i) {
-    EXPECT_EQ_ERRCODE(
-        CL_INVALID_VALUE,
-        clEnqueueFillBuffer(command_queue, buffer, &pattern, pattern_size, i,
-                            size, 0, nullptr, nullptr));
+    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
+                      clEnqueueFillBuffer(command_queue, buffer, &pattern,
+                                          pattern_size, i, size, 0, nullptr,
+                                          nullptr));
   }
 }
 

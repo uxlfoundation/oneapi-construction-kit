@@ -26,8 +26,7 @@ namespace {
 
 // For native we need an extremely lax validator. Native type builtins have
 // implementation defined precision, so we only care about ballpark accuracy.
-template <typename T, cl_ulong t>
-struct AbsoluteErrValidator final {
+template <typename T, cl_ulong t> struct AbsoluteErrValidator final {
   AbsoluteErrValidator() : threshold(1.0 / static_cast<T>(t)) {}
 
   // Validator checks for inf and nan, and then just checks the actual value is
@@ -47,7 +46,7 @@ struct AbsoluteErrValidator final {
 
   void print(std::stringstream &s, T value) { s << value; }
 
- private:
+private:
   // Error threshold is 1 over tparam t (template params can't be float).
   cl_float threshold;
 };
@@ -57,8 +56,8 @@ using AbsoluteErrStreamerTy =
     kts::GenericStreamer<T, AbsoluteErrValidator<T, threshold>>;
 
 template <typename T, cl_ulong threshold, typename F>
-std::shared_ptr<AbsoluteErrStreamerTy<T, threshold>> makeAbsoluteErrStreamer(
-    F &&f) {
+std::shared_ptr<AbsoluteErrStreamerTy<T, threshold>>
+makeAbsoluteErrStreamer(F &&f) {
   auto s = std::make_shared<AbsoluteErrStreamerTy<T, threshold>>(
       kts::Reference1D<T>(std::forward<F>(f)));
 
@@ -92,4 +91,4 @@ TEST_F(BaseExecution, Native_01_Log2_Accuracy) {
 // TODO: extend native precision testing to all of the native builtins, see
 // CA-3336 for a full list and details.
 
-}  // namespace
+} // namespace

@@ -55,11 +55,11 @@ struct Version {
     return out;
   }
 
- private:
+private:
   int Major = 0;
   int Minor = 0;
   int Scaled = 0;
 };
-}  // namespace ucl
+} // namespace ucl
 
-#endif  // UNITCL_VERSION_H_INCLUDED
+#endif // UNITCL_VERSION_H_INCLUDED

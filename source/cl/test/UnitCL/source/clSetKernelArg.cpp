@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clSetKernelArgTest : public ucl::ContextTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -172,7 +172,7 @@ struct KernelArgParam {
 class clSetKernelArgTestFromIL
     : public ucl::ContextTest,
       public testing::WithParamInterface<KernelArgParam> {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {

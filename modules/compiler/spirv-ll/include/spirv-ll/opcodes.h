@@ -32,7 +32,7 @@ class iterator;
 
 /// @brief Generic SPIR-V instruction base class.
 class OpCode {
- public:
+public:
   /// @brief Constructor from iterator.
   OpCode(const spirv_ll::iterator &iter);
 
@@ -79,32 +79,26 @@ class OpCode {
   /// @brief ID for the underlying OpCode. spv::OpMax is used as an invalid ID.
   const spv::Op code;
 
- protected:
+protected:
   /// @brief Pointer to the first word that represents this instruction.
   const uint32_t *data;
   /// @brief Flag to specify that `data` points to big endian data.
   const bool endianSwap;
 };
 
-template <class Op>
-inline bool isa(const OpCode *op) {
+template <class Op> inline bool isa(const OpCode *op) {
   static_assert(std::is_base_of_v<OpCode, Op>, "invalid OpCode cast");
   return Op::ClassCode == op->code;
 }
 
-template <>
-inline bool isa<OpCode>(const OpCode *) {
-  return true;
-}
+template <> inline bool isa<OpCode>(const OpCode *) { return true; }
 
-template <class Op>
-inline const Op *cast(const OpCode *op) {
+template <class Op> inline const Op *cast(const OpCode *op) {
   SPIRV_LL_ASSERT(isa<Op>(op), "invalid OpCode cast");
   return static_cast<const Op *>(op);
 }
 
-template <class Op>
-inline const Op *dyn_cast(const OpCode *op) {
+template <class Op> inline const Op *dyn_cast(const OpCode *op) {
   if (!isa<Op>(op)) {
     return nullptr;
   }
@@ -135,7 +129,7 @@ class OpTypeForwardPointer;
 
 /// @brief Specialization of `OpCode` for instructions which define types.
 class OpType : public OpCode {
- public:
+public:
   /// @brief Construct from base `OpCode` object.
   OpType(const OpCode &other, spv::Op code) : OpCode(other, code) {}
 
@@ -315,14 +309,12 @@ class OpType : public OpCode {
   }
 };
 
-template <>
-inline const OpType *cast(const OpCode *op) {
+template <> inline const OpType *cast(const OpCode *op) {
   SPIRV_LL_ASSERT(op->isType(), "spirv-ll invalid cast to OpType");
   return static_cast<const OpType *>(op);
 }
 
-template <>
-inline const OpType *dyn_cast(const OpCode *op) {
+template <> inline const OpType *dyn_cast(const OpCode *op) {
   if (!op->isType()) {
     return nullptr;
   }
@@ -331,7 +323,7 @@ inline const OpType *dyn_cast(const OpCode *op) {
 
 /// @brief Specialization of `OpCode` for instructions have a result ID.
 class OpResult : public OpCode {
- public:
+public:
   /// @brief Constructor from base `OpCode` object.
   OpResult(const OpCode &other, spv::Op code) : OpCode(other, code) {}
 
@@ -342,14 +334,12 @@ class OpResult : public OpCode {
   spv::Id IdResult() const;
 };
 
-template <>
-inline const OpResult *cast(const OpCode *op) {
+template <> inline const OpResult *cast(const OpCode *op) {
   SPIRV_LL_ASSERT(op->hasResult(), "spirv-ll invalid cast to OpResult");
   return static_cast<const OpResult *>(op);
 }
 
-template <>
-inline const OpResult *dyn_cast(const OpCode *op) {
+template <> inline const OpResult *dyn_cast(const OpCode *op) {
   if (!op->hasResult()) {
     return nullptr;
   }
@@ -361,7 +351,7 @@ inline const OpResult *dyn_cast(const OpCode *op) {
 /// This allows for a unified decoration system that can accommodate both
 /// OpDecorate and OpMemberDecorate.
 class OpDecorateBase : public OpCode {
- public:
+public:
   /// @brief Constructor from base `OpCode` object.
   OpDecorateBase(const OpCode &other, spv::Op code) : OpCode(other, code) {}
 
@@ -369,28 +359,27 @@ class OpDecorateBase : public OpCode {
   spv::Decoration getDecoration() const;
 };
 
-template <>
-inline const OpDecorateBase *cast(const OpCode *op) {
-  SPIRV_LL_ASSERT(
-      op->code == spv::OpDecorate || op->code == spv::OpMemberDecorate,
-      "spirv-ll invalid cast");
+template <> inline const OpDecorateBase *cast(const OpCode *op) {
+  SPIRV_LL_ASSERT(op->code == spv::OpDecorate ||
+                      op->code == spv::OpMemberDecorate,
+                  "spirv-ll invalid cast");
   return static_cast<const OpDecorateBase *>(op);
 }
 
 class OpNop : public OpCode {
- public:
+public:
   OpNop(const OpCode &other) : OpCode(other, spv::OpNop) {}
   static const spv::Op ClassCode = spv::OpNop;
 };
 
 class OpUndef : public OpResult {
- public:
+public:
   OpUndef(const OpCode &other) : OpResult(other, spv::OpUndef) {}
   static const spv::Op ClassCode = spv::OpUndef;
 };
 
 class OpSourceContinued : public OpCode {
- public:
+public:
   OpSourceContinued(const OpCode &other)
       : OpCode(other, spv::OpSourceContinued) {}
   llvm::StringRef ContinuedSource() const;
@@ -398,7 +387,7 @@ class OpSourceContinued : public OpCode {
 };
 
 class OpSource : public OpCode {
- public:
+public:
   OpSource(const OpCode &other) : OpCode(other, spv::OpSource) {}
   spv::SourceLanguage SourceLanguage() const;
   uint32_t Version() const;
@@ -408,7 +397,7 @@ class OpSource : public OpCode {
 };
 
 class OpSourceExtension : public OpCode {
- public:
+public:
   OpSourceExtension(const OpCode &other)
       : OpCode(other, spv::OpSourceExtension) {}
   llvm::StringRef Extension() const;
@@ -416,7 +405,7 @@ class OpSourceExtension : public OpCode {
 };
 
 class OpName : public OpCode {
- public:
+public:
   OpName(const OpCode &other) : OpCode(other, spv::OpName) {}
   spv::Id Target() const;
   llvm::StringRef Name() const;
@@ -424,7 +413,7 @@ class OpName : public OpCode {
 };
 
 class OpMemberName : public OpCode {
- public:
+public:
   OpMemberName(const OpCode &other) : OpCode(other, spv::OpMemberName) {}
   spv::Id Type() const;
   uint32_t Member() const;
@@ -433,7 +422,7 @@ class OpMemberName : public OpCode {
 };
 
 class OpString : public OpCode {
- public:
+public:
   OpString(const OpCode &other) : OpCode(other, spv::OpString) {}
   spv::Id IdResult() const;
   llvm::StringRef String() const;
@@ -441,7 +430,7 @@ class OpString : public OpCode {
 };
 
 class OpLine : public OpCode {
- public:
+public:
   OpLine(const OpCode &other) : OpCode(other, spv::OpLine) {}
   spv::Id File() const;
   uint32_t Line() const;
@@ -450,14 +439,14 @@ class OpLine : public OpCode {
 };
 
 class OpExtension : public OpCode {
- public:
+public:
   OpExtension(const OpCode &other) : OpCode(other, spv::OpExtension) {}
   llvm::StringRef Name() const;
   static const spv::Op ClassCode = spv::OpExtension;
 };
 
 class OpExtInstImport : public OpCode {
- public:
+public:
   OpExtInstImport(const OpCode &other) : OpCode(other, spv::OpExtInstImport) {}
   spv::Id IdResult() const;
   llvm::StringRef Name() const;
@@ -465,7 +454,7 @@ class OpExtInstImport : public OpCode {
 };
 
 class OpExtInst : public OpResult {
- public:
+public:
   OpExtInst(const OpCode &other) : OpResult(other, spv::OpExtInst) {}
   spv::Id Set() const;
   uint32_t Instruction() const;
@@ -487,7 +476,7 @@ class OpExtInst : public OpResult {
 };
 
 class OpMemoryModel : public OpCode {
- public:
+public:
   OpMemoryModel(const OpCode &other) : OpCode(other, spv::OpMemoryModel) {}
   spv::AddressingModel AddressingModel() const;
   spv::MemoryModel MemoryModel() const;
@@ -495,7 +484,7 @@ class OpMemoryModel : public OpCode {
 };
 
 class OpEntryPoint : public OpCode {
- public:
+public:
   OpEntryPoint(const OpCode &other) : OpCode(other, spv::OpEntryPoint) {}
   spv::ExecutionModel ExecutionModel() const;
   spv::Id EntryPoint() const;
@@ -505,7 +494,7 @@ class OpEntryPoint : public OpCode {
 };
 
 class OpExecutionMode : public OpCode {
- public:
+public:
   OpExecutionMode(const OpCode &other) : OpCode(other, spv::OpExecutionMode) {}
   spv::Id EntryPoint() const;
   spv::ExecutionMode Mode() const;
@@ -513,26 +502,26 @@ class OpExecutionMode : public OpCode {
 };
 
 class OpCapability : public OpCode {
- public:
+public:
   OpCapability(const OpCode &other) : OpCode(other, spv::OpCapability) {}
   spv::Capability Capability() const;
   static const spv::Op ClassCode = spv::OpCapability;
 };
 
 class OpTypeVoid : public OpType {
- public:
+public:
   OpTypeVoid(const OpCode &other) : OpType(other, spv::OpTypeVoid) {}
   static const spv::Op ClassCode = spv::OpTypeVoid;
 };
 
 class OpTypeBool : public OpType {
- public:
+public:
   OpTypeBool(const OpCode &other) : OpType(other, spv::OpTypeBool) {}
   static const spv::Op ClassCode = spv::OpTypeBool;
 };
 
 class OpTypeInt : public OpType {
- public:
+public:
   OpTypeInt(const OpCode &other) : OpType(other, spv::OpTypeInt) {}
   uint32_t Width() const;
   uint32_t Signedness() const;
@@ -540,14 +529,14 @@ class OpTypeInt : public OpType {
 };
 
 class OpTypeFloat : public OpType {
- public:
+public:
   OpTypeFloat(const OpCode &other) : OpType(other, spv::OpTypeFloat) {}
   uint32_t Width() const;
   static const spv::Op ClassCode = spv::OpTypeFloat;
 };
 
 class OpTypeVector : public OpType {
- public:
+public:
   OpTypeVector(const OpCode &other) : OpType(other, spv::OpTypeVector) {}
   spv::Id ComponentType() const;
   uint32_t ComponentCount() const;
@@ -555,7 +544,7 @@ class OpTypeVector : public OpType {
 };
 
 class OpTypeMatrix : public OpType {
- public:
+public:
   OpTypeMatrix(const OpCode &other) : OpType(other, spv::OpTypeMatrix) {}
   spv::Id ColumnType() const;
   uint32_t ColumnCount() const;
@@ -563,7 +552,7 @@ class OpTypeMatrix : public OpType {
 };
 
 class OpTypeImage : public OpType {
- public:
+public:
   OpTypeImage(const OpCode &other) : OpType(other, spv::OpTypeImage) {}
   spv::Id SampledType() const;
   spv::Dim Dim() const;
@@ -577,13 +566,13 @@ class OpTypeImage : public OpType {
 };
 
 class OpTypeSampler : public OpType {
- public:
+public:
   OpTypeSampler(const OpCode &other) : OpType(other, spv::OpTypeSampler) {}
   static const spv::Op ClassCode = spv::OpTypeSampler;
 };
 
 class OpTypeSampledImage : public OpType {
- public:
+public:
   OpTypeSampledImage(const OpCode &other)
       : OpType(other, spv::OpTypeSampledImage) {}
   spv::Id ImageType() const;
@@ -591,7 +580,7 @@ class OpTypeSampledImage : public OpType {
 };
 
 class OpTypeArray : public OpType {
- public:
+public:
   OpTypeArray(const OpCode &other) : OpType(other, spv::OpTypeArray) {}
   spv::Id ElementType() const;
   spv::Id Length() const;
@@ -599,7 +588,7 @@ class OpTypeArray : public OpType {
 };
 
 class OpTypeRuntimeArray : public OpType {
- public:
+public:
   OpTypeRuntimeArray(const OpCode &other)
       : OpType(other, spv::OpTypeRuntimeArray) {}
   spv::Id ElementType() const;
@@ -607,21 +596,21 @@ class OpTypeRuntimeArray : public OpType {
 };
 
 class OpTypeStruct : public OpType {
- public:
+public:
   OpTypeStruct(const OpCode &other) : OpType(other, spv::OpTypeStruct) {}
   llvm::SmallVector<spv::Id, 8> MemberTypes() const;
   static const spv::Op ClassCode = spv::OpTypeStruct;
 };
 
 class OpTypeOpaque : public OpType {
- public:
+public:
   OpTypeOpaque(const OpCode &other) : OpType(other, spv::OpTypeOpaque) {}
   llvm::StringRef Name() const;
   static const spv::Op ClassCode = spv::OpTypeOpaque;
 };
 
 class OpTypePointer : public OpType {
- public:
+public:
   OpTypePointer(const OpCode &other) : OpType(other, spv::OpTypePointer) {}
   uint32_t StorageClass() const;
   spv::Id Type() const;
@@ -629,7 +618,7 @@ class OpTypePointer : public OpType {
 };
 
 class OpTypeFunction : public OpType {
- public:
+public:
   OpTypeFunction(const OpCode &other) : OpType(other, spv::OpTypeFunction) {}
   spv::Id ReturnType() const;
   llvm::SmallVector<spv::Id, 8> ParameterTypes() const;
@@ -637,39 +626,39 @@ class OpTypeFunction : public OpType {
 };
 
 class OpTypeEvent : public OpType {
- public:
+public:
   OpTypeEvent(const OpCode &other) : OpType(other, spv::OpTypeEvent) {}
   static const spv::Op ClassCode = spv::OpTypeEvent;
 };
 
 class OpTypeDeviceEvent : public OpType {
- public:
+public:
   OpTypeDeviceEvent(const OpCode &other)
       : OpType(other, spv::OpTypeDeviceEvent) {}
   static const spv::Op ClassCode = spv::OpTypeDeviceEvent;
 };
 
 class OpTypeReserveId : public OpType {
- public:
+public:
   OpTypeReserveId(const OpCode &other) : OpType(other, spv::OpTypeReserveId) {}
   static const spv::Op ClassCode = spv::OpTypeReserveId;
 };
 
 class OpTypeQueue : public OpType {
- public:
+public:
   OpTypeQueue(const OpCode &other) : OpType(other, spv::OpTypeQueue) {}
   static const spv::Op ClassCode = spv::OpTypeQueue;
 };
 
 class OpTypePipe : public OpType {
- public:
+public:
   OpTypePipe(const OpCode &other) : OpType(other, spv::OpTypePipe) {}
   spv::AccessQualifier Qualifier() const;
   static const spv::Op ClassCode = spv::OpTypePipe;
 };
 
 class OpTypeForwardPointer : public OpType {
- public:
+public:
   OpTypeForwardPointer(const OpCode &other)
       : OpType(other, spv::OpTypeForwardPointer) {}
   spv::Id PointerType() const;
@@ -678,20 +667,20 @@ class OpTypeForwardPointer : public OpType {
 };
 
 class OpConstantTrue : public OpResult {
- public:
+public:
   OpConstantTrue(const OpCode &other) : OpResult(other, spv::OpConstantTrue) {}
   static const spv::Op ClassCode = spv::OpConstantTrue;
 };
 
 class OpConstantFalse : public OpResult {
- public:
+public:
   OpConstantFalse(const OpCode &other)
       : OpResult(other, spv::OpConstantFalse) {}
   static const spv::Op ClassCode = spv::OpConstantFalse;
 };
 
 class OpConstant : public OpResult {
- public:
+public:
   OpConstant(const OpCode &other) : OpResult(other, spv::OpConstant) {}
   uint32_t Value32() const;
   uint64_t Value64() const;
@@ -699,7 +688,7 @@ class OpConstant : public OpResult {
 };
 
 class OpConstantComposite : public OpResult {
- public:
+public:
   OpConstantComposite(const OpCode &other)
       : OpResult(other, spv::OpConstantComposite) {}
   llvm::SmallVector<spv::Id, 8> Constituents() const;
@@ -707,7 +696,7 @@ class OpConstantComposite : public OpResult {
 };
 
 class OpConstantSampler : public OpResult {
- public:
+public:
   OpConstantSampler(const OpCode &other)
       : OpResult(other, spv::OpConstantSampler) {}
   spv::SamplerAddressingMode SamplerAddressingMode() const;
@@ -717,27 +706,27 @@ class OpConstantSampler : public OpResult {
 };
 
 class OpConstantNull : public OpResult {
- public:
+public:
   OpConstantNull(const OpCode &other) : OpResult(other, spv::OpConstantNull) {}
   static const spv::Op ClassCode = spv::OpConstantNull;
 };
 
 class OpSpecConstantTrue : public OpResult {
- public:
+public:
   OpSpecConstantTrue(const OpCode &other)
       : OpResult(other, spv::OpSpecConstantTrue) {}
   static const spv::Op ClassCode = spv::OpSpecConstantTrue;
 };
 
 class OpSpecConstantFalse : public OpResult {
- public:
+public:
   OpSpecConstantFalse(const OpCode &other)
       : OpResult(other, spv::OpSpecConstantFalse) {}
   static const spv::Op ClassCode = spv::OpSpecConstantFalse;
 };
 
 class OpSpecConstant : public OpResult {
- public:
+public:
   OpSpecConstant(const OpCode &other) : OpResult(other, spv::OpSpecConstant) {}
   uint32_t Value32() const;
   uint64_t Value64() const;
@@ -745,7 +734,7 @@ class OpSpecConstant : public OpResult {
 };
 
 class OpSpecConstantComposite : public OpResult {
- public:
+public:
   OpSpecConstantComposite(const OpCode &other)
       : OpResult(other, spv::OpSpecConstantComposite) {}
   llvm::SmallVector<spv::Id, 8> Constituents() const;
@@ -753,7 +742,7 @@ class OpSpecConstantComposite : public OpResult {
 };
 
 class OpSpecConstantOp : public OpResult {
- public:
+public:
   OpSpecConstantOp(const OpCode &other)
       : OpResult(other, spv::OpSpecConstantOp) {}
   uint32_t Opcode() const;
@@ -761,7 +750,7 @@ class OpSpecConstantOp : public OpResult {
 };
 
 class OpFunction : public OpResult {
- public:
+public:
   OpFunction(const OpCode &other) : OpResult(other, spv::OpFunction) {}
   uint32_t FunctionControl() const;
   spv::Id FunctionType() const;
@@ -769,20 +758,20 @@ class OpFunction : public OpResult {
 };
 
 class OpFunctionParameter : public OpResult {
- public:
+public:
   OpFunctionParameter(const OpCode &other)
       : OpResult(other, spv::OpFunctionParameter) {}
   static const spv::Op ClassCode = spv::OpFunctionParameter;
 };
 
 class OpFunctionEnd : public OpCode {
- public:
+public:
   OpFunctionEnd(const OpCode &other) : OpCode(other, spv::OpFunctionEnd) {}
   static const spv::Op ClassCode = spv::OpFunctionEnd;
 };
 
 class OpFunctionCall : public OpResult {
- public:
+public:
   OpFunctionCall(const OpCode &other) : OpResult(other, spv::OpFunctionCall) {}
   spv::Id Function() const;
   llvm::SmallVector<spv::Id, 8> Arguments() const;
@@ -790,7 +779,7 @@ class OpFunctionCall : public OpResult {
 };
 
 class OpVariable : public OpResult {
- public:
+public:
   OpVariable(const OpCode &other) : OpResult(other, spv::OpVariable) {}
   uint32_t StorageClass() const;
   spv::Id Initializer() const;
@@ -798,7 +787,7 @@ class OpVariable : public OpResult {
 };
 
 class OpImageTexelPointer : public OpResult {
- public:
+public:
   OpImageTexelPointer(const OpCode &other)
       : OpResult(other, spv::OpImageTexelPointer) {}
   spv::Id Image() const;
@@ -808,7 +797,7 @@ class OpImageTexelPointer : public OpResult {
 };
 
 class OpLoad : public OpResult {
- public:
+public:
   OpLoad(const OpCode &other) : OpResult(other, spv::OpLoad) {}
   spv::Id Pointer() const;
   uint32_t MemoryAccess() const;
@@ -816,7 +805,7 @@ class OpLoad : public OpResult {
 };
 
 class OpStore : public OpCode {
- public:
+public:
   OpStore(const OpCode &other) : OpCode(other, spv::OpStore) {}
   spv::Id Pointer() const;
   spv::Id Object() const;
@@ -825,7 +814,7 @@ class OpStore : public OpCode {
 };
 
 class OpCopyMemory : public OpCode {
- public:
+public:
   OpCopyMemory(const OpCode &other) : OpCode(other, spv::OpCopyMemory) {}
   spv::Id Target() const;
   spv::Id Source() const;
@@ -834,7 +823,7 @@ class OpCopyMemory : public OpCode {
 };
 
 class OpCopyMemorySized : public OpCode {
- public:
+public:
   OpCopyMemorySized(const OpCode &other)
       : OpCode(other, spv::OpCopyMemorySized) {}
   spv::Id Target() const;
@@ -845,7 +834,7 @@ class OpCopyMemorySized : public OpCode {
 };
 
 class OpAccessChain : public OpResult {
- public:
+public:
   OpAccessChain(const OpCode &other) : OpResult(other, spv::OpAccessChain) {}
   spv::Id Base() const;
   llvm::SmallVector<spv::Id, 8> Indexes() const;
@@ -853,7 +842,7 @@ class OpAccessChain : public OpResult {
 };
 
 class OpInBoundsAccessChain : public OpResult {
- public:
+public:
   OpInBoundsAccessChain(const OpCode &other)
       : OpResult(other, spv::OpInBoundsAccessChain) {}
   spv::Id Base() const;
@@ -862,7 +851,7 @@ class OpInBoundsAccessChain : public OpResult {
 };
 
 class OpPtrAccessChain : public OpResult {
- public:
+public:
   OpPtrAccessChain(const OpCode &other)
       : OpResult(other, spv::OpPtrAccessChain) {}
   spv::Id Base() const;
@@ -872,7 +861,7 @@ class OpPtrAccessChain : public OpResult {
 };
 
 class OpArrayLength : public OpResult {
- public:
+public:
   OpArrayLength(const OpCode &other) : OpResult(other, spv::OpArrayLength) {}
   spv::Id Structure() const;
   uint32_t Arraymember() const;
@@ -880,7 +869,7 @@ class OpArrayLength : public OpResult {
 };
 
 class OpGenericPtrMemSemantics : public OpResult {
- public:
+public:
   OpGenericPtrMemSemantics(const OpCode &other)
       : OpResult(other, spv::OpGenericPtrMemSemantics) {}
   spv::Id Pointer() const;
@@ -888,7 +877,7 @@ class OpGenericPtrMemSemantics : public OpResult {
 };
 
 class OpInBoundsPtrAccessChain : public OpResult {
- public:
+public:
   OpInBoundsPtrAccessChain(const OpCode &other)
       : OpResult(other, spv::OpInBoundsPtrAccessChain) {}
   spv::Id Base() const;
@@ -898,7 +887,7 @@ class OpInBoundsPtrAccessChain : public OpResult {
 };
 
 class OpDecorate : public OpDecorateBase {
- public:
+public:
   OpDecorate(const OpCode &other) : OpDecorateBase(other, spv::OpDecorate) {}
   spv::Id Target() const;
   spv::Decoration Decoration() const;
@@ -907,7 +896,7 @@ class OpDecorate : public OpDecorateBase {
 };
 
 class OpMemberDecorate : public OpDecorateBase {
- public:
+public:
   OpMemberDecorate(const OpCode &other)
       : OpDecorateBase(other, spv::OpMemberDecorate) {}
   spv::Id StructureType() const;
@@ -917,7 +906,7 @@ class OpMemberDecorate : public OpDecorateBase {
 };
 
 class OpDecorationGroup : public OpCode {
- public:
+public:
   OpDecorationGroup(const OpCode &other)
       : OpCode(other, spv::OpDecorationGroup) {}
   spv::Id IdResult() const;
@@ -925,7 +914,7 @@ class OpDecorationGroup : public OpCode {
 };
 
 class OpGroupDecorate : public OpCode {
- public:
+public:
   OpGroupDecorate(const OpCode &other) : OpCode(other, spv::OpGroupDecorate) {}
   spv::Id DecorationGroup() const;
   llvm::SmallVector<spv::Id, 8> Targets() const;
@@ -933,7 +922,7 @@ class OpGroupDecorate : public OpCode {
 };
 
 class OpGroupMemberDecorate : public OpCode {
- public:
+public:
   OpGroupMemberDecorate(const OpCode &other)
       : OpCode(other, spv::OpGroupMemberDecorate) {}
   spv::Id DecorationGroup() const;
@@ -946,7 +935,7 @@ class OpGroupMemberDecorate : public OpCode {
 };
 
 class OpVectorExtractDynamic : public OpResult {
- public:
+public:
   OpVectorExtractDynamic(const OpCode &other)
       : OpResult(other, spv::OpVectorExtractDynamic) {}
   spv::Id Vector() const;
@@ -955,7 +944,7 @@ class OpVectorExtractDynamic : public OpResult {
 };
 
 class OpVectorInsertDynamic : public OpResult {
- public:
+public:
   OpVectorInsertDynamic(const OpCode &other)
       : OpResult(other, spv::OpVectorInsertDynamic) {}
   spv::Id Vector() const;
@@ -965,7 +954,7 @@ class OpVectorInsertDynamic : public OpResult {
 };
 
 class OpVectorShuffle : public OpResult {
- public:
+public:
   OpVectorShuffle(const OpCode &other)
       : OpResult(other, spv::OpVectorShuffle) {}
   spv::Id Vector1() const;
@@ -975,7 +964,7 @@ class OpVectorShuffle : public OpResult {
 };
 
 class OpCompositeConstruct : public OpResult {
- public:
+public:
   OpCompositeConstruct(const OpCode &other)
       : OpResult(other, spv::OpCompositeConstruct) {}
   llvm::SmallVector<spv::Id, 8> Constituents() const;
@@ -983,7 +972,7 @@ class OpCompositeConstruct : public OpResult {
 };
 
 class OpCompositeExtract : public OpResult {
- public:
+public:
   OpCompositeExtract(const OpCode &other)
       : OpResult(other, spv::OpCompositeExtract) {}
   spv::Id Composite() const;
@@ -992,7 +981,7 @@ class OpCompositeExtract : public OpResult {
 };
 
 class OpCompositeInsert : public OpResult {
- public:
+public:
   OpCompositeInsert(const OpCode &other)
       : OpResult(other, spv::OpCompositeInsert) {}
   spv::Id Object() const;
@@ -1002,21 +991,21 @@ class OpCompositeInsert : public OpResult {
 };
 
 class OpCopyObject : public OpResult {
- public:
+public:
   OpCopyObject(const OpCode &other) : OpResult(other, spv::OpCopyObject) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpCopyObject;
 };
 
 class OpTranspose : public OpResult {
- public:
+public:
   OpTranspose(const OpCode &other) : OpResult(other, spv::OpTranspose) {}
   spv::Id Matrix() const;
   static const spv::Op ClassCode = spv::OpTranspose;
 };
 
 class OpSampledImage : public OpResult {
- public:
+public:
   OpSampledImage(const OpCode &other) : OpResult(other, spv::OpSampledImage) {}
   spv::Id Image() const;
   spv::Id Sampler() const;
@@ -1024,7 +1013,7 @@ class OpSampledImage : public OpResult {
 };
 
 class OpImageSampleImplicitLod : public OpResult {
- public:
+public:
   OpImageSampleImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleImplicitLod) {}
   spv::Id SampledImage() const;
@@ -1034,7 +1023,7 @@ class OpImageSampleImplicitLod : public OpResult {
 };
 
 class OpImageSampleExplicitLod : public OpResult {
- public:
+public:
   OpImageSampleExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleExplicitLod) {}
   spv::Id SampledImage() const;
@@ -1044,7 +1033,7 @@ class OpImageSampleExplicitLod : public OpResult {
 };
 
 class OpImageSampleDrefImplicitLod : public OpResult {
- public:
+public:
   OpImageSampleDrefImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleDrefImplicitLod) {}
   spv::Id SampledImage() const;
@@ -1055,7 +1044,7 @@ class OpImageSampleDrefImplicitLod : public OpResult {
 };
 
 class OpImageSampleDrefExplicitLod : public OpResult {
- public:
+public:
   OpImageSampleDrefExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleDrefExplicitLod) {}
   spv::Id SampledImage() const;
@@ -1066,7 +1055,7 @@ class OpImageSampleDrefExplicitLod : public OpResult {
 };
 
 class OpImageSampleProjImplicitLod : public OpResult {
- public:
+public:
   OpImageSampleProjImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleProjImplicitLod) {}
   spv::Id SampledImage() const;
@@ -1076,7 +1065,7 @@ class OpImageSampleProjImplicitLod : public OpResult {
 };
 
 class OpImageSampleProjExplicitLod : public OpResult {
- public:
+public:
   OpImageSampleProjExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleProjExplicitLod) {}
   spv::Id SampledImage() const;
@@ -1086,7 +1075,7 @@ class OpImageSampleProjExplicitLod : public OpResult {
 };
 
 class OpImageSampleProjDrefImplicitLod : public OpResult {
- public:
+public:
   OpImageSampleProjDrefImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleProjDrefImplicitLod) {}
   spv::Id SampledImage() const;
@@ -1097,7 +1086,7 @@ class OpImageSampleProjDrefImplicitLod : public OpResult {
 };
 
 class OpImageSampleProjDrefExplicitLod : public OpResult {
- public:
+public:
   OpImageSampleProjDrefExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSampleProjDrefExplicitLod) {}
   spv::Id SampledImage() const;
@@ -1108,7 +1097,7 @@ class OpImageSampleProjDrefExplicitLod : public OpResult {
 };
 
 class OpImageFetch : public OpResult {
- public:
+public:
   OpImageFetch(const OpCode &other) : OpResult(other, spv::OpImageFetch) {}
   spv::Id Image() const;
   spv::Id Coordinate() const;
@@ -1117,7 +1106,7 @@ class OpImageFetch : public OpResult {
 };
 
 class OpImageGather : public OpResult {
- public:
+public:
   OpImageGather(const OpCode &other) : OpResult(other, spv::OpImageGather) {}
   spv::Id SampledImage() const;
   spv::Id Coordinate() const;
@@ -1127,7 +1116,7 @@ class OpImageGather : public OpResult {
 };
 
 class OpImageDrefGather : public OpResult {
- public:
+public:
   OpImageDrefGather(const OpCode &other)
       : OpResult(other, spv::OpImageDrefGather) {}
   spv::Id SampledImage() const;
@@ -1138,7 +1127,7 @@ class OpImageDrefGather : public OpResult {
 };
 
 class OpImageRead : public OpResult {
- public:
+public:
   OpImageRead(const OpCode &other) : OpResult(other, spv::OpImageRead) {}
   spv::Id Image() const;
   spv::Id Coordinate() const;
@@ -1147,7 +1136,7 @@ class OpImageRead : public OpResult {
 };
 
 class OpImageWrite : public OpCode {
- public:
+public:
   OpImageWrite(const OpCode &other) : OpCode(other, spv::OpImageWrite) {}
   spv::Id Image() const;
   spv::Id Coordinate() const;
@@ -1157,14 +1146,14 @@ class OpImageWrite : public OpCode {
 };
 
 class OpImage : public OpResult {
- public:
+public:
   OpImage(const OpCode &other) : OpResult(other, spv::OpImage) {}
   spv::Id SampledImage() const;
   static const spv::Op ClassCode = spv::OpImage;
 };
 
 class OpImageQueryFormat : public OpResult {
- public:
+public:
   OpImageQueryFormat(const OpCode &other)
       : OpResult(other, spv::OpImageQueryFormat) {}
   spv::Id Image() const;
@@ -1172,7 +1161,7 @@ class OpImageQueryFormat : public OpResult {
 };
 
 class OpImageQueryOrder : public OpResult {
- public:
+public:
   OpImageQueryOrder(const OpCode &other)
       : OpResult(other, spv::OpImageQueryOrder) {}
   spv::Id Image() const;
@@ -1180,7 +1169,7 @@ class OpImageQueryOrder : public OpResult {
 };
 
 class OpImageQuerySizeLod : public OpResult {
- public:
+public:
   OpImageQuerySizeLod(const OpCode &other)
       : OpResult(other, spv::OpImageQuerySizeLod) {}
   spv::Id Image() const;
@@ -1189,7 +1178,7 @@ class OpImageQuerySizeLod : public OpResult {
 };
 
 class OpImageQuerySize : public OpResult {
- public:
+public:
   OpImageQuerySize(const OpCode &other)
       : OpResult(other, spv::OpImageQuerySize) {}
   spv::Id Image() const;
@@ -1197,7 +1186,7 @@ class OpImageQuerySize : public OpResult {
 };
 
 class OpImageQueryLod : public OpResult {
- public:
+public:
   OpImageQueryLod(const OpCode &other)
       : OpResult(other, spv::OpImageQueryLod) {}
   spv::Id SampledImage() const;
@@ -1206,7 +1195,7 @@ class OpImageQueryLod : public OpResult {
 };
 
 class OpImageQueryLevels : public OpResult {
- public:
+public:
   OpImageQueryLevels(const OpCode &other)
       : OpResult(other, spv::OpImageQueryLevels) {}
   spv::Id Image() const;
@@ -1214,7 +1203,7 @@ class OpImageQueryLevels : public OpResult {
 };
 
 class OpImageQuerySamples : public OpResult {
- public:
+public:
   OpImageQuerySamples(const OpCode &other)
       : OpResult(other, spv::OpImageQuerySamples) {}
   spv::Id Image() const;
@@ -1222,56 +1211,56 @@ class OpImageQuerySamples : public OpResult {
 };
 
 class OpConvertFToU : public OpResult {
- public:
+public:
   OpConvertFToU(const OpCode &other) : OpResult(other, spv::OpConvertFToU) {}
   spv::Id FloatValue() const;
   static const spv::Op ClassCode = spv::OpConvertFToU;
 };
 
 class OpConvertFToS : public OpResult {
- public:
+public:
   OpConvertFToS(const OpCode &other) : OpResult(other, spv::OpConvertFToS) {}
   spv::Id FloatValue() const;
   static const spv::Op ClassCode = spv::OpConvertFToS;
 };
 
 class OpConvertSToF : public OpResult {
- public:
+public:
   OpConvertSToF(const OpCode &other) : OpResult(other, spv::OpConvertSToF) {}
   spv::Id SignedValue() const;
   static const spv::Op ClassCode = spv::OpConvertSToF;
 };
 
 class OpConvertUToF : public OpResult {
- public:
+public:
   OpConvertUToF(const OpCode &other) : OpResult(other, spv::OpConvertUToF) {}
   spv::Id UnsignedValue() const;
   static const spv::Op ClassCode = spv::OpConvertUToF;
 };
 
 class OpUConvert : public OpResult {
- public:
+public:
   OpUConvert(const OpCode &other) : OpResult(other, spv::OpUConvert) {}
   spv::Id UnsignedValue() const;
   static const spv::Op ClassCode = spv::OpUConvert;
 };
 
 class OpSConvert : public OpResult {
- public:
+public:
   OpSConvert(const OpCode &other) : OpResult(other, spv::OpSConvert) {}
   spv::Id SignedValue() const;
   static const spv::Op ClassCode = spv::OpSConvert;
 };
 
 class OpFConvert : public OpResult {
- public:
+public:
   OpFConvert(const OpCode &other) : OpResult(other, spv::OpFConvert) {}
   spv::Id FloatValue() const;
   static const spv::Op ClassCode = spv::OpFConvert;
 };
 
 class OpQuantizeToF16 : public OpResult {
- public:
+public:
   OpQuantizeToF16(const OpCode &other)
       : OpResult(other, spv::OpQuantizeToF16) {}
   spv::Id Value() const;
@@ -1279,7 +1268,7 @@ class OpQuantizeToF16 : public OpResult {
 };
 
 class OpConvertPtrToU : public OpResult {
- public:
+public:
   OpConvertPtrToU(const OpCode &other)
       : OpResult(other, spv::OpConvertPtrToU) {}
   spv::Id Pointer() const;
@@ -1287,7 +1276,7 @@ class OpConvertPtrToU : public OpResult {
 };
 
 class OpSatConvertSToU : public OpResult {
- public:
+public:
   OpSatConvertSToU(const OpCode &other)
       : OpResult(other, spv::OpSatConvertSToU) {}
   spv::Id SignedValue() const;
@@ -1295,7 +1284,7 @@ class OpSatConvertSToU : public OpResult {
 };
 
 class OpSatConvertUToS : public OpResult {
- public:
+public:
   OpSatConvertUToS(const OpCode &other)
       : OpResult(other, spv::OpSatConvertUToS) {}
   spv::Id UnsignedValue() const;
@@ -1303,7 +1292,7 @@ class OpSatConvertUToS : public OpResult {
 };
 
 class OpConvertUToPtr : public OpResult {
- public:
+public:
   OpConvertUToPtr(const OpCode &other)
       : OpResult(other, spv::OpConvertUToPtr) {}
   spv::Id IntegerValue() const;
@@ -1311,7 +1300,7 @@ class OpConvertUToPtr : public OpResult {
 };
 
 class OpPtrCastToGeneric : public OpResult {
- public:
+public:
   OpPtrCastToGeneric(const OpCode &other)
       : OpResult(other, spv::OpPtrCastToGeneric) {}
   spv::Id Pointer() const;
@@ -1319,7 +1308,7 @@ class OpPtrCastToGeneric : public OpResult {
 };
 
 class OpGenericCastToPtr : public OpResult {
- public:
+public:
   OpGenericCastToPtr(const OpCode &other)
       : OpResult(other, spv::OpGenericCastToPtr) {}
   spv::Id Pointer() const;
@@ -1327,7 +1316,7 @@ class OpGenericCastToPtr : public OpResult {
 };
 
 class OpGenericCastToPtrExplicit : public OpResult {
- public:
+public:
   OpGenericCastToPtrExplicit(const OpCode &other)
       : OpResult(other, spv::OpGenericCastToPtrExplicit) {}
   spv::Id Pointer() const;
@@ -1336,28 +1325,28 @@ class OpGenericCastToPtrExplicit : public OpResult {
 };
 
 class OpBitcast : public OpResult {
- public:
+public:
   OpBitcast(const OpCode &other) : OpResult(other, spv::OpBitcast) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpBitcast;
 };
 
 class OpSNegate : public OpResult {
- public:
+public:
   OpSNegate(const OpCode &other) : OpResult(other, spv::OpSNegate) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpSNegate;
 };
 
 class OpFNegate : public OpResult {
- public:
+public:
   OpFNegate(const OpCode &other) : OpResult(other, spv::OpFNegate) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpFNegate;
 };
 
 class OpIAdd : public OpResult {
- public:
+public:
   OpIAdd(const OpCode &other) : OpResult(other, spv::OpIAdd) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1365,7 +1354,7 @@ class OpIAdd : public OpResult {
 };
 
 class OpFAdd : public OpResult {
- public:
+public:
   OpFAdd(const OpCode &other) : OpResult(other, spv::OpFAdd) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1373,7 +1362,7 @@ class OpFAdd : public OpResult {
 };
 
 class OpISub : public OpResult {
- public:
+public:
   OpISub(const OpCode &other) : OpResult(other, spv::OpISub) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1381,7 +1370,7 @@ class OpISub : public OpResult {
 };
 
 class OpFSub : public OpResult {
- public:
+public:
   OpFSub(const OpCode &other) : OpResult(other, spv::OpFSub) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1389,7 +1378,7 @@ class OpFSub : public OpResult {
 };
 
 class OpIMul : public OpResult {
- public:
+public:
   OpIMul(const OpCode &other) : OpResult(other, spv::OpIMul) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1397,7 +1386,7 @@ class OpIMul : public OpResult {
 };
 
 class OpFMul : public OpResult {
- public:
+public:
   OpFMul(const OpCode &other) : OpResult(other, spv::OpFMul) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1405,7 +1394,7 @@ class OpFMul : public OpResult {
 };
 
 class OpUDiv : public OpResult {
- public:
+public:
   OpUDiv(const OpCode &other) : OpResult(other, spv::OpUDiv) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1413,7 +1402,7 @@ class OpUDiv : public OpResult {
 };
 
 class OpSDiv : public OpResult {
- public:
+public:
   OpSDiv(const OpCode &other) : OpResult(other, spv::OpSDiv) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1421,7 +1410,7 @@ class OpSDiv : public OpResult {
 };
 
 class OpFDiv : public OpResult {
- public:
+public:
   OpFDiv(const OpCode &other) : OpResult(other, spv::OpFDiv) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1429,7 +1418,7 @@ class OpFDiv : public OpResult {
 };
 
 class OpUMod : public OpResult {
- public:
+public:
   OpUMod(const OpCode &other) : OpResult(other, spv::OpUMod) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1437,7 +1426,7 @@ class OpUMod : public OpResult {
 };
 
 class OpSRem : public OpResult {
- public:
+public:
   OpSRem(const OpCode &other) : OpResult(other, spv::OpSRem) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1445,7 +1434,7 @@ class OpSRem : public OpResult {
 };
 
 class OpSMod : public OpResult {
- public:
+public:
   OpSMod(const OpCode &other) : OpResult(other, spv::OpSMod) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1453,7 +1442,7 @@ class OpSMod : public OpResult {
 };
 
 class OpFRem : public OpResult {
- public:
+public:
   OpFRem(const OpCode &other) : OpResult(other, spv::OpFRem) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1461,7 +1450,7 @@ class OpFRem : public OpResult {
 };
 
 class OpFMod : public OpResult {
- public:
+public:
   OpFMod(const OpCode &other) : OpResult(other, spv::OpFMod) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1469,7 +1458,7 @@ class OpFMod : public OpResult {
 };
 
 class OpVectorTimesScalar : public OpResult {
- public:
+public:
   OpVectorTimesScalar(const OpCode &other)
       : OpResult(other, spv::OpVectorTimesScalar) {}
   spv::Id Vector() const;
@@ -1478,7 +1467,7 @@ class OpVectorTimesScalar : public OpResult {
 };
 
 class OpMatrixTimesScalar : public OpResult {
- public:
+public:
   OpMatrixTimesScalar(const OpCode &other)
       : OpResult(other, spv::OpMatrixTimesScalar) {}
   spv::Id Matrix() const;
@@ -1487,7 +1476,7 @@ class OpMatrixTimesScalar : public OpResult {
 };
 
 class OpVectorTimesMatrix : public OpResult {
- public:
+public:
   OpVectorTimesMatrix(const OpCode &other)
       : OpResult(other, spv::OpVectorTimesMatrix) {}
   spv::Id Vector() const;
@@ -1496,7 +1485,7 @@ class OpVectorTimesMatrix : public OpResult {
 };
 
 class OpMatrixTimesVector : public OpResult {
- public:
+public:
   OpMatrixTimesVector(const OpCode &other)
       : OpResult(other, spv::OpMatrixTimesVector) {}
   spv::Id Matrix() const;
@@ -1505,7 +1494,7 @@ class OpMatrixTimesVector : public OpResult {
 };
 
 class OpMatrixTimesMatrix : public OpResult {
- public:
+public:
   OpMatrixTimesMatrix(const OpCode &other)
       : OpResult(other, spv::OpMatrixTimesMatrix) {}
   spv::Id LeftMatrix() const;
@@ -1514,7 +1503,7 @@ class OpMatrixTimesMatrix : public OpResult {
 };
 
 class OpOuterProduct : public OpResult {
- public:
+public:
   OpOuterProduct(const OpCode &other) : OpResult(other, spv::OpOuterProduct) {}
   spv::Id Vector1() const;
   spv::Id Vector2() const;
@@ -1522,7 +1511,7 @@ class OpOuterProduct : public OpResult {
 };
 
 class OpDot : public OpResult {
- public:
+public:
   OpDot(const OpCode &other) : OpResult(other, spv::OpDot) {}
   spv::Id Vector1() const;
   spv::Id Vector2() const;
@@ -1530,7 +1519,7 @@ class OpDot : public OpResult {
 };
 
 class OpIAddCarry : public OpResult {
- public:
+public:
   OpIAddCarry(const OpCode &other) : OpResult(other, spv::OpIAddCarry) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1538,7 +1527,7 @@ class OpIAddCarry : public OpResult {
 };
 
 class OpISubBorrow : public OpResult {
- public:
+public:
   OpISubBorrow(const OpCode &other) : OpResult(other, spv::OpISubBorrow) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1546,7 +1535,7 @@ class OpISubBorrow : public OpResult {
 };
 
 class OpUMulExtended : public OpResult {
- public:
+public:
   OpUMulExtended(const OpCode &other) : OpResult(other, spv::OpUMulExtended) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1554,7 +1543,7 @@ class OpUMulExtended : public OpResult {
 };
 
 class OpSMulExtended : public OpResult {
- public:
+public:
   OpSMulExtended(const OpCode &other) : OpResult(other, spv::OpSMulExtended) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1562,56 +1551,56 @@ class OpSMulExtended : public OpResult {
 };
 
 class OpAny : public OpResult {
- public:
+public:
   OpAny(const OpCode &other) : OpResult(other, spv::OpAny) {}
   spv::Id Vector() const;
   static const spv::Op ClassCode = spv::OpAny;
 };
 
 class OpAll : public OpResult {
- public:
+public:
   OpAll(const OpCode &other) : OpResult(other, spv::OpAll) {}
   spv::Id Vector() const;
   static const spv::Op ClassCode = spv::OpAll;
 };
 
 class OpIsNan : public OpResult {
- public:
+public:
   OpIsNan(const OpCode &other) : OpResult(other, spv::OpIsNan) {}
   spv::Id x() const;
   static const spv::Op ClassCode = spv::OpIsNan;
 };
 
 class OpIsInf : public OpResult {
- public:
+public:
   OpIsInf(const OpCode &other) : OpResult(other, spv::OpIsInf) {}
   spv::Id x() const;
   static const spv::Op ClassCode = spv::OpIsInf;
 };
 
 class OpIsFinite : public OpResult {
- public:
+public:
   OpIsFinite(const OpCode &other) : OpResult(other, spv::OpIsFinite) {}
   spv::Id x() const;
   static const spv::Op ClassCode = spv::OpIsFinite;
 };
 
 class OpIsNormal : public OpResult {
- public:
+public:
   OpIsNormal(const OpCode &other) : OpResult(other, spv::OpIsNormal) {}
   spv::Id x() const;
   static const spv::Op ClassCode = spv::OpIsNormal;
 };
 
 class OpSignBitSet : public OpResult {
- public:
+public:
   OpSignBitSet(const OpCode &other) : OpResult(other, spv::OpSignBitSet) {}
   spv::Id x() const;
   static const spv::Op ClassCode = spv::OpSignBitSet;
 };
 
 class OpLessOrGreater : public OpResult {
- public:
+public:
   OpLessOrGreater(const OpCode &other)
       : OpResult(other, spv::OpLessOrGreater) {}
   spv::Id x() const;
@@ -1620,7 +1609,7 @@ class OpLessOrGreater : public OpResult {
 };
 
 class OpOrdered : public OpResult {
- public:
+public:
   OpOrdered(const OpCode &other) : OpResult(other, spv::OpOrdered) {}
   spv::Id x() const;
   spv::Id y() const;
@@ -1628,7 +1617,7 @@ class OpOrdered : public OpResult {
 };
 
 class OpUnordered : public OpResult {
- public:
+public:
   OpUnordered(const OpCode &other) : OpResult(other, spv::OpUnordered) {}
   spv::Id x() const;
   spv::Id y() const;
@@ -1636,7 +1625,7 @@ class OpUnordered : public OpResult {
 };
 
 class OpLogicalEqual : public OpResult {
- public:
+public:
   OpLogicalEqual(const OpCode &other) : OpResult(other, spv::OpLogicalEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1644,7 +1633,7 @@ class OpLogicalEqual : public OpResult {
 };
 
 class OpLogicalNotEqual : public OpResult {
- public:
+public:
   OpLogicalNotEqual(const OpCode &other)
       : OpResult(other, spv::OpLogicalNotEqual) {}
   spv::Id Operand1() const;
@@ -1653,7 +1642,7 @@ class OpLogicalNotEqual : public OpResult {
 };
 
 class OpLogicalOr : public OpResult {
- public:
+public:
   OpLogicalOr(const OpCode &other) : OpResult(other, spv::OpLogicalOr) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1661,7 +1650,7 @@ class OpLogicalOr : public OpResult {
 };
 
 class OpLogicalAnd : public OpResult {
- public:
+public:
   OpLogicalAnd(const OpCode &other) : OpResult(other, spv::OpLogicalAnd) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1669,14 +1658,14 @@ class OpLogicalAnd : public OpResult {
 };
 
 class OpLogicalNot : public OpResult {
- public:
+public:
   OpLogicalNot(const OpCode &other) : OpResult(other, spv::OpLogicalNot) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpLogicalNot;
 };
 
 class OpSelect : public OpResult {
- public:
+public:
   OpSelect(const OpCode &other) : OpResult(other, spv::OpSelect) {}
   spv::Id Condition() const;
   spv::Id Object1() const;
@@ -1685,7 +1674,7 @@ class OpSelect : public OpResult {
 };
 
 class OpIEqual : public OpResult {
- public:
+public:
   OpIEqual(const OpCode &other) : OpResult(other, spv::OpIEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1693,7 +1682,7 @@ class OpIEqual : public OpResult {
 };
 
 class OpINotEqual : public OpResult {
- public:
+public:
   OpINotEqual(const OpCode &other) : OpResult(other, spv::OpINotEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1701,7 +1690,7 @@ class OpINotEqual : public OpResult {
 };
 
 class OpUGreaterThan : public OpResult {
- public:
+public:
   OpUGreaterThan(const OpCode &other) : OpResult(other, spv::OpUGreaterThan) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1709,7 +1698,7 @@ class OpUGreaterThan : public OpResult {
 };
 
 class OpSGreaterThan : public OpResult {
- public:
+public:
   OpSGreaterThan(const OpCode &other) : OpResult(other, spv::OpSGreaterThan) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1717,7 +1706,7 @@ class OpSGreaterThan : public OpResult {
 };
 
 class OpUGreaterThanEqual : public OpResult {
- public:
+public:
   OpUGreaterThanEqual(const OpCode &other)
       : OpResult(other, spv::OpUGreaterThanEqual) {}
   spv::Id Operand1() const;
@@ -1726,7 +1715,7 @@ class OpUGreaterThanEqual : public OpResult {
 };
 
 class OpSGreaterThanEqual : public OpResult {
- public:
+public:
   OpSGreaterThanEqual(const OpCode &other)
       : OpResult(other, spv::OpSGreaterThanEqual) {}
   spv::Id Operand1() const;
@@ -1735,7 +1724,7 @@ class OpSGreaterThanEqual : public OpResult {
 };
 
 class OpULessThan : public OpResult {
- public:
+public:
   OpULessThan(const OpCode &other) : OpResult(other, spv::OpULessThan) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1743,7 +1732,7 @@ class OpULessThan : public OpResult {
 };
 
 class OpSLessThan : public OpResult {
- public:
+public:
   OpSLessThan(const OpCode &other) : OpResult(other, spv::OpSLessThan) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1751,7 +1740,7 @@ class OpSLessThan : public OpResult {
 };
 
 class OpULessThanEqual : public OpResult {
- public:
+public:
   OpULessThanEqual(const OpCode &other)
       : OpResult(other, spv::OpULessThanEqual) {}
   spv::Id Operand1() const;
@@ -1760,7 +1749,7 @@ class OpULessThanEqual : public OpResult {
 };
 
 class OpSLessThanEqual : public OpResult {
- public:
+public:
   OpSLessThanEqual(const OpCode &other)
       : OpResult(other, spv::OpSLessThanEqual) {}
   spv::Id Operand1() const;
@@ -1769,7 +1758,7 @@ class OpSLessThanEqual : public OpResult {
 };
 
 class OpFOrdEqual : public OpResult {
- public:
+public:
   OpFOrdEqual(const OpCode &other) : OpResult(other, spv::OpFOrdEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1777,7 +1766,7 @@ class OpFOrdEqual : public OpResult {
 };
 
 class OpFUnordEqual : public OpResult {
- public:
+public:
   OpFUnordEqual(const OpCode &other) : OpResult(other, spv::OpFUnordEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1785,7 +1774,7 @@ class OpFUnordEqual : public OpResult {
 };
 
 class OpFOrdNotEqual : public OpResult {
- public:
+public:
   OpFOrdNotEqual(const OpCode &other) : OpResult(other, spv::OpFOrdNotEqual) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1793,7 +1782,7 @@ class OpFOrdNotEqual : public OpResult {
 };
 
 class OpFUnordNotEqual : public OpResult {
- public:
+public:
   OpFUnordNotEqual(const OpCode &other)
       : OpResult(other, spv::OpFUnordNotEqual) {}
   spv::Id Operand1() const;
@@ -1802,7 +1791,7 @@ class OpFUnordNotEqual : public OpResult {
 };
 
 class OpFOrdLessThan : public OpResult {
- public:
+public:
   OpFOrdLessThan(const OpCode &other) : OpResult(other, spv::OpFOrdLessThan) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1810,7 +1799,7 @@ class OpFOrdLessThan : public OpResult {
 };
 
 class OpFUnordLessThan : public OpResult {
- public:
+public:
   OpFUnordLessThan(const OpCode &other)
       : OpResult(other, spv::OpFUnordLessThan) {}
   spv::Id Operand1() const;
@@ -1819,7 +1808,7 @@ class OpFUnordLessThan : public OpResult {
 };
 
 class OpFOrdGreaterThan : public OpResult {
- public:
+public:
   OpFOrdGreaterThan(const OpCode &other)
       : OpResult(other, spv::OpFOrdGreaterThan) {}
   spv::Id Operand1() const;
@@ -1828,7 +1817,7 @@ class OpFOrdGreaterThan : public OpResult {
 };
 
 class OpFUnordGreaterThan : public OpResult {
- public:
+public:
   OpFUnordGreaterThan(const OpCode &other)
       : OpResult(other, spv::OpFUnordGreaterThan) {}
   spv::Id Operand1() const;
@@ -1837,7 +1826,7 @@ class OpFUnordGreaterThan : public OpResult {
 };
 
 class OpFOrdLessThanEqual : public OpResult {
- public:
+public:
   OpFOrdLessThanEqual(const OpCode &other)
       : OpResult(other, spv::OpFOrdLessThanEqual) {}
   spv::Id Operand1() const;
@@ -1846,7 +1835,7 @@ class OpFOrdLessThanEqual : public OpResult {
 };
 
 class OpFUnordLessThanEqual : public OpResult {
- public:
+public:
   OpFUnordLessThanEqual(const OpCode &other)
       : OpResult(other, spv::OpFUnordLessThanEqual) {}
   spv::Id Operand1() const;
@@ -1855,7 +1844,7 @@ class OpFUnordLessThanEqual : public OpResult {
 };
 
 class OpFOrdGreaterThanEqual : public OpResult {
- public:
+public:
   OpFOrdGreaterThanEqual(const OpCode &other)
       : OpResult(other, spv::OpFOrdGreaterThanEqual) {}
   spv::Id Operand1() const;
@@ -1864,7 +1853,7 @@ class OpFOrdGreaterThanEqual : public OpResult {
 };
 
 class OpFUnordGreaterThanEqual : public OpResult {
- public:
+public:
   OpFUnordGreaterThanEqual(const OpCode &other)
       : OpResult(other, spv::OpFUnordGreaterThanEqual) {}
   spv::Id Operand1() const;
@@ -1873,7 +1862,7 @@ class OpFUnordGreaterThanEqual : public OpResult {
 };
 
 class OpShiftRightLogical : public OpResult {
- public:
+public:
   OpShiftRightLogical(const OpCode &other)
       : OpResult(other, spv::OpShiftRightLogical) {}
   spv::Id Base() const;
@@ -1882,7 +1871,7 @@ class OpShiftRightLogical : public OpResult {
 };
 
 class OpShiftRightArithmetic : public OpResult {
- public:
+public:
   OpShiftRightArithmetic(const OpCode &other)
       : OpResult(other, spv::OpShiftRightArithmetic) {}
   spv::Id Base() const;
@@ -1891,7 +1880,7 @@ class OpShiftRightArithmetic : public OpResult {
 };
 
 class OpShiftLeftLogical : public OpResult {
- public:
+public:
   OpShiftLeftLogical(const OpCode &other)
       : OpResult(other, spv::OpShiftLeftLogical) {}
   spv::Id Base() const;
@@ -1900,7 +1889,7 @@ class OpShiftLeftLogical : public OpResult {
 };
 
 class OpBitwiseOr : public OpResult {
- public:
+public:
   OpBitwiseOr(const OpCode &other) : OpResult(other, spv::OpBitwiseOr) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1908,7 +1897,7 @@ class OpBitwiseOr : public OpResult {
 };
 
 class OpBitwiseXor : public OpResult {
- public:
+public:
   OpBitwiseXor(const OpCode &other) : OpResult(other, spv::OpBitwiseXor) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1916,7 +1905,7 @@ class OpBitwiseXor : public OpResult {
 };
 
 class OpBitwiseAnd : public OpResult {
- public:
+public:
   OpBitwiseAnd(const OpCode &other) : OpResult(other, spv::OpBitwiseAnd) {}
   spv::Id Operand1() const;
   spv::Id Operand2() const;
@@ -1924,14 +1913,14 @@ class OpBitwiseAnd : public OpResult {
 };
 
 class OpNot : public OpResult {
- public:
+public:
   OpNot(const OpCode &other) : OpResult(other, spv::OpNot) {}
   spv::Id Operand() const;
   static const spv::Op ClassCode = spv::OpNot;
 };
 
 class OpBitFieldInsert : public OpResult {
- public:
+public:
   OpBitFieldInsert(const OpCode &other)
       : OpResult(other, spv::OpBitFieldInsert) {}
   spv::Id Base() const;
@@ -1942,7 +1931,7 @@ class OpBitFieldInsert : public OpResult {
 };
 
 class OpBitFieldSExtract : public OpResult {
- public:
+public:
   OpBitFieldSExtract(const OpCode &other)
       : OpResult(other, spv::OpBitFieldSExtract) {}
   spv::Id Base() const;
@@ -1952,7 +1941,7 @@ class OpBitFieldSExtract : public OpResult {
 };
 
 class OpBitFieldUExtract : public OpResult {
- public:
+public:
   OpBitFieldUExtract(const OpCode &other)
       : OpResult(other, spv::OpBitFieldUExtract) {}
   spv::Id Base() const;
@@ -1962,96 +1951,96 @@ class OpBitFieldUExtract : public OpResult {
 };
 
 class OpBitReverse : public OpResult {
- public:
+public:
   OpBitReverse(const OpCode &other) : OpResult(other, spv::OpBitReverse) {}
   spv::Id Base() const;
   static const spv::Op ClassCode = spv::OpBitReverse;
 };
 
 class OpBitCount : public OpResult {
- public:
+public:
   OpBitCount(const OpCode &other) : OpResult(other, spv::OpBitCount) {}
   spv::Id Base() const;
   static const spv::Op ClassCode = spv::OpBitCount;
 };
 
 class OpDPdx : public OpResult {
- public:
+public:
   OpDPdx(const OpCode &other) : OpResult(other, spv::OpDPdx) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdx;
 };
 
 class OpDPdy : public OpResult {
- public:
+public:
   OpDPdy(const OpCode &other) : OpResult(other, spv::OpDPdy) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdy;
 };
 
 class OpFwidth : public OpResult {
- public:
+public:
   OpFwidth(const OpCode &other) : OpResult(other, spv::OpFwidth) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpFwidth;
 };
 
 class OpDPdxFine : public OpResult {
- public:
+public:
   OpDPdxFine(const OpCode &other) : OpResult(other, spv::OpDPdxFine) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdxFine;
 };
 
 class OpDPdyFine : public OpResult {
- public:
+public:
   OpDPdyFine(const OpCode &other) : OpResult(other, spv::OpDPdyFine) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdyFine;
 };
 
 class OpFwidthFine : public OpResult {
- public:
+public:
   OpFwidthFine(const OpCode &other) : OpResult(other, spv::OpFwidthFine) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpFwidthFine;
 };
 
 class OpDPdxCoarse : public OpResult {
- public:
+public:
   OpDPdxCoarse(const OpCode &other) : OpResult(other, spv::OpDPdxCoarse) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdxCoarse;
 };
 
 class OpDPdyCoarse : public OpResult {
- public:
+public:
   OpDPdyCoarse(const OpCode &other) : OpResult(other, spv::OpDPdyCoarse) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpDPdyCoarse;
 };
 
 class OpFwidthCoarse : public OpResult {
- public:
+public:
   OpFwidthCoarse(const OpCode &other) : OpResult(other, spv::OpFwidthCoarse) {}
   spv::Id P() const;
   static const spv::Op ClassCode = spv::OpFwidthCoarse;
 };
 
 class OpEmitVertex : public OpCode {
- public:
+public:
   OpEmitVertex(const OpCode &other) : OpCode(other, spv::OpEmitVertex) {}
   static const spv::Op ClassCode = spv::OpEmitVertex;
 };
 
 class OpEndPrimitive : public OpCode {
- public:
+public:
   OpEndPrimitive(const OpCode &other) : OpCode(other, spv::OpEndPrimitive) {}
   static const spv::Op ClassCode = spv::OpEndPrimitive;
 };
 
 class OpEmitStreamVertex : public OpCode {
- public:
+public:
   OpEmitStreamVertex(const OpCode &other)
       : OpCode(other, spv::OpEmitStreamVertex) {}
   spv::Id Stream() const;
@@ -2059,7 +2048,7 @@ class OpEmitStreamVertex : public OpCode {
 };
 
 class OpEndStreamPrimitive : public OpCode {
- public:
+public:
   OpEndStreamPrimitive(const OpCode &other)
       : OpCode(other, spv::OpEndStreamPrimitive) {}
   spv::Id Stream() const;
@@ -2067,7 +2056,7 @@ class OpEndStreamPrimitive : public OpCode {
 };
 
 class OpControlBarrier : public OpCode {
- public:
+public:
   OpControlBarrier(const OpCode &other)
       : OpCode(other, spv::OpControlBarrier) {}
   spv::Id Execution() const;
@@ -2077,7 +2066,7 @@ class OpControlBarrier : public OpCode {
 };
 
 class OpMemoryBarrier : public OpCode {
- public:
+public:
   OpMemoryBarrier(const OpCode &other) : OpCode(other, spv::OpMemoryBarrier) {}
   spv::Id Memory() const;
   spv::Id Semantics() const;
@@ -2085,7 +2074,7 @@ class OpMemoryBarrier : public OpCode {
 };
 
 class OpAtomicLoad : public OpResult {
- public:
+public:
   OpAtomicLoad(const OpCode &other) : OpResult(other, spv::OpAtomicLoad) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2094,7 +2083,7 @@ class OpAtomicLoad : public OpResult {
 };
 
 class OpAtomicStore : public OpCode {
- public:
+public:
   OpAtomicStore(const OpCode &other) : OpCode(other, spv::OpAtomicStore) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2104,7 +2093,7 @@ class OpAtomicStore : public OpCode {
 };
 
 class OpAtomicExchange : public OpResult {
- public:
+public:
   OpAtomicExchange(const OpCode &other)
       : OpResult(other, spv::OpAtomicExchange) {}
   spv::Id Pointer() const;
@@ -2115,7 +2104,7 @@ class OpAtomicExchange : public OpResult {
 };
 
 class OpAtomicCompareExchange : public OpResult {
- public:
+public:
   OpAtomicCompareExchange(const OpCode &other)
       : OpResult(other, spv::OpAtomicCompareExchange) {}
   spv::Id Pointer() const;
@@ -2128,7 +2117,7 @@ class OpAtomicCompareExchange : public OpResult {
 };
 
 class OpAtomicCompareExchangeWeak : public OpResult {
- public:
+public:
   OpAtomicCompareExchangeWeak(const OpCode &other)
       : OpResult(other, spv::OpAtomicCompareExchangeWeak) {}
   spv::Id Pointer() const;
@@ -2141,7 +2130,7 @@ class OpAtomicCompareExchangeWeak : public OpResult {
 };
 
 class OpAtomicIIncrement : public OpResult {
- public:
+public:
   OpAtomicIIncrement(const OpCode &other)
       : OpResult(other, spv::OpAtomicIIncrement) {}
   spv::Id Pointer() const;
@@ -2151,7 +2140,7 @@ class OpAtomicIIncrement : public OpResult {
 };
 
 class OpAtomicIDecrement : public OpResult {
- public:
+public:
   OpAtomicIDecrement(const OpCode &other)
       : OpResult(other, spv::OpAtomicIDecrement) {}
   spv::Id Pointer() const;
@@ -2161,7 +2150,7 @@ class OpAtomicIDecrement : public OpResult {
 };
 
 class OpAtomicIAdd : public OpResult {
- public:
+public:
   OpAtomicIAdd(const OpCode &other) : OpResult(other, spv::OpAtomicIAdd) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2171,7 +2160,7 @@ class OpAtomicIAdd : public OpResult {
 };
 
 class OpAtomicISub : public OpResult {
- public:
+public:
   OpAtomicISub(const OpCode &other) : OpResult(other, spv::OpAtomicISub) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2181,7 +2170,7 @@ class OpAtomicISub : public OpResult {
 };
 
 class OpAtomicSMin : public OpResult {
- public:
+public:
   OpAtomicSMin(const OpCode &other) : OpResult(other, spv::OpAtomicSMin) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2191,7 +2180,7 @@ class OpAtomicSMin : public OpResult {
 };
 
 class OpAtomicUMin : public OpResult {
- public:
+public:
   OpAtomicUMin(const OpCode &other) : OpResult(other, spv::OpAtomicUMin) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2201,7 +2190,7 @@ class OpAtomicUMin : public OpResult {
 };
 
 class OpAtomicSMax : public OpResult {
- public:
+public:
   OpAtomicSMax(const OpCode &other) : OpResult(other, spv::OpAtomicSMax) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2211,7 +2200,7 @@ class OpAtomicSMax : public OpResult {
 };
 
 class OpAtomicUMax : public OpResult {
- public:
+public:
   OpAtomicUMax(const OpCode &other) : OpResult(other, spv::OpAtomicUMax) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2221,7 +2210,7 @@ class OpAtomicUMax : public OpResult {
 };
 
 class OpAtomicFAddEXT : public OpResult {
- public:
+public:
   OpAtomicFAddEXT(const OpCode &other)
       : OpResult(other, spv::OpAtomicFAddEXT) {}
   spv::Id Pointer() const;
@@ -2232,7 +2221,7 @@ class OpAtomicFAddEXT : public OpResult {
 };
 
 class OpAtomicFMinEXT : public OpResult {
- public:
+public:
   OpAtomicFMinEXT(const OpCode &other)
       : OpResult(other, spv::OpAtomicFMinEXT) {}
   spv::Id Pointer() const;
@@ -2243,7 +2232,7 @@ class OpAtomicFMinEXT : public OpResult {
 };
 
 class OpAtomicFMaxEXT : public OpResult {
- public:
+public:
   OpAtomicFMaxEXT(const OpCode &other)
       : OpResult(other, spv::OpAtomicFMaxEXT) {}
   spv::Id Pointer() const;
@@ -2254,7 +2243,7 @@ class OpAtomicFMaxEXT : public OpResult {
 };
 
 class OpAtomicAnd : public OpResult {
- public:
+public:
   OpAtomicAnd(const OpCode &other) : OpResult(other, spv::OpAtomicAnd) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2264,7 +2253,7 @@ class OpAtomicAnd : public OpResult {
 };
 
 class OpAtomicOr : public OpResult {
- public:
+public:
   OpAtomicOr(const OpCode &other) : OpResult(other, spv::OpAtomicOr) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2274,7 +2263,7 @@ class OpAtomicOr : public OpResult {
 };
 
 class OpAtomicXor : public OpResult {
- public:
+public:
   OpAtomicXor(const OpCode &other) : OpResult(other, spv::OpAtomicXor) {}
   spv::Id Pointer() const;
   spv::Id Scope() const;
@@ -2284,7 +2273,7 @@ class OpAtomicXor : public OpResult {
 };
 
 class OpPhi : public OpResult {
- public:
+public:
   OpPhi(const OpCode &other) : OpResult(other, spv::OpPhi) {}
   struct VariableParentT {
     spv::Id Variable;
@@ -2295,7 +2284,7 @@ class OpPhi : public OpResult {
 };
 
 class OpLoopMerge : public OpCode {
- public:
+public:
   OpLoopMerge(const OpCode &other) : OpCode(other, spv::OpLoopMerge) {}
   spv::Id MergeBlock() const;
   spv::Id ContinueTarget() const;
@@ -2304,7 +2293,7 @@ class OpLoopMerge : public OpCode {
 };
 
 class OpSelectionMerge : public OpCode {
- public:
+public:
   OpSelectionMerge(const OpCode &other)
       : OpCode(other, spv::OpSelectionMerge) {}
   spv::Id MergeBlock() const;
@@ -2313,21 +2302,21 @@ class OpSelectionMerge : public OpCode {
 };
 
 class OpLabel : public OpCode {
- public:
+public:
   OpLabel(const OpCode &other) : OpCode(other, spv::OpLabel) {}
   spv::Id IdResult() const;
   static const spv::Op ClassCode = spv::OpLabel;
 };
 
 class OpBranch : public OpCode {
- public:
+public:
   OpBranch(const OpCode &other) : OpCode(other, spv::OpBranch) {}
   spv::Id TargetLabel() const;
   static const spv::Op ClassCode = spv::OpBranch;
 };
 
 class OpBranchConditional : public OpCode {
- public:
+public:
   OpBranchConditional(const OpCode &other)
       : OpCode(other, spv::OpBranchConditional) {}
   spv::Id Condition() const;
@@ -2338,7 +2327,7 @@ class OpBranchConditional : public OpCode {
 };
 
 class OpSwitch : public OpCode {
- public:
+public:
   OpSwitch(const OpCode &other) : OpCode(other, spv::OpSwitch) {}
   spv::Id Selector() const;
   spv::Id Default() const;
@@ -2351,32 +2340,32 @@ class OpSwitch : public OpCode {
 };
 
 class OpKill : public OpCode {
- public:
+public:
   OpKill(const OpCode &other) : OpCode(other, spv::OpKill) {}
   static const spv::Op ClassCode = spv::OpKill;
 };
 
 class OpReturn : public OpCode {
- public:
+public:
   OpReturn(const OpCode &other) : OpCode(other, spv::OpReturn) {}
   static const spv::Op ClassCode = spv::OpReturn;
 };
 
 class OpReturnValue : public OpCode {
- public:
+public:
   OpReturnValue(const OpCode &other) : OpCode(other, spv::OpReturnValue) {}
   spv::Id Value() const;
   static const spv::Op ClassCode = spv::OpReturnValue;
 };
 
 class OpUnreachable : public OpCode {
- public:
+public:
   OpUnreachable(const OpCode &other) : OpCode(other, spv::OpUnreachable) {}
   static const spv::Op ClassCode = spv::OpUnreachable;
 };
 
 class OpLifetimeStart : public OpCode {
- public:
+public:
   OpLifetimeStart(const OpCode &other) : OpCode(other, spv::OpLifetimeStart) {}
   spv::Id Pointer() const;
   uint32_t Size() const;
@@ -2384,7 +2373,7 @@ class OpLifetimeStart : public OpCode {
 };
 
 class OpLifetimeStop : public OpCode {
- public:
+public:
   OpLifetimeStop(const OpCode &other) : OpCode(other, spv::OpLifetimeStop) {}
   spv::Id Pointer() const;
   uint32_t Size() const;
@@ -2392,7 +2381,7 @@ class OpLifetimeStop : public OpCode {
 };
 
 class OpGroupAsyncCopy : public OpResult {
- public:
+public:
   OpGroupAsyncCopy(const OpCode &other)
       : OpResult(other, spv::OpGroupAsyncCopy) {}
   spv::Id Execution() const;
@@ -2405,7 +2394,7 @@ class OpGroupAsyncCopy : public OpResult {
 };
 
 class OpGroupWaitEvents : public OpCode {
- public:
+public:
   OpGroupWaitEvents(const OpCode &other)
       : OpCode(other, spv::OpGroupWaitEvents) {}
   spv::Id Execution() const;
@@ -2415,7 +2404,7 @@ class OpGroupWaitEvents : public OpCode {
 };
 
 class OpGroupAll : public OpResult {
- public:
+public:
   OpGroupAll(const OpCode &other) : OpResult(other, spv::OpGroupAll) {}
   spv::Id Execution() const;
   spv::Id Predicate() const;
@@ -2423,7 +2412,7 @@ class OpGroupAll : public OpResult {
 };
 
 class OpGroupAny : public OpResult {
- public:
+public:
   OpGroupAny(const OpCode &other) : OpResult(other, spv::OpGroupAny) {}
   spv::Id Execution() const;
   spv::Id Predicate() const;
@@ -2431,7 +2420,7 @@ class OpGroupAny : public OpResult {
 };
 
 class OpGroupBroadcast : public OpResult {
- public:
+public:
   OpGroupBroadcast(const OpCode &other)
       : OpResult(other, spv::OpGroupBroadcast) {}
   spv::Id Execution() const;
@@ -2440,9 +2429,8 @@ class OpGroupBroadcast : public OpResult {
   static const spv::Op ClassCode = spv::OpGroupBroadcast;
 };
 
-template <enum spv::Op opcode>
-class OpGroupOperation : public OpResult {
- public:
+template <enum spv::Op opcode> class OpGroupOperation : public OpResult {
+public:
   OpGroupOperation(const OpCode &other) : OpResult(other, opcode) {}
   spv::Id Execution() const { return getValueAtOffset(3); }
   spv::GroupOperation Operation() const {
@@ -2453,86 +2441,86 @@ class OpGroupOperation : public OpResult {
 };
 
 class OpGroupIAdd : public OpGroupOperation<spv::OpGroupIAdd> {
- public:
+public:
   OpGroupIAdd(const OpCode &other) : OpGroupOperation(other) {}
 };
 class OpGroupFAdd : public OpGroupOperation<spv::OpGroupFAdd> {
- public:
+public:
   OpGroupFAdd(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupFMin : public OpGroupOperation<spv::OpGroupFMin> {
- public:
+public:
   OpGroupFMin(const OpCode &other) : OpGroupOperation(other) {}
 };
 class OpGroupUMin : public OpGroupOperation<spv::OpGroupUMin> {
- public:
+public:
   OpGroupUMin(const OpCode &other) : OpGroupOperation(other) {}
 };
 class OpGroupSMin : public OpGroupOperation<spv::OpGroupSMin> {
- public:
+public:
   OpGroupSMin(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupFMax : public OpGroupOperation<spv::OpGroupFMax> {
- public:
+public:
   OpGroupFMax(const OpCode &other) : OpGroupOperation(other) {}
 };
 class OpGroupUMax : public OpGroupOperation<spv::OpGroupUMax> {
- public:
+public:
   OpGroupUMax(const OpCode &other) : OpGroupOperation(other) {}
 };
 class OpGroupSMax : public OpGroupOperation<spv::OpGroupSMax> {
- public:
+public:
   OpGroupSMax(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupIMulKHR : public OpGroupOperation<spv::OpGroupIMulKHR> {
- public:
+public:
   OpGroupIMulKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupFMulKHR : public OpGroupOperation<spv::OpGroupFMulKHR> {
- public:
+public:
   OpGroupFMulKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupBitwiseAndKHR
     : public OpGroupOperation<spv::OpGroupBitwiseAndKHR> {
- public:
+public:
   OpGroupBitwiseAndKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupBitwiseOrKHR : public OpGroupOperation<spv::OpGroupBitwiseOrKHR> {
- public:
+public:
   OpGroupBitwiseOrKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupBitwiseXorKHR
     : public OpGroupOperation<spv::OpGroupBitwiseXorKHR> {
- public:
+public:
   OpGroupBitwiseXorKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupLogicalAndKHR
     : public OpGroupOperation<spv::OpGroupLogicalAndKHR> {
- public:
+public:
   OpGroupLogicalAndKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupLogicalOrKHR : public OpGroupOperation<spv::OpGroupLogicalOrKHR> {
- public:
+public:
   OpGroupLogicalOrKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpGroupLogicalXorKHR
     : public OpGroupOperation<spv::OpGroupLogicalXorKHR> {
- public:
+public:
   OpGroupLogicalXorKHR(const OpCode &other) : OpGroupOperation(other) {}
 };
 
 class OpSubgroupShuffle : public OpResult {
- public:
+public:
   OpSubgroupShuffle(const OpCode &other)
       : OpResult(other, spv::OpSubgroupShuffleINTEL) {}
   spv::Id Data() const { return getValueAtOffset(3); }
@@ -2541,7 +2529,7 @@ class OpSubgroupShuffle : public OpResult {
 };
 
 class OpSubgroupShuffleUp : public OpResult {
- public:
+public:
   OpSubgroupShuffleUp(const OpCode &other)
       : OpResult(other, spv::OpSubgroupShuffleUpINTEL) {}
   spv::Id Previous() const { return getValueAtOffset(3); }
@@ -2551,7 +2539,7 @@ class OpSubgroupShuffleUp : public OpResult {
 };
 
 class OpSubgroupShuffleDown : public OpResult {
- public:
+public:
   OpSubgroupShuffleDown(const OpCode &other)
       : OpResult(other, spv::OpSubgroupShuffleDownINTEL) {}
   spv::Id Current() const { return getValueAtOffset(3); }
@@ -2561,7 +2549,7 @@ class OpSubgroupShuffleDown : public OpResult {
 };
 
 class OpSubgroupShuffleXor : public OpResult {
- public:
+public:
   OpSubgroupShuffleXor(const OpCode &other)
       : OpResult(other, spv::OpSubgroupShuffleXorINTEL) {}
   spv::Id Data() const { return getValueAtOffset(3); }
@@ -2570,7 +2558,7 @@ class OpSubgroupShuffleXor : public OpResult {
 };
 
 class OpReadPipe : public OpResult {
- public:
+public:
   OpReadPipe(const OpCode &other) : OpResult(other, spv::OpReadPipe) {}
   spv::Id Pipe() const;
   spv::Id Pointer() const;
@@ -2580,7 +2568,7 @@ class OpReadPipe : public OpResult {
 };
 
 class OpWritePipe : public OpResult {
- public:
+public:
   OpWritePipe(const OpCode &other) : OpResult(other, spv::OpWritePipe) {}
   spv::Id Pipe() const;
   spv::Id Pointer() const;
@@ -2590,7 +2578,7 @@ class OpWritePipe : public OpResult {
 };
 
 class OpReservedReadPipe : public OpResult {
- public:
+public:
   OpReservedReadPipe(const OpCode &other)
       : OpResult(other, spv::OpReservedReadPipe) {}
   spv::Id Pipe() const;
@@ -2603,7 +2591,7 @@ class OpReservedReadPipe : public OpResult {
 };
 
 class OpReservedWritePipe : public OpResult {
- public:
+public:
   OpReservedWritePipe(const OpCode &other)
       : OpResult(other, spv::OpReservedWritePipe) {}
   spv::Id Pipe() const;
@@ -2616,7 +2604,7 @@ class OpReservedWritePipe : public OpResult {
 };
 
 class OpReserveReadPipePackets : public OpResult {
- public:
+public:
   OpReserveReadPipePackets(const OpCode &other)
       : OpResult(other, spv::OpReserveReadPipePackets) {}
   spv::Id Pipe() const;
@@ -2627,7 +2615,7 @@ class OpReserveReadPipePackets : public OpResult {
 };
 
 class OpReserveWritePipePackets : public OpResult {
- public:
+public:
   OpReserveWritePipePackets(const OpCode &other)
       : OpResult(other, spv::OpReserveWritePipePackets) {}
   spv::Id Pipe() const;
@@ -2638,7 +2626,7 @@ class OpReserveWritePipePackets : public OpResult {
 };
 
 class OpCommitReadPipe : public OpCode {
- public:
+public:
   OpCommitReadPipe(const OpCode &other)
       : OpCode(other, spv::OpCommitReadPipe) {}
   spv::Id Pipe() const;
@@ -2649,7 +2637,7 @@ class OpCommitReadPipe : public OpCode {
 };
 
 class OpCommitWritePipe : public OpCode {
- public:
+public:
   OpCommitWritePipe(const OpCode &other)
       : OpCode(other, spv::OpCommitWritePipe) {}
   spv::Id Pipe() const;
@@ -2660,7 +2648,7 @@ class OpCommitWritePipe : public OpCode {
 };
 
 class OpIsValidReserveId : public OpResult {
- public:
+public:
   OpIsValidReserveId(const OpCode &other)
       : OpResult(other, spv::OpIsValidReserveId) {}
   spv::Id ReserveId() const;
@@ -2668,7 +2656,7 @@ class OpIsValidReserveId : public OpResult {
 };
 
 class OpGetNumPipePackets : public OpResult {
- public:
+public:
   OpGetNumPipePackets(const OpCode &other)
       : OpResult(other, spv::OpGetNumPipePackets) {}
   spv::Id Pipe() const;
@@ -2678,7 +2666,7 @@ class OpGetNumPipePackets : public OpResult {
 };
 
 class OpGetMaxPipePackets : public OpResult {
- public:
+public:
   OpGetMaxPipePackets(const OpCode &other)
       : OpResult(other, spv::OpGetMaxPipePackets) {}
   spv::Id Pipe() const;
@@ -2688,7 +2676,7 @@ class OpGetMaxPipePackets : public OpResult {
 };
 
 class OpGroupReserveReadPipePackets : public OpResult {
- public:
+public:
   OpGroupReserveReadPipePackets(const OpCode &other)
       : OpResult(other, spv::OpGroupReserveReadPipePackets) {}
   spv::Id Execution() const;
@@ -2700,7 +2688,7 @@ class OpGroupReserveReadPipePackets : public OpResult {
 };
 
 class OpGroupReserveWritePipePackets : public OpResult {
- public:
+public:
   OpGroupReserveWritePipePackets(const OpCode &other)
       : OpResult(other, spv::OpGroupReserveWritePipePackets) {}
   spv::Id Execution() const;
@@ -2712,7 +2700,7 @@ class OpGroupReserveWritePipePackets : public OpResult {
 };
 
 class OpGroupCommitReadPipe : public OpCode {
- public:
+public:
   OpGroupCommitReadPipe(const OpCode &other)
       : OpCode(other, spv::OpGroupCommitReadPipe) {}
   spv::Id Execution() const;
@@ -2724,7 +2712,7 @@ class OpGroupCommitReadPipe : public OpCode {
 };
 
 class OpGroupCommitWritePipe : public OpCode {
- public:
+public:
   OpGroupCommitWritePipe(const OpCode &other)
       : OpCode(other, spv::OpGroupCommitWritePipe) {}
   spv::Id Execution() const;
@@ -2736,7 +2724,7 @@ class OpGroupCommitWritePipe : public OpCode {
 };
 
 class OpEnqueueMarker : public OpResult {
- public:
+public:
   OpEnqueueMarker(const OpCode &other)
       : OpResult(other, spv::OpEnqueueMarker) {}
   spv::Id Queue() const;
@@ -2747,7 +2735,7 @@ class OpEnqueueMarker : public OpResult {
 };
 
 class OpEnqueueKernel : public OpResult {
- public:
+public:
   OpEnqueueKernel(const OpCode &other)
       : OpResult(other, spv::OpEnqueueKernel) {}
   spv::Id Queue() const;
@@ -2765,7 +2753,7 @@ class OpEnqueueKernel : public OpResult {
 };
 
 class OpGetKernelNDrangeSubGroupCount : public OpResult {
- public:
+public:
   OpGetKernelNDrangeSubGroupCount(const OpCode &other)
       : OpResult(other, spv::OpGetKernelNDrangeSubGroupCount) {}
   spv::Id NDRange() const;
@@ -2777,7 +2765,7 @@ class OpGetKernelNDrangeSubGroupCount : public OpResult {
 };
 
 class OpGetKernelNDrangeMaxSubGroupSize : public OpResult {
- public:
+public:
   OpGetKernelNDrangeMaxSubGroupSize(const OpCode &other)
       : OpResult(other, spv::OpGetKernelNDrangeMaxSubGroupSize) {}
   spv::Id NDRange() const;
@@ -2789,7 +2777,7 @@ class OpGetKernelNDrangeMaxSubGroupSize : public OpResult {
 };
 
 class OpGetKernelWorkGroupSize : public OpResult {
- public:
+public:
   OpGetKernelWorkGroupSize(const OpCode &other)
       : OpResult(other, spv::OpGetKernelWorkGroupSize) {}
   spv::Id Invoke() const;
@@ -2800,7 +2788,7 @@ class OpGetKernelWorkGroupSize : public OpResult {
 };
 
 class OpGetKernelPreferredWorkGroupSizeMultiple : public OpResult {
- public:
+public:
   OpGetKernelPreferredWorkGroupSizeMultiple(const OpCode &other)
       : OpResult(other, spv::OpGetKernelPreferredWorkGroupSizeMultiple) {}
   spv::Id Invoke() const;
@@ -2812,35 +2800,35 @@ class OpGetKernelPreferredWorkGroupSizeMultiple : public OpResult {
 };
 
 class OpRetainEvent : public OpCode {
- public:
+public:
   OpRetainEvent(const OpCode &other) : OpCode(other, spv::OpRetainEvent) {}
   spv::Id Event() const;
   static const spv::Op ClassCode = spv::OpRetainEvent;
 };
 
 class OpReleaseEvent : public OpCode {
- public:
+public:
   OpReleaseEvent(const OpCode &other) : OpCode(other, spv::OpReleaseEvent) {}
   spv::Id Event() const;
   static const spv::Op ClassCode = spv::OpReleaseEvent;
 };
 
 class OpCreateUserEvent : public OpResult {
- public:
+public:
   OpCreateUserEvent(const OpCode &other)
       : OpResult(other, spv::OpCreateUserEvent) {}
   static const spv::Op ClassCode = spv::OpCreateUserEvent;
 };
 
 class OpIsValidEvent : public OpResult {
- public:
+public:
   OpIsValidEvent(const OpCode &other) : OpResult(other, spv::OpIsValidEvent) {}
   spv::Id Event() const;
   static const spv::Op ClassCode = spv::OpIsValidEvent;
 };
 
 class OpSetUserEventStatus : public OpCode {
- public:
+public:
   OpSetUserEventStatus(const OpCode &other)
       : OpCode(other, spv::OpSetUserEventStatus) {}
   spv::Id Event() const;
@@ -2849,7 +2837,7 @@ class OpSetUserEventStatus : public OpCode {
 };
 
 class OpCaptureEventProfilingInfo : public OpCode {
- public:
+public:
   OpCaptureEventProfilingInfo(const OpCode &other)
       : OpCode(other, spv::OpCaptureEventProfilingInfo) {}
   spv::Id Event() const;
@@ -2859,14 +2847,14 @@ class OpCaptureEventProfilingInfo : public OpCode {
 };
 
 class OpGetDefaultQueue : public OpResult {
- public:
+public:
   OpGetDefaultQueue(const OpCode &other)
       : OpResult(other, spv::OpGetDefaultQueue) {}
   static const spv::Op ClassCode = spv::OpGetDefaultQueue;
 };
 
 class OpBuildNDRange : public OpResult {
- public:
+public:
   OpBuildNDRange(const OpCode &other) : OpResult(other, spv::OpBuildNDRange) {}
   spv::Id GlobalWorkSize() const;
   spv::Id LocalWorkSize() const;
@@ -2875,7 +2863,7 @@ class OpBuildNDRange : public OpResult {
 };
 
 class OpGetKernelLocalSizeForSubgroupCount : public OpResult {
- public:
+public:
   OpGetKernelLocalSizeForSubgroupCount(const OpCode &other)
       : OpResult(other, spv::OpGetKernelLocalSizeForSubgroupCount) {}
   spv::Id SubgroupCount() const;
@@ -2887,7 +2875,7 @@ class OpGetKernelLocalSizeForSubgroupCount : public OpResult {
 };
 
 class OpGetKernelMaxNumSubgroups : public OpResult {
- public:
+public:
   OpGetKernelMaxNumSubgroups(const OpCode &other)
       : OpResult(other, spv::OpGetKernelMaxNumSubgroups) {}
   spv::Id Invoke() const;
@@ -2898,7 +2886,7 @@ class OpGetKernelMaxNumSubgroups : public OpResult {
 };
 
 class OpImageSparseSampleImplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleImplicitLod) {}
   spv::Id SampledImage() const;
@@ -2908,7 +2896,7 @@ class OpImageSparseSampleImplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleExplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleExplicitLod) {}
   spv::Id SampledImage() const;
@@ -2918,7 +2906,7 @@ class OpImageSparseSampleExplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleDrefImplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleDrefImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleDrefImplicitLod) {}
   spv::Id SampledImage() const;
@@ -2929,7 +2917,7 @@ class OpImageSparseSampleDrefImplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleDrefExplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleDrefExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleDrefExplicitLod) {}
   spv::Id SampledImage() const;
@@ -2940,7 +2928,7 @@ class OpImageSparseSampleDrefExplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleProjImplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleProjImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleProjImplicitLod) {}
   spv::Id SampledImage() const;
@@ -2950,7 +2938,7 @@ class OpImageSparseSampleProjImplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleProjExplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleProjExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleProjExplicitLod) {}
   spv::Id SampledImage() const;
@@ -2960,7 +2948,7 @@ class OpImageSparseSampleProjExplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleProjDrefImplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleProjDrefImplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleProjDrefImplicitLod) {}
   spv::Id SampledImage() const;
@@ -2971,7 +2959,7 @@ class OpImageSparseSampleProjDrefImplicitLod : public OpResult {
 };
 
 class OpImageSparseSampleProjDrefExplicitLod : public OpResult {
- public:
+public:
   OpImageSparseSampleProjDrefExplicitLod(const OpCode &other)
       : OpResult(other, spv::OpImageSparseSampleProjDrefExplicitLod) {}
   spv::Id SampledImage() const;
@@ -2982,7 +2970,7 @@ class OpImageSparseSampleProjDrefExplicitLod : public OpResult {
 };
 
 class OpImageSparseFetch : public OpResult {
- public:
+public:
   OpImageSparseFetch(const OpCode &other)
       : OpResult(other, spv::OpImageSparseFetch) {}
   spv::Id Image() const;
@@ -2992,7 +2980,7 @@ class OpImageSparseFetch : public OpResult {
 };
 
 class OpImageSparseGather : public OpResult {
- public:
+public:
   OpImageSparseGather(const OpCode &other)
       : OpResult(other, spv::OpImageSparseGather) {}
   spv::Id SampledImage() const;
@@ -3003,7 +2991,7 @@ class OpImageSparseGather : public OpResult {
 };
 
 class OpImageSparseDrefGather : public OpResult {
- public:
+public:
   OpImageSparseDrefGather(const OpCode &other)
       : OpResult(other, spv::OpImageSparseDrefGather) {}
   spv::Id SampledImage() const;
@@ -3014,7 +3002,7 @@ class OpImageSparseDrefGather : public OpResult {
 };
 
 class OpImageSparseTexelsResident : public OpResult {
- public:
+public:
   OpImageSparseTexelsResident(const OpCode &other)
       : OpResult(other, spv::OpImageSparseTexelsResident) {}
   spv::Id ResidentCode() const;
@@ -3022,13 +3010,13 @@ class OpImageSparseTexelsResident : public OpResult {
 };
 
 class OpNoLine : public OpCode {
- public:
+public:
   OpNoLine(const OpCode &other) : OpCode(other, spv::OpNoLine) {}
   static const spv::Op ClassCode = spv::OpNoLine;
 };
 
 class OpModuleProcessed : public OpCode {
- public:
+public:
   OpModuleProcessed(const OpCode &other)
       : OpCode(other, spv::OpModuleProcessed) {}
   llvm::StringRef Process() const;
@@ -3036,7 +3024,7 @@ class OpModuleProcessed : public OpCode {
 };
 
 class OpAtomicFlagTestAndSet : public OpResult {
- public:
+public:
   OpAtomicFlagTestAndSet(const OpCode &other)
       : OpResult(other, spv::OpAtomicFlagTestAndSet) {}
   spv::Id Pointer() const;
@@ -3046,7 +3034,7 @@ class OpAtomicFlagTestAndSet : public OpResult {
 };
 
 class OpAtomicFlagClear : public OpCode {
- public:
+public:
   OpAtomicFlagClear(const OpCode &other)
       : OpCode(other, spv::OpAtomicFlagClear) {}
   spv::Id Pointer() const;
@@ -3056,7 +3044,7 @@ class OpAtomicFlagClear : public OpCode {
 };
 
 class OpImageSparseRead : public OpResult {
- public:
+public:
   OpImageSparseRead(const OpCode &other)
       : OpResult(other, spv::OpImageSparseRead) {}
   spv::Id Image() const;
@@ -3066,7 +3054,7 @@ class OpImageSparseRead : public OpResult {
 };
 
 class OpSubgroupBallotKHR : public OpResult {
- public:
+public:
   OpSubgroupBallotKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupBallotKHR) {}
   spv::Id Predicate() const;
@@ -3074,7 +3062,7 @@ class OpSubgroupBallotKHR : public OpResult {
 };
 
 class OpSubgroupFirstInvocationKHR : public OpResult {
- public:
+public:
   OpSubgroupFirstInvocationKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupFirstInvocationKHR) {}
   spv::Id Value() const;
@@ -3082,7 +3070,7 @@ class OpSubgroupFirstInvocationKHR : public OpResult {
 };
 
 class OpSubgroupAllKHR : public OpResult {
- public:
+public:
   OpSubgroupAllKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupAllKHR) {}
   spv::Id Predicate() const;
@@ -3090,7 +3078,7 @@ class OpSubgroupAllKHR : public OpResult {
 };
 
 class OpSubgroupAnyKHR : public OpResult {
- public:
+public:
   OpSubgroupAnyKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupAnyKHR) {}
   spv::Id Predicate() const;
@@ -3098,7 +3086,7 @@ class OpSubgroupAnyKHR : public OpResult {
 };
 
 class OpSubgroupAllEqualKHR : public OpResult {
- public:
+public:
   OpSubgroupAllEqualKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupAllEqualKHR) {}
   spv::Id Predicate() const;
@@ -3106,7 +3094,7 @@ class OpSubgroupAllEqualKHR : public OpResult {
 };
 
 class OpSubgroupReadInvocationKHR : public OpResult {
- public:
+public:
   OpSubgroupReadInvocationKHR(const OpCode &other)
       : OpResult(other, spv::OpSubgroupReadInvocationKHR) {}
   spv::Id Value() const;
@@ -3161,326 +3149,285 @@ enum ExtInstArg {
 /// @brief Primary extended instruction class template.
 ///
 /// @tparam Operands `ExtInstArg`s representing operands of the instruction.
-template <ExtInstArg... Operands>
-class ExtInst;
+template <ExtInstArg... Operands> class ExtInst;
 
-template <>
-class ExtInst<DEGREES> : public OpExtInst {
- public:
+template <> class ExtInst<DEGREES> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id degrees() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<INTERPOLANT> : public OpExtInst {
- public:
+template <> class ExtInst<INTERPOLANT> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id interpolant() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<NANCODE> : public OpExtInst {
- public:
+template <> class ExtInst<NANCODE> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id nanCode() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<P> : public OpExtInst {
- public:
+template <> class ExtInst<P> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id p() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<RADIANS> : public OpExtInst {
- public:
+template <> class ExtInst<RADIANS> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id radians() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<V> : public OpExtInst {
- public:
+template <> class ExtInst<V> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id v() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<VALUE> : public OpExtInst {
- public:
+template <> class ExtInst<VALUE> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id value() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<X> : public OpExtInst {
- public:
+template <> class ExtInst<X> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<Y_OVER_X> : public OpExtInst {
- public:
+template <> class ExtInst<Y_OVER_X> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id yOverX() const { return getOpExtInstOperand(0); }
 };
 
-template <>
-class ExtInst<EDGE, X> : public OpExtInst {
- public:
+template <> class ExtInst<EDGE, X> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id edge() const { return getOpExtInstOperand(0); }
   spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<HI, LO> : public OpExtInst {
- public:
+template <> class ExtInst<HI, LO> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id hi() const { return getOpExtInstOperand(0); }
   spv::Id lo() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<I, N> : public OpExtInst {
- public:
+template <> class ExtInst<I, N> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id i() const { return getOpExtInstOperand(0); }
   spv::Id n() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<INTERPOLANT, OFFSET> : public OpExtInst {
- public:
+template <> class ExtInst<INTERPOLANT, OFFSET> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id interpolant() const { return getOpExtInstOperand(0); }
   spv::Id offset() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<INTERPOLANT, SAMPLER> : public OpExtInst {
- public:
+template <> class ExtInst<INTERPOLANT, SAMPLER> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id interpolant() const { return getOpExtInstOperand(0); }
   spv::Id sampler() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<OFFSET, P> : public OpExtInst {
- public:
+template <> class ExtInst<OFFSET, P> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id offset() const { return getOpExtInstOperand(0); }
   spv::Id p() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<P0, P1> : public OpExtInst {
- public:
+template <> class ExtInst<P0, P1> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id p0() const { return getOpExtInstOperand(0); }
   spv::Id p1() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<PTR, NUM_ELEMENTS> : public OpExtInst {
- public:
+template <> class ExtInst<PTR, NUM_ELEMENTS> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id ptr() const { return getOpExtInstOperand(0); }
   spv::Id numElements() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<V, I> : public OpExtInst {
- public:
+template <> class ExtInst<V, I> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id v() const { return getOpExtInstOperand(0); }
   spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, COSVAL> : public OpExtInst {
- public:
+template <> class ExtInst<X, COSVAL> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id cosVal() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, EXP> : public OpExtInst {
- public:
+template <> class ExtInst<X, EXP> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id exp() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, I> : public OpExtInst {
- public:
+template <> class ExtInst<X, I> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id i() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, IPTR> : public OpExtInst {
- public:
+template <> class ExtInst<X, IPTR> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id iPtr() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, K> : public OpExtInst {
- public:
+template <> class ExtInst<X, K> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id k() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, PTR> : public OpExtInst {
- public:
+template <> class ExtInst<X, PTR> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id ptr() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, SHUFFLEMASK> : public OpExtInst {
- public:
+template <> class ExtInst<X, SHUFFLEMASK> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id shuffleMask() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, SIGNP> : public OpExtInst {
- public:
+template <> class ExtInst<X, SIGNP> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id signp() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<X, Y> : public OpExtInst {
- public:
+template <> class ExtInst<X, Y> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id y() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<Y, X> : public OpExtInst {
- public:
+template <> class ExtInst<Y, X> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id y() const { return getOpExtInstOperand(0); }
   spv::Id x() const { return getOpExtInstOperand(1); }
 };
 
-template <>
-class ExtInst<A, B, C> : public OpExtInst {
- public:
+template <> class ExtInst<A, B, C> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id a() const { return getOpExtInstOperand(0); }
   spv::Id b() const { return getOpExtInstOperand(1); }
   spv::Id c() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<DATA, OFFSET, P> : public OpExtInst {
- public:
+template <> class ExtInst<DATA, OFFSET, P> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id data() const { return getOpExtInstOperand(0); }
   spv::Id offset() const { return getOpExtInstOperand(1); }
   spv::Id p() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<EDGE0, EDGE1, X> : public OpExtInst {
- public:
+template <> class ExtInst<EDGE0, EDGE1, X> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id edge0() const { return getOpExtInstOperand(0); }
   spv::Id edge1() const { return getOpExtInstOperand(1); }
   spv::Id x() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<I, N, ETA> : public OpExtInst {
- public:
+template <> class ExtInst<I, N, ETA> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id i() const { return getOpExtInstOperand(0); }
   spv::Id n() const { return getOpExtInstOperand(1); }
   spv::Id eta() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<N, I, NREF> : public OpExtInst {
- public:
+template <> class ExtInst<N, I, NREF> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id n() const { return getOpExtInstOperand(0); }
   spv::Id i() const { return getOpExtInstOperand(1); }
   spv::Id nRef() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<OFFSET, P, N> : public OpExtInst {
- public:
+template <> class ExtInst<OFFSET, P, N> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id offset() const { return getOpExtInstOperand(0); }
   spv::Id p() const { return getOpExtInstOperand(1); }
   spv::Id n() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<X, MINVAL, MAXVAL> : public OpExtInst {
- public:
+template <> class ExtInst<X, MINVAL, MAXVAL> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id minVal() const { return getOpExtInstOperand(1); }
   spv::Id maxVal() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<X, Y, A> : public OpExtInst {
- public:
+template <> class ExtInst<X, Y, A> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id y() const { return getOpExtInstOperand(1); }
   spv::Id a() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<X, Y, QUO> : public OpExtInst {
- public:
+template <> class ExtInst<X, Y, QUO> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id y() const { return getOpExtInstOperand(1); }
   spv::Id quo() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<X, Y, SHUFFLEMASK> : public OpExtInst {
- public:
+template <> class ExtInst<X, Y, SHUFFLEMASK> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id y() const { return getOpExtInstOperand(1); }
   spv::Id shuffleMask() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<X, Y, Z> : public OpExtInst {
- public:
+template <> class ExtInst<X, Y, Z> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id x() const { return getOpExtInstOperand(0); }
   spv::Id y() const { return getOpExtInstOperand(1); }
   spv::Id z() const { return getOpExtInstOperand(2); }
 };
 
-template <>
-class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
- public:
+template <> class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
+public:
   ExtInst(const OpCode &other) : OpExtInst(other) {}
   spv::Id data() const { return getOpExtInstOperand(0); }
   spv::Id offset() const { return getOpExtInstOperand(1); }
@@ -3490,13 +3437,13 @@ class ExtInst<DATA, OFFSET, P, MODE> : public OpExtInst {
   }
 };
 class OpAssumeTrueKHR : public OpCode {
- public:
+public:
   OpAssumeTrueKHR(const OpCode &other) : OpCode(other, spv::OpAssumeTrueKHR) {}
   spv::Id Condition() const;
   static const spv::Op ClassCode = spv::OpAssumeTrueKHR;
 };
 class OpExpectKHR : public OpResult {
- public:
+public:
   OpExpectKHR(const OpCode &other) : OpResult(other, spv::OpExpectKHR) {}
   spv::Id Value() const;
   spv::Id ExpectedValue() const;
@@ -3507,6 +3454,6 @@ std::string getCapabilityName(spv::Capability cap);
 
 std::optional<spv::Capability> getCapabilityFromString(const std::string &cap);
 
-}  // namespace spirv_ll
+} // namespace spirv_ll
 
-#endif  // SPIRV_OPCODES_H_INCLUDED
+#endif // SPIRV_OPCODES_H_INCLUDED

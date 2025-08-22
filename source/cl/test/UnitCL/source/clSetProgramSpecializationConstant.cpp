@@ -258,18 +258,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, None) {
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -284,18 +284,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(value, boolResults[0]);         // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(value, boolResults[0]);        // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -310,18 +310,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(value, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(value, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -336,18 +336,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(value, charResult);             // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(value, charResult);            // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -362,18 +362,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(value, shortResult);            // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(value, shortResult);           // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -388,18 +388,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(value, intResult);              // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(value, intResult);             // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -414,18 +414,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(value, longResult);             // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(value, longResult);            // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -440,18 +440,18 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);       // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);      // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);    // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);  // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);      // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);    // SpecId: 5
-  ASSERT_EQ(value, floatResult);         // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);      // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);     // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);   // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult); // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);     // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);   // SpecId: 5
+  ASSERT_EQ(value, floatResult);        // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -469,16 +469,16 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
-  ASSERT_EQ(value, doubleResult);           // SpecId: 7
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
+  ASSERT_EQ(value, doubleResult);          // SpecId: 7
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(cl_half(0x4dc0), halfResult);  // SpecId: 8
+    ASSERT_EQ(cl_half(0x4dc0), halfResult); // SpecId: 8
   }
 }
 
@@ -487,7 +487,7 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   if (!UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
     GTEST_SKIP();
   }
-  cl_half value = 0x5140;  // cl_half(42.0f)
+  cl_half value = 0x5140; // cl_half(42.0f)
   ASSERT_SUCCESS(
       clSetProgramSpecializationConstant(program, 8, sizeof(value), &value));
   ASSERT_SUCCESS(
@@ -496,17 +496,17 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest,
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(true, boolResults[0]);          // SpecId: 0
-  ASSERT_EQ(false, boolResults[1]);         // SpecId: 1
-  ASSERT_EQ(cl_char(23), charResult);       // SpecId: 2
-  ASSERT_EQ(cl_short(23), shortResult);     // SpecId: 3
-  ASSERT_EQ(cl_int(23), intResult);         // SpecId: 4
-  ASSERT_EQ(cl_long(23), longResult);       // SpecId: 5
-  ASSERT_EQ(cl_float(23.0f), floatResult);  // SpecId: 6
+  ASSERT_EQ(true, boolResults[0]);         // SpecId: 0
+  ASSERT_EQ(false, boolResults[1]);        // SpecId: 1
+  ASSERT_EQ(cl_char(23), charResult);      // SpecId: 2
+  ASSERT_EQ(cl_short(23), shortResult);    // SpecId: 3
+  ASSERT_EQ(cl_int(23), intResult);        // SpecId: 4
+  ASSERT_EQ(cl_long(23), longResult);      // SpecId: 5
+  ASSERT_EQ(cl_float(23.0f), floatResult); // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(cl_double(23.0), doubleResult);  // SpecId: 7
+    ASSERT_EQ(cl_double(23.0), doubleResult); // SpecId: 7
   }
-  ASSERT_EQ(value, halfResult);  // SpecId: 8
+  ASSERT_EQ(value, halfResult); // SpecId: 8
 }
 
 TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
@@ -536,7 +536,7 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
     ASSERT_SUCCESS(clSetProgramSpecializationConstant(
         program, 7, sizeof(doubleValue), &doubleValue));
   }
-  cl_half halfValue = 0x5140;  // cl_half(42.0f)
+  cl_half halfValue = 0x5140; // cl_half(42.0f)
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
     ASSERT_SUCCESS(clSetProgramSpecializationConstant(
         program, 8, sizeof(halfValue), &halfValue));
@@ -547,17 +547,17 @@ TEST_F(clSetProgramSpecializationConstantSuccessTest, All) {
   kernel = clCreateKernel(program, "test", &error);
   ASSERT_SUCCESS(error);
   UCL_RETURN_ON_FATAL_FAILURE(getResults());
-  ASSERT_EQ(bool0Value, boolResults[0]);  // SpecId: 0
-  ASSERT_EQ(bool1Value, boolResults[1]);  // SpecId: 1
-  ASSERT_EQ(charValue, charResult);       // SpecId: 2
-  ASSERT_EQ(shortValue, shortResult);     // SpecId: 3
-  ASSERT_EQ(intValue, intResult);         // SpecId: 4
-  ASSERT_EQ(longValue, longResult);       // SpecId: 5
-  ASSERT_EQ(floatValue, floatResult);     // SpecId: 6
+  ASSERT_EQ(bool0Value, boolResults[0]); // SpecId: 0
+  ASSERT_EQ(bool1Value, boolResults[1]); // SpecId: 1
+  ASSERT_EQ(charValue, charResult);      // SpecId: 2
+  ASSERT_EQ(shortValue, shortResult);    // SpecId: 3
+  ASSERT_EQ(intValue, intResult);        // SpecId: 4
+  ASSERT_EQ(longValue, longResult);      // SpecId: 5
+  ASSERT_EQ(floatValue, floatResult);    // SpecId: 6
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp64")) {
-    ASSERT_EQ(doubleValue, doubleResult);  // SpecId: 7
+    ASSERT_EQ(doubleValue, doubleResult); // SpecId: 7
   }
   if (UCL::hasDeviceExtensionSupport(device, "cl_khr_fp16")) {
-    ASSERT_EQ(halfValue, halfResult);  // SpecId: 8
+    ASSERT_EQ(halfValue, halfResult); // SpecId: 8
   }
 }

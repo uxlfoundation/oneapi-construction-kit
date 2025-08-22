@@ -51,7 +51,7 @@ class KernelExecInfoCodeplayUSMPtrs : public USMKernelExecInfoCodeplayTest {
     ASSERT_TRUE(exec_info_kernel != nullptr);
   }
 
- public:
+public:
   // Verify result in first N elements of output cl_mem buffer
   void VerifyOutputBuffer(size_t N) {
     // Zero initialize all output elements
@@ -221,7 +221,7 @@ class KernelExecInfoCodeplayUSMPtrs : public USMKernelExecInfoCodeplayTest {
 
 const cl_uchar KernelExecInfoCodeplayUSMPtrs::pattern = 42;
 
-}  // namespace
+} // namespace
 
 TEST_F(KernelExecInfoCodeplayUSMPtrs, IndirectDevicePointer) {
   // Wrap device USM pointer in a struct

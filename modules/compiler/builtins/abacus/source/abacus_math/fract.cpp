@@ -20,30 +20,23 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T>
-T biggestBelowOne();
+template <typename T> T biggestBelowOne();
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <>
-abacus_half biggestBelowOne<abacus_half>() {
-  return 0.999512f16;
-}
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+template <> abacus_half biggestBelowOne<abacus_half>() { return 0.999512f16; }
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
-template <>
-abacus_float biggestBelowOne<abacus_float>() {
+template <> abacus_float biggestBelowOne<abacus_float>() {
   return 0.999999940395355224609375f;
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <>
-abacus_double biggestBelowOne<abacus_double>() {
+template <> abacus_double biggestBelowOne<abacus_double>() {
   return 0.999999999999999888977697537484;
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T>
-inline T fract_helper_scalar(T x, T *out) {
+template <typename T> inline T fract_helper_scalar(T x, T *out) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
 
@@ -60,8 +53,7 @@ inline T fract_helper_scalar(T x, T *out) {
   return __abacus_isinf(x) ? __abacus_copysign(T(0), x) : fract_part;
 }
 
-template <typename T>
-inline T fract_helper_vector(T x, T *out) {
+template <typename T> inline T fract_helper_vector(T x, T *out) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -78,7 +70,7 @@ inline T fract_helper_vector(T x, T *out) {
   return __abacus_select(fract_part, __abacus_copysign(T(0), x),
                          __abacus_isinf(x));
 }
-}  // namespace
+} // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fract(abacus_half x,
@@ -105,7 +97,7 @@ abacus_half16 ABACUS_API __abacus_fract(abacus_half16 x,
                                         abacus_half16 *out_whole_number) {
   return fract_helper_vector(x, out_whole_number);
 }
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_fract(abacus_float x,
                                        abacus_float *out_whole_number) {
@@ -157,4 +149,4 @@ abacus_double16 ABACUS_API __abacus_fract(abacus_double16 x,
                                           abacus_double16 *out_whole_number) {
   return fract_helper_vector(x, out_whole_number);
 }
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

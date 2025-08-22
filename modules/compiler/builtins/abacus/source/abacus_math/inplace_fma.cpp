@@ -22,8 +22,7 @@
 
 namespace abacus {
 namespace internal {
-template <typename T>
-void inplace_fma(T &a, T &b, T &c) {
+template <typename T> void inplace_fma(T &a, T &b, T &c) {
   using ET = typename TypeTraits<T>::ElementType;
   for (ET *p = reinterpret_cast<ET *>(&a), *q = reinterpret_cast<ET *>(&b),
           *r = reinterpret_cast<ET *>(&c), *e = reinterpret_cast<ET *>(&a + 1);
@@ -31,8 +30,8 @@ void inplace_fma(T &a, T &b, T &c) {
     *p = std::fma(*p, *q, *r);
   }
 }
-}  // namespace internal
-}  // namespace abacus
+} // namespace internal
+} // namespace abacus
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template void abacus::internal::inplace_fma(abacus_half &, abacus_half &,
@@ -47,7 +46,7 @@ template void abacus::internal::inplace_fma(abacus_half8 &, abacus_half8 &,
                                             abacus_half8 &);
 template void abacus::internal::inplace_fma(abacus_half16 &, abacus_half16 &,
                                             abacus_half16 &);
-#endif  // __CA_BUILTINS_HALF_SUPPORT
+#endif // __CA_BUILTINS_HALF_SUPPORT
 
 template void abacus::internal::inplace_fma(abacus_float &, abacus_float &,
                                             abacus_float &);
@@ -76,4 +75,4 @@ template void abacus::internal::inplace_fma(abacus_double8 &, abacus_double8 &,
 template void abacus::internal::inplace_fma(abacus_double16 &,
                                             abacus_double16 &,
                                             abacus_double16 &);
-#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -47,11 +47,10 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
     if (global_work_size[i] > max_work_items_sizes[i]) {
       // Skip test as the max work group size requested is too small for this
       // device
-      printf(
-          "Work item size of %u not supported on this device for rank %zu "
-          "(%u is max allowed), skipping test.\n",
-          static_cast<unsigned int>(global_work_size[i]), i,
-          static_cast<unsigned int>(max_work_items_sizes[i]));
+      printf("Work item size of %u not supported on this device for rank %zu "
+             "(%u is max allowed), skipping test.\n",
+             static_cast<unsigned int>(global_work_size[i]), i,
+             static_cast<unsigned int>(max_work_items_sizes[i]));
       GTEST_SKIP();
     }
   }
@@ -62,25 +61,24 @@ TEST_P(Execution, Attribute_01_reqd_work_group_size) {
   if (work_group_size > max_work_group_size) {
     // Skip test as the max work group size requested is too small for this
     // device
-    printf(
-        "Work group size of %u not supported on this device (%u is max "
-        "allowed), skipping test.\n",
-        static_cast<unsigned int>(work_group_size),
-        static_cast<unsigned int>(max_work_group_size));
+    printf("Work group size of %u not supported on this device (%u is max "
+           "allowed), skipping test.\n",
+           static_cast<unsigned int>(work_group_size),
+           static_cast<unsigned int>(max_work_group_size));
     GTEST_SKIP();
   }
 
   cl_event ndRangeEvent = nullptr;
-  EXPECT_EQ_ERRCODE(
-      CL_SUCCESS, clEnqueueNDRangeKernel(this->command_queue, this->kernel_, 3,
-                                         nullptr, global_work_size, nullptr, 0,
-                                         nullptr, &ndRangeEvent));
+  EXPECT_EQ_ERRCODE(CL_SUCCESS,
+                    clEnqueueNDRangeKernel(this->command_queue, this->kernel_,
+                                           3, nullptr, global_work_size,
+                                           nullptr, 0, nullptr, &ndRangeEvent));
 
   cl_ulong reqd_work_group_size[3] = {};
-  EXPECT_EQ_ERRCODE(
-      CL_SUCCESS,
-      clEnqueueReadBuffer(this->command_queue, buffer, CL_TRUE, 0, buffer_size,
-                          reqd_work_group_size, 1, &ndRangeEvent, nullptr));
+  EXPECT_EQ_ERRCODE(CL_SUCCESS,
+                    clEnqueueReadBuffer(this->command_queue, buffer, CL_TRUE, 0,
+                                        buffer_size, reqd_work_group_size, 1,
+                                        &ndRangeEvent, nullptr));
 
   EXPECT_EQ(global_work_size[0], reqd_work_group_size[0]);
   EXPECT_EQ(global_work_size[1], reqd_work_group_size[1]);

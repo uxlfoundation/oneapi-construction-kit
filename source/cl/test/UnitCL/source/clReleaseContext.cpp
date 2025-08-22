@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clReleaseContextTest : public ucl::DeviceTest {
- protected:
+protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
     cl_int errorcode;

@@ -66,7 +66,7 @@ static uint32_t os_cpu_frequency() {
   uint32_t frequency;
   size_t length = sizeof(frequency);
   if (sysctl(mib, 2, &frequency, &length, nullptr, 0)) {
-    return 0;  // could not request frequency!
+    return 0; // could not request frequency!
   }
   return frequency / 1000000;
 
@@ -78,7 +78,7 @@ static uint32_t os_cpu_frequency() {
       0, KEY_READ, &regKey);
 
   if (ERROR_SUCCESS != openError) {
-    return 0;  // could not open registry!
+    return 0; // could not open registry!
   }
 
   DWORD frequency = 0;
@@ -89,20 +89,20 @@ static uint32_t os_cpu_frequency() {
                       reinterpret_cast<LPBYTE>(&frequency), &bufferSize);
 
   if (ERROR_SUCCESS != queryError) {
-    return 0;  // could not query registry!
+    return 0; // could not query registry!
   }
 
   const LONG closeError = RegCloseKey(regKey);
 
   if (ERROR_SUCCESS != closeError) {
-    return 0;  // could not close key!
+    return 0; // could not close key!
   }
 
   return static_cast<uint32_t>(frequency);
 #elif defined(__linux__)
   FILE *const file = fopen("/proc/cpuinfo", "r");
   if (nullptr == file) {
-    return 0;  // could not query info file!
+    return 0; // could not query info file!
   }
 
   const uint32_t size = 256;
@@ -115,7 +115,9 @@ static uint32_t os_cpu_frequency() {
       uint32_t i = wanted.size();
 
       while (i < size) {
-        if (buffer[i++] == ':') break;
+        if (buffer[i++] == ':') {
+          break;
+        }
       }
 
       (void)fclose(file);
@@ -125,7 +127,7 @@ static uint32_t os_cpu_frequency() {
   }
 
   (void)fclose(file);
-  return 0;  // could not find mhz value!
+  return 0; // could not find mhz value!
 #elif defined(__MCOS_POSIX__)
   return 0;
 #else
@@ -192,12 +194,12 @@ static uint64_t os_cache_size() {
   for (DWORD i = 0, e = length / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
        i < e; i++) {
     switch (buffer[i].Relationship) {
-      default:
-        break;
-      case RelationCache:
-        if (1 == buffer[i].Cache.Level) {
-          return buffer[i].Cache.Size;
-        }
+    default:
+      break;
+    case RelationCache:
+      if (1 == buffer[i].Cache.Level) {
+        return buffer[i].Cache.Size;
+      }
     }
   }
 
@@ -262,12 +264,12 @@ static uint64_t os_cacheline_size() {
   for (DWORD i = 0, e = length / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
        i < e; i++) {
     switch (buffer[i].Relationship) {
-      default:
-        break;
-      case RelationCache:
-        if (1 == buffer[i].Cache.Level) {
-          return buffer[i].Cache.LineSize;
-        }
+    default:
+      break;
+    case RelationCache:
+      if (1 == buffer[i].Cache.Level) {
+        return buffer[i].Cache.LineSize;
+      }
     }
   }
 
@@ -357,22 +359,22 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
 
   this->address_capabilities = mux_address_capabilities_logical;
   switch (arch) {
-    case host::arch::ARM:
-    case host::arch::X86:
-    case host::arch::RISCV32:
-      this->address_capabilities |= mux_address_capabilities_bits32;
-      this->atomic_capabilities = mux_atomic_capabilities_8bit |
-                                  mux_atomic_capabilities_16bit |
-                                  mux_atomic_capabilities_32bit;
-      break;
-    case host::arch::AARCH64:
-    case host::arch::X86_64:
-    case host::arch::RISCV64:
-      this->address_capabilities |= mux_address_capabilities_bits64;
-      this->atomic_capabilities =
-          mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
-          mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit;
-      break;
+  case host::arch::ARM:
+  case host::arch::X86:
+  case host::arch::RISCV32:
+    this->address_capabilities |= mux_address_capabilities_bits32;
+    this->atomic_capabilities = mux_atomic_capabilities_8bit |
+                                mux_atomic_capabilities_16bit |
+                                mux_atomic_capabilities_32bit;
+    break;
+  case host::arch::AARCH64:
+  case host::arch::X86_64:
+  case host::arch::RISCV64:
+    this->address_capabilities |= mux_address_capabilities_bits64;
+    this->atomic_capabilities =
+        mux_atomic_capabilities_8bit | mux_atomic_capabilities_16bit |
+        mux_atomic_capabilities_32bit | mux_atomic_capabilities_64bit;
+    break;
   }
 
   // See Redmine #4946
@@ -391,7 +393,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
 
 #else
   this->half_capabilities = 0;
-#endif  // CA_HOST_ENABLE_FP16
+#endif // CA_HOST_ENABLE_FP16
 
   this->float_capabilities = mux_floating_point_capabilities_inf_nan |
                              mux_floating_point_capabilities_rte |
@@ -413,7 +415,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
                               mux_floating_point_capabilities_full;
 #else
   this->double_capabilities = 0;
-#endif  // CA_HOST_ENABLE_FP64
+#endif // CA_HOST_ENABLE_FP64
 
   // As an ISV without a unique device PCIe identifier, 0x10004 is the vendor ID
   // we've reserved in Khronos specs. Matches enums
@@ -537,7 +539,7 @@ device_info_s::device_info_s(host::arch arch, host::os os, bool native,
   // desirability.
   static std::array<size_t, 5> sg_sizes = {
       8, 4, 16, 32,
-      1,  // we can always produce a 'trivial' sub-group if asked.
+      1, // we can always produce a 'trivial' sub-group if asked.
   };
   this->sub_group_sizes = sg_sizes.data();
   this->num_sub_group_sizes = sg_sizes.size();
@@ -594,7 +596,7 @@ device_s::device_s(device_info_s *info, mux_allocator_info_t allocator_info)
   this->info = info;
 }
 
-}  // namespace host
+} // namespace host
 
 mux_result_t hostGetDeviceInfos(uint32_t device_types,
                                 uint64_t device_infos_length,
@@ -627,7 +629,7 @@ mux_result_t hostCreateDevices(uint64_t devices_length,
   if (devices_length != 1) {
     return mux_error_invalid_value;
   }
-  (void)device_infos;  // only one device defined for host
+  (void)device_infos; // only one device defined for host
 
   void *const allocation = allocator.alloc(
       allocator.user_data, sizeof(host::device_s), alignof(host::device_s));

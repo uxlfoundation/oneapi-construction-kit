@@ -152,7 +152,7 @@ int md_get_zstr(md_value val, char **s, size_t *len) {
     return md_err::MD_E_TYPE_ERR;
   }
   const auto *const str = val->get<md_stack_::string_t>();
-  *len = str->length() + 1;  // additional null terminator
+  *len = str->length() + 1; // additional null terminator
   const auto &helper = val->get_alloc_helper();
   char *const buf = helper.get_allocator<char>().allocate(*len);
   *s = std::strncpy(buf, str->c_str(), *len);
@@ -306,123 +306,123 @@ int md_pushf(md_stack stack, const char *fmt, ...) {
 
   while (*fmt != '\0') {
     switch (*fmt) {
-      case '[': {
-        const int arr_idx_or_err = md_push_array(stack, 0);
-        if (MD_CHECK_ERR(arr_idx_or_err)) {
-          return cleanup(), arr_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(arr_idx_or_err);
-        }
-        array_map_stack.push(fmt_stack_element{
-            md_value_type::MD_TYPE_ARRAY, static_cast<size_t>(arr_idx_or_err)});
-      } break;
-      case ']': {
-        if (array_map_stack.top().type != md_value_type::MD_TYPE_ARRAY) {
-          return cleanup(), md_err::MD_E_INVALID_FMT_STR;
-        }
-        if (!v_idx_stack.empty()) {
-          const int err = push_to_hash_or_array();
-          if (MD_CHECK_ERR(err)) {
-            return cleanup(), err;
-          }
-        }
-        array_map_stack.pop();
-      } break;
-      case '{': {
-        const int map_idx_or_err = md_push_hashtable(stack, 0);
-        if (MD_CHECK_ERR(map_idx_or_err)) {
-          return cleanup(), map_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(map_idx_or_err);
-        }
-        array_map_stack.push(fmt_stack_element{
-            md_value_type::MD_TYPE_HASH, static_cast<size_t>(map_idx_or_err)});
-      } break;
-      case '}': {
-        if (array_map_stack.top().type != md_value_type::MD_TYPE_HASH) {
-          return cleanup(), md_err::MD_E_INVALID_FMT_STR;
-        }
-        if (!v_idx_stack.empty()) {
-          const int err = push_to_hash_or_array();
-          if (MD_CHECK_ERR(err)) {
-            return cleanup(), err;
-          }
-        }
-        array_map_stack.pop();
-      } break;
-      case 'z': {
-        const char *str_to_push = va_arg(argp, char *);
-        const int zstr_idx_or_err = md_push_zstr(stack, str_to_push);
-        if (MD_CHECK_ERR(zstr_idx_or_err)) {
-          return cleanup(), zstr_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(zstr_idx_or_err);
-        }
-      } break;
-      case 's': {
-        const size_t byte_str_len = va_arg(argp, size_t);
-        const void *byte_str = va_arg(argp, void *);
-        const int byte_str_idx_or_err =
-            md_push_bytes(stack, byte_str, byte_str_len);
-        if (MD_CHECK_ERR(byte_str_idx_or_err)) {
-          return cleanup(), byte_str_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(byte_str_idx_or_err);
-        }
-      } break;
-      case 'f': {
-        const double double_to_push = va_arg(argp, double);
-        const int real_idx = md_push_real(stack, double_to_push);
-        if (MD_CHECK_ERR(real_idx)) {
-          return cleanup(), real_idx;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(real_idx);
-        }
-      } break;
-      case 'u': {
-        const uint64_t int_to_push = va_arg(argp, uint64_t);
-        const int uint_idx_or_err = md_push_uint(stack, int_to_push);
-        if (MD_CHECK_ERR(uint_idx_or_err)) {
-          return cleanup(), uint_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(uint_idx_or_err);
-        }
-      } break;
-      case 'i': {
-        const int64_t int_to_push = va_arg(argp, int64_t);
-        const int sint_idx_or_err = md_push_sint(stack, int_to_push);
-        if (MD_CHECK_ERR(sint_idx_or_err)) {
-          return cleanup(), sint_idx_or_err;
-        }
-        if (!array_map_stack.empty()) {
-          v_idx_stack.push(sint_idx_or_err);
-        }
-      } break;
-      case ':':
-        if (array_map_stack.top().type != md_value_type::MD_TYPE_HASH) {
-          return cleanup(), md_err::MD_E_INVALID_FMT_STR;
-        }
-        if (v_idx_stack.size() < 1) {
-          return cleanup(), md_err::MD_E_INVALID_FMT_STR;
-        }
-        break;
-      case ',': {
+    case '[': {
+      const int arr_idx_or_err = md_push_array(stack, 0);
+      if (MD_CHECK_ERR(arr_idx_or_err)) {
+        return cleanup(), arr_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(arr_idx_or_err);
+      }
+      array_map_stack.push(fmt_stack_element{
+          md_value_type::MD_TYPE_ARRAY, static_cast<size_t>(arr_idx_or_err)});
+    } break;
+    case ']': {
+      if (array_map_stack.top().type != md_value_type::MD_TYPE_ARRAY) {
+        return cleanup(), md_err::MD_E_INVALID_FMT_STR;
+      }
+      if (!v_idx_stack.empty()) {
         const int err = push_to_hash_or_array();
         if (MD_CHECK_ERR(err)) {
           return cleanup(), err;
         }
-      } break;
-      case ' ':
-        break;
-      default:
-        return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
-        break;
+      }
+      array_map_stack.pop();
+    } break;
+    case '{': {
+      const int map_idx_or_err = md_push_hashtable(stack, 0);
+      if (MD_CHECK_ERR(map_idx_or_err)) {
+        return cleanup(), map_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(map_idx_or_err);
+      }
+      array_map_stack.push(fmt_stack_element{
+          md_value_type::MD_TYPE_HASH, static_cast<size_t>(map_idx_or_err)});
+    } break;
+    case '}': {
+      if (array_map_stack.top().type != md_value_type::MD_TYPE_HASH) {
+        return cleanup(), md_err::MD_E_INVALID_FMT_STR;
+      }
+      if (!v_idx_stack.empty()) {
+        const int err = push_to_hash_or_array();
+        if (MD_CHECK_ERR(err)) {
+          return cleanup(), err;
+        }
+      }
+      array_map_stack.pop();
+    } break;
+    case 'z': {
+      const char *str_to_push = va_arg(argp, char *);
+      const int zstr_idx_or_err = md_push_zstr(stack, str_to_push);
+      if (MD_CHECK_ERR(zstr_idx_or_err)) {
+        return cleanup(), zstr_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(zstr_idx_or_err);
+      }
+    } break;
+    case 's': {
+      const size_t byte_str_len = va_arg(argp, size_t);
+      const void *byte_str = va_arg(argp, void *);
+      const int byte_str_idx_or_err =
+          md_push_bytes(stack, byte_str, byte_str_len);
+      if (MD_CHECK_ERR(byte_str_idx_or_err)) {
+        return cleanup(), byte_str_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(byte_str_idx_or_err);
+      }
+    } break;
+    case 'f': {
+      const double double_to_push = va_arg(argp, double);
+      const int real_idx = md_push_real(stack, double_to_push);
+      if (MD_CHECK_ERR(real_idx)) {
+        return cleanup(), real_idx;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(real_idx);
+      }
+    } break;
+    case 'u': {
+      const uint64_t int_to_push = va_arg(argp, uint64_t);
+      const int uint_idx_or_err = md_push_uint(stack, int_to_push);
+      if (MD_CHECK_ERR(uint_idx_or_err)) {
+        return cleanup(), uint_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(uint_idx_or_err);
+      }
+    } break;
+    case 'i': {
+      const int64_t int_to_push = va_arg(argp, int64_t);
+      const int sint_idx_or_err = md_push_sint(stack, int_to_push);
+      if (MD_CHECK_ERR(sint_idx_or_err)) {
+        return cleanup(), sint_idx_or_err;
+      }
+      if (!array_map_stack.empty()) {
+        v_idx_stack.push(sint_idx_or_err);
+      }
+    } break;
+    case ':':
+      if (array_map_stack.top().type != md_value_type::MD_TYPE_HASH) {
+        return cleanup(), md_err::MD_E_INVALID_FMT_STR;
+      }
+      if (v_idx_stack.size() < 1) {
+        return cleanup(), md_err::MD_E_INVALID_FMT_STR;
+      }
+      break;
+    case ',': {
+      const int err = push_to_hash_or_array();
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+    } break;
+    case ' ':
+      break;
+    default:
+      return cleanup(), md_err::MD_E_INVALID_FMT_STR; // NOLINT
+      break;
     }
     ++fmt;
   }
@@ -430,7 +430,7 @@ int md_pushf(md_stack stack, const char *fmt, ...) {
   // If the array_map_stack or v_idx_stack is non empty it suggests that there
   // is a unterminated array or hashtable.
   if (!(array_map_stack.empty() && v_idx_stack.empty())) {
-    return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
+    return cleanup(), md_err::MD_E_INVALID_FMT_STR; // NOLINT
   }
 
   va_end(argp);
@@ -508,112 +508,112 @@ int md_loadf(md_stack stack, const char *fmt, ...) {
 
   while (*fmt != '\0') {
     switch (*fmt) {
-      case '[': {
-        const auto arr = get_value();
-        if (!arr.has_value()) {
-          return cleanup(), arr.error();
-        }
-        if (arr.value()->get_type() != md_value_type::MD_TYPE_ARRAY) {
-          return cleanup(), md_err::MD_E_TYPE_ERR;
-        }
-        array_map_stack.push({arr.value(), 0});
-      } break;
-      case ']':
-        array_map_stack.pop();
-        break;
-      case '{': {
-        const auto hash = get_value();
-        if (!hash.has_value()) {
-          return cleanup(), hash.error();
-        }
-        if (hash.value()->get_type() != md_value_type::MD_TYPE_HASH) {
-          return cleanup(), md_err::MD_E_TYPE_ERR;
-        }
-        array_map_stack.push({hash.value(), 0});
-        is_key = true;
-      } break;
-      case '}':
-        array_map_stack.pop();
-        break;
-      case ',': {
-        array_map_stack.top().index += 1;
-        is_key = true;
-      } break;
-      case ':':
-        is_key = false;
-        break;
-      case 'z': {
-        const char **str_to_store = va_arg(argp, const char **);
-        const auto value_or_err = get_value();
-        if (!value_or_err.has_value()) {
-          return cleanup(), value_or_err.error();
-        }
-        md_value value = value_or_err.value();
-        size_t str_len;
-        char *str_data;
-        const int err = md_get_zstr(value, &str_data, &str_len);
-        dangling_pointers.push_back(str_data);
-        if (MD_CHECK_ERR(err)) {
-          return cleanup(), err;
-        }
-        *str_to_store = str_data;
-      } break;
-      case 'u': {
-        uint64_t *val_to_store = va_arg(argp, uint64_t *);
-        const auto value_or_err = get_value();
-        if (!value_or_err.has_value()) {
-          return cleanup(), value_or_err.error();
-        }
-        md_value value = value_or_err.value();
-        const int err = md_get_uint(value, val_to_store);
-        if (MD_CHECK_ERR(err)) {
-          return cleanup(), err;
-        }
-      } break;
-      case 'i': {
-        int64_t *val_to_store = va_arg(argp, int64_t *);
-        const auto value_or_err = get_value();
-        if (!value_or_err.has_value()) {
-          return cleanup(), value_or_err.error();
-        }
-        md_value value = value_or_err.value();
-        const int err = md_get_sint(value, val_to_store);
-        if (MD_CHECK_ERR(err)) {
-          return cleanup(), err;
-        }
-      } break;
-      case 'f': {
-        double *val_to_store = va_arg(argp, double *);
-        const auto value_or_err = get_value();
-        if (!value_or_err.has_value()) {
-          return cleanup(), value_or_err.error();
-        }
-        md_value value = value_or_err.value();
-        const int err = md_get_real(value, val_to_store);
-        if (MD_CHECK_ERR(err)) {
-          return cleanup(), err;
-        }
-      } break;
-      case 's': {
-        size_t *len_to_store = va_arg(argp, size_t *);
-        char **bytes_to_store = va_arg(argp, char **);
-        const auto value_or_err = get_value();
-        if (!value_or_err.has_value()) {
-          return cleanup(), value_or_err.error();
-        }
-        md_value value = value_or_err.value();
-        char *bytes_data;
-        size_t bytes_len;
-        const int err = md_get_bytes(value, &bytes_data, &bytes_len);
-        dangling_pointers.push_back(bytes_data);
-        if (MD_CHECK_ERR(err)) {
-          return cleanup(), err;
-        }
-        *bytes_to_store = bytes_data;
-        *len_to_store = bytes_len;
-      } break;
-      default:
-        break;
+    case '[': {
+      const auto arr = get_value();
+      if (!arr.has_value()) {
+        return cleanup(), arr.error();
+      }
+      if (arr.value()->get_type() != md_value_type::MD_TYPE_ARRAY) {
+        return cleanup(), md_err::MD_E_TYPE_ERR;
+      }
+      array_map_stack.push({arr.value(), 0});
+    } break;
+    case ']':
+      array_map_stack.pop();
+      break;
+    case '{': {
+      const auto hash = get_value();
+      if (!hash.has_value()) {
+        return cleanup(), hash.error();
+      }
+      if (hash.value()->get_type() != md_value_type::MD_TYPE_HASH) {
+        return cleanup(), md_err::MD_E_TYPE_ERR;
+      }
+      array_map_stack.push({hash.value(), 0});
+      is_key = true;
+    } break;
+    case '}':
+      array_map_stack.pop();
+      break;
+    case ',': {
+      array_map_stack.top().index += 1;
+      is_key = true;
+    } break;
+    case ':':
+      is_key = false;
+      break;
+    case 'z': {
+      const char **str_to_store = va_arg(argp, const char **);
+      const auto value_or_err = get_value();
+      if (!value_or_err.has_value()) {
+        return cleanup(), value_or_err.error();
+      }
+      md_value value = value_or_err.value();
+      size_t str_len;
+      char *str_data;
+      const int err = md_get_zstr(value, &str_data, &str_len);
+      dangling_pointers.push_back(str_data);
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+      *str_to_store = str_data;
+    } break;
+    case 'u': {
+      uint64_t *val_to_store = va_arg(argp, uint64_t *);
+      const auto value_or_err = get_value();
+      if (!value_or_err.has_value()) {
+        return cleanup(), value_or_err.error();
+      }
+      md_value value = value_or_err.value();
+      const int err = md_get_uint(value, val_to_store);
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+    } break;
+    case 'i': {
+      int64_t *val_to_store = va_arg(argp, int64_t *);
+      const auto value_or_err = get_value();
+      if (!value_or_err.has_value()) {
+        return cleanup(), value_or_err.error();
+      }
+      md_value value = value_or_err.value();
+      const int err = md_get_sint(value, val_to_store);
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+    } break;
+    case 'f': {
+      double *val_to_store = va_arg(argp, double *);
+      const auto value_or_err = get_value();
+      if (!value_or_err.has_value()) {
+        return cleanup(), value_or_err.error();
+      }
+      md_value value = value_or_err.value();
+      const int err = md_get_real(value, val_to_store);
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+    } break;
+    case 's': {
+      size_t *len_to_store = va_arg(argp, size_t *);
+      char **bytes_to_store = va_arg(argp, char **);
+      const auto value_or_err = get_value();
+      if (!value_or_err.has_value()) {
+        return cleanup(), value_or_err.error();
+      }
+      md_value value = value_or_err.value();
+      char *bytes_data;
+      size_t bytes_len;
+      const int err = md_get_bytes(value, &bytes_data, &bytes_len);
+      dangling_pointers.push_back(bytes_data);
+      if (MD_CHECK_ERR(err)) {
+        return cleanup(), err;
+      }
+      *bytes_to_store = bytes_data;
+      *len_to_store = bytes_len;
+    } break;
+    default:
+      break;
     }
     ++fmt;
     if (array_map_stack.empty()) {
@@ -622,7 +622,7 @@ int md_loadf(md_stack stack, const char *fmt, ...) {
   }
 
   if (!array_map_stack.empty()) {
-    return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
+    return cleanup(), md_err::MD_E_INVALID_FMT_STR; // NOLINT
   }
   va_end(argp);
   return md_top(stack);

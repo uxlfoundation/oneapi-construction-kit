@@ -23,7 +23,7 @@
 const size_t good_alignment = 4096;
 class clEnqueueMapBufferTest : public ucl::CommandQueueTest,
                                TestWithEventWaitList {
- protected:
+protected:
   enum { FACTOR = 2 };
 
   clEnqueueMapBufferTest(bool use_host_ptr = false)
@@ -120,7 +120,7 @@ class clEnqueueMapBufferTest : public ucl::CommandQueueTest,
 };
 
 class clEnqueueMapBufferTestHostPtr : public clEnqueueMapBufferTest {
- public:
+public:
   clEnqueueMapBufferTestHostPtr() : clEnqueueMapBufferTest(true) {}
 };
 
