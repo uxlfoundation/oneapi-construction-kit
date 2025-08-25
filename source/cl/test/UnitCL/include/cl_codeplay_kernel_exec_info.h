@@ -83,9 +83,9 @@ struct USMKernelExecInfoCodeplayTest : public clSetKernelExecInfoCODEPLAYTest {
       GTEST_SKIP();
     }
 
-#define CL_GET_EXTENSION_ADDRESS(FUNC)                                         \
-  FUNC = reinterpret_cast<FUNC##_fn>(                                          \
-      clGetExtensionFunctionAddressForPlatform(platform, #FUNC));              \
+#define CL_GET_EXTENSION_ADDRESS(FUNC)                            \
+  FUNC = reinterpret_cast<FUNC##_fn>(                             \
+      clGetExtensionFunctionAddressForPlatform(platform, #FUNC)); \
   ASSERT_NE(nullptr, FUNC);
     CL_GET_EXTENSION_ADDRESS(clDeviceMemAllocINTEL);
     CL_GET_EXTENSION_ADDRESS(clMemBlockingFreeINTEL);
@@ -127,4 +127,4 @@ template <typename T>
 struct USMExecInfoCodeplayWithParam : public USMKernelExecInfoCodeplayTest,
                                       public ::testing::WithParamInterface<T> {
 };
-#endif // UNITCL_CODEPLAY_EXEC_INFO_H_INCLUDED
+#endif  // UNITCL_CODEPLAY_EXEC_INFO_H_INCLUDED

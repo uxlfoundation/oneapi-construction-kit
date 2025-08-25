@@ -435,6 +435,6 @@ CL_API_ENTRY cl_int CL_API_CALL CreateSubDevices(
     cl_uint num_devices, cl_device_id *out_devices, cl_uint *num_devices_ret);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_DEVICE_H_INCLUDED
+#endif  // CL_DEVICE_H_INCLUDED

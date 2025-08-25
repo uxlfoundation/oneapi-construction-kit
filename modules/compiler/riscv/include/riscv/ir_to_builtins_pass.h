@@ -42,6 +42,6 @@ struct IRToBuiltinReplacementPass final
   IRToBuiltinReplacementPass() {}
 };
 
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_IR_TO_BUILTINS_PASS_H_INCLUDED
+#endif  // RISCV_IR_TO_BUILTINS_PASS_H_INCLUDED

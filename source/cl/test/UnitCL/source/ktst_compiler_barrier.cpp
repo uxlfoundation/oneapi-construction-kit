@@ -52,7 +52,7 @@ TEST_P(ExecutionWG, Compiler_Barrier_03_Odd_Work_Group_Size) {
   fail_if_not_vectorized_ = false;
 
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Get the parameter, but guard against it being zero (kts::localN - 1,
   // when kts::localN is changed to 1).

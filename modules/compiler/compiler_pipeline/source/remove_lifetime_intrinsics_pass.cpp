@@ -24,9 +24,8 @@ using namespace llvm;
 /// Erasing lifetime intrinsics is useful for debugging since the backend is
 /// less likely to optimize away variables on the stack that are no longer used,
 /// as a result this pass should only be run for debug compilation builds.
-PreservedAnalyses
-compiler::utils::RemoveLifetimeIntrinsicsPass::run(Function &F,
-                                                   FunctionAnalysisManager &) {
+PreservedAnalyses compiler::utils::RemoveLifetimeIntrinsicsPass::run(
+    Function &F, FunctionAnalysisManager &) {
   SmallVector<Instruction *, 8> toDelete;
 
   // Iterate over all instructions in function looking for

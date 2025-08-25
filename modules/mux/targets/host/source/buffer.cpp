@@ -25,7 +25,7 @@ buffer_s::buffer_s(mux_memory_requirements_s memory_requirements)
     : data(nullptr) {
   this->memory_requirements = memory_requirements;
 }
-} // namespace host
+}  // namespace host
 
 mux_result_t hostCreateBuffer(mux_device_t device, size_t size,
                               mux_allocator_info_t allocator_info,

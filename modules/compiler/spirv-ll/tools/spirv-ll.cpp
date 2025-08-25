@@ -35,11 +35,10 @@ static int outputSpecConstants(spirv_ll::Context &spvContext,
                                llvm::ArrayRef<uint32_t> spvCode,
                                llvm::raw_os_ostream &out);
 
-static llvm::Expected<spirv_ll::DeviceInfo>
-getDeviceInfo(cargo::string_view api,
-              cargo::array_view<cargo::string_view> capabilities,
-              cargo::array_view<cargo::string_view> extensions,
-              cargo::string_view bits, bool enableAll);
+static llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
+    cargo::string_view api, cargo::array_view<cargo::string_view> capabilities,
+    cargo::array_view<cargo::string_view> extensions, cargo::string_view bits,
+    bool enableAll);
 
 int main(int argc, char **argv) {
   // usage: spirv-ll-tool [options] input
@@ -253,15 +252,15 @@ int outputSpecConstants(spirv_ll::Context &spvContext,
   for (const auto &specConstant : orderedSpecializableConstants) {
     out << "SpecId: " << specConstant.first << "\t";
     switch (specConstant.second.constantType) {
-    case spirv_ll::SpecializationType::BOOL:
-      out << "OpTypeBool";
-      break;
-    case spirv_ll::SpecializationType::INT:
-      out << "OpTypeInt";
-      break;
-    case spirv_ll::SpecializationType::FLOAT:
-      out << "OpTypeFloat";
-      break;
+      case spirv_ll::SpecializationType::BOOL:
+        out << "OpTypeBool";
+        break;
+      case spirv_ll::SpecializationType::INT:
+        out << "OpTypeInt";
+        break;
+      case spirv_ll::SpecializationType::FLOAT:
+        out << "OpTypeFloat";
+        break;
     }
     out << "\t" << specConstant.second.sizeInBits << " bit\n";
   }
@@ -269,11 +268,10 @@ int outputSpecConstants(spirv_ll::Context &spvContext,
   return 0;
 }
 
-llvm::Expected<spirv_ll::DeviceInfo>
-getDeviceInfo(cargo::string_view api,
-              cargo::array_view<cargo::string_view> capabilities,
-              cargo::array_view<cargo::string_view> extensions,
-              cargo::string_view bits, bool enableAll) {
+llvm::Expected<spirv_ll::DeviceInfo> getDeviceInfo(
+    cargo::string_view api, cargo::array_view<cargo::string_view> capabilities,
+    cargo::array_view<cargo::string_view> extensions, cargo::string_view bits,
+    bool enableAll) {
   spirv_ll::DeviceInfo deviceInfo;
   if (api == "OpenCL") {
     deviceInfo.capabilities.assign({

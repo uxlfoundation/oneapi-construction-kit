@@ -39,7 +39,8 @@ struct helper;
 // abacus_half is only available when __CA_BUILTINS_HALF_SUPPORT is set.
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   static T _(const T x) {
     const abacus_half one_over_log2_10 = 0.30102999566f16;
     return __abacus_log2(x) * one_over_log2_10;
@@ -48,7 +49,8 @@ template <typename T> struct helper<T, abacus_half> {
 
 #endif
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T _(const T x) {
     const abacus_float one_over_log2_10 = 0.30102999566f;
     return __abacus_log2(x) * one_over_log2_10;
@@ -56,17 +58,21 @@ template <typename T> struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T _(const T x) {
     const abacus_double one_over_log2_10 =
         0.301029995663981195213738894724493026768189881462108541310427;
     return __abacus_log2(x) * one_over_log2_10;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> T ABACUS_API log10(const T x) { return helper<T>::_(x); }
-} // namespace
+template <typename T>
+T ABACUS_API log10(const T x) {
+  return helper<T>::_(x);
+}
+}  // namespace
 
 // abacus_half is only available when __CA_BUILTINS_HALF_SUPPORT is set.
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -104,4 +110,4 @@ abacus_double8 ABACUS_API __abacus_log10(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_log10(abacus_double16 x) {
   return log10<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

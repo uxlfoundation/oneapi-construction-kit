@@ -39,9 +39,9 @@ struct cl_intel_unified_shared_memory_Test : public virtual ucl::ContextTest {
         device, CL_DEVICE_SINGLE_DEVICE_SHARED_MEM_CAPABILITIES_INTEL,
         sizeof(shared_capabilities), &shared_capabilities, nullptr));
 
-#define CL_GET_EXTENSION_ADDRESS(FUNC)                                         \
-  FUNC = reinterpret_cast<FUNC##_fn>(                                          \
-      clGetExtensionFunctionAddressForPlatform(platform, #FUNC));              \
+#define CL_GET_EXTENSION_ADDRESS(FUNC)                            \
+  FUNC = reinterpret_cast<FUNC##_fn>(                             \
+      clGetExtensionFunctionAddressForPlatform(platform, #FUNC)); \
   ASSERT_NE(nullptr, FUNC);
 
     CL_GET_EXTENSION_ADDRESS(clHostMemAllocINTEL);
@@ -162,4 +162,4 @@ template <typename T>
 class USMWithParam : public cl_intel_unified_shared_memory_Test,
                      public ::testing::WithParamInterface<T> {};
 
-#endif // UNITCL_USM_H_INCLUDED
+#endif  // UNITCL_USM_H_INCLUDED

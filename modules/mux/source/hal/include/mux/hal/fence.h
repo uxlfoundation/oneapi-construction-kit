@@ -34,8 +34,8 @@ struct fence : mux_fence_s {
 
   /// @see muxCreateFence
   template <class Fence>
-  static cargo::expected<Fence *, mux_result_t>
-  create(mux_device_t device, mux::allocator allocator) {
+  static cargo::expected<Fence *, mux_result_t> create(
+      mux_device_t device, mux::allocator allocator) {
     static_assert(std::is_base_of_v<mux::hal::fence, Fence>,
                   "template type Fence must derive from mux::hal::fence");
     const auto fence = allocator.create<Fence>(device);
@@ -63,12 +63,12 @@ struct fence : mux_fence_s {
 
   void signal(mux_result_t result);
 
-private:
+ private:
   std::mutex mutex;
   std::condition_variable condition_variable;
   mux_result_t result = mux_fence_not_ready;
   bool completed = false;
 };
-} // namespace hal
-} // namespace mux
-#endif // MUX_HAL_FENCE_H_INCLUDED
+}  // namespace hal
+}  // namespace mux
+#endif  // MUX_HAL_FENCE_H_INCLUDED

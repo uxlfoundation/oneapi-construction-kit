@@ -29,7 +29,7 @@ namespace extension {
 
 /// @brief Definition of cl_codeplay_wfv extension.
 class codeplay_wfv final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   codeplay_wfv();
 
@@ -46,9 +46,8 @@ public:
   /// * "clGetKernelWFVInfoCODEPLAY"
   /// @return Returns a pointer to the extension function or nullptr if no
   /// function with the name func_name exists.
-  void *
-  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                         const char *func_name) const override;
+  void *GetExtensionFunctionAddressForPlatform(
+      cl_platform_id platform, const char *func_name) const override;
 
   /// @copydoc extension::extension::GetDeviceInfo
   cl_int GetDeviceInfo(cl_device_id device, cl_device_info param_name,
@@ -57,7 +56,7 @@ public:
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
 namespace wfv {
 /// @brief Checks if an OpenCL device can support vectorization, a mandatory
@@ -67,6 +66,6 @@ namespace wfv {
 ///
 /// @return True if device can support vectorization, false otherwise.
 bool deviceSupportsVectorization(cl_device_id device);
-} // namespace wfv
+}  // namespace wfv
 
-#endif // EXTENSION_CODEPLAY_WFV_H_INCLUDED
+#endif  // EXTENSION_CODEPLAY_WFV_H_INCLUDED

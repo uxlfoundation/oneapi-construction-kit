@@ -32,7 +32,8 @@
 namespace compiler {
 namespace utils {
 
-template <typename T> llvm::Printable print(FixedOrScalableQuantity<T> Q) {
+template <typename T>
+llvm::Printable print(FixedOrScalableQuantity<T> Q) {
   return llvm::Printable([Q](llvm::raw_ostream &Out) {
     if (Q.isScalable()) {
       Out << "vscale x ";
@@ -45,7 +46,7 @@ class GenericMetadataAnalysis
     : public llvm::AnalysisInfoMixin<GenericMetadataAnalysis> {
   friend AnalysisInfoMixin<GenericMetadataAnalysis>;
 
-public:
+ public:
   using Result = handler::GenericMetadata;
   GenericMetadataAnalysis() = default;
 
@@ -54,7 +55,7 @@ public:
   /// @brief Return the name of the pass.
   static llvm::StringRef name() { return "Generic Metadata analysis"; }
 
-private:
+ private:
   /// @brief Unique identifier for the pass.
   static llvm::AnalysisKey Key;
 };
@@ -63,7 +64,7 @@ class GenericMetadataPrinterPass
     : public llvm::PassInfoMixin<GenericMetadataPrinterPass> {
   llvm::raw_ostream &OS;
 
-public:
+ public:
   explicit GenericMetadataPrinterPass(llvm::raw_ostream &OS) : OS(OS) {}
 
   llvm::PreservedAnalyses run(llvm::Function &F,
@@ -74,7 +75,7 @@ class VectorizeMetadataAnalysis
     : public llvm::AnalysisInfoMixin<VectorizeMetadataAnalysis> {
   friend AnalysisInfoMixin<VectorizeMetadataAnalysis>;
 
-public:
+ public:
   using Result = handler::VectorizeInfoMetadata;
   VectorizeMetadataAnalysis() = default;
 
@@ -83,7 +84,7 @@ public:
   /// @brief Return the name of the pass.
   static llvm::StringRef name() { return "Vectorize Metadata analysis"; }
 
-private:
+ private:
   /// @brief Unique identifier for the pass.
   static llvm::AnalysisKey Key;
 };
@@ -92,14 +93,14 @@ class VectorizeMetadataPrinterPass
     : public llvm::PassInfoMixin<VectorizeMetadataPrinterPass> {
   llvm::raw_ostream &OS;
 
-public:
+ public:
   explicit VectorizeMetadataPrinterPass(llvm::raw_ostream &OS) : OS(OS) {}
 
   llvm::PreservedAnalyses run(llvm::Function &F,
                               llvm::FunctionAnalysisManager &AM);
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_METADATA_ANALYSIS_H_INCLUDED
+#endif  // COMPILER_UTILS_METADATA_ANALYSIS_H_INCLUDED

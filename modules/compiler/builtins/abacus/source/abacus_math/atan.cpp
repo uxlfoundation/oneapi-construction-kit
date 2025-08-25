@@ -22,7 +22,7 @@
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/atan_unsafe.h>
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/horner_polynomial.h>
 
 // see maple worksheet for coefficient derivation
@@ -54,7 +54,8 @@ abacus_float ABACUS_API __abacus_atan(abacus_float x) {
 }
 
 namespace {
-template <typename T> T ABACUS_API atan(T x) {
+template <typename T>
+T ABACUS_API atan(T x) {
   const typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
 
   x = __abacus_select(x, (T)1.0f / x, recip_x);
@@ -65,7 +66,7 @@ template <typename T> T ABACUS_API atan(T x) {
   return __abacus_select(result, __abacus_copysign(ABACUS_PI_2_F, x) - result,
                          recip_x);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 namespace {
@@ -74,7 +75,8 @@ static ABACUS_CONSTANT abacus_half __codeplay_atan_half[4] = {
     0.99951171875f16, -0.31884765625f16, 0.1356201171875f16,
     -3.08074951171875e-2f16};
 
-template <typename T> T ABACUS_API atan_half(T x) {
+template <typename T>
+T ABACUS_API atan_half(T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   // Using the identity atan(1/x) = pi/2 - atan(x), we can calculate atan(x) for
@@ -108,7 +110,7 @@ template <typename T> T ABACUS_API atan_half(T x) {
 
   return ans;
 }
-} // namespace
+}  // namespace
 
 abacus_half ABACUS_API __abacus_atan(abacus_half x) { return atan_half<>(x); }
 abacus_half2 ABACUS_API __abacus_atan(abacus_half2 x) { return atan_half<>(x); }
@@ -118,7 +120,7 @@ abacus_half8 ABACUS_API __abacus_atan(abacus_half8 x) { return atan_half<>(x); }
 abacus_half16 ABACUS_API __abacus_atan(abacus_half16 x) {
   return atan_half<>(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float2 ABACUS_API __abacus_atan(abacus_float2 x) { return atan<>(x); }
 abacus_float3 ABACUS_API __abacus_atan(abacus_float3 x) { return atan<>(x); }
@@ -128,10 +130,11 @@ abacus_float16 ABACUS_API __abacus_atan(abacus_float16 x) { return atan<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 namespace {
-template <typename T> T atanD(const T x) {
+template <typename T>
+T atanD(const T x) {
   return abacus::internal::atan_unsafe(x);
 }
-} // namespace
+}  // namespace
 
 abacus_double ABACUS_API __abacus_atan(abacus_double x) { return atanD<>(x); }
 abacus_double2 ABACUS_API __abacus_atan(abacus_double2 x) { return atanD<>(x); }
@@ -141,4 +144,4 @@ abacus_double8 ABACUS_API __abacus_atan(abacus_double8 x) { return atanD<>(x); }
 abacus_double16 ABACUS_API __abacus_atan(abacus_double16 x) {
   return atanD<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

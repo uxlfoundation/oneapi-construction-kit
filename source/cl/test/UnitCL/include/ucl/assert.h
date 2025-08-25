@@ -24,17 +24,17 @@
 #include <cstdio>
 #include <cstdlib>
 
-#define UCL_ASSERT(CONDITION, MESSAGE)                                         \
-  if (!(CONDITION)) {                                                          \
-    (void)std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE);   \
-    std::abort();                                                              \
+#define UCL_ASSERT(CONDITION, MESSAGE)                                       \
+  if (!(CONDITION)) {                                                        \
+    (void)std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE); \
+    std::abort();                                                            \
   }
 
-#define UCL_ABORT(FORMAT, ...)                                                 \
-  {                                                                            \
-    (void)std::fprintf(stderr, "abort: %s: %d: " FORMAT "\n", __FILE__,        \
-                       __LINE__, __VA_ARGS__);                                 \
-    std::abort();                                                              \
+#define UCL_ABORT(FORMAT, ...)                                          \
+  {                                                                     \
+    (void)std::fprintf(stderr, "abort: %s: %d: " FORMAT "\n", __FILE__, \
+                       __LINE__, __VA_ARGS__);                          \
+    std::abort();                                                       \
   }
 
-#endif // UCL_ASSERT_H_INCLUDED
+#endif  // UCL_ASSERT_H_INCLUDED

@@ -17,11 +17,11 @@
 
 // Test fixture for checking we can update kernel arguments that are buffers.
 class CommandBufferMutableBufferArgTest : public MutableDispatchTest {
-public:
+ public:
   CommandBufferMutableBufferArgTest()
       : input_data(global_size), output_data(global_size) {}
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
     // Set up the kernel. This contrived example just does a copy in parallel
@@ -1319,12 +1319,13 @@ TEST_F(CommandBufferMutableBufferArgTest, RegularNDRangeThenMutableNDRange) {
 // multiple dispatches within the same command queue.
 class CommandBufferMultiMutableBufferArgTest
     : public CommandBufferMutableBufferArgTest {
-public:
+ public:
   CommandBufferMultiMutableBufferArgTest()
-      : CommandBufferMutableBufferArgTest(), second_input_data(global_size),
+      : CommandBufferMutableBufferArgTest(),
+        second_input_data(global_size),
         second_output_data(global_size) {}
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandBufferMutableBufferArgTest::SetUp());
     // Enqueue the first mutable dispatch.
@@ -1723,7 +1724,7 @@ TEST_F(MutableDispatchTest, UpdateConstantBuffer) {
 // the buffer has actually changed value, but we can still check that the OpenCL
 // API calls succeed.
 class CommandBufferMutableLocalBufferArgTest : public MutableDispatchTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
     // Set up the kernel. This contrived example doesn't actually do anything
@@ -1883,7 +1884,7 @@ TEST_F(CommandBufferMutableLocalBufferArgTest, UpdateTwice) {
 // (see CA-3044). When support for `NULL` is added we should renable these
 // tests.
 class DISABLED_CommandBufferMutableNullArgTest : public MutableDispatchTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
 
@@ -2308,7 +2309,7 @@ TEST_F(DISABLED_CommandBufferMutableNullArgTest, CheckUpdatePersists) {
 
 class DISABLED_CommandBufferMultiMutableNullArgTest
     : public DISABLED_CommandBufferMutableNullArgTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(
         DISABLED_CommandBufferMutableNullArgTest::SetUp());
@@ -2512,13 +2513,13 @@ TEST_F(DISABLED_CommandBufferMultiMutableNullArgTest,
 // Test fixture for checking we can update kernel arguments passed by
 // value.
 class CommandBufferMutablePODArgTest : public MutableDispatchTest {
-public:
+ public:
   CommandBufferMutablePODArgTest()
       : input_value(ucl::Environment::instance->GetInputGenerator()
                         .GenerateInt<cl_int>()),
         output_data(global_size) {}
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
     // Set up the kernel. This contrived example just broadcasts some input
@@ -2857,14 +2858,14 @@ TEST_F(CommandBufferMutablePODArgTest, CheckUpdatePersists) {
 
 class CommandBufferMultiMutablePODArgTest
     : public CommandBufferMutablePODArgTest {
-public:
+ public:
   CommandBufferMultiMutablePODArgTest()
       : CommandBufferMutablePODArgTest(),
         second_input_value(ucl::Environment::instance->GetInputGenerator()
                                .GenerateInt<cl_int>()),
         second_output_data(global_size) {}
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandBufferMutablePODArgTest::SetUp());
 
@@ -3076,7 +3077,7 @@ TEST_F(CommandBufferMultiMutablePODArgTest, UpdateMultipleDispatches) {
 
 // Test fixture for updating multiple arguments of the POD type.
 class CommandBufferMutablePODMultiArgTest : public MutableDispatchTest {
-public:
+ public:
   CommandBufferMutablePODMultiArgTest()
       : input_x_value(ucl::Environment::instance->GetInputGenerator()
                           .GenerateInt<cl_int>()),
@@ -3084,7 +3085,7 @@ public:
                           .GenerateInt<cl_int>()),
         output_data(global_size) {}
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
     // Set up the kernel. This contrived example just broadcasts some input

@@ -31,7 +31,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct loop_info;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct loop_info<T, abacus_half> {
+template <typename T>
+struct loop_info<T, abacus_half> {
   // Max difference between unbiased exponents is 32, we can avoid doing any
   // iterations of the loop and just perform the single case after it.
   static const abacus_uint iterations = 0;
@@ -39,7 +40,8 @@ template <typename T> struct loop_info<T, abacus_half> {
 };
 #endif
 
-template <typename T> struct loop_info<T, abacus_float> {
+template <typename T>
+struct loop_info<T, abacus_float> {
   // Max difference between unbiased exponents is 256, so we at most need 6.4
   // iterations 6 within the loop and the one case just after it
   static const abacus_uint iterations = 6;
@@ -47,7 +49,8 @@ template <typename T> struct loop_info<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct loop_info<T, abacus_double> {
+template <typename T>
+struct loop_info<T, abacus_double> {
   // Max difference between unbiased exponents is 2047, so we at most need 186.1
   // iterations 186 within the loop and the one case just after it
   static const abacus_uint iterations = 186;
@@ -180,18 +183,19 @@ struct fmod_helper<T, USE_QUOTIENT, 1u> {
   }
 };
 
-template <typename T> inline T fmod_unsafe(const T x, const T m) {
+template <typename T>
+inline T fmod_unsafe(const T x, const T m) {
   return fmod_helper<T, false>::_(x, m, 0);
 }
 
 template <typename T>
-inline T
-fmod_unsafe(const T x, const T m,
-            typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
-                *quotient) {
+inline T fmod_unsafe(
+    const T x, const T m,
+    typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
+        *quotient) {
   return fmod_helper<T, true>::_(x, m, quotient);
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_EXP_UNSAFE_H__
+#endif  //__ABACUS_INTERNAL_EXP_UNSAFE_H__

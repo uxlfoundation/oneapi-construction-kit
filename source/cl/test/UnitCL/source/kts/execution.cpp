@@ -53,8 +53,11 @@ UCL_EXECUTION_TEST_SUITE(ExecutionOpenCLC, testing::Values(OPENCL_C, OFFLINE))
 UCL_EXECUTION_TEST_SUITE(ExecutionSPIRV, testing::Values(SPIRV, OFFLINESPIRV))
 
 kts::ucl::BaseExecution::BaseExecution()
-    : SharedExecution(), program_(nullptr), kernel_(nullptr),
-      args_(new kts::ucl::ArgumentList()), source_type(OPENCL_C),
+    : SharedExecution(),
+      program_(nullptr),
+      kernel_(nullptr),
+      args_(new kts::ucl::ArgumentList()),
+      source_type(OPENCL_C),
       fail_if_not_vectorized_(true) {
   if (UCL::isInterceptLayerPresent() &&
       UCL::isInterceptLayerControlEnabled("InjectProgramBinaries")) {
@@ -75,12 +78,12 @@ bool kts::ucl::BaseExecution::isSourceTypeIn(
 void kts::ucl::BaseExecution::SetUp() {
   UCL_RETURN_ON_FATAL_FAILURE(::ucl::CommandQueueTest::SetUp());
   switch (source_type) {
-  case OPENCL_C:
-  case SPIRV:
-    break;
-  case OFFLINE:
-  case OFFLINESPIRV:
-    fail_if_not_vectorized_ = false;
+    case OPENCL_C:
+    case SPIRV:
+      break;
+    case OFFLINE:
+    case OFFLINESPIRV:
+      fail_if_not_vectorized_ = false;
   }
   if (isDeviceExtensionSupported("cl_codeplay_wfv")) {
     clGetKernelWFVInfoCODEPLAY =
@@ -135,24 +138,23 @@ bool kts::ucl::BaseExecution::LoadSource(const std::string &path) {
   return true;
 }
 
-std::string
-kts::ucl::BaseExecution::GetSourcePath(const std::string &file_prefix,
-                                       const std::string &kernel_name) {
+std::string kts::ucl::BaseExecution::GetSourcePath(
+    const std::string &file_prefix, const std::string &kernel_name) {
   std::stringstream path;
   path << getEnvironment()->GetKernelDirectory();
   std::string ext;
   switch (source_type) {
-  case OPENCL_C:
-    ext = ".cl";
-    break;
-  case SPIRV:
-    ext = ".spv" + std::to_string(getDeviceAddressBits());
-    break;
-  case OFFLINE:
-  case OFFLINESPIRV:
-    path << "_offline";
-    ext = ".bin";
-    break;
+    case OPENCL_C:
+      ext = ".cl";
+      break;
+    case SPIRV:
+      ext = ".spv" + std::to_string(getDeviceAddressBits());
+      break;
+    case OFFLINE:
+    case OFFLINESPIRV:
+      path << "_offline";
+      ext = ".bin";
+      break;
   }
   path << "/" << file_prefix << "_" << kernel_name << ext;
   return path.str();
@@ -224,8 +226,9 @@ bool kts::ucl::BaseExecution::BuildProgram(std::string file_prefix,
   // blacklist explicit implementations.
   if (offline &&
       (UCL::isDevice_IntelNeo(device) || UCL::isDevice_Oclgrind(device))) {
-    printf("ComputeAorta binary kernels incompatible with other OpenCL "
-           "implementations, skipping.\n");
+    printf(
+        "ComputeAorta binary kernels incompatible with other OpenCL "
+        "implementations, skipping.\n");
     return false;
   }
 
@@ -419,10 +422,11 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
     if (totalWorkGroupSize > maxWorkGroupSize) {
       // Skip test as the max work group size requested is too small for this
       // device
-      printf("Work group size of %u not supported on this device (%u is max "
-             "allowed), skipping test.\n",
-             static_cast<unsigned int>(totalWorkGroupSize),
-             static_cast<unsigned int>(maxWorkGroupSize));
+      printf(
+          "Work group size of %u not supported on this device (%u is max "
+          "allowed), skipping test.\n",
+          static_cast<unsigned int>(totalWorkGroupSize),
+          static_cast<unsigned int>(maxWorkGroupSize));
       GTEST_SKIP();
     }
 
@@ -441,8 +445,9 @@ void kts::ucl::BaseExecution::RunGenericND(cl_uint numDims,
     if (clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES,
                         paramValueSizeRet, maxValues.data(),
                         nullptr) != CL_SUCCESS) {
-      Fail("clGetDeviceInfo returned an error on "
-           "CL_DEVICE_MAX_WORK_ITEM_SIZES");
+      Fail(
+          "clGetDeviceInfo returned an error on "
+          "CL_DEVICE_MAX_WORK_ITEM_SIZES");
     }
     for (cl_uint i = 0; i < numDims; i++) {
       if (maxValues[i] < localDims[i]) {

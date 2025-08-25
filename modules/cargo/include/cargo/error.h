@@ -44,12 +44,12 @@
 /// @{
 
 #ifndef NDEBUG
-#define CARGO_ASSERT(CONDITION, MESSAGE)                                       \
-  if (!(CONDITION)) {                                                          \
-    (void)std::fprintf(stderr, "%s:%d: assert: %s\n  %s: %s\n", __FILE__,      \
-                       __LINE__, #CONDITION, CARGO_PRETTY_FUNCTION, MESSAGE);  \
-    std::abort();                                                              \
-  }                                                                            \
+#define CARGO_ASSERT(CONDITION, MESSAGE)                                      \
+  if (!(CONDITION)) {                                                         \
+    (void)std::fprintf(stderr, "%s:%d: assert: %s\n  %s: %s\n", __FILE__,     \
+                       __LINE__, #CONDITION, CARGO_PRETTY_FUNCTION, MESSAGE); \
+    std::abort();                                                             \
+  }                                                                           \
   (void)0
 #else
 #define CARGO_ASSERT(CONDITION, MESSAGE) (void)0
@@ -94,19 +94,20 @@ enum result : int32_t {
 /// ```
 ///
 /// @tparam T Type of the contained value.
-template <class T> class error_or {
-public:
+template <class T>
+class error_or {
+ public:
   using value_type = std::remove_reference_t<T>;
   using pointer = value_type *;
   using const_pointer = const value_type *;
   using reference = value_type &;
   using const_reference = const value_type &;
 
-private:
+ private:
   /// @brief Either `value_type` or `std::reference_wrapper<value_type>`.
   using value_storage_type = wrap_reference_t<T>;
 
-public:
+ public:
   /// @brief Error constructor.
   ///
   /// @param error Type of error.
@@ -247,7 +248,7 @@ public:
     return std::addressof(ref);
   }
 
-private:
+ private:
   /// @brief Union of `cargo::result` and `value_storage_type`.
   union {
     cargo::result ErrorStorage;
@@ -258,6 +259,6 @@ private:
 };
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_ERROR_H_INCLUDED
+#endif  // CARGO_ERROR_H_INCLUDED

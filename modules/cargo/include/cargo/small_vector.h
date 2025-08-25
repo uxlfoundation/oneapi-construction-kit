@@ -72,10 +72,11 @@ namespace cargo {
 ///
 /// @tparam T Type of contained elements.
 /// @tparam N Capacity of the embedded storage.
-template <class T, size_t N, class A = mallocator<T>> class small_vector {
+template <class T, size_t N, class A = mallocator<T>>
+class small_vector {
   using storage_type = std::aligned_storage_t<sizeof(T), alignof(T)>;
 
-public:
+ public:
   using value_type = T;
   using allocator_type = A;
   using size_type = size_t;
@@ -99,11 +100,14 @@ public:
   ///
   /// @param other Other small vector to move from.
   small_vector(small_vector &&other)
-      : Allocator(other.Allocator), Capacity(other.Capacity),
-        Begin(getStorage()), End(Begin)
+      : Allocator(other.Allocator),
+        Capacity(other.Capacity),
+        Begin(getStorage()),
+        End(Begin)
 #ifdef CA_CARGO_INSTRUMENTATION_ENABLED
         ,
-        MaxCapacity(Capacity), MaxSize(other.size())
+        MaxCapacity(Capacity),
+        MaxSize(other.size())
 #endif
   {
     if (other.Capacity <= N) {
@@ -839,7 +843,7 @@ public:
     return other;
   }
 
-private:
+ private:
   cargo::result extend(size_type count) {
     count += End - Begin;
     if (Capacity >= count) {
@@ -1018,6 +1022,6 @@ template <class T, size_t S>
 void swap(cargo::small_vector<T, S> &left, cargo::small_vector<T, S> &right) {
   left.swap(right);
 }
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_SMALL_VECTOR_H_INCLUDED
+#endif  // CARGO_SMALL_VECTOR_H_INCLUDED

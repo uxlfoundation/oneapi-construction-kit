@@ -60,11 +60,10 @@ mux_result_t riscvBindImageMemory(mux_device_t device, mux_memory_t memory,
   return mux_error_feature_unsupported;
 }
 
-mux_result_t
-riscvGetSupportedImageFormats(mux_device_t device, mux_image_type_e image_type,
-                              mux_allocation_type_e allocation_type,
-                              uint32_t count, mux_image_format_e *out_formats,
-                              uint32_t *out_count) {
+mux_result_t riscvGetSupportedImageFormats(
+    mux_device_t device, mux_image_type_e image_type,
+    mux_allocation_type_e allocation_type, uint32_t count,
+    mux_image_format_e *out_formats, uint32_t *out_count) {
   (void)device;
   (void)image_type;
   (void)allocation_type;

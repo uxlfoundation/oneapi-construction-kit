@@ -40,8 +40,9 @@ TEST_F(cl_codeplay_wfv_BinaryTest, KernelWidths) {
 }
 
 TEST_F(cl_codeplay_wfv_BinaryTest, KernelStatusReqd) {
-  const char *source = "__attribute__((reqd_work_group_size(4, 1, 1))) "
-                       "__kernel void foo() {}";
+  const char *source =
+      "__attribute__((reqd_work_group_size(4, 1, 1))) "
+      "__kernel void foo() {}";
   BuildKernel(source, "foo", "-cl-wfv=always");
   cl_kernel_wfv_status_codeplay status;
   ASSERT_SUCCESS(clGetKernelWFVInfoCODEPLAY(
@@ -51,8 +52,9 @@ TEST_F(cl_codeplay_wfv_BinaryTest, KernelStatusReqd) {
 }
 
 TEST_F(cl_codeplay_wfv_BinaryTest, KernelWidthsReqd) {
-  const char *source = "__attribute__((reqd_work_group_size(4, 1, 1))) "
-                       "__kernel void foo() {}";
+  const char *source =
+      "__attribute__((reqd_work_group_size(4, 1, 1))) "
+      "__kernel void foo() {}";
   BuildKernel(source, "foo", "-cl-wfv=always");
   cargo::small_vector<size_t, 3> widths;
   ASSERT_EQ(cargo::success, widths.resize(dims));

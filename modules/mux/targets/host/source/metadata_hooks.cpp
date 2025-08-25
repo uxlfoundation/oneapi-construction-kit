@@ -54,7 +54,7 @@ md_hooks getHostMdReadHooks() {
   return md_hooks;
 }
 
-} // namespace
+}  // namespace
 
 namespace host {
 
@@ -101,4 +101,4 @@ cargo::optional<kernel_variant_map> readBinaryMetadata(loader::ElfFile *elf,
   return kernels;
 }
 
-} // namespace host
+}  // namespace host

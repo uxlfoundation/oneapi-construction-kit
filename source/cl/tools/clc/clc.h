@@ -35,7 +35,7 @@ enum class input_type { opencl_c, spirv, spir };
 
 /// @brief Compiles OpenCL kernels.
 class driver {
-public:
+ public:
   /// @brief Default constructor.
   driver();
 
@@ -74,7 +74,7 @@ public:
   /// informations.
   bool strip_binary_header;
 
-private:
+ private:
   /// @brief Selected compiler.
   const compiler::Info *compiler_info;
   /// @brief Compiler context to drive compilation.
@@ -98,6 +98,6 @@ private:
   result findDevice();
 };
 
-} // namespace clc
+}  // namespace clc
 
-#endif // CL_TOOLS_CLC_H_INCLUDED
+#endif  // CL_TOOLS_CLC_H_INCLUDED

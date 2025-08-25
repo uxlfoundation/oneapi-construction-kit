@@ -121,6 +121,6 @@ cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
 /// @return Builtin capabilities to pass to `compiler::Target::init`.
 uint32_t detectBuiltinCapabilities(mux_device_info_t device_info);
 
-} // namespace binary
-} // namespace cl
-#endif // CL_BINARY_BINARY_H_INCLUDED
+}  // namespace binary
+}  // namespace cl
+#endif  // CL_BINARY_BINARY_H_INCLUDED

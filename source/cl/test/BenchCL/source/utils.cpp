@@ -21,11 +21,11 @@
 #include <string>
 #include <vector>
 
-#define CHECK(EXPR)                                                            \
-  err = EXPR;                                                                  \
-  if (err != CL_SUCCESS) {                                                     \
-    return err;                                                                \
-  }                                                                            \
+#define CHECK(EXPR)        \
+  err = EXPR;              \
+  if (err != CL_SUCCESS) { \
+    return err;            \
+  }                        \
   (void)0
 
 cl_uint benchcl::get_device(cargo::string_view device_name,

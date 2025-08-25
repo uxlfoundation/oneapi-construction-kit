@@ -38,7 +38,7 @@ constexpr const char MD_BLOCK_NAME[] = "KernelMetadata";
 /// @return md_hooks
 md_hooks getElfMetadataWriteHooks();
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_METADATA_HOOKS_H_INCLUDED
+#endif  // COMPILER_UTILS_METADATA_HOOKS_H_INCLUDED

@@ -31,17 +31,17 @@ typedef struct _mux_shared_semaphore *mux_shared_semaphore;
 /// @note This is not thread safe and should only be used when there is a
 /// command queue mutex.
 struct _mux_shared_semaphore final {
-private:
+ private:
   cl_device_id device;
 
   _mux_shared_semaphore(cl_device_id device, mux_semaphore_t semaphore)
       : device(device), ref_count(1), semaphore(semaphore) {};
   cl_uint ref_count;
 
-public:
+ public:
   mux_semaphore_t semaphore;
-  static cargo::expected<mux_shared_semaphore, cl_int>
-  create(cl_device_id device, mux_semaphore_t semaphore);
+  static cargo::expected<mux_shared_semaphore, cl_int> create(
+      cl_device_id device, mux_semaphore_t semaphore);
   ~_mux_shared_semaphore();
 
   /// @brief Increment the semaphore's reference count

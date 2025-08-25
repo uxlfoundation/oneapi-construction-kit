@@ -30,9 +30,9 @@ TEST_P(Execution, Task_12_01_Interleaved_Load_4) {
   const cl_int Stride = 4;
 
   // it is just a bunch of "random" numbers
-  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63, //
-                    29, 86, 57, 34, 37, 15, 91, 56, //
-                    51, 48, 19, 95, 20, 78, 73, 32, //
+  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
+                    29, 86, 57, 34, 37, 15, 91, 56,  //
+                    51, 48, 19, 95, 20, 78, 73, 32,  //
                     75, 51, 8,  29, 56, 34, 85, 45};
 
   kts::Reference1D<cl_int> refIn = [=, &InBuffer](size_t x) -> int {
@@ -59,10 +59,10 @@ TEST_P(Execution, Task_12_02_Interleaved_Load_5) {
   // it is just a bunch of "random" numbers
   // there are two extra elements in the input buffer so
   // the kernel doesn't read off the end of it..
-  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63, //
-                    29, 86, 57, 34, 37, 15, 91, 56, //
-                    51, 48, 19, 95, 20, 78, 73, 32, //
-                    75, 51, 8,  29, 56, 34, 85, 45, //
+  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
+                    29, 86, 57, 34, 37, 15, 91, 56,  //
+                    51, 48, 19, 95, 20, 78, 73, 32,  //
+                    75, 51, 8,  29, 56, 34, 85, 45,  //
                     33, 55};
 
   kts::Reference1D<cl_int> refIn = [=, &InBuffer](size_t x) -> int {
@@ -90,10 +90,10 @@ TEST_P(Execution, Task_12_03_Interleaved_Load_6) {
   // it is just a bunch of "random" numbers
   // there are two extra elements in the input buffer so
   // the kernel doesn't read off the end of it..
-  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63, //
-                    29, 86, 57, 34, 37, 15, 91, 56, //
-                    51, 48, 19, 95, 20, 78, 73, 32, //
-                    75, 51, 8,  29, 56, 34, 85, 45, //
+  int InBuffer[] = {54, 61, 29, 76, 56, 26, 75, 63,  //
+                    29, 86, 57, 34, 37, 15, 91, 56,  //
+                    51, 48, 19, 95, 20, 78, 73, 32,  //
+                    75, 51, 8,  29, 56, 34, 85, 45,  //
                     33, 55};
 
   kts::Reference1D<cl_int> refIn = [=, &InBuffer](size_t x) -> int {

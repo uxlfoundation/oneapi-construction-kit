@@ -29,10 +29,10 @@ namespace compiler {
 /// @{
 
 enum : size_t {
-  PRINTF_BUFFER_SIZE = 1024L * 1024L, ///< 1MiB is spec mandated minimum.
+  PRINTF_BUFFER_SIZE = 1024L * 1024L,  ///< 1MiB is spec mandated minimum.
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_LIMITS_H_INCLUDED
+#endif  // COMPILER_LIMITS_H_INCLUDED

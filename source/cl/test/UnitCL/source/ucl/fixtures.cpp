@@ -32,7 +32,7 @@ std::string getPlatformInfo(cl_platform_id platform, cl_platform_info info) {
   }
   return value;
 }
-} // namespace
+}  // namespace
 
 std::string ucl::PlatformTest::getPlatformProfile() const {
   return getPlatformInfo(platform, CL_PLATFORM_PROFILE);
@@ -97,7 +97,8 @@ cl_ulong ucl::PlatformTest::getPlatformHostTimerResolution() const {
 #endif
 
 namespace {
-template <class T> T getDeviceInfo(cl_device_id device, cl_device_info info) {
+template <class T>
+T getDeviceInfo(cl_device_id device, cl_device_info info) {
   T value;
   if (auto error = clGetDeviceInfo(device, info, sizeof(value),
                                    static_cast<void *>(&value), nullptr)) {
@@ -113,7 +114,7 @@ std::string getDeviceInfo<std::string>(cl_device_id device,
   if (auto error = clGetDeviceInfo(device, info, 0, nullptr, &size)) {
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
   }
-  std::string value(size - 1, '\0'); // account for null terminator
+  std::string value(size - 1, '\0');  // account for null terminator
   if (auto error = clGetDeviceInfo(device, info, size, value.data(), nullptr)) {
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
   }
@@ -122,9 +123,8 @@ std::string getDeviceInfo<std::string>(cl_device_id device,
 
 #ifdef CL_VERSION_3_0
 template <>
-std::vector<cl_name_version>
-getDeviceInfo<std::vector<cl_name_version>>(cl_device_id device,
-                                            cl_device_info info) {
+std::vector<cl_name_version> getDeviceInfo<std::vector<cl_name_version>>(
+    cl_device_id device, cl_device_info info) {
   size_t size;
   if (auto error = clGetDeviceInfo(device, info, 0, nullptr, &size)) {
     UCL_ABORT("clGetDeviceInfo failed: %d", error);
@@ -137,7 +137,7 @@ getDeviceInfo<std::vector<cl_name_version>>(cl_device_id device,
   return versions;
 }
 #endif
-} // namespace
+}  // namespace
 
 cl_device_type ucl::DeviceTest::getDeviceType() const {
   return getDeviceInfo<cl_device_type>(device, CL_DEVICE_TYPE);
@@ -433,8 +433,8 @@ cl_bool ucl::DeviceTest::getDeviceLinkerAvailable() const {
 }
 #endif
 
-cl_device_exec_capabilities
-ucl::DeviceTest::getDeviceExecutionCapabilities() const {
+cl_device_exec_capabilities ucl::DeviceTest::getDeviceExecutionCapabilities()
+    const {
   return getDeviceInfo<cl_device_exec_capabilities>(
       device, CL_DEVICE_EXECUTION_CAPABILITIES);
 }
@@ -445,14 +445,14 @@ cl_command_queue_properties ucl::DeviceTest::getDeviceQueueProperties() const {
 }
 
 #ifdef CL_VERSION_2_0
-cl_command_queue_properties
-ucl::DeviceTest::getDeviceQueueOnHostProperties() const {
+cl_command_queue_properties ucl::DeviceTest::getDeviceQueueOnHostProperties()
+    const {
   return getDeviceInfo<cl_command_queue_properties>(
       device, CL_DEVICE_QUEUE_ON_HOST_PROPERTIES);
 }
 
-cl_command_queue_properties
-ucl::DeviceTest::getDeviceQueueOnDeviceProperties() const {
+cl_command_queue_properties ucl::DeviceTest::getDeviceQueueOnDeviceProperties()
+    const {
   return getDeviceInfo<cl_command_queue_properties>(
       device, CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES);
 }
@@ -522,8 +522,8 @@ std::string ucl::DeviceTest::getDeviceOpenclCVersion() const {
 #endif
 
 #ifdef CL_VERSION_3_0
-std::vector<cl_name_version>
-ucl::DeviceTest::getDeviceOpenclCAllVersions() const {
+std::vector<cl_name_version> ucl::DeviceTest::getDeviceOpenclCAllVersions()
+    const {
   return getDeviceInfo<std::vector<cl_name_version>>(
       device, CL_DEVICE_OPENCL_C_ALL_VERSIONS);
 }
@@ -539,8 +539,8 @@ std::string ucl::DeviceTest::getDeviceExtensions() const {
 }
 
 #ifdef CL_VERSION_3_0
-std::vector<cl_name_version>
-ucl::DeviceTest::getDeviceExtensionsWithVersion() const {
+std::vector<cl_name_version> ucl::DeviceTest::getDeviceExtensionsWithVersion()
+    const {
   return getDeviceInfo<std::vector<cl_name_version>>(
       device, CL_DEVICE_EXTENSIONS_WITH_VERSION);
 }
@@ -579,8 +579,8 @@ ucl::DeviceTest::getDevicePartitionProperties() const {
   return partition_properties;
 }
 
-cl_device_affinity_domain
-ucl::DeviceTest::getDevicePartitionAffinityDomain() const {
+cl_device_affinity_domain ucl::DeviceTest::getDevicePartitionAffinityDomain()
+    const {
   return getDeviceInfo<cl_device_affinity_domain>(
       device, CL_DEVICE_PARTITION_AFFINITY_DOMAIN);
 }
@@ -697,26 +697,26 @@ std::string ucl::DeviceTest::getOpenCLCSourceFromFile(std::string name) const {
   return File{name}.read<std::string>();
 }
 
-std::vector<uint8_t>
-ucl::DeviceTest::getDeviceBinaryFromFile(std::string name) const {
+std::vector<uint8_t> ucl::DeviceTest::getDeviceBinaryFromFile(
+    std::string name) const {
   name = ucl::Environment::instance->GetKernelDirectory() + "_offline/" +
          getDeviceName() + "/" + name + ".bin";
   return File{name}.read<std::vector<uint8_t>>();
 }
 
-std::vector<uint32_t>
-ucl::DeviceTest::getDeviceSpirvFromFile(std::string name) const {
+std::vector<uint32_t> ucl::DeviceTest::getDeviceSpirvFromFile(
+    std::string name) const {
   name = ucl::Environment::instance->GetKernelDirectory() + "/" + name;
   switch (getDeviceAddressBits()) {
-  case 32:
-    name += ".spv32";
-    break;
-  case 64:
-    name += ".spv64";
-    break;
-  default:
-    UCL_ABORT("Must have either 32 or 64 bits, have %ld",
-              (long)getDeviceAddressBits());
+    case 32:
+      name += ".spv32";
+      break;
+    case 64:
+      name += ".spv64";
+      break;
+    default:
+      UCL_ABORT("Must have either 32 or 64 bits, have %ld",
+                (long)getDeviceAddressBits());
   }
   return File{name}.read<std::vector<uint32_t>>();
 }

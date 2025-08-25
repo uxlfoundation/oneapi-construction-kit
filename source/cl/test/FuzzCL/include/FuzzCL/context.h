@@ -55,15 +55,15 @@ const size_t IMAGE_HEIGHT = BUFFER_HEIGHT;
 
 #define MAX_CALLBACK_INPUT_SIZE 10
 
-#define IS_CL_SUCCESS(X)                                                       \
-  {                                                                            \
-    const cl_int ret_val = X;                                                  \
-    if (CL_SUCCESS != ret_val) {                                               \
-      std::cerr << "OpenCL error occured: " << #X << " returned " << ret_val   \
-                << " : " << fuzzcl::cl_error_code_to_name_map.at(ret_val)      \
-                << '\n';                                                       \
-      exit(1);                                                                 \
-    }                                                                          \
+#define IS_CL_SUCCESS(X)                                                     \
+  {                                                                          \
+    const cl_int ret_val = X;                                                \
+    if (CL_SUCCESS != ret_val) {                                             \
+      std::cerr << "OpenCL error occured: " << #X << " returned " << ret_val \
+                << " : " << fuzzcl::cl_error_code_to_name_map.at(ret_val)    \
+                << '\n';                                                     \
+      exit(1);                                                               \
+    }                                                                        \
   }
 
 #include "FuzzCL/generator.h"
@@ -85,7 +85,9 @@ struct options_t {
   /// @param output Path to generated a UnitCL test
   options_t(bool enable_callbacks = false, bool verbose = false,
             std::string device = "", std::string output = "")
-      : enable_callbacks(enable_callbacks), verbose(verbose), device(device),
+      : enable_callbacks(enable_callbacks),
+        verbose(verbose),
+        device(device),
         output(output) {}
 };
 
@@ -109,7 +111,8 @@ struct input_t {
   /// @param callback_id The id of the callback
   input_t(const uint8_t *data, size_t size, bool should_export = false,
           cargo::optional<size_t> callback_id = cargo::nullopt)
-      : data(data, data + size), should_export(should_export),
+      : data(data, data + size),
+        should_export(should_export),
         callback_id(callback_id) {}
 
   /// @brief Constructor
@@ -256,7 +259,8 @@ struct context_t {
   context_t(const unsigned char **kernel_binaries,
             const std::vector<size_t> &kernel_binary_sizes,
             fuzzcl::options_t options)
-      : verbose(options.verbose), enable_callbacks(options.enable_callbacks),
+      : verbose(options.verbose),
+        enable_callbacks(options.enable_callbacks),
         cgen(options.output) {
     platform = select_platform();
     device = select_device(platform, options.device);
@@ -559,5 +563,5 @@ void enqueueTask(context_t &fc, input_t &input);
 /// @param fc[in, out] Fuzz context
 /// @param input[in, out] Input data
 void setEventCallback(context_t &fc, input_t &input);
-} // namespace fuzzcl
+}  // namespace fuzzcl
 #endif

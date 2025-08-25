@@ -415,10 +415,10 @@ TEST_F(USMCommandQueueTest, MigrateMem_ValidUsage) {
                                    events.data(), nullptr);
     EXPECT_SUCCESS(err);
 
-    err = clEnqueueMigrateMemINTEL(queue, ptr, bytes,
-                                   CL_MIGRATE_MEM_OBJECT_HOST |
-                                       CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED,
-                                   0, nullptr, nullptr);
+    err = clEnqueueMigrateMemINTEL(
+        queue, ptr, bytes,
+        CL_MIGRATE_MEM_OBJECT_HOST | CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED, 0,
+        nullptr, nullptr);
     EXPECT_SUCCESS(err);
 
     EXPECT_SUCCESS(clReleaseEvent(events[0]));
@@ -458,7 +458,7 @@ TEST_F(USMCommandQueueTest, MemAdvise_InvalidUsage) {
 
     // Advice flag not supported by device
     const cl_mem_advice_intel bad_advice =
-        0x4208; // values reserved but not defined
+        0x4208;  // values reserved but not defined
     if (host_ptr) {
       err = clEnqueueMemAdviseINTEL(queue, host_ptr, bytes, bad_advice, 0,
                                     nullptr, nullptr);

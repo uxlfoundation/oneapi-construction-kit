@@ -58,12 +58,12 @@ mux_result_t fence::tryWait(uint64_t timeout) {
 
   // Otherwise we just query the result directly.
   switch (result) {
-  case mux_success:
-  case mux_fence_not_ready:
-    return result;
-  default:
-    return mux_error_fence_failure;
+    case mux_success:
+    case mux_fence_not_ready:
+      return result;
+    default:
+      return mux_error_fence_failure;
   }
 }
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux

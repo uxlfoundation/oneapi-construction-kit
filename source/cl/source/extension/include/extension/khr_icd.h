@@ -35,7 +35,7 @@ namespace extension {
 /// If enabled makes an extensions function query-able via
 /// `clGetExtensionFunctionAddressForPlatform`: * clIcdGetPlatformIDsKHR
 class khr_icd final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   khr_icd();
 
@@ -81,9 +81,8 @@ public:
   ///
   /// @return Returns a pointer to the extension function or nullptr if no
   /// function with the name func_name exists.
-  void *
-  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                         const char *func_name) const override;
+  void *GetExtensionFunctionAddressForPlatform(
+      cl_platform_id platform, const char *func_name) const override;
 
   /// @brief Returns a pointer to the ICD function pointer dispatch table.
   ///
@@ -92,6 +91,6 @@ public:
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // CL_KHR_CL_ICD_H_INCLUDED
+#endif  // CL_KHR_CL_ICD_H_INCLUDED

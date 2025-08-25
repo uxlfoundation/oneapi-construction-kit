@@ -19,27 +19,30 @@
 #include <abacus/abacus_relational.h>
 
 namespace {
-template <typename T> struct helper {
+template <typename T>
+struct helper {
   typedef typename TypeTraits<T>::SignedType type;
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <> struct helper<abacus_double> {
+template <>
+struct helper<abacus_double> {
   typedef abacus_int type;
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <> struct helper<abacus_half> {
+template <>
+struct helper<abacus_half> {
   typedef abacus_int type;
 };
 #endif
-} // namespace
+}  // namespace
 
-#define DEF(TYPE)                                                              \
-  helper<TYPE>::type ABACUS_API __abacus_isfinite(TYPE x) {                    \
-    return abacus::detail::cast::convert<helper<TYPE>::type>(                  \
-        abacus::detail::relational::isfinite(x));                              \
+#define DEF(TYPE)                                             \
+  helper<TYPE>::type ABACUS_API __abacus_isfinite(TYPE x) {   \
+    return abacus::detail::cast::convert<helper<TYPE>::type>( \
+        abacus::detail::relational::isfinite(x));             \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -65,4 +68,4 @@ DEF(abacus_double3)
 DEF(abacus_double4)
 DEF(abacus_double8)
 DEF(abacus_double16)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

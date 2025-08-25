@@ -19,6 +19,6 @@
 
 namespace ucl {
 enum class MathMode { QUICK, WIMPY, FULL };
-} // namespace ucl
+}  // namespace ucl
 
-#endif // UNITCL_ENUMS_H_INCLUDED
+#endif  // UNITCL_ENUMS_H_INCLUDED

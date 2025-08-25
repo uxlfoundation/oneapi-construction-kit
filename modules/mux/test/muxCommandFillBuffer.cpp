@@ -102,10 +102,10 @@ TEST_P(muxCommandFillBufferTest, ZeroSize) {
 TEST_P(muxCommandFillBufferTest, InvalidSize) {
   char data = 0;
 
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandFillBuffer(command_buffer, buffer, 0,
-                                       MEMORY_SIZE + 1, &data, 1, 0, nullptr,
-                                       nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandFillBuffer(command_buffer, buffer, 0, MEMORY_SIZE + 1, &data, 1,
+                           0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandFillBufferTest, InvalidPatternPointer) {

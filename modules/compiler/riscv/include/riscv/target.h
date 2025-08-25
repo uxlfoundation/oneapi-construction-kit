@@ -27,15 +27,15 @@ namespace riscv {
 
 /// @brief Compiler target class.
 class RiscvTarget : public compiler::BaseAOTTarget {
-public:
+ public:
   RiscvTarget(const compiler::Info *compiler_info,
               const hal_device_info_riscv_t *hal_device_info,
               compiler::Context *context, compiler::NotifyCallbackFn callback);
   ~RiscvTarget();
 
   /// @see BaseTarget::initWithBuiltins
-  compiler::Result
-  initWithBuiltins(std::unique_ptr<llvm::Module> builtins_module) override;
+  compiler::Result initWithBuiltins(
+      std::unique_ptr<llvm::Module> builtins_module) override;
 
   /// @see BaseTarget::createModule
   std::unique_ptr<compiler::Module> createModule(uint32_t &num_errors,
@@ -58,6 +58,6 @@ public:
   /// @brief the HAL device info for riscv target
   const hal_device_info_riscv_t *riscv_hal_device_info;
 };
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_TARGET_H_INCLUDED
+#endif  // RISCV_TARGET_H_INCLUDED

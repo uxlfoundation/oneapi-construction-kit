@@ -20,17 +20,19 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
-template <typename T> T atanh(const T x) {
+template <typename T>
+T atanh(const T x) {
   return (T)0.5f * (__abacus_log1p(x) - __abacus_log1p(-x));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // See atanh sollya script for derivation
 static ABACUS_CONSTANT abacus_half _atanhH[3] = {1.0f16, 0.327880859375f16,
                                                  0.26416015625f16};
 
-template <typename T> T atanh_half(const T x) {
+template <typename T>
+T atanh_half(const T x) {
   // Both of these work, one has a divide, the other calls log twice. Divide is
   // probably faster:
   // return T(0.5f16) * (__abacus_log(T(1.0) + x) - __abacus_log(T(1.0) - x));
@@ -43,7 +45,8 @@ template <typename T> T atanh_half(const T x) {
   return ans;
 }
 
-template <> abacus_half atanh_half(const abacus_half x) {
+template <>
+abacus_half atanh_half(const abacus_half x) {
   if (__abacus_fabs(x) < 0.5f16) {
     return x * abacus::internal::horner_polynomial(x * x, _atanhH);
   }
@@ -70,7 +73,7 @@ abacus_half8 ABACUS_API __abacus_atanh(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_atanh(abacus_half16 x) {
   return atanh_half<>(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_atanh(abacus_float x) { return atanh<>(x); }
 abacus_float2 ABACUS_API __abacus_atanh(abacus_float2 x) { return atanh<>(x); }
@@ -98,4 +101,4 @@ abacus_double8 ABACUS_API __abacus_atanh(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_atanh(abacus_double16 x) {
   return atanh<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

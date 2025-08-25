@@ -17,7 +17,7 @@
 #include "kts/stdout_capture.h"
 
 class CommandNDRangeKernelTest : public cl_khr_command_buffer_Test {
-public:
+ public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
 
@@ -151,7 +151,7 @@ TEST_F(CommandNDRangeKernelTest, ZeroNDRange) {
 //   dst[gid] = src[gid];
 // }
 class CommandBufferParallelCopyBase : public CommandNDRangeKernelTest {
-protected:
+ protected:
   CommandBufferParallelCopyBase()
       : input_data(global_size, 42), output_data(global_size, 0) {};
 
@@ -254,7 +254,7 @@ protected:
 };
 
 class ParallelCopyCommandBuffer : public CommandBufferParallelCopyBase {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandBufferParallelCopyBase::SetUp());
     buildKernel();
@@ -348,11 +348,11 @@ TEST_F(ParallelCopyCommandBuffer, InvalidCommandBuffer) {
 }
 
 TEST_F(ParallelCopyCommandBuffer, InvalidCommandQueue) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                    clCommandNDRangeKernelKHR(command_buffer, command_queue,
-                                              nullptr, kernel, 1, nullptr,
-                                              &global_size, nullptr, 0, nullptr,
-                                              nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_QUEUE,
+      clCommandNDRangeKernelKHR(command_buffer, command_queue, nullptr, kernel,
+                                1, nullptr, &global_size, nullptr, 0, nullptr,
+                                nullptr, nullptr));
 }
 
 TEST_F(ParallelCopyCommandBuffer, InvalidKernel) {
@@ -375,11 +375,11 @@ TEST_F(ParallelCopyCommandBuffer, InvalidProperties) {
 
   cl_ndrange_kernel_command_properties_khr invalid_properties[3] = {0xDEAD,
                                                                     0xBEEF, 0};
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandNDRangeKernelKHR(command_buffer, nullptr,
-                                              invalid_properties, kernel, 1,
-                                              nullptr, &global_size, nullptr, 0,
-                                              nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandNDRangeKernelKHR(command_buffer, nullptr, invalid_properties,
+                                kernel, 1, nullptr, &global_size, nullptr, 0,
+                                nullptr, nullptr, nullptr));
 }
 
 TEST_F(ParallelCopyCommandBuffer, InvalidHandle) {
@@ -390,11 +390,11 @@ TEST_F(ParallelCopyCommandBuffer, InvalidHandle) {
   }
 
   cl_mutable_command_khr command_handle;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr,
-                                              kernel, 1, nullptr, &global_size,
-                                              nullptr, 0, nullptr, nullptr,
-                                              &command_handle));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr, kernel, 1,
+                                nullptr, &global_size, nullptr, 0, nullptr,
+                                nullptr, &command_handle));
 }
 
 TEST_F(ParallelCopyCommandBuffer, InvalidSyncPoints) {
@@ -404,11 +404,11 @@ TEST_F(ParallelCopyCommandBuffer, InvalidSyncPoints) {
                         &global_size, nullptr, 1, nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr,
-                                              kernel, 1, nullptr, &global_size,
-                                              nullptr, 0, &sync_point, nullptr,
-                                              nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr, kernel, 1,
+                                nullptr, &global_size, nullptr, 0, &sync_point,
+                                nullptr, nullptr));
 }
 
 TEST_F(ParallelCopyCommandBuffer, InvalidContext) {
@@ -425,11 +425,11 @@ TEST_F(ParallelCopyCommandBuffer, InvalidContext) {
       clCreateCommandBufferKHR(1, &new_command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clCommandNDRangeKernelKHR(new_command_buffer, nullptr,
-                                              nullptr, kernel, 1, nullptr,
-                                              &global_size, nullptr, 0, nullptr,
-                                              nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clCommandNDRangeKernelKHR(new_command_buffer, nullptr, nullptr, kernel, 1,
+                                nullptr, &global_size, nullptr, 0, nullptr,
+                                nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseCommandBufferKHR(new_command_buffer));
   EXPECT_SUCCESS(clReleaseCommandQueue(new_command_queue));
@@ -438,7 +438,7 @@ TEST_F(ParallelCopyCommandBuffer, InvalidContext) {
 
 class CommandBufferParallelCopyReqdWorkGroupSize
     : public CommandBufferParallelCopyBase {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandBufferParallelCopyBase::SetUp());
     buildKernel("__attribute__((reqd_work_group_size(8,1,1)))");

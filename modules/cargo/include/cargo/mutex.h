@@ -55,7 +55,7 @@ struct CARGO_TS_CAPABILITY("mutex") mutex {
   /// @brief Unlocks the mutex.
   void unlock() CARGO_TS_RELEASE() { Mutex.unlock(); }
 
-private:
+ private:
   /// @brief The wrapped std::mutex.
   std::mutex Mutex;
 };
@@ -67,7 +67,8 @@ private:
 /// multi-threaded code.
 ///
 /// @tparam Mutex Type of the mutex to lock.
-template <class Mutex> struct CARGO_TS_SCOPED_CAPABILITY lock_guard {
+template <class Mutex>
+struct CARGO_TS_SCOPED_CAPABILITY lock_guard {
   using mutex_type = Mutex;
 
   /// @brief Acquires ownership of mutex and locks it.
@@ -92,7 +93,7 @@ template <class Mutex> struct CARGO_TS_SCOPED_CAPABILITY lock_guard {
   /// @brief Releases ownership of the owned mutex.
   ~lock_guard() CARGO_TS_RELEASE() {}
 
-private:
+ private:
   /// @brief The wrapped std::lock_guard.
   std::lock_guard<mutex_type> Lock;
 };
@@ -113,7 +114,8 @@ private:
 /// @tparam Mutex Type of the mutex to be held.
 ///
 /// @see https://en.cppreference.com/w/cpp/thread/unique_lock
-template <class Mutex> struct CARGO_TS_SCOPED_CAPABILITY unique_lock {
+template <class Mutex>
+struct CARGO_TS_SCOPED_CAPABILITY unique_lock {
   using mutex_type = Mutex;
 
   /// @brief Construct with the given mutex and lock it.
@@ -192,8 +194,8 @@ template <class Mutex> struct CARGO_TS_SCOPED_CAPABILITY unique_lock {
   ///
   /// @return Returns `true` if the lock is acquired, `false` otherwise.
   template <class Clock, class Duration>
-  bool
-  try_lock_until(const std::chrono::time_point<Clock, Duration> &timeout_time)
+  bool try_lock_until(
+      const std::chrono::time_point<Clock, Duration> &timeout_time)
       CARGO_TS_TRY_ACQUIRE(true) {
     return Lock.try_lock_until(timeout_time);
   }
@@ -218,7 +220,7 @@ template <class Mutex> struct CARGO_TS_SCOPED_CAPABILITY unique_lock {
   /// owns_lock().
   explicit operator bool() const noexcept { return bool(Lock); }
 
-private:
+ private:
   std::unique_lock<mutex_type> Lock;
 };
 
@@ -265,8 +267,9 @@ private:
 ///
 /// @tparam OStream Type of the output stream.
 /// @tparam Mutex Type of the mutex.
-template <class OStream, class Mutex = std::mutex> class ostream_lock_guard {
-public:
+template <class OStream, class Mutex = std::mutex>
+class ostream_lock_guard {
+ public:
   using ostream_type = OStream;
   using mutex_type = Mutex;
 
@@ -300,17 +303,18 @@ public:
   /// @param value Constant reference to the object being passed.
   ///
   /// @return Returns a reference to the output stream.
-  template <class T> ostream_type &operator<<(const T &value) {
+  template <class T>
+  ostream_type &operator<<(const T &value) {
     *stream << value;
     return *stream;
   }
 
-private:
+ private:
   ostream_type *stream;
   std::unique_lock<mutex_type> lock;
 };
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_MUTEX_H_INCLUDED
+#endif  // CARGO_MUTEX_H_INCLUDED

@@ -26,10 +26,12 @@ namespace ucl {
 /// @brief Provides type traits information on OpenCL floating point types
 ///
 /// @tparam T Floating point type to get info for
-template <class T> struct TypeInfo;
+template <class T>
+struct TypeInfo;
 
 /// @brief Type trait info for 16-bit half precision float
-template <> struct TypeInfo<cl_half> {
+template <>
+struct TypeInfo<cl_half> {
   static constexpr const char *as_str = "half";
   static constexpr const char *as_signed_str = "short";
   using AsUnsigned = cl_ushort;
@@ -54,7 +56,8 @@ template <> struct TypeInfo<cl_half> {
 };
 
 /// @brief Type trait info for 32-bit single precision float
-template <> struct TypeInfo<cl_float> {
+template <>
+struct TypeInfo<cl_float> {
   static constexpr const char *as_str = "float";
   static constexpr const char *as_signed_str = "int";
   using AsUnsigned = cl_uint;
@@ -76,7 +79,8 @@ template <> struct TypeInfo<cl_float> {
 };
 
 /// @brief Type trait info for 64-bit double precision float
-template <> struct TypeInfo<cl_double> {
+template <>
+struct TypeInfo<cl_double> {
   static constexpr const char *as_str = "double";
   static constexpr const char *as_signed_str = "long";
   using AsUnsigned = cl_ulong;
@@ -95,7 +99,7 @@ template <> struct TypeInfo<cl_double> {
 
   static const AsSigned min_exp = CL_DBL_MIN_EXP;
 };
-} // namespace ucl
-} // namespace kts
+}  // namespace ucl
+}  // namespace kts
 
-#endif // UNITCL_KTS_TYPE_INFO_H_INCLUDES
+#endif  // UNITCL_KTS_TYPE_INFO_H_INCLUDES

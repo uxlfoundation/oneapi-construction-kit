@@ -49,11 +49,10 @@ void appendMLLVMOptions(cargo::array_view<cargo::string_view> options,
   }
 }
 
-Expected<std::unique_ptr<MemoryBuffer>>
-lldLinkToBinary(const ArrayRef<uint8_t> rawBinary,
-                const std::string &linkerScriptStr, const uint8_t *linkerLib,
-                unsigned int linkerLibBytes,
-                const SmallVectorImpl<std::string> &additionalLinkArgs) {
+Expected<std::unique_ptr<MemoryBuffer>> lldLinkToBinary(
+    const ArrayRef<uint8_t> rawBinary, const std::string &linkerScriptStr,
+    const uint8_t *linkerLib, unsigned int linkerLibBytes,
+    const SmallVectorImpl<std::string> &additionalLinkArgs) {
   struct TemporaryFile {
     TemporaryFile() = default;
     TemporaryFile(const Twine &Prefix, StringRef Suffix) {
@@ -79,30 +78,22 @@ lldLinkToBinary(const ArrayRef<uint8_t> rawBinary,
     std::error_code getErrorCode() const { return ErrorCode; }
     explicit operator bool() const { return bool(ErrorCode); }
 
-  private:
+   private:
     // mutable in order to allow calling c_str().
     mutable SmallString<128> FileName;
     std::error_code ErrorCode;
   };
 
   const TemporaryFile objFile("lld", "o");
-  if (objFile) {
-    return errorCodeToError(objFile.getErrorCode());
-  }
+  if (objFile) return errorCodeToError(objFile.getErrorCode());
   const TemporaryFile elfFile("lld", "elf");
-  if (elfFile) {
-    return errorCodeToError(elfFile.getErrorCode());
-  }
+  if (elfFile) return errorCodeToError(elfFile.getErrorCode());
   const TemporaryFile linkerScript("lld", "ld");
-  if (linkerScript) {
-    return errorCodeToError(linkerScript.getErrorCode());
-  }
+  if (linkerScript) return errorCodeToError(linkerScript.getErrorCode());
   TemporaryFile linkRTFile;
   if (linkerLib) {
     linkRTFile = TemporaryFile("lld_rt", "a");
-    if (linkRTFile) {
-      return errorCodeToError(linkRTFile.getErrorCode());
-    }
+    if (linkRTFile) return errorCodeToError(linkRTFile.getErrorCode());
     FILE *flinklib = fopen(linkRTFile.getFileName(), "wb+");
     if (nullptr != flinklib) {
       if (fwrite(linkerLib, 1, linkerLibBytes, flinklib) != linkerLibBytes) {
@@ -149,13 +140,13 @@ lldLinkToBinary(const ArrayRef<uint8_t> rawBinary,
 
   std::vector<std::string> args = {"ld.lld", objFile.getFileName()};
 
-#if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE) ||          \
+#if !defined(NDEBUG) || defined(CA_ENABLE_LLVM_OPTIONS_IN_RELEASE) || \
     defined(CA_ENABLE_DEBUG_SUPPORT)
   if (auto *env = std::getenv("CA_LLVM_OPTIONS")) {
     auto split_llvm_options = cargo::split(env, " ");
     compiler::utils::appendMLLVMOptions(split_llvm_options, args);
   }
-#endif // NDEBUG
+#endif  // NDEBUG
 
 #if LLVM_VERSION_LESS(20, 0)
   // LLVM's register allocator has issues with early-clobbers if subreg liveness
@@ -205,5 +196,5 @@ lldLinkToBinary(const ArrayRef<uint8_t> rawBinary,
   return std::move(*bufferOrError);
 }
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler

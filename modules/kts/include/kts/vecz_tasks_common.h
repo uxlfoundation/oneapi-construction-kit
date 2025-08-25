@@ -25,8 +25,9 @@
 #include "kts/reference_functions.h"
 
 /// @brief Populate and verify the contents of buffers used in atomic tests.
-template <typename T> class AtomicStreamer : public kts::BufferStreamer {
-public:
+template <typename T>
+class AtomicStreamer : public kts::BufferStreamer {
+ public:
   AtomicStreamer(T init_value, T count)
       : init_value_(init_value), count_(count) {}
 
@@ -103,9 +104,9 @@ public:
 
   virtual size_t GetElementSize() override { return sizeof(T); }
 
-private:
+ private:
   T init_value_;
   T count_;
 };
 
-#endif // KTS_VECZ_TASKS_COMMON_H_INCLUDED
+#endif  // KTS_VECZ_TASKS_COMMON_H_INCLUDED

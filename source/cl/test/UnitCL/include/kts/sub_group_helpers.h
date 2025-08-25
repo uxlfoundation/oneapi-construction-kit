@@ -41,6 +41,6 @@ bool mapSubGroupIds(
     GlobalIdSubGroupGlobalIdMap &global_id_sub_group_global_id_map,
     SubGroupGlobalIdGlobalIdsMap &sub_group_global_id_global_ids_map);
 
-} // namespace ucl
-} // namespace kts
-#endif // UNITCL_KTS_SUB_GROUPS_H_INCLUDED
+}  // namespace ucl
+}  // namespace kts
+#endif  // UNITCL_KTS_SUB_GROUPS_H_INCLUDED

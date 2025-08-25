@@ -25,7 +25,7 @@ enum {
 
 class clEnqueueCopyBufferToImageTest : public ucl::CommandQueueTest,
                                        public TestWithEventWaitList {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -128,10 +128,10 @@ TEST_F(clEnqueueCopyBufferToImageTest, Default) {
 TEST_F(clEnqueueCopyBufferToImageTest, InvalidCommandQueue) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {IMAGE_WIDTH, IMAGE_HEIGHT, 1};
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                    clEnqueueCopyBufferToImage(nullptr, buffer, image, 0,
-                                               origin, region, 0, nullptr,
-                                               nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_QUEUE,
+      clEnqueueCopyBufferToImage(nullptr, buffer, image, 0, origin, region, 0,
+                                 nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferToImageTest, InvalidContext) {
@@ -147,10 +147,10 @@ TEST_F(clEnqueueCopyBufferToImageTest, InvalidContext) {
 
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {IMAGE_WIDTH, IMAGE_HEIGHT, 1};
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clEnqueueCopyBufferToImage(otherCommandQueue, buffer, image,
-                                               0, origin, region, 0, nullptr,
-                                               nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clEnqueueCopyBufferToImage(otherCommandQueue, buffer, image, 0, origin,
+                                 region, 0, nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseCommandQueue(otherCommandQueue));
   EXPECT_SUCCESS(clReleaseContext(otherContext));
@@ -159,23 +159,23 @@ TEST_F(clEnqueueCopyBufferToImageTest, InvalidContext) {
 TEST_F(clEnqueueCopyBufferToImageTest, InvalidMemObject) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {IMAGE_WIDTH, IMAGE_HEIGHT, 1};
-  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
-                    clEnqueueCopyBufferToImage(command_queue, nullptr, image, 0,
-                                               origin, region, 0, nullptr,
-                                               nullptr));
-  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
-                    clEnqueueCopyBufferToImage(command_queue, buffer, nullptr,
-                                               0, origin, region, 0, nullptr,
-                                               nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_MEM_OBJECT,
+      clEnqueueCopyBufferToImage(command_queue, nullptr, image, 0, origin,
+                                 region, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_MEM_OBJECT,
+      clEnqueueCopyBufferToImage(command_queue, buffer, nullptr, 0, origin,
+                                 region, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferToImageTest, InvalidValueSrcOffset) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {IMAGE_WIDTH, IMAGE_HEIGHT, 1};
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyBufferToImage(command_queue, buffer, image,
-                                               bufferSize + 1, origin, region,
-                                               0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyBufferToImage(command_queue, buffer, image, bufferSize + 1,
+                                 origin, region, 0, nullptr, nullptr));
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyBufferToImage(
                                           command_queue, buffer, image, 1,
                                           origin, region, 0, nullptr, nullptr));
@@ -193,10 +193,10 @@ TEST_F(clEnqueueCopyBufferToImageTest, InvalidValueDstOrigin) {
                                           command_queue, buffer, image, 0,
                                           origin, region, 0, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyBufferToImage(command_queue, buffer, image, 0,
-                                               nullptr, region, 0, nullptr,
-                                               nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyBufferToImage(command_queue, buffer, image, 0, nullptr,
+                                 region, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyBufferToImageTest, InvalidValueDstRegion) {
@@ -215,10 +215,10 @@ TEST_F(clEnqueueCopyBufferToImageTest, InvalidValueDstRegion) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, clEnqueueCopyBufferToImage(
                                           command_queue, buffer, image, 0,
                                           origin, region, 0, nullptr, nullptr));
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyBufferToImage(command_queue, buffer, image, 0,
-                                               origin, nullptr, 0, nullptr,
-                                               nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyBufferToImage(command_queue, buffer, image, 0, origin,
+                                 nullptr, 0, nullptr, nullptr));
 }
 
 GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueCopyBufferToImageTest)

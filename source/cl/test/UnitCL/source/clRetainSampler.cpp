@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clRetainSamplerTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -38,7 +38,7 @@ TEST_F(clRetainSamplerTest, Default) {
   ASSERT_SUCCESS(status);
   ASSERT_SUCCESS(clRetainSampler(sampler));
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clReleaseSampler(sampler)); // reverse the retain
+                    clReleaseSampler(sampler));  // reverse the retain
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clReleaseSampler(sampler)); // make ref count 0
+                    clReleaseSampler(sampler));  // make ref count 0
 }

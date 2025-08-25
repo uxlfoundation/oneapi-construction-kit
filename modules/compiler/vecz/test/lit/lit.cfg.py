@@ -19,7 +19,7 @@ import os
 import lit.formats
 
 # Name of the test suite.
-config.name = "Vecz"
+config.name = 'Vecz'
 
 # File extensions for testing.
 config.suffixes = ['.hlsl', '.ll']

@@ -22,15 +22,16 @@
 
 namespace abacus {
 namespace internal {
-template <typename T> void inplace_sqrt(T &t) {
+template <typename T>
+void inplace_sqrt(T &t) {
   using ET = typename TypeTraits<T>::ElementType;
   for (ET *p = reinterpret_cast<ET *>(&t), *e = reinterpret_cast<ET *>(&t + 1);
        p != e; ++p) {
     *p = std::sqrt(*p);
   }
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template void abacus::internal::inplace_sqrt(abacus_half &);
@@ -39,7 +40,7 @@ template void abacus::internal::inplace_sqrt(abacus_half3 &);
 template void abacus::internal::inplace_sqrt(abacus_half4 &);
 template void abacus::internal::inplace_sqrt(abacus_half8 &);
 template void abacus::internal::inplace_sqrt(abacus_half16 &);
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 template void abacus::internal::inplace_sqrt(abacus_float &);
 template void abacus::internal::inplace_sqrt(abacus_float2 &);
@@ -55,4 +56,4 @@ template void abacus::internal::inplace_sqrt(abacus_double3 &);
 template void abacus::internal::inplace_sqrt(abacus_double4 &);
 template void abacus::internal::inplace_sqrt(abacus_double8 &);
 template void abacus::internal::inplace_sqrt(abacus_double16 &);
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

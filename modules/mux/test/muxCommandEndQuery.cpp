@@ -58,20 +58,20 @@ TEST_P(muxCommandEndQueryDurationTest, InvalidCommandBuffer) {
                   muxCommandEndQuery(nullptr, query_pool, query_index,
                                      query_count, 0, nullptr, nullptr));
   mux_command_buffer_s invalid_command_buffer = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(&invalid_command_buffer, query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(&invalid_command_buffer, query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryDurationTest, InvalidQueryPool) {
   mux_query_pool_t other_query_pool;
   ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_duration, 1, nullptr,
                                     allocator, &other_query_pool));
-  EXPECT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, other_query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  EXPECT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, other_query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
   muxDestroyQueryPool(queue, other_query_pool, allocator);
 
   ASSERT_SUCCESS(muxCommandBeginQuery(command_buffer, query_pool, query_index,
@@ -80,17 +80,17 @@ TEST_P(muxCommandEndQueryDurationTest, InvalidQueryPool) {
                   muxCommandEndQuery(command_buffer, nullptr, query_index,
                                      query_count, 0, nullptr, nullptr));
   mux_query_pool_s invalid_query_pool = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, &invalid_query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, &invalid_query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryDurationTest, InvalidQueryIndex) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, query_pool,
-                                     query_index + 1, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, query_pool, query_index + 1,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryDurationTest, InvalidQueryCount) {
@@ -162,10 +162,10 @@ TEST_P(muxCommandEndQueryCounterTest, Default) {
 
 TEST_P(muxCommandEndQueryCounterTest, InvalidCommandBuffer) {
   mux_command_buffer_t invalid_command_buffer = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(invalid_command_buffer, query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(invalid_command_buffer, query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryCounterTest, InvalidQueryPool) {
@@ -175,27 +175,27 @@ TEST_P(muxCommandEndQueryCounterTest, InvalidQueryPool) {
   ASSERT_SUCCESS(muxCreateQueryPool(queue, mux_query_type_counter, query_count,
                                     &counter_config, allocator,
                                     &other_query_pool));
-  EXPECT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, other_query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  EXPECT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, other_query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
   muxDestroyQueryPool(queue, other_query_pool, allocator);
 
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCommandEndQuery(command_buffer, nullptr, query_index,
                                      query_count, 0, nullptr, nullptr));
   mux_query_pool_s invalid_query_pool = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, &invalid_query_pool,
-                                     query_index, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, &invalid_query_pool, query_index,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryCounterTest, InvalidQueryIndex) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandEndQuery(command_buffer, query_pool,
-                                     query_index + 1, query_count, 0, nullptr,
-                                     nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandEndQuery(command_buffer, query_pool, query_index + 1,
+                         query_count, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandEndQueryCounterTest, InvalidQueryCount) {

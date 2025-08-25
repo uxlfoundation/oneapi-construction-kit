@@ -79,9 +79,9 @@ const uint8_t *get_block_list_start(const uint8_t *data,
 /// @param block_info The block info object to be initialized.
 /// @param bin_size The size of the binary.
 /// @return MD_SUCCESS or MD_INVALID_BINARY if the block info is ill-formed.
-cargo::expected<int, std::string>
-decode_md_block_info(const uint8_t *block_info_start, const CAMD_Header &header,
-                     CAMD_BlockInfo &block_info, size_t bin_size);
+cargo::expected<int, std::string> decode_md_block_info(
+    const uint8_t *block_info_start, const CAMD_Header &header,
+    CAMD_BlockInfo &block_info, size_t bin_size);
 
 /// @brief Get a pointer to the start of a block.
 ///
@@ -106,10 +106,9 @@ const uint8_t *get_block_end(const uint8_t *binary, const CAMD_BlockInfo &info);
 /// infos.
 /// @param bin_size The size of the binary.
 /// @return MD_SUCCESS or MD_INVALID_BINARY if the block info is ill-formed.
-cargo::expected<int, std::string>
-decode_md_block_info_list(const uint8_t *block_list_start,
-                          const CAMD_Header &header,
-                          std::vector<CAMD_BlockInfo> &blocks, size_t bin_size);
+cargo::expected<int, std::string> decode_md_block_info_list(
+    const uint8_t *block_list_start, const CAMD_Header &header,
+    std::vector<CAMD_BlockInfo> &blocks, size_t bin_size);
 
 /// @brief Get the name of a block.
 ///
@@ -174,7 +173,7 @@ constexpr MD_ENDIAN get_mach_endianness() {
 }
 
 /// @}
-} // namespace utils
-} // namespace md
+}  // namespace utils
+}  // namespace md
 
-#endif // MD_DETAIL_UTILS_H_INCLUDED
+#endif  // MD_DETAIL_UTILS_H_INCLUDED

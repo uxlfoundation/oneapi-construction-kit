@@ -19,7 +19,7 @@
 
 class clEnqueueBarrierWithWaitListTest : public ucl::CommandQueueTest,
                                          TestWithEventWaitList {
-protected:
+ protected:
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
     ASSERT_EQ_ERRCODE(err, clEnqueueBarrierWithWaitList(
@@ -51,10 +51,10 @@ TEST_F(clEnqueueBarrierWithWaitListTest, DefaultEventWaitList) {
 
   cl_float pattern = 0.0f;
   cl_event fill_event;
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clEnqueueFillBuffer(command_queue, buffer, &pattern,
-                                        sizeof(cl_float), 0, sizeof(cl_float),
-                                        0, nullptr, &fill_event));
+  EXPECT_EQ_ERRCODE(
+      CL_SUCCESS,
+      clEnqueueFillBuffer(command_queue, buffer, &pattern, sizeof(cl_float), 0,
+                          sizeof(cl_float), 0, nullptr, &fill_event));
   EXPECT_TRUE(fill_event);
   cl_event barrier_event;
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
@@ -76,10 +76,10 @@ TEST_F(clEnqueueBarrierWithWaitListTest, DefaultNoEventWaitList) {
 
   cl_float pattern = 0.0f;
   cl_event fill_event;
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clEnqueueFillBuffer(command_queue, buffer, &pattern,
-                                        sizeof(cl_float), 0, sizeof(cl_float),
-                                        0, nullptr, &fill_event));
+  EXPECT_EQ_ERRCODE(
+      CL_SUCCESS,
+      clEnqueueFillBuffer(command_queue, buffer, &pattern, sizeof(cl_float), 0,
+                          sizeof(cl_float), 0, nullptr, &fill_event));
   EXPECT_TRUE(fill_event);
   cl_event barrier_event;
   EXPECT_SUCCESS(

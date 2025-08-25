@@ -101,6 +101,6 @@ struct kernel_s final : public mux_kernel_s {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_KERNEL_H_INCLUDED
+#endif  // HOST_KERNEL_H_INCLUDED

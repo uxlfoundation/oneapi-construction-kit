@@ -20,8 +20,8 @@
 #include <cl/semaphore.h>
 #include <mux/mux.h>
 
-cargo::expected<mux_shared_semaphore, cl_int>
-_mux_shared_semaphore::create(cl_device_id device, mux_semaphore_t semaphore) {
+cargo::expected<mux_shared_semaphore, cl_int> _mux_shared_semaphore::create(
+    cl_device_id device, mux_semaphore_t semaphore) {
   std::unique_ptr<_mux_shared_semaphore> sem(
       new _mux_shared_semaphore(device, semaphore));
   if (!sem) {

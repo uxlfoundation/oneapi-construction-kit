@@ -41,6 +41,6 @@ struct memory_s : public mux_memory_s {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_MEMORY_H_INCLUDED
+#endif  // HOST_MEMORY_H_INCLUDED

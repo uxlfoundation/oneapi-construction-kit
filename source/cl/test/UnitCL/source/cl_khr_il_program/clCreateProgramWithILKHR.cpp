@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clCreateProgramWithILKHRTest : public ucl::ContextTest {
-public:
+ public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!isDeviceExtensionSupported("cl_khr_il_program")) {
@@ -46,37 +46,37 @@ public:
     //         OpFunctionEnd
     spirv = {{
         0x07230203, 0x00010000, 0x0006000e, 0x00000006, 0x00000000,
-        0x00020011,                         // OpCapability
-        0x00000004,                         //   Addresses
-        0x00020011,                         // OpCapability
-        0x00000006,                         //   Kernel
-        0x0005000b,                         // OpExtInstImport
-        0x00000001,                         // %1
-        0x6e65704f, 0x732e4c43, 0x00006474, //   "OpenCL.std"
-        0x0003000e,                         // OpMemoryModel
-        addr_model,                         //   Physical32/64
-        0x00000002,                         //   OpenCL
-        0x0004000f,                         // OpEntryPoint
-        0x00000006,                         //   Kernel
-        0x00000004,                         //   %4
-        0x006f6f66,                         //   "foo"
-        0x00030003,                         // OpSource
-        0x00000003,                         //   OpenCL_C
-        0x00018e70,                         //   102000
-        0x00020013,                         // OpTypeVoid
-        0x00000002,                         //   %void
-        0x00030021,                         // OpTypeFunction
-        0x00000003,                         // %3
-        0x00000002,                         //   %void
-        0x00050036,                         //   OpFunction
-        0x00000002,                         //   %void
-        0x00000004,                         //   Pure
-        0x00000004,                         //   %4
-        0x00000003,                         //   %3
-        0x000200f8,                         // OpLabel
-        0x00000005,                         // %5
-        0x000100fd,                         // OpReturn
-        0x00010038,                         // OpFunctionEnd
+        0x00020011,                          // OpCapability
+        0x00000004,                          //   Addresses
+        0x00020011,                          // OpCapability
+        0x00000006,                          //   Kernel
+        0x0005000b,                          // OpExtInstImport
+        0x00000001,                          // %1
+        0x6e65704f, 0x732e4c43, 0x00006474,  //   "OpenCL.std"
+        0x0003000e,                          // OpMemoryModel
+        addr_model,                          //   Physical32/64
+        0x00000002,                          //   OpenCL
+        0x0004000f,                          // OpEntryPoint
+        0x00000006,                          //   Kernel
+        0x00000004,                          //   %4
+        0x006f6f66,                          //   "foo"
+        0x00030003,                          // OpSource
+        0x00000003,                          //   OpenCL_C
+        0x00018e70,                          //   102000
+        0x00020013,                          // OpTypeVoid
+        0x00000002,                          //   %void
+        0x00030021,                          // OpTypeFunction
+        0x00000003,                          // %3
+        0x00000002,                          //   %void
+        0x00050036,                          //   OpFunction
+        0x00000002,                          //   %void
+        0x00000004,                          //   Pure
+        0x00000004,                          //   %4
+        0x00000003,                          //   %3
+        0x000200f8,                          // OpLabel
+        0x00000005,                          // %5
+        0x000100fd,                          // OpReturn
+        0x00010038,                          // OpFunctionEnd
     }};
   }
 

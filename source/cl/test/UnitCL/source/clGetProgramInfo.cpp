@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clGetProgramInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -45,7 +45,7 @@ protected:
 };
 
 class clGetProgramInfoProgramSourceTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;
@@ -110,10 +110,10 @@ TEST_F(clGetProgramInfoTest, ProgramContextDefault) {
 
 TEST_F(clGetProgramInfoTest, ProgramContextBadParamValue) {
   cl_context thisContext = nullptr;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetProgramInfo(program, CL_PROGRAM_CONTEXT, 0,
-                                     static_cast<void *>(&thisContext),
-                                     nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetProgramInfo(program, CL_PROGRAM_CONTEXT, 0,
+                       static_cast<void *>(&thisContext), nullptr));
 }
 
 TEST_F(clGetProgramInfoTest, ProgramNumDevicesDefault) {
@@ -255,7 +255,7 @@ TEST_F(clGetProgramInfoTest, ProgramBinaraiesBadParamValue) {
 
 TEST_F(clGetProgramInfoProgramSourceTest, ProgramBinariesDefault) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection erroneously succeeds.
+    GTEST_SKIP();  // Injection erroneously succeeds.
   }
   // Redmine #5121: CL_PROGRAM_BINARIES test need updated when multiple devices
   // are supported!
@@ -339,11 +339,11 @@ TEST_F(clGetProgramInfoTest, ProgramKernelNamesBadParamValue) {
 }
 
 class clGetProgramInfoCompiledProgram : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
+      GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
     }
     if (!getDeviceCompilerAvailable()) {
       GTEST_SKIP();
@@ -467,11 +467,11 @@ TEST_F(clGetProgramInfoInvalidProgramTest, ProgramInfo) {
     binaries[i] = storage[i].data();
   }
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_PROGRAM,
-                    clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                     num_devices * sizeof(unsigned char *),
-                                     static_cast<void *>(binaries.data()),
-                                     nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_PROGRAM,
+      clGetProgramInfo(program, CL_PROGRAM_BINARIES,
+                       num_devices * sizeof(unsigned char *),
+                       static_cast<void *>(binaries.data()), nullptr));
 }
 
 struct clGetProgramInfoBuiltinTest : ucl::ContextTest {
@@ -483,7 +483,7 @@ struct clGetProgramInfoBuiltinTest : ucl::ContextTest {
     size_t size;
     ASSERT_SUCCESS(
         clGetDeviceInfo(device, CL_DEVICE_BUILT_IN_KERNELS, 0, nullptr, &size));
-    if (size == 0) { // Skip if no builtins.
+    if (size == 0) {  // Skip if no builtins.
       GTEST_SKIP();
     }
 
@@ -605,10 +605,10 @@ TEST_P(clGetProgramInfoTestParam, Query30) {
                                   nullptr));
 
   // Query for the value with buffer that is too small.
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetProgramInfo(program, query_enum_value,
-                                     value_buffer.size() - 1,
-                                     value_buffer.data(), nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetProgramInfo(program, query_enum_value, value_buffer.size() - 1,
+                       value_buffer.data(), nullptr));
 }
 
 INSTANTIATE_TEST_CASE_P(

@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif  // __cplusplus
 
 /// @addtogroup host
 /// @{
@@ -33,8 +33,8 @@ extern "C" {
 /// @brief Host patch version number.
 #define HOST_PATCH_VERSION 0
 /// @brief Host combined version number.
-#define HOST_VERSION                                                           \
-  (((uint32_t)HOST_MAJOR_VERSION << 22) |                                      \
+#define HOST_VERSION                      \
+  (((uint32_t)HOST_MAJOR_VERSION << 22) | \
    ((uint32_t)HOST_MINOR_VERSION << 12) | ((uint32_t)HOST_PATCH_VERSION))
 
 /// @brief Gets Mux devices' information.
@@ -342,11 +342,10 @@ mux_result_t hostGetSupportedImageFormats(mux_device_t device,
 /// @param[out] out_count Return the total count of supported query counters.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t
-hostGetSupportedQueryCounters(mux_device_t device, mux_queue_type_e queue_type,
-                              uint32_t count, mux_query_counter_t *out_counters,
-                              mux_query_counter_description_t *out_descriptions,
-                              uint32_t *out_count);
+mux_result_t hostGetSupportedQueryCounters(
+    mux_device_t device, mux_queue_type_e queue_type, uint32_t count,
+    mux_query_counter_t *out_counters,
+    mux_query_counter_description_t *out_descriptions, uint32_t *out_count);
 
 /// @brief Get a queue from the owning device.
 ///
@@ -628,12 +627,11 @@ mux_result_t hostQuerySubGroupSizeForLocalSize(mux_kernel_t kernel,
 /// queried local size.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t
-hostQueryWFVInfoForLocalSize(mux_kernel_t kernel, size_t local_size_x,
-                             size_t local_size_y, size_t local_size_z,
-                             mux_wfv_status_e *out_wfv_status,
-                             size_t *out_work_width_x, size_t *out_work_width_y,
-                             size_t *out_work_width_z);
+mux_result_t hostQueryWFVInfoForLocalSize(
+    mux_kernel_t kernel, size_t local_size_x, size_t local_size_y,
+    size_t local_size_z, mux_wfv_status_e *out_wfv_status,
+    size_t *out_work_width_x, size_t *out_work_width_y,
+    size_t *out_work_width_z);
 
 /// @brief Destroy a kernel.
 ///
@@ -778,12 +776,11 @@ mux_result_t hostCommandReadBufferRegions(
 /// on.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t
-hostCommandWriteBuffer(mux_command_buffer_t command_buffer, mux_buffer_t buffer,
-                       uint64_t offset, const void *host_pointer, uint64_t size,
-                       uint32_t num_sync_points_in_wait_list,
-                       const mux_sync_point_t *sync_point_wait_list,
-                       mux_sync_point_t *sync_point);
+mux_result_t hostCommandWriteBuffer(
+    mux_command_buffer_t command_buffer, mux_buffer_t buffer, uint64_t offset,
+    const void *host_pointer, uint64_t size,
+    uint32_t num_sync_points_in_wait_list,
+    const mux_sync_point_t *sync_point_wait_list, mux_sync_point_t *sync_point);
 
 /// @brief Push a write buffer regions command to the command buffer.
 ///
@@ -1114,12 +1111,11 @@ mux_result_t hostUpdateDescriptors(mux_command_buffer_t command_buffer,
 /// on.
 ///
 /// @return mux_success, or a mux_error_* if an error occurred.
-mux_result_t
-hostCommandUserCallback(mux_command_buffer_t command_buffer,
-                        mux_command_user_callback_t user_function,
-                        void *user_data, uint32_t num_sync_points_in_wait_list,
-                        const mux_sync_point_t *sync_point_wait_list,
-                        mux_sync_point_t *sync_point);
+mux_result_t hostCommandUserCallback(
+    mux_command_buffer_t command_buffer,
+    mux_command_user_callback_t user_function, void *user_data,
+    uint32_t num_sync_points_in_wait_list,
+    const mux_sync_point_t *sync_point_wait_list, mux_sync_point_t *sync_point);
 
 /// @brief Push a begin query command to the command buffer.
 ///
@@ -1259,7 +1255,7 @@ mux_result_t hostWaitAll(mux_queue_t queue);
 /// @}
 
 #ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
 
-#endif // HOST_HOST_H_INCLUDED
+#endif  // HOST_HOST_H_INCLUDED

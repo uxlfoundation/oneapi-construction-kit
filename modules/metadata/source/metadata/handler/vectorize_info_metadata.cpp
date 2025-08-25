@@ -45,7 +45,7 @@ FixedOrScalableQuantity<uint32_t> read_quantity(uint8_t *&data,
 
   return FixedOrScalableQuantity<uint32_t>(quantity, is_scalable);
 }
-} // namespace
+}  // namespace
 
 namespace handler {
 
@@ -142,4 +142,4 @@ bool VectorizeInfoMetadataHandler::write(const VectorizeInfoMetadata &md) {
   return true;
 }
 
-} // namespace handler
+}  // namespace handler

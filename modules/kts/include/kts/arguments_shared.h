@@ -44,7 +44,8 @@ extern size_t localN;
 /// Reference1D internally.
 ///
 /// @tparam T The return type of the function (i.e. the buffer type)
-template <typename T> using Reference1DPtr = T (*)(size_t);
+template <typename T>
+using Reference1DPtr = T (*)(size_t);
 
 /// @brief Class that works similar to std::function but with multiple types.
 ///
@@ -58,12 +59,14 @@ template <typename T> using Reference1DPtr = T (*)(size_t);
 /// inheritance is used to store the appropriate std::function object.
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable : 4521) // multiple copy constructors specified
+#pragma warning(disable : 4521)  // multiple copy constructors specified
 #endif
-template <typename T> class Reference1D {
+template <typename T>
+class Reference1D {
   /// @brief Helper class to determine if the reference is of type T(size_t)
   /// @tparam TT The type of the reference function
-  template <typename TT> class HasOperatorSizeT {
+  template <typename TT>
+  class HasOperatorSizeT {
     /// @brief This function will only be valid if it is valid to call U(0)
     /// @tparam U The type to check for operator(size_t)
     /// If it is is not possible, SFINAE will remove it. `std::true_type` has a
@@ -76,14 +79,15 @@ template <typename T> class Reference1D {
     /// member `value` set to `false`
     static std::false_type test(...);
 
-  public:
+   public:
     /// @brief This will be set to `true` if it is possible to call TT(size_t)
     enum { value = decltype(test(std::declval<TT>()))::value };
   };
 
   /// @brief Helper class to determine if the reference has type bool(size_t, T)
   /// @tparam TT The type of the reference function
-  template <typename TT> class HasOperatorSizeTT {
+  template <typename TT>
+  class HasOperatorSizeTT {
     /// @brief This function will only be valid if it is valid to call U(0, T)
     /// @tparam U The type to check for operator(size_t)
     /// If it is is not possible, SFINAE will remove it. `std::true_type` has a
@@ -97,12 +101,12 @@ template <typename T> class Reference1D {
     /// member `value` set to `false`
     static std::false_type test(...);
 
-  public:
+   public:
     /// @brief This will be set to `true` if we can call TT(size_t, T)
     enum { value = decltype(test(std::declval<TT>()))::value };
   };
 
-public:
+ public:
   /// @brief What kind of reference function we are current holding
   enum RefType {
     /// @brief No function set
@@ -223,12 +227,14 @@ public:
   bool isValueType() const { return getType() == Value; };
   bool isBooleanType() const { return getType() == Boolean; };
 
-private:
+ private:
   /// @brief Helper class to type erase the helper function using inheritance
   struct ReferenceFunBase {};
   /// @brief Helper class to type erase the helper function using inheritance
-  template <typename F> struct ReferenceFun : public ReferenceFunBase {
-    template <typename FF> ReferenceFun(FF &&f) : Fun(std::forward<FF>(f)) {}
+  template <typename F>
+  struct ReferenceFun : public ReferenceFunBase {
+    template <typename FF>
+    ReferenceFun(FF &&f) : Fun(std::forward<FF>(f)) {}
     std::function<F> Fun;
   };
 
@@ -274,7 +280,8 @@ Reference1D<VT> BuildVec4Reference1D(Reference1DPtr<T> ref) {
   };
 }
 
-template <typename T> struct Validator {
+template <typename T>
+struct Validator {
   bool validate(T &expected, T &actual) { return expected == actual; }
   void print(std::stringstream &s, const T &value) { s << value; }
 };
@@ -296,7 +303,8 @@ inline void Validator<unsigned char>::print(std::stringstream &s,
   s << static_cast<unsigned int>(value);
 }
 
-template <> struct Validator<double> {
+template <>
+struct Validator<double> {
   bool validate(double &expected, double &actual) {
     const testing::internal::FloatingPoint<double> lhs(expected), rhs(actual);
 
@@ -306,7 +314,7 @@ template <> struct Validator<double> {
   }
 
   void print(std::stringstream &s, double value) {
-#if !defined(__GNUC__) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >= 1)) ||        \
+#if !defined(__GNUC__) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >= 1)) || \
     (__GNUC__ > 5)
     s << std::hexfloat << value;
 #else
@@ -317,7 +325,8 @@ template <> struct Validator<double> {
   }
 };
 
-template <> struct Validator<float> {
+template <>
+struct Validator<float> {
   bool validate(float &expected, float &actual) {
     const testing::internal::FloatingPoint<float> lhs(expected), rhs(actual);
 
@@ -327,7 +336,7 @@ template <> struct Validator<float> {
   }
 
   void print(std::stringstream &s, const float &value) {
-#if !defined(__GNUC__) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >= 1)) ||        \
+#if !defined(__GNUC__) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >= 1)) || \
     (__GNUC__ > 5)
     s << std::hexfloat << value;
 #else
@@ -355,7 +364,8 @@ struct BufferDesc {
 
   template <typename T, typename V = Validator<T>>
   BufferDesc(size_t size, Reference1D<T> ref, V validator = {})
-      : size_(size), streamer_(new GenericStreamer<T, V>(ref, validator)),
+      : size_(size),
+        streamer_(new GenericStreamer<T, V>(ref, validator)),
         streamer2_(nullptr) {}
 
   template <typename T, typename V = Validator<T>>
@@ -367,7 +377,8 @@ struct BufferDesc {
   template <typename T, typename V = Validator<T>>
   BufferDesc(size_t size, Reference1D<T> ref, Reference1D<T> ref2,
              V validator = {})
-      : size_(size), streamer_(new GenericStreamer<T, V>(ref, validator)),
+      : size_(size),
+        streamer_(new GenericStreamer<T, V>(ref, validator)),
         streamer2_(new GenericStreamer<T, V>(Reference1D<T>(ref2), validator)) {
   }
 
@@ -382,7 +393,8 @@ struct BufferDesc {
   template <typename T, typename V = Validator<T>>
   BufferDesc(size_t size, Reference1D<T> ref, Reference1DPtr<T> ref2,
              V validator = {})
-      : size_(size), streamer_(new GenericStreamer<T, V>(ref, validator)),
+      : size_(size),
+        streamer_(new GenericStreamer<T, V>(ref, validator)),
         streamer2_(new GenericStreamer<T, V>(Reference1D<T>(ref2), validator)) {
   }
 
@@ -414,7 +426,7 @@ enum ArgKind {
 };
 
 class ArgumentBase {
-public:
+ public:
   ArgumentBase(ArgKind kind, size_t index) : kind_(kind), index_(index) {}
 
   virtual ~ArgumentBase() = default;
@@ -425,7 +437,7 @@ public:
   virtual size_t GetBufferStorageSize() = 0;
   virtual void SetBufferStorageSize(size_t size) = 0;
 
-private:
+ private:
   // Argument kind.
   ArgKind kind_;
   // Argument index.
@@ -434,7 +446,7 @@ private:
 
 // Populates input buffers with data and validate output buffers' data.
 class BufferStreamer {
-public:
+ public:
   virtual ~BufferStreamer() {}
 
   virtual void PopulateBuffer(ArgumentBase &arg, const BufferDesc &desc) = 0;
@@ -443,7 +455,8 @@ public:
   virtual size_t GetElementSize() = 0;
 };
 
-template <typename T> struct MemoryAccessor {
+template <typename T>
+struct MemoryAccessor {
   T LoadFromBuffer(void *Ptr, size_t Offset) {
     void *const PtrPlusOffset =
         static_cast<uint8_t *>(Ptr) + (Offset * sizeof(T));
@@ -468,7 +481,7 @@ template <typename T> struct MemoryAccessor {
 ///           representation.
 template <typename T, typename V, typename R>
 class GenericStreamer : public BufferStreamer {
-public:
+ public:
   GenericStreamer(Reference1D<R> ref, V validator = {})
       : ref_(ref), validator(validator) {}
   GenericStreamer(Reference1D<R> ref, const std::vector<Reference1D<R>> &&f,
@@ -591,7 +604,8 @@ struct Primitive {
   virtual size_t GetSize() = 0;
 };
 
-template <typename T> struct BoxedPrimitive : public Primitive {
+template <typename T>
+struct BoxedPrimitive : public Primitive {
   BoxedPrimitive(T value) : value_(value) {}
 
   void *GetAddress() override { return &value_; }
@@ -599,6 +613,6 @@ template <typename T> struct BoxedPrimitive : public Primitive {
 
   T value_;
 };
-} // namespace kts
+}  // namespace kts
 
-#endif // KTS_ARGUMENTS_SHARED_H_INCLUDED
+#endif  // KTS_ARGUMENTS_SHARED_H_INCLUDED

@@ -17,7 +17,7 @@
 
 class FeatureMacroTest : public ucl::CommandQueueTest,
                          public testing::WithParamInterface<cl_name_version> {
-protected:
+ protected:
   virtual void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::CommandQueueTest::SetUp());
     // Skip for non OpenCL-3.0 implementations.
@@ -116,10 +116,10 @@ protected:
       ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, nullptr,
                                      &extensions_size_in_bytes));
       std::string extensions(extensions_size_in_bytes, '\0');
-      ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS,
-                                     sizeof(decltype(extensions)::value_type) *
-                                         extensions.size(),
-                                     extensions.data(), nullptr));
+      ASSERT_SUCCESS(clGetDeviceInfo(
+          device, CL_DEVICE_EXTENSIONS,
+          sizeof(decltype(extensions)::value_type) * extensions.size(),
+          extensions.data(), nullptr));
       is_defined =
           extensions.find("cl_khr_3d_image_writes") != std::string::npos;
       return;
@@ -155,10 +155,10 @@ protected:
       ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE, 0, nullptr,
                                      &profile_size_in_bytes));
       std::string profile(profile_size_in_bytes, '\0');
-      ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_PROFILE,
-                                     sizeof(decltype(profile)::value_type) *
-                                         profile.size(),
-                                     profile.data(), nullptr));
+      ASSERT_SUCCESS(clGetDeviceInfo(
+          device, CL_DEVICE_PROFILE,
+          sizeof(decltype(profile)::value_type) * profile.size(),
+          profile.data(), nullptr));
       if (0 == std::strcmp(profile.c_str(), "FULL_PROFILE")) {
         is_defined = true;
         return;
@@ -198,8 +198,8 @@ protected:
     name_versions = device_opencl_c_features;
   }
 
-  bool
-  isFeatureInOpenCLCFeaturesQuery(const cl_name_version &queried_name_version) {
+  bool isFeatureInOpenCLCFeaturesQuery(
+      const cl_name_version &queried_name_version) {
     // Check whether the given macro is defined in the list returned from
     // CL_DEVICE_OPENCL_C_FEATURES.
     std::vector<cl_name_version> name_versions;

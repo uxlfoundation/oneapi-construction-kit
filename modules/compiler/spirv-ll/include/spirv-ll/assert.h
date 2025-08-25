@@ -32,16 +32,16 @@
                      SPIRV_LL_FUNCTION);                                       \
   std::abort()
 
-#define SPIRV_LL_ASSERT(CONDITION, MESSAGE)                                    \
-  if (!(CONDITION)) {                                                          \
-    SPIRV_LL_ABORT(MESSAGE);                                                   \
-  }                                                                            \
+#define SPIRV_LL_ASSERT(CONDITION, MESSAGE) \
+  if (!(CONDITION)) {                       \
+    SPIRV_LL_ABORT(MESSAGE);                \
+  }                                         \
   (void)0
 
-#define SPIRV_LL_ASSERT_PTR(POINTER)                                           \
-  if (nullptr == (POINTER)) {                                                  \
-    SPIRV_LL_ABORT(#POINTER " is null");                                       \
-  }                                                                            \
+#define SPIRV_LL_ASSERT_PTR(POINTER)     \
+  if (nullptr == (POINTER)) {            \
+    SPIRV_LL_ABORT(#POINTER " is null"); \
+  }                                      \
   (void)0
 #else
 #define SPIRV_LL_ABORT(MESSAGE)
@@ -49,4 +49,4 @@
 #define SPIRV_LL_ASSERT_PTR(POINTER)
 #endif
 
-#endif // SPIRV_LL_SPV_ASSERT_INCLUDED_H
+#endif  // SPIRV_LL_SPV_ASSERT_INCLUDED_H

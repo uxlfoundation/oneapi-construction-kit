@@ -80,7 +80,8 @@ static ABACUS_CONSTANT abacus_half __codeplay_hypot_coeff_half[5] = {
     1.0f16, -3.0517578125e-3f16, 0.53173828125f16, -0.10015869140625f16,
     -1.4434814453125e-2f16};
 
-template <typename T> struct hypot_helper<T, abacus_half> {
+template <typename T>
+struct hypot_helper<T, abacus_half> {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Shape = FPShape<T>;
@@ -202,12 +203,13 @@ template <typename T> struct hypot_helper<T, abacus_half> {
     return ans;
   }
 };
-#endif //__CA_BUILTINS_HALF_SUPPORT
+#endif  //__CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> T hypot(const T x, const T y) {
+template <typename T>
+T hypot(const T x, const T y) {
   return hypot_helper<T>::_(x, y);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_hypot(abacus_half x, abacus_half y) {
@@ -269,4 +271,4 @@ abacus_double16 ABACUS_API __abacus_hypot(abacus_double16 x,
                                           abacus_double16 y) {
   return hypot<>(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

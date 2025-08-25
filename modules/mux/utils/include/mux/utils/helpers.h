@@ -90,6 +90,6 @@ mux_result_t synchronizeMemory(mux_device_t src_device, mux_device_t dst_device,
                                uint64_t offset, uint64_t size);
 
 /// @}
-} // namespace mux
+}  // namespace mux
 
-#endif // MUX_UTILS_HELPERS_H_INCLUDED
+#endif  // MUX_UTILS_HELPERS_H_INCLUDED

@@ -40,6 +40,6 @@ struct MemToRegPass final : public llvm::PassInfoMixin<MemToRegPass> {
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_MEM_TO_REG_PASS_H_INCLUDED
+#endif  // BASE_MEM_TO_REG_PASS_H_INCLUDED

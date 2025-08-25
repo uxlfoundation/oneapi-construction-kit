@@ -19,7 +19,7 @@
 #include <mux/utils/helpers.h>
 
 #include <algorithm>
-#include <cstring> // For memset.
+#include <cstring>  // For memset.
 #include <iterator>
 #include <mutex>
 #include <thread>

@@ -23,6 +23,6 @@
 namespace benchcl {
 cl_uint get_device(cargo::string_view device_name, cl_platform_id &platform,
                    cl_device_id &device);
-} // namespace benchcl
+}  // namespace benchcl
 
-#endif // BENCHCL_UTILS_H_INCLUDED
+#endif  // BENCHCL_UTILS_H_INCLUDED

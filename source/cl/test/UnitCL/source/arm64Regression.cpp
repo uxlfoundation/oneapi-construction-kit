@@ -108,7 +108,7 @@ int test_copy(cl_context context, cl_command_queue queue, cl_kernel kernel,
   clReleaseMemObject(buffers[1]);
   return ret_code;
 }
-} // end anonymous namespace
+}  // end anonymous namespace
 
 struct Arm64KillerTest : public ucl::CommandQueueTest {
   void SetUp() override {

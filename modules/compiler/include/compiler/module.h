@@ -90,13 +90,23 @@ enum class ModuleState : uint8_t {
 struct Options {
   Options()
       : standard(Standard::OpenCLC12),
-        fp32_correctly_rounded_divide_sqrt(false), mad_enable(false),
-        no_signed_zeros(false), unsafe_math_optimizations(false),
-        denorms_may_be_zero(false), finite_math_only(false), warn_ignore(false),
-        warn_error(false), kernel_arg_info(false), debug_info(false),
-        opt_disable(false), fast_math(false), soft_math(false),
-        scalable_vectors(false), prevec_mode(PreVectorizationMode::DEFAULT),
-        vectorization_mode(VectorizationMode::DEFAULT), llvm_stats(false),
+        fp32_correctly_rounded_divide_sqrt(false),
+        mad_enable(false),
+        no_signed_zeros(false),
+        unsafe_math_optimizations(false),
+        denorms_may_be_zero(false),
+        finite_math_only(false),
+        warn_ignore(false),
+        warn_error(false),
+        kernel_arg_info(false),
+        debug_info(false),
+        opt_disable(false),
+        fast_math(false),
+        soft_math(false),
+        scalable_vectors(false),
+        prevec_mode(PreVectorizationMode::DEFAULT),
+        vectorization_mode(VectorizationMode::DEFAULT),
+        llvm_stats(false),
         single_precision_constant(false) {}
 
   /// @brief List of preprocessor macro definition.
@@ -270,26 +280,34 @@ struct KernelArgType {
 struct ArgumentType {
   /// @brief Default constructor.
   ArgumentType()
-      : kind(ArgumentKind::UNKNOWN), address_space(0), vector_width(1),
+      : kind(ArgumentKind::UNKNOWN),
+        address_space(0),
+        vector_width(1),
         dereferenceable_bytes() {}
 
   /// @brief Non-pointer constructor.
   ///
   /// @param kind The argument kind.
   ArgumentType(ArgumentKind kind)
-      : kind(kind), address_space(0), vector_width(1), dereferenceable_bytes() {
-  }
+      : kind(kind),
+        address_space(0),
+        vector_width(1),
+        dereferenceable_bytes() {}
 
   /// @brief Pointer constructor.
   ///
   /// @param address_space The address space of the pointer argument.
   ArgumentType(uint32_t address_space)
-      : kind(ArgumentKind::POINTER), address_space(address_space),
-        vector_width(1), dereferenceable_bytes() {}
+      : kind(ArgumentKind::POINTER),
+        address_space(address_space),
+        vector_width(1),
+        dereferenceable_bytes() {}
 
   ArgumentType(uint32_t address_space, uint64_t dereferenceable_bytes)
-      : kind(ArgumentKind::POINTER), address_space(address_space),
-        vector_width(1), dereferenceable_bytes(dereferenceable_bytes) {}
+      : kind(ArgumentKind::POINTER),
+        address_space(address_space),
+        vector_width(1),
+        dereferenceable_bytes(dereferenceable_bytes) {}
 
   /// @brief The type (possibly including integer bit width and vector
   /// width).
@@ -338,7 +356,7 @@ struct KernelInfo {
   ///
   /// Zero indicates that no spill memory was used, which is not safe to assume.
   uint64_t spill_mem_size_bytes = (uint64_t)-1;
-}; // class KernelInfo
+};  // class KernelInfo
 
 /// @brief Class for managing program information.
 ///
@@ -409,8 +427,8 @@ struct ProgramInfo {
   /// @param[in] kernel_name Name of the kernel to search for.
   ///
   /// @return Return kernel info if found, null otherwise.
-  const compiler::KernelInfo *
-  getKernelByName(cargo::string_view kernel_name) const {
+  const compiler::KernelInfo *getKernelByName(
+      cargo::string_view kernel_name) const {
     for (const auto &desc : kernel_descriptions) {
       if (kernel_name == desc.name) {
         return &desc;
@@ -439,7 +457,7 @@ struct ProgramInfo {
   /// @return Return the end iterator.
   const KernelInfo *end() const { return kernel_descriptions.end(); }
 
-private:
+ private:
   /// @brief Kernel descriptions.
   cargo::small_vector<KernelInfo, 8> kernel_descriptions;
 };
@@ -487,12 +505,12 @@ struct ModuleInfo {
   /// @brief Work group size.
   std::array<uint32_t, 3> workgroup_size;
 };
-} // namespace spirv
+}  // namespace spirv
 
 /// @brief A class that drives the compilation process and stores the compiled
 /// binary.
 class Module {
-public:
+ public:
   /// @brief Virtual destructor.
   virtual ~Module() {}
 
@@ -556,9 +574,9 @@ public:
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::INVALID_COMPILER_OPTIONS` when invalid options were set.
   /// @retval `Result::COMPILE_PROGRAM_FAILURE` when compilation failed.
-  virtual Result
-  compileOpenCLC(cargo::string_view device_profile, cargo::string_view source,
-                 cargo::array_view<compiler::InputHeader> input_headers) = 0;
+  virtual Result compileOpenCLC(
+      cargo::string_view device_profile, cargo::string_view source,
+      cargo::array_view<compiler::InputHeader> input_headers) = 0;
 
   /// @brief Link a set of program binaries together into the current program.
   ///
@@ -581,9 +599,9 @@ public:
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when finalization failed. See
   /// the error log for more information.
-  virtual Result
-  finalize(ProgramInfo *program_info,
-           std::vector<builtins::printf::descriptor> &printf_calls) = 0;
+  virtual Result finalize(
+      ProgramInfo *program_info,
+      std::vector<builtins::printf::descriptor> &printf_calls) = 0;
 
   /// @brief Creates a binary from the current module. This assumes that the
   /// module has been finalized.
@@ -628,8 +646,8 @@ public:
 
   /// @brief Returns the current state of the compiler module.
   virtual ModuleState getState() const = 0;
-}; // class Module
+};  // class Module
 
 /// @}
-} // namespace compiler
-#endif // COMPILER_MODULE_H_INCLUDED
+}  // namespace compiler
+#endif  // COMPILER_MODULE_H_INCLUDED

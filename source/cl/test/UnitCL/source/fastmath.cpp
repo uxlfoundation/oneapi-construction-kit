@@ -29,23 +29,33 @@ void ReplaceAll(std::string &str, const std::string &from,
   }
 }
 
-template <typename T> struct ReleaseHelper {
+template <typename T>
+struct ReleaseHelper {
   ReleaseHelper(T t) : t(t) {}
 
   ~ReleaseHelper();
 
   operator T() const { return t; }
 
-private:
+ private:
   T t;
 };
 
-template <> ReleaseHelper<cl_kernel>::~ReleaseHelper() { clReleaseKernel(t); }
+template <>
+ReleaseHelper<cl_kernel>::~ReleaseHelper() {
+  clReleaseKernel(t);
+}
 
-template <> ReleaseHelper<cl_mem>::~ReleaseHelper() { clReleaseMemObject(t); }
+template <>
+ReleaseHelper<cl_mem>::~ReleaseHelper() {
+  clReleaseMemObject(t);
+}
 
-template <> ReleaseHelper<cl_program>::~ReleaseHelper() { clReleaseProgram(t); }
-} // namespace
+template <>
+ReleaseHelper<cl_program>::~ReleaseHelper() {
+  clReleaseProgram(t);
+}
+}  // namespace
 
 struct FastMathTest : ucl::CommandQueueTest,
                       testing::WithParamInterface<const char *> {
@@ -56,9 +66,9 @@ struct FastMathTest : ucl::CommandQueueTest,
     EXPECT_TRUE(program);
     EXPECT_SUCCESS(errorcode);
 
-    EXPECT_EQ_ERRCODE(CL_SUCCESS, clBuildProgram(program, 0, nullptr,
-                                                 "-cl-fast-relaxed-math",
-                                                 nullptr, nullptr));
+    EXPECT_EQ_ERRCODE(
+        CL_SUCCESS, clBuildProgram(program, 0, nullptr, "-cl-fast-relaxed-math",
+                                   nullptr, nullptr));
     return program;
   }
 
@@ -103,14 +113,15 @@ TEST_P(FastMathTest, Logic) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
-  std::string source = "void kernel f(global %s *a,\n"
-                       "  global %s *b,\n"
-                       "  global %s *c,\n"
-                       "  global %s *d,\n"
-                       "  global %s *e) {\n"
-                       "  size_t gid = get_global_id(0);\n"
-                       "  a[gid] -= b[gid] * c[gid] + d[gid] / e[gid];\n"
-                       "}";
+  std::string source =
+      "void kernel f(global %s *a,\n"
+      "  global %s *b,\n"
+      "  global %s *c,\n"
+      "  global %s *d,\n"
+      "  global %s *e) {\n"
+      "  size_t gid = get_global_id(0);\n"
+      "  a[gid] -= b[gid] * c[gid] + d[gid] / e[gid];\n"
+      "}";
 
   if (skipTest(GetParam())) {
     return;
@@ -148,12 +159,13 @@ TEST_P(FastMathTest, GeometricDistance) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
-  std::string source = "void kernel f(global %s *a,\n"
-                       "  global %s *b,\n"
-                       "  global %s *c) {\n"
-                       "  size_t gid = get_global_id(0);\n"
-                       "  a[gid] = distance(b[gid], c[gid]);\n"
-                       "}";
+  std::string source =
+      "void kernel f(global %s *a,\n"
+      "  global %s *b,\n"
+      "  global %s *c) {\n"
+      "  size_t gid = get_global_id(0);\n"
+      "  a[gid] = distance(b[gid], c[gid]);\n"
+      "}";
 
   if (skipTest(GetParam())) {
     return;
@@ -187,11 +199,12 @@ TEST_P(FastMathTest, GeometricLength) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
-  std::string source = "void kernel f(global %s *a,\n"
-                       "  global %s *b) {\n"
-                       "  size_t gid = get_global_id(0);\n"
-                       "  a[gid] = length(b[gid]);\n"
-                       "}";
+  std::string source =
+      "void kernel f(global %s *a,\n"
+      "  global %s *b) {\n"
+      "  size_t gid = get_global_id(0);\n"
+      "  a[gid] = length(b[gid]);\n"
+      "}";
 
   if (skipTest(GetParam())) {
     return;
@@ -223,11 +236,12 @@ TEST_P(FastMathTest, GeometricNormalize) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
-  std::string source = "void kernel f(global %s *a,\n"
-                       "  global %s *b) {\n"
-                       "  size_t gid = get_global_id(0);\n"
-                       "  a[gid] = normalize(b[gid]);\n"
-                       "}";
+  std::string source =
+      "void kernel f(global %s *a,\n"
+      "  global %s *b) {\n"
+      "  size_t gid = get_global_id(0);\n"
+      "  a[gid] = normalize(b[gid]);\n"
+      "}";
 
   if (skipTest(GetParam())) {
     return;

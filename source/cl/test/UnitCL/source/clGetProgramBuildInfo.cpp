@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clGetProgramBuildInfoGoodTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -45,7 +45,7 @@ protected:
 };
 
 class clGetProgramBuildInfoBadTest : public ucl::ContextTest {
-protected:
+ protected:
   cl_program program = nullptr;
 };
 
@@ -78,10 +78,10 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildStatusBadSize) {
   ASSERT_SUCCESS(clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_STATUS,
                                        0, nullptr, &size));
   cl_build_status status;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetProgramBuildInfo(program, device,
-                                          CL_PROGRAM_BUILD_STATUS, 0, &status,
-                                          nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_STATUS, 0,
+                            &status, nullptr));
 }
 
 TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildStatusSuccess) {
@@ -128,7 +128,7 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildStatusBinarySuccess) {
 
 TEST_F(clGetProgramBuildInfoBadTest, ProgramBuildStatusNone) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection creates programs from binaries, not source.
+    GTEST_SKIP();  // Injection creates programs from binaries, not source.
   }
   cl_int errorcode;
   const char *source =
@@ -148,7 +148,7 @@ TEST_F(clGetProgramBuildInfoBadTest, ProgramBuildStatusNone) {
 
 TEST_F(clGetProgramBuildInfoBadTest, ProgramBuildStatusIntermediate) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
   }
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
@@ -173,7 +173,7 @@ TEST_F(clGetProgramBuildInfoBadTest, ProgramBuildStatusIntermediate) {
 
 TEST_F(clGetProgramBuildInfoBadTest, ProgramBuildStatusSource) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection creates programs from binaries, not source.
+    GTEST_SKIP();  // Injection creates programs from binaries, not source.
   }
   cl_int errorcode;
   const char *source =
@@ -263,15 +263,15 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildOptionsBadSize) {
   ASSERT_SUCCESS(clGetProgramBuildInfo(
       program, device, CL_PROGRAM_BUILD_OPTIONS, 0, nullptr, &size));
   UCL::Buffer<char> options(size);
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetProgramBuildInfo(program, device,
-                                          CL_PROGRAM_BUILD_OPTIONS, 0, options,
-                                          nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_OPTIONS, 0,
+                            options, nullptr));
 }
 
 TEST_F(clGetProgramBuildInfoGoodTest, ProgramBuildOptionsDefault) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection doesn't propogate build options.
+    GTEST_SKIP();  // Injection doesn't propogate build options.
   }
   const char *input_options = "-cl-opt-disable -w";
   ASSERT_SUCCESS(
@@ -330,7 +330,7 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBinaryTypeBadSize) {
 
 TEST_F(clGetProgramBuildInfoBadTest, ProgramBinaryTypeCompiled) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
+    GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
   }
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
@@ -357,7 +357,7 @@ TEST_F(clGetProgramBuildInfoBadTest, ProgramBinaryTypeCompiled) {
 
 TEST_F(clGetProgramBuildInfoBadTest, ProgramBinaryTypeNone) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection creates programs with executable status.
+    GTEST_SKIP();  // Injection creates programs with executable status.
   }
   cl_int errorcode;
   const char *source =
@@ -391,7 +391,7 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBinaryTypeExecutable) {
 class clGetProgramBuildInfoTestScalarQueryOpenCL30
     : public clGetProgramBuildInfoGoodTest,
       public testing::WithParamInterface<std::tuple<size_t, int>> {
-protected:
+ protected:
   void SetUp() override {
     clGetProgramBuildInfoGoodTest::SetUp();
     // Skip for non OpenCL-3.0 implementations.

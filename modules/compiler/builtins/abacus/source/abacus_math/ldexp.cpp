@@ -25,7 +25,8 @@
 
 namespace {
 
-template <typename T, typename S> inline T ldexp(const T x, const S n) {
+template <typename T, typename S>
+inline T ldexp(const T x, const S n) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef FPShape<T> Shape;
@@ -86,7 +87,7 @@ template <typename T, typename S> inline T ldexp(const T x, const S n) {
   return x * factor_1 * factor_1 * factor_2;
 }
 
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_ldexp(abacus_half x, abacus_int n) {
@@ -112,7 +113,7 @@ abacus_half8 ABACUS_API __abacus_ldexp(abacus_half8 x, abacus_int8 n) {
 abacus_half16 ABACUS_API __abacus_ldexp(abacus_half16 x, abacus_int16 n) {
   return ldexp<>(x, n);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_ldexp(abacus_float x, abacus_int n) {
   return ldexp<>(x, n);
@@ -162,4 +163,4 @@ abacus_double8 ABACUS_API __abacus_ldexp(abacus_double8 x, abacus_int8 n) {
 abacus_double16 ABACUS_API __abacus_ldexp(abacus_double16 x, abacus_int16 n) {
   return ldexp<>(x, n);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -43,15 +43,15 @@ namespace utils {
 /// functions in the module.
 class FixupCallingConventionPass final
     : public llvm::PassInfoMixin<FixupCallingConventionPass> {
-public:
+ public:
   FixupCallingConventionPass(llvm::CallingConv::ID CC) : CC(CC) {}
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 
-private:
+ private:
   llvm::CallingConv::ID CC;
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_FIXUP_CALLING_CONVENTION_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_FIXUP_CALLING_CONVENTION_PASS_H_INCLUDED

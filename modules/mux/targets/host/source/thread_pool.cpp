@@ -71,7 +71,7 @@ void threadFunc(host::thread_pool_s *const me) {
     threadFuncBody(me, item);
   }
 }
-} // namespace
+}  // namespace
 
 namespace host {
 thread_pool_s::thread_pool_s() : stayAlive(true) {
@@ -261,4 +261,4 @@ void thread_pool_s::wait(std::atomic<uint32_t> *count) {
     }
   }
 }
-} // namespace host
+}  // namespace host

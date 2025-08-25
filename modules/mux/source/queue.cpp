@@ -27,11 +27,11 @@ mux_result_t muxGetQueue(mux_device_t device, mux_queue_type_e queue_type,
   }
 
   switch (queue_type) {
-  default:
-    // bad queue type provided!
-    return mux_error_invalid_value;
-  case mux_queue_type_compute:
-    break;
+    default:
+      // bad queue type provided!
+      return mux_error_invalid_value;
+    case mux_queue_type_compute:
+      break;
   }
 
   if (device->info->queue_types[queue_type] <= queue_index) {
@@ -54,14 +54,13 @@ mux_result_t muxGetQueue(mux_device_t device, mux_queue_type_e queue_type,
   return error;
 }
 
-mux_result_t
-muxDispatch(mux_queue_t queue, mux_command_buffer_t command_buffer,
-            mux_fence_t fence, mux_semaphore_t *wait_semaphores,
-            uint32_t wait_semaphores_length, mux_semaphore_t *signal_semaphores,
-            uint32_t signal_semaphores_length,
-            void (*user_function)(mux_command_buffer_t command_buffer,
-                                  mux_result_t error, void *const user_data),
-            void *user_data) {
+mux_result_t muxDispatch(
+    mux_queue_t queue, mux_command_buffer_t command_buffer, mux_fence_t fence,
+    mux_semaphore_t *wait_semaphores, uint32_t wait_semaphores_length,
+    mux_semaphore_t *signal_semaphores, uint32_t signal_semaphores_length,
+    void (*user_function)(mux_command_buffer_t command_buffer,
+                          mux_result_t error, void *const user_data),
+    void *user_data) {
   const tracer::TraceGuard<tracer::Mux> guard(__func__);
 
   if (mux::objectIsInvalid(queue)) {

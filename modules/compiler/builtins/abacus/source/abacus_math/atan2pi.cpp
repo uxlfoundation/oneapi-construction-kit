@@ -23,7 +23,8 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
-template <typename T> T atan2pi(const T y, const T x) {
+template <typename T>
+T atan2pi(const T y, const T x) {
   return __abacus_atan2(y, x) * T(ABACUS_1_PI);
 }
 
@@ -45,12 +46,13 @@ static ABACUS_CONSTANT abacus_half _atan2piH[5] = {
 // * The first number is single precision, which can be split into two FP16
 // numbers: 0.318359375f16 and -4.491209e-5f16
 static ABACUS_CONSTANT abacus_half _atan2piH_ftz[3] = {
-    -0.00035929672f16,                  // -4.491209e-05 x 8
-    -3.6907196044921875e-4f16 * 8.0f16, // -2.9526e-3
-    -0.10223388671875f16 * 8.0f16,      // -0.81787
+    -0.00035929672f16,                   // -4.491209e-05 x 8
+    -3.6907196044921875e-4f16 * 8.0f16,  // -2.9526e-3
+    -0.10223388671875f16 * 8.0f16,       // -0.81787
 };
 
-template <typename T> T atan2pi_horner_polynomial(const T x2) {
+template <typename T>
+T atan2pi_horner_polynomial(const T x2) {
   // In this particular builtin, we lose the most precision in the first
   // multiply-add in the horner polynomial. Replacing the first addition with
   // `add_exact`, then computing the rest of the horner polynomial by hand gives
@@ -65,7 +67,8 @@ template <typename T> T atan2pi_horner_polynomial(const T x2) {
   return poly;
 }
 
-template <typename T> T atan2pi_half(const T y, const T x) {
+template <typename T>
+T atan2pi_half(const T y, const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using SignedType = typename TypeTraits<T>::SignedType;
   using Shape = FPShape<abacus_half>;
@@ -184,7 +187,8 @@ template <typename T> T atan2pi_half(const T y, const T x) {
   return ans;
 }
 
-template <> abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
+template <>
+abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
   using Shape = FPShape<abacus_half>;
 
   const abacus_ushort sign_mask = Shape::SignMask();
@@ -301,8 +305,8 @@ template <> abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
 
   return ans + pi_multiplication_factor;
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
-} // namespace
+#endif  // __CA_BUILTINS_HALF_SUPPORT
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_atan2pi(abacus_half y, abacus_half x) {
@@ -323,7 +327,7 @@ abacus_half8 ABACUS_API __abacus_atan2pi(abacus_half8 y, abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_atan2pi(abacus_half16 y, abacus_half16 x) {
   return atan2pi_half(y, x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_atan2pi(abacus_float y, abacus_float x) {
   return atan2pi<>(y, x);
@@ -364,4 +368,4 @@ abacus_double16 ABACUS_API __abacus_atan2pi(abacus_double16 y,
                                             abacus_double16 x) {
   return atan2pi<>(y, x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

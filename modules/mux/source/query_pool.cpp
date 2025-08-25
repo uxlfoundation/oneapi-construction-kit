@@ -18,11 +18,10 @@
 #include "mux/utils/id.h"
 #include "tracer/tracer.h"
 
-mux_result_t
-muxGetSupportedQueryCounters(mux_device_t device, mux_queue_type_e queue_type,
-                             uint32_t count, mux_query_counter_t *out_counters,
-                             mux_query_counter_description_t *out_descriptions,
-                             uint32_t *out_count) {
+mux_result_t muxGetSupportedQueryCounters(
+    mux_device_t device, mux_queue_type_e queue_type, uint32_t count,
+    mux_query_counter_t *out_counters,
+    mux_query_counter_description_t *out_descriptions, uint32_t *out_count) {
   const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(device)) {

@@ -46,7 +46,7 @@ struct DiagnosticInfoExternalFunc : public llvm::DiagnosticInfo {
     return DI->getKind() == DK_ExternalFunc;
   }
 
-private:
+ private:
   std::string FName;
 };
 
@@ -76,6 +76,6 @@ struct CheckForExtFuncsPass final
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_CHECK_FOR_EXT_FUNCS_PASS_H_INCLUDED
+#endif  // BASE_CHECK_FOR_EXT_FUNCS_PASS_H_INCLUDED

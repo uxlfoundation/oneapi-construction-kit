@@ -33,13 +33,13 @@ class FunctionType;
 class Module;
 class Instruction;
 class Argument;
-} // namespace llvm
+}  // namespace llvm
 
 namespace vecz {
 namespace internal {
 struct VeczFailResult;
 struct AnalysisFailResult;
-} // namespace internal
+}  // namespace internal
 
 struct SimdPacket;
 struct UniformValueResult;
@@ -47,7 +47,8 @@ class ValueTagMap;
 class VectorizationContext;
 class VectorizationChoices;
 
-template <typename T> class AnalysisWrapper;
+template <typename T>
+class AnalysisWrapper;
 
 /// @brief Describe an argument of a function that needs to be vectorized.
 struct VectorizerTargetArgument {
@@ -97,7 +98,7 @@ struct VectorizationResult {
 
 /// @brief Describe a function that needs to be vectorized.
 class VectorizationUnit {
-public:
+ public:
   /// @brief Create a new vectorization unit for the given scalar function.
   ///
   /// @param[in] F Function to vectorize.
@@ -225,7 +226,7 @@ public:
   /// @return The Choices
   const VectorizationChoices &choices() const { return Choices; };
 
-private:
+ private:
   /// @brief Context this function is vectorized in.
   VectorizationContext &Ctx;
   /// @brief Which Vecz code generation choices are enabled and which not
@@ -253,6 +254,6 @@ private:
   llvm::SmallPtrSet<const llvm::Instruction *, 4> ArgumentPlaceholders;
 };
 
-} // namespace vecz
+}  // namespace vecz
 
-#endif // VECZ_VECTORIZATION_UNIT_H_INCLUDED
+#endif  // VECZ_VECTORIZATION_UNIT_H_INCLUDED

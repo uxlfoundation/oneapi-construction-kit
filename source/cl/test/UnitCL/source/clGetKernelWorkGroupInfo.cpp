@@ -19,7 +19,7 @@
 #include "Common.h"
 
 class clGetKernelWorkGroupInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -133,25 +133,25 @@ TEST_F(clGetKernelWorkGroupInfoTest, InvalidValueParamName) {
 
 TEST_F(clGetKernelWorkGroupInfoTest, InvalidValueParamValueSize) {
   size_t global_work_size[3];
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_GLOBAL_WORK_SIZE, 0,
-                                             global_work_size, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_GLOBAL_WORK_SIZE, 0,
+                               global_work_size, nullptr));
   size_t work_group_size;
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_WORK_GROUP_SIZE, 0,
-                                             &work_group_size, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_WORK_GROUP_SIZE, 0,
+                               &work_group_size, nullptr));
   size_t compile_work_group_size[3];
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetKernelWorkGroupInfo(
                         kernel, device, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 0,
                         compile_work_group_size, nullptr));
   cl_ulong local_mem_size;
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_LOCAL_MEM_SIZE, 0,
-                                             &local_mem_size, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_LOCAL_MEM_SIZE, 0,
+                               &local_mem_size, nullptr));
   size_t preferred_work_group_size_multiple;
   EXPECT_EQ_ERRCODE(
       CL_INVALID_VALUE,
@@ -159,10 +159,10 @@ TEST_F(clGetKernelWorkGroupInfoTest, InvalidValueParamValueSize) {
                                CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, 0,
                                &preferred_work_group_size_multiple, nullptr));
   cl_ulong private_mem_size;
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_PRIVATE_MEM_SIZE, 0,
-                                             &private_mem_size, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_PRIVATE_MEM_SIZE, 0,
+                               &private_mem_size, nullptr));
 }
 
 TEST_F(clGetKernelWorkGroupInfoTest, InvalidKernel) {
@@ -269,10 +269,10 @@ TEST_F(clGetKernelWorkGroupInfoTestBuiltInKernel, GlobalWorkSizeInvalidDevice) {
 
   cl_kernel kernel = clCreateKernel(program, built_in_kernel.data(), &status);
   ASSERT_SUCCESS(status);
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_GLOBAL_WORK_SIZE, 0,
-                                             nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_GLOBAL_WORK_SIZE, 0,
+                               nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseKernel(kernel));
   ASSERT_SUCCESS(clReleaseProgram(program));
@@ -309,10 +309,10 @@ TEST_F(clGetKernelWorkGroupInfoTest, GlobalWorkSizeInvalidKernel) {
 
   // Check that we can't query GLOBAL_WORK_SIZE for a regular kernel on a
   // non-custom device
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetKernelWorkGroupInfo(kernel, device,
-                                             CL_KERNEL_GLOBAL_WORK_SIZE, 0,
-                                             nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetKernelWorkGroupInfo(kernel, device, CL_KERNEL_GLOBAL_WORK_SIZE, 0,
+                               nullptr, nullptr));
 }
 
 TEST_F(clGetKernelWorkGroupInfoTest, WorkGroupSizeParamSize) {

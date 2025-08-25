@@ -76,14 +76,14 @@ struct queue_s final : public mux_queue_s {
     thread.join();
   }
 
-  [[nodiscard]] mux_result_t
-  dispatch(riscv::command_buffer_s *command_buffer,
-           cargo::array_view<riscv::semaphore_s *> wait_semaphores,
-           cargo::array_view<riscv::semaphore_s *> signal_semaphores,
-           riscv::fence_s *fence,
-           void (*user_function)(mux_command_buffer_t command_buffer,
-                                 mux_result_t error, void *const user_data),
-           void *user_data);
+  [[nodiscard]] mux_result_t dispatch(
+      riscv::command_buffer_s *command_buffer,
+      cargo::array_view<riscv::semaphore_s *> wait_semaphores,
+      cargo::array_view<riscv::semaphore_s *> signal_semaphores,
+      riscv::fence_s *fence,
+      void (*user_function)(mux_command_buffer_t command_buffer,
+                            mux_result_t error, void *const user_data),
+      void *user_data);
 
   void run();
 
@@ -98,6 +98,6 @@ struct queue_s final : public mux_queue_s {
 };
 
 /// @}
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_QUEUE_H_INCLUDED
+#endif  // RISCV_QUEUE_H_INCLUDED

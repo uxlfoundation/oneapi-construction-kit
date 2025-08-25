@@ -41,7 +41,8 @@ struct AllocatorHelper {
   ///
   /// @tparam T The allocation type for the allocator.
   /// @return AllocatorType<T>
-  template <class T> AllocatorType<T> get_allocator() const {
+  template <class T>
+  AllocatorType<T> get_allocator() const {
     return AllocatorType<T>(m_hooks, m_userdata);
   }
 
@@ -63,5 +64,5 @@ struct AllocatorHelper {
 };
 
 /// @}
-} // namespace md
-#endif // MD_DETAIL_ALLOCATOR_HELPER_H_INCLUDED
+}  // namespace md
+#endif  // MD_DETAIL_ALLOCATOR_HELPER_H_INCLUDED

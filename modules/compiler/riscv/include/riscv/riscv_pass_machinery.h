@@ -29,7 +29,7 @@ namespace riscv {
 /// @note This can be used to contain things that can be accessed
 /// by various passes as we run through the passes.
 class RiscvPassMachinery : public compiler::BaseModulePassMachinery {
-public:
+ public:
   RiscvPassMachinery(
       const riscv::RiscvTarget &target, llvm::LLVMContext &Ctx,
       llvm::TargetMachine *TM, const compiler::utils::DeviceInfo &Info,
@@ -64,10 +64,10 @@ public:
       std::optional<std::string> env_debug_prefix,
       std::optional<compiler::VectorizationMode> vecz_mode);
 
-protected:
+ protected:
   const riscv::RiscvTarget &target;
 };
 
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_PASS_MACHINERY_H_INCLUDED
+#endif  // RISCV_PASS_MACHINERY_H_INCLUDED

@@ -32,12 +32,12 @@ namespace utils {
 /// issue #124759.
 class RemoveAddressSpacesPass final
     : public llvm::PassInfoMixin<RemoveAddressSpacesPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 #endif
 
-#endif // COMPILER_UTILS_REMOVE_ADDRESS_SPACES_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REMOVE_ADDRESS_SPACES_PASS_H_INCLUDED

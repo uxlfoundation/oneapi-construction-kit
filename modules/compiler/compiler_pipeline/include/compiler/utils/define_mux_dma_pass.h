@@ -32,11 +32,11 @@ namespace utils {
 
 /// @brief Defines the bodies of ComputeMux DMA builtins
 class DefineMuxDmaPass final : public llvm::PassInfoMixin<DefineMuxDmaPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_DEFINE_MUX_DMA_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_DEFINE_MUX_DMA_PASS_H_INCLUDED

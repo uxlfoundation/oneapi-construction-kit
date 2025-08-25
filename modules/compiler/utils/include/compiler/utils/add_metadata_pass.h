@@ -38,7 +38,7 @@ namespace utils {
 template <class AnalysisTy, class HandlerTy>
 class AddMetadataPass
     : public llvm::PassInfoMixin<AddMetadataPass<AnalysisTy, HandlerTy>> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Module &M,
                               llvm::ModuleAnalysisManager &MAM) {
     md_hooks hooks = getElfMetadataWriteHooks();
@@ -67,7 +67,7 @@ public:
     return llvm::PreservedAnalyses::all();
   }
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_ADD_METADATA_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_ADD_METADATA_PASS_H_INCLUDED

@@ -140,8 +140,8 @@ cargo::optional<ElfFile::Symbol> ElfFile::symbol(cargo::string_view name) {
                                   : cargo::optional<ElfFile::Symbol>(*result);
 }
 
-cargo::optional<uint64_t>
-loader::ElfMap::getSectionTargetAddress(uint32_t index) const {
+cargo::optional<uint64_t> loader::ElfMap::getSectionTargetAddress(
+    uint32_t index) const {
   auto it = std::find_if(
       sectionMappings.begin(), sectionMappings.end(),
       [index](const Mapping &m) { return m.section_index == index; });
@@ -150,8 +150,8 @@ loader::ElfMap::getSectionTargetAddress(uint32_t index) const {
              : cargo::optional<uint64_t>{it->target_address};
 }
 
-cargo::optional<uint8_t *>
-loader::ElfMap::getSectionWritableAddress(uint32_t index) const {
+cargo::optional<uint8_t *> loader::ElfMap::getSectionWritableAddress(
+    uint32_t index) const {
   auto it = std::find_if(
       sectionMappings.begin(), sectionMappings.end(),
       [index](const Mapping &m) { return m.section_index == index; });
@@ -172,8 +172,8 @@ loader::ElfMap::getRemainingStubSpace(uint32_t section_index) const {
                    it->stub_address, it->writable_end);
 }
 
-cargo::optional<uint64_t>
-loader::ElfMap::getStubTargetAddress(uint32_t section_index) const {
+cargo::optional<uint64_t> loader::ElfMap::getStubTargetAddress(
+    uint32_t section_index) const {
   auto it = std::find_if(sectionMappings.begin(), sectionMappings.end(),
                          [section_index](const Mapping &m) {
                            return m.section_index == section_index;
@@ -196,8 +196,8 @@ void loader::ElfMap::shrinkRemainingStubSpace(uint32_t section_index,
   }
 }
 
-cargo::optional<uint64_t>
-loader::ElfMap::getSymbolTargetAddress(uint32_t index) const {
+cargo::optional<uint64_t> loader::ElfMap::getSymbolTargetAddress(
+    uint32_t index) const {
   auto sym = file->symbol(index);
   auto name = sym.name();
 
@@ -217,8 +217,8 @@ loader::ElfMap::getSymbolTargetAddress(uint32_t index) const {
   });
 }
 
-cargo::optional<uint64_t>
-loader::ElfMap::getSymbolTargetAddress(cargo::string_view name) const {
+cargo::optional<uint64_t> loader::ElfMap::getSymbolTargetAddress(
+    cargo::string_view name) const {
   auto cb = std::find_if(callbacks.begin(), callbacks.end(),
                          [&name](const Callback &c) { return c.name == name; });
   if (cb != callbacks.end()) {

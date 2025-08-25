@@ -22,7 +22,8 @@
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {
-template <typename T> static T round_helper_scalar(const T x) {
+template <typename T>
+static T round_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -39,7 +40,8 @@ template <typename T> static T round_helper_scalar(const T x) {
   return to_floor ? floored : ceiled;
 }
 
-template <typename T> static T round_helper_vector(const T x) {
+template <typename T>
+static T round_helper_vector(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -53,7 +55,7 @@ template <typename T> static T round_helper_vector(const T x) {
   const T result = __abacus_select(ceiled, floored, to_floor);
   return __abacus_select(result, x, abacus::internal::is_integer_quick(x));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_round(abacus_half x) {
@@ -74,7 +76,7 @@ abacus_half8 ABACUS_API __abacus_round(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_round(abacus_half16 x) {
   return round_helper_vector(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_round(abacus_float x) {
   return round_helper_scalar(x);
@@ -114,4 +116,4 @@ abacus_double8 ABACUS_API __abacus_round(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_round(abacus_double16 x) {
   return round_helper_vector(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

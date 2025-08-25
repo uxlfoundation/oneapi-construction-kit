@@ -21,7 +21,7 @@
 
 /// @brief Base class for tests requiring event list testing.
 class TestWithEventWaitList {
-protected:
+ protected:
   ~TestWithEventWaitList() = default;
 
   /// @brief Method performing the actual API calls when testing for event list
@@ -46,51 +46,51 @@ protected:
 /// its context as a member named `context`.
 ///
 /// @param TEST_NAME Name of the test class to which the tests should be added.
-#define GENERATE_EVENT_WAIT_LIST_TESTS(TEST_NAME)                              \
-  TEST_F(TEST_NAME, EventWaitListNullSize1) {                                  \
-    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, nullptr, nullptr);     \
-  }                                                                            \
-                                                                               \
-  TEST_F(TEST_NAME, EventWaitListNonNullSize0) {                               \
-    cl_event event;                                                            \
-    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 0, &event, nullptr);      \
-  }                                                                            \
-                                                                               \
-  TEST_F(TEST_NAME, EventWaitListNullEvent) {                                  \
-    cl_event event = nullptr;                                                  \
-    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, &event, nullptr);      \
-  }                                                                            \
-                                                                               \
-  TEST_F(TEST_NAME, EventWaitListReturnEvent) {                                \
-    cl_int errcode;                                                            \
-    cl_event event = clCreateUserEvent(context, &errcode);                     \
-    ASSERT_TRUE(event);                                                        \
-    ASSERT_SUCCESS(errcode);                                                   \
-                                                                               \
-    ASSERT_SUCCESS(clSetUserEventStatus(event, CL_COMPLETE));                  \
-                                                                               \
-    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, &event, &event);       \
-                                                                               \
-    EXPECT_SUCCESS(clReleaseEvent(event));                                     \
-  }                                                                            \
-                                                                               \
-  TEST_F(TEST_NAME, EventWaitListContextMismatch) {                            \
-    cl_int errcode;                                                            \
-    cl_context otherContext =                                                  \
-        clCreateContext(nullptr, 1, &device, nullptr, nullptr, &errcode);      \
-    EXPECT_TRUE(otherContext);                                                 \
-    ASSERT_SUCCESS(errcode);                                                   \
-                                                                               \
-    cl_event user_event = clCreateUserEvent(otherContext, &errcode);           \
-    ASSERT_TRUE(user_event);                                                   \
-    ASSERT_SUCCESS(errcode);                                                   \
-                                                                               \
-    ASSERT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));             \
-                                                                               \
-    EventWaitListAPICall(CL_INVALID_CONTEXT, 1, &user_event, nullptr);         \
-                                                                               \
-    EXPECT_SUCCESS(clReleaseEvent(user_event));                                \
-    EXPECT_SUCCESS(clReleaseContext(otherContext));                            \
+#define GENERATE_EVENT_WAIT_LIST_TESTS(TEST_NAME)                          \
+  TEST_F(TEST_NAME, EventWaitListNullSize1) {                              \
+    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, nullptr, nullptr); \
+  }                                                                        \
+                                                                           \
+  TEST_F(TEST_NAME, EventWaitListNonNullSize0) {                           \
+    cl_event event;                                                        \
+    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 0, &event, nullptr);  \
+  }                                                                        \
+                                                                           \
+  TEST_F(TEST_NAME, EventWaitListNullEvent) {                              \
+    cl_event event = nullptr;                                              \
+    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, &event, nullptr);  \
+  }                                                                        \
+                                                                           \
+  TEST_F(TEST_NAME, EventWaitListReturnEvent) {                            \
+    cl_int errcode;                                                        \
+    cl_event event = clCreateUserEvent(context, &errcode);                 \
+    ASSERT_TRUE(event);                                                    \
+    ASSERT_SUCCESS(errcode);                                               \
+                                                                           \
+    ASSERT_SUCCESS(clSetUserEventStatus(event, CL_COMPLETE));              \
+                                                                           \
+    EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 1, &event, &event);   \
+                                                                           \
+    EXPECT_SUCCESS(clReleaseEvent(event));                                 \
+  }                                                                        \
+                                                                           \
+  TEST_F(TEST_NAME, EventWaitListContextMismatch) {                        \
+    cl_int errcode;                                                        \
+    cl_context otherContext =                                              \
+        clCreateContext(nullptr, 1, &device, nullptr, nullptr, &errcode);  \
+    EXPECT_TRUE(otherContext);                                             \
+    ASSERT_SUCCESS(errcode);                                               \
+                                                                           \
+    cl_event user_event = clCreateUserEvent(otherContext, &errcode);       \
+    ASSERT_TRUE(user_event);                                               \
+    ASSERT_SUCCESS(errcode);                                               \
+                                                                           \
+    ASSERT_SUCCESS(clSetUserEventStatus(user_event, CL_COMPLETE));         \
+                                                                           \
+    EventWaitListAPICall(CL_INVALID_CONTEXT, 1, &user_event, nullptr);     \
+                                                                           \
+    EXPECT_SUCCESS(clReleaseEvent(user_event));                            \
+    EXPECT_SUCCESS(clReleaseContext(otherContext));                        \
   }
 
 /// @brief Generate the tests for an event wait list including the test for
@@ -103,21 +103,21 @@ protected:
 /// defined as blocking.
 ///
 /// @param TEST_NAME Name of the test class to which the tests should be added.
-#define GENERATE_EVENT_WAIT_LIST_TESTS_BLOCKING(TEST_NAME)                     \
-  GENERATE_EVENT_WAIT_LIST_TESTS(TEST_NAME)                                    \
-                                                                               \
-  TEST_F(TEST_NAME, EventWaitListBlockingFailedEvent) {                        \
-    cl_int errcode;                                                            \
-    cl_event user_event = clCreateUserEvent(context, &errcode);                \
-    ASSERT_TRUE(user_event);                                                   \
-    ASSERT_SUCCESS(errcode);                                                   \
-                                                                               \
-    ASSERT_SUCCESS(clSetUserEventStatus(user_event, -1));                      \
-                                                                               \
-    EventWaitListAPICall(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST, 1,      \
-                         &user_event, nullptr);                                \
-                                                                               \
-    EXPECT_SUCCESS(clReleaseEvent(user_event));                                \
+#define GENERATE_EVENT_WAIT_LIST_TESTS_BLOCKING(TEST_NAME)                \
+  GENERATE_EVENT_WAIT_LIST_TESTS(TEST_NAME)                               \
+                                                                          \
+  TEST_F(TEST_NAME, EventWaitListBlockingFailedEvent) {                   \
+    cl_int errcode;                                                       \
+    cl_event user_event = clCreateUserEvent(context, &errcode);           \
+    ASSERT_TRUE(user_event);                                              \
+    ASSERT_SUCCESS(errcode);                                              \
+                                                                          \
+    ASSERT_SUCCESS(clSetUserEventStatus(user_event, -1));                 \
+                                                                          \
+    EventWaitListAPICall(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST, 1, \
+                         &user_event, nullptr);                           \
+                                                                          \
+    EXPECT_SUCCESS(clReleaseEvent(user_event));                           \
   }
 
 #endif

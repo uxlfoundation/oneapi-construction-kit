@@ -19,13 +19,13 @@
 #include <abacus/abacus_relational.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/abacus_integer.h>
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 #include <abacus/internal/floor_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/ldexp_unsafe.h>
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 #include <abacus/internal/log2_extended_precision.h>
 #include <abacus/internal/multiply_extended_precision.h>
 #include <abacus/internal/trunc_unsafe.h>
@@ -40,7 +40,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_pown_unsafe_coeffH[6] = {
     6.0699462890625e-2f16,
     3.490447998046875e-3f16,
     4.05120849609375e-3f16};
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 static ABACUS_CONSTANT abacus_float __codeplay_pown_coeff[6] = {
     0.999999925066056f,    0.693153073167932f,    0.240153617206963f,
@@ -58,13 +58,14 @@ static ABACUS_CONSTANT abacus_double __codeplay_pow_unsafe_coeffD[18] = {
     1.3691489511954971230628762315e-12, 6.7787256843162869264041638867e-14,
     3.1323713565579919861469734507e-15, 1.3570535861859933139810634493e-16,
     5.5680060148351051509171469418e-18, 2.1306677337585862223671406870e-19};
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   using IntVecType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -217,9 +218,10 @@ template <typename T> struct helper<T, abacus_half> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
@@ -282,7 +284,8 @@ template <typename T> struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   using IntVecType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -385,7 +388,7 @@ template <typename T> struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 inline T pown(
@@ -393,7 +396,7 @@ inline T pown(
     const typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type &n) {
   return helper<T>::_(x, n);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_pown(abacus_half x, abacus_int n) {
@@ -414,7 +417,7 @@ abacus_half8 ABACUS_API __abacus_pown(abacus_half8 x, abacus_int8 n) {
 abacus_half16 ABACUS_API __abacus_pown(abacus_half16 x, abacus_int16 n) {
   return pown<>(x, n);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_pown(abacus_float x, abacus_int n) {
   return pown<>(x, n);
@@ -454,4 +457,4 @@ abacus_double8 ABACUS_API __abacus_pown(abacus_double8 x, abacus_int8 n) {
 abacus_double16 ABACUS_API __abacus_pown(abacus_double16 x, abacus_int16 n) {
   return pown<>(x, n);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

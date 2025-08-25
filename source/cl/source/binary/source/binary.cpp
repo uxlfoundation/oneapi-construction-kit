@@ -776,7 +776,7 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
   }
   return true;
 }
-} // namespace
+}  // namespace
 
 cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
                                           mux_device_info_t device) {
@@ -923,5 +923,5 @@ md_hooks getOpenCLMetadataReadHooks() {
   return cl_hooks;
 }
 
-} // namespace binary
-} // namespace cl
+}  // namespace binary
+}  // namespace cl

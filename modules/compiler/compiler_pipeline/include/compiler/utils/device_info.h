@@ -68,7 +68,9 @@ struct DeviceInfo {
   /// @param max_work_width  The maximum number of work-items of a work-group
   /// allowed to execute in one invocation of a kernel.
   DeviceInfo(uint32_t h, uint32_t f, uint32_t d, uint32_t max_work_width)
-      : half_capabilities(h), float_capabilities(f), double_capabilities(d),
+      : half_capabilities(h),
+        float_capabilities(f),
+        double_capabilities(d),
         max_work_width(max_work_width) {}
 
   uint32_t half_capabilities = 0;
@@ -97,7 +99,7 @@ struct DeviceInfo {
 class DeviceInfoAnalysis : public llvm::AnalysisInfoMixin<DeviceInfoAnalysis> {
   friend AnalysisInfoMixin<DeviceInfoAnalysis>;
 
-public:
+ public:
   using Result = DeviceInfo;
 
   DeviceInfoAnalysis() = default;
@@ -111,7 +113,7 @@ public:
   /// @brief Return the name of the pass.
   static llvm::StringRef name() { return "Device info analysis"; }
 
-private:
+ private:
   /// @brief Optional device information
   std::optional<Result> Info;
 
@@ -119,7 +121,7 @@ private:
   static llvm::AnalysisKey Key;
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_DEVICE_INFO_H_INCLUDED
+#endif  // COMPILER_UTILS_DEVICE_INFO_H_INCLUDED

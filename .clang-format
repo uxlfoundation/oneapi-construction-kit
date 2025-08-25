@@ -1,2 +1,19 @@
 ---
-BasedOnStyle: LLVM
+Language:        Cpp
+BasedOnStyle:  Google
+Standard: Cpp11
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex:           '^<.*\.(h|hpp)>'
+    Priority:        1
+  - Regex:           '^<.*'
+    Priority:        2
+  - Regex:           '.*'
+    Priority:        3
+DerivePointerAlignment: false
+QualifierAlignment: Left
+PointerAlignment: Right
+Macros:
+  - CL_LAMBDA_CALLBACK=[[]]
+  - VK_LAMBDA_CALLBACK=[[]]
+...

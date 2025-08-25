@@ -20,12 +20,13 @@
 
 namespace abacus {
 namespace internal {
-template <typename T> T sqrt(T x) {
+template <typename T>
+T sqrt(T x) {
   inplace_sqrt(x);
   return x;
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template abacus_half abacus::internal::sqrt(abacus_half);
@@ -53,7 +54,7 @@ abacus_half8 ABACUS_API __abacus_sqrt(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_sqrt(abacus_half16 x) {
   return abacus::internal::sqrt<>(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 template abacus_float abacus::internal::sqrt(abacus_float);
 template abacus_float2 abacus::internal::sqrt(abacus_float2);
@@ -107,4 +108,4 @@ abacus_double8 ABACUS_API __abacus_sqrt(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_sqrt(abacus_double16 x) {
   return abacus::internal::sqrt<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

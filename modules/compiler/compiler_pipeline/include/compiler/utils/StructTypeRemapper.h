@@ -45,7 +45,7 @@ using StructMap = llvm::DenseMap<llvm::StructType *, llvm::StructType *>;
 /// suffixed types remapping based on a user passed map to their unsuffixed
 /// verions. More generally it can be used to remap struct types.
 class StructTypeRemapper final : public llvm::ValueMapTypeRemapper {
-public:
+ public:
   /// @brief Callback called when remapping values
   /// @param[in] srcType Current type of Value being cloned
   ///
@@ -83,12 +83,12 @@ public:
   /// @brief Constructor taking a struct map.
   StructTypeRemapper(const StructMap &m) : map(m) {}
 
-private:
+ private:
   /// @brief Reference to map between old and new structs
   StructMap map;
 };
 /// @}
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_STRUCT_TYPE_REMAPPER_H_INCLUDED
+#endif  // COMPILER_UTILS_STRUCT_TYPE_REMAPPER_H_INCLUDED

@@ -711,9 +711,7 @@ TEST(small_vector, movable_pushes) {
     element() : movable_t(0), initialized(true) {}
     element(element &&rhs) : movable_t(std::move(rhs)), initialized(true) {}
     ~element() {
-      if (!initialized) {
-        errored = true;
-      }
+      if (!initialized) errored = true;
     }
     bool initialized;
   };
@@ -734,9 +732,7 @@ TEST(small_vector, copyable_pushes) {
   struct element : public copyable_t {
     element() : copyable_t(0), initialized(true) {}
     ~element() {
-      if (!initialized) {
-        errored = true;
-      }
+      if (!initialized) errored = true;
     }
     bool initialized;
   };

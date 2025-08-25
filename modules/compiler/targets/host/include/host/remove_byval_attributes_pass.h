@@ -34,9 +34,9 @@ namespace host {
 /// callees expect by value.
 class RemoveByValAttributesPass final
     : public llvm::PassInfoMixin<RemoveByValAttributesPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-} // namespace host
+}  // namespace host
 
-#endif // HOST_REMOVE_BYVAL_ATTRIBUTES_PASS_H_INCLUDED
+#endif  // HOST_REMOVE_BYVAL_ATTRIBUTES_PASS_H_INCLUDED

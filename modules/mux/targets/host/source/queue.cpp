@@ -316,9 +316,8 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
                                  user_callback->user_data);
 }
 
-[[nodiscard]] mux_query_duration_result_t
-commandBeginQuery(host::command_info_s *info,
-                  mux_query_duration_result_t duration_query) {
+[[nodiscard]] mux_query_duration_result_t commandBeginQuery(
+    host::command_info_s *info, mux_query_duration_result_t duration_query) {
   const host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
   if (begin_query->pool->type == mux_query_type_duration) {
@@ -328,9 +327,8 @@ commandBeginQuery(host::command_info_s *info,
   return duration_query;
 }
 
-[[nodiscard]] mux_query_duration_result_t
-commandEndQuery(host::command_info_s *info,
-                mux_query_duration_result_t duration_query) {
+[[nodiscard]] mux_query_duration_result_t commandEndQuery(
+    host::command_info_s *info, mux_query_duration_result_t duration_query) {
   const host::command_info_end_query_s *const end_query =
       &(info->end_query_command);
   if (end_query->pool->type == mux_query_type_duration) {
@@ -382,67 +380,67 @@ void threadPoolProcessCommands(void *const v_queue,
     }
 
     switch (info->type) {
-    default:
-      return;
-    case host::command_type_read_buffer:
-      commandReadBuffer(info);
-      break;
-    case host::command_type_write_buffer:
-      commandWriteBuffer(info);
-      break;
-    case host::command_type_fill_buffer:
-      commandFillBuffer(info);
-      break;
-    case host::command_type_copy_buffer:
-      commandCopyBuffer(info);
-      break;
-    case host::command_type_read_image:
-      commandReadImage(info);
-      break;
-    case host::command_type_write_image:
-      commandWriteImage(info);
-      break;
-    case host::command_type_fill_image:
-      commandFillImage(info);
-      break;
-    case host::command_type_copy_image:
-      commandCopyImage(info);
-      break;
-    case host::command_type_copy_image_to_buffer:
-      commandCopyImageToBuffer(info);
-      break;
-    case host::command_type_copy_buffer_to_image:
-      commandCopyBufferToImage(info);
-      break;
-    case host::command_type_ndrange:
-      commandNDRange(queue, info);
-      break;
-    case host::command_type_user_callback:
-      commandUserCallback(queue, info, command_buffer);
-      break;
-    case host::command_type_begin_query:
-      if (info->end_query_command.pool->type == mux_query_type_duration) {
-        duration_query = commandBeginQuery(info, duration_query);
-      }
+      default:
+        return;
+      case host::command_type_read_buffer:
+        commandReadBuffer(info);
+        break;
+      case host::command_type_write_buffer:
+        commandWriteBuffer(info);
+        break;
+      case host::command_type_fill_buffer:
+        commandFillBuffer(info);
+        break;
+      case host::command_type_copy_buffer:
+        commandCopyBuffer(info);
+        break;
+      case host::command_type_read_image:
+        commandReadImage(info);
+        break;
+      case host::command_type_write_image:
+        commandWriteImage(info);
+        break;
+      case host::command_type_fill_image:
+        commandFillImage(info);
+        break;
+      case host::command_type_copy_image:
+        commandCopyImage(info);
+        break;
+      case host::command_type_copy_image_to_buffer:
+        commandCopyImageToBuffer(info);
+        break;
+      case host::command_type_copy_buffer_to_image:
+        commandCopyBufferToImage(info);
+        break;
+      case host::command_type_ndrange:
+        commandNDRange(queue, info);
+        break;
+      case host::command_type_user_callback:
+        commandUserCallback(queue, info, command_buffer);
+        break;
+      case host::command_type_begin_query:
+        if (info->end_query_command.pool->type == mux_query_type_duration) {
+          duration_query = commandBeginQuery(info, duration_query);
+        }
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
-      if (info->end_query_command.pool->type == mux_query_type_counter) {
-        commandBeginQuery(info);
-      }
+        if (info->end_query_command.pool->type == mux_query_type_counter) {
+          commandBeginQuery(info);
+        }
 #endif
-      break;
-    case host::command_type_end_query:
-      if (info->end_query_command.pool->type == mux_query_type_duration) {
-        duration_query = commandEndQuery(info, duration_query);
-      }
+        break;
+      case host::command_type_end_query:
+        if (info->end_query_command.pool->type == mux_query_type_duration) {
+          duration_query = commandEndQuery(info, duration_query);
+        }
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
-      if (info->end_query_command.pool->type == mux_query_type_counter) {
-        commandEndQuery(info);
-      }
+        if (info->end_query_command.pool->type == mux_query_type_counter) {
+          commandEndQuery(info);
+        }
 #endif
-      break;
-    case host::command_type_reset_query_pool:
-      commandResetQueryPool(info);
-      break;
+        break;
+      case host::command_type_reset_query_pool:
+        commandResetQueryPool(info);
+        break;
     }
 
     if (duration_query) {
@@ -454,7 +452,7 @@ void threadPoolProcessCommands(void *const v_queue,
 
   threadPoolCleanup(v_queue, v_command_buffer, v_fence, false);
 }
-} // namespace
+}  // namespace
 
 namespace host {
 queue_s::queue_s(mux_allocator_info_t allocator, mux_device_t device)
@@ -521,7 +519,7 @@ mux_result_t queue_s::addGroup(mux_command_buffer_t group, mux_fence_t fence,
 
   return mux_success;
 }
-} // namespace host
+}  // namespace host
 
 mux_result_t hostGetQueue(mux_device_t device, mux_queue_type_e, uint32_t,
                           mux_queue_t *out_queue) {

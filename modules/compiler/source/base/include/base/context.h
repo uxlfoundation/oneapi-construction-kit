@@ -30,7 +30,7 @@ namespace compiler {
 
 /// @brief Compiler context implementation.
 class BaseContext : public Context {
-public:
+ public:
   BaseContext();
   ~BaseContext();
 
@@ -64,7 +64,7 @@ public:
     return llvm_debug_passes;
   }
 
-private:
+ private:
   /// @brief True if compiler passes should be individually verified.
   ///
   /// If false, the default is to verify before/after each pass pipeline.
@@ -78,8 +78,8 @@ private:
   compiler::utils::DebugLogging llvm_debug_passes =
       compiler::utils::DebugLogging::None;
 
-}; // class ContextImpl
+};  // class ContextImpl
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_BASE_CONTEXT_H_INCLUDED
+#endif  // COMPILER_BASE_CONTEXT_H_INCLUDED

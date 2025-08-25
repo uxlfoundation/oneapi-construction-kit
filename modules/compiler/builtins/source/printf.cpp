@@ -26,11 +26,11 @@
 
 // TODO: Should we have a CA_ASSERT, if so where should it live?
 #ifndef NDEBUG
-#define ASSERT(CONDITION, MESSAGE)                                             \
-  if (CONDITION) {                                                             \
-    (void)fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE);        \
-    std::abort();                                                              \
-  }                                                                            \
+#define ASSERT(CONDITION, MESSAGE)                                      \
+  if (CONDITION) {                                                      \
+    (void)fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, MESSAGE); \
+    std::abort();                                                       \
+  }                                                                     \
   (void)0
 #else
 #define ASSERT(CONDITION, MESSAGE)
@@ -76,7 +76,7 @@ size_t FindNextSpecifier(const std::string &str, size_t pos = 0) {
 /// string.
 size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
                       bool &minus, bool &plus, bool &space, bool &alternate) {
-  size_t i = pos + 1; // for the %
+  size_t i = pos + 1;  // for the %
   minus = false;
   plus = false;
   space = false;
@@ -182,9 +182,9 @@ void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
 
     // add padding if necessary
     while (f.size() < min_width) {
-      if (minus) { // left justified
+      if (minus) {  // left justified
         f += " ";
-      } else { // right justified
+      } else {  // right justified
         f.insert(0, " ");
       }
     }
@@ -239,9 +239,9 @@ void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
 
       // add padding if necessary
       while (f.size() < min_width) {
-        if (minus) { // left justified
+        if (minus) {  // left justified
           f += " ";
-        } else { // right justified
+        } else {  // right justified
           f = " " + f;
         }
       }
@@ -259,7 +259,7 @@ void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
     (void)std::fprintf(fp, partial.c_str(), d);
   }
 }
-} // namespace
+}  // namespace
 
 void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
                              const std::vector<descriptor> &printf_calls,
@@ -273,7 +273,7 @@ void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
     // the work item
     uint32_t size;
     std::memcpy(&size, data, 4);
-    uint32_t read = 4; // the 4 bytes for the size
+    uint32_t read = 4;  // the 4 bytes for the size
 
     // read the amount of overflow bytes in size
     uint32_t overflow;
@@ -351,47 +351,47 @@ void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
         // Possible vulnerability when the printf format string comes from the
         // user
         switch (ty) {
-        case builtins::printf::type::DOUBLE:
-          double d;
-          std::memcpy(&d, data + read, 8);
-          PrintFloatingPoint(fp, partial, d);
-          read += 8;
-          break;
-        case builtins::printf::type::FLOAT:
-          float f;
-          std::memcpy(&f, data + read, 4);
-          PrintFloatingPoint(fp, partial, f);
-          read += 4;
-          break;
-        case builtins::printf::type::LONG:
-          uint64_t l;
-          std::memcpy(&l, data + read, 8);
-          (void)std::fprintf(fp, partial.c_str(), l);
-          read += 8;
-          break;
-        case builtins::printf::type::INT:
-          uint32_t i;
-          std::memcpy(&i, data + read, 4);
-          (void)std::fprintf(fp, partial.c_str(), i);
-          read += 4;
-          break;
-        case builtins::printf::type::SHORT:
-          uint16_t s;
-          std::memcpy(&s, data + read, 2);
-          (void)std::fprintf(fp, partial.c_str(), s);
-          read += 2;
-          break;
-        case builtins::printf::type::CHAR:
-          uint8_t c;
-          std::memcpy(&c, data + read, 1);
-          (void)std::fprintf(fp, partial.c_str(), c);
-          read += 1;
-          break;
-        case builtins::printf::type::STRING:
-          (void)std::fprintf(fp, partial.c_str(),
-                             printf_desc.strings[stringindex].c_str());
-          ++stringindex;
-          break;
+          case builtins::printf::type::DOUBLE:
+            double d;
+            std::memcpy(&d, data + read, 8);
+            PrintFloatingPoint(fp, partial, d);
+            read += 8;
+            break;
+          case builtins::printf::type::FLOAT:
+            float f;
+            std::memcpy(&f, data + read, 4);
+            PrintFloatingPoint(fp, partial, f);
+            read += 4;
+            break;
+          case builtins::printf::type::LONG:
+            uint64_t l;
+            std::memcpy(&l, data + read, 8);
+            (void)std::fprintf(fp, partial.c_str(), l);
+            read += 8;
+            break;
+          case builtins::printf::type::INT:
+            uint32_t i;
+            std::memcpy(&i, data + read, 4);
+            (void)std::fprintf(fp, partial.c_str(), i);
+            read += 4;
+            break;
+          case builtins::printf::type::SHORT:
+            uint16_t s;
+            std::memcpy(&s, data + read, 2);
+            (void)std::fprintf(fp, partial.c_str(), s);
+            read += 2;
+            break;
+          case builtins::printf::type::CHAR:
+            uint8_t c;
+            std::memcpy(&c, data + read, 1);
+            (void)std::fprintf(fp, partial.c_str(), c);
+            read += 1;
+            break;
+          case builtins::printf::type::STRING:
+            (void)std::fprintf(fp, partial.c_str(),
+                               printf_desc.strings[stringindex].c_str());
+            ++stringindex;
+            break;
         }
       }
     }

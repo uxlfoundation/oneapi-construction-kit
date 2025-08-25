@@ -46,7 +46,7 @@ void default_free(void *user_data, void *pointer) {
   (void)user_data;
   cargo::free(pointer);
 }
-} // namespace
+}  // namespace
 
 cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
   // The only instance of cl_platform_id.
@@ -179,93 +179,93 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
   OCL_CHECK(platform != _cl_platform_id::getInstance(),
             return CL_INVALID_PLATFORM);
 
-#define PLATFORM_INFO_CASE(PARAM, VALUE)                                       \
-  case PARAM: {                                                                \
-    const size_t size = std::strlen(VALUE) + 1;                                \
-    OCL_CHECK(param_value && (param_value_size < size),                        \
-              return CL_INVALID_VALUE);                                        \
-    if (param_value) {                                                         \
-      std::strncpy(static_cast<char *>(param_value), VALUE, size);             \
-    }                                                                          \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);                           \
+#define PLATFORM_INFO_CASE(PARAM, VALUE)                           \
+  case PARAM: {                                                    \
+    const size_t size = std::strlen(VALUE) + 1;                    \
+    OCL_CHECK(param_value && (param_value_size < size),            \
+              return CL_INVALID_VALUE);                            \
+    if (param_value) {                                             \
+      std::strncpy(static_cast<char *>(param_value), VALUE, size); \
+    }                                                              \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);               \
   } break
 
-#define PLATFORM_INFO_CASE_NOT_STRING(PARAM, VALUE)                            \
-  case PARAM: {                                                                \
-    const size_t size = sizeof(VALUE);                                         \
-    OCL_CHECK(param_value && (param_value_size < size),                        \
-              return CL_INVALID_VALUE);                                        \
-    if (param_value) {                                                         \
-      *static_cast<decltype(&(VALUE))>(param_value) = VALUE;                   \
-    }                                                                          \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);                           \
+#define PLATFORM_INFO_CASE_NOT_STRING(PARAM, VALUE)          \
+  case PARAM: {                                              \
+    const size_t size = sizeof(VALUE);                       \
+    OCL_CHECK(param_value && (param_value_size < size),      \
+              return CL_INVALID_VALUE);                      \
+    if (param_value) {                                       \
+      *static_cast<decltype(&(VALUE))>(param_value) = VALUE; \
+    }                                                        \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);         \
   } break
 
   switch (param_name) {
-  case CL_PLATFORM_PROFILE: {
-    // If any of the cl_device_id's are FULL_PROFILE the platform is
-    // FULL_PROFILE, if all cl_device_id's are EMBEDDED_PROFILE the platform
-    // is EMBEDDED_PROFILE.
-    const bool full_profile =
-        std::any_of(platform->devices.begin(), platform->devices.end(),
-                    [](const cl_device_id device) {
-                      return device->profile == "FULL_PROFILE";
-                    });
-    const char *profile = full_profile ? "FULL_PROFILE" : "EMBEDDED_PROFILE";
-    const size_t size = std::strlen(profile) + 1;
-    OCL_CHECK(param_value && (param_value_size < size),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      std::strncpy(static_cast<char *>(param_value), profile, size);
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
-  } break;
+    case CL_PLATFORM_PROFILE: {
+      // If any of the cl_device_id's are FULL_PROFILE the platform is
+      // FULL_PROFILE, if all cl_device_id's are EMBEDDED_PROFILE the platform
+      // is EMBEDDED_PROFILE.
+      const bool full_profile =
+          std::any_of(platform->devices.begin(), platform->devices.end(),
+                      [](const cl_device_id device) {
+                        return device->profile == "FULL_PROFILE";
+                      });
+      const char *profile = full_profile ? "FULL_PROFILE" : "EMBEDDED_PROFILE";
+      const size_t size = std::strlen(profile) + 1;
+      OCL_CHECK(param_value && (param_value_size < size),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        std::strncpy(static_cast<char *>(param_value), profile, size);
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+    } break;
 #ifdef CA_BUILD_TYPE
 #ifdef CA_GIT_COMMIT
-    PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION
-                       " (" CA_BUILD_TYPE ", " CA_GIT_COMMIT ")");
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION
+                         " (" CA_BUILD_TYPE ", " CA_GIT_COMMIT ")");
 #else
-    PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
-                       CA_CL_PLATFORM_VERSION " (" CA_BUILD_TYPE ")");
-#endif // CA_GIT_COMMIT
-#else  // CA_BUILD_TYPE
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
+                         CA_CL_PLATFORM_VERSION " (" CA_BUILD_TYPE ")");
+#endif  // CA_GIT_COMMIT
+#else   // CA_BUILD_TYPE
 #ifdef CA_GIT_COMMIT
-    PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
-                       CA_CL_PLATFORM_VERSION " (" CA_GIT_COMMIT ")");
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION,
+                         CA_CL_PLATFORM_VERSION " (" CA_GIT_COMMIT ")");
 #else
-    PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION);
-#endif // CA_GIT_COMMIT
-#endif // CA_BUILD_TYPE
-    PLATFORM_INFO_CASE(CL_PLATFORM_NAME, CA_CL_PLATFORM_NAME);
-    PLATFORM_INFO_CASE(CL_PLATFORM_VENDOR, CA_CL_PLATFORM_VENDOR);
+      PLATFORM_INFO_CASE(CL_PLATFORM_VERSION, CA_CL_PLATFORM_VERSION);
+#endif  // CA_GIT_COMMIT
+#endif  // CA_BUILD_TYPE
+      PLATFORM_INFO_CASE(CL_PLATFORM_NAME, CA_CL_PLATFORM_NAME);
+      PLATFORM_INFO_CASE(CL_PLATFORM_VENDOR, CA_CL_PLATFORM_VENDOR);
 #if defined(CL_VERSION_3_0)
-    PLATFORM_INFO_CASE_NOT_STRING(CL_PLATFORM_HOST_TIMER_RESOLUTION,
-                                  platform->host_timer_resolution);
-  case CL_PLATFORM_NUMERIC_VERSION: {
-    OCL_CHECK(param_value && (param_value_size < sizeof(cl_version)),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      *static_cast<cl_version_khr *>(param_value) = CL_MAKE_VERSION_KHR(
-          CA_CL_PLATFORM_VERSION_MAJOR, CA_CL_PLATFORM_VERSION_MINOR, 0);
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_version));
-  } break;
+      PLATFORM_INFO_CASE_NOT_STRING(CL_PLATFORM_HOST_TIMER_RESOLUTION,
+                                    platform->host_timer_resolution);
+    case CL_PLATFORM_NUMERIC_VERSION: {
+      OCL_CHECK(param_value && (param_value_size < sizeof(cl_version)),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        *static_cast<cl_version_khr *>(param_value) = CL_MAKE_VERSION_KHR(
+            CA_CL_PLATFORM_VERSION_MAJOR, CA_CL_PLATFORM_VERSION_MINOR, 0);
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_version));
+    } break;
 #endif
-  case CL_PLATFORM_EXTENSIONS: {
-    size_t value_size;
-    const cl_int error = extension::GetPlatformInfo(
-        platform, CL_PLATFORM_EXTENSIONS, 0, nullptr, &value_size);
-    OCL_CHECK(error, return error);
-    OCL_CHECK(param_value && (param_value_size < value_size),
-              return CL_INVALID_VALUE);
-    return extension::GetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS,
-                                      param_value_size, param_value,
-                                      param_value_size_ret);
-  }
-  default: {
-    return extension::GetPlatformInfo(platform, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
-  }
+    case CL_PLATFORM_EXTENSIONS: {
+      size_t value_size;
+      const cl_int error = extension::GetPlatformInfo(
+          platform, CL_PLATFORM_EXTENSIONS, 0, nullptr, &value_size);
+      OCL_CHECK(error, return error);
+      OCL_CHECK(param_value && (param_value_size < value_size),
+                return CL_INVALID_VALUE);
+      return extension::GetPlatformInfo(platform, CL_PLATFORM_EXTENSIONS,
+                                        param_value_size, param_value,
+                                        param_value_size_ret);
+    }
+    default: {
+      return extension::GetPlatformInfo(platform, param_name, param_value_size,
+                                        param_value, param_value_size_ret);
+    }
   }
 
   return CL_SUCCESS;

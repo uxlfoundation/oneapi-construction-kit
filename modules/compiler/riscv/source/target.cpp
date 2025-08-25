@@ -80,7 +80,7 @@ void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
   }
 }
 
-} // namespace
+}  // namespace
 
 namespace riscv {
 
@@ -120,16 +120,16 @@ RiscvTarget::RiscvTarget(const compiler::Info *compiler_info,
 
 RiscvTarget::~RiscvTarget() {}
 
-compiler::Result
-RiscvTarget::initWithBuiltins(std::unique_ptr<llvm::Module> builtins_module) {
+compiler::Result RiscvTarget::initWithBuiltins(
+    std::unique_ptr<llvm::Module> builtins_module) {
   builtins = std::move(builtins_module);
 
   return compiler::Result::SUCCESS;
 }
 
-std::unique_ptr<compiler::Module>
-RiscvTarget::createModule(uint32_t &num_errors, std::string &log) {
+std::unique_ptr<compiler::Module> RiscvTarget::createModule(
+    uint32_t &num_errors, std::string &log) {
   return std::make_unique<RiscvModule>(
       *this, static_cast<compiler::BaseContext &>(context), num_errors, log);
 }
-} // namespace riscv
+}  // namespace riscv

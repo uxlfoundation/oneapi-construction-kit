@@ -44,8 +44,8 @@ const std::array<const std::string, 11> supported_extensions = {
     },
 };
 
-cargo::expected<compiler::spirv::DeviceInfo, cargo::result>
-getSPIRVDeviceInfo(mux_device_info_t device_info, cargo::string_view profile) {
+cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
+    mux_device_info_t device_info, cargo::string_view profile) {
   compiler::spirv::DeviceInfo spvDeviceInfo;
   auto &spvCapabilities = spvDeviceInfo.capabilities;
 
@@ -173,5 +173,5 @@ getSPIRVDeviceInfo(mux_device_info_t device_info, cargo::string_view profile) {
   return {std::move(spvDeviceInfo)};
 }
 
-} // namespace binary
-} // namespace cl
+}  // namespace binary
+}  // namespace cl

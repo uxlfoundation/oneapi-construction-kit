@@ -163,7 +163,7 @@ struct USMBlockingFreeTest : public cl_intel_unified_shared_memory_Test {
       {nullptr, nullptr, nullptr}};
 };
 
-} // namespace
+}  // namespace
 
 // Fill a single device allocation using fill calls at strided offsets across
 // multiple queues
@@ -431,7 +431,7 @@ void kernel copy_kernel(__global int* in,
    out[id] = in[id];
 }
 )";
-} // namespace
+}  // namespace
 
 TEST_F(USMBlockingFreeKernelTest, Task) {
   const size_t threads = 32;

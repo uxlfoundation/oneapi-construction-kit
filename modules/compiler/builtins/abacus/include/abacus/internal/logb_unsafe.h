@@ -88,7 +88,7 @@ inline abacus_long16 logb_unsafe(abacus_double16 x) {
   return get_unbiased_exponent(x);
 }
 
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 // Overloads for half precision types.
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -114,7 +114,7 @@ inline abacus_short16 logb_unsafe(abacus_half16 x) {
 
 #endif
 
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_LOGB_UNSAFE_H__
+#endif  //__ABACUS_INTERNAL_LOGB_UNSAFE_H__

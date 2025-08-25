@@ -32,20 +32,20 @@
 namespace llvm {
 class Module;
 class JITEventListener;
-} // namespace llvm
+}  // namespace llvm
 
 namespace host {
 struct HostInfo;
 
 /// @brief Compiler target class.
 class HostTarget : public compiler::BaseTarget {
-public:
+ public:
   HostTarget(const HostInfo *compiler_info, compiler::Context *context,
              compiler::NotifyCallbackFn callback);
 
   /// @see BaseTarget::initWithBuiltins
-  compiler::Result
-  initWithBuiltins(std::unique_ptr<llvm::Module> builtins_module) override;
+  compiler::Result initWithBuiltins(
+      std::unique_ptr<llvm::Module> builtins_module) override;
 
   /// @see Target::createModule
   std::unique_ptr<compiler::Module> createModule(uint32_t &num_errors,
@@ -88,6 +88,6 @@ public:
   std::unique_ptr<llvm::Module> builtins_host;
 #endif
 };
-} // namespace host
+}  // namespace host
 
-#endif // HOST_TARGET_H
+#endif  // HOST_TARGET_H

@@ -49,6 +49,6 @@ struct memory_s : mux::hal::memory {
 };
 
 /// @}
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_MEMORY_H_INCLUDED
+#endif  // RISCV_MEMORY_H_INCLUDED

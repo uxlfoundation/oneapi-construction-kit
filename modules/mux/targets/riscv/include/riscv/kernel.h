@@ -38,9 +38,9 @@ struct kernel_s final : mux::hal::kernel<mux::hal::kernel_variant_s> {
            cargo::array_view<uint8_t> object_code, mux::allocator allocator,
            cargo::small_vector<mux::hal::kernel_variant_s, 4> &&variant_data);
 
-  static cargo::expected<riscv::kernel_s *, mux_result_t>
-  create(riscv::device_s *device, riscv::executable_s *executable,
-         cargo::string_view name, mux::allocator allocator);
+  static cargo::expected<riscv::kernel_s *, mux_result_t> create(
+      riscv::device_s *device, riscv::executable_s *executable,
+      cargo::string_view name, mux::allocator allocator);
 
   mux_result_t getSubGroupSizeForLocalSize(size_t local_size_x,
                                            size_t local_size_y,
@@ -52,12 +52,11 @@ struct kernel_s final : mux::hal::kernel<mux::hal::kernel_variant_s> {
                                             size_t *out_local_size_y,
                                             size_t *out_local_size_z);
 
-  mux_result_t
-  getKernelVariantForWGSize(size_t local_size_x, size_t local_size_y,
-                            size_t local_size_z,
-                            mux::hal::kernel_variant_s *out_variant_data);
+  mux_result_t getKernelVariantForWGSize(
+      size_t local_size_x, size_t local_size_y, size_t local_size_z,
+      mux::hal::kernel_variant_s *out_variant_data);
 };
 
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_KERNEL_H_INCLUDED
+#endif  // RISCV_KERNEL_H_INCLUDED

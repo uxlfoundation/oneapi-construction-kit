@@ -19,7 +19,7 @@
 // to do this we create a command-buffer to update, as well as cl_mem objects
 // and a kernel to set as parameters when recording operations.
 class CommandBufferUpdateNDKernel : public MutableDispatchTest {
-protected:
+ protected:
   CommandBufferUpdateNDKernel()
       : input_data(global_size, 42), output_data(global_size, 0) {};
 
@@ -923,7 +923,7 @@ TEST_F(CommandBufferUpdateNDKernel, NoMutablePropertiesSet) {
 
 // Fixture for testing updating command-buffer enqueued simultaneously
 class CommandBufferSimultaneousUpdate : public CommandBufferUpdateNDKernel {
-protected:
+ protected:
   CommandBufferSimultaneousUpdate()
       : CommandBufferUpdateNDKernel(), update_data(global_size) {}
 

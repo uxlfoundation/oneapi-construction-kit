@@ -77,28 +77,28 @@ cl_int extension::khr_il_program::GetProgramInfo(
     cl_program program, cl_program_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) const {
   switch (param_name) {
-  case CL_PROGRAM_IL_KHR: {
-    if (program->type == cl::program_type::SPIRV) {
-      // Returns the program IL for programs created with
-      // clCreateProgramWithILKHR.
-      const size_t size = program->spirv.code.size() * sizeof(uint32_t);
-      if (nullptr != param_value) {
-        OCL_CHECK(param_value_size < size, return CL_INVALID_VALUE);
-        std::copy(program->spirv.code.begin(), program->spirv.code.end(),
-                  static_cast<uint32_t *>(param_value));
+    case CL_PROGRAM_IL_KHR: {
+      if (program->type == cl::program_type::SPIRV) {
+        // Returns the program IL for programs created with
+        // clCreateProgramWithILKHR.
+        const size_t size = program->spirv.code.size() * sizeof(uint32_t);
+        if (nullptr != param_value) {
+          OCL_CHECK(param_value_size < size, return CL_INVALID_VALUE);
+          std::copy(program->spirv.code.begin(), program->spirv.code.end(),
+                    static_cast<uint32_t *>(param_value));
+        }
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+      } else {
+        // If program is created with clCreateProgramWithSource,
+        // clCreateProgramWithBinary, or clCreateProgramWithBuiltinKernels, the
+        // memory pointed to by param_value will be unchanged and
+        // param_value_size_ret will be set to zero.
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
       }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
-    } else {
-      // If program is created with clCreateProgramWithSource,
-      // clCreateProgramWithBinary, or clCreateProgramWithBuiltinKernels, the
-      // memory pointed to by param_value will be unchanged and
-      // param_value_size_ret will be set to zero.
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
-    }
-  } break;
-  default:
-    return extension::GetProgramInfo(program, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
+    } break;
+    default:
+      return extension::GetProgramInfo(program, param_name, param_value_size,
+                                       param_value, param_value_size_ret);
   }
   return CL_SUCCESS;
 }

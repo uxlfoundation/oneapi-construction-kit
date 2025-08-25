@@ -38,7 +38,7 @@ enum Type {
 }
 
 class HostBIMuxInfo : public compiler::utils::BIMuxInfoConcept {
-public:
+ public:
   static llvm::StructType *getMiniWGInfoStruct(llvm::Module &M);
 
   static llvm::StructType *getScheduleInfoStruct(llvm::Module &M);
@@ -46,15 +46,15 @@ public:
   llvm::SmallVector<compiler::utils::BuiltinInfo::SchedParamInfo, 4>
   getMuxSchedulingParameters(llvm::Module &M) override;
 
-  llvm::Function *
-  defineMuxBuiltin(compiler::utils::BuiltinID ID, llvm::Module &M,
-                   llvm::ArrayRef<llvm::Type *> OverloadInfo) override;
+  llvm::Function *defineMuxBuiltin(
+      compiler::utils::BuiltinID ID, llvm::Module &M,
+      llvm::ArrayRef<llvm::Type *> OverloadInfo) override;
 
   llvm::Value *initializeSchedulingParamForWrappedKernel(
       const compiler::utils::BuiltinInfo::SchedParamInfo &Info,
       llvm::IRBuilder<> &B, llvm::Function &IntoF, llvm::Function &) override;
 };
 
-} // namespace host
+}  // namespace host
 
-#endif // HOST_MUX_BUILTIN_INFO_H_INCLUDED
+#endif  // HOST_MUX_BUILTIN_INFO_H_INCLUDED

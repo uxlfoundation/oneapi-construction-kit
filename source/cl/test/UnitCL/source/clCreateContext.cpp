@@ -119,7 +119,7 @@ TEST_F(clCreateContextTest, WithBadPlatform) {
   cl_int errcode;
   cl_context_properties properties[3];
   properties[0] = CL_CONTEXT_PLATFORM;
-  properties[1] = 1; // some guff value
+  properties[1] = 1;  // some guff value
   properties[2] = 0;
   EXPECT_FALSE(
       clCreateContext(properties, 1, &device, nullptr, nullptr, &errcode));

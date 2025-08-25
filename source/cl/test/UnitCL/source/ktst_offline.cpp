@@ -56,7 +56,7 @@ namespace {
 float Ref_float_A(size_t x) { return 2.0f * x; }
 float Ref_float_B(size_t x) { return 4.0f * x; }
 float Ref_float_Add(size_t x) { return 6.0f * x; }
-} // namespace
+}  // namespace
 
 TEST_P(Execution, Offline_02_AddF) {
   AddInputBuffer(kts::N, Ref_float_A);
@@ -208,7 +208,7 @@ TEST_P(Execution, Offline_08_NoKernel) {
 }
 
 class OfflineExecutionType : public BaseExecution {
-public:
+ public:
   void SetUp() override {
     source_type = OFFLINE;
     UCL_RETURN_ON_FATAL_FAILURE(BaseExecution::SetUp());

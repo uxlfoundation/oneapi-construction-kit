@@ -38,8 +38,8 @@ void *cargo::alloc(size_t size, size_t alignment) {
     align |= align >> 4;
     align |= align >> 8;
     align |= align >> 16;
-#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) ||             \
-    defined(_M_X64) || defined(__ia64) || defined(_M_IA64) ||                  \
+#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || \
+    defined(_M_X64) || defined(__ia64) || defined(_M_IA64) ||      \
     defined(__aarch64__) || defined(__powerpc64__)
     align |= align >> 32;
 #else
@@ -63,7 +63,7 @@ void *cargo::alloc(size_t size, size_t alignment) {
   // The Open Group documentation for posix_memalign states that the alignment
   // must be a multiple of sizeof(void*).
   if (posix_memalign(&pointer, align, size)) {
-    return nullptr; // GCOVR_EXCL_LINE non-deterministic? I don't know why.
+    return nullptr;  // GCOVR_EXCL_LINE non-deterministic? I don't know why.
   }
 #endif
   return pointer;

@@ -29,7 +29,7 @@ enum result : int { success = 0, failure = 1 };
 /// @brief Parses pipelines to run LLVM passes provided from the target's Mux
 /// Compiler
 class driver {
-public:
+ public:
   /// @brief Default constructor.
   driver() {}
 
@@ -49,7 +49,7 @@ public:
   /// @brief Run the pass pipeline provided
   llvm::Error runPipeline(llvm::Module &, compiler::utils::PassMachinery &);
 
-private:
+ private:
   uint32_t ModuleNumErrors = 0;
   std::string ModuleLog;
   /// @brief Selected compiler.
@@ -71,6 +71,6 @@ private:
   llvm::Expected<const compiler::Info *> findDevice();
 };
 
-} // namespace muxc
+}  // namespace muxc
 
-#endif // COMPILER_TOOLS_MUXC_H_INCLUDED
+#endif  // COMPILER_TOOLS_MUXC_H_INCLUDED

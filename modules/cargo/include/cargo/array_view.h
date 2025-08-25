@@ -49,12 +49,14 @@ namespace cargo {
 /// ```
 ///
 /// @tparam T Contained element type.
-template <class T> class array_view {
+template <class T>
+class array_view {
   template <class U>
   using begin_member_fn = decltype(std::declval<U>().begin());
-  template <class U> using end_member_fn = decltype(std::declval<U>().end());
+  template <class U>
+  using end_member_fn = decltype(std::declval<U>().end());
 
-public:
+ public:
   using value_type = T;
   using size_type = size_t;
   using difference_type = ptrdiff_t;
@@ -84,14 +86,14 @@ public:
   /// @param last Iterator at the end of the array.
   template <class Iterator>
   array_view(Iterator first, Iterator last)
-      : // MSVC's debug CRT will throw an assertion if you dereference an
-        // iterator that is actually beyond the end of the storage. This occurs
-        // in two cases: 1) if iterator region is actually empty (first ==
-        // last), and 2) when we try and dereference the end iterator to get a
-        // pointer. For 1) we do a ternary operation and set Begin & End to
-        // nullptr if so, and for 2) we get the iterator of the last actual
-        // element in the storage, get the address of that, then add 1 to the
-        // result.
+      :  // MSVC's debug CRT will throw an assertion if you dereference an
+         // iterator that is actually beyond the end of the storage. This occurs
+         // in two cases: 1) if iterator region is actually empty (first ==
+         // last), and 2) when we try and dereference the end iterator to get a
+         // pointer. For 1) we do a ternary operation and set Begin & End to
+         // nullptr if so, and for 2) we get the iterator of the last actual
+         // element in the storage, get the address of that, then add 1 to the
+         // result.
         Begin((first == last) ? nullptr : &*first),
         End((first == last) ? nullptr : &*(last - 1) + 1) {}
 
@@ -101,7 +103,7 @@ public:
   /// @param container Reference to the container to view.
   template <class Container,
             std::enable_if_t<
-#if !defined(_MSC_VER) ||                                                      \
+#if !defined(_MSC_VER) || \
     (defined(_MSC_VER) && !(_MSC_VER >= 1910 && _MSC_VER < 1921))
                 // Disabled for Visual Studio 2017 due to a regression
                 // resulting in std::vector<T> failing to compile even though
@@ -116,7 +118,7 @@ public:
                 nullptr>
   array_view(Container &container)
       : array_view(container.begin(), container.end()) {
-#if !defined(_MSC_VER) ||                                                      \
+#if !defined(_MSC_VER) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1910 && _MSC_VER <= 1914))
     // Work around for is_detected failing to compile in enable_if_t for
     // std::vector<T> (see above) in Visual Studio 2017 likely due to partial
@@ -315,12 +317,12 @@ public:
     }
   }
 
-private:
+ private:
   pointer Begin;
   pointer End;
 };
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_ARRAY_VIEW_H_INCLUDED
+#endif  // CARGO_ARRAY_VIEW_H_INCLUDED

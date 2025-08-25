@@ -29,7 +29,7 @@ namespace extension {
 
 /// @brief Definition of the cl_intel_required_subgroup_size extension.
 class intel_required_subgroup_size final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   intel_required_subgroup_size();
 
@@ -82,11 +82,10 @@ public:
   /// and the supplied argument values. CL_INVALID_VALUE if the extension does
   /// not accept the param_name query. Other OpenCL error return code if the
   /// extension accepts param_name but the supplied argument values are wrong.
-  virtual cl_int
-  GetKernelWorkGroupInfo(cl_kernel kernel, cl_device_id device,
-                         cl_kernel_work_group_info param_name,
-                         size_t param_value_size, void *param_value,
-                         size_t *param_value_size_ret) const override;
+  virtual cl_int GetKernelWorkGroupInfo(
+      cl_kernel kernel, cl_device_id device,
+      cl_kernel_work_group_info param_name, size_t param_value_size,
+      void *param_value, size_t *param_value_size_ret) const override;
 
 #if defined(CL_VERSION_3_0)
   /// @brief Query for extension provided kernel subgroup info.
@@ -112,16 +111,15 @@ public:
   /// and the supplied argument values. CL_INVALID_VALUE if the extension does
   /// not accept the param_name query. Other OpenCL error return code if the
   /// extension accepts param_name but the supplied argument values are wrong.
-  virtual cl_int
-  GetKernelSubGroupInfo(cl_kernel kernel, cl_device_id device,
-                        cl_kernel_sub_group_info param_name,
-                        size_t input_value_size, const void *input_value,
-                        size_t param_value_size, void *param_value,
-                        size_t *param_value_size_ret) const override;
+  virtual cl_int GetKernelSubGroupInfo(
+      cl_kernel kernel, cl_device_id device,
+      cl_kernel_sub_group_info param_name, size_t input_value_size,
+      const void *input_value, size_t param_value_size, void *param_value,
+      size_t *param_value_size_ret) const override;
 #endif
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_INTEL_REQUIRED_SUBGROUP_SIZE_H_INCLUDED
+#endif  // EXTENSION_INTEL_REQUIRED_SUBGROUP_SIZE_H_INCLUDED

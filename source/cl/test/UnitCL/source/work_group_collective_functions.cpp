@@ -150,9 +150,9 @@ using WGCAnyAllParams = std::tuple<NDRange, cargo::optional<int>>;
 
 struct WorkGroupCollectiveAnyAll
     : public kts::ucl::ExecutionWithParam<WGCAnyAllParams> {
-  static std::string
-  getParamName(const testing::TestParamInfo<
-               std::tuple<kts::ucl::SourceType, WGCAnyAllParams>> &info) {
+  static std::string getParamName(
+      const testing::TestParamInfo<
+          std::tuple<kts::ucl::SourceType, WGCAnyAllParams>> &info) {
     const auto source_ty = std::get<0>(info.param);
     const auto &params = std::get<1>(info.param);
     const auto &ndrange = std::get<0>(params);
@@ -162,7 +162,8 @@ struct WorkGroupCollectiveAnyAll
                            : "random") +
            '_' + std::to_string(info.index);
   }
-  template <bool IsAll> void doTest() {
+  template <bool IsAll>
+  void doTest() {
     const auto &params = std::get<1>(GetParam());
     const auto &local_sizes = std::get<0>(params);
     const auto input_data_val = std::get<1>(params);
@@ -212,7 +213,7 @@ struct WorkGroupCollectiveAnyAll
     RunGenericND(3, global_sizes, local_sizes);
   }
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(kts::ucl::BaseExecution::SetUp());
     // Work-group collectives are a 3.0 feature.
@@ -260,7 +261,7 @@ struct WorkGroupCollectiveFunctionsTest
            std::to_string(info.index);
   }
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(kts::ucl::BaseExecution::SetUp());
     // Work-group collectives are a 3.0 feature.
@@ -317,7 +318,8 @@ static ScanRange getScanRange(size_t global_linear_id,
 
 struct WorkGroupCollectiveBroadcast1D
     : public WorkGroupCollectiveFunctionsTest {
-  template <typename T> void doBroadcast1DTest() {
+  template <typename T>
+  void doBroadcast1DTest() {
     const auto &local_sizes = std::get<1>(GetParam());
     NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
     const auto global_size =
@@ -341,14 +343,14 @@ struct WorkGroupCollectiveBroadcast1D
                                     global_sizes.y() / local_sizes.y() *
                                     global_sizes.z() / local_sizes.z();
 
-    kts::Reference1D<T> output_ref =
-        [&input_data, &work_group_size, local_size_x,
-         &broadcast_ids](size_t global_linear_id, T value) {
-          const auto work_group_linear_id = global_linear_id / work_group_size;
-          const auto broadcast_id = (work_group_linear_id * local_size_x) +
-                                    broadcast_ids[work_group_linear_id];
-          return value == input_data[broadcast_id];
-        };
+    kts::Reference1D<T> output_ref = [&input_data, &work_group_size,
+                                      local_size_x, &broadcast_ids](
+                                         size_t global_linear_id, T value) {
+      const auto work_group_linear_id = global_linear_id / work_group_size;
+      const auto broadcast_id = (work_group_linear_id * local_size_x) +
+                                broadcast_ids[work_group_linear_id];
+      return value == input_data[broadcast_id];
+    };
 
     ucl::Environment::instance->GetInputGenerator().GenerateData(input_data);
     ucl::Environment::instance->GetInputGenerator().GenerateData<size_t>(
@@ -380,7 +382,8 @@ TEST_P(WorkGroupCollectiveBroadcast1D,
 
 struct WorkGroupCollectiveBroadcast2D
     : public WorkGroupCollectiveFunctionsTest {
-  template <typename T> void doBroadcast2DTest() {
+  template <typename T>
+  void doBroadcast2DTest() {
     const auto &local_sizes = std::get<1>(GetParam());
     NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
     const auto global_size =
@@ -465,7 +468,8 @@ TEST_P(WorkGroupCollectiveBroadcast2D,
 
 struct WorkGroupCollectiveBroadcast3D
     : public WorkGroupCollectiveFunctionsTest {
-  template <typename T> void doBroadcast3DTest() {
+  template <typename T>
+  void doBroadcast3DTest() {
     const auto &local_sizes = std::get<1>(GetParam());
     NDRange global_sizes{local_sizes.x() * 4, local_sizes.y(), local_sizes.z()};
 

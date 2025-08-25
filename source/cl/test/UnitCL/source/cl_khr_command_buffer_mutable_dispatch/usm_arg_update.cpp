@@ -21,7 +21,7 @@
 // USM and mutable-dispatch (so we can test updating arguments) extensions.
 class MutableDispatchUSMTest : public MutableDispatchTest,
                                public cl_intel_unified_shared_memory_Test {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(MutableDispatchTest::SetUp());
     UCL_RETURN_ON_FATAL_FAILURE(cl_intel_unified_shared_memory_Test::SetUp());

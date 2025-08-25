@@ -80,6 +80,6 @@ float Ref_Distance(size_t x);
 
 // Computes length(Double).
 float Ref_Length(size_t x);
-} // namespace kts
+}  // namespace kts
 
-#endif // KTS_REFERENCE_FUNCTIONS_H_INCLUDED
+#endif  // KTS_REFERENCE_FUNCTIONS_H_INCLUDED

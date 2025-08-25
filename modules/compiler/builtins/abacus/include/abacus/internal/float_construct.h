@@ -72,7 +72,7 @@ inline T construct_helper_vector(UInt mantissa, UInt unBiasedExp) {
 
   return abacus::detail::cast::as<T>(ansuint);
 }
-} // namespace
+}  // namespace
 
 namespace abacus {
 namespace internal {
@@ -107,7 +107,7 @@ inline abacus_half16 float_construct(abacus_ushort16 mantissa,
                                      abacus_ushort16 unBiasedExp) {
   return construct_helper_vector<abacus_half16>(mantissa, unBiasedExp);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 inline abacus_float float_construct(abacus_uint mantissa,
                                     abacus_uint unBiasedExp) {
@@ -169,8 +169,8 @@ inline abacus_double16 float_construct(abacus_ulong16 mantissa,
                                        abacus_ulong16 unBiasedExp) {
   return construct_helper_vector<abacus_double16>(mantissa, unBiasedExp);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-} // namespace internal
-} // namespace abacus
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_FLOAT_CONSTRUCT_H__
+#endif  //__ABACUS_INTERNAL_FLOAT_CONSTRUCT_H__

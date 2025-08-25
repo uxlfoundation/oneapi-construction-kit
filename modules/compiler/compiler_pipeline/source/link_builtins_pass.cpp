@@ -51,7 +51,7 @@ using namespace llvm;
 namespace {
 
 class GlobalVarMaterializer final : public ValueMaterializer {
-public:
+ public:
   GlobalVarMaterializer(Module &M) : M(M) {}
 
   /// @brief List of variables created during materialization.
@@ -85,11 +85,11 @@ public:
     return NewGV;
   }
 
-private:
+ private:
   Module &M;
   SmallVector<GlobalVariable *, 8> GlobalVars;
 };
-} // namespace
+}  // namespace
 
 /// @brief If we have the same structs in the main module and builtins with
 /// different names, copy the body
@@ -225,8 +225,8 @@ void compiler::utils::LinkBuiltinsPass::cloneBuiltins(
   }
 }
 
-PreservedAnalyses
-compiler::utils::LinkBuiltinsPass::run(Module &M, ModuleAnalysisManager &MAM) {
+PreservedAnalyses compiler::utils::LinkBuiltinsPass::run(
+    Module &M, ModuleAnalysisManager &MAM) {
   auto &BI = MAM.getResult<BuiltinInfoAnalysis>(M);
 
   auto *BuiltinsModule = BI.getBuiltinsModule();

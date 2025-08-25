@@ -39,6 +39,6 @@ struct FastMathPass final : public llvm::PassInfoMixin<FastMathPass> {
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_FAST_MATH_PASS_H_INCLUDED
+#endif  // BASE_FAST_MATH_PASS_H_INCLUDED

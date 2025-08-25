@@ -19,7 +19,8 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T> T mad_sat(const T x, const T y, const T z) {
+template <typename T>
+T mad_sat(const T x, const T y, const T z) {
   typedef typename TypeTraits<T>::LargerType LargerType;
   typedef typename TypeTraits<T>::ElementType ElementType;
   typedef typename TypeTraits<LargerType>::ElementType LargerElementType;
@@ -345,11 +346,11 @@ abacus_ulong16 mad_sat(const abacus_ulong16 x, const abacus_ulong16 y,
   }
   return r;
 }
-} // namespace
+}  // namespace
 
-#define DEF(TYPE)                                                              \
-  TYPE ABACUS_API __abacus_mad_sat(TYPE x, TYPE y, TYPE z) {                   \
-    return mad_sat<>(x, y, z);                                                 \
+#define DEF(TYPE)                                            \
+  TYPE ABACUS_API __abacus_mad_sat(TYPE x, TYPE y, TYPE z) { \
+    return mad_sat<>(x, y, z);                               \
   }
 
 DEF(abacus_char)

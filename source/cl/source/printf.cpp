@@ -94,7 +94,7 @@ void PrintfAndFree(mux_queue_t queue, mux_command_buffer_t command_buffer,
   auto printf_info = static_cast<printf_info_t *>(user_data);
   delete printf_info;
 }
-} // namespace
+}  // namespace
 
 printf_info_t::~printf_info_t() {
   if (buffer) {
@@ -112,9 +112,9 @@ mux_result_t createPrintfCallback(mux_command_buffer_t command_buffer,
                                 nullptr, nullptr);
 }
 
-mux_result_t
-createPrintfCallback(mux_command_buffer_t command_buffer,
-                     const std::unique_ptr<printf_info_t> &printf_info) {
+mux_result_t createPrintfCallback(
+    mux_command_buffer_t command_buffer,
+    const std::unique_ptr<printf_info_t> &printf_info) {
   return muxCommandUserCallback(command_buffer, PerformPrintf,
                                 printf_info.get(), 0, nullptr, nullptr);
 }
@@ -144,7 +144,7 @@ cl_int createPrintfBuffer(
 
   // allocate the memory for the printf buffer
   // TODO: Add mechanism to support allocations best suited to printf.
-  const uint32_t alignment = 0; // Default alignment
+  const uint32_t alignment = 0;  // Default alignment
   auto mux_device = device->mux_device;
   auto mux_allocator = device->mux_allocator;
   mux_result_t mux_error = muxAllocateMemory(

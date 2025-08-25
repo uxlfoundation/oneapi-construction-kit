@@ -41,6 +41,6 @@ struct SetConvergentAttrPass final
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_SET_CONVERGENT_ATTR_PASS_H_INCLUDED
+#endif  // BASE_SET_CONVERGENT_ATTR_PASS_H_INCLUDED

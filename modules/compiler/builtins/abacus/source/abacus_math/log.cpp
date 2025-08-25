@@ -39,7 +39,8 @@ static ABACUS_CONSTANT abacus_half __codeplay_log_coeff_half[9] = {
     -0.1241455078125f16,
     0.12432861328125f16};
 
-template <> struct helper<abacus_half, abacus_half> {
+template <>
+struct helper<abacus_half, abacus_half> {
   static abacus_half _(const abacus_half x) {
     // Check for special cases: +/-ABACUS_INFINITY, ABACUS_NAN, negative numbers
     if ((__abacus_isnan(x) || x < -0.0f16)) {
@@ -74,7 +75,8 @@ template <> struct helper<abacus_half, abacus_half> {
 };
 
 // Vectorized version:
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -109,25 +111,30 @@ template <typename T> struct helper<T, abacus_half> {
         (x == 0.0f16) | __abacus_isinf(x));
 
     result = __abacus_select(result, FPShape<T>::NaN(),
-                             (x < -0.0f16) | __abacus_isnan(x)); // nan
+                             (x < -0.0f16) | __abacus_isnan(x));  // nan
 
     return result;
   }
 };
-#endif //__CA_BUILTINS_HALF_SUPPORT
+#endif  //__CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T _(const T x) { return __abacus_log2(x) * ABACUS_LN2_F; }
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T _(const T x) { return __abacus_log2(x) * ABACUS_LN2; }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> T ABACUS_API log(const T x) { return helper<T>::_(x); }
-} // namespace
+template <typename T>
+T ABACUS_API log(const T x) {
+  return helper<T>::_(x);
+}
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_log(abacus_half x) { return log<>(x); }
@@ -136,7 +143,7 @@ abacus_half3 ABACUS_API __abacus_log(abacus_half3 x) { return log<>(x); }
 abacus_half4 ABACUS_API __abacus_log(abacus_half4 x) { return log<>(x); }
 abacus_half8 ABACUS_API __abacus_log(abacus_half8 x) { return log<>(x); }
 abacus_half16 ABACUS_API __abacus_log(abacus_half16 x) { return log<>(x); }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_log(abacus_float x) { return log<>(x); }
 abacus_float2 ABACUS_API __abacus_log(abacus_float2 x) { return log<>(x); }
@@ -152,4 +159,4 @@ abacus_double3 ABACUS_API __abacus_log(abacus_double3 x) { return log<>(x); }
 abacus_double4 ABACUS_API __abacus_log(abacus_double4 x) { return log<>(x); }
 abacus_double8 ABACUS_API __abacus_log(abacus_double8 x) { return log<>(x); }
 abacus_double16 ABACUS_API __abacus_log(abacus_double16 x) { return log<>(x); }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

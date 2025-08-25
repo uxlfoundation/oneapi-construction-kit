@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clSetUserEventStatusTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;
@@ -194,7 +194,7 @@ TEST_F(clSetUserEventStatusTest, CompletedBeforeWaitList) {
 
 // Abstracts out some of the common code in the user event in-order testing..
 class clSetUserEventStatusInOrderTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     // This class compiles some kernels so we need a compiler.

@@ -21,7 +21,8 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T> T maxmag_helper_scalar(const T x, const T y) {
+template <typename T>
+T maxmag_helper_scalar(const T x, const T y) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "This function should only be called on scalar types");
   const T x_abs = __abacus_fabs(x);
@@ -35,7 +36,8 @@ template <typename T> T maxmag_helper_scalar(const T x, const T y) {
   }
 }
 
-template <typename T> T maxmag_helper_vector(const T x, const T y) {
+template <typename T>
+T maxmag_helper_vector(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements != 1,
                 "This function should only be called on vector types");
@@ -48,7 +50,7 @@ template <typename T> T maxmag_helper_vector(const T x, const T y) {
   return __abacus_select(__abacus_fmax(x, y), absResult,
                          (abs_x_gt_y_condition | abs_y_gt_x_condition));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_maxmag(abacus_half x, abacus_half y) {
@@ -74,7 +76,7 @@ abacus_half8 ABACUS_API __abacus_maxmag(abacus_half8 x, abacus_half8 y) {
 abacus_half16 ABACUS_API __abacus_maxmag(abacus_half16 x, abacus_half16 y) {
   return maxmag_helper_vector(x, y);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_maxmag(abacus_float x, abacus_float y) {
   return maxmag_helper_scalar(x, y);
@@ -125,4 +127,4 @@ abacus_double16 ABACUS_API __abacus_maxmag(abacus_double16 x,
                                            abacus_double16 y) {
   return maxmag_helper_vector(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

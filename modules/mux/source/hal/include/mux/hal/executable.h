@@ -36,9 +36,9 @@ struct executable : mux_executable_s {
              mux::dynamic_array<uint8_t> &&object_code);
 
   template <class Executable>
-  static cargo::expected<Executable *, mux_result_t>
-  create(mux::hal::device *device, const void *binary, uint64_t binary_length,
-         mux::allocator allocator) {
+  static cargo::expected<Executable *, mux_result_t> create(
+      mux::hal::device *device, const void *binary, uint64_t binary_length,
+      mux::allocator allocator) {
     static_assert(
         std::is_base_of_v<mux::hal::executable, Executable>,
         "template type Executable must derive from mux::hal::executable");
@@ -74,7 +74,7 @@ struct executable : mux_executable_s {
   /// It is not used with built-in kernels.
   mux::dynamic_array<uint8_t> object_code;
 };
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux
 
-#endif // MUX_HAL_EXECUTABLE_H_INCLUDED
+#endif  // MUX_HAL_EXECUTABLE_H_INCLUDED

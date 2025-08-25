@@ -36,7 +36,7 @@ float __CL_CONST_ATTRIBUTES convert_half_to_float(ushort arg) {
 double __CL_CONST_ATTRIBUTES convert_half_to_double(ushort arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort __CL_CONST_ATTRIBUTES convert_float_to_half(float arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort>(arg);
 }
@@ -44,7 +44,7 @@ ushort __CL_CONST_ATTRIBUTES convert_float_to_half(float arg) {
 ushort __CL_CONST_ATTRIBUTES convert_double_to_half(double arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rte(float arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort>(arg);
 }
@@ -52,7 +52,7 @@ ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rte(float arg) {
 ushort __CL_CONST_ATTRIBUTES convert_double_to_half_rte(double arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtz(float arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort>(arg);
 }
@@ -60,7 +60,7 @@ ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtz(float arg) {
 ushort __CL_CONST_ATTRIBUTES convert_double_to_half_rtz(double arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtn(float arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort>(arg);
 }
@@ -68,7 +68,7 @@ ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtn(float arg) {
 ushort __CL_CONST_ATTRIBUTES convert_double_to_half_rtn(double arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtp(float arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort>(arg);
 }
@@ -76,7 +76,7 @@ ushort __CL_CONST_ATTRIBUTES convert_float_to_half_rtp(float arg) {
 ushort __CL_CONST_ATTRIBUTES convert_double_to_half_rtp(double arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float2 __CL_CONST_ATTRIBUTES convert_half2_to_float2(ushort2 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, float2>(arg);
 }
@@ -84,7 +84,7 @@ float2 __CL_CONST_ATTRIBUTES convert_half2_to_float2(ushort2 arg) {
 double2 __CL_CONST_ATTRIBUTES convert_half2_to_double2(ushort2 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2(float2 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort2>(arg);
 }
@@ -92,7 +92,7 @@ ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2(float2 arg) {
 ushort2 __CL_CONST_ATTRIBUTES convert_double2_to_half2(double2 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rte(float2 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort2>(arg);
 }
@@ -100,7 +100,7 @@ ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rte(float2 arg) {
 ushort2 __CL_CONST_ATTRIBUTES convert_double2_to_half2_rte(double2 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtz(float2 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort2>(arg);
 }
@@ -108,7 +108,7 @@ ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtz(float2 arg) {
 ushort2 __CL_CONST_ATTRIBUTES convert_double2_to_half2_rtz(double2 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtn(float2 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort2>(arg);
 }
@@ -116,7 +116,7 @@ ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtn(float2 arg) {
 ushort2 __CL_CONST_ATTRIBUTES convert_double2_to_half2_rtn(double2 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtp(float2 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort2>(arg);
 }
@@ -124,7 +124,7 @@ ushort2 __CL_CONST_ATTRIBUTES convert_float2_to_half2_rtp(float2 arg) {
 ushort2 __CL_CONST_ATTRIBUTES convert_double2_to_half2_rtp(double2 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort2>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float3 __CL_CONST_ATTRIBUTES convert_half3_to_float3(ushort3 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, float3>(arg);
 }
@@ -132,7 +132,7 @@ float3 __CL_CONST_ATTRIBUTES convert_half3_to_float3(ushort3 arg) {
 double3 __CL_CONST_ATTRIBUTES convert_half3_to_double3(ushort3 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3(float3 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort3>(arg);
 }
@@ -140,7 +140,7 @@ ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3(float3 arg) {
 ushort3 __CL_CONST_ATTRIBUTES convert_double3_to_half3(double3 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rte(float3 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort3>(arg);
 }
@@ -148,7 +148,7 @@ ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rte(float3 arg) {
 ushort3 __CL_CONST_ATTRIBUTES convert_double3_to_half3_rte(double3 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtz(float3 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort3>(arg);
 }
@@ -156,7 +156,7 @@ ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtz(float3 arg) {
 ushort3 __CL_CONST_ATTRIBUTES convert_double3_to_half3_rtz(double3 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtn(float3 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort3>(arg);
 }
@@ -164,7 +164,7 @@ ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtn(float3 arg) {
 ushort3 __CL_CONST_ATTRIBUTES convert_double3_to_half3_rtn(double3 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtp(float3 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort3>(arg);
 }
@@ -172,7 +172,7 @@ ushort3 __CL_CONST_ATTRIBUTES convert_float3_to_half3_rtp(float3 arg) {
 ushort3 __CL_CONST_ATTRIBUTES convert_double3_to_half3_rtp(double3 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort3>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float4 __CL_CONST_ATTRIBUTES convert_half4_to_float4(ushort4 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, float4>(arg);
 }
@@ -180,7 +180,7 @@ float4 __CL_CONST_ATTRIBUTES convert_half4_to_float4(ushort4 arg) {
 double4 __CL_CONST_ATTRIBUTES convert_half4_to_double4(ushort4 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4(float4 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort4>(arg);
 }
@@ -188,7 +188,7 @@ ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4(float4 arg) {
 ushort4 __CL_CONST_ATTRIBUTES convert_double4_to_half4(double4 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rte(float4 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort4>(arg);
 }
@@ -196,7 +196,7 @@ ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rte(float4 arg) {
 ushort4 __CL_CONST_ATTRIBUTES convert_double4_to_half4_rte(double4 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtz(float4 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort4>(arg);
 }
@@ -204,7 +204,7 @@ ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtz(float4 arg) {
 ushort4 __CL_CONST_ATTRIBUTES convert_double4_to_half4_rtz(double4 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtn(float4 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort4>(arg);
 }
@@ -212,7 +212,7 @@ ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtn(float4 arg) {
 ushort4 __CL_CONST_ATTRIBUTES convert_double4_to_half4_rtn(double4 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtp(float4 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort4>(arg);
 }
@@ -220,7 +220,7 @@ ushort4 __CL_CONST_ATTRIBUTES convert_float4_to_half4_rtp(float4 arg) {
 ushort4 __CL_CONST_ATTRIBUTES convert_double4_to_half4_rtp(double4 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort4>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float8 __CL_CONST_ATTRIBUTES convert_half8_to_float8(ushort8 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, float8>(arg);
 }
@@ -228,7 +228,7 @@ float8 __CL_CONST_ATTRIBUTES convert_half8_to_float8(ushort8 arg) {
 double8 __CL_CONST_ATTRIBUTES convert_half8_to_double8(ushort8 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8(float8 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort8>(arg);
 }
@@ -236,7 +236,7 @@ ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8(float8 arg) {
 ushort8 __CL_CONST_ATTRIBUTES convert_double8_to_half8(double8 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rte(float8 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort8>(arg);
 }
@@ -244,7 +244,7 @@ ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rte(float8 arg) {
 ushort8 __CL_CONST_ATTRIBUTES convert_double8_to_half8_rte(double8 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtz(float8 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort8>(arg);
 }
@@ -252,7 +252,7 @@ ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtz(float8 arg) {
 ushort8 __CL_CONST_ATTRIBUTES convert_double8_to_half8_rtz(double8 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtn(float8 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort8>(arg);
 }
@@ -260,7 +260,7 @@ ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtn(float8 arg) {
 ushort8 __CL_CONST_ATTRIBUTES convert_double8_to_half8_rtn(double8 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtp(float8 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort8>(arg);
 }
@@ -268,7 +268,7 @@ ushort8 __CL_CONST_ATTRIBUTES convert_float8_to_half8_rtp(float8 arg) {
 ushort8 __CL_CONST_ATTRIBUTES convert_double8_to_half8_rtp(double8 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort8>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float16 __CL_CONST_ATTRIBUTES convert_half16_to_float16(ushort16 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, float16>(arg);
 }
@@ -276,7 +276,7 @@ float16 __CL_CONST_ATTRIBUTES convert_half16_to_float16(ushort16 arg) {
 double16 __CL_CONST_ATTRIBUTES convert_half16_to_double16(ushort16 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, double16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16(float16 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort16>(arg);
 }
@@ -284,7 +284,7 @@ ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16(float16 arg) {
 ushort16 __CL_CONST_ATTRIBUTES convert_double16_to_half16(double16 arg) {
   return ocl::half_convert<ocl::Rounding::undefined, ushort16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rte(float16 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort16>(arg);
 }
@@ -292,7 +292,7 @@ ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rte(float16 arg) {
 ushort16 __CL_CONST_ATTRIBUTES convert_double16_to_half16_rte(double16 arg) {
   return ocl::half_convert<ocl::Rounding::rte, ushort16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtz(float16 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort16>(arg);
 }
@@ -300,7 +300,7 @@ ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtz(float16 arg) {
 ushort16 __CL_CONST_ATTRIBUTES convert_double16_to_half16_rtz(double16 arg) {
   return ocl::half_convert<ocl::Rounding::rtz, ushort16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtn(float16 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort16>(arg);
 }
@@ -308,7 +308,7 @@ ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtn(float16 arg) {
 ushort16 __CL_CONST_ATTRIBUTES convert_double16_to_half16_rtn(double16 arg) {
   return ocl::half_convert<ocl::Rounding::rtn, ushort16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtp(float16 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort16>(arg);
 }
@@ -316,7 +316,7 @@ ushort16 __CL_CONST_ATTRIBUTES convert_float16_to_half16_rtp(float16 arg) {
 ushort16 __CL_CONST_ATTRIBUTES convert_double16_to_half16_rtp(double16 arg) {
   return ocl::half_convert<ocl::Rounding::rtp, ushort16>(arg);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 float __CL_CONST_ATTRIBUTES quantizeToF16(float x) {
   return ocl::quantizeToF16<float>(x);
 }
@@ -333,9 +333,9 @@ float4 __CL_CONST_ATTRIBUTES quantizeToF16(float4 x) {
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 
@@ -544,14 +544,14 @@ uint __CL_WORK_ITEM_ATTRIBUTES get_work_dim(void);
 
 #ifndef __cplusplus
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
-#endif //__cplusplus
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  //__cplusplus
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global char *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global char2 *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global char3 *pointer, size_t num);
@@ -615,7 +615,7 @@ void __CL_BUILTIN_ATTRIBUTES prefetch(const global half3 *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global half4 *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global half8 *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global half16 *pointer, size_t num);
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global float *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global float2 *pointer, size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global float3 *pointer, size_t num);
@@ -635,7 +635,7 @@ void __CL_BUILTIN_ATTRIBUTES prefetch(const global double8 *pointer,
                                       size_t num);
 void __CL_BUILTIN_ATTRIBUTES prefetch(const global double16 *pointer,
                                       size_t num);
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
 

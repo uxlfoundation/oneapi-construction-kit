@@ -33,7 +33,7 @@ static void fillBuffer(std::vector<cl_uchar> &input, const cl_uchar *pattern,
     std::memmove(&*current_position, pattern, pattern_size);
   }
 }
-} // namespace
+}  // namespace
 
 struct CommandFillBufferKHRTest : cl_khr_command_buffer_Test {
   void SetUp() override {
@@ -449,10 +449,10 @@ TEST_F(CommandFillBufferKHRTest, InvalidCommandBuffer) {
   const size_t size = 16;
   const size_t offset = 0;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
-                    clCommandFillBufferKHR(nullptr, nullptr, buffer, &pattern,
-                                           pattern_size, offset, size, 0,
-                                           nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_BUFFER_KHR,
+      clCommandFillBufferKHR(nullptr, nullptr, buffer, &pattern, pattern_size,
+                             offset, size, 0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
@@ -490,11 +490,11 @@ TEST_F(CommandFillBufferKHRTest, InvalidContext) {
   EXPECT_TRUE(other_buffer);
   EXPECT_SUCCESS(errcode);
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clCommandFillBufferKHR(command_buffer, nullptr,
-                                           other_buffer, &pattern, pattern_size,
-                                           offset, size, 0, nullptr, nullptr,
-                                           nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clCommandFillBufferKHR(command_buffer, nullptr, other_buffer, &pattern,
+                             pattern_size, offset, size, 0, nullptr, nullptr,
+                             nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(other_buffer));
   EXPECT_SUCCESS(clReleaseContext(other_context));
@@ -511,11 +511,11 @@ TEST_F(CommandFillBufferKHRTest, InvalidOffset) {
                                            size, 0, nullptr, nullptr, nullptr));
 
   const size_t half_size = size / 2;
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, pattern_size,
-                                           half_size + 1, half_size, 0, nullptr,
-                                           nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern,
+                             pattern_size, half_size + 1, half_size, 0, nullptr,
+                             nullptr, nullptr));
 }
 
 TEST_F(CommandFillBufferKHRTest, InvalidPattern) {
@@ -528,15 +528,15 @@ TEST_F(CommandFillBufferKHRTest, InvalidPattern) {
                                            nullptr, pattern_size, size, size, 0,
                                            nullptr, nullptr, nullptr));
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, 0, 0, size, 0, nullptr,
-                                           nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern, 0, 0,
+                             size, 0, nullptr, nullptr, nullptr));
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillBufferKHR(command_buffer, nullptr, buffer,
-                                           &pattern, 3, 0, size, 0, nullptr,
-                                           nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillBufferKHR(command_buffer, nullptr, buffer, &pattern, 3, 0,
+                             size, 0, nullptr, nullptr, nullptr));
   EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clCommandFillBufferKHR(command_buffer, nullptr, buffer,
                                            &pattern, pattern_size, 6, size, 0,

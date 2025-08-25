@@ -87,8 +87,8 @@ struct Info {
   /// @param[in] callback Notification message callback, may be null.
   ///
   /// @return A new compiler target.
-  virtual std::unique_ptr<compiler::Target>
-  createTarget(compiler::Context *context, NotifyCallbackFn callback) const = 0;
+  virtual std::unique_ptr<compiler::Target> createTarget(
+      compiler::Context *context, NotifyCallbackFn callback) const = 0;
 
   builtins::file::capabilities_bitfield getBuiltinCapabilities() const {
     // TODO: CA-882 Resolve how capabilities are checked
@@ -141,6 +141,6 @@ struct Info {
 using AddCompilerFn = std::function<void(const Info *)>;
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_INFO_H_INCLUDED
+#endif  // COMPILER_INFO_H_INCLUDED

@@ -155,35 +155,35 @@ Function *HostBIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
   std::optional<unsigned> WGFieldIdx;
 
   switch (ID) {
-  default:
-    return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M,
-                                                               OverloadInfo);
-  case compiler::utils::eMuxBuiltinGetLocalSize:
-    ParamIdx = SchedParamIndices::SCHED;
-    DefaultVal = 1;
-    WGFieldIdx = ScheduleInfoStruct::local_size;
-    break;
-  case compiler::utils::eMuxBuiltinGetGroupId:
-    ParamIdx = SchedParamIndices::MINIWG;
-    DefaultVal = 0;
-    WGFieldIdx = MiniWGInfoStruct::group_id;
-    break;
-  case compiler::utils::eMuxBuiltinGetNumGroups:
-    ParamIdx = SchedParamIndices::MINIWG;
-    DefaultVal = 1;
-    WGFieldIdx = MiniWGInfoStruct::num_groups;
-    break;
-  case compiler::utils::eMuxBuiltinGetGlobalOffset:
-    ParamIdx = SchedParamIndices::SCHED;
-    DefaultVal = 0;
-    WGFieldIdx = ScheduleInfoStruct::global_offset;
-    break;
-  case compiler::utils::eMuxBuiltinGetWorkDim:
-    ParamIdx = SchedParamIndices::SCHED;
-    DefaultVal = 1;
-    HasRankArg = false;
-    WGFieldIdx = ScheduleInfoStruct::work_dim;
-    break;
+    default:
+      return compiler::utils::BIMuxInfoConcept::defineMuxBuiltin(ID, M,
+                                                                 OverloadInfo);
+    case compiler::utils::eMuxBuiltinGetLocalSize:
+      ParamIdx = SchedParamIndices::SCHED;
+      DefaultVal = 1;
+      WGFieldIdx = ScheduleInfoStruct::local_size;
+      break;
+    case compiler::utils::eMuxBuiltinGetGroupId:
+      ParamIdx = SchedParamIndices::MINIWG;
+      DefaultVal = 0;
+      WGFieldIdx = MiniWGInfoStruct::group_id;
+      break;
+    case compiler::utils::eMuxBuiltinGetNumGroups:
+      ParamIdx = SchedParamIndices::MINIWG;
+      DefaultVal = 1;
+      WGFieldIdx = MiniWGInfoStruct::num_groups;
+      break;
+    case compiler::utils::eMuxBuiltinGetGlobalOffset:
+      ParamIdx = SchedParamIndices::SCHED;
+      DefaultVal = 0;
+      WGFieldIdx = ScheduleInfoStruct::global_offset;
+      break;
+    case compiler::utils::eMuxBuiltinGetWorkDim:
+      ParamIdx = SchedParamIndices::SCHED;
+      DefaultVal = 1;
+      HasRankArg = false;
+      WGFieldIdx = ScheduleInfoStruct::work_dim;
+      break;
   }
 
   assert(F && WGFieldIdx && ParamIdx);
@@ -294,7 +294,7 @@ Value *HostBIMuxInfo::initializeSchedulingParamForWrappedKernel(
                        ConstantInt::get(SizeTy, (*LocalSize)[2]),
                        "num_groups_z"),
       };
-    } else { // use runtime scheduling info load for local size
+    } else {  // use runtime scheduling info load for local size
       NumGroups = {
           B.CreateUDiv(GlobalSizes[0], LocalSizes[0], "num_groups_x"),
           B.CreateUDiv(GlobalSizes[1], LocalSizes[1], "num_groups_y"),

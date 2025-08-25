@@ -50,9 +50,9 @@ mux_result_t muxAllocateMemory(mux_device_t device, size_t size, uint32_t heap,
 
   const bool allocation_type_valid = [&] {
     switch (allocation_type) {
-    case mux_allocation_type_alloc_host:
-    case mux_allocation_type_alloc_device:
-      return true;
+      case mux_allocation_type_alloc_host:
+      case mux_allocation_type_alloc_device:
+        return true;
     }
     return false;
   }();

@@ -47,7 +47,8 @@ _cl_mem_image::_cl_mem_image(_cl_context *context, cl_mem_flags validated_flags,
     : _cl_mem(context, validated_flags, 0, image_desc_->image_type,
               optional_parent, host_ptr, cl::ref_count_type::EXTERNAL,
               std::move(mux_memories)),
-      image_format(*image_format_), image_desc(*image_desc_),
+      image_format(*image_format_),
+      image_desc(*image_desc_),
       mux_images(std::move(mux_images)) {
   if (0 == image_desc.image_row_pitch) {
     const size_t element_size = libimg::HostGetPixelSize(image_format);
@@ -55,43 +56,43 @@ _cl_mem_image::_cl_mem_image(_cl_context *context, cl_mem_flags validated_flags,
   }
   if (0 == image_desc.image_slice_pitch) {
     switch (image_desc.image_type) {
-    case CL_MEM_OBJECT_IMAGE3D:
-    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-      image_desc.image_slice_pitch =
-          image_desc.image_row_pitch * image_desc.image_height;
-      break;
-    case CL_MEM_OBJECT_IMAGE2D:
-    case CL_MEM_OBJECT_IMAGE1D:
-    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-      break;
-    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-      image_desc.image_slice_pitch = image_desc.image_row_pitch;
-      break;
-    default:
-      break;
+      case CL_MEM_OBJECT_IMAGE3D:
+      case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+        image_desc.image_slice_pitch =
+            image_desc.image_row_pitch * image_desc.image_height;
+        break;
+      case CL_MEM_OBJECT_IMAGE2D:
+      case CL_MEM_OBJECT_IMAGE1D:
+      case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+        break;
+      case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+        image_desc.image_slice_pitch = image_desc.image_row_pitch;
+        break;
+      default:
+        break;
     }
   }
 
   // Calculate raw data size required for image and update _cl_mem::size.
   switch (image_desc.image_type) {
-  case CL_MEM_OBJECT_IMAGE1D: // Fallthrough
-  case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-    size = image_desc.image_row_pitch;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D:
-    size = image_desc.image_row_pitch * image_desc.image_height;
-    break;
-  case CL_MEM_OBJECT_IMAGE3D:
-    size = image_desc.image_slice_pitch * image_desc.image_depth;
-    break;
-  case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-    size = image_desc.image_row_pitch * image_desc.image_array_size;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-    size = image_desc.image_slice_pitch * image_desc.image_array_size;
-    break;
-  default:
-    break;
+    case CL_MEM_OBJECT_IMAGE1D:  // Fallthrough
+    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+      size = image_desc.image_row_pitch;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D:
+      size = image_desc.image_row_pitch * image_desc.image_height;
+      break;
+    case CL_MEM_OBJECT_IMAGE3D:
+      size = image_desc.image_slice_pitch * image_desc.image_depth;
+      break;
+    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+      size = image_desc.image_row_pitch * image_desc.image_array_size;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+      size = image_desc.image_slice_pitch * image_desc.image_array_size;
+      break;
+    default:
+      break;
   }
 }
 
@@ -154,27 +155,27 @@ CL_API_ENTRY cl_mem CL_API_CALL cl::CreateImage(
   uint32_t arrayLayers = 0;
   mux_image_type_e imageType;
   switch (image_desc->image_type) {
-  default: // NOTE: Already validated, case will never be hit.
-  case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-    arrayLayers = image_desc->image_array_size;
-    [[fallthrough]];
-  case CL_MEM_OBJECT_IMAGE1D:
-  case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-    height = 1;
-    depth = 1;
-    imageType = mux_image_type_1d;
-    optional_parent = image_desc->buffer;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-    arrayLayers = image_desc->image_array_size;
-    [[fallthrough]];
-  case CL_MEM_OBJECT_IMAGE2D:
-    depth = 1;
-    imageType = mux_image_type_2d;
-    break;
-  case CL_MEM_OBJECT_IMAGE3D:
-    imageType = mux_image_type_3d;
-    break;
+    default:  // NOTE: Already validated, case will never be hit.
+    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+      arrayLayers = image_desc->image_array_size;
+      [[fallthrough]];
+    case CL_MEM_OBJECT_IMAGE1D:
+    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+      height = 1;
+      depth = 1;
+      imageType = mux_image_type_1d;
+      optional_parent = image_desc->buffer;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+      arrayLayers = image_desc->image_array_size;
+      [[fallthrough]];
+    case CL_MEM_OBJECT_IMAGE2D:
+      depth = 1;
+      imageType = mux_image_type_2d;
+      break;
+    case CL_MEM_OBJECT_IMAGE3D:
+      imageType = mux_image_type_3d;
+      break;
   }
 
   // NOTE: Construct mux_image_format_e value out of cl_channel_order and
@@ -299,19 +300,19 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetSupportedImageFormats(
 
   mux_image_type_e imageType;
   switch (image_type) {
-  default: // Already validated, case will never be hit.
-  case CL_MEM_OBJECT_IMAGE1D:
-  case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-  case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-    imageType = mux_image_type_1d;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D:
-    imageType = mux_image_type_2d;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-  case CL_MEM_OBJECT_IMAGE3D:
-    imageType = mux_image_type_3d;
-    break;
+    default:  // Already validated, case will never be hit.
+    case CL_MEM_OBJECT_IMAGE1D:
+    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+      imageType = mux_image_type_1d;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D:
+      imageType = mux_image_type_2d;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+    case CL_MEM_OBJECT_IMAGE3D:
+      imageType = mux_image_type_3d;
+      break;
   }
 
   mux_allocation_type_e allocationType;
@@ -1043,42 +1044,42 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetImageInfo(cl_mem image,
                                                  size_t *param_value_size_ret) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clGetImageInfo");
   OCL_CHECK(!image, return CL_INVALID_MEM_OBJECT);
-#define IMAGE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)                        \
-  case TYPE: {                                                                 \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                       \
-    OCL_CHECK(param_value && param_value_size < SIZE_RET,                      \
-              return CL_INVALID_VALUE);                                        \
-    OCL_SET_IF_NOT_NULL((static_cast<POINTER>(param_value)), VALUE);           \
+#define IMAGE_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)              \
+  case TYPE: {                                                       \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);             \
+    OCL_CHECK(param_value &&param_value_size < SIZE_RET,             \
+              return CL_INVALID_VALUE);                              \
+    OCL_SET_IF_NOT_NULL((static_cast<POINTER>(param_value)), VALUE); \
   } break
 
   auto ocl_image = static_cast<cl_mem_image>(image);
   switch (param_name) {
-  default: {
-    return extension::GetImageInfo(image, param_name, param_value_size,
-                                   param_value, param_value_size_ret);
-  }
-    IMAGE_INFO_CASE(CL_IMAGE_FORMAT, sizeof(cl_image_format), cl_image_format *,
-                    ocl_image->image_format);
-    IMAGE_INFO_CASE(CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), size_t *,
-                    libimg::HostGetPixelSize(ocl_image->image_format));
-    IMAGE_INFO_CASE(CL_IMAGE_ROW_PITCH, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_row_pitch);
-    IMAGE_INFO_CASE(CL_IMAGE_SLICE_PITCH, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_slice_pitch);
-    IMAGE_INFO_CASE(CL_IMAGE_WIDTH, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_width);
-    IMAGE_INFO_CASE(CL_IMAGE_HEIGHT, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_height);
-    IMAGE_INFO_CASE(CL_IMAGE_DEPTH, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_depth);
-    IMAGE_INFO_CASE(CL_IMAGE_ARRAY_SIZE, sizeof(size_t), size_t *,
-                    ocl_image->image_desc.image_array_size);
-    IMAGE_INFO_CASE(CL_IMAGE_BUFFER, sizeof(cl_mem), cl_mem *,
-                    ocl_image->image_desc.buffer);
-    IMAGE_INFO_CASE(CL_IMAGE_NUM_MIP_LEVELS, sizeof(cl_uint), cl_uint *,
-                    ocl_image->image_desc.num_mip_levels);
-    IMAGE_INFO_CASE(CL_IMAGE_NUM_SAMPLES, sizeof(cl_uint), cl_uint *,
-                    ocl_image->image_desc.num_samples);
+    default: {
+      return extension::GetImageInfo(image, param_name, param_value_size,
+                                     param_value, param_value_size_ret);
+    }
+      IMAGE_INFO_CASE(CL_IMAGE_FORMAT, sizeof(cl_image_format),
+                      cl_image_format *, ocl_image->image_format);
+      IMAGE_INFO_CASE(CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), size_t *,
+                      libimg::HostGetPixelSize(ocl_image->image_format));
+      IMAGE_INFO_CASE(CL_IMAGE_ROW_PITCH, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_row_pitch);
+      IMAGE_INFO_CASE(CL_IMAGE_SLICE_PITCH, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_slice_pitch);
+      IMAGE_INFO_CASE(CL_IMAGE_WIDTH, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_width);
+      IMAGE_INFO_CASE(CL_IMAGE_HEIGHT, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_height);
+      IMAGE_INFO_CASE(CL_IMAGE_DEPTH, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_depth);
+      IMAGE_INFO_CASE(CL_IMAGE_ARRAY_SIZE, sizeof(size_t), size_t *,
+                      ocl_image->image_desc.image_array_size);
+      IMAGE_INFO_CASE(CL_IMAGE_BUFFER, sizeof(cl_mem), cl_mem *,
+                      ocl_image->image_desc.buffer);
+      IMAGE_INFO_CASE(CL_IMAGE_NUM_MIP_LEVELS, sizeof(cl_uint), cl_uint *,
+                      ocl_image->image_desc.num_mip_levels);
+      IMAGE_INFO_CASE(CL_IMAGE_NUM_SAMPLES, sizeof(cl_uint), cl_uint *,
+                      ocl_image->image_desc.num_samples);
   }
 #undef IMAGE_OBJECT_INFO_CASE
 

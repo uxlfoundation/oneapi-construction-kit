@@ -23,9 +23,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::utils::ReplaceMuxMathDeclsPass::run(Module &M,
-                                              ModuleAnalysisManager &MAM) {
+PreservedAnalyses compiler::utils::ReplaceMuxMathDeclsPass::run(
+    Module &M, ModuleAnalysisManager &MAM) {
   bool Changed = false;
 
   const Triple TT(M.getTargetTriple());

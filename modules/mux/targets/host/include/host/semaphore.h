@@ -45,13 +45,13 @@ struct semaphore_s final : public mux_semaphore_s {
 
   void reset();
 
-private:
+ private:
   bool signalled;
   bool failed;
   mux::small_vector<mux_command_buffer_t, 8> waitingGroups;
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_SEMAPHORE_H_INCLUDED
+#endif  // HOST_SEMAPHORE_H_INCLUDED

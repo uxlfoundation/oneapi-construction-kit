@@ -21,14 +21,15 @@
 
 namespace {
 // only valid in the range [-pi .. pi]
-template <typename T> T native_cos(const T x) {
+template <typename T>
+T native_cos(const T x) {
   const T xAbs = __abacus_fabs(x);
 
   const T bit = (-xAbs + ABACUS_PI_2_F) * ABACUS_1_PI_F;
 
   return (bit - bit * __abacus_fabs(bit)) * 4.0f;
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_native_cos(abacus_float x) {
   return native_cos<>(x);

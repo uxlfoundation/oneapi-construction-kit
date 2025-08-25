@@ -38,7 +38,7 @@ namespace extension {
 /// @{
 
 class khr_il_program : public extension {
-public:
+ public:
   khr_il_program();
 
   /// @brief Queries for the extension function associated with `func_name`.
@@ -53,9 +53,8 @@ public:
   ///
   /// @return Returns a pointer to the extension function with `func_name` or
   /// `nullptr` if it not exist.
-  void *
-  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                         const char *func_name) const override;
+  void *GetExtensionFunctionAddressForPlatform(
+      cl_platform_id platform, const char *func_name) const override;
 
   /// @brief Queries for extension provided device info.
   ///
@@ -121,6 +120,6 @@ public:
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // CL_EXTENSION_KHR_IL_PROGRAM_H_INCLUDED
+#endif  // CL_EXTENSION_KHR_IL_PROGRAM_H_INCLUDED

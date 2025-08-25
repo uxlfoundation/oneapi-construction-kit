@@ -23,7 +23,7 @@
 struct clEnqueueCopyImageParamTest
     : ucl::CommandQueueTest,
       testing::WithParamInterface<cl_image_format> {
-protected:
+ protected:
   clEnqueueCopyImageParamTest() : format(GetParam()) {}
 
   void SetUp() override {
@@ -836,7 +836,7 @@ INSTANTIATE_TEST_CASE_P(
 
 class clEnqueueCopyImageTest : public ucl::CommandQueueTest,
                                TestWithEventWaitList {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -903,10 +903,10 @@ TEST_F(clEnqueueCopyImageTest, InvalidCommandQueue) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
   cl_event copyEvent;
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                    clEnqueueCopyImage(nullptr, src_image, dst_image, origin,
-                                       origin, region, 1, &beginEvent,
-                                       &copyEvent));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_QUEUE,
+      clEnqueueCopyImage(nullptr, src_image, dst_image, origin, origin, region,
+                         1, &beginEvent, &copyEvent));
   ASSERT_SUCCESS(clReleaseEvent(beginEvent));
 }
 
@@ -926,10 +926,10 @@ TEST_F(clEnqueueCopyImageTest, InvalidContext) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
   cl_event copyEvent;
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clEnqueueCopyImage(otherCommandQueue, src_image, dst_image,
-                                       origin, origin, region, 1, &beginEvent,
-                                       &copyEvent));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clEnqueueCopyImage(otherCommandQueue, src_image, dst_image, origin,
+                         origin, region, 1, &beginEvent, &copyEvent));
 
   ASSERT_SUCCESS(clReleaseEvent(beginEvent));
   EXPECT_SUCCESS(clReleaseCommandQueue(otherCommandQueue));
@@ -967,14 +967,14 @@ TEST_F(clEnqueueCopyImageTest, ImageFormatMismatch) {
 
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
-  EXPECT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clEnqueueCopyImage(command_queue, otherImage, dst_image,
-                                       origin, origin, region, 0, nullptr,
-                                       nullptr));
-  EXPECT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clEnqueueCopyImage(command_queue, src_image, otherImage,
-                                       origin, origin, region, 0, nullptr,
-                                       nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clEnqueueCopyImage(command_queue, otherImage, dst_image, origin, origin,
+                         region, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clEnqueueCopyImage(command_queue, src_image, otherImage, origin, origin,
+                         region, 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherImage));
 
@@ -985,14 +985,14 @@ TEST_F(clEnqueueCopyImageTest, ImageFormatMismatch) {
   EXPECT_SUCCESS(error);
   EXPECT_NE(nullptr, otherImage);
 
-  EXPECT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clEnqueueCopyImage(command_queue, otherImage, dst_image,
-                                       origin, origin, region, 0, nullptr,
-                                       nullptr));
-  EXPECT_EQ_ERRCODE(CL_IMAGE_FORMAT_MISMATCH,
-                    clEnqueueCopyImage(command_queue, src_image, otherImage,
-                                       origin, origin, region, 0, nullptr,
-                                       nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clEnqueueCopyImage(command_queue, otherImage, dst_image, origin, origin,
+                         region, 0, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_IMAGE_FORMAT_MISMATCH,
+      clEnqueueCopyImage(command_queue, src_image, otherImage, origin, origin,
+                         region, 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherImage));
 }
@@ -1002,15 +1002,15 @@ TEST_F(clEnqueueCopyImageTest, InvalidValueSrcOrigin) {
   size_t dst_origin[3] = {0, 0, 0};
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       src_origin, dst_origin, region, 0,
-                                       nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, src_origin,
+                         dst_origin, region, 0, nullptr, nullptr));
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       nullptr, dst_origin, region, 0, nullptr,
-                                       nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, nullptr,
+                         dst_origin, region, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyImageTest, InvalidValueDstOrigin) {
@@ -1018,15 +1018,15 @@ TEST_F(clEnqueueCopyImageTest, InvalidValueDstOrigin) {
   size_t dst_origin[3] = {desc.image_width + 1, 0, 0};
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       src_origin, dst_origin, region, 0,
-                                       nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, src_origin,
+                         dst_origin, region, 0, nullptr, nullptr));
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       src_origin, nullptr, region, 0, nullptr,
-                                       nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, src_origin,
+                         nullptr, region, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueCopyImageTest, InvalidValueRegion) {
@@ -1035,15 +1035,15 @@ TEST_F(clEnqueueCopyImageTest, InvalidValueRegion) {
   size_t region[3] = {desc.image_width + 1, desc.image_height,
                       desc.image_depth};
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       src_origin, dst_origin, region, 0,
-                                       nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, src_origin,
+                         dst_origin, region, 0, nullptr, nullptr));
 
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueCopyImage(command_queue, src_image, dst_image,
-                                       src_origin, dst_origin, nullptr, 0,
-                                       nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueCopyImage(command_queue, src_image, dst_image, src_origin,
+                         dst_origin, nullptr, 0, nullptr, nullptr));
 }
 
 GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueCopyImageTest)
@@ -1070,10 +1070,10 @@ TEST_F(clEnqueueCopyImageTest, MemCopyOverlap) {
   size_t src_origin[3] = {0, 0, 0};
   size_t dst_origin[3] = {8, 0, 0};
   size_t region[3] = {8, 1, 1};
-  ASSERT_EQ_ERRCODE(CL_MEM_COPY_OVERLAP,
-                    clEnqueueCopyImage(command_queue, src_image, src_image,
-                                       src_origin, dst_origin, region, 0,
-                                       nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_MEM_COPY_OVERLAP,
+      clEnqueueCopyImage(command_queue, src_image, src_image, src_origin,
+                         dst_origin, region, 0, nullptr, nullptr));
   ASSERT_SUCCESS(clReleaseMemObject(src_image));
 }
 

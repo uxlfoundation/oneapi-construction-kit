@@ -41,7 +41,7 @@ inline void setPreferredSizes(host::kernel_s &hostKernel) {
   hostKernel.preferred_local_size_z =
       std::min(4u, hostKernel.device->info->max_work_group_size_z);
 }
-} // namespace
+}  // namespace
 
 namespace host {
 kernel_variant_s::kernel_variant_s(std::string name, entry_hook_t hook,
@@ -49,8 +49,11 @@ kernel_variant_s::kernel_variant_s(std::string name, entry_hook_t hook,
                                    uint32_t min_work_width,
                                    uint32_t pref_work_width,
                                    uint32_t sub_group_size)
-    : name(name), hook(hook), local_memory_used(local_memory_used),
-      min_work_width(min_work_width), pref_work_width(pref_work_width),
+    : name(name),
+      hook(hook),
+      local_memory_used(local_memory_used),
+      min_work_width(min_work_width),
+      pref_work_width(pref_work_width),
       sub_group_size(sub_group_size) {}
 
 // Kernel with a built-in kernel
@@ -70,7 +73,8 @@ kernel_s::kernel_s(mux_device_t device, mux::allocator allocator,
 // Kernel from a pre-compiled binary
 kernel_s::kernel_s(mux_device_t device, mux_allocator_info_t allocator_info,
                    cargo::small_vector<kernel_variant_s, 4> &&variants)
-    : is_builtin_kernel(false), allocator_info(allocator_info),
+    : is_builtin_kernel(false),
+      allocator_info(allocator_info),
       variant_data(std::move(variants)) {
   this->device = device;
   // Just select the maximum local memory size across each variant.
@@ -81,7 +85,7 @@ kernel_s::kernel_s(mux_device_t device, mux_allocator_info_t allocator_info,
   }
   setPreferredSizes(*this);
 }
-} // namespace host
+}  // namespace host
 
 mux_result_t hostCreateBuiltInKernel(mux_device_t device, const char *name,
                                      uint64_t name_length,

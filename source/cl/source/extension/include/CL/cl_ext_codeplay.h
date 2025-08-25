@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif  // __cplusplus
 
 /*******************************
  * cl_codeplay_kernel_exec_info *
@@ -131,12 +131,12 @@ typedef struct cl_performance_counter_config_codeplay {
 /// enabled performance counter.
 typedef struct cl_performance_counter_result_codeplay {
   union {
-    cl_int int32;      ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT32_CODEPLAY
-    cl_long int64;     ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT64_CODEPLAY
-    cl_uint uint32;    ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT32_CODEPLAY
-    cl_ulong uint64;   ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT64_CODEPLAY
-    cl_float float32;  ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT32_CODEPLAY
-    cl_double float64; ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT64_CODEPLAY
+    cl_int int32;       ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT32_CODEPLAY
+    cl_long int64;      ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_INT64_CODEPLAY
+    cl_uint uint32;     ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT32_CODEPLAY
+    cl_ulong uint64;    ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_UINT64_CODEPLAY
+    cl_float float32;   ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT32_CODEPLAY
+    cl_double float64;  ///< CL_PERFORMANCE_COUNTER_RESULT_TYPE_FLOAT64_CODEPLAY
   };
 } cl_performance_counter_result_codeplay;
 
@@ -240,6 +240,6 @@ typedef cl_int(CL_API_CALL *clGetKernelWFVInfoCODEPLAY_fn)(
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif  // __cplusplus
 
-#endif // CL_EXT_CODEPLAY_H_INCLUDED
+#endif  // CL_EXT_CODEPLAY_H_INCLUDED

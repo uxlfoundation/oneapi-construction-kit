@@ -66,12 +66,12 @@ TEST_F(SubGroupsUnsupportedTest, clGetKernelSubGroupInfo) {
                         sizeof(sub_group_count), &sub_group_count, nullptr));
 
   size_t sub_group_size;
-  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clGetKernelSubGroupInfo(
-                        kernel, device,
-                        CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE,
-                        sizeof(nd_range) / sizeof(nd_range[0]), &nd_range,
-                        sizeof(sub_group_size), &sub_group_size, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clGetKernelSubGroupInfo(
+          kernel, device, CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE,
+          sizeof(nd_range) / sizeof(nd_range[0]), &nd_range,
+          sizeof(sub_group_size), &sub_group_size, nullptr));
 
   EXPECT_EQ_ERRCODE(
       CL_INVALID_OPERATION,
@@ -81,11 +81,11 @@ TEST_F(SubGroupsUnsupportedTest, clGetKernelSubGroupInfo) {
           sizeof(nd_range) / sizeof(nd_range[0]), &nd_range, nullptr));
 
   size_t max_num_sub_groups;
-  EXPECT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clGetKernelSubGroupInfo(kernel, device,
-                                            CL_KERNEL_MAX_NUM_SUB_GROUPS, 0,
-                                            nullptr, sizeof(max_num_sub_groups),
-                                            &max_num_sub_groups, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clGetKernelSubGroupInfo(kernel, device, CL_KERNEL_MAX_NUM_SUB_GROUPS, 0,
+                              nullptr, sizeof(max_num_sub_groups),
+                              &max_num_sub_groups, nullptr));
 
   size_t compile_num_sub_groups;
   EXPECT_EQ_ERRCODE(
@@ -99,7 +99,7 @@ TEST_F(SubGroupsUnsupportedTest, clGetKernelSubGroupInfo) {
 }
 
 class clGetKernelSubGroupInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
 

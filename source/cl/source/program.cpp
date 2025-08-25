@@ -33,21 +33,21 @@
 namespace {
 cl_int convertModuleStateToCL(compiler::ModuleState state) {
   switch (state) {
-  case compiler::ModuleState::NONE:
-    return CL_PROGRAM_BINARY_TYPE_NONE;
-  case compiler::ModuleState::INTERMEDIATE:
-    return CL_PROGRAM_BINARY_TYPE_INTERMEDIATE;
-  case compiler::ModuleState::COMPILED_OBJECT:
-    return CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT;
-  case compiler::ModuleState::LIBRARY:
-    return CL_PROGRAM_BINARY_TYPE_LIBRARY;
-  case compiler::ModuleState::EXECUTABLE:
-    return CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
+    case compiler::ModuleState::NONE:
+      return CL_PROGRAM_BINARY_TYPE_NONE;
+    case compiler::ModuleState::INTERMEDIATE:
+      return CL_PROGRAM_BINARY_TYPE_INTERMEDIATE;
+    case compiler::ModuleState::COMPILED_OBJECT:
+      return CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT;
+    case compiler::ModuleState::LIBRARY:
+      return CL_PROGRAM_BINARY_TYPE_LIBRARY;
+    case compiler::ModuleState::EXECUTABLE:
+      return CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
   }
 
   return CL_PROGRAM_BINARY_TYPE_NONE;
 }
-} // namespace
+}  // namespace
 
 cl::mux_kernel_cache::mux_kernel_cache()
     : use_builtin_kernels(true),
@@ -131,15 +131,15 @@ void cl::device_program::reportError(cargo::string_view error) {
 
 bool cl::device_program::isExecutable() const {
   switch (type) {
-  case cl::device_program_type::BINARY:
-    return true;
-  case cl::device_program_type::BUILTIN:
-    return true;
-  case cl::device_program_type::COMPILER_MODULE:
-    return compiler_module.module->getState() ==
-           compiler::ModuleState::EXECUTABLE;
-  default:
-    return false;
+    case cl::device_program_type::BINARY:
+      return true;
+    case cl::device_program_type::BUILTIN:
+      return true;
+    case cl::device_program_type::COMPILER_MODULE:
+      return compiler_module.module->getState() ==
+             compiler::ModuleState::EXECUTABLE;
+    default:
+      return false;
   }
 }
 
@@ -194,48 +194,9 @@ cl::device_program::createKernel(cl_device_id device,
                                  const std::string &kernel_name) {
   std::unique_ptr<MuxKernelWrapper> kernel_wrapper;
   switch (type) {
-  case cl::device_program_type::BINARY: {
-    auto mux_kernel_result =
-        binary.kernels.getOrCreateKernel(device, kernel_name);
-    if (!mux_kernel_result) {
-      return cargo::make_unexpected(
-          cl::getErrorFrom(mux_kernel_result.error()));
-    }
-    kernel_wrapper.reset(
-        new MuxKernelWrapper(device, mux_kernel_result.value()));
-    if (!kernel_wrapper) {
-      return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
-    }
-  } break;
-
-  case cl::device_program_type::BUILTIN: {
-    auto mux_kernel_result =
-        builtin.kernels.getOrCreateKernel(device, kernel_name);
-    if (!mux_kernel_result) {
-      return cargo::make_unexpected(
-          cl::getErrorFrom(mux_kernel_result.error()));
-    }
-    kernel_wrapper.reset(
-        new MuxKernelWrapper(device, mux_kernel_result.value()));
-    if (!kernel_wrapper) {
-      return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
-    }
-  } break;
-
-  case cl::device_program_type::COMPILER_MODULE: {
-    if (device->compiler_info->supports_deferred_compilation()) {
-      compiler::Kernel *deferred_kernel =
-          compiler_module.module->getKernel(kernel_name);
-      if (!deferred_kernel) {
-        return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
-      }
-      kernel_wrapper.reset(new MuxKernelWrapper(device, deferred_kernel));
-      if (!kernel_wrapper) {
-        return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
-      }
-    } else {
+    case cl::device_program_type::BINARY: {
       auto mux_kernel_result =
-          compiler_module.kernels->getOrCreateKernel(device, kernel_name);
+          binary.kernels.getOrCreateKernel(device, kernel_name);
       if (!mux_kernel_result) {
         return cargo::make_unexpected(
             cl::getErrorFrom(mux_kernel_result.error()));
@@ -245,11 +206,50 @@ cl::device_program::createKernel(cl_device_id device,
       if (!kernel_wrapper) {
         return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
       }
-    }
-  } break;
+    } break;
 
-  default:
-    return cargo::make_unexpected(CL_INVALID_PROGRAM);
+    case cl::device_program_type::BUILTIN: {
+      auto mux_kernel_result =
+          builtin.kernels.getOrCreateKernel(device, kernel_name);
+      if (!mux_kernel_result) {
+        return cargo::make_unexpected(
+            cl::getErrorFrom(mux_kernel_result.error()));
+      }
+      kernel_wrapper.reset(
+          new MuxKernelWrapper(device, mux_kernel_result.value()));
+      if (!kernel_wrapper) {
+        return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
+      }
+    } break;
+
+    case cl::device_program_type::COMPILER_MODULE: {
+      if (device->compiler_info->supports_deferred_compilation()) {
+        compiler::Kernel *deferred_kernel =
+            compiler_module.module->getKernel(kernel_name);
+        if (!deferred_kernel) {
+          return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
+        }
+        kernel_wrapper.reset(new MuxKernelWrapper(device, deferred_kernel));
+        if (!kernel_wrapper) {
+          return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
+        }
+      } else {
+        auto mux_kernel_result =
+            compiler_module.kernels->getOrCreateKernel(device, kernel_name);
+        if (!mux_kernel_result) {
+          return cargo::make_unexpected(
+              cl::getErrorFrom(mux_kernel_result.error()));
+        }
+        kernel_wrapper.reset(
+            new MuxKernelWrapper(device, mux_kernel_result.value()));
+        if (!kernel_wrapper) {
+          return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
+        }
+      }
+    } break;
+
+    default:
+      return cargo::make_unexpected(CL_INVALID_PROGRAM);
   }
 
   return {std::move(kernel_wrapper)};
@@ -375,17 +375,17 @@ bool cl::device_program::binaryDeserialize(
 
 void cl::device_program::clear() {
   switch (type) {
-  case cl::device_program_type::NONE:
-    break;
-  case cl::device_program_type::BINARY:
-    binary.~Binary();
-    break;
-  case cl::device_program_type::BUILTIN:
-    builtin.~Builtin();
-    break;
-  case cl::device_program_type::COMPILER_MODULE:
-    compiler_module.~CompilerModule();
-    break;
+    case cl::device_program_type::NONE:
+      break;
+    case cl::device_program_type::BINARY:
+      binary.~Binary();
+      break;
+    case cl::device_program_type::BUILTIN:
+      builtin.~Builtin();
+      break;
+    case cl::device_program_type::COMPILER_MODULE:
+      compiler_module.~CompilerModule();
+      break;
   }
   type = cl::device_program_type::NONE;
   num_errors = 0;
@@ -419,12 +419,12 @@ cl::device_program::CompilerModule::getOrCreateMuxBinary() {
 
 cl_program_binary_type cl::device_program::getCLProgramBinaryType() const {
   switch (type) {
-  case cl::device_program_type::BINARY:
-    return CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
-  case cl::device_program_type::COMPILER_MODULE:
-    return convertModuleStateToCL(compiler_module.module->getState());
-  default:
-    return CL_PROGRAM_BINARY_TYPE_NONE;
+    case cl::device_program_type::BINARY:
+      return CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
+    case cl::device_program_type::COMPILER_MODULE:
+      return convertModuleStateToCL(compiler_module.module->getState());
+    default:
+      return CL_PROGRAM_BINARY_TYPE_NONE;
   }
 }
 
@@ -467,8 +467,10 @@ _cl_program::SPIRV::getSpecInfo() {
 }
 
 _cl_program::_cl_program(cl_context context)
-    : base<_cl_program>(cl::ref_count_type::EXTERNAL), context(context),
-      num_external_kernels(0), type(cl::program_type::NONE) {
+    : base<_cl_program>(cl::ref_count_type::EXTERNAL),
+      context(context),
+      num_external_kernels(0),
+      type(cl::program_type::NONE) {
   cl::retainInternal(context);
 }
 
@@ -478,25 +480,25 @@ _cl_program::~_cl_program() {
 
   // Explicitly destruct union members where appropriate.
   switch (type) {
-  case cl::program_type::OPENCLC:
-    openclc.~OpenCLC();
-    break;
-  case cl::program_type::BUILTIN:
-    builtInKernel.~BuiltInKernel();
-    break;
-  case cl::program_type::SPIRV:
-    spirv.~SPIRV();
-    break;
-  default:
-    break;
+    case cl::program_type::OPENCLC:
+      openclc.~OpenCLC();
+      break;
+    case cl::program_type::BUILTIN:
+      builtInKernel.~BuiltInKernel();
+      break;
+    case cl::program_type::SPIRV:
+      spirv.~SPIRV();
+      break;
+    default:
+      break;
   }
   cl::releaseInternal(context);
 }
 
 // Used by clCreateProgramWithSource.
-cargo::expected<std::unique_ptr<_cl_program>, cl_int>
-_cl_program::create(cl_context context, cl_uint count,
-                    const char *const *strings, const size_t *lengths) {
+cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
+    cl_context context, cl_uint count, const char *const *strings,
+    const size_t *lengths) {
   std::unique_ptr<_cl_program> program{new _cl_program{context}};
   if (!program) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -523,8 +525,8 @@ _cl_program::create(cl_context context, cl_uint count,
 }
 
 // Used by clCreateProgramWithIL, clCreateProgramWithILKHR.
-cargo::expected<std::unique_ptr<_cl_program>, cl_int>
-_cl_program::create(cl_context context, const void *il, size_t length) {
+cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
+    cl_context context, const void *il, size_t length) {
   std::unique_ptr<_cl_program> program{new _cl_program{context}};
   if (!program) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -558,11 +560,10 @@ _cl_program::create(cl_context context, const void *il, size_t length) {
 }
 
 // Used by clCreateProgramWithBinary.
-cargo::expected<std::unique_ptr<_cl_program>, cl_int>
-_cl_program::create(cl_context context, cl_uint num_devices,
-                    const cl_device_id *device_list, const size_t *lengths,
-                    const unsigned char *const *binaries,
-                    cl_int *binary_status) {
+cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
+    cl_context context, cl_uint num_devices, const cl_device_id *device_list,
+    const size_t *lengths, const unsigned char *const *binaries,
+    cl_int *binary_status) {
   std::unique_ptr<_cl_program> program{new _cl_program{context}};
   if (!program) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -620,9 +621,9 @@ _cl_program::create(cl_context context, cl_uint num_devices,
 }
 
 // Used by clCreateProgramWithBuiltInKernels.
-cargo::expected<std::unique_ptr<_cl_program>, cl_int>
-_cl_program::create(cl_context context, cl_uint num_devices,
-                    const cl_device_id *device_list, const char *kernel_names) {
+cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
+    cl_context context, cl_uint num_devices, const cl_device_id *device_list,
+    const char *kernel_names) {
   std::unique_ptr<_cl_program> program(new _cl_program(context));
   if (!program) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -716,11 +717,10 @@ _cl_program::create(cl_context context, cl_uint num_devices,
 }
 
 // Used by clLinkProgram.
-cargo::expected<std::unique_ptr<_cl_program>, cl_int>
-_cl_program::create(cl_context context,
-                    cargo::array_view<const cl_device_id> devices,
-                    cargo::string_view options,
-                    cargo::array_view<const cl_program> input_programs) {
+cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
+    cl_context context, cargo::array_view<const cl_device_id> devices,
+    cargo::string_view options,
+    cargo::array_view<const cl_program> input_programs) {
   std::unique_ptr<_cl_program> program(new _cl_program(context));
   if (!program) {
     return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -745,9 +745,9 @@ _cl_program::create(cl_context context,
   return program;
 }
 
-cl_int
-_cl_program::compile(cargo::array_view<const cl_device_id> devices,
-                     cargo::array_view<compiler::InputHeader> input_headers) {
+cl_int _cl_program::compile(
+    cargo::array_view<const cl_device_id> devices,
+    cargo::array_view<compiler::InputHeader> input_headers) {
   for (auto device : devices) {
     auto &device_program = programs[device];
 
@@ -760,31 +760,31 @@ _cl_program::compile(cargo::array_view<const cl_device_id> devices,
     compiler::Result error = compiler::Result::SUCCESS;
     switch (type) {
 #if defined(OCL_EXTENSION_cl_khr_il_program) || defined(CL_VERSION_3_0)
-    case cl::program_type::SPIRV: {
-      auto spirv_device_info =
-          context->getSPIRVDeviceInfo(device->mux_device->info);
-      if (!spirv_device_info) {
-        return CL_COMPILE_PROGRAM_FAILURE;
-      }
-      // We need to clear the device program as we're starting a new
-      // compilation.
-      device_program.compiler_module.clear();
-      auto result = module.compileSPIRV(spirv.code, *spirv_device_info,
-                                        spirv.getSpecInfo());
-      if (!result) {
-        error = result.error();
-      }
-    } break;
+      case cl::program_type::SPIRV: {
+        auto spirv_device_info =
+            context->getSPIRVDeviceInfo(device->mux_device->info);
+        if (!spirv_device_info) {
+          return CL_COMPILE_PROGRAM_FAILURE;
+        }
+        // We need to clear the device program as we're starting a new
+        // compilation.
+        device_program.compiler_module.clear();
+        auto result = module.compileSPIRV(spirv.code, *spirv_device_info,
+                                          spirv.getSpecInfo());
+        if (!result) {
+          error = result.error();
+        }
+      } break;
 #endif
-    case cl::program_type::OPENCLC:
-      // We need to clear the device program as we're starting a new
-      // compilation.
-      device_program.compiler_module.clear();
-      error =
-          module.compileOpenCLC(device->profile, openclc.source, input_headers);
-      break;
-    default:
-      return CL_INVALID_OPERATION;
+      case cl::program_type::OPENCLC:
+        // We need to clear the device program as we're starting a new
+        // compilation.
+        device_program.compiler_module.clear();
+        error = module.compileOpenCLC(device->profile, openclc.source,
+                                      input_headers);
+        break;
+      default:
+        return CL_INVALID_OPERATION;
     }
     if (error != compiler::Result::SUCCESS) {
       return cl::getErrorFrom(error);
@@ -823,7 +823,7 @@ bool _cl_program::finalize(cargo::array_view<const cl_device_id> devices) {
   const std::lock_guard<std::mutex> lock(context->mutex);
   for (auto device : devices) {
     if (hasOption(device, "-create-library")) {
-      continue; // don't finalize a library, it's only used for linking.
+      continue;  // don't finalize a library, it's only used for linking.
     }
     if (!programs[device].finalize(device)) {
       return false;
@@ -832,8 +832,8 @@ bool _cl_program::finalize(cargo::array_view<const cl_device_id> devices) {
   return true;
 }
 
-cargo::optional<const compiler::KernelInfo *>
-_cl_program::getKernelInfo(cargo::string_view name) const {
+cargo::optional<const compiler::KernelInfo *> _cl_program::getKernelInfo(
+    cargo::string_view name) const {
   for (auto device : context->devices) {
     auto &device_program = programs.at(device);
 
@@ -891,8 +891,8 @@ size_t _cl_program::getNumKernels() const {
   return numKernels;
 }
 
-const char *
-_cl_program::getKernelNameByOffset(const size_t kernel_index) const {
+const char *_cl_program::getKernelNameByOffset(
+    const size_t kernel_index) const {
   const char *result = nullptr;
 
   for (auto device : context->devices) {
@@ -990,13 +990,13 @@ cl_int _cl_program::setOptions(cargo::array_view<const cl_device_id> devices,
       const char *extraCompileOpts = "CA_EXTRA_COMPILE_OPTS";
       const char *extraLinkOpts = "CA_EXTRA_LINK_OPTS";
       switch (mode) {
-      case compiler::Options::Mode::BUILD:
-        return join({options, std::getenv(extraCompileOpts),
-                     std::getenv(extraLinkOpts)});
-      case compiler::Options::Mode::COMPILE:
-        return join({options, std::getenv(extraCompileOpts)});
-      case compiler::Options::Mode::LINK:
-        return join({options, std::getenv(extraLinkOpts)});
+        case compiler::Options::Mode::BUILD:
+          return join({options, std::getenv(extraCompileOpts),
+                       std::getenv(extraLinkOpts)});
+        case compiler::Options::Mode::COMPILE:
+          return join({options, std::getenv(extraCompileOpts)});
+        case compiler::Options::Mode::LINK:
+          return join({options, std::getenv(extraLinkOpts)});
       }
       return std::string();
     }(mode, options_string);
@@ -1156,9 +1156,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::CompileProgram(
 
   OCL_CHECK((0 == num_input_headers) && (header_include_names || input_headers),
             return CL_INVALID_VALUE);
-  OCL_CHECK((0 != num_input_headers) &&
-                !(header_include_names && input_headers),
-            return CL_INVALID_VALUE);
+  OCL_CHECK(
+      (0 != num_input_headers) && !(header_include_names && input_headers),
+      return CL_INVALID_VALUE);
 
   cargo::small_vector<compiler::InputHeader, 8> inputHeaders;
   for (uint32_t i = 0; i < num_input_headers; i++) {
@@ -1247,12 +1247,12 @@ CL_API_ENTRY cl_program CL_API_CALL cl::LinkProgram(
         return nullptr;
       }
       switch (device_program.compiler_module.module->getState()) {
-      case compiler::ModuleState::COMPILED_OBJECT: // Fall through.
-      case compiler::ModuleState::LIBRARY:
-        break;
-      default:
-        OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
-        return nullptr;
+        case compiler::ModuleState::COMPILED_OBJECT:  // Fall through.
+        case compiler::ModuleState::LIBRARY:
+          break;
+        default:
+          OCL_SET_IF_NOT_NULL(errcode_ret, CL_INVALID_OPERATION);
+          return nullptr;
       }
     }
   }
@@ -1334,27 +1334,27 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
   OCL_CHECK(!program, return CL_INVALID_PROGRAM);
   OCL_CHECK(!param_value && !param_value_size_ret, return CL_INVALID_VALUE);
 
-#define PROGRAM_INFO_CASE(ENUM, VALUE)                                         \
-  case ENUM: {                                                                 \
-    const size_t typeSize = sizeof(VALUE);                                     \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                    \
-              return CL_INVALID_VALUE);                                        \
-    if (param_value) {                                                         \
-      *static_cast<std::remove_const_t<decltype(VALUE)> *>(param_value) =      \
-          VALUE;                                                               \
-    }                                                                          \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                       \
+#define PROGRAM_INFO_CASE(ENUM, VALUE)                                    \
+  case ENUM: {                                                            \
+    const size_t typeSize = sizeof(VALUE);                                \
+    OCL_CHECK(param_value && (param_value_size < typeSize),               \
+              return CL_INVALID_VALUE);                                   \
+    if (param_value) {                                                    \
+      *static_cast<std::remove_const_t<decltype(VALUE)> *>(param_value) = \
+          VALUE;                                                          \
+    }                                                                     \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                  \
   } break
 
-#define PROGRAM_INFO_CASE_WITH_TYPE(ENUM, VALUE, TYPE)                         \
-  case ENUM: {                                                                 \
-    const size_t typeSize = sizeof(TYPE);                                      \
-    OCL_CHECK(param_value && (param_value_size < typeSize),                    \
-              return CL_INVALID_VALUE);                                        \
-    if (param_value) {                                                         \
-      *static_cast<TYPE *>(param_value) = VALUE;                               \
-    }                                                                          \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);                       \
+#define PROGRAM_INFO_CASE_WITH_TYPE(ENUM, VALUE, TYPE)      \
+  case ENUM: {                                              \
+    const size_t typeSize = sizeof(TYPE);                   \
+    OCL_CHECK(param_value && (param_value_size < typeSize), \
+              return CL_INVALID_VALUE);                     \
+    if (param_value) {                                      \
+      *static_cast<TYPE *>(param_value) = VALUE;            \
+    }                                                       \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, typeSize);    \
   } break
 
   switch (param_name) {
@@ -1368,153 +1368,155 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
     PROGRAM_INFO_CASE(CL_PROGRAM_CONTEXT, program->context);
     PROGRAM_INFO_CASE_WITH_TYPE(CL_PROGRAM_NUM_DEVICES,
                                 program->context->devices.size(), cl_uint);
-  case CL_PROGRAM_DEVICES: {
-    const cl_uint numDevices = program->context->devices.size();
-    const cl_uint totalSize = sizeof(cl_device_id) * numDevices;
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, totalSize);
-    OCL_CHECK(param_value && param_value_size < totalSize,
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      cl_device_id *reinterpreted =
-          reinterpret_cast<cl_device_id *>(param_value);
-
-      std::copy(program->context->devices.begin(),
-                program->context->devices.end(), reinterpreted);
-    }
-  } break;
-  case CL_PROGRAM_SOURCE:
-    if (program->type == cl::program_type::OPENCLC &&
-        program->openclc.source.size() > 0) {
-      const size_t length = program->openclc.source.size() + 1;
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(char) * length);
-      OCL_CHECK(param_value && param_value_size < sizeof(char) * length,
+    case CL_PROGRAM_DEVICES: {
+      const cl_uint numDevices = program->context->devices.size();
+      const cl_uint totalSize = sizeof(cl_device_id) * numDevices;
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, totalSize);
+      OCL_CHECK(param_value && param_value_size < totalSize,
                 return CL_INVALID_VALUE);
       if (param_value) {
-        strncpy(reinterpret_cast<char *>(param_value),
-                program->openclc.source.data(), length);
+        cl_device_id *reinterpreted =
+            reinterpret_cast<cl_device_id *>(param_value);
+
+        std::copy(program->context->devices.begin(),
+                  program->context->devices.end(), reinterpreted);
       }
-    } else {
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(char));
-      OCL_CHECK(param_value && (0 == param_value_size),
-                return CL_INVALID_VALUE);
-      OCL_SET_IF_NOT_NULL(reinterpret_cast<char *>(param_value), '\0');
-    }
-    break;
-  case CL_PROGRAM_BINARY_SIZES: {
-    const size_t size = sizeof(size_t) * program->context->devices.size();
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
-    OCL_CHECK(param_value && (param_value_size < size),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      for (cl_uint i = 0; i < program->context->devices.size(); i++) {
-        cl_device_id device = program->context->devices[i];
-        reinterpret_cast<size_t *>(param_value)[i] =
-            program->programs[device].binarySize();
-      }
-    }
-  } break;
-  case CL_PROGRAM_BINARIES: {
-    const size_t size = sizeof(char *) * program->context->devices.size();
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
-    OCL_CHECK(param_value && (param_value_size < size),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      for (cl_uint i = 0; i < program->context->devices.size(); i++) {
-        cl_device_id device = program->context->devices[i];
-        auto &device_program = program->programs[device];
-        if (device_program.type == cl::device_program_type::BINARY ||
-            device_program.type == cl::device_program_type::COMPILER_MODULE) {
-          auto buffer = device_program.binarySerialize();
-          OCL_CHECK(0 < device_program.num_errors, return CL_INVALID_PROGRAM);
-          if (!buffer.empty()) {
-            std::uninitialized_copy_n(
-                buffer.data(), buffer.size(),
-                reinterpret_cast<unsigned char **>(param_value)[i]);
-          }
-        }
-        // Do nothing for cl::device_program_type::BUILTIN as we report
-        // CL_PROGRAM_BINARY_SIZES to be 0 bytes per device because there are
-        // no binaries to return for built-in kernels.
-      }
-    }
-  } break;
-  case CL_PROGRAM_NUM_KERNELS: {
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-    OCL_CHECK(param_value && param_value_size < sizeof(size_t),
-              return CL_INVALID_VALUE);
-    bool success = false;
-
-    for (auto device : program->context->devices) {
-      if (program->programs[device].isExecutable()) {
-        if (param_value) {
-          OCL_SET_IF_NOT_NULL(
-              reinterpret_cast<size_t *>(param_value),
-              program->programs[device].program_info->getNumKernels());
-        }
-
-        success = true;
-        break;
-      }
-    }
-    if (!success) {
-      return CL_INVALID_PROGRAM_EXECUTABLE;
-    }
-    break;
-  }
-  case CL_PROGRAM_KERNEL_NAMES: {
-    bool success = false;
-    for (auto device : program->context->devices) {
-      if (program->programs[device].isExecutable()) {
-        success = true;
-        std::string name;
-
-        const compiler::ProgramInfo &program_info =
-            *program->programs[device].program_info;
-        for (size_t k = 0, e = program_info.getNumKernels(); k < e; k++) {
-          OCL_ASSERT(nullptr != program_info.getKernel(k),
-                     "Fewer than getNumKernels() kernels");
-          name += program_info.getKernel(k)->name;
-          if ((k + 1) < e) {
-            name += ';';
-          }
-        }
-
-        const size_t length = name.length() + 1;
-
-        OCL_SET_IF_NOT_NULL(param_value_size_ret, length);
-        OCL_CHECK(param_value && param_value_size < length,
+    } break;
+    case CL_PROGRAM_SOURCE:
+      if (program->type == cl::program_type::OPENCLC &&
+          program->openclc.source.size() > 0) {
+        const size_t length = program->openclc.source.size() + 1;
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(char) * length);
+        OCL_CHECK(param_value && param_value_size < sizeof(char) * length,
                   return CL_INVALID_VALUE);
         if (param_value) {
-          strncpy(reinterpret_cast<char *>(param_value), name.c_str(), length);
+          strncpy(reinterpret_cast<char *>(param_value),
+                  program->openclc.source.data(), length);
         }
-        break;
+      } else {
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(char));
+        OCL_CHECK(param_value && (0 == param_value_size),
+                  return CL_INVALID_VALUE);
+        OCL_SET_IF_NOT_NULL(reinterpret_cast<char *>(param_value), '\0');
       }
-    }
-    if (!success) {
-      return CL_INVALID_PROGRAM_EXECUTABLE;
-    }
-    break;
-  }
-#if defined(CL_VERSION_3_0)
-  case CL_PROGRAM_IL: {
-    if (program->type != cl::program_type::SPIRV) {
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
-    } else {
-      const size_t spirvSizeInBytes =
-          program->spirv.code.size() * sizeof(uint32_t);
-      OCL_CHECK(param_value && (param_value_size < spirvSizeInBytes),
+      break;
+    case CL_PROGRAM_BINARY_SIZES: {
+      const size_t size = sizeof(size_t) * program->context->devices.size();
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+      OCL_CHECK(param_value && (param_value_size < size),
                 return CL_INVALID_VALUE);
       if (param_value) {
-        std::memcpy(param_value, program->spirv.code.data(), spirvSizeInBytes);
+        for (cl_uint i = 0; i < program->context->devices.size(); i++) {
+          cl_device_id device = program->context->devices[i];
+          reinterpret_cast<size_t *>(param_value)[i] =
+              program->programs[device].binarySize();
+        }
       }
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, spirvSizeInBytes);
+    } break;
+    case CL_PROGRAM_BINARIES: {
+      const size_t size = sizeof(char *) * program->context->devices.size();
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, size);
+      OCL_CHECK(param_value && (param_value_size < size),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        for (cl_uint i = 0; i < program->context->devices.size(); i++) {
+          cl_device_id device = program->context->devices[i];
+          auto &device_program = program->programs[device];
+          if (device_program.type == cl::device_program_type::BINARY ||
+              device_program.type == cl::device_program_type::COMPILER_MODULE) {
+            auto buffer = device_program.binarySerialize();
+            OCL_CHECK(0 < device_program.num_errors, return CL_INVALID_PROGRAM);
+            if (!buffer.empty()) {
+              std::uninitialized_copy_n(
+                  buffer.data(), buffer.size(),
+                  reinterpret_cast<unsigned char **>(param_value)[i]);
+            }
+          }
+          // Do nothing for cl::device_program_type::BUILTIN as we report
+          // CL_PROGRAM_BINARY_SIZES to be 0 bytes per device because there are
+          // no binaries to return for built-in kernels.
+        }
+      }
+    } break;
+    case CL_PROGRAM_NUM_KERNELS: {
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+      OCL_CHECK(param_value && param_value_size < sizeof(size_t),
+                return CL_INVALID_VALUE);
+      bool success = false;
+
+      for (auto device : program->context->devices) {
+        if (program->programs[device].isExecutable()) {
+          if (param_value) {
+            OCL_SET_IF_NOT_NULL(
+                reinterpret_cast<size_t *>(param_value),
+                program->programs[device].program_info->getNumKernels());
+          }
+
+          success = true;
+          break;
+        }
+      }
+      if (!success) {
+        return CL_INVALID_PROGRAM_EXECUTABLE;
+      }
+      break;
     }
-  } break;
+    case CL_PROGRAM_KERNEL_NAMES: {
+      bool success = false;
+      for (auto device : program->context->devices) {
+        if (program->programs[device].isExecutable()) {
+          success = true;
+          std::string name;
+
+          const compiler::ProgramInfo &program_info =
+              *program->programs[device].program_info;
+          for (size_t k = 0, e = program_info.getNumKernels(); k < e; k++) {
+            OCL_ASSERT(nullptr != program_info.getKernel(k),
+                       "Fewer than getNumKernels() kernels");
+            name += program_info.getKernel(k)->name;
+            if ((k + 1) < e) {
+              name += ';';
+            }
+          }
+
+          const size_t length = name.length() + 1;
+
+          OCL_SET_IF_NOT_NULL(param_value_size_ret, length);
+          OCL_CHECK(param_value && param_value_size < length,
+                    return CL_INVALID_VALUE);
+          if (param_value) {
+            strncpy(reinterpret_cast<char *>(param_value), name.c_str(),
+                    length);
+          }
+          break;
+        }
+      }
+      if (!success) {
+        return CL_INVALID_PROGRAM_EXECUTABLE;
+      }
+      break;
+    }
+#if defined(CL_VERSION_3_0)
+    case CL_PROGRAM_IL: {
+      if (program->type != cl::program_type::SPIRV) {
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
+      } else {
+        const size_t spirvSizeInBytes =
+            program->spirv.code.size() * sizeof(uint32_t);
+        OCL_CHECK(param_value && (param_value_size < spirvSizeInBytes),
+                  return CL_INVALID_VALUE);
+        if (param_value) {
+          std::memcpy(param_value, program->spirv.code.data(),
+                      spirvSizeInBytes);
+        }
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, spirvSizeInBytes);
+      }
+    } break;
 #endif
-  default: {
-    return extension::GetProgramInfo(program, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
-  }
+    default: {
+      return extension::GetProgramInfo(program, param_name, param_value_size,
+                                       param_value, param_value_size_ret);
+    }
   }
 
   return CL_SUCCESS;
@@ -1533,85 +1535,88 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramBuildInfo(
   OCL_CHECK(!param_value && !param_value_size_ret, return CL_INVALID_VALUE);
 
   switch (param_name) {
-  case CL_PROGRAM_BUILD_STATUS:
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_build_status));
-    if (param_value) {
-      OCL_CHECK(param_value_size < sizeof(cl_build_status),
-                return CL_INVALID_VALUE);
+    case CL_PROGRAM_BUILD_STATUS:
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_build_status));
+      if (param_value) {
+        OCL_CHECK(param_value_size < sizeof(cl_build_status),
+                  return CL_INVALID_VALUE);
 
-      if (program->programs[device_id].num_errors > 0) {
-        *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_ERROR;
-      } else {
-        if (program->programs[device_id].type ==
-                cl::device_program_type::COMPILER_MODULE &&
-            program->programs[device_id].compiler_module.module->getState() !=
-                compiler::ModuleState::NONE) {
-          *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_SUCCESS;
-        } else if (program->programs[device_id].type ==
-                   cl::device_program_type::BINARY) {
-          *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_SUCCESS;
+        if (program->programs[device_id].num_errors > 0) {
+          *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_ERROR;
         } else {
-          *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_NONE;
+          if (program->programs[device_id].type ==
+                  cl::device_program_type::COMPILER_MODULE &&
+              program->programs[device_id].compiler_module.module->getState() !=
+                  compiler::ModuleState::NONE) {
+            *reinterpret_cast<cl_build_status *>(param_value) =
+                CL_BUILD_SUCCESS;
+          } else if (program->programs[device_id].type ==
+                     cl::device_program_type::BINARY) {
+            *reinterpret_cast<cl_build_status *>(param_value) =
+                CL_BUILD_SUCCESS;
+          } else {
+            *reinterpret_cast<cl_build_status *>(param_value) = CL_BUILD_NONE;
+          }
         }
       }
-    }
-    break;
-  case CL_PROGRAM_BUILD_OPTIONS:
-    if (0 == program->programs.size()) {
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, 1);
-      if (param_value) {
-        OCL_CHECK(param_value_size < 1, return CL_INVALID_VALUE);
-        *static_cast<char *>(param_value) = '\0';
+      break;
+    case CL_PROGRAM_BUILD_OPTIONS:
+      if (0 == program->programs.size()) {
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, 1);
+        if (param_value) {
+          OCL_CHECK(param_value_size < 1, return CL_INVALID_VALUE);
+          *static_cast<char *>(param_value) = '\0';
+        }
+      } else {
+        const auto &build_options = program->programs[device_id].options;
+        // need + 1 for the null terminator
+        const size_t bytes_required_for_str = build_options.size() + 1;
+        OCL_SET_IF_NOT_NULL(param_value_size_ret, bytes_required_for_str);
+        if (param_value) {
+          OCL_CHECK(param_value_size < bytes_required_for_str,
+                    return CL_INVALID_VALUE);
+          char *value = static_cast<char *>(param_value);
+          std::strncpy(value, build_options.c_str(), param_value_size);
+        }
       }
-    } else {
-      const auto &build_options = program->programs[device_id].options;
-      // need + 1 for the null terminator
-      const size_t bytes_required_for_str = build_options.size() + 1;
-      OCL_SET_IF_NOT_NULL(param_value_size_ret, bytes_required_for_str);
-      if (param_value) {
-        OCL_CHECK(param_value_size < bytes_required_for_str,
-                  return CL_INVALID_VALUE);
-        char *value = static_cast<char *>(param_value);
-        std::strncpy(value, build_options.c_str(), param_value_size);
-      }
-    }
-    break;
-  case CL_PROGRAM_BUILD_LOG:
-    OCL_SET_IF_NOT_NULL(param_value_size_ret,
-                        program->programs[device_id].compiler_log.size() + 1);
-    OCL_CHECK(param_value &&
-                  param_value_size <
-                      program->programs[device_id].compiler_log.size() + 1,
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      std::strncpy(reinterpret_cast<char *>(param_value),
-                   program->programs[device_id].compiler_log.c_str(),
-                   param_value_size);
-    }
-    break;
-  case CL_PROGRAM_BINARY_TYPE:
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_program_binary_type));
-    if (param_value) {
-      OCL_CHECK(param_value_size < sizeof(cl_program_binary_type),
+      break;
+    case CL_PROGRAM_BUILD_LOG:
+      OCL_SET_IF_NOT_NULL(param_value_size_ret,
+                          program->programs[device_id].compiler_log.size() + 1);
+      OCL_CHECK(param_value &&
+                    param_value_size <
+                        program->programs[device_id].compiler_log.size() + 1,
                 return CL_INVALID_VALUE);
-      *reinterpret_cast<cl_program_binary_type *>(param_value) =
-          program->programs[device_id].getCLProgramBinaryType();
-    }
-    break;
+      if (param_value) {
+        std::strncpy(reinterpret_cast<char *>(param_value),
+                     program->programs[device_id].compiler_log.c_str(),
+                     param_value_size);
+      }
+      break;
+    case CL_PROGRAM_BINARY_TYPE:
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(cl_program_binary_type));
+      if (param_value) {
+        OCL_CHECK(param_value_size < sizeof(cl_program_binary_type),
+                  return CL_INVALID_VALUE);
+        *reinterpret_cast<cl_program_binary_type *>(param_value) =
+            program->programs[device_id].getCLProgramBinaryType();
+      }
+      break;
 #if defined(CL_VERSION_3_0)
-  case CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE: {
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-    if (param_value) {
-      OCL_CHECK(param_value_size < sizeof(size_t), return CL_INVALID_VALUE);
-      *static_cast<size_t *>(param_value) = program->global_variable_total_size;
-    }
-  } break;
+    case CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE: {
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+      if (param_value) {
+        OCL_CHECK(param_value_size < sizeof(size_t), return CL_INVALID_VALUE);
+        *static_cast<size_t *>(param_value) =
+            program->global_variable_total_size;
+      }
+    } break;
 #endif
-  default: {
-    return extension::GetProgramBuildInfo(program, device_id, param_name,
-                                          param_value_size, param_value,
-                                          param_value_size_ret);
-  }
+    default: {
+      return extension::GetProgramBuildInfo(program, device_id, param_name,
+                                            param_value_size, param_value,
+                                            param_value_size_ret);
+    }
   }
 
   return CL_SUCCESS;

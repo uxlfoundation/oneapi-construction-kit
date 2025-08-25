@@ -24,7 +24,7 @@
 #include <abacus/internal/is_denorm.h>
 #include <abacus/internal/is_odd.h>
 #include <abacus/internal/multiply_exact.h>
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 namespace {
 static ABACUS_CONSTANT abacus_float __codeplay_tgamma_coeff[10] = {
@@ -32,14 +32,15 @@ static ABACUS_CONSTANT abacus_float __codeplay_tgamma_coeff[10] = {
     0.1451712821e-2f, -0.3487319248e-3f, 0.9257006174e-4f, -0.1640325623e-4f,
     0.1979587071e-5f, -1.031653236e-7f};
 
-template <class T> T tgamma_splat(const T x) {
+template <class T>
+T tgamma_splat(const T x) {
   T result;
   for (unsigned i = 0; i < TypeTraits<T>::num_elements; i++) {
     result[i] = __abacus_tgamma(x[i]);
   }
   return result;
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 namespace {
@@ -128,7 +129,7 @@ abacus_half tgamma_positive(abacus_half x, abacus_half *exp_neg_x,
     return tgamma_poly(x, exp_neg_x, pow_sqrt);
   }
 }
-} // namespace
+}  // namespace
 
 abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
   if (__abacus_isnan(x)) {
@@ -183,40 +184,40 @@ abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
   // Special case failures that are difficult to get under 4 ULP.
   const abacus_ushort x_ushort = abacus::detail::cast::as<abacus_ushort>(x);
   switch (x_ushort) {
-  default:
-    break;
-  case 0x4530: // 5.1875f16
-    return 31.953125f16;
-  case 0xb5e9: // -0.369385f16
-    return -3.85156f16;
-  case 0xb6c8: // -0.423828f16
-    return -3.64844f16;
-  case 0xb6e9: // -0.431885f16
-    return -3.62891f16;
-  case 0xb7cb: // -0.487061f16
-    return -3.54883f16;
-  case 0xb834: // -0.525391f16
-    return -3.55273f16;
-  case 0xbade: // -0.858398f16
-    return -7.69922f16;
-  case 0xbfd4: // -1.95703f16
-    return 12.1406f16;
-  case 0xc0f3: // -2.47461f16
-    return -0.975098f16;
-  case 0xc135: // -2.60352f16
-    return -0.888184f16;
-  case 0xc586: // -5.52344f16
-    return 0.0104904f16;
-  case 0xc5e1: // -5.87891f16
-    return 0.0147247f16;
-  case 0xc5fa: // -5.97656f16
-    return 0.0619812f16;
-  case 0xc67b: // -6.48047f16
-    return -0.00174713f16;
-  case 0xc69d: // -6.61328f16
-    return -0.00143528f16;
-  case 0xc814: // -8.15625f16
-    return -0.000118136f16;
+    default:
+      break;
+    case 0x4530:  // 5.1875f16
+      return 31.953125f16;
+    case 0xb5e9:  // -0.369385f16
+      return -3.85156f16;
+    case 0xb6c8:  // -0.423828f16
+      return -3.64844f16;
+    case 0xb6e9:  // -0.431885f16
+      return -3.62891f16;
+    case 0xb7cb:  // -0.487061f16
+      return -3.54883f16;
+    case 0xb834:  // -0.525391f16
+      return -3.55273f16;
+    case 0xbade:  // -0.858398f16
+      return -7.69922f16;
+    case 0xbfd4:  // -1.95703f16
+      return 12.1406f16;
+    case 0xc0f3:  // -2.47461f16
+      return -0.975098f16;
+    case 0xc135:  // -2.60352f16
+      return -0.888184f16;
+    case 0xc586:  // -5.52344f16
+      return 0.0104904f16;
+    case 0xc5e1:  // -5.87891f16
+      return 0.0147247f16;
+    case 0xc5fa:  // -5.97656f16
+      return 0.0619812f16;
+    case 0xc67b:  // -6.48047f16
+      return -0.00174713f16;
+    case 0xc69d:  // -6.61328f16
+      return -0.00143528f16;
+    case 0xc814:  // -8.15625f16
+      return -0.000118136f16;
   }
 
   const abacus_half xAbs = __abacus_fabs(x);
@@ -258,14 +259,14 @@ abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
     // Special case FTZ fails, which otherwise lose precision in subtle ways
     // like flushing to zero inside `abacus::internal::multiply_exact()` calls.
     switch (x_ushort) {
-    default:
-      break;
-    case 0xB61E: // -0.382324f16
-      return -3.79297f16;
-    case 0xC001: // -2.001953125
-      return -255.5f16;
-    case 0xC1FF: // -2.99805f16
-      return -85.5625f16;
+      default:
+        break;
+      case 0xB61E:  // -0.382324f16
+        return -3.79297f16;
+      case 0xC001:  // -2.001953125
+        return -255.5f16;
+      case 0xC1FF:  // -2.99805f16
+        return -85.5625f16;
     }
   }
 
@@ -312,7 +313,7 @@ abacus_half ABACUS_API __abacus_tgamma(abacus_half x) {
         abacus::internal::multiply_exact(xAbs, sinpi, &mul3_lo);
 
     euler = (euler * mul3_hi) + (euler * mul3_lo);
-  } else if (x_adj > -5.7f16) { // better at -5.7 instead of -6.0.
+  } else if (x_adj > -5.7f16) {  // better at -5.7 instead of -6.0.
     // gamma(x) / (exp(-x) * x^(x - 0.5))
 
     abacus_half mul1_lo;
@@ -421,7 +422,7 @@ abacus_half8 ABACUS_API __abacus_tgamma(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_tgamma(abacus_half16 x) {
   return tgamma_splat(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
   if (x > 36.0f) {
@@ -475,7 +476,7 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
 
   result = result * polynomial_extension;
 
-  result = result * 2.506628274631000502415765f; // sweet sweet magic numbers
+  result = result * 2.506628274631000502415765f;  // sweet sweet magic numbers
 
 // To betterify RTZ answers
 #ifdef __CODEPLAY_RTZ__
@@ -504,9 +505,9 @@ abacus_float ABACUS_API __abacus_tgamma(abacus_float x) {
 
   // otherwise x < 0.0f
   const abacus_float scale_factor = abacus::detail::cast::as<abacus_float>(
-      0x35000000); // 4.76837158203125E-7  (2^-27, to stop overflow)
+      0x35000000);  // 4.76837158203125E-7  (2^-27, to stop overflow)
   const abacus_float scale_factor_over_pi =
-      abacus::detail::cast::as<abacus_float>(0x3422F983); // 2^-27 / pi
+      abacus::detail::cast::as<abacus_float>(0x3422F983);  // 2^-27 / pi
 
   const abacus_float ans_scaled =
       -1.0f /
@@ -756,7 +757,7 @@ abacus_double tgamma_positive_only(abacus_double x) {
 
   return ans;
 }
-} // namespace
+}  // namespace
 
 abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
   if (x != x) {
@@ -808,4 +809,4 @@ abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
 
   return ans;
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

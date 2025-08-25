@@ -34,11 +34,10 @@ Type *getSamplerTy(LLVMContext &Ctx) {
   return TargetExtType::get(Ctx, "spirv.Sampler");
 }
 
-[[maybe_unused]] static Type *
-getImageTyHelper(LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
-                 ImageTyDepthParam Depth, ImageTyArrayedParam Arrayed,
-                 ImageTyMSParam MS, ImageTySampledParam Sampled,
-                 ImageTyAccessQualParam AccessQual) {
+[[maybe_unused]] static Type *getImageTyHelper(
+    LLVMContext &Ctx, ImageTyDimensionalityParam Dim, ImageTyDepthParam Depth,
+    ImageTyArrayedParam Arrayed, ImageTyMSParam MS, ImageTySampledParam Sampled,
+    ImageTyAccessQualParam AccessQual) {
   unsigned IntParams[7];
   IntParams[ImageTyDimensionalityIdx] = Dim;
   IntParams[ImageTyDepthIdx] = Depth;
@@ -51,18 +50,17 @@ getImageTyHelper(LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
                             IntParams);
 }
 
-[[maybe_unused]] static Type *
-getOpenCLImageTyHelper(LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
-                       ImageTyArrayedParam Arrayed, ImageTyDepthParam Depth,
-                       ImageTyMSParam MS, ImageTyAccessQualParam AccessQual) {
+[[maybe_unused]] static Type *getOpenCLImageTyHelper(
+    LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
+    ImageTyArrayedParam Arrayed, ImageTyDepthParam Depth, ImageTyMSParam MS,
+    ImageTyAccessQualParam AccessQual) {
   return getImageTyHelper(Ctx, Dim, Depth, Arrayed, MS, ImageSampledRuntime,
                           AccessQual);
 }
 
-[[maybe_unused]] static Type *
-getOpenCLImageTyHelper(LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
-                       ImageTyArrayedParam Arrayed,
-                       ImageTyAccessQualParam AccessQual) {
+[[maybe_unused]] static Type *getOpenCLImageTyHelper(
+    LLVMContext &Ctx, ImageTyDimensionalityParam Dim,
+    ImageTyArrayedParam Arrayed, ImageTyAccessQualParam AccessQual) {
   return getOpenCLImageTyHelper(Ctx, Dim, Arrayed, ImageDepthNone,
                                 ImageMSSingleSampled, AccessQual);
 }
@@ -98,6 +96,6 @@ Type *getImage3DTy(LLVMContext &Ctx, ImageTyAccessQualParam AccessQual) {
   return getOpenCLImageTyHelper(Ctx, ImageDim3D, ImageNonArrayed, AccessQual);
 }
 
-} // namespace tgtext
-} // namespace utils
-} // namespace compiler
+}  // namespace tgtext
+}  // namespace utils
+}  // namespace compiler

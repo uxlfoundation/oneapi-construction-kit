@@ -344,6 +344,6 @@ CreateImage3D(cl_context context, cl_mem_flags flags,
               size_t image_slice_pitch, void *host_ptr, cl_int *errcode_ret);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_IMAGE_H_INCLUDED
+#endif  // CL_IMAGE_H_INCLUDED

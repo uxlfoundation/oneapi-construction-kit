@@ -32,7 +32,8 @@ namespace {
 /// `std::remquo` is only guaranteed to return the quotient to 3-bits of
 /// precision, but OpenCL 1.2 specifies 7-bits of precision. This reference
 /// implementation is based on the CTS reference function.
-template <typename T> T Remquo7BitRef(T x, T y, cl_int &quo_out) {
+template <typename T>
+T Remquo7BitRef(T x, T y, cl_int &quo_out) {
   if (std::isnan(x) || std::isnan(y) || std::isinf(x) || y == T(0.0)) {
     quo_out = 0;
     return NAN;
@@ -104,7 +105,7 @@ template <typename T> T Remquo7BitRef(T x, T y, cl_int &quo_out) {
 
   return xr;
 }
-} // namespace
+}  // namespace
 
 #if defined(__arm__) || defined(_WIN32) || defined(__APPLE__)
 // TODO This test has double precision reference results and we only pass when
@@ -208,7 +209,7 @@ TEST_P(DenormalsTest, Precision_02_Denorms) {
   fail_if_not_vectorized_ = false;
 
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection causes validation failure.
+    GTEST_SKIP();  // Injection causes validation failure.
   }
   const bool denorms_may_be_zero = getParam();
   if (denorms_may_be_zero) {
@@ -248,7 +249,7 @@ TEST_P(DenormalsTest, Precision_02_Denorms) {
   const bool device_denorm_support = UCL::hasDenormSupport(
       ucl::Environment::instance->GetDevice(), CL_DEVICE_SINGLE_FP_CONFIG);
 
-  const cl_ulong ULP = 1; // For rounding differences
+  const cl_ulong ULP = 1;  // For rounding differences
   if (denorms_may_be_zero || !device_denorm_support) {
     // Flush To Zero results if input value is a denormal, according to spec
     // section 7.5.3 the sign of zero is not defined
@@ -1877,25 +1878,25 @@ TEST_P(HalfMathBuiltins, Precision_83_Half_rootn) {
       // Mask sign and even/odd bits
       const cl_uint masked = y & cl_uint(0x80000001);
       switch (masked) {
-      // x is +/-  zero and y is even > 0
-      case 0:
-        return 0.0f;
+        // x is +/-  zero and y is even > 0
+        case 0:
+          return 0.0f;
 
-      // x is +/- zero and y is odd > 0
-      case 1:
-        return x;
+        // x is +/- zero and y is odd > 0
+        case 1:
+          return x;
 
-      // x is +/- zero and y is even < 0.
-      case 0x80000000:
-        return INFINITY;
+        // x is +/- zero and y is even < 0.
+        case 0x80000000:
+          return INFINITY;
 
-      // x is +/0 zero and y is odd < 0.
-      case 0x80000001:
-        return std::copysign(INFINITY, x);
+        // x is +/0 zero and y is odd < 0.
+        case 0x80000001:
+          return std::copysign(INFINITY, x);
 
-      // not possible
-      default:
-        return NAN;
+        // not possible
+        default:
+          return NAN;
       }
     }
 
@@ -2002,7 +2003,7 @@ TEST_P(Execution, Precision_86_Single_lgamma) {
 }
 
 // Broken on 32-bit Windows [CA-2112] and MinGW [CA-2478]
-#if (defined(_MSC_VER) && defined(_M_IX86)) || defined(__MINGW32__) ||         \
+#if (defined(_MSC_VER) && defined(_M_IX86)) || defined(__MINGW32__) || \
     defined(__MINGW64__)
 TEST_P(Execution, DISABLED_Precision_87_Single_sincos)
 #else
@@ -2040,7 +2041,7 @@ TEST_P(Execution, Precision_87_Single_sincos)
 }
 
 // Broken on 32-bit Windows [CA-2112] and MinGW [CA-2478]
-#if (defined(_MSC_VER) && defined(_M_IX86)) || defined(__MINGW32__) ||         \
+#if (defined(_MSC_VER) && defined(_M_IX86)) || defined(__MINGW32__) || \
     defined(__MINGW64__)
 TEST_P(Execution, DISABLED_Precision_87_Single_sincos_local)
 #else

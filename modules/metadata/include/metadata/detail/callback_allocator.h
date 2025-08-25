@@ -41,7 +41,8 @@ namespace md {
 /// implementation of `allocate()` and `deallocate()` respectively.
 ///
 /// @tparam T
-template <class T> struct callback_allocator {
+template <class T>
+struct callback_allocator {
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
   using pointer = T *;
@@ -50,7 +51,8 @@ template <class T> struct callback_allocator {
   using const_reference = const T &;
   using value_type = T;
 
-  template <class U> struct rebind {
+  template <class U>
+  struct rebind {
     using other = callback_allocator<U>;
     using type = other;
   };
@@ -69,7 +71,8 @@ template <class T> struct callback_allocator {
   ///
   /// @tparam U The allocated type.
   /// @param other The allocator to copy from.
-  template <class U> callback_allocator(const callback_allocator<U> &other) {
+  template <class U>
+  callback_allocator(const callback_allocator<U> &other) {
     this->userdata = other.userdata;
     this->hooks = other.hooks;
   }
@@ -114,5 +117,5 @@ template <class T> struct callback_allocator {
   md_hooks *hooks = nullptr;
 };
 
-} // namespace md
-#endif // MD_DETAIL_CALLBACK_ALLOCATOR_H_INCLUDED
+}  // namespace md
+#endif  // MD_DETAIL_CALLBACK_ALLOCATOR_H_INCLUDED

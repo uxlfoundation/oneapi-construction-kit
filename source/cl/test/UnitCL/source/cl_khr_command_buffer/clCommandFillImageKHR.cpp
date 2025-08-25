@@ -220,25 +220,25 @@ TEST_F(CommandBufferFillImageTest, InvalidCommandBuffer) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
-                    clCommandFillImageKHR(nullptr, nullptr, image, &fill_color,
-                                          origin, region, 0, nullptr, nullptr,
-                                          nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_BUFFER_KHR,
+      clCommandFillImageKHR(nullptr, nullptr, image, &fill_color, origin,
+                            region, 0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferFillImageTest, InvalidMemObject) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
-  ASSERT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
-                    clCommandFillImageKHR(command_buffer, nullptr, nullptr,
-                                          &fill_color, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_MEM_OBJECT,
+      clCommandFillImageKHR(command_buffer, nullptr, nullptr, &fill_color,
+                            origin, region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferFillImageTest, InvalidContext) {
@@ -255,10 +255,10 @@ TEST_F(CommandBufferFillImageTest, InvalidContext) {
 
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clCommandFillImageKHR(command_buffer, nullptr, other_image,
-                                          &fill_color, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clCommandFillImageKHR(command_buffer, nullptr, other_image, &fill_color,
+                            origin, region, 0, nullptr, nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseMemObject(other_image));
   EXPECT_SUCCESS(clReleaseContext(other_context));
@@ -267,51 +267,51 @@ TEST_F(CommandBufferFillImageTest, NullConfig) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          nullptr, origin, region, 0, nullptr,
-                                          nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillImageKHR(command_buffer, nullptr, image, nullptr, origin,
+                            region, 0, nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, nullptr, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color,
+                            nullptr, region, 0, nullptr, nullptr, nullptr));
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, nullptr, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            nullptr, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferFillImageTest, OutOfBounds) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length + 1, 1, 1};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            region, 0, nullptr, nullptr, nullptr));
   region[0]--;
   origin[0] = 2;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, region, 0,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            region, 0, nullptr, nullptr, nullptr));
 }
 
 TEST_F(CommandBufferFillImageTest, InvalidSyncPoints) {
   size_t origin[3] = {0, 0, 0};
   size_t region[3] = {dimension_length, 1, 1};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, region, 1,
-                                          nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            region, 1, nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandFillImageKHR(command_buffer, nullptr, image,
-                                          &fill_color, origin, region, 0,
-                                          &sync_point, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
+                            region, 0, &sync_point, nullptr, nullptr));
 }

@@ -29,8 +29,9 @@ memory::memory(uint64_t size, uint32_t properties, ::hal::hal_addr_t targetPtr,
 }
 
 // muxMapMemory
-cargo::expected<void *, mux_result_t>
-memory::map(::hal::hal_device_t *device, uint64_t offset, uint64_t size) {
+cargo::expected<void *, mux_result_t> memory::map(::hal::hal_device_t *device,
+                                                  uint64_t offset,
+                                                  uint64_t size) {
   (void)device;
   if (hostPtr) {
     return static_cast<unsigned char *>(hostPtr) + offset;
@@ -85,5 +86,5 @@ mux_result_t memory::unmap(::hal::hal_device_t *device) {
   hostPtr = nullptr;
   return mux_success;
 }
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux

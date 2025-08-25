@@ -35,13 +35,13 @@ struct RiscvInfo : compiler::Info {
             const hal_device_info_riscv_t *hal_device_info);
   virtual ~RiscvInfo() = default;
 
-  std::unique_ptr<compiler::Target>
-  createTarget(compiler::Context *context,
-               compiler::NotifyCallbackFn callback) const override;
+  std::unique_ptr<compiler::Target> createTarget(
+      compiler::Context *context,
+      compiler::NotifyCallbackFn callback) const override;
 
-protected:
+ protected:
   const riscv::hal_device_info_riscv_t *riscv_hal_device_info;
 };
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_INFO_H
+#endif  // RISCV_INFO_H

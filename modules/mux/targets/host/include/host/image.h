@@ -44,6 +44,6 @@ struct image_s final : public mux_image_s {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_IMAGE_H_INCLUDED
+#endif  // HOST_IMAGE_H_INCLUDED

@@ -32,8 +32,8 @@ struct buffer : mux_buffer_s {
 
   /// @see muxCreateBuffer
   template <class Buffer>
-  static cargo::expected<Buffer *, mux_result_t>
-  create(mux_device_t device, size_t size, mux::allocator allocator) {
+  static cargo::expected<Buffer *, mux_result_t> create(
+      mux_device_t device, size_t size, mux::allocator allocator) {
     static_assert(std::is_base_of_v<mux::hal::buffer, Buffer>,
                   "template type Buffer must derive from mux::hal::buffer");
     (void)device;
@@ -63,7 +63,7 @@ struct buffer : mux_buffer_s {
   /// @brief Address of buffer on the target.
   ::hal::hal_addr_t targetPtr;
 };
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux
 
-#endif // MUX_HAL_BUFFER_H_INCLUDED
+#endif  // MUX_HAL_BUFFER_H_INCLUDED

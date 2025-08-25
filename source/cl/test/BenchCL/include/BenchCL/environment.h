@@ -34,6 +34,6 @@ struct env {
 
   static env *instance;
 };
-} // namespace benchcl
+}  // namespace benchcl
 
-#endif // BENCHCL_ENVIRONMENT_H_INCLUDED
+#endif  // BENCHCL_ENVIRONMENT_H_INCLUDED

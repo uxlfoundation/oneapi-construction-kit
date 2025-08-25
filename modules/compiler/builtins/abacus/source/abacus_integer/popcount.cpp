@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                                              \
-  TYPE ABACUS_API __abacus_popcount(TYPE x) {                                  \
-    return abacus::detail::integer::popcount(x);                               \
+#define DEF(TYPE)                                \
+  TYPE ABACUS_API __abacus_popcount(TYPE x) {    \
+    return abacus::detail::integer::popcount(x); \
   }
 
 DEF(abacus_char)

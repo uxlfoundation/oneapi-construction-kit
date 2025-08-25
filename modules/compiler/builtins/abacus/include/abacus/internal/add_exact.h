@@ -46,20 +46,22 @@ inline T add_exact(const T x, const T y, T *out_remainder) {
   return s;
 }
 
-template <typename T> inline void add_exact_unsafe(T *x, T *y) {
+template <typename T>
+inline void add_exact_unsafe(T *x, T *y) {
   T r1_lo{};
   const T r1_hi = add_exact_unsafe<T>(*x, *y, &r1_lo);
   *x = r1_hi;
   *y = r1_lo;
 }
 
-template <typename T> inline void add_exact(T *x, T *y) {
+template <typename T>
+inline void add_exact(T *x, T *y) {
   T r1_lo{};
   const T r1_hi = add_exact<T>(*x, *y, &r1_lo);
   *x = r1_hi;
   *y = r1_lo;
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_ADD_EXACT_H__
+#endif  //__ABACUS_INTERNAL_ADD_EXACT_H__

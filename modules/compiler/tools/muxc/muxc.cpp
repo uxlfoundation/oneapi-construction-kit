@@ -38,34 +38,33 @@ static cl::opt<std::string> InputFilename("input", cl::Positional,
                                           cl::desc("<input .bc or .ll file>"),
                                           cl::init("-"));
 
-static cl::opt<std::string>
-    InputLanguage("x", cl::desc("Input language ('cl' or 'ir')"));
+static cl::opt<std::string> InputLanguage(
+    "x", cl::desc("Input language ('cl' or 'ir')"));
 
-static cl::opt<std::string>
-    PipelineText("passes", cl::desc("pipeline to run, passes separated by ','"),
-                 cl::init(""));
+static cl::opt<std::string> PipelineText(
+    "passes", cl::desc("pipeline to run, passes separated by ','"),
+    cl::init(""));
 
-static cl::opt<std::string>
-    OutputFilename("o", cl::desc("Override output filename (default stdout)"),
-                   cl::value_desc("filename"), cl::init("-"));
+static cl::opt<std::string> OutputFilename(
+    "o", cl::desc("Override output filename (default stdout)"),
+    cl::value_desc("filename"), cl::init("-"));
 
 static cl::opt<bool> ListDevices("list-devices", cl::desc("list devices"),
                                  cl::value_desc("list-devices"));
 
-static cl::opt<bool>
-    WriteTextual("S",
-                 cl::desc("Write module as text. Deprecated: does nothing"),
-                 cl::init(true));
+static cl::opt<bool> WriteTextual(
+    "S", cl::desc("Write module as text. Deprecated: does nothing"),
+    cl::init(true));
 
-static cl::opt<CodeGenFileType>
-    FileType("filetype", cl::init(llvm::CodeGenFileType::AssemblyFile),
-             cl::desc("Choose a file type:"),
-             cl::values(clEnumValN(llvm::CodeGenFileType::AssemblyFile, "asm",
-                                   "Emit a textual file"),
-                        clEnumValN(llvm::CodeGenFileType::ObjectFile, "obj",
-                                   "Emit a binary object file"),
-                        clEnumValN(llvm::CodeGenFileType::Null, "null",
-                                   "Emit nothing, for performance testing")));
+static cl::opt<CodeGenFileType> FileType(
+    "filetype", cl::init(llvm::CodeGenFileType::AssemblyFile),
+    cl::desc("Choose a file type:"),
+    cl::values(clEnumValN(llvm::CodeGenFileType::AssemblyFile, "asm",
+                          "Emit a textual file"),
+               clEnumValN(llvm::CodeGenFileType::ObjectFile, "obj",
+                          "Emit a binary object file"),
+               clEnumValN(llvm::CodeGenFileType::Null, "null",
+                          "Emit nothing, for performance testing")));
 
 static cl::opt<int> DeviceIdx(
     "device-idx",
@@ -78,28 +77,25 @@ static cl::opt<std::string> DeviceName("device", cl::desc("select device"),
 
 static cl::opt<std::string> CLOptions("cl-options", cl::desc("options"));
 
-static cl::opt<bool>
-    PrintPasses("print-passes",
-                cl::desc("Print available passes that can be specified in "
-                         "--passes=foo and exit (not including LLVM ones)"));
+static cl::opt<bool> PrintPasses(
+    "print-passes",
+    cl::desc("Print available passes that can be specified in "
+             "--passes=foo and exit (not including LLVM ones)"));
 
-static cl::opt<bool>
-    HalfCap("device-fp16-capabilities",
-            cl::desc("Enable/Disable device fp16 capabilities"),
-            cl::init(true));
-static cl::opt<bool>
-    FloatCap("device-fp32-capabilities",
-             cl::desc("Enable/Disable device fp32 capabilities"),
-             cl::init(true));
-static cl::opt<bool>
-    DoubleCap("device-fp64-capabilities",
-              cl::desc("Enable/Disable device fp64 capabilities"),
-              cl::init(true));
+static cl::opt<bool> HalfCap(
+    "device-fp16-capabilities",
+    cl::desc("Enable/Disable device fp16 capabilities"), cl::init(true));
+static cl::opt<bool> FloatCap(
+    "device-fp32-capabilities",
+    cl::desc("Enable/Disable device fp32 capabilities"), cl::init(true));
+static cl::opt<bool> DoubleCap(
+    "device-fp64-capabilities",
+    cl::desc("Enable/Disable device fp64 capabilities"), cl::init(true));
 
-static cl::list<unsigned>
-    SGSizes("device-sg-sizes",
-            cl::desc("Comma-separated list of supported sub-group sizes"),
-            cl::CommaSeparated);
+static cl::list<unsigned> SGSizes(
+    "device-sg-sizes",
+    cl::desc("Comma-separated list of supported sub-group sizes"),
+    cl::CommaSeparated);
 
 int main(int argc, char **argv) {
   muxc::driver driver;
@@ -298,9 +294,9 @@ Expected<std::unique_ptr<Module>> driver::convertInputToIR() {
     ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
         MemoryBuffer::getFileOrSTDIN(IFN, /*IsText=*/true);
     if (const std::error_code EC = FileOrErr.getError()) {
-      return make_error<StringError>("Could not open input file: " +
-                                         EC.message(),
-                                     inconvertibleErrorCode());
+      return make_error<StringError>(
+          "Could not open input file: " + EC.message(),
+          inconvertibleErrorCode());
     }
     auto SourceAsStr = FileOrErr.get()->getBuffer();
     auto *const BaseModule =
@@ -440,4 +436,4 @@ Expected<const compiler::Info *> driver::findDevice() {
   return info;
 }
 
-} // namespace muxc
+}  // namespace muxc

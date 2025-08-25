@@ -16,7 +16,7 @@
 #include "cl_khr_command_buffer.h"
 
 class clCommandBarrierWithWaitListTest : public cl_khr_command_buffer_Test {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(cl_khr_command_buffer_Test::SetUp());
     cl_int err = !CL_SUCCESS;
@@ -42,10 +42,10 @@ TEST_F(clCommandBarrierWithWaitListTest, InvalidCommandBuffer) {
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, InvalidCommandQueue) {
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                    clCommandBarrierWithWaitListKHR(command_buffer,
-                                                    command_queue, 0, nullptr,
-                                                    nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_QUEUE,
+      clCommandBarrierWithWaitListKHR(command_buffer, command_queue, 0, nullptr,
+                                      nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, FinalizedCommandBuffer) {
@@ -68,10 +68,10 @@ TEST_F(clCommandBarrierWithWaitListTest, InvalidSyncPoints) {
                                                     nullptr, nullptr, nullptr));
 
   cl_sync_point_khr sync_point;
-  ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
-                    clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0,
-                                                    &sync_point, nullptr,
-                                                    nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
+      clCommandBarrierWithWaitListKHR(command_buffer, nullptr, 0, &sync_point,
+                                      nullptr, nullptr));
 }
 
 TEST_F(clCommandBarrierWithWaitListTest, Default) {

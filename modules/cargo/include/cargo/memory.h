@@ -37,6 +37,6 @@ InputIterator uninitialized_move(InputIterator first, InputIterator last,
   return first;
 }
 
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_MEMORY_H_INCLUDED
+#endif  // CARGO_MEMORY_H_INCLUDED

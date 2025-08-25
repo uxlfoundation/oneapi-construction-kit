@@ -26,7 +26,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   static T initial(const T x) {
     // Approximation of log2(x+1)/x over range [-0.5; 0]
     // See rootn.sollya for derivation
@@ -48,9 +49,10 @@ template <typename T> struct helper<T, abacus_half> {
     return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T initial(const T x) {
     const abacus_float polynomial[7] = {4.18622064838195f, -9.50029573356452f,
                                         18.0589370154565f, -22.6661106036793f,
@@ -85,7 +87,8 @@ static ABACUS_CONSTANT abacus_double polynomialD[19] = {
     0.15225060938993225896e3, 0.85990788318382575009e2,
     0.23050555733213757242e2};
 
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T initial(const T x) {
     const T x_minus_one = x - 1.0;
 
@@ -110,7 +113,7 @@ template <typename T> struct helper<T, abacus_double> {
     return abacus::internal::horner_polynomial(x, polynomial);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
 inline T rootn(
@@ -130,8 +133,8 @@ inline T rootn(
 
   const IntVecType nFudged = __abacus_select(n, 1, n == 0);
 
-  const IntVecType initial_guess = xExp / nFudged; // int divide
-  xExp -= (initial_guess * n); // xExp = xExp (mod n) basically
+  const IntVecType initial_guess = xExp / nFudged;  // int divide
+  xExp -= (initial_guess * n);  // xExp = xExp (mod n) basically
 
   T sum = (log2_xMant + abacus::detail::cast::convert<T>(xExp)) /
           abacus::detail::cast::convert<T>(nFudged);
@@ -178,7 +181,7 @@ inline T rootn(
   result = __abacus_select(result, FPShape<T>::NaN(), nan_cond);
   return result;
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_rootn(abacus_half x, abacus_int n) {
@@ -199,7 +202,7 @@ abacus_half8 ABACUS_API __abacus_rootn(abacus_half8 x, abacus_int8 n) {
 abacus_half16 ABACUS_API __abacus_rootn(abacus_half16 x, abacus_int16 n) {
   return rootn<>(x, n);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_rootn(abacus_float x, abacus_int n) {
   return rootn<>(x, n);
@@ -239,4 +242,4 @@ abacus_double8 ABACUS_API __abacus_rootn(abacus_double8 x, abacus_int8 n) {
 abacus_double16 ABACUS_API __abacus_rootn(abacus_double16 x, abacus_int16 n) {
   return rootn<>(x, n);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

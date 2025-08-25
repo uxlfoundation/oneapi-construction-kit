@@ -22,7 +22,7 @@
 namespace spirv_ll {
 
 class OpenCLBuilder : public spirv_ll::ExtInstSetHandler {
-public:
+ public:
   /// @brief Constructor.
   ///
   /// @param builder `Builder` object that will own this object.
@@ -33,7 +33,7 @@ public:
   /// @see ExtInstSetHandler::create
   virtual llvm::Error create(const OpExtInst &opc) override;
 
-private:
+ private:
   /// @brief Create an OpenCL extended instruction transformation to LLVM IR.
   ///
   /// @tparam T The OpenCL extended instruction class template to create.
@@ -41,7 +41,8 @@ private:
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  template <typename T> llvm::Error create(const OpExtInst &opc);
+  template <typename T>
+  llvm::Error create(const OpExtInst &opc);
 
   /// @brief Create a vector OpenCL extended instruction transformation to LLVM
   /// IR.
@@ -55,6 +56,6 @@ private:
   llvm::Error createVec(const OpExtInst &opc);
 };
 
-} // namespace spirv_ll
+}  // namespace spirv_ll
 
-#endif // SPIRV_LL_SPV_BUILDER_OPENCL_H_INCLUDED
+#endif  // SPIRV_LL_SPV_BUILDER_OPENCL_H_INCLUDED

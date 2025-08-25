@@ -25,7 +25,8 @@
 namespace abacus {
 namespace internal {
 
-template <typename T, typename N> inline T frexp_unsafe(const T &x, N *n) {
+template <typename T, typename N>
+inline T frexp_unsafe(const T &x, N *n) {
   using IntVecType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -52,7 +53,7 @@ template <typename T, typename N> inline T frexp_unsafe(const T &x, N *n) {
   return result;
 }
 
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_frexp_UNSAFE_H__
+#endif  //__ABACUS_INTERNAL_frexp_UNSAFE_H__

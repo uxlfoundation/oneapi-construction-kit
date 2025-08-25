@@ -93,24 +93,24 @@ TEST_P(muxCommandCopyBufferTest, BadSrcOffset) {
 }
 
 TEST_P(muxCommandCopyBufferTest, BadSrcOffsetPlusSize) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandCopyBuffer(command_buffer, src_buffer, 1,
-                                       dst_buffer, 0, BUFFER_SIZE, 0, nullptr,
-                                       nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandCopyBuffer(command_buffer, src_buffer, 1, dst_buffer, 0,
+                           BUFFER_SIZE, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandCopyBufferTest, BadDstOffset) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandCopyBuffer(command_buffer, src_buffer, 0,
-                                       dst_buffer, BUFFER_SIZE, 1, 0, nullptr,
-                                       nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandCopyBuffer(command_buffer, src_buffer, 0, dst_buffer,
+                           BUFFER_SIZE, 1, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandCopyBufferTest, BadDstOffsetPlusSize) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandCopyBuffer(command_buffer, src_buffer, 0,
-                                       dst_buffer, 1, BUFFER_SIZE, 0, nullptr,
-                                       nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandCopyBuffer(command_buffer, src_buffer, 0, dst_buffer, 1,
+                           BUFFER_SIZE, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandCopyBufferTest, ZeroSize) {
@@ -120,10 +120,10 @@ TEST_P(muxCommandCopyBufferTest, ZeroSize) {
 }
 
 TEST_P(muxCommandCopyBufferTest, BadSize) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxCommandCopyBuffer(command_buffer, src_buffer, 0,
-                                       dst_buffer, 0, BUFFER_SIZE + 1, 0,
-                                       nullptr, nullptr));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxCommandCopyBuffer(command_buffer, src_buffer, 0, dst_buffer, 0,
+                           BUFFER_SIZE + 1, 0, nullptr, nullptr));
 }
 
 TEST_P(muxCommandCopyBufferTest, Sync) {

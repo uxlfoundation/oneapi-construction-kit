@@ -39,7 +39,7 @@ struct device : mux_device_s {
   /// @brief HAL profiler
   ::hal::util::hal_profiler_t profiler;
 };
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux
 
-#endif // MUX_HAL_DEVICE_H_INCLUDED
+#endif  // MUX_HAL_DEVICE_H_INCLUDED

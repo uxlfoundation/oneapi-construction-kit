@@ -90,7 +90,7 @@ using LocalAlignmentTests = ExecutionWithParam<ArraySizeAndTypeParam>;
 
 TEST_P(LocalAlignmentTests, Regression_30_Local_Alignment) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Test for __local variable alignment
   const auto Param = getParam();
@@ -114,20 +114,20 @@ TEST_P(LocalAlignmentTests, Regression_30_Local_Alignment) {
 
   kts::Reference1D<cl_ulong> refIn = [&typeAlignment](size_t x) {
     switch (x) {
-    default:
-      break;
-    case 0: // __local TYPE
-    case 1: // __local TYPE[]
-      return typeAlignment[0];
-    case 2: // __local TYPE2[]
-      return typeAlignment[1];
-    case 3: // __local TYPE3[]
-    case 4: // __local TYPE4[]
-      return typeAlignment[2];
-    case 5: // __local TYPE8[]
-      return typeAlignment[3];
-    case 6: // __local TYPE16[]
-      return typeAlignment[4];
+      default:
+        break;
+      case 0:  // __local TYPE
+      case 1:  // __local TYPE[]
+        return typeAlignment[0];
+      case 2:  // __local TYPE2[]
+        return typeAlignment[1];
+      case 3:  // __local TYPE3[]
+      case 4:  // __local TYPE4[]
+        return typeAlignment[2];
+      case 5:  // __local TYPE8[]
+        return typeAlignment[3];
+      case 6:  // __local TYPE16[]
+        return typeAlignment[4];
     }
     // shouldn't get here, test will fail
     return std::numeric_limits<cl_ulong>::max();
@@ -173,7 +173,7 @@ using LocalStructAlignmentTests = ExecutionWithParam<AlignmentParam>;
 
 TEST_P(LocalStructAlignmentTests, Regression_31_Local_Struct_Alignment) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Test for __local variable alignment
   const unsigned int alignment = getParam();
@@ -201,7 +201,7 @@ TEST_P(LocalStructAlignmentTests, Regression_31_Local_Struct_Alignment) {
 
 TEST_P(LocalStructAlignmentTests, Regression_31_Local_Struct_Alignment2) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Test for __local variable alignment
   const unsigned int alignment = getParam();
@@ -224,7 +224,7 @@ TEST_P(LocalStructAlignmentTests, Regression_31_Local_Struct_Alignment2) {
 
 TEST_P(LocalStructAlignmentTests, Regression_31_Local_Struct_Alignment3) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Test for __local variable alignment.
   const unsigned int alignment = getParam();
@@ -256,7 +256,7 @@ using StructMemberAlignmentTests = ExecutionWithParam<TypeParam>;
 
 TEST_P(StructMemberAlignmentTests, Regression_32_Struct_Member_Alignment) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   // Test for struct member alignment
   std::string localType = getParam();
@@ -282,14 +282,14 @@ TEST_P(StructMemberAlignmentTests, Regression_32_Struct_Member_Alignment) {
 
   kts::Reference1D<cl_ulong> refIn = [&align, &address_bits](size_t x) {
     switch (x) {
-    default:
-      break;
-    case 0: // alignment of test param
-      return align;
-    case 1: // pointer alignment
-      return (cl_ulong)((address_bits / 8) - 1);
-    case 2: // alignment of cl_int16
-      return (cl_ulong)63u;
+      default:
+        break;
+      case 0:  // alignment of test param
+        return align;
+      case 1:  // pointer alignment
+        return (cl_ulong)((address_bits / 8) - 1);
+      case 2:  // alignment of cl_int16
+        return (cl_ulong)63u;
     }
     // shouldn't get here, test will fail
     return std::numeric_limits<cl_ulong>::max();
@@ -314,7 +314,8 @@ UCL_EXECUTION_TEST_SUITE_P(
 // The following struct template triggers clang-tidy data layout warnings which
 // are being used deliberately to test the interoperation with a kernel so mark
 // it NOLINT to disable the check.
-template <typename DevicePtrT> struct UserStruct { // NOLINT
+template <typename DevicePtrT>
+struct UserStruct {  // NOLINT
   cl_char a;
   cl_short3 b;
   DevicePtrT c;
@@ -324,7 +325,8 @@ template <typename DevicePtrT> struct UserStruct { // NOLINT
 
 namespace kts {
 
-template <typename DevicePtrT> struct Validator<UserStruct<DevicePtrT>> {
+template <typename DevicePtrT>
+struct Validator<UserStruct<DevicePtrT>> {
   bool validate(UserStruct<DevicePtrT> &expected,
                 UserStruct<DevicePtrT> &actual) {
     Validator<cl_char> vChar;
@@ -366,7 +368,7 @@ template <typename DevicePtrT> struct Validator<UserStruct<DevicePtrT>> {
     s << " };";
   }
 };
-} // namespace kts
+}  // namespace kts
 
 TEST_P(Execution, Regression_33_Struct_Param_Alignment) {
   const cl_uint address_bits = UCL::getDeviceAddressBits(this->device);
@@ -398,18 +400,18 @@ TEST_P(Execution, Regression_33_Struct_Param_Alignment) {
 
   kts::Reference1D<cl_ulong> refIn = [address_bits](size_t x) {
     switch (x) {
-    default:
-      break;
-    case 0:
-      return (cl_ulong)7u; // cl_short3
-    case 1:
-      return (cl_ulong)((address_bits / 8) - 1); // pointer
-    case 2:
-    case 3:
-    case 4:
-      return (cl_ulong)3u; // cl_float
-    case 5:
-      return (cl_ulong)31u; // cl_long4
+      default:
+        break;
+      case 0:
+        return (cl_ulong)7u;  // cl_short3
+      case 1:
+        return (cl_ulong)((address_bits / 8) - 1);  // pointer
+      case 2:
+      case 3:
+      case 4:
+        return (cl_ulong)3u;  // cl_float
+      case 5:
+        return (cl_ulong)31u;  // cl_long4
     }
     return std::numeric_limits<cl_ulong>::max();
   };
@@ -433,7 +435,7 @@ TEST_P(Execution, Regression_34_Codegen_1) {
   // This test particularly needs a local workgroup size of 512, so make sure
   // that the global size can accommodate that.
   const int items = std::max<int>(static_cast<int>(kts::N), 1024);
-  const cl_int reps = 4; // How many entries each work item should process.
+  const cl_int reps = 4;  // How many entries each work item should process.
   const int size = items * reps;
 
   kts::Reference1D<cl_int> refSize = [&size](size_t) { return size; };
@@ -444,7 +446,7 @@ TEST_P(Execution, Regression_34_Codegen_1) {
     for (size_t i = x * reps; i < (x + 1) * reps; i++) {
       sum += refIn(i);
     }
-    return sum * 3; // Three for three input arrays.
+    return sum * 3;  // Three for three input arrays.
   };
 
   AddInputBuffer(refSize(0), refIn);
@@ -464,7 +466,7 @@ TEST_P(Execution, Regression_34_Codegen_2) {
   // This test particularly needs a local workgroup size of 256, so make sure
   // that the global size can accommodate that.
   const int items = std::max<int>(static_cast<int>(kts::N), 512);
-  const cl_int reps = 4; // How many entries each work item should process.
+  const cl_int reps = 4;  // How many entries each work item should process.
   const cl_int size = items * reps;
 
   auto refIn = kts::Ref_Identity;
@@ -486,14 +488,14 @@ TEST_P(Execution, Regression_34_Codegen_2) {
 TEST_P(Execution, Regression_35_Constant_Struct_Alignment) {
   kts::Reference1D<cl_ulong> refIn = [](size_t x) {
     switch (x) {
-    default:
-      break;
-    case 0:
-      return (cl_ulong)3u; // cl_short2
-    case 1:
-      return (cl_ulong)7u; // cl_ulong
-    case 2:
-      return (cl_ulong)15u; // cl_float4
+      default:
+        break;
+      case 0:
+        return (cl_ulong)3u;  // cl_short2
+      case 1:
+        return (cl_ulong)7u;  // cl_ulong
+      case 2:
+        return (cl_ulong)15u;  // cl_float4
     }
     return std::numeric_limits<cl_ulong>::max();
   };
@@ -551,24 +553,24 @@ TEST_P(Execution, Regression_37_CFC) {
 using StructAttributeAlignmentTests = ExecutionWithParam<AlignmentParam>;
 TEST_P(StructAttributeAlignmentTests, Regression_38_Attribute_Align) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   const unsigned memberAlign = getParam();
   const unsigned structAlign = memberAlign * 2;
-  const unsigned int outputSize = 6; // check 2 alignments for the 3 structs
+  const unsigned int outputSize = 6;  // check 2 alignments for the 3 structs
 
   kts::Reference1D<cl_ulong> refIn = [&memberAlign, &structAlign](size_t x) {
     switch (x) {
-    default:
-      break;
-    case 0: // __private
-    case 1: // __local
-    case 2: // __constant
-      return (cl_ulong)(memberAlign - 1);
-    case 3: // __private
-    case 4: // __local
-    case 5: // __constant
-      return (cl_ulong)(structAlign - 1);
+      default:
+        break;
+      case 0:  // __private
+      case 1:  // __local
+      case 2:  // __constant
+        return (cl_ulong)(memberAlign - 1);
+      case 3:  // __private
+      case 4:  // __local
+      case 5:  // __constant
+        return (cl_ulong)(structAlign - 1);
     }
     // shouldn't get here, test will fail
     return std::numeric_limits<cl_ulong>::max();
@@ -591,9 +593,9 @@ UCL_EXECUTION_TEST_SUITE_P(
                     AlignmentParam(256)))
 
 TEST_P(Execution, Regression_39_Struct_Helper_Func) {
-  const unsigned int outputSize = 2; // Two helper functions
+  const unsigned int outputSize = 2;  // Two helper functions
   kts::Reference1D<cl_ulong> refIn = [](size_t) {
-    return (cl_ulong)7; // short3
+    return (cl_ulong)7;  // short3
   };
 
   kts::Reference1D<cl_ulong> refOutZero = [](size_t) { return 0; };
@@ -679,7 +681,7 @@ TEST_P(Execution, Regression_41_Shuffle_Copy) {
 
   AddInputBuffer(2, refIn);
   AddOutputBuffer(2, refOut);
-  RunGeneric1D(1); // Run one thread
+  RunGeneric1D(1);  // Run one thread
 }
 
 // Tests ARM backend vector shuffle support
@@ -702,7 +704,7 @@ TEST_P(Execution, Regression_42_Shuffle_Function_Call) {
 
   AddInputBuffer(1, refIn);
   AddOutputBuffer(1, refOut);
-  RunGeneric1D(1); // Run one thread
+  RunGeneric1D(1);  // Run one thread
 }
 
 TEST_P(Execution, Regression_43_Scatter_Gather) {
@@ -726,7 +728,7 @@ using Short3CodegenTests = ExecutionWithParam<const char *>;
 using Ushort3CodegenTests = ExecutionWithParam<const char *>;
 
 TEST_P(Short3CodegenTests, Regression_44_Short3_Char3_Codegen) {
-  if (!isSourceTypeIn({OPENCL_C})) { // REQUIRES: parameters
+  if (!isSourceTypeIn({OPENCL_C})) {  // REQUIRES: parameters
     GTEST_SKIP();
   }
   kts::Reference1D<cl_char> refIn = [](size_t x) {
@@ -742,7 +744,7 @@ TEST_P(Short3CodegenTests, Regression_44_Short3_Char3_Codegen) {
 }
 
 TEST_P(Short3CodegenTests, Regression_44_Short3_Uchar3_Codegen) {
-  if (!isSourceTypeIn({OPENCL_C})) { // REQUIRES: parameters
+  if (!isSourceTypeIn({OPENCL_C})) {  // REQUIRES: parameters
     GTEST_SKIP();
   }
   kts::Reference1D<cl_uchar> refIn = [](size_t x) {
@@ -758,7 +760,7 @@ TEST_P(Short3CodegenTests, Regression_44_Short3_Uchar3_Codegen) {
 }
 
 TEST_P(Ushort3CodegenTests, Regression_44_Ushort3_Char3_Codegen) {
-  if (!isSourceTypeIn({OPENCL_C})) { // REQUIRES: parameters
+  if (!isSourceTypeIn({OPENCL_C})) {  // REQUIRES: parameters
     GTEST_SKIP();
   }
   kts::Reference1D<cl_char> refIn = [](size_t x) {
@@ -774,7 +776,7 @@ TEST_P(Ushort3CodegenTests, Regression_44_Ushort3_Char3_Codegen) {
 }
 
 TEST_P(Ushort3CodegenTests, Regression_44_Ushort3_Uchar3_Codegen) {
-  if (!isSourceTypeIn({OPENCL_C})) { // REQUIRES: parameters
+  if (!isSourceTypeIn({OPENCL_C})) {  // REQUIRES: parameters
     GTEST_SKIP();
   }
   kts::Reference1D<cl_uchar> refIn = [](size_t x) {
@@ -813,7 +815,7 @@ TEST_P(Execution, Regression_45_Mad_Sat_Short3_Codegen) {
   };
   kts::Reference1D<cl_short> refOut = [&refIn](size_t x) {
     const cl_long y = static_cast<cl_long>(refIn(x));
-    const cl_long mad = (y * y) + y; // mad_sat == a*b+c
+    const cl_long mad = (y * y) + y;  // mad_sat == a*b+c
     const cl_long mad_sat =
         std::min<cl_long>(32767, std::max<cl_long>(-32768, mad));
     return static_cast<cl_short>(mad_sat);
@@ -831,7 +833,7 @@ TEST_P(Execution, Regression_45_Mad_Sat_Ushort3_Codegen) {
   };
   kts::Reference1D<cl_ushort> refOut = [&refIn](size_t x) {
     const cl_ulong y = static_cast<cl_ulong>(refIn(x));
-    const cl_ulong mad = (y * y) + y; // mad_sat == a*b+c
+    const cl_ulong mad = (y * y) + y;  // mad_sat == a*b+c
     const cl_ulong mad_sat = std::min<cl_ulong>(65535, mad);
     return static_cast<cl_ushort>(mad_sat);
   };
@@ -921,7 +923,7 @@ static kts::Reference1D<cl_uint> refOut = [](size_t x) {
   const cl_uint result = static_cast<cl_uint>(std::round(coordf) - 1);
   return result;
 };
-} // namespace Regression_48
+}  // namespace Regression_48
 
 // TODO CA-1929: Fix OfflineExecution
 TEST_P(ExecutionOnline, Regression_48_Image_Sampler) {

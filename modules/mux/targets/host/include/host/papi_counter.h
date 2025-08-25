@@ -110,13 +110,13 @@ struct host_papi_counter final {
 /// type.
 ///
 /// @param papi_data_type Data type retrieved from a `PAPI_event_info_t`.
-cargo::expected<mux_query_counter_storage_e, mux_result_t>
-getMuxStorageType(int papi_data_type);
+cargo::expected<mux_query_counter_storage_e, mux_result_t> getMuxStorageType(
+    int papi_data_type);
 
 /// @brief Helper function that queries PAPI for all available counters and
 /// returns a dynamic array of `host_papi_counter` structs.
 cargo::expected<cargo::dynamic_array<host_papi_counter>, mux_result_t>
 initPapiCounters();
-} // namespace host
+}  // namespace host
 
 #endif

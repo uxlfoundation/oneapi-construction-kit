@@ -22,7 +22,7 @@
 #include "EventWaitList.h"
 
 class cl3DImageWriteExtensionTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!(getDeviceImageSupport() && getDeviceCompilerAvailable() &&
@@ -117,7 +117,8 @@ protected:
   const int IMAGE_ELEMENT_SIZE = IMAGE_CHANNEL_SIZE * IMAGE_NUM_CHANNELS;
   const int IMAGE_DATA_SIZE = IMAGE_NUM_CHANNELS * IMAGE_NUM_ELEMENTS;
 
-  template <typename T> void test_body(const char *kernel_name) {
+  template <typename T>
+  void test_body(const char *kernel_name) {
     using data_t = T;
     auto prepare = [](int N, std::vector<data_t> &A, std::vector<data_t> &B) {
       auto C = std::vector<data_t>(N);

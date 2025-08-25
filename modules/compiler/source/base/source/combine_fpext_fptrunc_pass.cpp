@@ -20,9 +20,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::CombineFPExtFPTruncPass::run(Function &F,
-                                       FunctionAnalysisManager &AM) {
+PreservedAnalyses compiler::CombineFPExtFPTruncPass::run(
+    Function &F, FunctionAnalysisManager &AM) {
   const auto &MAMProxy = AM.getResult<ModuleAnalysisManagerFunctionProxy>(F);
   const auto *DI =
       MAMProxy.getCachedResult<compiler::utils::DeviceInfoAnalysis>(

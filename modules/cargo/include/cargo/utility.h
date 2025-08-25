@@ -52,7 +52,8 @@ namespace cargo {
 /// @see http://en.cppreference.com/w/cpp/utility/exchange
 ///
 /// @return Returns the object value of `object`.
-template <class T, class U = T> T exchange(T &object, U &&new_value) {
+template <class T, class U = T>
+T exchange(T &object, U &&new_value) {
   T old_value = std::move(object);
   object = std::forward<U>(new_value);
   return old_value;
@@ -86,7 +87,7 @@ inline Dest bit_cast(const Source &source) {
   // Initialization of dest looks like an uninitialized access to Klocwork
   Dest dest;
   std::memcpy(std::addressof(dest), std::addressof(source), sizeof(Source));
-  return dest; // NOLINT(clang-analyzer-core.uninitialized.UndefReturn)
+  return dest;  // NOLINT(clang-analyzer-core.uninitialized.UndefReturn)
 }
 
 /// @brief Construct a `std::string`-like object from a cargo container.
@@ -196,6 +197,6 @@ struct in_place_t {
 static constexpr in_place_t in_place{};
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_UTILITY_H_INCLUDED
+#endif  // CARGO_UTILITY_H_INCLUDED

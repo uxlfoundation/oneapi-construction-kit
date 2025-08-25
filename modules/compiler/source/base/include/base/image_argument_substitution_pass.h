@@ -43,6 +43,6 @@ struct ImageArgumentSubstitutionPass final
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_IMAGE_ARGUMENT_SUBSTITUTION_PASS_H_INCLUDED
+#endif  // BASE_IMAGE_ARGUMENT_SUBSTITUTION_PASS_H_INCLUDED

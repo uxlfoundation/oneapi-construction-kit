@@ -22,7 +22,8 @@
 
 #include "Common.h"
 
-template <typename T> struct ReleaseHelper {
+template <typename T>
+struct ReleaseHelper {
   ReleaseHelper(T t) : t(t) {}
 
   ~ReleaseHelper();
@@ -31,15 +32,22 @@ template <typename T> struct ReleaseHelper {
 
   T *data() { return std::addressof(t); }
 
-private:
+ private:
   T t;
 };
 
-template <> ReleaseHelper<cl_kernel>::~ReleaseHelper() { clReleaseKernel(t); }
+template <>
+ReleaseHelper<cl_kernel>::~ReleaseHelper() {
+  clReleaseKernel(t);
+}
 
-template <> ReleaseHelper<cl_mem>::~ReleaseHelper() { clReleaseMemObject(t); }
+template <>
+ReleaseHelper<cl_mem>::~ReleaseHelper() {
+  clReleaseMemObject(t);
+}
 
-template <> ReleaseHelper<cl_event>::~ReleaseHelper() {
+template <>
+ReleaseHelper<cl_event>::~ReleaseHelper() {
   if (t) {
     clReleaseEvent(t);
   }
@@ -96,7 +104,7 @@ __kernel void stack(const global char* input, global char* output) {
 
 TEST_P(StackSizeTest, LargeStack) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   const unsigned stack_size = GetParam();
   const std::string stack_arg =
@@ -106,18 +114,20 @@ TEST_P(StackSizeTest, LargeStack) {
       clBuildProgram(program, 0, nullptr, stack_arg.c_str(), nullptr, nullptr);
 
   if (CL_SUCCESS != err) {
-    printf("  LIMIT WARNING: clBuildProgram error code (%d) for kernel with a\n"
-           "  %u byte stack array.  This may be a hardware limitation.\n",
-           err, stack_size);
+    printf(
+        "  LIMIT WARNING: clBuildProgram error code (%d) for kernel with a\n"
+        "  %u byte stack array.  This may be a hardware limitation.\n",
+        err, stack_size);
     return;
   }
 
   const ReleaseHelper<cl_kernel> kernel(clCreateKernel(program, "stack", &err));
 
   if (CL_SUCCESS != err) {
-    printf("  LIMIT WARNING: clCreateKernel error code (%d) for kernel with a\n"
-           "  %u byte stack array.  This may be a hardware limitation.\n",
-           err, stack_size);
+    printf(
+        "  LIMIT WARNING: clCreateKernel error code (%d) for kernel with a\n"
+        "  %u byte stack array.  This may be a hardware limitation.\n",
+        err, stack_size);
     return;
   }
 

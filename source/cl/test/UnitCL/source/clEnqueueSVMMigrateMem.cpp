@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueSVMMigrateMemTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -43,9 +43,9 @@ TEST_F(clEnqueueSVMMigrateMemTest, NotImplemented) {
   const cl_uint num_events_in_wait_list{};
   const cl_event *event_wait_list{};
   cl_event *event{};
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clEnqueueSVMMigrateMem(command_queue, num_svm_pointers,
-                                           svm_pointers, sizes, flags,
-                                           num_events_in_wait_list,
-                                           event_wait_list, event));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clEnqueueSVMMigrateMem(command_queue, num_svm_pointers, svm_pointers,
+                             sizes, flags, num_events_in_wait_list,
+                             event_wait_list, event));
 }

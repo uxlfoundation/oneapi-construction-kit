@@ -23,7 +23,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fabs_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct fabs_helper<T, abacus_half> {
+template <typename T>
+struct fabs_helper<T, abacus_half> {
   typedef typename TypeTraits<T>::UnsignedType UIntTy;
   static T _(const T x) {
     const UIntTy xAsUInt = abacus::detail::cast::as<UIntTy>(x);
@@ -33,7 +34,8 @@ template <typename T> struct fabs_helper<T, abacus_half> {
 };
 #endif
 
-template <typename T> struct fabs_helper<T, abacus_float> {
+template <typename T>
+struct fabs_helper<T, abacus_float> {
   typedef typename TypeTraits<T>::UnsignedType UIntTy;
   static T _(const T x) {
     const UIntTy xAsUInt = abacus::detail::cast::as<UIntTy>(x);
@@ -43,7 +45,8 @@ template <typename T> struct fabs_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct fabs_helper<T, abacus_double> {
+template <typename T>
+struct fabs_helper<T, abacus_double> {
   typedef typename TypeTraits<T>::UnsignedType UIntTy;
   static T _(const T x) {
     const UIntTy xAsUInt = abacus::detail::cast::as<UIntTy>(x);
@@ -51,10 +54,13 @@ template <typename T> struct fabs_helper<T, abacus_double> {
     return abacus::detail::cast::as<T>(abs);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> inline T fabs_(const T x) { return fabs_helper<T>::_(x); }
-} // namespace
+template <typename T>
+inline T fabs_(const T x) {
+  return fabs_helper<T>::_(x);
+}
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fabs(abacus_half x) { return fabs_(x); }
@@ -94,4 +100,4 @@ abacus_double4 ABACUS_API __abacus_fabs(abacus_double4 x) { return fabs_(x); }
 abacus_double8 ABACUS_API __abacus_fabs(abacus_double8 x) { return fabs_(x); }
 
 abacus_double16 ABACUS_API __abacus_fabs(abacus_double16 x) { return fabs_(x); }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -24,7 +24,7 @@ static void CL_CALLBACK user_func(void *args) {
 
 class clEnqueueNativeKernelTest : public ucl::CommandQueueTest,
                                   TestWithEventWaitList {
-protected:
+ protected:
   struct Args {
     int a;
     int b;
@@ -51,33 +51,33 @@ protected:
 
 TEST_F(clEnqueueNativeKernelTest, InvalidCommandQueue) {
   if (hasNativeKernelSupport) {
-    ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                      clEnqueueNativeKernel(nullptr, &user_func, &args,
-                                            sizeof(Args), 0, nullptr, nullptr,
-                                            0, nullptr, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_COMMAND_QUEUE,
+        clEnqueueNativeKernel(nullptr, &user_func, &args, sizeof(Args), 0,
+                              nullptr, nullptr, 0, nullptr, nullptr));
   }
 }
 
 TEST_F(clEnqueueNativeKernelTest, InvalidValueUserFunc) {
   if (hasNativeKernelSupport) {
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, nullptr, &args,
-                                            sizeof(Args), 0, nullptr, nullptr,
-                                            0, nullptr, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, nullptr, &args, sizeof(Args), 0,
+                              nullptr, nullptr, 0, nullptr, nullptr));
   }
 }
 
 TEST_F(clEnqueueNativeKernelTest, InvalidValueArgs) {
   if (hasNativeKernelSupport) {
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, &user_func, nullptr,
-                                            sizeof(Args), 0, nullptr, nullptr,
-                                            0, nullptr, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, &user_func, nullptr, sizeof(Args),
+                              0, nullptr, nullptr, 0, nullptr, nullptr));
 
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, &user_func, &args, 0,
-                                            0, nullptr, nullptr, 0, nullptr,
-                                            nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, &user_func, &args, 0, 0, nullptr,
+                              nullptr, 0, nullptr, nullptr));
   }
 }
 
@@ -88,20 +88,20 @@ TEST_F(clEnqueueNativeKernelTest, InvalidValueMemObjects) {
                                    nullptr, &status);
     EXPECT_SUCCESS(status);
 
-    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, &user_func, nullptr,
-                                            0, 1, &buffer, nullptr, 0, nullptr,
-                                            nullptr));
+    EXPECT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, &user_func, nullptr, 0, 1, &buffer,
+                              nullptr, 0, nullptr, nullptr));
 
-    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, &user_func, nullptr,
-                                            0, 1, nullptr, nullptr, 0, nullptr,
-                                            nullptr));
+    EXPECT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, &user_func, nullptr, 0, 1, nullptr,
+                              nullptr, 0, nullptr, nullptr));
 
-    EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clEnqueueNativeKernel(command_queue, &user_func, nullptr,
-                                            0, 0, &buffer, nullptr, 0, nullptr,
-                                            nullptr));
+    EXPECT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clEnqueueNativeKernel(command_queue, &user_func, nullptr, 0, 0, &buffer,
+                              nullptr, 0, nullptr, nullptr));
 
     EXPECT_SUCCESS(clReleaseMemObject(buffer));
   }
@@ -116,10 +116,10 @@ TEST_F(clEnqueueNativeKernelTest, InvalidMemObject) {
     const cl_mem mems[] = {buffer, nullptr};
     const void *args_mem_loc[2] = {nullptr, nullptr};
 
-    EXPECT_EQ_ERRCODE(CL_INVALID_MEM_OBJECT,
-                      clEnqueueNativeKernel(command_queue, &user_func, &args,
-                                            sizeof(Args), 2, mems, args_mem_loc,
-                                            0, nullptr, nullptr));
+    EXPECT_EQ_ERRCODE(
+        CL_INVALID_MEM_OBJECT,
+        clEnqueueNativeKernel(command_queue, &user_func, &args, sizeof(Args), 2,
+                              mems, args_mem_loc, 0, nullptr, nullptr));
 
     ASSERT_SUCCESS(clReleaseMemObject(buffer));
   }
@@ -139,10 +139,10 @@ TEST_F(clEnqueueNativeKernelTest, Default) {
     ASSERT_EQ_ERRCODE(CL_COMPLETE, status);
   } else {
     cl_event event = nullptr;
-    ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                      clEnqueueNativeKernel(command_queue, &user_func, &args,
-                                            sizeof(Args), 0, nullptr, nullptr,
-                                            0, nullptr, &event));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_OPERATION,
+        clEnqueueNativeKernel(command_queue, &user_func, &args, sizeof(Args), 0,
+                              nullptr, nullptr, 0, nullptr, &event));
     ASSERT_FALSE(event);
   }
 }

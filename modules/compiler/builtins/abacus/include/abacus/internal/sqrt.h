@@ -21,10 +21,12 @@
 
 namespace abacus {
 namespace internal {
-template <typename T> void inplace_sqrt(T &);
+template <typename T>
+void inplace_sqrt(T &);
 
-template <typename T> T sqrt(T);
-} // namespace internal
-} // namespace abacus
+template <typename T>
+T sqrt(T);
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_SQRT_H__
+#endif  //__ABACUS_INTERNAL_SQRT_H__

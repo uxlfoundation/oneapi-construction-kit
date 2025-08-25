@@ -94,14 +94,17 @@ struct UserDataWrapper final {
     }
   }
 
-private:
+ private:
   // Constructor setting members for allocating `size` bytes on device `device`,
   // setting an optional host side pointer to copy data into when reading the
   // buffer back from device
   UserDataWrapper(cl_device_id device, const size_t size,
                   void *host_ptr = nullptr)
-      : mux_device(device->mux_device), mux_allocator(device->mux_allocator),
-        mux_memory(nullptr), mux_buffer(nullptr), size(size),
+      : mux_device(device->mux_device),
+        mux_allocator(device->mux_allocator),
+        mux_memory(nullptr),
+        mux_buffer(nullptr),
+        size(size),
         host_read_ptr(host_ptr) {}
 
   // Disable copy constructor & operator, otherwise destructor could free
@@ -114,7 +117,7 @@ private:
     const uint32_t memoryProperties =
         mux_memory_property_host_cached | mux_memory_property_host_visible;
     const mux_allocation_type_e allocationType = mux_allocation_type_alloc_host;
-    const uint32_t alignment = 0; // No alignment preference
+    const uint32_t alignment = 0;  // No alignment preference
     mux_result_t mux_error =
         muxAllocateMemory(mux_device, size, 1, memoryProperties, allocationType,
                           alignment, mux_allocator, &mux_memory);
@@ -128,7 +131,7 @@ private:
     return mux_error ? mux_error : mux_success;
   }
 
-public:
+ public:
   mux_device_t mux_device;
   mux_allocator_info_t mux_allocator;
   mux_memory_t mux_memory;
@@ -167,7 +170,7 @@ inline uint64_t getUSMOffset(const void *ptr,
                 reinterpret_cast<uintptr_t>(usm_alloc->base_ptr);
   return static_cast<uint64_t>(offset);
 }
-} // namespace
+}  // namespace
 
 CL_API_ENTRY
 void *clHostMemAllocINTEL(cl_context context,
@@ -397,58 +400,60 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
       extension::usm::findAllocation(context, ptr);
 
   switch (param_name) {
-  case CL_MEM_ALLOC_TYPE_INTEL: {
-    cl_unified_shared_memory_type_intel result = CL_MEM_TYPE_UNKNOWN_INTEL;
-    if (usm_alloc) {
-      result = usm_alloc->getMemoryType();
-    }
+    case CL_MEM_ALLOC_TYPE_INTEL: {
+      cl_unified_shared_memory_type_intel result = CL_MEM_TYPE_UNKNOWN_INTEL;
+      if (usm_alloc) {
+        result = usm_alloc->getMemoryType();
+      }
 
-    if (nullptr != param_value) {
-      OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-      *static_cast<decltype(result) *>(param_value) = result;
+      if (nullptr != param_value) {
+        OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
+        *static_cast<decltype(result) *>(param_value) = result;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
+      break;
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
-    break;
-  }
-  case CL_MEM_ALLOC_BASE_PTR_INTEL: {
-    void *result = usm_alloc ? usm_alloc->base_ptr : nullptr;
-    if (nullptr != param_value) {
-      OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-      *static_cast<decltype(result) *>(param_value) = result;
+    case CL_MEM_ALLOC_BASE_PTR_INTEL: {
+      void *result = usm_alloc ? usm_alloc->base_ptr : nullptr;
+      if (nullptr != param_value) {
+        OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
+        *static_cast<decltype(result) *>(param_value) = result;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
+      break;
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
-    break;
-  }
-  case CL_MEM_ALLOC_SIZE_INTEL: {
-    const size_t result = usm_alloc ? usm_alloc->size : 0;
-    if (nullptr != param_value) {
-      OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-      *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) = result;
+    case CL_MEM_ALLOC_SIZE_INTEL: {
+      const size_t result = usm_alloc ? usm_alloc->size : 0;
+      if (nullptr != param_value) {
+        OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
+        *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) =
+            result;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
+      break;
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
-    break;
-  }
-  case CL_MEM_ALLOC_DEVICE_INTEL: {
-    cl_device_id result = usm_alloc ? usm_alloc->getDevice() : nullptr;
-    if (nullptr != param_value) {
-      OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-      *static_cast<decltype(result) *>(param_value) = result;
+    case CL_MEM_ALLOC_DEVICE_INTEL: {
+      cl_device_id result = usm_alloc ? usm_alloc->getDevice() : nullptr;
+      if (nullptr != param_value) {
+        OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
+        *static_cast<decltype(result) *>(param_value) = result;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
+      break;
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
-    break;
-  }
-  case CL_MEM_ALLOC_FLAGS_INTEL: {
-    const cl_mem_alloc_flags_intel result =
-        usm_alloc ? usm_alloc->alloc_flags : 0;
-    if (nullptr != param_value) {
-      OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
-      *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) = result;
+    case CL_MEM_ALLOC_FLAGS_INTEL: {
+      const cl_mem_alloc_flags_intel result =
+          usm_alloc ? usm_alloc->alloc_flags : 0;
+      if (nullptr != param_value) {
+        OCL_CHECK(param_value_size < sizeof(result), return CL_INVALID_VALUE);
+        *static_cast<std::remove_cv_t<decltype(result)> *>(param_value) =
+            result;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
+      break;
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(result));
-    break;
-  }
-  default:
-    return CL_INVALID_VALUE;
+    default:
+      return CL_INVALID_VALUE;
   }
 
   return CL_SUCCESS;
@@ -609,7 +614,7 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
 
   return CL_SUCCESS;
 }
-} // namespace
+}  // namespace
 
 CL_API_ENTRY
 cl_int clEnqueueMemFillINTEL(cl_command_queue command_queue, void *dst_ptr,
@@ -706,8 +711,8 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     cl_device_id queue_device = command_queue->device;
 
     // Set details relating to source operand of copy
-    mux_buffer_t mux_src_buffer = nullptr; // Mux buffer to copy from
-    uint64_t src_offset = 0;               // Offset into mux_src_buffer
+    mux_buffer_t mux_src_buffer = nullptr;  // Mux buffer to copy from
+    uint64_t src_offset = 0;                // Offset into mux_src_buffer
     // Holds details of user data, initialized to heap memory if source operand
     // is not a USM allocation
     std::unique_ptr<UserDataWrapper> src_user_data;
@@ -733,8 +738,8 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     }
 
     // Set details relating to destination operand of copy
-    mux_buffer_t mux_dst_buffer = nullptr; // Mux buffer to copy into
-    uint64_t dst_offset = 0;               // Offset into mux_dst_buffer
+    mux_buffer_t mux_dst_buffer = nullptr;  // Mux buffer to copy into
+    uint64_t dst_offset = 0;                // Offset into mux_dst_buffer
     // Holds details of user data, initialized to heap memory if destination
     // operand is not a USM allocation
     std::unique_ptr<UserDataWrapper> dst_user_data;
@@ -828,10 +833,10 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
-  OCL_CHECK((flags == 0) ||
-                (flags & ~(CL_MIGRATE_MEM_OBJECT_HOST |
-                           CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)),
-            return CL_INVALID_VALUE);
+  OCL_CHECK(
+      (flags == 0) || (flags & ~(CL_MIGRATE_MEM_OBJECT_HOST |
+                                 CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED)),
+      return CL_INVALID_VALUE);
 
   const cl_int error = cl::validate::EventWaitList(
       num_events_in_wait_list, event_wait_list, command_queue->context, event);
@@ -888,8 +893,8 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
 
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
   OCL_CHECK(!ptr, return CL_INVALID_VALUE);
-  OCL_CHECK(advice != 0, return CL_INVALID_VALUE); // None defined yet
-  OCL_CHECK(size == 0, return CL_INVALID_VALUE);   // None defined yet
+  OCL_CHECK(advice != 0, return CL_INVALID_VALUE);  // None defined yet
+  OCL_CHECK(size == 0, return CL_INVALID_VALUE);    // None defined yet
 
   const cl_int error = cl::validate::EventWaitList(
       num_events_in_wait_list, event_wait_list, command_queue->context, event);
@@ -928,7 +933,7 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
 
   return CL_SUCCESS;
 }
-#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
+#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
 
 void *
 extension::intel_unified_shared_memory::GetExtensionFunctionAddressForPlatform(
@@ -964,5 +969,5 @@ extension::intel_unified_shared_memory::GetExtensionFunctionAddressForPlatform(
     return reinterpret_cast<void *>(&clEnqueueMemsetINTEL);
   }
   return nullptr;
-#endif // OCL_EXTENSION_cl_intel_unified_shared_memory
+#endif  // OCL_EXTENSION_cl_intel_unified_shared_memory
 }

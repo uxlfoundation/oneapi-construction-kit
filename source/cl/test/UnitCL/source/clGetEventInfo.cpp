@@ -19,7 +19,7 @@
 #include "Common.h"
 
 class clGetEventInfoTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   enum { WIDTH = 4, HEIGHT = 4, SIZE = WIDTH * HEIGHT };
 
   clGetEventInfoTest() : image_data(SIZE) {}
@@ -576,10 +576,10 @@ TEST_F(clGetEventInfoTest, NativeKernel) {
     ASSERT_EQ_EXECSTATUS(CL_COMPLETE, status);
     ASSERT_SUCCESS(clReleaseEvent(event));
   } else {
-    ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                      clEnqueueNativeKernel(command_queue, &user_fun, &args,
-                                            sizeof(Args), 0, nullptr, nullptr,
-                                            0, nullptr, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_OPERATION,
+        clEnqueueNativeKernel(command_queue, &user_fun, &args, sizeof(Args), 0,
+                              nullptr, nullptr, 0, nullptr, nullptr));
   }
 }
 

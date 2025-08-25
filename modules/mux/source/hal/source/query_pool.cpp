@@ -76,14 +76,14 @@ mux_result_t query_pool::getQueryPoolResults(mux_queue_t queue,
     for (auto index = query_index; index < query_index + query_count; index++) {
       auto result = getDurationQueryAt(index);
       if (!result) {
-        return mux_error_invalid_value; // Out-of-range index.
+        return mux_error_invalid_value;  // Out-of-range index.
       }
       std::memcpy(results, result, sizeof(mux_query_duration_result_s));
       results += stride;
     }
   } else if (type == mux_query_type_counter) {
     if (query_index + query_count > max_num_counters) {
-      return mux_error_invalid_value; // Out-of-range index.
+      return mux_error_invalid_value;  // Out-of-range index.
     }
     for (auto index = query_index; index < query_index + query_count; index++) {
       // We don't use the query pool for storage; we can just read the values
@@ -97,5 +97,5 @@ mux_result_t query_pool::getQueryPoolResults(mux_queue_t queue,
   }
   return mux_success;
 }
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux

@@ -24,7 +24,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T x) {
     // See expm1.sollya for derivation of polynomial coefficients
@@ -52,9 +53,10 @@ template <typename T> struct helper<T, abacus_half> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T _(const T x) {
     const abacus_float polynomial[10] = {0.0f,
                                          0.9999999977f,
@@ -75,7 +77,8 @@ template <typename T> struct helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T _(const T x) {
     typedef typename TypeTraits<T>::SignedType SignedType;
 
@@ -128,10 +131,13 @@ template <typename T> struct helper<T, abacus_double> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> T expm1(const T x) { return helper<T>::_(x); }
-} // namespace
+template <typename T>
+T expm1(const T x) {
+  return helper<T>::_(x);
+}
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_expm1(abacus_half x) { return expm1<>(x); }
@@ -140,7 +146,7 @@ abacus_half3 ABACUS_API __abacus_expm1(abacus_half3 x) { return expm1<>(x); }
 abacus_half4 ABACUS_API __abacus_expm1(abacus_half4 x) { return expm1<>(x); }
 abacus_half8 ABACUS_API __abacus_expm1(abacus_half8 x) { return expm1<>(x); }
 abacus_half16 ABACUS_API __abacus_expm1(abacus_half16 x) { return expm1<>(x); }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_expm1(abacus_float x) { return expm1<>(x); }
 abacus_float2 ABACUS_API __abacus_expm1(abacus_float2 x) { return expm1<>(x); }
@@ -168,4 +174,4 @@ abacus_double8 ABACUS_API __abacus_expm1(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_expm1(abacus_double16 x) {
   return expm1<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -236,7 +236,7 @@ INSTANTIATE_TEST_CASE_P(clCreateBuffer, clCreateBufferBadTest,
                         ::testing::ValuesIn(BadValues));
 
 class clCreateBufferHostPtr : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
 #ifndef CA_CL_ENABLE_OFFLINE_KERNEL_TESTS

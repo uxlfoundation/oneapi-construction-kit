@@ -56,7 +56,7 @@ struct has_iterator_category_convertible_to
 template <class Tag, class Iterator>
 struct has_iterator_category_convertible_to<Tag, Iterator, false>
     : public std::false_type {};
-} // namespace detail
+}  // namespace detail
 
 /// @addtogroup cargo
 /// @{
@@ -79,8 +79,10 @@ struct is_input_iterator : public detail::has_iterator_category_convertible_to<
 /// @brief Calculates the conjunction of a pack of type traits
 ///
 /// @tparam Traits The traits to calculate the conjunction of.
-template <class... Traits> struct conjunction : std::true_type {};
-template <class B> struct conjunction<B> : B {};
+template <class... Traits>
+struct conjunction : std::true_type {};
+template <class B>
+struct conjunction<B> : B {};
 template <class B, class... Bs>
 struct conjunction<B, Bs...>
     : std::conditional_t<bool(B::value), conjunction<Bs...>, B> {};
@@ -101,7 +103,7 @@ struct detector : std::false_type {};
 /// @tparam Args Type parameter pack describing arguments to the expression.
 template <template <class...> class Op, class... Args>
 struct detector<std::void_t<Op<Args...>>, Op, Args...> : std::true_type {};
-} // namespace detail
+}  // namespace detail
 
 /// @addtogroup cargo
 /// @{
@@ -149,14 +151,15 @@ struct has_value_type<T, std::void_t<typename T::value_type>> : std::true_type {
 };
 
 /// @brief Failure case, member type `iterator` not found.
-template <class, class = void> struct has_iterator : public std::false_type {};
+template <class, class = void>
+struct has_iterator : public std::false_type {};
 
 /// @brief Success case, member type `iterator` found.
 ///
 /// @tparam T Type to detect `iterator` member type on.
 template <class T>
 struct has_iterator<T, std::void_t<typename T::iterator>> : std::true_type {};
-} // namespace detail
+}  // namespace detail
 
 /// @addtogroup cargo
 /// @{
@@ -196,12 +199,14 @@ namespace detail {
 /// @brief Check if `U` has a member function `data`.
 ///
 /// @tparam U Type to detect `data` member function on.
-template <class U> using data_member_fn = decltype(std::declval<U>().data());
+template <class U>
+using data_member_fn = decltype(std::declval<U>().data());
 
 /// @brief Check if `U` has a member function `size`.
 ///
 /// @tparam U Type to detect `size` member function on.
-template <class U> using size_member_fn = decltype(std::declval<U>().size());
+template <class U>
+using size_member_fn = decltype(std::declval<U>().size());
 
 /// @brief Check if `U` has a subscript operator.
 ///
@@ -240,8 +245,8 @@ using iterator_constructor =
 template <class U, typename pointer_type, typename size_type = std::size_t>
 using ptr_len_constructor =
     decltype(U(std::declval<pointer_type>(), std::declval<size_type>()));
-} // namespace detail
+}  // namespace detail
 
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_TRAITS_H_INCLUDED
+#endif  // CARGO_TRAITS_H_INCLUDED

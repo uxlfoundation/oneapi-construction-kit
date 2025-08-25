@@ -42,14 +42,14 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
              CA_CAT("Found illegal character `[` or `]` in '" +
                     cargo::as<std::string>(decl) +
                     "'. Pointer arguments must not use `[]` notation."));
-  OCL_ASSERT(cargo::string_view::npos == decl.find("__attribute__"),
-             CA_CAT("Found '__attribute__' in '" +
-                    cargo::as<std::string>(decl) +
-                    "'. Attributes must not be used."));
-  OCL_ASSERT(cargo::string_view::npos == decl.find_first_of("\t\n\v\f\r"),
-             CA_CAT("Found illegal whitespace in '" +
-                    cargo::as<std::string>(decl) +
-                    "'. Only ' ' is supported."));
+  OCL_ASSERT(
+      cargo::string_view::npos == decl.find("__attribute__"),
+      CA_CAT("Found '__attribute__' in '" + cargo::as<std::string>(decl) +
+             "'. Attributes must not be used."));
+  OCL_ASSERT(
+      cargo::string_view::npos == decl.find_first_of("\t\n\v\f\r"),
+      CA_CAT("Found illegal whitespace in '" + cargo::as<std::string>(decl) +
+             "'. Only ' ' is supported."));
 
   // Split string into name and parameters
   static const std::regex kernel_and_params_re(
@@ -88,7 +88,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
   // Take the last word from v, delimited by ` ` or `*`. Shorten v and
   // return the word.
   auto pop_word = [](cargo::string_view &v) {
-    const size_t loc = v.find_last_of(" *"); // not a regex; just characters
+    const size_t loc = v.find_last_of(" *");  // not a regex; just characters
     const cargo::string_view ret(v.cbegin() + loc + 1, v.size() - loc - 1);
     v.remove_suffix(ret.size());
     v = cargo::trim_right(v, " ");
@@ -97,7 +97,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
 
   // Like pop_word, but doesn't modify the paramter
   auto get_last_word = [](const cargo::string_view &v) {
-    const size_t loc = v.find_last_of(" *"); // not a regex; just characters
+    const size_t loc = v.find_last_of(" *");  // not a regex; just characters
     return cargo::string_view(v.cbegin() + loc + 1, v.size() - loc - 1);
   };
 
@@ -165,7 +165,7 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
           } else if (!word.compare("const")) {
             // Don't care
           } else {
-            break; // Done gobbling trailing words
+            break;  // Done gobbling trailing words
           }
           p.remove_suffix(word.size());
           p = cargo::trim_right(p, " ");
@@ -200,40 +200,40 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
           }
         }
       }
-    } else { // Not a pointer
+    } else {  // Not a pointer
       const auto &info = getArgumentTypeFromParameterTypeString(p);
       arg_type = info.first;
 
       if (store_arg_metadata) {
         arg_info.type_name = info.second;
         switch (arg_type.kind) {
-        default:
-          // normal value type
-          // There could be additional error checking here for illegal words
-          break;
-        case compiler::ArgumentKind::SAMPLER:
-        case compiler::ArgumentKind::IMAGE1D:
-        case compiler::ArgumentKind::IMAGE1D_ARRAY:
-        case compiler::ArgumentKind::IMAGE1D_BUFFER:
-        case compiler::ArgumentKind::IMAGE2D:
-        case compiler::ArgumentKind::IMAGE2D_ARRAY:
-        case compiler::ArgumentKind::IMAGE3D:
-          // Image types, but not sampler_t, default to the global address
-          // space
-          if (compiler::ArgumentKind::SAMPLER != arg_type.kind) {
-            arg_info.address_qual = compiler::AddressSpace::GLOBAL;
-            // read_only is the default (section 6.6 of OpenCL 1.2 spec).
-            arg_info.access_qual = compiler::KernelArgAccess::READ_ONLY;
-          }
-          // The remaining string should be fairly short. See if it contains
-          // image access qualifiers.
-          if (cargo::string_view::npos != p.find("read_write")) {
-            arg_info.access_qual = compiler::KernelArgAccess::READ_WRITE;
-          } else if (cargo::string_view::npos != p.find("write_only")) {
-            arg_info.access_qual = compiler::KernelArgAccess::WRITE_ONLY;
-          }
-          // There could be additional error checking here for illegal words
-          break;
+          default:
+            // normal value type
+            // There could be additional error checking here for illegal words
+            break;
+          case compiler::ArgumentKind::SAMPLER:
+          case compiler::ArgumentKind::IMAGE1D:
+          case compiler::ArgumentKind::IMAGE1D_ARRAY:
+          case compiler::ArgumentKind::IMAGE1D_BUFFER:
+          case compiler::ArgumentKind::IMAGE2D:
+          case compiler::ArgumentKind::IMAGE2D_ARRAY:
+          case compiler::ArgumentKind::IMAGE3D:
+            // Image types, but not sampler_t, default to the global address
+            // space
+            if (compiler::ArgumentKind::SAMPLER != arg_type.kind) {
+              arg_info.address_qual = compiler::AddressSpace::GLOBAL;
+              // read_only is the default (section 6.6 of OpenCL 1.2 spec).
+              arg_info.access_qual = compiler::KernelArgAccess::READ_ONLY;
+            }
+            // The remaining string should be fairly short. See if it contains
+            // image access qualifiers.
+            if (cargo::string_view::npos != p.find("read_write")) {
+              arg_info.access_qual = compiler::KernelArgAccess::READ_WRITE;
+            } else if (cargo::string_view::npos != p.find("write_only")) {
+              arg_info.access_qual = compiler::KernelArgAccess::WRITE_ONLY;
+            }
+            // There could be additional error checking here for illegal words
+            break;
         }
       }
     }
@@ -249,5 +249,5 @@ bool kernelDeclStrToKernelInfo(compiler::KernelInfo &kernel_info,
 
   return true;
 }
-} // namespace binary
-} // namespace cl
+}  // namespace binary
+}  // namespace cl
