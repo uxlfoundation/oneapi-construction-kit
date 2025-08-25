@@ -32,17 +32,17 @@ jobs:
       dpcpp_repo_pr_no:  ${{ inputs.dpcpp_repo_pr_no }}
       # We can set ock, test_sycl_cts etc here optionally if this is used as a pull request.
       # Any with parameters below this is intended for local testing and should not be merged.
-      # target_list: '[ "host_x86_64_linux" ]'
-      # ock: true
-      # native_cpu: true
+      target_list: '[ "host_x86_64_linux", "refsi_riscv64_linux" ]'
+      ock: true
+      native_cpu: true
       # test_tornado: true
       # test_remote_hal: true
-      # test_sycl_cts: true
-      # test_sycl_e2e: true
-      # test_opencl_cts: true
-      # test_sanitizers: true
-      # run_internal: true
-      # run_external: true
+      test_sycl_cts: true
+      test_sycl_e2e: true
+      test_opencl_cts: true
+      test_sanitizers: false
+      run_internal: true
+      run_external: true
       # build_llvm: true
 
       # # These can be set to a workflow run-id to download from a previous workflow. This can be seen from
