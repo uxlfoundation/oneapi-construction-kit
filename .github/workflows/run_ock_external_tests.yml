@@ -892,7 +892,7 @@ jobs:
           sycl_device: native_cpu
 
   run_sycl_e2e_x86_64_opencl:
-    needs: [workflow_vars, build_dpcpp_native_x86_64]
+    needs: [workflow_vars, build_dpcpp_native_x86_64, create_ock_artefacts_ubuntu, build_icd ]
     runs-on: 'ubuntu-22.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -928,7 +928,7 @@ jobs:
           sycl_device: native_cpu
 
   run_sycl_e2e_aarch64_opencl:
-    needs: [workflow_vars, build_dpcpp_native_aarch64]
+    needs: [workflow_vars, build_dpcpp_native_aarch64, create_ock_artefacts_ubuntu, build_icd ]
     runs-on: 'ubuntu-22.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
