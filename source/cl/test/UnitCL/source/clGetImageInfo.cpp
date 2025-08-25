@@ -36,7 +36,8 @@ struct clGetImageInfoParamTest : ucl::ContextTest,
     ContextTest::TearDown();
   }
 
-  template <cl_mem_object_type> cl_int createImage();
+  template <cl_mem_object_type>
+  cl_int createImage();
 
   void testFormat() {
     size_t size;
@@ -1375,7 +1376,7 @@ INSTANTIATE_TEST_CASE_P(
         cl_image_format{CL_RA, CL_FLOAT}, cl_image_format{CL_RGBA, CL_FLOAT}));
 
 class clGetImageInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -1427,10 +1428,10 @@ TEST_F(clGetImageInfoTest, InvalidValueParamName) {
 
 TEST_F(clGetImageInfoTest, InvalidValueParamValueSize) {
   cl_image_format format;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetImageInfo(image, CL_IMAGE_FORMAT,
-                                   sizeof(cl_image_format) - 1, &format,
-                                   nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetImageInfo(image, CL_IMAGE_FORMAT, sizeof(cl_image_format) - 1,
+                     &format, nullptr));
   size_t sizeValue;
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
                     clGetImageInfo(image, CL_IMAGE_ELEMENT_SIZE,

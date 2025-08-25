@@ -93,6 +93,6 @@ struct queue_s final : public mux_queue_s {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_QUEUE_H_INCLUDED
+#endif  // HOST_QUEUE_H_INCLUDED

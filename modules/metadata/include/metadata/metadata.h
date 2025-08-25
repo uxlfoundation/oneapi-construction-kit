@@ -64,7 +64,7 @@ extern "C" {
 #elif __STDC_VERSION__ >= 201112
 _Static_assert(__VA_ARGS__)
 #else
-#define MD_STATIC_ASSERT(expr, msg)                                            \
+#define MD_STATIC_ASSERT(expr, msg) \
   extern int md_static_assert_failed_if_negative_array_size[(expr) ? 1 : -1]
 #endif
 
@@ -493,7 +493,7 @@ void md_release_ctx(md_ctx ctx);
 int md_loadf(md_stack stack, const char *fmt, ...);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 
 #endif
-#endif // MD_METADATA_H_INCLUDED
+#endif  // MD_METADATA_H_INCLUDED

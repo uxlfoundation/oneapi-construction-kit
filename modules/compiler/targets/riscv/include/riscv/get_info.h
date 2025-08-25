@@ -39,5 +39,5 @@ static void getInfos(compiler::AddCompilerFn add_compiler) {
     add_compiler(&info);
   }
 }
-} // namespace riscv
+}  // namespace riscv
 #endif

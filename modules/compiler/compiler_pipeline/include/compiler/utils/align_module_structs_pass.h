@@ -37,7 +37,7 @@ namespace utils {
 /// padding from this pass.
 class AlignModuleStructsPass
     : public llvm::PassInfoMixin<AlignModuleStructsPass> {
-public:
+ public:
   /// @brief Container describing new struct type being created.
   ///
   /// Helper class encapsulating all the details needed at the various
@@ -56,7 +56,8 @@ public:
         llvm::StructType *structTy,
         llvm::DenseMap<unsigned int, unsigned int> indexMap,
         llvm::SmallVector<llvm::Type *, 8> body)
-        : newStructType(structTy), memberIndexMap(indexMap),
+        : newStructType(structTy),
+          memberIndexMap(indexMap),
           bodyElements(body) {}
   };
 
@@ -68,7 +69,7 @@ public:
 
   llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
-private:
+ private:
   /// @brief Given an unpadded struct type generate a matching padded type
   ///
   /// Target architecture alignment can be different from the member size, so
@@ -95,7 +96,7 @@ private:
   StructReplacementMap originalStructMap;
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_ALIGN_MODULE_STRUCTS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_ALIGN_MODULE_STRUCTS_PASS_H_INCLUDED

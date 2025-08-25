@@ -55,18 +55,27 @@ std::string getDeviceName(cl_device_id device) {
   }
   return cargo::as<std::string>(cargo::trim(deviceName));
 }
-} // namespace
+}  // namespace
 
 ucl::Environment::Environment(
     const std::string &platformVendor, const std::string &deviceName,
     const std::string &includePath, const unsigned randSeed,
     const ucl::MathMode &mathMode, const std::string &build_options,
     const std::string &kernel_directory, const bool vecz_check)
-    : platformVendor(platformVendor), deviceName(deviceName), deviceVersion(),
-      deviceOpenCLVersion(), platformOCLVersion(), platforms(), devices(),
-      testIncludePath(includePath), math_mode(mathMode),
-      kernel_dir_path(kernel_directory), kernel_build_options(build_options),
-      platform(nullptr), device(nullptr), do_vectorizer_check(vecz_check),
+    : platformVendor(platformVendor),
+      deviceName(deviceName),
+      deviceVersion(),
+      deviceOpenCLVersion(),
+      platformOCLVersion(),
+      platforms(),
+      devices(),
+      testIncludePath(includePath),
+      math_mode(mathMode),
+      kernel_dir_path(kernel_directory),
+      kernel_build_options(build_options),
+      platform(nullptr),
+      device(nullptr),
+      do_vectorizer_check(vecz_check),
       generator(randSeed) {
   // Get the available platforms.
   cl_uint num_platforms;

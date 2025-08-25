@@ -8,7 +8,8 @@ namespace abacus {
 namespace internal {
 
 // Utility struct to represent and manipulate IEEE754 floating point values
-template <typename T> struct FloatingPoint {
+template <typename T>
+struct FloatingPoint {
   using Type = T;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -44,7 +45,7 @@ template <typename T> struct FloatingPoint {
   }
   SignedType Zero() const { return (Exponent == 0u) & (Mantissa == 0u); }
 };
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
 #endif

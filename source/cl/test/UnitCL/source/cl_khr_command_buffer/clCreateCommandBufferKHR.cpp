@@ -17,7 +17,7 @@
 
 using clCreateCommandBufferAPITest = cl_khr_command_buffer_Test;
 TEST_F(clCreateCommandBufferAPITest, ReturnSuccess) {
-  cl_int error = CL_OUT_OF_HOST_MEMORY; // Ensure this status is overwritten
+  cl_int error = CL_OUT_OF_HOST_MEMORY;  // Ensure this status is overwritten
   cl_command_buffer_khr command_buffer =
       clCreateCommandBufferKHR(1, &command_queue, nullptr, &error);
   EXPECT_SUCCESS(error);

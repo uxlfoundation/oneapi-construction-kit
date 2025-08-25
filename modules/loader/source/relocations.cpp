@@ -60,8 +60,8 @@
 // * absolute - the relocation does not depend on where it's performed, but only
 //   on the target symbol address
 
-cargo::optional<uint64_t>
-loader::Relocation::StubMap::getTarget(uint64_t value) const {
+cargo::optional<uint64_t> loader::Relocation::StubMap::getTarget(
+    uint64_t value) const {
   auto it = std::find_if(stubs.begin(), stubs.end(),
                          [value](const Entry &e) { return e.value == value; });
   return (it != stubs.end()) ? cargo::optional<uint64_t>(it->target)
@@ -92,8 +92,8 @@ inline Integer setBitRange(Integer value, Integer subvalue, int first,
 // RISC-V ELF psABI document, but relevant for other architectures:
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#calculation-symbols
 template <typename T>
-cargo::optional<std::tuple<uint8_t *, T, T>>
-decomposeRelocation(const loader::Relocation &r, loader::ElfMap &map) {
+cargo::optional<std::tuple<uint8_t *, T, T>> decomposeRelocation(
+    const loader::Relocation &r, loader::ElfMap &map) {
   static_assert(std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>,
                 "Invalid relocation size");
   using SignedT = std::make_signed_t<T>;
@@ -141,61 +141,63 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
 
   using namespace loader::RelocationTypes::X86_32;
   switch (r.type) {
-  default:
-    CARGO_ASSERT(0, "Unsupported relocation type.");
-    return false;
-  case R_386_NONE:
-    break;
-  // absolute 32-bit relocation
-  // x86 relocates only values, thanks to its variable length encoding no
-  // instruction parsing needs to be performed
-  case R_386_32: {
-    // R_386_32 stores an addend at the relocation target. The exact format of
-    // the addend is unclear, but it's at least 10 bits unsigned. It's unknown
-    // whether negative values are possible.
-    uint32_t implicit_addend;
-    cargo::read_little_endian(&implicit_addend, relocation_address);
+    default:
+      CARGO_ASSERT(0, "Unsupported relocation type.");
+      return false;
+    case R_386_NONE:
+      break;
+    // absolute 32-bit relocation
+    // x86 relocates only values, thanks to its variable length encoding no
+    // instruction parsing needs to be performed
+    case R_386_32: {
+      // R_386_32 stores an addend at the relocation target. The exact format of
+      // the addend is unclear, but it's at least 10 bits unsigned. It's unknown
+      // whether negative values are possible.
+      uint32_t implicit_addend;
+      cargo::read_little_endian(&implicit_addend, relocation_address);
 #ifndef NDEBUG
-    // If this warning is ever triggered, then we can investigate further
-    if (implicit_addend & uint32_t(0x80008000)) {
-      (void)fprintf(stderr,
-                    "WARNING: Relocation with possibly negative offset\n");
-    }
+      // If this warning is ever triggered, then we can investigate further
+      if (implicit_addend & uint32_t(0x80008000)) {
+        (void)fprintf(stderr,
+                      "WARNING: Relocation with possibly negative offset\n");
+      }
 #endif
-    const uint32_t value = symbol_target_address + implicit_addend;
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  // PC-relative 32-/16-/8-bit relocations
-  case R_386_PC32: {
-    // R_386_PC32 stores an addend at the relocation target as an int8_t
-    uint8_t implicit_addend;
-    cargo::read_little_endian(&implicit_addend, relocation_address);
-    const uint32_t value = symbol_target_address - relocated_target_address +
-                           static_cast<int8_t>(implicit_addend);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  case R_386_PC16: {
-    const uint32_t real_value =
-        symbol_target_address - relocated_target_address;
-    const uint16_t trunc_value = real_value & 0xFFFF;
-    if (static_cast<int32_t>(real_value) != static_cast<int16_t>(trunc_value)) {
-      return false;
+      const uint32_t value = symbol_target_address + implicit_addend;
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  case R_386_PC8: {
-    const uint32_t real_value =
-        symbol_target_address - relocated_target_address;
-    const uint8_t trunc_value = real_value & 0xFF;
-    if (static_cast<int32_t>(real_value) != static_cast<int8_t>(trunc_value)) {
-      return false;
+    // PC-relative 32-/16-/8-bit relocations
+    case R_386_PC32: {
+      // R_386_PC32 stores an addend at the relocation target as an int8_t
+      uint8_t implicit_addend;
+      cargo::read_little_endian(&implicit_addend, relocation_address);
+      const uint32_t value = symbol_target_address - relocated_target_address +
+                             static_cast<int8_t>(implicit_addend);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
+    case R_386_PC16: {
+      const uint32_t real_value =
+          symbol_target_address - relocated_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
+      if (static_cast<int32_t>(real_value) !=
+          static_cast<int16_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
+    }
+    case R_386_PC8: {
+      const uint32_t real_value =
+          symbol_target_address - relocated_target_address;
+      const uint8_t trunc_value = real_value & 0xFF;
+      if (static_cast<int32_t>(real_value) !=
+          static_cast<int8_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
+    }
   }
   return true;
 }
@@ -210,76 +212,80 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
 
   using namespace loader::RelocationTypes::X86_64;
   switch (r.type) {
-  default:
-    CARGO_ASSERT(0, "Unsupported relocation type.");
-    return false;
-  case R_X86_64_NONE:
-    break;
-  // absolute 64-bit relocation
-  // x86_64 relocates only values, thanks to its variable length encoding no
-  // instruction parsing needs to be performed
-  case R_X86_64_64: {
-    cargo::write_little_endian(symbol_target_address, relocation_address);
-    break;
-  }
-  // PC-relative 64-bit relocation
-  case R_X86_64_PC64: {
-    const uint64_t value = symbol_target_address - relocated_target_address;
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  // absolute 32-bit relocation asserting its zero-extension is valid
-  case R_X86_64_32: {
-    const uint64_t real_value = symbol_target_address;
-    const uint32_t trunc_value = real_value & 0xFFFFFFFF;
-    if (real_value != trunc_value) {
+    default:
+      CARGO_ASSERT(0, "Unsupported relocation type.");
       return false;
+    case R_X86_64_NONE:
+      break;
+    // absolute 64-bit relocation
+    // x86_64 relocates only values, thanks to its variable length encoding no
+    // instruction parsing needs to be performed
+    case R_X86_64_64: {
+      cargo::write_little_endian(symbol_target_address, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  // absolute 32-bit relocation asserting its sign-extension is valid
-  case R_X86_64_32S: {
-    const uint64_t real_value = symbol_target_address;
-    const uint32_t trunc_value = real_value & 0xFFFFFFFF;
-    if (static_cast<int64_t>(real_value) != static_cast<int32_t>(trunc_value)) {
-      return false;
+    // PC-relative 64-bit relocation
+    case R_X86_64_PC64: {
+      const uint64_t value = symbol_target_address - relocated_target_address;
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  // 32-, 16- and 8-bit PC-relative relocations asserting their
-  // sign-extensions are valid
-  case R_X86_64_PC32: {
-    const uint64_t real_value =
-        symbol_target_address - relocated_target_address;
-    const uint32_t trunc_value = real_value & 0xFFFFFFFF;
-    if (static_cast<int64_t>(real_value) != static_cast<int32_t>(trunc_value)) {
-      return false;
+    // absolute 32-bit relocation asserting its zero-extension is valid
+    case R_X86_64_32: {
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      if (real_value != trunc_value) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  case R_X86_64_PC16: {
-    const uint64_t real_value =
-        symbol_target_address - relocated_target_address;
-    const uint16_t trunc_value = real_value & 0xFFFF;
-    if (static_cast<int64_t>(real_value) != static_cast<int16_t>(trunc_value)) {
-      return false;
+    // absolute 32-bit relocation asserting its sign-extension is valid
+    case R_X86_64_32S: {
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      if (static_cast<int64_t>(real_value) !=
+          static_cast<int32_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  case R_X86_64_PC8: {
-    const uint64_t real_value =
-        symbol_target_address - relocated_target_address;
-    const uint8_t trunc_value = real_value & 0xFF;
-    if (static_cast<int64_t>(real_value) != static_cast<int8_t>(trunc_value)) {
-      return false;
+    // 32-, 16- and 8-bit PC-relative relocations asserting their
+    // sign-extensions are valid
+    case R_X86_64_PC32: {
+      const uint64_t real_value =
+          symbol_target_address - relocated_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      if (static_cast<int64_t>(real_value) !=
+          static_cast<int32_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
+    case R_X86_64_PC16: {
+      const uint64_t real_value =
+          symbol_target_address - relocated_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
+      if (static_cast<int64_t>(real_value) !=
+          static_cast<int16_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
+    }
+    case R_X86_64_PC8: {
+      const uint64_t real_value =
+          symbol_target_address - relocated_target_address;
+      const uint8_t trunc_value = real_value & 0xFF;
+      if (static_cast<int64_t>(real_value) !=
+          static_cast<int8_t>(trunc_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
+    }
   }
   return true;
 }
@@ -324,56 +330,56 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
 
   using namespace loader::RelocationTypes::Arm;
   switch (r.type) {
-  default:
-    CARGO_ASSERT(0, "Unsupported relocation type.");
-    return false;
-  case R_ARM_NONE:
-    break;
-  // PC-relative 31-bit relocation
-  case R_ARM_PREL31:
-    cargo::write_little_endian(
-        setBitRange(value, symbol_target_address - relocation_target_address, 0,
-                    31),
-        relocation_address);
-    break;
-  // absolute 32-bit relocation
-  case R_ARM_TARGET1:
-  case R_ARM_ABS32:
-    uint32_t implicit_addend;
-    cargo::read_little_endian(&implicit_addend, relocation_address);
-    cargo::write_little_endian(symbol_target_address + implicit_addend,
-                               relocation_address);
-    break;
-  // absolute 16-bit relocations used to store the high and low 16 bits of a
-  // 32-bit address
-  case R_ARM_MOVW_ABS_NC:
-  case R_ARM_MOVT_ABS: {
-    const uint32_t bits = (r.type == R_ARM_MOVW_ABS_NC)
-                              ? getBitRange(symbol_target_address, 0, 16)
-                              : getBitRange(symbol_target_address, 16, 16);
-    value = setBitRange(value, bits >> 12, 16, 4);
-    value = setBitRange(value, bits, 0, 12);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  // A 24-bit PC+8-relative branch relocation requiring stub generation
-  case R_ARM_PC24:
-  case R_ARM_CALL:
-  case R_ARM_JUMP24: {
-    const uint32_t stub_target = getOrCreateStub();
-    int32_t relative_value =
-        static_cast<int32_t>(stub_target - relocation_target_address - 8);
-    // ARM branch target encoding: 24 bits to store a 4-byte-granular address
-    relative_value = (relative_value & 0x03FFFFFC) >> 2;
-    // Ensure the implicit addend is -4, which is what LLVM always generates
-    if ((value & 0xFFFFFF) != 0xFFFFFE) {
+    default:
+      CARGO_ASSERT(0, "Unsupported relocation type.");
       return false;
+    case R_ARM_NONE:
+      break;
+    // PC-relative 31-bit relocation
+    case R_ARM_PREL31:
+      cargo::write_little_endian(
+          setBitRange(value, symbol_target_address - relocation_target_address,
+                      0, 31),
+          relocation_address);
+      break;
+    // absolute 32-bit relocation
+    case R_ARM_TARGET1:
+    case R_ARM_ABS32:
+      uint32_t implicit_addend;
+      cargo::read_little_endian(&implicit_addend, relocation_address);
+      cargo::write_little_endian(symbol_target_address + implicit_addend,
+                                 relocation_address);
+      break;
+    // absolute 16-bit relocations used to store the high and low 16 bits of a
+    // 32-bit address
+    case R_ARM_MOVW_ABS_NC:
+    case R_ARM_MOVT_ABS: {
+      const uint32_t bits = (r.type == R_ARM_MOVW_ABS_NC)
+                                ? getBitRange(symbol_target_address, 0, 16)
+                                : getBitRange(symbol_target_address, 16, 16);
+      value = setBitRange(value, bits >> 12, 16, 4);
+      value = setBitRange(value, bits, 0, 12);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(
-        setBitRange(value, static_cast<uint32_t>(relative_value), 0, 24),
-        relocation_address);
-    break;
-  }
+    // A 24-bit PC+8-relative branch relocation requiring stub generation
+    case R_ARM_PC24:
+    case R_ARM_CALL:
+    case R_ARM_JUMP24: {
+      const uint32_t stub_target = getOrCreateStub();
+      int32_t relative_value =
+          static_cast<int32_t>(stub_target - relocation_target_address - 8);
+      // ARM branch target encoding: 24 bits to store a 4-byte-granular address
+      relative_value = (relative_value & 0x03FFFFFC) >> 2;
+      // Ensure the implicit addend is -4, which is what LLVM always generates
+      if ((value & 0xFFFFFF) != 0xFFFFFE) {
+        return false;
+      }
+      cargo::write_little_endian(
+          setBitRange(value, static_cast<uint32_t>(relative_value), 0, 24),
+          relocation_address);
+      break;
+    }
   }
   return true;
 }
@@ -446,198 +452,208 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
 
   using namespace loader::RelocationTypes::AArch64;
   switch (r.type) {
-  default:
-    CARGO_ASSERT(0, "Unsupported relocation type.");
-    return false;
-  case R_AARCH64_NONE:
-    break;
-  // absolute 16-bit relocation asserting validity of sign-extension
-  case R_AARCH64_ABS16: {
-    const uint64_t real_value = symbol_target_address;
-    const uint16_t trunc_value = real_value & 0xFFFF;
-    if (static_cast<int16_t>(trunc_value) != static_cast<int64_t>(real_value)) {
+    default:
+      CARGO_ASSERT(0, "Unsupported relocation type.");
       return false;
+    case R_AARCH64_NONE:
+      break;
+    // absolute 16-bit relocation asserting validity of sign-extension
+    case R_AARCH64_ABS16: {
+      const uint64_t real_value = symbol_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
+      if (static_cast<int16_t>(trunc_value) !=
+          static_cast<int64_t>(real_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  // absolute 32-bit relocation asserting validity of sign-extension
-  case R_AARCH64_ABS32: {
-    const uint64_t real_value = symbol_target_address;
-    const uint32_t trunc_value = real_value & 0xFFFFFFFF;
-    if (static_cast<int32_t>(trunc_value) != static_cast<int64_t>(real_value)) {
-      return false;
+    // absolute 32-bit relocation asserting validity of sign-extension
+    case R_AARCH64_ABS32: {
+      const uint64_t real_value = symbol_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      if (static_cast<int32_t>(trunc_value) !=
+          static_cast<int64_t>(real_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  // absolute 64-bit relocation
-  case R_AARCH64_ABS64:
-    cargo::write_little_endian(symbol_target_address, relocation_address);
-    break;
-  // PC-relative 64-bit relocation
-  case R_AARCH64_PREL64:
-    cargo::write_little_endian(
-        symbol_target_address - relocation_target_address, relocation_address);
-    break;
-  // PC-relative 32-/16-bit relocations asserting sign-extension validity
-  case R_AARCH64_PREL32: {
-    const uint64_t real_value =
-        symbol_target_address - relocation_target_address;
-    const uint32_t trunc_value = real_value & 0xFFFFFFFF;
-    if (static_cast<int32_t>(trunc_value) != static_cast<int64_t>(real_value)) {
-      return false;
+    // absolute 64-bit relocation
+    case R_AARCH64_ABS64:
+      cargo::write_little_endian(symbol_target_address, relocation_address);
+      break;
+    // PC-relative 64-bit relocation
+    case R_AARCH64_PREL64:
+      cargo::write_little_endian(
+          symbol_target_address - relocation_target_address,
+          relocation_address);
+      break;
+    // PC-relative 32-/16-bit relocations asserting sign-extension validity
+    case R_AARCH64_PREL32: {
+      const uint64_t real_value =
+          symbol_target_address - relocation_target_address;
+      const uint32_t trunc_value = real_value & 0xFFFFFFFF;
+      if (static_cast<int32_t>(trunc_value) !=
+          static_cast<int64_t>(real_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  case R_AARCH64_PREL16: {
-    const uint64_t real_value =
-        symbol_target_address - relocation_target_address;
-    const uint16_t trunc_value = real_value & 0xFFFF;
-    if (static_cast<int16_t>(trunc_value) != static_cast<int64_t>(real_value)) {
-      return false;
+    case R_AARCH64_PREL16: {
+      const uint64_t real_value =
+          symbol_target_address - relocation_target_address;
+      const uint16_t trunc_value = real_value & 0xFFFF;
+      if (static_cast<int16_t>(trunc_value) !=
+          static_cast<int64_t>(real_value)) {
+        return false;
+      }
+      cargo::write_little_endian(trunc_value, relocation_address);
+      break;
     }
-    cargo::write_little_endian(trunc_value, relocation_address);
-    break;
-  }
-  // PC-relative branch relocation
-  case R_AARCH64_CALL26:
-  case R_AARCH64_JUMP26: {
-    // first try relocating a short branch (only possible if the jump is
-    // within +/- 128MiB)
-    uint64_t relative_value = symbol_target_address - relocation_target_address;
-    if (static_cast<int64_t>(relative_value) >= -(1LL << 27) &&
-        static_cast<int64_t>(relative_value) < (1LL << 27)) {
-      // The jump is stored as 26-bit signed integer. It can jump to 4B
-      // boundaries, hence the `>> 2u`.
+    // PC-relative branch relocation
+    case R_AARCH64_CALL26:
+    case R_AARCH64_JUMP26: {
+      // first try relocating a short branch (only possible if the jump is
+      // within +/- 128MiB)
+      uint64_t relative_value =
+          symbol_target_address - relocation_target_address;
+      if (static_cast<int64_t>(relative_value) >= -(1LL << 27) &&
+          static_cast<int64_t>(relative_value) < (1LL << 27)) {
+        // The jump is stored as 26-bit signed integer. It can jump to 4B
+        // boundaries, hence the `>> 2u`.
+        const uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
+        value32 |= imm26;
+        cargo::write_little_endian(value32, relocation_address);
+        break;
+      }
+      // If that fails because the target is too far, generate a stub (a small
+      // section of code that sets up an absolute jump to a 64-bit location)
+      const uint64_t stub_target = getOrCreateStub(symbol_target_address);
+      if (0LU == stub_target) {
+#ifndef NDEBUG
+        (void)fprintf(
+            stderr,
+            "Out of stub space when constructing linker veneer for: %.*s\n",
+            (int)symbol_name.size(), symbol_name.data());
+#endif
+        return false;
+      }
+      relative_value = stub_target - relocation_target_address;
+      // If the stub is too far to jump to, then give up
+      if (static_cast<int64_t>(relative_value) < -(1LL << 27) ||
+          static_cast<int64_t>(relative_value) >= (1LL << 27)) {
+#ifndef NDEBUG
+        (void)fprintf(
+            stderr,
+            "Linker veneer for symbol %.*s beyond addressable span of "
+            "branch instruction",
+            (int)symbol_name.size(), symbol_name.data());
+#endif
+        return false;
+      }
+      // Jump to the stub
       const uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
       value32 |= imm26;
       cargo::write_little_endian(value32, relocation_address);
       break;
     }
-    // If that fails because the target is too far, generate a stub (a small
-    // section of code that sets up an absolute jump to a 64-bit location)
-    const uint64_t stub_target = getOrCreateStub(symbol_target_address);
-    if (0LU == stub_target) {
-#ifndef NDEBUG
-      (void)fprintf(
-          stderr,
-          "Out of stub space when constructing linker veneer for: %.*s\n",
-          (int)symbol_name.size(), symbol_name.data());
-#endif
-      return false;
+    // absolute relocations for 16-bit immediate move instructions for 4 parts
+    // of a 64-bit address
+    case R_AARCH64_MOVW_UABS_G0_NC:
+      cargo::write_little_endian(
+          setBitRange(value32, static_cast<uint32_t>(symbol_target_address), 5,
+                      16),
+          relocation_address);
+      break;
+    case R_AARCH64_MOVW_UABS_G1_NC:
+      cargo::write_little_endian(
+          setBitRange(
+              value32,
+              static_cast<uint32_t>(getBitRange(symbol_target_address, 16, 16)),
+              5, 16),
+          relocation_address);
+      break;
+    case R_AARCH64_MOVW_UABS_G2_NC:
+      cargo::write_little_endian(
+          setBitRange(
+              value32,
+              static_cast<uint32_t>(getBitRange(symbol_target_address, 32, 16)),
+              5, 16),
+          relocation_address);
+      break;
+    case R_AARCH64_MOVW_UABS_G3:
+      cargo::write_little_endian(
+          setBitRange(
+              value32,
+              static_cast<uint32_t>(getBitRange(symbol_target_address, 48, 16)),
+              5, 16),
+          relocation_address);
+      break;
+    // PC-relative page-granular 21-bit relocation
+    // From ELF for the Arm® 64-bit Architecture (AArch64) 2023Q3:
+    // "Set an ADRP immediate value to bits [32:12] of [the result of the
+    // relocation operation] X; check that -2^32 <= X < 2^32"
+    case R_AARCH64_ADR_PREL_PG_HI21: {
+      uint64_t page_difference = (symbol_target_address & ~0xFFFULL) -
+                                 (relocation_target_address & ~0xFFFULL);
+      if (static_cast<int64_t>(page_difference) >= (1LL << 32) ||
+          static_cast<int64_t>(page_difference) < -(1LL << 32)) {
+        return false;
+      }
+      page_difference >>= 12;
+      value32 = setBitRange(
+          value32, getBitRange(static_cast<uint32_t>(page_difference), 0, 2),
+          29, 2);
+      value32 = setBitRange(
+          value32, getBitRange(static_cast<uint32_t>(page_difference), 2, 19),
+          5, 19);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
     }
-    relative_value = stub_target - relocation_target_address;
-    // If the stub is too far to jump to, then give up
-    if (static_cast<int64_t>(relative_value) < -(1LL << 27) ||
-        static_cast<int64_t>(relative_value) >= (1LL << 27)) {
-#ifndef NDEBUG
-      (void)fprintf(stderr,
-                    "Linker veneer for symbol %.*s beyond addressable span of "
-                    "branch instruction",
-                    (int)symbol_name.size(), symbol_name.data());
-#endif
-      return false;
+    // LD/ST immediate value relocations for bits [0/1/2/3/4; 11]
+    case R_AARCH64_ADD_ABS_LO12_NC:
+    case R_AARCH64_LDST8_ABS_LO12_NC: {
+      value32 = setBitRange(
+          value32,
+          static_cast<uint32_t>(getBitRange(symbol_target_address, 0, 12)), 10,
+          12);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
     }
-    // Jump to the stub
-    const uint32_t imm26 = (relative_value >> 2u) & 0x03FFFFFF;
-    value32 |= imm26;
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  // absolute relocations for 16-bit immediate move instructions for 4 parts
-  // of a 64-bit address
-  case R_AARCH64_MOVW_UABS_G0_NC:
-    cargo::write_little_endian(
-        setBitRange(value32, static_cast<uint32_t>(symbol_target_address), 5,
-                    16),
-        relocation_address);
-    break;
-  case R_AARCH64_MOVW_UABS_G1_NC:
-    cargo::write_little_endian(setBitRange(value32,
-                                           static_cast<uint32_t>(getBitRange(
-                                               symbol_target_address, 16, 16)),
-                                           5, 16),
-                               relocation_address);
-    break;
-  case R_AARCH64_MOVW_UABS_G2_NC:
-    cargo::write_little_endian(setBitRange(value32,
-                                           static_cast<uint32_t>(getBitRange(
-                                               symbol_target_address, 32, 16)),
-                                           5, 16),
-                               relocation_address);
-    break;
-  case R_AARCH64_MOVW_UABS_G3:
-    cargo::write_little_endian(setBitRange(value32,
-                                           static_cast<uint32_t>(getBitRange(
-                                               symbol_target_address, 48, 16)),
-                                           5, 16),
-                               relocation_address);
-    break;
-  // PC-relative page-granular 21-bit relocation
-  // From ELF for the Arm® 64-bit Architecture (AArch64) 2023Q3:
-  // "Set an ADRP immediate value to bits [32:12] of [the result of the
-  // relocation operation] X; check that -2^32 <= X < 2^32"
-  case R_AARCH64_ADR_PREL_PG_HI21: {
-    uint64_t page_difference = (symbol_target_address & ~0xFFFULL) -
-                               (relocation_target_address & ~0xFFFULL);
-    if (static_cast<int64_t>(page_difference) >= (1LL << 32) ||
-        static_cast<int64_t>(page_difference) < -(1LL << 32)) {
-      return false;
+    case R_AARCH64_LDST16_ABS_LO12_NC: {
+      value32 = setBitRange(
+          value32,
+          static_cast<uint32_t>(getBitRange(symbol_target_address, 1, 11)), 10,
+          12);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
     }
-    page_difference >>= 12;
-    value32 = setBitRange(
-        value32, getBitRange(static_cast<uint32_t>(page_difference), 0, 2), 29,
-        2);
-    value32 = setBitRange(
-        value32, getBitRange(static_cast<uint32_t>(page_difference), 2, 19), 5,
-        19);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  // LD/ST immediate value relocations for bits [0/1/2/3/4; 11]
-  case R_AARCH64_ADD_ABS_LO12_NC:
-  case R_AARCH64_LDST8_ABS_LO12_NC: {
-    value32 = setBitRange(
-        value32,
-        static_cast<uint32_t>(getBitRange(symbol_target_address, 0, 12)), 10,
-        12);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  case R_AARCH64_LDST16_ABS_LO12_NC: {
-    value32 = setBitRange(
-        value32,
-        static_cast<uint32_t>(getBitRange(symbol_target_address, 1, 11)), 10,
-        12);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  case R_AARCH64_LDST32_ABS_LO12_NC: {
-    value32 = setBitRange(
-        value32,
-        static_cast<uint32_t>(getBitRange(symbol_target_address, 2, 10)), 10,
-        12);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  case R_AARCH64_LDST64_ABS_LO12_NC: {
-    value32 = setBitRange(
-        value32,
-        static_cast<uint32_t>(getBitRange(symbol_target_address, 3, 9)), 10,
-        12);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
-  case R_AARCH64_LDST128_ABS_LO12_NC: {
-    value32 = setBitRange(
-        value32,
-        static_cast<uint32_t>(getBitRange(symbol_target_address, 4, 8)), 10,
-        12);
-    cargo::write_little_endian(value32, relocation_address);
-    break;
-  }
+    case R_AARCH64_LDST32_ABS_LO12_NC: {
+      value32 = setBitRange(
+          value32,
+          static_cast<uint32_t>(getBitRange(symbol_target_address, 2, 10)), 10,
+          12);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
+    }
+    case R_AARCH64_LDST64_ABS_LO12_NC: {
+      value32 = setBitRange(
+          value32,
+          static_cast<uint32_t>(getBitRange(symbol_target_address, 3, 9)), 10,
+          12);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
+    }
+    case R_AARCH64_LDST128_ABS_LO12_NC: {
+      value32 = setBitRange(
+          value32,
+          static_cast<uint32_t>(getBitRange(symbol_target_address, 4, 8)), 10,
+          12);
+      cargo::write_little_endian(value32, relocation_address);
+      break;
+    }
   }
   return true;
 }
@@ -735,247 +751,247 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
 
   using namespace loader::RelocationTypes::RISCV;
   switch (r.type) {
-  default: {
+    default: {
 #ifndef NDEBUG
-    auto symbol_name =
-        map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-    (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)symbol_name.size(),
-                  symbol_name.data());
-    (void)fprintf(stderr, "   with relocation type: %u\n", r.type);
+      auto symbol_name =
+          map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+      (void)fprintf(stderr, "Missing symbol: %.*s\n", (int)symbol_name.size(),
+                    symbol_name.data());
+      (void)fprintf(stderr, "   with relocation type: %u\n", r.type);
 #endif
-    CARGO_ASSERT(0, "Unsupported relocation type.");
-    return false;
-  }
-  case R_RISCV_64:
-    // 64-bit relocation: S + A
-    cargo::write_little_endian(static_cast<uint32_t>(symbol_target_address),
-                               relocation_address);
-    cargo::write_little_endian(
-        static_cast<uint32_t>(symbol_target_address >> 32),
-        relocation_address + 4);
-    break;
-  case R_RISCV_PCREL_HI20: {
-    // High 20 bits of 32-bit PC-relative reference -- S + A - P -- in the
-    // immediate field of an U-type instruction
-    auto rel_hi20 = getHi20(relative_value);
-    if (!rel_hi20) {
+      CARGO_ASSERT(0, "Unsupported relocation type.");
       return false;
     }
-    writeUTypeImm(*rel_hi20, relocation_address);
-    break;
-  }
-  case R_RISCV_PCREL_LO12_I:
-  case R_RISCV_PCREL_LO12_S: {
-    // Low 12 bits of 32-bit PC-relative reference -- S + A - P (A must be 0)
-    // -- in the immediate field of an I-type or an S-type instruction
-    CARGO_ASSERT(r.addend == 0, "Invalid PCREL_LO12 relocation");
-    // This relocation points to a label, for which there is a corresponding
-    // PCREL_HI20 relocation pointing to the actual symbol. Find that
-    // relocation now.
-    auto hi20_reloc = getPCRelHi20(r, static_cast<int64_t>(relative_value));
-    if (!hi20_reloc) {
-      (void)fprintf(stderr,
-                    "Could not retrieve corresponding PCREL_HI20 relocation "
-                    "for PCREL_LO12 relocation.\n");
-      return false;
+    case R_RISCV_64:
+      // 64-bit relocation: S + A
+      cargo::write_little_endian(static_cast<uint32_t>(symbol_target_address),
+                                 relocation_address);
+      cargo::write_little_endian(
+          static_cast<uint32_t>(symbol_target_address >> 32),
+          relocation_address + 4);
+      break;
+    case R_RISCV_PCREL_HI20: {
+      // High 20 bits of 32-bit PC-relative reference -- S + A - P -- in the
+      // immediate field of an U-type instruction
+      auto rel_hi20 = getHi20(relative_value);
+      if (!rel_hi20) {
+        return false;
+      }
+      writeUTypeImm(*rel_hi20, relocation_address);
+      break;
     }
-    const auto hi20_reloc_data =
-        decomposeRelocation<uint64_t>(*hi20_reloc, map);
-    if (!hi20_reloc_data) {
-      return false;
-    }
-    auto [_, hi20_reloc_target_address, hi20_symbol_target_address] =
-        *hi20_reloc_data;
-    const uint64_t hi20_relative_value =
-        hi20_symbol_target_address - hi20_reloc_target_address;
-    switch (r.type) {
     case R_RISCV_PCREL_LO12_I:
-      writeITypeImm(getLo12(hi20_relative_value), relocation_address);
+    case R_RISCV_PCREL_LO12_S: {
+      // Low 12 bits of 32-bit PC-relative reference -- S + A - P (A must be 0)
+      // -- in the immediate field of an I-type or an S-type instruction
+      CARGO_ASSERT(r.addend == 0, "Invalid PCREL_LO12 relocation");
+      // This relocation points to a label, for which there is a corresponding
+      // PCREL_HI20 relocation pointing to the actual symbol. Find that
+      // relocation now.
+      auto hi20_reloc = getPCRelHi20(r, static_cast<int64_t>(relative_value));
+      if (!hi20_reloc) {
+        (void)fprintf(stderr,
+                      "Could not retrieve corresponding PCREL_HI20 relocation "
+                      "for PCREL_LO12 relocation.\n");
+        return false;
+      }
+      const auto hi20_reloc_data =
+          decomposeRelocation<uint64_t>(*hi20_reloc, map);
+      if (!hi20_reloc_data) {
+        return false;
+      }
+      auto [_, hi20_reloc_target_address, hi20_symbol_target_address] =
+          *hi20_reloc_data;
+      const uint64_t hi20_relative_value =
+          hi20_symbol_target_address - hi20_reloc_target_address;
+      switch (r.type) {
+        case R_RISCV_PCREL_LO12_I:
+          writeITypeImm(getLo12(hi20_relative_value), relocation_address);
+          break;
+        case R_RISCV_PCREL_LO12_S:
+          writeSTypeImm(getLo12(hi20_relative_value), relocation_address);
+          break;
+        default:
+          CARGO_ASSERT(0, "Unexpected relocation type.");
+      }
       break;
-    case R_RISCV_PCREL_LO12_S:
-      writeSTypeImm(getLo12(hi20_relative_value), relocation_address);
+    }
+    case R_RISCV_HI20: {
+      // High 20 bits of 32-bit absolute address -- S + A -- in the immediate
+      // field of an U-type instruction
+      auto abs_hi20 = getHi20(symbol_target_address);
+      if (!abs_hi20) {
+        return false;
+      }
+      writeUTypeImm(*abs_hi20, relocation_address);
       break;
-    default:
-      CARGO_ASSERT(0, "Unexpected relocation type.");
     }
-    break;
-  }
-  case R_RISCV_HI20: {
-    // High 20 bits of 32-bit absolute address -- S + A -- in the immediate
-    // field of an U-type instruction
-    auto abs_hi20 = getHi20(symbol_target_address);
-    if (!abs_hi20) {
-      return false;
+    case R_RISCV_LO12_I:
+      // Low 12 bits of 32-bit absolute address -- S + A -- in the immediate
+      // field of an I-type instruction
+      writeITypeImm(getLo12(symbol_target_address), relocation_address);
+      break;
+    case R_RISCV_CALL:
+    case R_RISCV_CALL_PLT: {
+      // 32-bit PC-relative function call -- S + A - P -- in the immediate
+      // fields of a U-type and I-type instruction pair (e.g., 'call' or 'tail'
+      // macros).
+      auto rel_hi20 = getHi20(relative_value);
+      if (!rel_hi20) {
+        return false;
+      }
+      writeUTypeImm(*rel_hi20, relocation_address);
+      writeITypeImm(getLo12(relative_value), relocation_address + 4);
+      break;
     }
-    writeUTypeImm(*abs_hi20, relocation_address);
-    break;
-  }
-  case R_RISCV_LO12_I:
-    // Low 12 bits of 32-bit absolute address -- S + A -- in the immediate
-    // field of an I-type instruction
-    writeITypeImm(getLo12(symbol_target_address), relocation_address);
-    break;
-  case R_RISCV_CALL:
-  case R_RISCV_CALL_PLT: {
-    // 32-bit PC-relative function call -- S + A - P -- in the immediate
-    // fields of a U-type and I-type instruction pair (e.g., 'call' or 'tail'
-    // macros).
-    auto rel_hi20 = getHi20(relative_value);
-    if (!rel_hi20) {
-      return false;
-    }
-    writeUTypeImm(*rel_hi20, relocation_address);
-    writeITypeImm(getLo12(relative_value), relocation_address + 4);
-    break;
-  }
-  case R_RISCV_BRANCH: {
-    // R_RISCV_BRANCH immediate is for B-Type instructions and is split
-    // across 12 bits spread across the instruction and skips the bottom bit
-    // of the input relative offset. See conditional branches in the isa spec.
+    case R_RISCV_BRANCH: {
+      // R_RISCV_BRANCH immediate is for B-Type instructions and is split
+      // across 12 bits spread across the instruction and skips the bottom bit
+      // of the input relative offset. See conditional branches in the isa spec.
 
-    // Check that the value, when sign-extended back up to a 64-bit number
-    // will not lose bits.
-    if (signExtendN(relative_value, 13) !=
-        static_cast<int64_t>(relative_value & (~1))) {
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 13) !=
+          static_cast<int64_t>(relative_value & (~1))) {
 #ifndef NDEBUG
-      auto name =
-          map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-      (void)fprintf(stderr,
-                    "Error: relocation R_RISCV_BRANCH branch > 13 bits or "
-                    "not even for symbol '%.*s'\n",
-                    (int)name.size(), name.data());
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_BRANCH branch > 13 bits or "
+                      "not even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
 #endif
-      return false;
+        return false;
+      }
+      uint32_t value;
+      const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
+      cargo::read_little_endian(&value, relocation_address);
+      // imm bits 1-4 at bit 8
+      value = setBitRange(value, trunc_value >> 1, 8, 4);
+      // imm bits 5-10 at bit 25
+      value = setBitRange(value, trunc_value >> 5, 25, 6);
+      // imm bit 11 at bit 7
+      value = setBitRange(value, trunc_value >> 11, 7, 1);
+      // imm bit 12 at bit 31
+      value = setBitRange(value, trunc_value >> 12, 31, 1);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    uint32_t value;
-    const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
-    cargo::read_little_endian(&value, relocation_address);
-    // imm bits 1-4 at bit 8
-    value = setBitRange(value, trunc_value >> 1, 8, 4);
-    // imm bits 5-10 at bit 25
-    value = setBitRange(value, trunc_value >> 5, 25, 6);
-    // imm bit 11 at bit 7
-    value = setBitRange(value, trunc_value >> 11, 7, 1);
-    // imm bit 12 at bit 31
-    value = setBitRange(value, trunc_value >> 12, 31, 1);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
 
-  case R_RISCV_JAL: {
-    // R_RISCV_JAL immediate is for J-Type instructions and is split across 20
-    // bits spread across the instruction and skips the bottom bit of the
-    // input relative offset. See Unconditional jump instructions in the isa
-    // spec.
+    case R_RISCV_JAL: {
+      // R_RISCV_JAL immediate is for J-Type instructions and is split across 20
+      // bits spread across the instruction and skips the bottom bit of the
+      // input relative offset. See Unconditional jump instructions in the isa
+      // spec.
 
-    // Check that the value, when sign-extended back up to a 64-bit number
-    // will not lose bits.
-    if (signExtendN(relative_value, 21) !=
-        static_cast<int64_t>(relative_value & (~1))) {
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 21) !=
+          static_cast<int64_t>(relative_value & (~1))) {
 #ifndef NDEBUG
-      auto name =
-          map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-      (void)fprintf(stderr,
-                    "Error: relocation R_RISCV_BRANCH branch > 21 bits or "
-                    "not even for symbol '%.*s'\n",
-                    (int)name.size(), name.data());
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_BRANCH branch > 21 bits or "
+                      "not even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
 #endif
-      return false;
+        return false;
+      }
+      uint32_t value;
+      const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
+      cargo::read_little_endian(&value, relocation_address);
+      // imm bits 1-10 at bit 21
+      value = setBitRange(value, trunc_value >> 1, 21, 10);
+      // imm bit 11 at bit 22
+      value = setBitRange(value, trunc_value >> 11, 22, 1);
+      // imm bits 12-19 at bit 12
+      value = setBitRange(value, trunc_value >> 12, 12, 8);
+      // imm bit 20 at bit 31
+      value = setBitRange(value, trunc_value >> 20, 31, 1);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
-    uint32_t value;
-    const uint32_t trunc_value = static_cast<uint32_t>(relative_value);
-    cargo::read_little_endian(&value, relocation_address);
-    // imm bits 1-10 at bit 21
-    value = setBitRange(value, trunc_value >> 1, 21, 10);
-    // imm bit 11 at bit 22
-    value = setBitRange(value, trunc_value >> 11, 22, 1);
-    // imm bits 12-19 at bit 12
-    value = setBitRange(value, trunc_value >> 12, 12, 8);
-    // imm bit 20 at bit 31
-    value = setBitRange(value, trunc_value >> 20, 31, 1);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  case R_RISCV_RVC_JUMP: {
-    // R_RISCV_RVC_JUMP is for compressed instructions and fits in bits 2-12
-    // of a 16 bit value and skips the bottom bit of the input. See CJ format
-    // in the isa spec.
+    case R_RISCV_RVC_JUMP: {
+      // R_RISCV_RVC_JUMP is for compressed instructions and fits in bits 2-12
+      // of a 16 bit value and skips the bottom bit of the input. See CJ format
+      // in the isa spec.
 
-    // Check that the value, when sign-extended back up to a 64-bit number
-    // will not lose bits.
-    if (signExtendN(relative_value, 12) !=
-        static_cast<int64_t>(relative_value & (~1))) {
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 12) !=
+          static_cast<int64_t>(relative_value & (~1))) {
 #ifndef NDEBUG
-      auto name =
-          map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-      (void)fprintf(stderr,
-                    "Error: relocation R_RISCV_RVC_JUMP > 12 bits or not "
-                    "even for symbol '%.*s'\n",
-                    (int)name.size(), name.data());
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_RVC_JUMP > 12 bits or not "
+                      "even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
 #endif
-      return false;
+        return false;
+      }
+
+      uint16_t value;
+      cargo::read_little_endian(&value, relocation_address);
+      const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
+      value = setBitRange(value, offset_16, 2, 11);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
+    case R_RISCV_RVC_BRANCH: {
+      // R_RISCV_RVC_BRANCH is for compressed instructions and fits in bits 1-6
+      // (low) and 10-12 of a 16 bit value and skips the bottom bit of the
+      // input, requiring a total of 8 bits. See CB format in the isa spec.
 
-    uint16_t value;
-    cargo::read_little_endian(&value, relocation_address);
-    const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
-    value = setBitRange(value, offset_16, 2, 11);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-  case R_RISCV_RVC_BRANCH: {
-    // R_RISCV_RVC_BRANCH is for compressed instructions and fits in bits 1-6
-    // (low) and 10-12 of a 16 bit value and skips the bottom bit of the
-    // input, requiring a total of 8 bits. See CB format in the isa spec.
-
-    // Check that the value, when sign-extended back up to a 64-bit number
-    // will not lose bits.
-    if (signExtendN(relative_value, 9) !=
-        static_cast<int64_t>(relative_value & (~1))) {
+      // Check that the value, when sign-extended back up to a 64-bit number
+      // will not lose bits.
+      if (signExtendN(relative_value, 9) !=
+          static_cast<int64_t>(relative_value & (~1))) {
 #ifndef NDEBUG
-      auto name =
-          map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
-      (void)fprintf(stderr,
-                    "Error: relocation R_RISCV_RVC_BRANCH > 9 bits or not "
-                    "even for symbol '%.*s'\n",
-                    (int)name.size(), name.data());
+        auto name =
+            map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
+        (void)fprintf(stderr,
+                      "Error: relocation R_RISCV_RVC_BRANCH > 9 bits or not "
+                      "even for symbol '%.*s'\n",
+                      (int)name.size(), name.data());
 #endif
-      return false;
+        return false;
+      }
+
+      uint16_t value;
+      cargo::read_little_endian(&value, relocation_address);
+      const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
+      value = setBitRange(value, getBitRange(offset_16, 0, 4), 1, 6);
+      value = setBitRange(value, getBitRange(offset_16, 5, 7), 10, 3);
+      cargo::write_little_endian(value, relocation_address);
+      break;
     }
 
-    uint16_t value;
-    cargo::read_little_endian(&value, relocation_address);
-    const uint16_t offset_16 = static_cast<uint16_t>(relative_value) >> 1;
-    value = setBitRange(value, getBitRange(offset_16, 0, 4), 1, 6);
-    value = setBitRange(value, getBitRange(offset_16, 5, 7), 10, 3);
-    cargo::write_little_endian(value, relocation_address);
-    break;
-  }
-
-  case R_RISCV_ADD32: {
-    // 32-bit label addition: V + S + A
-    uint32_t value;
-    cargo::read_little_endian(&value, relocation_address);
-    cargo::write_little_endian(value +
-                                   static_cast<uint32_t>(symbol_target_address),
-                               relocation_address);
-    break;
-  }
-  case R_RISCV_SUB32: {
-    // 32-bit label subtraction: V - (S + A)
-    uint32_t value;
-    cargo::read_little_endian(&value, relocation_address);
-    cargo::write_little_endian(value -
-                                   static_cast<uint32_t>(symbol_target_address),
-                               relocation_address);
-    break;
-  }
+    case R_RISCV_ADD32: {
+      // 32-bit label addition: V + S + A
+      uint32_t value;
+      cargo::read_little_endian(&value, relocation_address);
+      cargo::write_little_endian(
+          value + static_cast<uint32_t>(symbol_target_address),
+          relocation_address);
+      break;
+    }
+    case R_RISCV_SUB32: {
+      // 32-bit label subtraction: V - (S + A)
+      uint32_t value;
+      cargo::read_little_endian(&value, relocation_address);
+      cargo::write_little_endian(
+          value - static_cast<uint32_t>(symbol_target_address),
+          relocation_address);
+      break;
+    }
   }
 
   return true;
 }
 
-} // namespace
+}  // namespace
 
 template <loader::Relocation::EntryType ET32,
           loader::Relocation::EntryType ET64>
@@ -1059,18 +1075,18 @@ bool loader::Relocation::resolve(
     loader::Relocation::StubMap &stubs,
     const std::vector<loader::Relocation> &relocations) {
   switch (file.machine()) {
-  case ElfFields::Machine::X86:
-    return resolveX86_32(*this, map);
-  case ElfFields::Machine::X86_64:
-    return resolveX86_64(*this, map);
-  case ElfFields::Machine::ARM:
-    return resolveArm(*this, map, stubs);
-  case ElfFields::Machine::AARCH64:
-    return resolveAArch64(*this, map, stubs);
-  case ElfFields::Machine::RISCV:
-    return resolveRISCV(*this, map, relocations);
-  default:
-    CARGO_ASSERT(0, "Unrecognised ELF machine.");
+    case ElfFields::Machine::X86:
+      return resolveX86_32(*this, map);
+    case ElfFields::Machine::X86_64:
+      return resolveX86_64(*this, map);
+    case ElfFields::Machine::ARM:
+      return resolveArm(*this, map, stubs);
+    case ElfFields::Machine::AARCH64:
+      return resolveAArch64(*this, map, stubs);
+    case ElfFields::Machine::RISCV:
+      return resolveRISCV(*this, map, relocations);
+    default:
+      CARGO_ASSERT(0, "Unrecognised ELF machine.");
   }
   return false;
 }

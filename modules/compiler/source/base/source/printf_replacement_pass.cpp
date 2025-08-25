@@ -165,34 +165,34 @@ Error scalarizeAndCheckFormatString(const std::string &str,
           return createStringError(inconvertibleErrorCode(), RanOffEnd);
         }
         switch (*fmt) {
-        default:
-          return createStringError(
-              inconvertibleErrorCode(),
-              formatv("invalid vector length modifier '{0}'", *fmt));
-        case '1':
-          // Must be 16, else error
-          if (IncrementPtr(&fmt)) {
-            return createStringError(inconvertibleErrorCode(), RanOffEnd);
-          }
-          if (*fmt != '6') {
+          default:
             return createStringError(
                 inconvertibleErrorCode(),
-                formatv("invalid vector length modifier '1{0}'", *fmt));
-          }
-          vector_length = 16u;
-          break;
-        case '2':
-          vector_length = 2u;
-          break;
-        case '3':
-          vector_length = 3u;
-          break;
-        case '4':
-          vector_length = 4u;
-          break;
-        case '8':
-          vector_length = 8u;
-          break;
+                formatv("invalid vector length modifier '{0}'", *fmt));
+          case '1':
+            // Must be 16, else error
+            if (IncrementPtr(&fmt)) {
+              return createStringError(inconvertibleErrorCode(), RanOffEnd);
+            }
+            if (*fmt != '6') {
+              return createStringError(
+                  inconvertibleErrorCode(),
+                  formatv("invalid vector length modifier '1{0}'", *fmt));
+            }
+            vector_length = 16u;
+            break;
+          case '2':
+            vector_length = 2u;
+            break;
+          case '3':
+            vector_length = 3u;
+            break;
+          case '4':
+            vector_length = 4u;
+            break;
+          case '8':
+            vector_length = 8u;
+            break;
         }
         if (IncrementPtr(&fmt)) {
           return createStringError(inconvertibleErrorCode(), RanOffEnd);
@@ -214,65 +214,65 @@ Error scalarizeAndCheckFormatString(const std::string &str,
       if (has_supplied_length_modifier) {
         bool consume_next_char = true;
         switch (*fmt) {
-        default:
-          // The 'j', 'z', 't', and 'L' length modifiers are not supported by
-          // OpenCL C.
-          return createStringError(
-              inconvertibleErrorCode(),
-              formatv("invalid length modifier '{0}'", *fmt));
-        case 'h':
-          if (IncrementPtr(&fmt)) {
-            return createStringError(inconvertibleErrorCode(), RanOffEnd);
-          }
-          if (*fmt == 'h') {
-            specifier_string += "hh";
-          } else if (*fmt == 'l') {
-            // Native printf doesn't recognize 'hl' so we don't
-            // add it to the new format string.  Luckily, 'hl'
-            // is sizeof(int) - the same as the default on
-            // native printf!
-
-            // Additionally, 'hl' modifier may only be used in
-            // conjunction with the vector specifier
-            if (!is_vector) {
-              return createStringError(inconvertibleErrorCode(),
-                                       "the 'hl' length modifier may only be "
-                                       "used with the vector specifier");
+          default:
+            // The 'j', 'z', 't', and 'L' length modifiers are not supported by
+            // OpenCL C.
+            return createStringError(
+                inconvertibleErrorCode(),
+                formatv("invalid length modifier '{0}'", *fmt));
+          case 'h':
+            if (IncrementPtr(&fmt)) {
+              return createStringError(inconvertibleErrorCode(), RanOffEnd);
             }
-          } else {
-            specifier_string += 'h';
-            // We've already incremented the ptr and we found nothing; don't
-            // do it again
+            if (*fmt == 'h') {
+              specifier_string += "hh";
+            } else if (*fmt == 'l') {
+              // Native printf doesn't recognize 'hl' so we don't
+              // add it to the new format string.  Luckily, 'hl'
+              // is sizeof(int) - the same as the default on
+              // native printf!
+
+              // Additionally, 'hl' modifier may only be used in
+              // conjunction with the vector specifier
+              if (!is_vector) {
+                return createStringError(inconvertibleErrorCode(),
+                                         "the 'hl' length modifier may only be "
+                                         "used with the vector specifier");
+              }
+            } else {
+              specifier_string += 'h';
+              // We've already incremented the ptr and we found nothing; don't
+              // do it again
+              consume_next_char = false;
+            }
+            break;
+          case 'l':
+            specifier_string += *fmt;
+            // Check ahead to see if the user is using the invalid 'll' length
+            // modifier
+            if (IncrementPtr(&fmt)) {
+              return createStringError(inconvertibleErrorCode(), RanOffEnd);
+            }
+            if (*fmt == 'l') {
+              return createStringError(inconvertibleErrorCode(),
+                                       "the 'll' length modifier is invalid");
+            }
+            // We've already incremented the ptr; don't do it again
+
+            // The 'l' modifier for the OpenCL printf expects 64 bits
+            // integers, check if the system's long are actually 64 bits wide
+            // and if not upgrade the format modifier to 'll'.
+            //
+            // FIXME: This only works for host based devices, which is fine for
+            // our current printf implementation, but it should really be
+            // removed once we have a proper printf implementation.
+            if (sizeof(long) != 8) {
+              specifier_string += 'l';
+            }
+
             consume_next_char = false;
-          }
-          break;
-        case 'l':
-          specifier_string += *fmt;
-          // Check ahead to see if the user is using the invalid 'll' length
-          // modifier
-          if (IncrementPtr(&fmt)) {
-            return createStringError(inconvertibleErrorCode(), RanOffEnd);
-          }
-          if (*fmt == 'l') {
-            return createStringError(inconvertibleErrorCode(),
-                                     "the 'll' length modifier is invalid");
-          }
-          // We've already incremented the ptr; don't do it again
-
-          // The 'l' modifier for the OpenCL printf expects 64 bits
-          // integers, check if the system's long are actually 64 bits wide
-          // and if not upgrade the format modifier to 'll'.
-          //
-          // FIXME: This only works for host based devices, which is fine for
-          // our current printf implementation, but it should really be
-          // removed once we have a proper printf implementation.
-          if (sizeof(long) != 8) {
-            specifier_string += 'l';
-          }
-
-          consume_next_char = false;
-          has_used_l_length_modifier = true;
-          break;
+            has_used_l_length_modifier = true;
+            break;
         }
         if (consume_next_char) {
           if (IncrementPtr(&fmt)) {
@@ -285,25 +285,25 @@ Error scalarizeAndCheckFormatString(const std::string &str,
       specifier_string += *fmt;
 
       switch (*fmt) {
-      default:
-        break;
-      case 'n':
-        // The 'n' conversion specifier is not supported by OpenCL C.
-        return createStringError(inconvertibleErrorCode(),
-                                 "the 'n' conversion specifier is not "
-                                 "supported by OpenCL C but is reserved");
-      case 's': // Intentional fall-through
-      case 'c':
-        // The 'l' length modifier followed by the 'c' or 's' conversion
-        // specifiers is not supported by OpenCL C.
-        if (has_used_l_length_modifier) {
-          return createStringError(
-              inconvertibleErrorCode(),
-              "the 'l' length modifier followed by a 'c' conversion "
-              "specifier or 's' conversion specifier is not supported by "
-              "OpenCL C");
-        }
-        break;
+        default:
+          break;
+        case 'n':
+          // The 'n' conversion specifier is not supported by OpenCL C.
+          return createStringError(inconvertibleErrorCode(),
+                                   "the 'n' conversion specifier is not "
+                                   "supported by OpenCL C but is reserved");
+        case 's':  // Intentional fall-through
+        case 'c':
+          // The 'l' length modifier followed by the 'c' or 's' conversion
+          // specifiers is not supported by OpenCL C.
+          if (has_used_l_length_modifier) {
+            return createStringError(
+                inconvertibleErrorCode(),
+                "the 'l' length modifier followed by a 'c' conversion "
+                "specifier or 's' conversion specifier is not supported by "
+                "OpenCL C");
+          }
+          break;
       }
 
       // Output the %specifier for each element of the vector,
@@ -333,21 +333,21 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
   if (!var) {
     if (auto const_string = dyn_cast<ConstantExpr>(op)) {
       switch (const_string->getOpcode()) {
-      case Instruction::GetElementPtr:
-      case Instruction::AddrSpaceCast:
-        var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
-        break;
-      case Instruction::IntToPtr:
-        // Sometimes we see a PtrToInt expression inside an IntToPtr
-        // expression, so therefore we need to unwrap it twice.
-        const_string = dyn_cast<ConstantExpr>(const_string->getOperand(0));
-        if (const_string &&
-            const_string->getOpcode() == Instruction::PtrToInt) {
+        case Instruction::GetElementPtr:
+        case Instruction::AddrSpaceCast:
           var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
-        }
-        break;
-      default:
-        break;
+          break;
+        case Instruction::IntToPtr:
+          // Sometimes we see a PtrToInt expression inside an IntToPtr
+          // expression, so therefore we need to unwrap it twice.
+          const_string = dyn_cast<ConstantExpr>(const_string->getOperand(0));
+          if (const_string &&
+              const_string->getOpcode() == Instruction::PtrToInt) {
+            var = dyn_cast<GlobalVariable>(const_string->getOperand(0));
+          }
+          break;
+        default:
+          break;
       }
     } else if (auto gep_string = dyn_cast<GetElementPtrInst>(op)) {
       var = dyn_cast<GlobalVariable>(gep_string->getPointerOperand());
@@ -437,7 +437,7 @@ Type *getBufferEltTy(LLVMContext &c) { return IntegerType::getInt8Ty(c); }
 class DiagnosticInfoScrubbedPrintf : public DiagnosticInfoWithLocationBase {
   Twine Msg;
 
-public:
+ public:
   static int DK_ScrubbedPrintf;
 
   DiagnosticInfoScrubbedPrintf(const Instruction &I, const Twine &Msg,
@@ -460,7 +460,7 @@ public:
 
 int DiagnosticInfoScrubbedPrintf::DK_ScrubbedPrintf =
     getNextAvailablePluginDiagnosticKind();
-} // namespace
+}  // namespace
 
 // 6.15.14.3:
 // In OpenCL C, printf returns 0 if it was executed successfully and -1
@@ -626,20 +626,20 @@ void compiler::PrintfReplacementPass::rewritePrintfCall(
         new_args_types.push_back(type);
 
         switch (type->getPrimitiveSizeInBits()) {
-        case 64:
-          printf_desc.types.push_back(builtins::printf::type::LONG);
-          break;
-        case 32:
-          printf_desc.types.push_back(builtins::printf::type::INT);
-          break;
-        case 16:
-          printf_desc.types.push_back(builtins::printf::type::SHORT);
-          break;
-        case 8:
-          printf_desc.types.push_back(builtins::printf::type::CHAR);
-          break;
-        default:
-          llvm_unreachable("Unsupported printf argument");
+          case 64:
+            printf_desc.types.push_back(builtins::printf::type::LONG);
+            break;
+          case 32:
+            printf_desc.types.push_back(builtins::printf::type::INT);
+            break;
+          case 16:
+            printf_desc.types.push_back(builtins::printf::type::SHORT);
+            break;
+          case 8:
+            printf_desc.types.push_back(builtins::printf::type::CHAR);
+            break;
+          default:
+            llvm_unreachable("Unsupported printf argument");
         }
       }
     }
@@ -815,9 +815,8 @@ compiler::PrintfReplacementPass::PrintfReplacementPass(PrintfDescriptorVecTy *p,
                                                        size_t s)
     : printf_calls_out_ptr(p), printf_buffer_size(s) {}
 
-PreservedAnalyses
-compiler::PrintfReplacementPass::run(Module &module,
-                                     ModuleAnalysisManager &AM) {
+PreservedAnalyses compiler::PrintfReplacementPass::run(
+    Module &module, ModuleAnalysisManager &AM) {
   Function *printf_func = module.getFunction("printf");
   if (!printf_func) {
     return PreservedAnalyses::all();

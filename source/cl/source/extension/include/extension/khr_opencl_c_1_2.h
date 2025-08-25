@@ -39,7 +39,7 @@ namespace extension {
 /// * `cl_khr_fp64` is only included if the queried device supports double
 ///   precision floating point types.
 class khr_opencl_c_1_2 final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   khr_opencl_c_1_2();
 
@@ -78,6 +78,6 @@ public:
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_KHR_OPENCL_C_1_2_H_INCLUDED
+#endif  // EXTENSION_KHR_OPENCL_C_1_2_H_INCLUDED

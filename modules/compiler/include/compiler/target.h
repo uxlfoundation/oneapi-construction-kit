@@ -53,7 +53,7 @@ enum BuiltinsCapabilities : uint32_t {
 
 /// @brief Compiler target class.
 class Target {
-public:
+ public:
   /// @brief Virtual destructor.
   virtual ~Target() = default;
 
@@ -82,9 +82,9 @@ public:
   /// @brief Returns the compiler info associated with this target.
   virtual const compiler::Info *getCompilerInfo() const = 0;
 
-}; // class Target
+};  // class Target
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_TARGET_H_INCLUDED
+#endif  // COMPILER_TARGET_H_INCLUDED

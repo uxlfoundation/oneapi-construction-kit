@@ -88,20 +88,20 @@ void BaseModulePassMachinery::setCompilerOptions(
 
 void BaseModulePassMachinery::addClassToPassNames() {
 // Register compiler passes
-#define MODULE_PASS(NAME, CREATE_PASS)                                         \
+#define MODULE_PASS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
 #define MODULE_PASS_NO_PARSE(NAME, CLASS) PIC.addClassToPassName(CLASS, NAME);
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   PIC.addClassToPassName(CLASS, NAME);
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
-#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
-#define FUNCTION_PASS(NAME, CREATE_PASS)                                       \
+#define FUNCTION_PASS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
-#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)    \
+#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   PIC.addClassToPassName(CLASS, NAME);
-#define CGSCC_PASS(NAME, CREATE_PASS)                                          \
+#define CGSCC_PASS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
 
 #include "base_module_pass_registry.def"
@@ -135,14 +135,14 @@ parseAddKernelWrapperPassOptions(StringRef Params) {
   return Opts;
 }
 
-static Expected<StringRef>
-parseMakeFunctionNameUniquePassOptions(StringRef Params) {
+static Expected<StringRef> parseMakeFunctionNameUniquePassOptions(
+    StringRef Params) {
   return compiler::utils::parseSinglePassStringRef(Params);
 }
 
 template <size_t N>
-static ErrorOr<std::array<std::optional<uint64_t>, N>>
-parseIntList(StringRef OptionVal, bool AllowNegative = false) {
+static ErrorOr<std::array<std::optional<uint64_t>, N>> parseIntList(
+    StringRef OptionVal, bool AllowNegative = false) {
   std::array<std::optional<uint64_t>, N> Arr;
   for (unsigned i = 0; i < N; i++) {
     int64_t Res;
@@ -324,8 +324,8 @@ static std::unordered_map<std::string, CallingConv::ID> CallConvMap = {
 // For parseFixupCallingConventionPassOptions we check the param against
 // an entry in a map. We should consider making this generic if we get similar
 // enum map style parsing needs
-static Expected<CallingConv::ID>
-parseFixupCallingConventionPassOptions(StringRef Params) {
+static Expected<CallingConv::ID> parseFixupCallingConventionPassOptions(
+    StringRef Params) {
   CallingConv::ID Result = CallingConv::C;
   while (!Params.empty()) {
     StringRef CCName;
@@ -361,8 +361,8 @@ parseWorkItemLoopsPassOptions(StringRef Params) {
   return Opts;
 }
 
-static Expected<std::vector<llvm::StringRef>>
-parseReduceToFunctionPassOptions(StringRef Params) {
+static Expected<std::vector<llvm::StringRef>> parseReduceToFunctionPassOptions(
+    StringRef Params) {
   std::vector<llvm::StringRef> Names;
 
   while (!Params.empty()) {
@@ -413,9 +413,9 @@ parseReplaceTargetExtTysPassOptions(StringRef Params) {
 
 void BaseModulePassMachinery::registerPasses() {
   PassMachinery::registerPasses();
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   MAM.registerPass([&] { return CREATE_PASS; });
-#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS) \
   getFAM().registerPass([&] { return CREATE_PASS; });
 
 #include "base_module_pass_registry.def"
@@ -463,76 +463,76 @@ void BaseModulePassMachinery::registerPassCallbacks() {
           return true;
         }
 
-#define MODULE_PASS(NAME, CREATE_PASS)                                         \
-  if (Name == NAME) {                                                          \
-    PM.addPass(CREATE_PASS);                                                   \
-    return true;                                                               \
+#define MODULE_PASS(NAME, CREATE_PASS) \
+  if (Name == NAME) {                  \
+    PM.addPass(CREATE_PASS);           \
+    return true;                       \
   }
-#define MODULE_PASS_FULL_CREATE_PASS(NAME, CREATE_PASS)                        \
-  if (Name == NAME) {                                                          \
-    PM.addPass(CREATE_PASS());                                                 \
-    return true;                                                               \
-  }
-
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
-  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {                \
-    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME);    \
-    if (!Params) {                                                             \
-      errs() << toString(Params.takeError()) << "\n";                          \
-      return false;                                                            \
-    }                                                                          \
-    PM.addPass(CREATE_PASS(Params.get()));                                     \
-    return true;                                                               \
+#define MODULE_PASS_FULL_CREATE_PASS(NAME, CREATE_PASS) \
+  if (Name == NAME) {                                   \
+    PM.addPass(CREATE_PASS());                          \
+    return true;                                        \
   }
 
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
-  if (Name == "require<" NAME ">") {                                           \
-    PM.addPass(                                                                \
-        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>,    \
-                            llvm::Module>());                                  \
-    return true;                                                               \
-  }                                                                            \
-  if (Name == "invalidate<" NAME ">") {                                        \
-    PM.addPass(InvalidateAnalysisPass<                                         \
-               std::remove_reference_t<decltype(CREATE_PASS)>>());             \
-    return true;                                                               \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)   \
+  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {             \
+    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME); \
+    if (!Params) {                                                          \
+      errs() << toString(Params.takeError()) << "\n";                       \
+      return false;                                                         \
+    }                                                                       \
+    PM.addPass(CREATE_PASS(Params.get()));                                  \
+    return true;                                                            \
   }
 
-#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
-  if (Name == "require<" NAME ">") {                                           \
-    PM.addPass(createModuleToFunctionPassAdaptor(                              \
-        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>,    \
-                            Function>()));                                     \
-    return true;                                                               \
-  }                                                                            \
-  if (Name == "invalidate<" NAME ">") {                                        \
-    PM.addPass(createModuleToFunctionPassAdaptor(                              \
-        InvalidateAnalysisPass<                                                \
-            std::remove_reference_t<decltype(CREATE_PASS)>>()));               \
-    return true;                                                               \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                  \
+  if (Name == "require<" NAME ">") {                                        \
+    PM.addPass(                                                             \
+        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>, \
+                            llvm::Module>());                               \
+    return true;                                                            \
+  }                                                                         \
+  if (Name == "invalidate<" NAME ">") {                                     \
+    PM.addPass(InvalidateAnalysisPass<                                      \
+               std::remove_reference_t<decltype(CREATE_PASS)>>());          \
+    return true;                                                            \
   }
 
-#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)    \
-  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {                \
-    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME);    \
-    if (!Params) {                                                             \
-      errs() << toString(Params.takeError()) << "\n";                          \
-      return false;                                                            \
-    }                                                                          \
-    PM.addPass(createModuleToFunctionPassAdaptor(CREATE_PASS(Params.get())));  \
-    return true;                                                               \
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                \
+  if (Name == "require<" NAME ">") {                                        \
+    PM.addPass(createModuleToFunctionPassAdaptor(                           \
+        RequireAnalysisPass<std::remove_reference_t<decltype(CREATE_PASS)>, \
+                            Function>()));                                  \
+    return true;                                                            \
+  }                                                                         \
+  if (Name == "invalidate<" NAME ">") {                                     \
+    PM.addPass(createModuleToFunctionPassAdaptor(                           \
+        InvalidateAnalysisPass<                                             \
+            std::remove_reference_t<decltype(CREATE_PASS)>>()));            \
+    return true;                                                            \
   }
 
-#define FUNCTION_PASS(NAME, CREATE_PASS)                                       \
-  if (Name == NAME) {                                                          \
-    PM.addPass(createModuleToFunctionPassAdaptor(CREATE_PASS));                \
-    return true;                                                               \
+#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)   \
+  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {               \
+    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME);   \
+    if (!Params) {                                                            \
+      errs() << toString(Params.takeError()) << "\n";                         \
+      return false;                                                           \
+    }                                                                         \
+    PM.addPass(createModuleToFunctionPassAdaptor(CREATE_PASS(Params.get()))); \
+    return true;                                                              \
   }
 
-#define CGSCC_PASS(NAME, CREATE_PASS)                                          \
-  if (Name == NAME) {                                                          \
-    PM.addPass(createModuleToPostOrderCGSCCPassAdaptor(CREATE_PASS));          \
-    return true;                                                               \
+#define FUNCTION_PASS(NAME, CREATE_PASS)                        \
+  if (Name == NAME) {                                           \
+    PM.addPass(createModuleToFunctionPassAdaptor(CREATE_PASS)); \
+    return true;                                                \
+  }
+
+#define CGSCC_PASS(NAME, CREATE_PASS)                                 \
+  if (Name == NAME) {                                                 \
+    PM.addPass(createModuleToPostOrderCGSCCPassAdaptor(CREATE_PASS)); \
+    return true;                                                      \
   }
 
 #include "base_module_pass_registry.def"
@@ -548,27 +548,27 @@ void BaseModulePassMachinery::printPassNames(raw_ostream &OS) {
 #include "base_module_pass_registry.def"
 
   OS << "Module passes with params:\n";
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   compiler::utils::printPassName(NAME, PARAMS, OS);
 #include "base_module_pass_registry.def"
 
   OS << "Module analyses:\n";
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "base_module_pass_registry.def"
 
   OS << "Function analyses:\n";
-#define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
+#define FUNCTION_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "base_module_pass_registry.def"
 
   OS << "Function passes:\n";
-#define FUNCTION_PASS(NAME, CREATE_PASS)                                       \
+#define FUNCTION_PASS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "base_module_pass_registry.def"
 
   OS << "Function passes with params:\n";
-#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)    \
+#define FUNCTION_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   compiler::utils::printPassName(NAME, PARAMS, OS);
 #include "base_module_pass_registry.def"
 
@@ -577,8 +577,8 @@ void BaseModulePassMachinery::printPassNames(raw_ostream &OS) {
 #include "base_module_pass_registry.def"
 }
 
-compiler::utils::DeviceInfo
-initDeviceInfoFromMux(mux_device_info_t device_info) {
+compiler::utils::DeviceInfo initDeviceInfoFromMux(
+    mux_device_info_t device_info) {
   if (!device_info) {
     return compiler::utils::DeviceInfo{};
   }
@@ -594,4 +594,4 @@ initDeviceInfoFromMux(mux_device_info_t device_info) {
   return info;
 }
 
-} // namespace compiler
+}  // namespace compiler

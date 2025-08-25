@@ -57,13 +57,13 @@ bool IRToBuiltinReplacementPass::replaceInstruction(Module &module,
 
         if (ins.getType()->isVectorTy()) {
           auto numElements = multi_llvm::getVectorNumElements(ins.getType());
-          mangledName += "Dv"; // Vector Type
+          mangledName += "Dv";  // Vector Type
           mangledName += std::to_string(numElements);
           mangledName += "_";
-          mangledName += baseTypeName; // f or d for float or double
-          mangledName += "S_";         // repeat last parameter
+          mangledName += baseTypeName;  // f or d for float or double
+          mangledName += "S_";          // repeat last parameter
         } else {
-          mangledName += baseTypeName; // just f or d for the scalar types
+          mangledName += baseTypeName;  // just f or d for the scalar types
           mangledName += baseTypeName;
         }
 
@@ -95,9 +95,8 @@ bool IRToBuiltinReplacementPass::replaceInstruction(Module &module,
   return modified;
 }
 
-PreservedAnalyses
-IRToBuiltinReplacementPass::run(llvm::Module &module,
-                                llvm::ModuleAnalysisManager &) {
+PreservedAnalyses IRToBuiltinReplacementPass::run(
+    llvm::Module &module, llvm::ModuleAnalysisManager &) {
   // Replace frem with call to demangled fmod.
   // Note that if other instruction are added, the demangler will need
   // improving
@@ -107,4 +106,4 @@ IRToBuiltinReplacementPass::run(llvm::Module &module,
   return Changed ? PreservedAnalyses::none() : PreservedAnalyses::all();
 }
 
-} // namespace riscv
+}  // namespace riscv

@@ -22,15 +22,17 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T, typename U> T fmin(const T x, const U y);
+template <typename T, typename U>
+T fmin(const T x, const U y);
 
-template <typename T> T fmin(const T x, const T y) {
+template <typename T>
+T fmin(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType TSignedType;
 
   const TSignedType xNan = __abacus_isnan(x);
   const TSignedType yNan = __abacus_isnan(y);
 
-  TSignedType c = 0; // Return x when set
+  TSignedType c = 0;  // Return x when set
 
   if (__abacus_isftz()) {
     const TSignedType xInt = abacus::detail::cast::as<TSignedType>(x);
@@ -53,10 +55,11 @@ template <typename T> T fmin(const T x, const T y) {
   return __abacus_select(y, x, condition);
 }
 
-template <typename T, typename U> T fmin(const T x, const U y) {
+template <typename T, typename U>
+T fmin(const T x, const U y) {
   return fmin<>(x, (T)y);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fmin(abacus_half x, abacus_half y) {
@@ -94,7 +97,7 @@ abacus_half16 ABACUS_API __abacus_fmin(abacus_half16 x, abacus_half y) {
   return fmin<>(x, y);
 }
 
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_fmin(abacus_float x, abacus_float y) {
   return fmin<>(x, y);
@@ -166,4 +169,4 @@ abacus_double8 ABACUS_API __abacus_fmin(abacus_double8 x, abacus_double y) {
 abacus_double16 ABACUS_API __abacus_fmin(abacus_double16 x, abacus_double y) {
   return fmin<>(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

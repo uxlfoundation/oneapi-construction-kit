@@ -56,9 +56,9 @@
 
 namespace host {
 
-static bool
-hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
-                 llvm::SmallVectorImpl<vecz::VeczPassOptions> &Opts) {
+static bool hostVeczPassOpts(
+    llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
+    llvm::SmallVectorImpl<vecz::VeczPassOptions> &Opts) {
   auto vecz_mode = compiler::getVectorizationMode(F);
   if (vecz_mode != compiler::VectorizationMode::ALWAYS &&
       vecz_mode != compiler::VectorizationMode::AUTO) {
@@ -124,11 +124,11 @@ hostVeczPassOpts(llvm::Function &F, llvm::ModuleAnalysisManager &MAM,
 void HostPassMachinery::addClassToPassNames() {
   BaseModulePassMachinery::addClassToPassNames();
 
-#define MODULE_PASS(NAME, CREATE_PASS)                                         \
+#define MODULE_PASS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   PIC.addClassToPassName(CLASS, NAME);
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   PIC.addClassToPassName(decltype(CREATE_PASS)::name(), NAME);
 
 #include "host_pass_registry.def"
@@ -137,14 +137,14 @@ void HostPassMachinery::addClassToPassNames() {
 /// @brief Helper functions for parsing options
 /// @note These functions are small but keep the def file simpler and is in line
 /// with PassBuilder.cpp
-static llvm::Expected<bool>
-parseFloatPointControlPassOptions(llvm::StringRef Params) {
+static llvm::Expected<bool> parseFloatPointControlPassOptions(
+    llvm::StringRef Params) {
   return compiler::utils::parseSinglePassOption(Params, "ftz",
                                                 "FloatPointControlPass");
 }
 
 void HostPassMachinery::registerPasses() {
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   MAM.registerPass([&] { return CREATE_PASS; });
 #include "host_pass_registry.def"
   compiler::BaseModulePassMachinery::registerPasses();
@@ -155,20 +155,20 @@ void HostPassMachinery::registerPassCallbacks() {
   PB.registerPipelineParsingCallback(
       [](llvm::StringRef Name, llvm::ModulePassManager &PM,
          llvm::ArrayRef<llvm::PassBuilder::PipelineElement>) {
-#define MODULE_PASS(NAME, CREATE_PASS)                                         \
-  if (Name == NAME) {                                                          \
-    PM.addPass(CREATE_PASS);                                                   \
-    return true;                                                               \
+#define MODULE_PASS(NAME, CREATE_PASS) \
+  if (Name == NAME) {                  \
+    PM.addPass(CREATE_PASS);           \
+    return true;                       \
   }
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
-  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {                \
-    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME);    \
-    if (!Params) {                                                             \
-      llvm::errs() << toString(Params.takeError()) << "\n";                    \
-      return false;                                                            \
-    }                                                                          \
-    PM.addPass(CREATE_PASS(Params.get()));                                     \
-    return true;                                                               \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)   \
+  if (compiler::utils::checkParametrizedPassName(Name, NAME)) {             \
+    auto Params = compiler::utils::parsePassParameters(PARSER, Name, NAME); \
+    if (!Params) {                                                          \
+      llvm::errs() << toString(Params.takeError()) << "\n";                 \
+      return false;                                                         \
+    }                                                                       \
+    PM.addPass(CREATE_PASS(Params.get()));                                  \
+    return true;                                                            \
   }
 
 #include "host_pass_registry.def"
@@ -229,7 +229,7 @@ llvm::ModulePassManager HostPassMachinery::getLateTargetPasses() {
       }
     }
   }));
-#endif // CA_ENABLE_DEBUG_SUPPORT
+#endif  // CA_ENABLE_DEBUG_SUPPORT
   return PM;
 }
 
@@ -325,12 +325,12 @@ void HostPassMachinery::printPassNames(llvm::raw_ostream &OS) {
 #include "host_pass_registry.def"
 
   OS << "Module passes with params:\n";
-#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS)      \
+#define MODULE_PASS_WITH_PARAMS(NAME, CLASS, CREATE_PASS, PARSER, PARAMS) \
   compiler::utils::printPassName(NAME, PARAMS, OS);
 #include "host_pass_registry.def"
 
   OS << "Module analyses:\n";
-#define MODULE_ANALYSIS(NAME, CREATE_PASS)                                     \
+#define MODULE_ANALYSIS(NAME, CREATE_PASS) \
   compiler::utils::printPassName(NAME, OS);
 #include "host_pass_registry.def"
 
@@ -346,4 +346,4 @@ void HostPassMachinery::printPassNames(llvm::raw_ostream &OS) {
         "MakeFunctionNameUniquePass with that name.\n";
 }
 
-} // namespace host
+}  // namespace host

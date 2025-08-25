@@ -210,6 +210,6 @@ struct thread_pool_s final {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_THREAD_POOL_H_INCLUDED
+#endif  // HOST_THREAD_POOL_H_INCLUDED

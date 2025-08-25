@@ -22,14 +22,15 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T> T native_rsqrt(const T x) {
+template <typename T>
+T native_rsqrt(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   const SignedType i =
       (SignedType)0x5f375a86 - (abacus::detail::cast::as<SignedType>(x) >> 1);
   const T y = abacus::detail::cast::as<T>(i);
   return y * ((T)1.5f - (x * y * y * 0.5f));
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_native_rsqrt(abacus_float x) {
   return native_rsqrt<>(x);

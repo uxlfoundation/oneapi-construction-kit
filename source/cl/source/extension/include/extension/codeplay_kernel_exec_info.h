@@ -46,12 +46,11 @@ struct codeplay_kernel_exec_info : extension {
   ///
   /// @return Returns a pointer to the extension function or nullptr if no
   /// function with the name func_name exists.
-  void *
-  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                         const char *func_name) const override;
+  void *GetExtensionFunctionAddressForPlatform(
+      cl_platform_id platform, const char *func_name) const override;
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_CODEPLAY_KERNEL_EXEC_INFO_H_INCLUDED
+#endif  // EXTENSION_CODEPLAY_KERNEL_EXEC_INFO_H_INCLUDED

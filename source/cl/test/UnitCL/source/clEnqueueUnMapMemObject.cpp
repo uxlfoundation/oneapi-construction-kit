@@ -19,7 +19,7 @@
 
 class clEnqueueUnMapMemObjectTest : public ucl::CommandQueueTest,
                                     TestWithEventWaitList {
-protected:
+ protected:
   enum { SIZE = 128, INT_SIZE = (SIZE * sizeof(cl_int)) };
 
   void SetUp() override {

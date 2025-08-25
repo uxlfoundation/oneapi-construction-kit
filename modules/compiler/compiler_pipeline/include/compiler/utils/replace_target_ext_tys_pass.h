@@ -45,7 +45,7 @@ struct ReplaceTargetExtTysOptions {
 /// the target can't introduce further target extension types if it wishes.
 class ReplaceTargetExtTysPass final
     : public llvm::PassInfoMixin<ReplaceTargetExtTysPass> {
-public:
+ public:
   ReplaceTargetExtTysPass(const ReplaceTargetExtTysOptions &Options)
       : ReplaceImages(Options.ReplaceImages),
         ReplaceSamplers(Options.ReplaceSamplers),
@@ -53,13 +53,13 @@ public:
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 
-private:
+ private:
   bool ReplaceImages;
   bool ReplaceSamplers;
   bool ReplaceEvents;
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_REPLACE_TARGET_EXT_TYS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REPLACE_TARGET_EXT_TYS_PASS_H_INCLUDED

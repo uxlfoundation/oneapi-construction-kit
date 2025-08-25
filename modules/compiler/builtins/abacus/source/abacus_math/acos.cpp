@@ -22,7 +22,7 @@
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/atan_unsafe.h>
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/sqrt.h>
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -142,7 +142,8 @@ abacus_float ABACUS_API __abacus_acos(abacus_float x) {
 }
 
 namespace {
-template <typename T> T acos(const T x) {
+template <typename T>
+T acos(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
@@ -170,7 +171,7 @@ template <typename T> T acos(const T x) {
 
   return __abacus_select(result, ABACUS_NAN, __abacus_isnan(x));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
@@ -182,7 +183,8 @@ static ABACUS_CONSTANT abacus_half __codeplay_acos_1[3] = {
 static ABACUS_CONSTANT abacus_half __codeplay_acos_2[2] = {-0.99853515625f16,
                                                            -0.1995849609375f16};
 
-template <typename T> T ABACUS_API acos_half(T x) {
+template <typename T>
+T ABACUS_API acos_half(T x) {
   // This implementation is very like asin(x), as the two function only really
   // differ mathematically by a constant. See asin(x) for more details
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -225,7 +227,7 @@ template <typename T> T ABACUS_API acos_half(T x) {
 
   return ans;
 }
-} // namespace
+}  // namespace
 
 abacus_half ABACUS_API __abacus_acos(abacus_half x) { return acos_half<>(x); }
 abacus_half2 ABACUS_API __abacus_acos(abacus_half2 x) { return acos_half<>(x); }
@@ -236,7 +238,7 @@ abacus_half16 ABACUS_API __abacus_acos(abacus_half16 x) {
   return acos_half<>(x);
 }
 
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float2 ABACUS_API __abacus_acos(abacus_float2 x) { return acos<>(x); }
 abacus_float3 ABACUS_API __abacus_acos(abacus_float3 x) { return acos<>(x); }
@@ -246,7 +248,8 @@ abacus_float16 ABACUS_API __abacus_acos(abacus_float16 x) { return acos<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 namespace {
-template <typename T> T acosD(const T x) {
+template <typename T>
+T acosD(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -262,7 +265,7 @@ template <typename T> T acosD(const T x) {
 
   return result;
 }
-} // namespace
+}  // namespace
 
 abacus_double ABACUS_API __abacus_acos(abacus_double x) { return acosD<>(x); }
 abacus_double2 ABACUS_API __abacus_acos(abacus_double2 x) { return acosD<>(x); }
@@ -272,4 +275,4 @@ abacus_double8 ABACUS_API __abacus_acos(abacus_double8 x) { return acosD<>(x); }
 abacus_double16 ABACUS_API __abacus_acos(abacus_double16 x) {
   return acosD<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

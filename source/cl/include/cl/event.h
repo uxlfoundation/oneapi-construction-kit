@@ -46,7 +46,7 @@ using pfn_event_notify_t = void(CL_CALLBACK *)(cl_event event,
                                                void *user_data);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
 /// @addtogroup cl
 /// @{
@@ -137,7 +137,7 @@ struct _cl_event final : public cl::base<_cl_event> {
   /// @brief Profiling data container.
   profiling_state_t profiling;
 
-private:
+ private:
   /// @brief Event constructor.
   ///
   /// @param[in] context Context the event belongs to.
@@ -295,6 +295,6 @@ CL_API_ENTRY cl_int CL_API_CALL GetEventProfilingInfo(
     void *param_value, size_t *param_value_size_ret);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_EVENT_H_INCLUDED
+#endif  // CL_EVENT_H_INCLUDED

@@ -24,11 +24,11 @@
 #include <string>
 #include <vector>
 
-#define CL_CHECK(ERROR)                                                        \
-  if (ERROR) {                                                                 \
-    std::cerr << "OpenCL error: " << ERROR << "\n"                             \
-              << "at line: " << __LINE__ << "\n";                              \
-    return ERROR;                                                              \
+#define CL_CHECK(ERROR)                            \
+  if (ERROR) {                                     \
+    std::cerr << "OpenCL error: " << ERROR << "\n" \
+              << "at line: " << __LINE__ << "\n";  \
+    return ERROR;                                  \
   }
 
 int main(const int argc, const char **argv) {
@@ -77,8 +77,8 @@ int main(const int argc, const char **argv) {
     return 0;
   }
 
-#define CL_GET_EXTENSION_ADDRESS(FUNC)                                         \
-  FUNC##_fn FUNC = reinterpret_cast<FUNC##_fn>(                                \
+#define CL_GET_EXTENSION_ADDRESS(FUNC)          \
+  FUNC##_fn FUNC = reinterpret_cast<FUNC##_fn>( \
       clGetExtensionFunctionAddressForPlatform(platform, #FUNC));
 
   CL_GET_EXTENSION_ADDRESS(clCreateCommandBufferKHR);

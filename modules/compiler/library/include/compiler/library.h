@@ -63,6 +63,6 @@ const compiler::Info *getCompilerForDevice(mux_device_info_t device_info);
 std::unique_ptr<compiler::Context> createContext();
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_LIBRARY_H_INCLUDED
+#endif  // COMPILER_LIBRARY_H_INCLUDED

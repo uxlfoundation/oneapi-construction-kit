@@ -26,7 +26,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct erfc_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct erfc_helper<T, abacus_half> {
+template <typename T>
+struct erfc_helper<T, abacus_half> {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   static T _(const T x) {
@@ -82,9 +83,10 @@ template <typename T> struct erfc_helper<T, abacus_half> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct erfc_helper<T, abacus_float> {
+template <typename T>
+struct erfc_helper<T, abacus_float> {
   static T _(const T x) {
     const T xAbs = __abacus_fabs(x);
 
@@ -144,7 +146,8 @@ template <typename T> struct erfc_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct erfc_helper<T, abacus_double> {
+template <typename T>
+struct erfc_helper<T, abacus_double> {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   static T _(const T x) {
@@ -391,10 +394,13 @@ template <typename T> struct erfc_helper<T, abacus_double> {
     return result;
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> inline T erfc(const T x) { return erfc_helper<T>::_(x); }
-} // namespace
+template <typename T>
+inline T erfc(const T x) {
+  return erfc_helper<T>::_(x);
+}
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_erfc(abacus_half x) { return erfc<>(x); }
@@ -403,7 +409,7 @@ abacus_half3 ABACUS_API __abacus_erfc(abacus_half3 x) { return erfc<>(x); }
 abacus_half4 ABACUS_API __abacus_erfc(abacus_half4 x) { return erfc<>(x); }
 abacus_half8 ABACUS_API __abacus_erfc(abacus_half8 x) { return erfc<>(x); }
 abacus_half16 ABACUS_API __abacus_erfc(abacus_half16 x) { return erfc<>(x); }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_erfc(abacus_float x) { return erfc<>(x); }
 abacus_float2 ABACUS_API __abacus_erfc(abacus_float2 x) { return erfc<>(x); }
@@ -421,4 +427,4 @@ abacus_double8 ABACUS_API __abacus_erfc(abacus_double8 x) { return erfc<>(x); }
 abacus_double16 ABACUS_API __abacus_erfc(abacus_double16 x) {
   return erfc<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

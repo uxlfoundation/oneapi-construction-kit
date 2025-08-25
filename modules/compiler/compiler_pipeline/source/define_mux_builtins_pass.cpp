@@ -22,9 +22,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::utils::DefineMuxBuiltinsPass::run(Module &M,
-                                            ModuleAnalysisManager &AM) {
+PreservedAnalyses compiler::utils::DefineMuxBuiltinsPass::run(
+    Module &M, ModuleAnalysisManager &AM) {
   bool Changed = false;
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 

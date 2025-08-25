@@ -17,7 +17,7 @@
 // at https://github.com/TartanLlama/expected.  See expected.LICENSE.txt.
 
 #include <cargo/expected.h>
-#include <cargo/optional.h> // Must compile with this included.
+#include <cargo/optional.h>  // Must compile with this included.
 #include <gtest/gtest.h>
 
 TEST(expected, assignment_simple) {
@@ -97,7 +97,7 @@ struct maybe_throw {
   bool operator==(int v) { return v == ival; }
   bool operator==(float v) { return v == fval; }
 
-private:
+ private:
   float fval;
   int ival;
 };
@@ -156,7 +156,7 @@ struct takes_init_and_variadic {
   takes_init_and_variadic(std::initializer_list<int> l, Args &&...args)
       : v(l), t(std::forward<Args>(args)...) {}
 };
-} // namespace
+}  // namespace
 
 TEST(expected, constructors) {
   {
@@ -335,8 +335,8 @@ TEST(expected, emplace) {
 
 #define TOKENPASTE(x, y) x##y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)
-#define STATIC_ASSERT_TRUE(e)                                                  \
-  constexpr bool TOKENPASTE2(rqure, __LINE__) = e;                             \
+#define STATIC_ASSERT_TRUE(e)                      \
+  constexpr bool TOKENPASTE2(rqure, __LINE__) = e; \
   ASSERT_TRUE(e);
 
 TEST(expected, extensions_map) {

@@ -142,13 +142,13 @@ inline bool IsInBitSet(const T bitset, const int32_t value) {
 /// @return True if the binary type is valid and supported, false otherwise.
 inline bool BinaryType(const cl_program_binary_type type) {
   switch (type) {
-  default:
-    return false;
-  case CL_PROGRAM_BINARY_TYPE_INTERMEDIATE: // Fall through.
-  case CL_PROGRAM_BINARY_TYPE_LIBRARY:      // Fall through.
-  case CL_PROGRAM_BINARY_TYPE_EXECUTABLE:   // Fall through.
-  case CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT:
-    return true;
+    default:
+      return false;
+    case CL_PROGRAM_BINARY_TYPE_INTERMEDIATE:  // Fall through.
+    case CL_PROGRAM_BINARY_TYPE_LIBRARY:       // Fall through.
+    case CL_PROGRAM_BINARY_TYPE_EXECUTABLE:    // Fall through.
+    case CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT:
+      return true;
   }
 }
 
@@ -177,49 +177,49 @@ inline bool BinaryType(const cl_program_binary_type type) {
 inline cl_int MemFlags(cl_mem_flags flags, void *host_ptr) {
   // Mask the flags bit field related to device memory access.
   switch (flags & (CL_MEM_READ_WRITE | CL_MEM_READ_ONLY | CL_MEM_WRITE_ONLY)) {
-  case 0: // Defaults to `CL_MEM_READ_WRITE`.
-  case CL_MEM_READ_WRITE:
-  case CL_MEM_READ_ONLY:
-  case CL_MEM_WRITE_ONLY:
-    break;
-  default: // All memory access flags are mutually exclusive.
-    return CL_INVALID_VALUE;
+    case 0:  // Defaults to `CL_MEM_READ_WRITE`.
+    case CL_MEM_READ_WRITE:
+    case CL_MEM_READ_ONLY:
+    case CL_MEM_WRITE_ONLY:
+      break;
+    default:  // All memory access flags are mutually exclusive.
+      return CL_INVALID_VALUE;
   }
 
   // Mask the flags bit field related to host memory.
   switch (flags & (CL_MEM_USE_HOST_PTR | CL_MEM_ALLOC_HOST_PTR |
                    CL_MEM_COPY_HOST_PTR)) {
-  case 0: // Defaults to no `host_ptr`.
-  case CL_MEM_ALLOC_HOST_PTR:
-    if (host_ptr) {
-      // Providing `host_ptr` is invalid when allocating host memory or for
-      // the default case of no `host_ptr`.
-      return CL_INVALID_HOST_PTR;
-    }
-    break;
-  case CL_MEM_USE_HOST_PTR:
-  case CL_MEM_COPY_HOST_PTR:
-  case CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR:
-    if (!host_ptr) {
-      // Not providing `host_ptr` is invalid when specifying use host, copy
-      // host, or both flags together.
-      return CL_INVALID_HOST_PTR;
-    }
-    break;
-  default: // All other host memory flag combinations are invalid.
-    return CL_INVALID_VALUE;
+    case 0:  // Defaults to no `host_ptr`.
+    case CL_MEM_ALLOC_HOST_PTR:
+      if (host_ptr) {
+        // Providing `host_ptr` is invalid when allocating host memory or for
+        // the default case of no `host_ptr`.
+        return CL_INVALID_HOST_PTR;
+      }
+      break;
+    case CL_MEM_USE_HOST_PTR:
+    case CL_MEM_COPY_HOST_PTR:
+    case CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR:
+      if (!host_ptr) {
+        // Not providing `host_ptr` is invalid when specifying use host, copy
+        // host, or both flags together.
+        return CL_INVALID_HOST_PTR;
+      }
+      break;
+    default:  // All other host memory flag combinations are invalid.
+      return CL_INVALID_VALUE;
   }
 
   // Mask the flags bit field related to host memory access.
   switch (flags & (CL_MEM_HOST_WRITE_ONLY | CL_MEM_HOST_READ_ONLY |
                    CL_MEM_HOST_NO_ACCESS)) {
-  case 0: // Default to no host access.
-  case CL_MEM_HOST_WRITE_ONLY:
-  case CL_MEM_HOST_READ_ONLY:
-  case CL_MEM_HOST_NO_ACCESS:
-    break;
-  default: // All host memory access flags are mutually exclusive.
-    return CL_INVALID_VALUE;
+    case 0:  // Default to no host access.
+    case CL_MEM_HOST_WRITE_ONLY:
+    case CL_MEM_HOST_READ_ONLY:
+    case CL_MEM_HOST_NO_ACCESS:
+      break;
+    default:  // All host memory access flags are mutually exclusive.
+      return CL_INVALID_VALUE;
   }
 
   return CL_SUCCESS;
@@ -364,9 +364,9 @@ cl_int CopyBufferToImageArguments(cl_command_queue command_queue,
                                   cl_mem src_buffer_, cl_mem dst_image_,
                                   size_t src_offset, const size_t *dst_origin,
                                   const size_t *region);
-} // namespace validate
+}  // namespace validate
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_VALIDATE_H_INCLUDED
+#endif  // CL_VALIDATE_H_INCLUDED

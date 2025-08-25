@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueMapImageTestBase : public ucl::CommandQueueTest {
-public:
+ public:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceImageSupport()) {
@@ -63,9 +63,9 @@ static std::ostream &operator<<(std::ostream &out,
                                 const clEnqueueMapImageTestsParams &params) {
   out << "clEnqueueMapImageTestsParams{.object_type{";
   switch (params.object_type) {
-#define CASE(TYPE)                                                             \
-  case TYPE:                                                                   \
-    out << #TYPE;                                                              \
+#define CASE(TYPE) \
+  case TYPE:       \
+    out << #TYPE;  \
     break;
     CASE(CL_MEM_OBJECT_BUFFER)
     CASE(CL_MEM_OBJECT_IMAGE2D)
@@ -80,9 +80,9 @@ static std::ostream &operator<<(std::ostream &out,
     CASE(CL_MEM_OBJECT_PIPE)
 #endif
 #undef CASE
-  default:
-    out << params.object_type;
-    break;
+    default:
+      out << params.object_type;
+      break;
   }
   out << "}, .is_aligned{" << (params.is_aligned ? "true" : "false")
       << "}, .is_pitched{" << (params.is_pitched ? "true" : "false") << "}}";
@@ -185,85 +185,85 @@ struct clEnqueueMapImageTests
     expected_slice_pitch = 0;
 
     switch (object_type) {
-    case CL_MEM_OBJECT_IMAGE1D:
-      region[0] = image_desc.image_width = 16;
-      numPixels = image_desc.image_width;
-      kernel = clCreateKernel(program, "img_copy1d", &error);
-      expected_row_pitch = sizeof(cl_float4) * image_desc.image_width;
-      break;
-    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-      region[0] = image_desc.image_width = 16;
-      region[1] = image_desc.image_array_size = 8;
-      expected_row_pitch = sizeof(cl_float4) * image_desc.image_width;
-      expected_slice_pitch = expected_row_pitch;
-      if (is_pitched) {
-        image_desc.image_slice_pitch =
-            sizeof(cl_float4) * (image_desc.image_width + 1);
-        expected_slice_pitch = image_desc.image_slice_pitch;
-      }
-      numPixels = expected_slice_pitch * image_desc.image_array_size /
-                  sizeof(cl_float4);
-      kernel = clCreateKernel(program, "img_copy1d_array", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-      region[0] = image_desc.image_width = 16;
-      image_desc.buffer = clCreateBuffer(
-          context, CL_MEM_READ_ONLY, image_desc.image_width * sizeof(cl_float4),
-          nullptr, &error);
-      ASSERT_SUCCESS(error);
-      numPixels = image_desc.image_width;
-      kernel = clCreateKernel(program, "img_copy1d_buffer", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE2D:
-      region[0] = image_desc.image_width = 16;
-      region[1] = image_desc.image_height = 16;
-      kernel = clCreateKernel(program, "img_copy2d", &error);
-      expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
-      if (is_pitched) {
-        image_desc.image_row_pitch =
-            sizeof(cl_float4) * (image_desc.image_width + 1);
-        expected_row_pitch = image_desc.image_row_pitch;
-      }
-      numPixels =
-          expected_row_pitch * image_desc.image_height / sizeof(cl_float4);
-      break;
-    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-      region[0] = image_desc.image_width = 12;
-      region[1] = image_desc.image_height = 12;
-      region[2] = image_desc.image_array_size = 4;
-      expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
-      expected_slice_pitch = expected_row_pitch * image_desc.image_height;
-      if (is_pitched) {
-        image_desc.image_row_pitch = sizeof(cl_float4) * 15;
-        image_desc.image_slice_pitch =
-            image_desc.image_row_pitch * (image_desc.image_height + 1);
-        expected_row_pitch = image_desc.image_row_pitch;
-        expected_slice_pitch = image_desc.image_slice_pitch;
-      }
-      numPixels = expected_slice_pitch * image_desc.image_array_size /
-                  sizeof(cl_float4);
-      kernel = clCreateKernel(program, "img_copy2d_array", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE3D:
-      region[0] = image_desc.image_width = 8;
-      region[1] = image_desc.image_height = 8;
-      region[2] = image_desc.image_depth = 8;
-      expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
-      expected_slice_pitch = expected_row_pitch * image_desc.image_height;
-      if (is_pitched) {
-        image_desc.image_row_pitch =
-            sizeof(cl_float4) * (image_desc.image_width + 1);
-        image_desc.image_slice_pitch =
-            image_desc.image_row_pitch * (image_desc.image_height + 1);
-        expected_row_pitch = image_desc.image_row_pitch;
-        expected_slice_pitch = image_desc.image_slice_pitch;
-      }
-      numPixels =
-          expected_slice_pitch * image_desc.image_depth / sizeof(cl_float4);
-      kernel = clCreateKernel(program, "img_copy3d", &error);
-      break;
-    default:
-      UCL_ABORT("unknown object type %d", (int)object_type);
+      case CL_MEM_OBJECT_IMAGE1D:
+        region[0] = image_desc.image_width = 16;
+        numPixels = image_desc.image_width;
+        kernel = clCreateKernel(program, "img_copy1d", &error);
+        expected_row_pitch = sizeof(cl_float4) * image_desc.image_width;
+        break;
+      case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+        region[0] = image_desc.image_width = 16;
+        region[1] = image_desc.image_array_size = 8;
+        expected_row_pitch = sizeof(cl_float4) * image_desc.image_width;
+        expected_slice_pitch = expected_row_pitch;
+        if (is_pitched) {
+          image_desc.image_slice_pitch =
+              sizeof(cl_float4) * (image_desc.image_width + 1);
+          expected_slice_pitch = image_desc.image_slice_pitch;
+        }
+        numPixels = expected_slice_pitch * image_desc.image_array_size /
+                    sizeof(cl_float4);
+        kernel = clCreateKernel(program, "img_copy1d_array", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+        region[0] = image_desc.image_width = 16;
+        image_desc.buffer = clCreateBuffer(
+            context, CL_MEM_READ_ONLY,
+            image_desc.image_width * sizeof(cl_float4), nullptr, &error);
+        ASSERT_SUCCESS(error);
+        numPixels = image_desc.image_width;
+        kernel = clCreateKernel(program, "img_copy1d_buffer", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE2D:
+        region[0] = image_desc.image_width = 16;
+        region[1] = image_desc.image_height = 16;
+        kernel = clCreateKernel(program, "img_copy2d", &error);
+        expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
+        if (is_pitched) {
+          image_desc.image_row_pitch =
+              sizeof(cl_float4) * (image_desc.image_width + 1);
+          expected_row_pitch = image_desc.image_row_pitch;
+        }
+        numPixels =
+            expected_row_pitch * image_desc.image_height / sizeof(cl_float4);
+        break;
+      case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+        region[0] = image_desc.image_width = 12;
+        region[1] = image_desc.image_height = 12;
+        region[2] = image_desc.image_array_size = 4;
+        expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
+        expected_slice_pitch = expected_row_pitch * image_desc.image_height;
+        if (is_pitched) {
+          image_desc.image_row_pitch = sizeof(cl_float4) * 15;
+          image_desc.image_slice_pitch =
+              image_desc.image_row_pitch * (image_desc.image_height + 1);
+          expected_row_pitch = image_desc.image_row_pitch;
+          expected_slice_pitch = image_desc.image_slice_pitch;
+        }
+        numPixels = expected_slice_pitch * image_desc.image_array_size /
+                    sizeof(cl_float4);
+        kernel = clCreateKernel(program, "img_copy2d_array", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE3D:
+        region[0] = image_desc.image_width = 8;
+        region[1] = image_desc.image_height = 8;
+        region[2] = image_desc.image_depth = 8;
+        expected_row_pitch = sizeof(cl_float4) * (image_desc.image_width);
+        expected_slice_pitch = expected_row_pitch * image_desc.image_height;
+        if (is_pitched) {
+          image_desc.image_row_pitch =
+              sizeof(cl_float4) * (image_desc.image_width + 1);
+          image_desc.image_slice_pitch =
+              image_desc.image_row_pitch * (image_desc.image_height + 1);
+          expected_row_pitch = image_desc.image_row_pitch;
+          expected_slice_pitch = image_desc.image_slice_pitch;
+        }
+        numPixels =
+            expected_slice_pitch * image_desc.image_depth / sizeof(cl_float4);
+        kernel = clCreateKernel(program, "img_copy3d", &error);
+        break;
+      default:
+        UCL_ABORT("unknown object type %d", (int)object_type);
     }
   }
 
@@ -338,7 +338,7 @@ TEST_P(clEnqueueMapImageTests, MapImage) {
     for (size_t element = 0; element < 4; element++) {
       // clang-tidy fails to understand the ASSERT_NE above and so thinks
       // that src_pixels may be null here, NOLINT to suppress that.
-      src_pixels[pixel * 4 + element] = (float)element; // NOLINT
+      src_pixels[pixel * 4 + element] = (float)element;  // NOLINT
     }
   }
 
@@ -441,7 +441,7 @@ INSTANTIATE_TEST_CASE_P(
 // ########################## NEGATIVE TESTING ################################
 
 class clEnqueueMapImageNegativeTest1d : public clEnqueueMapImageTestBase {
-public:
+ public:
   void createImage() final {
     image_format.image_channel_order = CL_RGBA;
     image_format.image_channel_data_type = CL_UNSIGNED_INT8;
@@ -476,7 +476,7 @@ public:
 };
 
 class clEnqueueMapImageNegativeTest1dBuffer : public clEnqueueMapImageTestBase {
-public:
+ public:
   void TearDown() override {
     if (buffer) {
       EXPECT_SUCCESS(clReleaseMemObject(buffer));
@@ -524,7 +524,7 @@ public:
 };
 
 class clEnqueueMapImageNegativeTest1dArray : public clEnqueueMapImageTestBase {
-public:
+ public:
   void createImage() final {
     image_format.image_channel_order = CL_RGBA;
     image_format.image_channel_data_type = CL_UNSIGNED_INT8;
@@ -559,7 +559,7 @@ public:
 };
 
 class clEnqueueMapImageNegativeTest2d : public clEnqueueMapImageTestBase {
-public:
+ public:
   void createImage() final {
     image_format.image_channel_order = CL_RGBA;
     image_format.image_channel_data_type = CL_UNSIGNED_INT8;
@@ -594,7 +594,7 @@ public:
 };
 
 class clEnqueueMapImageNegativeTest2dArray : public clEnqueueMapImageTestBase {
-public:
+ public:
   void createImage() final {
     image_format.image_channel_order = CL_RGBA;
     image_format.image_channel_data_type = CL_UNSIGNED_INT8;
@@ -629,7 +629,7 @@ public:
 };
 
 class clEnqueueMapImageNegativeTest3d : public clEnqueueMapImageTestBase {
-public:
+ public:
   void createImage() final {
     image_format.image_channel_order = CL_RGBA;
     image_format.image_channel_data_type = CL_UNSIGNED_INT8;

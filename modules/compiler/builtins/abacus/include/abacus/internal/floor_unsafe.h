@@ -37,7 +37,7 @@ inline typename TypeTraits<T>::SignedType floor_unsafe(const T &x) {
   const SignedType decremented = truncated - 1;
   return __abacus_select(truncated, decremented, condition);
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_FLOOR_UNSAFE_H__
+#endif  //__ABACUS_INTERNAL_FLOOR_UNSAFE_H__

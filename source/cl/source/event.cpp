@@ -24,8 +24,8 @@
 #include <tracer/tracer.h>
 #include <utils/system.h>
 
-cargo::expected<cl_event, cl_int>
-_cl_event::create(cl_command_queue queue, const cl_command_type type) {
+cargo::expected<cl_event, cl_int> _cl_event::create(
+    cl_command_queue queue, const cl_command_type type) {
   OCL_ASSERT(queue != nullptr, "queue must not be null");
   std::unique_ptr<_cl_event> event(new _cl_event(queue->context, queue, type));
   if (!event) {
@@ -61,8 +61,11 @@ cargo::expected<cl_event, cl_int> _cl_event::create(cl_context context) {
 
 _cl_event::_cl_event(cl_context context, cl_command_queue queue,
                      cl_command_type type)
-    : base<_cl_event>(cl::ref_count_type::EXTERNAL), context(context),
-      queue(queue), command_type(type), command_status(CL_QUEUED) {
+    : base<_cl_event>(cl::ref_count_type::EXTERNAL),
+      context(context),
+      queue(queue),
+      command_type(type),
+      command_status(CL_QUEUED) {
   if (queue) {
     cl::retainInternal(queue);
   }
@@ -309,12 +312,12 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventInfo(cl_event event,
     }
 
   } else {
-#define EVENT_INFO_CASE(NAME, RETURN_TYPE, VALUE)                              \
-  case NAME: {                                                                 \
-    OCL_CHECK(param_value && param_value_size < sizeof(RETURN_TYPE),           \
-              return CL_INVALID_VALUE);                                        \
-    OCL_SET_IF_NOT_NULL(static_cast<RETURN_TYPE *>(param_value), VALUE);       \
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(RETURN_TYPE));            \
+#define EVENT_INFO_CASE(NAME, RETURN_TYPE, VALUE)                        \
+  case NAME: {                                                           \
+    OCL_CHECK(param_value &&param_value_size < sizeof(RETURN_TYPE),      \
+              return CL_INVALID_VALUE);                                  \
+    OCL_SET_IF_NOT_NULL(static_cast<RETURN_TYPE *>(param_value), VALUE); \
+    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(RETURN_TYPE));      \
   } break
 
     switch (param_name) {
@@ -324,10 +327,10 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventInfo(cl_event event,
       EVENT_INFO_CASE(CL_EVENT_COMMAND_TYPE, cl_int, event->command_type);
       EVENT_INFO_CASE(CL_EVENT_REFERENCE_COUNT, cl_uint,
                       event->refCountExternal());
-    default: {
-      return extension::GetEventInfo(event, param_name, param_value_size,
-                                     param_value, param_value_size_ret);
-    }
+      default: {
+        return extension::GetEventInfo(event, param_name, param_value_size,
+                                       param_value, param_value_size_ret);
+      }
     }
   }
 
@@ -389,27 +392,27 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
 
   // If 'param_name' is not a legal value we should return CL_INVALID_VALUE.
   switch (param_name) {
-  case CL_PROFILING_COMMAND_QUEUED:
-  case CL_PROFILING_COMMAND_SUBMIT:
-  case CL_PROFILING_COMMAND_START:
-  case CL_PROFILING_COMMAND_END:
+    case CL_PROFILING_COMMAND_QUEUED:
+    case CL_PROFILING_COMMAND_SUBMIT:
+    case CL_PROFILING_COMMAND_START:
+    case CL_PROFILING_COMMAND_END:
 #if defined(CL_VERSION_3_0)
-  case CL_PROFILING_COMMAND_COMPLETE:
+    case CL_PROFILING_COMMAND_COMPLETE:
 #endif
-    break; // The above are all legal parameter names.
-  default:
-    // However, an extension may support additional names so we also need to
-    // check the extension interface.  However, we don't yet know if we
-    // should expect any extension counters to be set as we haven't yet
-    // checked the event status, so we don't pass along 'param_value', just
-    // pass nullptr.  We should check this *before* checking the event status
-    // as illegal parameters are always illegal, and thus that error code is
-    // consistent (but whether an event is complete yet or not is inherently
-    // unstable).
-    OCL_CHECK(CL_INVALID_VALUE == extension::GetEventProfilingInfo(
-                                      event, param_name, param_value_size,
-                                      param_value, param_value_size_ret),
-              return CL_INVALID_VALUE);
+      break;  // The above are all legal parameter names.
+    default:
+      // However, an extension may support additional names so we also need to
+      // check the extension interface.  However, we don't yet know if we
+      // should expect any extension counters to be set as we haven't yet
+      // checked the event status, so we don't pass along 'param_value', just
+      // pass nullptr.  We should check this *before* checking the event status
+      // as illegal parameters are always illegal, and thus that error code is
+      // consistent (but whether an event is complete yet or not is inherently
+      // unstable).
+      OCL_CHECK(CL_INVALID_VALUE == extension::GetEventProfilingInfo(
+                                        event, param_name, param_value_size,
+                                        param_value, param_value_size_ret),
+                return CL_INVALID_VALUE);
   }
 
   // OpenCL 1.2 specification says that profiling event information is not
@@ -421,47 +424,48 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
             return CL_PROFILING_INFO_NOT_AVAILABLE);
 
   switch (param_name) {
-  case CL_PROFILING_COMMAND_QUEUED:
-    OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
-                        event->profiling.queued -
-                            event->queue->profiling_start);
-    break;
-  case CL_PROFILING_COMMAND_SUBMIT:
-    OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
-                        event->profiling.submit -
-                            event->queue->profiling_start);
-    break;
-  case CL_PROFILING_COMMAND_START: {
-    mux_query_duration_result_s duration;
-    if (auto mux_error = muxGetQueryPoolResults(
-            event->queue->mux_queue, event->profiling.duration_queries, 0, 1,
-            sizeof(mux_query_duration_result_s), &duration,
-            sizeof(mux_query_duration_result_s))) {
-      return cl::getErrorFrom(mux_error);
-    }
-    OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
-                        duration.start - event->queue->profiling_start);
-  } break;
+    case CL_PROFILING_COMMAND_QUEUED:
+      OCL_SET_IF_NOT_NULL(
+          reinterpret_cast<cl_ulong *>(param_value),
+          event->profiling.queued - event->queue->profiling_start);
+      break;
+    case CL_PROFILING_COMMAND_SUBMIT:
+      OCL_SET_IF_NOT_NULL(
+          reinterpret_cast<cl_ulong *>(param_value),
+          event->profiling.submit - event->queue->profiling_start);
+      break;
+    case CL_PROFILING_COMMAND_START: {
+      mux_query_duration_result_s duration;
+      if (auto mux_error = muxGetQueryPoolResults(
+              event->queue->mux_queue, event->profiling.duration_queries, 0, 1,
+              sizeof(mux_query_duration_result_s), &duration,
+              sizeof(mux_query_duration_result_s))) {
+        return cl::getErrorFrom(mux_error);
+      }
+      OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
+                          duration.start - event->queue->profiling_start);
+    } break;
 #if defined(CL_VERSION_3_0)
-  case CL_PROFILING_COMMAND_COMPLETE:
-    // Returns a value equivalent to passing CL_PROFILING_COMMAND_END
-    // if the device associated with event does not support On-Device Enqueue.
-    [[fallthrough]];
+    case CL_PROFILING_COMMAND_COMPLETE:
+      // Returns a value equivalent to passing CL_PROFILING_COMMAND_END
+      // if the device associated with event does not support On-Device Enqueue.
+      [[fallthrough]];
 #endif
-  case CL_PROFILING_COMMAND_END: {
-    mux_query_duration_result_s duration;
-    if (auto mux_error = muxGetQueryPoolResults(
-            event->queue->mux_queue, event->profiling.duration_queries, 0, 1,
-            sizeof(mux_query_duration_result_s), &duration,
-            sizeof(mux_query_duration_result_s))) {
-      return cl::getErrorFrom(mux_error);
-    }
-    OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
-                        duration.end - event->queue->profiling_start);
-  } break;
-  default:
-    return extension::GetEventProfilingInfo(event, param_name, param_value_size,
-                                            param_value, param_value_size_ret);
+    case CL_PROFILING_COMMAND_END: {
+      mux_query_duration_result_s duration;
+      if (auto mux_error = muxGetQueryPoolResults(
+              event->queue->mux_queue, event->profiling.duration_queries, 0, 1,
+              sizeof(mux_query_duration_result_s), &duration,
+              sizeof(mux_query_duration_result_s))) {
+        return cl::getErrorFrom(mux_error);
+      }
+      OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
+                          duration.end - event->queue->profiling_start);
+    } break;
+    default:
+      return extension::GetEventProfilingInfo(event, param_name,
+                                              param_value_size, param_value,
+                                              param_value_size_ret);
   }
 
   return CL_SUCCESS;

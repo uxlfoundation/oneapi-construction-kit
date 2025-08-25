@@ -51,11 +51,10 @@ const std::map<std::string, std::string> funcToFuncMap = {{
 #define PIAS_WO ""
 #include "image_argument_substitution_pass.inc"
 }};
-} // namespace
+}  // namespace
 
-PreservedAnalyses
-compiler::ImageArgumentSubstitutionPass::run(Module &M,
-                                             ModuleAnalysisManager &) {
+PreservedAnalyses compiler::ImageArgumentSubstitutionPass::run(
+    Module &M, ModuleAnalysisManager &) {
   bool module_modified = false;
   auto &Ctx = M.getContext();
 

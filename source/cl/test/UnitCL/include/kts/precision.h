@@ -18,7 +18,7 @@
 #define UNITCL_KTS_PRECISION_H_INCLUDED
 
 #include <CL/cl.h>
-#include <CL/cl_ext.h> // For CL_DEVICE_HALF_FP_CONFIG.
+#include <CL/cl_ext.h>  // For CL_DEVICE_HALF_FP_CONFIG.
 #include <CL/cl_platform.h>
 
 #include <algorithm>
@@ -47,27 +47,27 @@ const cl_ulong MAX_ULP_ERROR = (CL_ULONG_MAX - cl_ulong(1));
 
 // Constants used in in the half tests various operators
 namespace HalfInputSizes {
-const unsigned quick = 128;  // Token number for smoke testing
-const unsigned wimpy = 8192; // Test 8k input values
-const unsigned full = 65536; // Test full range of possible half values
+const unsigned quick = 128;   // Token number for smoke testing
+const unsigned wimpy = 8192;  // Test 8k input values
+const unsigned full = 65536;  // Test full range of possible half values
 
 unsigned getInputSize(const ::ucl::MathMode);
-} // namespace HalfInputSizes
+}  // namespace HalfInputSizes
 
 /// @brief Floating point rounding modes
 enum class RoundingMode {
-  NONE, // No modifier, default rounding mode
-  RTE,  // Round to nearest even
-  RTZ,  // Round to zero
-  RTP,  // Round to positive infinity
-  RTN   // Round to negative infinity
+  NONE,  // No modifier, default rounding mode
+  RTE,   // Round to nearest even
+  RTZ,   // Round to zero
+  RTP,   // Round to positive infinity
+  RTN    // Round to negative infinity
 };
 
 inline std::ostream &operator<<(std::ostream &out, const RoundingMode &mode) {
   switch (mode) {
-#define CASE(MODE)                                                             \
-  case RoundingMode::MODE:                                                     \
-    out << "RoundingMode::" #MODE;                                             \
+#define CASE(MODE)                 \
+  case RoundingMode::MODE:         \
+    out << "RoundingMode::" #MODE; \
     break;
     CASE(NONE)
     CASE(RTE)
@@ -81,8 +81,9 @@ inline std::ostream &operator<<(std::ostream &out, const RoundingMode &mode) {
 
 /// @brief Strong Type wrapper class so we can use template specializations for
 /// cl_* types typedefed to the same underlying type.
-template <typename T, typename Parameter> class NamedType {
-public:
+template <typename T, typename Parameter>
+class NamedType {
+ public:
   explicit NamedType(const T &value) : value_(value) {}
   explicit NamedType(T &&value) : value_(std::move(value)) {}
   T &get() { return value_; }
@@ -90,7 +91,7 @@ public:
 
   using WrappedT = T;
 
-private:
+ private:
   T value_;
 };
 
@@ -108,16 +109,19 @@ using CLdouble = NamedType<cl_double, struct DoubleParameter>;
 using CLbool = NamedType<cl_bool, struct BoolParameter>;
 
 /// @brief Helper class for getting C string representation of cl_* types
-template <class T> struct Stringify;
+template <class T>
+struct Stringify;
 
-#define STRONG_STRINGIFY(TYPE)                                                 \
-  template <> struct Stringify<CL##TYPE> final {                               \
-    static constexpr const char *as_str = #TYPE;                               \
+#define STRONG_STRINGIFY(TYPE)                   \
+  template <>                                    \
+  struct Stringify<CL##TYPE> final {             \
+    static constexpr const char *as_str = #TYPE; \
   };
 
-#define WEAK_STRINGIFY(TYPE)                                                   \
-  template <> struct Stringify<cl_##TYPE> final {                              \
-    static constexpr const char *as_str = #TYPE;                               \
+#define WEAK_STRINGIFY(TYPE)                     \
+  template <>                                    \
+  struct Stringify<cl_##TYPE> final {            \
+    static constexpr const char *as_str = #TYPE; \
   };
 
 STRONG_STRINGIFY(uchar)
@@ -145,34 +149,42 @@ STRONG_STRINGIFY(bool)
 #undef STRONG_STRINGIFY
 #undef WEAK_STRINGIFY
 
-template <typename T> struct Helper;
+template <typename T>
+struct Helper;
 
-template <> struct Helper<cl_half> final {
+template <>
+struct Helper<cl_half> final {
   typedef cl_short ConvertType;
 };
 
-template <> struct Helper<cl_short> final {
+template <>
+struct Helper<cl_short> final {
   typedef cl_half ConvertType;
 };
 
-template <> struct Helper<cl_float> final {
+template <>
+struct Helper<cl_float> final {
   typedef cl_int ConvertType;
 };
 
-template <> struct Helper<cl_int> final {
+template <>
+struct Helper<cl_int> final {
   typedef cl_float ConvertType;
 };
 
-template <> struct Helper<cl_double> final {
+template <>
+struct Helper<cl_double> final {
   typedef cl_long ConvertType;
 };
 
-template <> struct Helper<cl_long> final {
+template <>
+struct Helper<cl_long> final {
   typedef cl_double ConvertType;
 };
 
 /// @brief Bit casts between integer and float types of the same size
-template <typename T> typename Helper<T>::ConvertType matchingType(T t) {
+template <typename T>
+typename Helper<T>::ConvertType matchingType(T t) {
   return cargo::bit_cast<typename Helper<T>::ConvertType>(t);
 }
 
@@ -315,7 +327,8 @@ cl_float calculateULP(const typename TypeInfo<T>::LargerType reference,
   return result;
 }
 
-template <class T> bool IsDenormal(T x) {
+template <class T>
+bool IsDenormal(T x) {
   using IntTy = typename TypeInfo<T>::AsSigned;
   const IntTy exp_mask = TypeInfo<T>::exponent_mask;
   const IntTy mantissa_mask = TypeInfo<T>::mantissa_mask;
@@ -361,7 +374,8 @@ struct ULPValidator final {
            (std::isinf(ulp_err) && (ULP == MAX_ULP_ERROR));
   }
 
-  template <typename Y> void print(std::stringstream &s, Y value) {
+  template <typename Y>
+  void print(std::stringstream &s, Y value) {
     s << value << "[0x" << std::hex << matchingType(value) << std::dec << "]";
 
     if (std::is_same_v<Y, T>) {
@@ -385,7 +399,7 @@ struct ULPValidator final {
     }
   }
 
-private:
+ private:
   cl_device_id device;
   cl_float ulp_err;
 };
@@ -444,7 +458,7 @@ struct ULPValidator<cl_half, ULP, test_denormals> final {
     s << "[0x" << std::hex << as_half << "]" << std::dec;
   }
 
-private:
+ private:
   cl_float ulp_err;
 };
 
@@ -481,7 +495,7 @@ auto makeULPStreamer(
       ValidatorType{device});
   return s;
 }
-} // namespace ucl
-} // namespace kts
+}  // namespace ucl
+}  // namespace kts
 
-#endif // UNITCL_KTS_PRECISION_H_INCLUDED
+#endif  // UNITCL_KTS_PRECISION_H_INCLUDED

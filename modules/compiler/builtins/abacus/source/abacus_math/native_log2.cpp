@@ -23,7 +23,8 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
-template <typename T> T native_log2(const T x) {
+template <typename T>
+T native_log2(const T x) {
   // r = log2(x), x = f * 2^n
   // r = log2(f * 2^n)
   // r = log2(f) + log2(2^n)
@@ -50,7 +51,7 @@ template <typename T> T native_log2(const T x) {
   r = __abacus_select(r, ABACUS_INFINITY, condInf);
   return r;
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_native_log2(abacus_float x) {
   return native_log2<>(x);

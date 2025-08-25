@@ -335,7 +335,7 @@ TEST(string_view, operation_ends_with_string_null_terminates) {
 
 TEST(string_view, operation_find_no_overflow) {
   std::vector<char> buffer({'0', '1', '2', '3', '4', '5'});
-  const cargo::string_view sv(buffer.data(), 3); // "012"
+  const cargo::string_view sv(buffer.data(), 3);  // "012"
   ASSERT_EQ(cargo::string_view::npos, sv.find(cargo::string_view("23")));
   ASSERT_EQ(cargo::string_view::npos, sv.rfind(cargo::string_view("23")));
   ASSERT_EQ(cargo::string_view::npos,

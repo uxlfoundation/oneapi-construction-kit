@@ -28,7 +28,7 @@
 
 namespace llvm {
 class Function;
-} // namespace llvm
+}  // namespace llvm
 
 namespace compiler {
 /// @addtogroup cl_compiler
@@ -36,7 +36,7 @@ namespace compiler {
 
 class SoftwareDivisionPass final
     : public llvm::PassInfoMixin<SoftwareDivisionPass> {
-public:
+ public:
   /// @brief The entry point to the pass.
   ///
   /// @param[in,out] F The function provided to the pass.
@@ -50,6 +50,6 @@ public:
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_SOFTWARE_DIVISION_PASS_H_INCLUDED
+#endif  // BASE_SOFTWARE_DIVISION_PASS_H_INCLUDED

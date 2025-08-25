@@ -33,28 +33,28 @@ namespace cl {
 /// @return Returns an OpenCL error code related to the Mux error code.
 inline cl_int getErrorFrom(mux_result_t mux_result) {
   switch (mux_result) {
-  case mux_success:
-    return CL_SUCCESS;
-  case mux_error_feature_unsupported:
-  case mux_error_internal:
-    return CL_INVALID_OPERATION;
-  case mux_error_null_out_parameter:
-  case mux_error_invalid_value:
-    return CL_INVALID_VALUE;
-  case mux_error_out_of_memory:
-    return CL_OUT_OF_HOST_MEMORY;
-  case mux_error_device_entry_hook_failed:
-    return CL_DEVICE_NOT_FOUND;
-  case mux_error_invalid_binary:
-    return CL_INVALID_BINARY;
-  case mux_error_missing_kernel:
-    return CL_INVALID_KERNEL_NAME;
-  case mux_error_failure:
-  case mux_error_null_allocator_callback:
-  case mux_error_fence_failure:
-  case mux_fence_not_ready:
-  default:
-    return CL_OUT_OF_RESOURCES;
+    case mux_success:
+      return CL_SUCCESS;
+    case mux_error_feature_unsupported:
+    case mux_error_internal:
+      return CL_INVALID_OPERATION;
+    case mux_error_null_out_parameter:
+    case mux_error_invalid_value:
+      return CL_INVALID_VALUE;
+    case mux_error_out_of_memory:
+      return CL_OUT_OF_HOST_MEMORY;
+    case mux_error_device_entry_hook_failed:
+      return CL_DEVICE_NOT_FOUND;
+    case mux_error_invalid_binary:
+      return CL_INVALID_BINARY;
+    case mux_error_missing_kernel:
+      return CL_INVALID_KERNEL_NAME;
+    case mux_error_failure:
+    case mux_error_null_allocator_callback:
+    case mux_error_fence_failure:
+    case mux_fence_not_ready:
+    default:
+      return CL_OUT_OF_RESOURCES;
   }
 }
 
@@ -65,31 +65,31 @@ inline cl_int getErrorFrom(mux_result_t mux_result) {
 /// @return Returns an OpenCL error code related to the compiler status code.
 inline cl_int getErrorFrom(compiler::Result compiler_result) {
   switch (compiler_result) {
-  case compiler::Result::SUCCESS:
-    return CL_SUCCESS;
-  case compiler::Result::INVALID_VALUE:
-    return CL_INVALID_VALUE;
-  case compiler::Result::OUT_OF_MEMORY:
-    return CL_OUT_OF_HOST_MEMORY;
-  case compiler::Result::INVALID_BUILD_OPTIONS:
-    return CL_INVALID_BUILD_OPTIONS;
-  case compiler::Result::INVALID_COMPILER_OPTIONS:
-    return CL_INVALID_COMPILER_OPTIONS;
-  case compiler::Result::INVALID_LINKER_OPTIONS:
-    return CL_INVALID_LINKER_OPTIONS;
-  case compiler::Result::BUILD_PROGRAM_FAILURE:
-    return CL_BUILD_PROGRAM_FAILURE;
-  case compiler::Result::COMPILE_PROGRAM_FAILURE:
-    return CL_COMPILE_PROGRAM_FAILURE;
-  case compiler::Result::LINK_PROGRAM_FAILURE:
-    return CL_LINK_PROGRAM_FAILURE;
-  case compiler::Result::FINALIZE_PROGRAM_FAILURE:
-    return CL_INVALID_PROGRAM;
-  case compiler::Result::FAILURE:
-  default:
-    return CL_INVALID_OPERATION;
+    case compiler::Result::SUCCESS:
+      return CL_SUCCESS;
+    case compiler::Result::INVALID_VALUE:
+      return CL_INVALID_VALUE;
+    case compiler::Result::OUT_OF_MEMORY:
+      return CL_OUT_OF_HOST_MEMORY;
+    case compiler::Result::INVALID_BUILD_OPTIONS:
+      return CL_INVALID_BUILD_OPTIONS;
+    case compiler::Result::INVALID_COMPILER_OPTIONS:
+      return CL_INVALID_COMPILER_OPTIONS;
+    case compiler::Result::INVALID_LINKER_OPTIONS:
+      return CL_INVALID_LINKER_OPTIONS;
+    case compiler::Result::BUILD_PROGRAM_FAILURE:
+      return CL_BUILD_PROGRAM_FAILURE;
+    case compiler::Result::COMPILE_PROGRAM_FAILURE:
+      return CL_COMPILE_PROGRAM_FAILURE;
+    case compiler::Result::LINK_PROGRAM_FAILURE:
+      return CL_LINK_PROGRAM_FAILURE;
+    case compiler::Result::FINALIZE_PROGRAM_FAILURE:
+      return CL_INVALID_PROGRAM;
+    case compiler::Result::FAILURE:
+    default:
+      return CL_INVALID_OPERATION;
   }
 }
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_MUX_H_INCLUDED
+#endif  // CL_MUX_H_INCLUDED

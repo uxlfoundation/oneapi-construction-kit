@@ -81,8 +81,9 @@ TEST_F(cl_codeplay_wfv_Test, InvalidGlobalWorkSize0) {
 }
 
 TEST_F(cl_codeplay_wfv_Test, InvalidWorkGroupSizeReqd) {
-  const char *source = "__attribute__((reqd_work_group_size(1, 1, 1))) "
-                       "__kernel void foo() {}";
+  const char *source =
+      "__attribute__((reqd_work_group_size(1, 1, 1))) "
+      "__kernel void foo() {}";
   BuildKernel(source, "foo", "-cl-wfv=never");
   cargo::small_vector<size_t, 3> local_size;
   ASSERT_EQ(cargo::success, local_size.resize(dims));

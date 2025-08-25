@@ -19,7 +19,7 @@
 
 class clEnqueueMigrateMemObjectsTest : public ucl::CommandQueueTest,
                                        TestWithEventWaitList {
-protected:
+ protected:
   enum { SIZE = 128 };
 
   void SetUp() override {
@@ -39,9 +39,9 @@ protected:
 
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
-    ASSERT_EQ_ERRCODE(err,
-                      clEnqueueMigrateMemObjects(command_queue, 1, &mem, 0,
-                                                 num_events, events, event));
+    ASSERT_EQ_ERRCODE(
+        err, clEnqueueMigrateMemObjects(command_queue, 1, &mem, 0, num_events,
+                                        events, event));
   }
 
   cl_mem mem = nullptr;

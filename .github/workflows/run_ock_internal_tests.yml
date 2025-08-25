@@ -172,11 +172,11 @@ jobs:
 
       - name: setup-ubuntu-clang-format
         run:
-          pip install clang-format==20.1.8
+          pip install clang-format==19.1.0
 
       - name: run clang-format
         run: |
-          # we've installed clang-format-20 in the docker via pip, which just installs it as clang-format,
+          # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
           # so just use clang-format-diff and -b clang-format directly
           git fetch origin ${{ github.base_ref }}
           git diff --no-color origin/${{ github.base_ref }} | \

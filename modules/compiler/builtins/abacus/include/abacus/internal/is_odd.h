@@ -65,7 +65,7 @@ inline typename TypeTraits<T>::SignedType is_odd(const T &x) {
 
   return validExp & isOdd;
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_IS_ODD_H__
+#endif  //__ABACUS_INTERNAL_IS_ODD_H__

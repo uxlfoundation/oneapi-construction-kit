@@ -74,11 +74,11 @@ struct query_pool_s final : mux_query_pool_s {
   ///
   /// @return Returns a newly constructed query pool on success, or
   /// `mux_error_out_of_memory` on failure.
-  static cargo::expected<query_pool_s *, mux_result_t>
-  create(mux_query_type_e query_type, uint32_t query_count,
-         mux::allocator allocator,
-         const mux_query_counter_config_t *query_configs = nullptr,
-         mux_queue_t queue = nullptr);
+  static cargo::expected<query_pool_s *, mux_result_t> create(
+      mux_query_type_e query_type, uint32_t query_count,
+      mux::allocator allocator,
+      const mux_query_counter_config_t *query_configs = nullptr,
+      mux_queue_t queue = nullptr);
 
   /// @brief Get the duration query at the given index.
   ///
@@ -130,7 +130,7 @@ struct query_pool_s final : mux_query_pool_s {
 
   size_t getStride() const { return stride; }
 
-private:
+ private:
   /// @brief Private default constructor, use `host::query_poos_s::create()`.
   query_pool_s() = default;
   /// @brief Object is non-copyable.
@@ -150,6 +150,6 @@ private:
   /// @brief Stride of the values stored in `data`.
   size_t stride;
 };
-} // namespace host
+}  // namespace host
 
-#endif // HOST_QUERY_POOL_H_INCLUDED
+#endif  // HOST_QUERY_POOL_H_INCLUDED

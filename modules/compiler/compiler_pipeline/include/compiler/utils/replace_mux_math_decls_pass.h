@@ -42,18 +42,18 @@ namespace utils {
 ///
 class ReplaceMuxMathDeclsPass final
     : public llvm::PassInfoMixin<ReplaceMuxMathDeclsPass> {
-public:
+ public:
   /// @brief Constructor
   /// @param Fast Whether to use faster, less accurate maths algorithms. @param
   ReplaceMuxMathDeclsPass(bool Fast) : UseFast(Fast) {}
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 
-private:
+ private:
   const bool UseFast;
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_REPLACE_MUX_MATH_DECLS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REPLACE_MUX_MATH_DECLS_PASS_H_INCLUDED

@@ -33,5 +33,5 @@ void semaphore::terminate() { status |= states::TERMINATE; }
 bool semaphore::is_terminated() {
   return (status & states::TERMINATE) == states::TERMINATE;
 }
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux

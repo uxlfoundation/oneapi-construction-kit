@@ -26,11 +26,11 @@ namespace utils {
 
 class AddSchedulingParametersPass final
     : public llvm::PassInfoMixin<AddSchedulingParametersPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_ADD_SCHEDULING_PARAMETERS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_ADD_SCHEDULING_PARAMETERS_PASS_H_INCLUDED

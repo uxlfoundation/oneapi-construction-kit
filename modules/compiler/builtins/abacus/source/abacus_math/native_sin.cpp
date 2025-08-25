@@ -21,12 +21,13 @@
 
 namespace {
 // only valid in the range [-pi .. pi]
-template <typename T> T native_sin(const T x) {
+template <typename T>
+T native_sin(const T x) {
   const T bit = x * ABACUS_1_PI_F;
 
   return (bit - bit * __abacus_fabs(bit)) * 4.0f;
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_native_sin(abacus_float x) {
   return native_sin<>(x);

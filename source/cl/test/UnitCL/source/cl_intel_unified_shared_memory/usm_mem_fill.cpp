@@ -51,52 +51,58 @@ struct USMMemFillTest : public cl_intel_unified_shared_memory_Test {
   cl_command_queue queue = nullptr;
 };
 
-#define SCALAR_PATTERN(T)                                                      \
-  template <> struct test_patterns<T> {                                        \
-    static constexpr T zero_pattern = 0;                                       \
-    static constexpr T pattern1 = 42;                                          \
-    static constexpr T pattern2 = 0xA;                                         \
-    static constexpr const char *as_string = #T;                               \
+#define SCALAR_PATTERN(T)                        \
+  template <>                                    \
+  struct test_patterns<T> {                      \
+    static constexpr T zero_pattern = 0;         \
+    static constexpr T pattern1 = 42;            \
+    static constexpr T pattern2 = 0xA;           \
+    static constexpr const char *as_string = #T; \
   };
 
-#define VECTOR2_PATTERN(T)                                                     \
-  template <> struct test_patterns<T> {                                        \
-    static constexpr T zero_pattern = {{0, 0}};                                \
-    static constexpr T pattern1 = {{42, 43}};                                  \
-    static constexpr T pattern2 = {{0xA, 0xB}};                                \
-    static constexpr const char *as_string = #T;                               \
+#define VECTOR2_PATTERN(T)                       \
+  template <>                                    \
+  struct test_patterns<T> {                      \
+    static constexpr T zero_pattern = {{0, 0}};  \
+    static constexpr T pattern1 = {{42, 43}};    \
+    static constexpr T pattern2 = {{0xA, 0xB}};  \
+    static constexpr const char *as_string = #T; \
   };
 
-#define VECTOR4_PATTERN(T)                                                     \
-  template <> struct test_patterns<T> {                                        \
-    static constexpr T zero_pattern = {{0, 0, 0, 0}};                          \
-    static constexpr T pattern1 = {{42, 43, 44, 45}};                          \
-    static constexpr T pattern2 = {{0xA, 0xB, 0xC, 0xD}};                      \
-    static constexpr const char *as_string = #T;                               \
+#define VECTOR4_PATTERN(T)                                \
+  template <>                                             \
+  struct test_patterns<T> {                               \
+    static constexpr T zero_pattern = {{0, 0, 0, 0}};     \
+    static constexpr T pattern1 = {{42, 43, 44, 45}};     \
+    static constexpr T pattern2 = {{0xA, 0xB, 0xC, 0xD}}; \
+    static constexpr const char *as_string = #T;          \
   };
 
-#define VECTOR8_PATTERN(T)                                                     \
-  template <> struct test_patterns<T> {                                        \
-    static constexpr T zero_pattern = {{0, 0, 0, 0, 0, 0, 0}};                 \
-    static constexpr T pattern1 = {{42, 43, 44, 45, 46, 47, 48, 49}};          \
-    static constexpr T pattern2 = {                                            \
-        {0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11}};                           \
-    static constexpr const char *as_string = #T;                               \
+#define VECTOR8_PATTERN(T)                                            \
+  template <>                                                         \
+  struct test_patterns<T> {                                           \
+    static constexpr T zero_pattern = {{0, 0, 0, 0, 0, 0, 0}};        \
+    static constexpr T pattern1 = {{42, 43, 44, 45, 46, 47, 48, 49}}; \
+    static constexpr T pattern2 = {                                   \
+        {0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11}};                  \
+    static constexpr const char *as_string = #T;                      \
   };
 
-#define VECTOR16_PATTERN(T)                                                    \
-  template <> struct test_patterns<T> {                                        \
-    static constexpr T zero_pattern = {                                        \
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};                     \
-    static constexpr T pattern1 = {                                            \
-        {42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57}};     \
-    static constexpr T pattern2 = {{0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11,  \
-                                    0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,  \
-                                    0x19}};                                    \
-    static constexpr const char *as_string = #T;                               \
+#define VECTOR16_PATTERN(T)                                                   \
+  template <>                                                                 \
+  struct test_patterns<T> {                                                   \
+    static constexpr T zero_pattern = {                                       \
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};                    \
+    static constexpr T pattern1 = {                                           \
+        {42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57}};    \
+    static constexpr T pattern2 = {{0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, \
+                                    0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, \
+                                    0x19}};                                   \
+    static constexpr const char *as_string = #T;                              \
   };
 
-template <typename T> struct test_patterns {};
+template <typename T>
+struct test_patterns {};
 
 #if !defined(__clang_analyzer__)
 SCALAR_PATTERN(cl_char)
@@ -151,7 +157,7 @@ VECTOR16_PATTERN(cl_float16)
 #else
 SCALAR_PATTERN(cl_int)
 #endif
-} // namespace
+}  // namespace
 
 #if !defined(__clang_analyzer__)
 using OpenCLTypes = ::testing::Types<

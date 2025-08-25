@@ -43,14 +43,14 @@ enum SourceType {
 
 inline std::string to_string(const SourceType &source_type) {
   switch (source_type) {
-  case kts::ucl::SourceType::OPENCL_C:
-    return "OpenCLC";
-  case kts::ucl::SourceType::SPIRV:
-    return "SPIRV";
-  case kts::ucl::SourceType::OFFLINE:
-    return "OfflineOpenCLC";
-  case kts::ucl::SourceType::OFFLINESPIRV:
-    return "OfflineSPIRV";
+    case kts::ucl::SourceType::OPENCL_C:
+      return "OpenCLC";
+    case kts::ucl::SourceType::SPIRV:
+      return "SPIRV";
+    case kts::ucl::SourceType::OFFLINE:
+      return "OfflineOpenCLC";
+    case kts::ucl::SourceType::OFFLINESPIRV:
+      return "OfflineSPIRV";
   }
 
   UCL_ABORT("invalid SourceType: %d\n", source_type);
@@ -76,13 +76,16 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   void AddInputBuffer(BufferDesc &&desc);
   inline void AddInputBuffer(size_t size,
                              std::shared_ptr<BufferStreamer> streamer);
-  template <typename T> void AddInputBuffer(size_t size, Reference1D<T> ref);
-  template <typename T> void AddInputBuffer(size_t size, Reference1DPtr<T> ref);
+  template <typename T>
+  void AddInputBuffer(size_t size, Reference1D<T> ref);
+  template <typename T>
+  void AddInputBuffer(size_t size, Reference1DPtr<T> ref);
 
   void AddOutputBuffer(BufferDesc &&desc);
   inline void AddOutputBuffer(size_t size,
                               std::shared_ptr<BufferStreamer> streamer);
-  template <typename T> void AddOutputBuffer(size_t size, Reference1D<T> ref);
+  template <typename T>
+  void AddOutputBuffer(size_t size, Reference1D<T> ref);
   template <typename T>
   void AddOutputBuffer(size_t size, Reference1DPtr<T> ref);
 
@@ -104,7 +107,8 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
 
   void AddLocalBuffer(size_t nelm, size_t elmsize);
 
-  template <typename T> void AddLocalBuffer(size_t size) {
+  template <typename T>
+  void AddLocalBuffer(size_t size) {
     AddLocalBuffer(size, sizeof(T));
   }
 
@@ -115,7 +119,8 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
   void AddSampler(cl_bool normalized_coords, cl_addressing_mode addressing_mode,
                   cl_filter_mode filter_mode);
 
-  template <typename T> void AddPrimitive(T value);
+  template <typename T>
+  void AddPrimitive(T value);
 
   /// @brief Build the kernel program. The file prefix and kernel names are
   /// determined from the current test name.
@@ -157,7 +162,7 @@ struct BaseExecution : ::ucl::CommandQueueTest, SharedExecution {
 
   bool isSourceTypeIn(std::initializer_list<SourceType> source_types);
 
-protected:
+ protected:
   // Load the kernel source from the given path.
   bool LoadSource(const std::string &path);
 
@@ -179,7 +184,7 @@ protected:
   std::vector<MacroDef> macros_;
   SourceType source_type;
   bool fail_if_not_vectorized_;
-  std::string build_options_; // Appended to those passed on command line
+  std::string build_options_;  // Appended to those passed on command line
   std::vector<EnqueueDimensions> dims_to_test_;
 
   clGetKernelWFVInfoCODEPLAY_fn clGetKernelWFVInfoCODEPLAY = nullptr;
@@ -199,8 +204,8 @@ struct Execution : BaseExecution, testing::WithParamInterface<SourceType> {
     source_type = GetParam();
   }
 
-  static std::string
-  getParamName(const testing::TestParamInfo<kts::ucl::SourceType> &info) {
+  static std::string getParamName(
+      const testing::TestParamInfo<kts::ucl::SourceType> &info) {
     return to_string(info.param);
   }
 };
@@ -227,13 +232,13 @@ struct ExecutionWithParam
   }
 };
 
-#define UCL_EXECUTION_TEST_SUITE(FIXTURE, SOURCE_TYPES)                        \
-  INSTANTIATE_TEST_SUITE_P(Execution, FIXTURE, SOURCE_TYPES,                   \
+#define UCL_EXECUTION_TEST_SUITE(FIXTURE, SOURCE_TYPES)      \
+  INSTANTIATE_TEST_SUITE_P(Execution, FIXTURE, SOURCE_TYPES, \
                            FIXTURE::getParamName);
 
-#define UCL_EXECUTION_TEST_SUITE_P(FIXTURE, SOURCE_TYPES, VALUES)              \
-  INSTANTIATE_TEST_SUITE_P(Execution, FIXTURE,                                 \
-                           testing::Combine(SOURCE_TYPES, VALUES),             \
+#define UCL_EXECUTION_TEST_SUITE_P(FIXTURE, SOURCE_TYPES, VALUES)  \
+  INSTANTIATE_TEST_SUITE_P(Execution, FIXTURE,                     \
+                           testing::Combine(SOURCE_TYPES, VALUES), \
                            FIXTURE::getParamName);
 
 // User defined ULP literal
@@ -243,7 +248,7 @@ constexpr cl_ulong operator""_ULP(unsigned long long int ulp) {
 
 /// @brief Encapsulates test setup, run, and verification code for fp16 testing
 class HalfParamExecution : public ExecutionWithParam<unsigned> {
-public:
+ public:
   /// @brief Test half precision functions with a single float input
   /// @tparam ULP Precision requirement of result
   /// @param[in] Reference function to verify results against
@@ -255,9 +260,9 @@ public:
   /// @param[in] Reference function to verify results against
   /// @param[in] Optional reference function for undefined behaviour
   template <cl_ulong ULP>
-  void
-  TestAgainstRef(const std::function<cl_float(cl_float, cl_float)> &,
-                 const std::function<bool(cl_float, cl_float)> * = nullptr);
+  void TestAgainstRef(
+      const std::function<cl_float(cl_float, cl_float)> &,
+      const std::function<bool(cl_float, cl_float)> * = nullptr);
 
   /// @brief Test half precision functions with three float inputs
   /// @tparam ULP Precision requirement of result
@@ -306,7 +311,7 @@ public:
   /// @param[in] Vector containing indices of scalar args to set
   void InitScalarArgIndices(const std::vector<unsigned> &&);
 
-protected:
+ protected:
   /// @brief Encapsulates parameter type information with input buffer
   struct input_details_t final {
     input_details_t(unsigned idx) : arg_index(idx), is_scalar(false) {}
@@ -346,7 +351,8 @@ protected:
   virtual const std::vector<cl_ushort> &GetEdgeCases() const;
 };
 
-template <typename T> void BaseExecution::AddPrimitive(T value) {
+template <typename T>
+void BaseExecution::AddPrimitive(T value) {
   // UnitCL AddPrimitive requires this to be allocated with cargo::alloc.  We
   // potentially over-align the BoxedPrimitive because if T is an OpenCL vector
   // type then it may have higher alignment requirements than a raw `malloc`
@@ -423,7 +429,7 @@ void BaseExecution::AddInputImage(const cl_image_format &format,
                                   Reference1D<T> ref) {
   args_->AddInputImage(format, desc, BufferDesc(size, Reference1D<T>(ref)));
 }
-} // namespace ucl
-} // namespace kts
+}  // namespace ucl
+}  // namespace kts
 
-#endif // UNITCL_KTS_EXECUTION_H_INCLUDED
+#endif  // UNITCL_KTS_EXECUTION_H_INCLUDED

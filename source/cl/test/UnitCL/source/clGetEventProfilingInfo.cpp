@@ -23,7 +23,7 @@ enum {
 };
 
 class clGetEventProfilingInfoNegativeTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     cl_int status;
@@ -58,7 +58,7 @@ TEST_F(clGetEventProfilingInfoNegativeTest, ProfilingNotAvailable) {
 }
 
 class clGetEventProfilingInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int status;
@@ -228,7 +228,7 @@ TEST_F(clGetEventProfilingInfoTest, Race) {
 class clGetEventProfilingInfoTestScalarQueryOpenCL30
     : public clGetEventProfilingInfoTest,
       public testing::WithParamInterface<std::tuple<size_t, int>> {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(clGetEventProfilingInfoTest::SetUp());
     // Skip for non OpenCL-3.0 implementations.
@@ -279,10 +279,10 @@ TEST_P(clGetEventProfilingInfoTestScalarQueryOpenCL30,
   auto query_enum_value = std::get<1>(GetParam());
   // Query for the value with buffer that is too small.
   UCL::Buffer<char> value_buffer{value_size_in_bytes};
-  EXPECT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetEventProfilingInfo(event, query_enum_value,
-                                            value_buffer.size() - 1,
-                                            value_buffer.data(), nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetEventProfilingInfo(event, query_enum_value, value_buffer.size() - 1,
+                              value_buffer.data(), nullptr));
 }
 
 INSTANTIATE_TEST_CASE_P(

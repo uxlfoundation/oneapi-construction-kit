@@ -25,7 +25,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct copysign_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct copysign_helper<T, abacus_half> {
+template <typename T>
+struct copysign_helper<T, abacus_half> {
   static T _(const T x, const T y) {
     const T absX = __abacus_fabs(x);
 
@@ -36,7 +37,8 @@ template <typename T> struct copysign_helper<T, abacus_half> {
 };
 #endif
 
-template <typename T> struct copysign_helper<T, abacus_float> {
+template <typename T>
+struct copysign_helper<T, abacus_float> {
   static T _(const T x, const T y) {
     const T absX = __abacus_fabs(x);
 
@@ -47,7 +49,8 @@ template <typename T> struct copysign_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct copysign_helper<T, abacus_double> {
+template <typename T>
+struct copysign_helper<T, abacus_double> {
   static T _(const T x, const T y) {
     const T absX = __abacus_fabs(x);
 
@@ -57,12 +60,13 @@ template <typename T> struct copysign_helper<T, abacus_double> {
     return __abacus_select(absX, -absX, signY);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> inline T copysign_(const T x, const T y) {
+template <typename T>
+inline T copysign_(const T x, const T y) {
   return copysign_helper<T>::_(x, y);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_copysign(abacus_half x, abacus_half y) {
@@ -144,4 +148,4 @@ abacus_double16 ABACUS_API __abacus_copysign(abacus_double16 x,
                                              abacus_double16 y) {
   return copysign_(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

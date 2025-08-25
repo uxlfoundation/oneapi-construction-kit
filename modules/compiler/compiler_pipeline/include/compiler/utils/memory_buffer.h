@@ -46,7 +46,7 @@ struct MemoryBuffer : public llvm::MemoryBuffer {
 
   virtual ~MemoryBuffer() override {}
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_MEMORY_BUFFER_H_INCLUDED
+#endif  // COMPILER_UTILS_MEMORY_BUFFER_H_INCLUDED

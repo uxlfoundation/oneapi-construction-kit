@@ -59,60 +59,60 @@ enum class Machine : uint16_t {
 };
 /// @brief Type of code the file contains.
 enum class Type : uint16_t {
-  RELOCATABLE = 0x01, ///< A relocatable object file
-  EXECUTABLE = 0x02,  ///< A typical executable file
-  SHARED = 0x03,      ///< A shared object file, usually a library
-  CORE_DUMP = 0x04    ///< A core dump
+  RELOCATABLE = 0x01,  ///< A relocatable object file
+  EXECUTABLE = 0x02,   ///< A typical executable file
+  SHARED = 0x03,       ///< A shared object file, usually a library
+  CORE_DUMP = 0x04     ///< A core dump
 };
 /// @brief Type of a section, found in section headers.
 enum class SectionType : uint32_t {
-  NONE = 0x00,          ///< Undefined
-  PROGBITS = 0x01,      ///< Contains executable code
-  SYMTAB = 0x02,        ///< Symbol table
-  STRTAB = 0x03,        ///< String table
-  RELA = 0x04,          ///< Relocations with explicit addends
-  HASH = 0x05,          ///< Symbol hash table
-  DYNAMIC = 0x06,       ///< Section for the dynamic linker
-  NOTE = 0x07,          ///< Vendor-provided notes
-  NOBITS = 0x08,        ///< Section to be filled with zeros
-  REL = 0x09,           ///< Relocations without explicit addends
-  SHLIB = 0x0A,         ///< Shared library list
-  DYNSYM = 0x0B,        ///< Dynamic symbols
-  INIT_ARRAY = 0x0E,    ///< Static constructor array
-  FINI_ARRAY = 0x0F,    ///< Static destructor array
-  PREINIT_ARRAY = 0x10, ///< Static preconstructor array
-  GROUP = 0x11,         ///< Group of sections
-  SYMTAB_SHNDX = 0x12   ///< Symbol table's section indices for >2^16 sections
+  NONE = 0x00,           ///< Undefined
+  PROGBITS = 0x01,       ///< Contains executable code
+  SYMTAB = 0x02,         ///< Symbol table
+  STRTAB = 0x03,         ///< String table
+  RELA = 0x04,           ///< Relocations with explicit addends
+  HASH = 0x05,           ///< Symbol hash table
+  DYNAMIC = 0x06,        ///< Section for the dynamic linker
+  NOTE = 0x07,           ///< Vendor-provided notes
+  NOBITS = 0x08,         ///< Section to be filled with zeros
+  REL = 0x09,            ///< Relocations without explicit addends
+  SHLIB = 0x0A,          ///< Shared library list
+  DYNSYM = 0x0B,         ///< Dynamic symbols
+  INIT_ARRAY = 0x0E,     ///< Static constructor array
+  FINI_ARRAY = 0x0F,     ///< Static destructor array
+  PREINIT_ARRAY = 0x10,  ///< Static preconstructor array
+  GROUP = 0x11,          ///< Group of sections
+  SYMTAB_SHNDX = 0x12    ///< Symbol table's section indices for >2^16 sections
 };
 /// @brief Flags found in section headers.
 namespace SectionFlags {
 enum Type : uint32_t {
-  WRITE = 0x01,      ///< Writable memory
-  ALLOC = 0x02,      ///< Needs to be mapped into memory for program execution
-  EXECINSTR = 0x04,  ///< Executable memory
-  MERGE = 0x10,      ///< Can be merged with identical sections
-  STRINGS = 0x20,    ///< Contains strings
-  INFO_LINK = 0x40,  ///< The info field contains a section header table index
-  LINK_ORDER = 0x80, ///< Special ordering requirements
-  OS_NONCONFORMING = 0x100, ///< Special OS-specific processing requirement
-  GROUP = 0x200,            ///< Member of a group
-  TLS = 0x400,              ///< Holds thread-local storage
-  COMPRESSED = 0x800        ///< Compressed contents
+  WRITE = 0x01,       ///< Writable memory
+  ALLOC = 0x02,       ///< Needs to be mapped into memory for program execution
+  EXECINSTR = 0x04,   ///< Executable memory
+  MERGE = 0x10,       ///< Can be merged with identical sections
+  STRINGS = 0x20,     ///< Contains strings
+  INFO_LINK = 0x40,   ///< The info field contains a section header table index
+  LINK_ORDER = 0x80,  ///< Special ordering requirements
+  OS_NONCONFORMING = 0x100,  ///< Special OS-specific processing requirement
+  GROUP = 0x200,             ///< Member of a group
+  TLS = 0x400,               ///< Holds thread-local storage
+  COMPRESSED = 0x800         ///< Compressed contents
 };
 }
 /// @brief Special values for symbols' section index field.
 namespace SymbolSpecialSection {
 enum Type : uint16_t {
-  UNDEFINED = 0x00,  ///< Undefined symbol
-  ABSOLUTE = 0xFFF1, ///< Absolute value symbol
-  COMMON = 0xFFF2,   ///< Needs allocation
-  XINDEX = 0xFFFF    ///< Index too big to fit, look in symtab_shndx section
+  UNDEFINED = 0x00,   ///< Undefined symbol
+  ABSOLUTE = 0xFFF1,  ///< Absolute value symbol
+  COMMON = 0xFFF2,    ///< Needs allocation
+  XINDEX = 0xFFFF     ///< Index too big to fit, look in symtab_shndx section
 };
 /// @brief Checks if a section index of a symbol has a special meaning.
 inline bool isSpecial(uint16_t sidx) {
   return sidx == UNDEFINED || sidx >= 0xFF00;
 }
-} // namespace SymbolSpecialSection
+}  // namespace SymbolSpecialSection
 /// @brief Controls the priorities of conflicting symbols.
 enum class SymbolBinding : uint8_t { LOCAL = 0x0, GLOBAL = 0x1, WEAK = 0x2 };
 /// @brief What the symbol represents.
@@ -127,10 +127,10 @@ enum class SymbolType : uint8_t {
 };
 /// @brief Visibility of the symbol to other programs.
 enum class SymbolVisibility : uint8_t {
-  DEFAULT = 0x00, // trailing underscore because it's a C++ keyword
+  DEFAULT = 0x00,  // trailing underscore because it's a C++ keyword
   INTERNAL = 0x01,
   HIDDEN = 0x02,
-  PROTECTED = 0x03 // same as above
+  PROTECTED = 0x03  // same as above
 };
 
 /// @brief Extracts the SymbolBinding bitfield from the st_info ELF field.
@@ -155,7 +155,7 @@ const char *const SYMBOL_NAMES_SECTION = ".strtab";
 /// @brief Names of important special sections.
 const char *const SECTION_NAMES_SECTION = ".shstrtab";
 
-} // namespace ElfFields
+}  // namespace ElfFields
 
 struct SectionIterator;
 struct SectionIteratorPair;
@@ -164,7 +164,7 @@ struct SymbolIteratorPair;
 
 /// @brief Wrapper for an ELF file.
 class ElfFile {
-public:
+ public:
   /// @brief Default constructor.
   ElfFile();
   /// @brief Requires aligned_data to be aligned to an 8-byte boundary.
@@ -188,7 +188,8 @@ public:
 
   /// @brief ELF file header, instantiated with addr_t of either uint32_t or
   /// uint64_t for ELF32 and ELF64 respectively
-  template <typename addr_t> struct Header {
+  template <typename addr_t>
+  struct Header {
     static_assert(sizeof(addr_t) == 4 || sizeof(addr_t) == 8,
                   "Wrong addr_t type.");
     HeaderIdent identifier;
@@ -229,7 +230,8 @@ public:
 
   /// @brief Section header, instantiated with addr_t of either uint32_t or
   /// uint64_t for ELF32 and ELF64 respectively
-  template <typename addr_t> struct SectionHeader {
+  template <typename addr_t>
+  struct SectionHeader {
     static_assert(sizeof(addr_t) == 4 || sizeof(addr_t) == 8,
                   "Wrong addr_t type.");
     uint32_t name_offset;
@@ -498,8 +500,8 @@ public:
   /// @brief Use this wrapper if reading directly from ELF structures, it
   /// converts the values in memory to the right endianness for the CPU.
   template <typename Integer>
-  std::enable_if_t<std::is_unsigned_v<Integer>, Integer>
-  field(Integer v) const {
+  std::enable_if_t<std::is_unsigned_v<Integer>, Integer> field(
+      Integer v) const {
     CARGO_ASSERT(!bytes.empty(), "Using a null ElfFile instance");
     return (headerIdent()->endianness == (cargo::is_little_endian()
                                               ? ElfFields::Endianness::LITTLE
@@ -582,8 +584,8 @@ struct ElfMap {
 
   /// @brief Gets the remaining space available for writing out relocation stubs
   /// in an ELF section.
-  cargo::optional<cargo::array_view<uint8_t>>
-  getRemainingStubSpace(uint32_t section_index) const;
+  cargo::optional<cargo::array_view<uint8_t>> getRemainingStubSpace(
+      uint32_t section_index) const;
   /// @brief Gets the address on the target device to the beginning of the space
   /// available for writing out relocation stubs in an ELF section.
   cargo::optional<uint64_t> getStubTargetAddress(uint32_t section_index) const;
@@ -596,8 +598,8 @@ struct ElfMap {
   cargo::optional<uint64_t> getSymbolTargetAddress(uint32_t index) const;
   /// @brief Gets the address where the symbol with a given name is mapped in
   /// device memory.
-  cargo::optional<uint64_t>
-  getSymbolTargetAddress(cargo::string_view name) const;
+  cargo::optional<uint64_t> getSymbolTargetAddress(
+      cargo::string_view name) const;
 
 #ifndef NDEBUG
   /// @brief Look up a symbol's name from its index.
@@ -609,7 +611,7 @@ struct ElfMap {
   }
 #endif
 
-private:
+ private:
   ElfFile *file;
   cargo::small_vector<Mapping, 8> sectionMappings;
   cargo::small_vector<Callback, 8> callbacks;
@@ -665,7 +667,7 @@ struct SectionIterator {
 
   void updateCurrent() { current = file->section(index); }
 
-private:
+ private:
   ElfFile::Section current;
 };
 
@@ -718,7 +720,7 @@ struct SymbolIterator {
 
   void updateCurrent() { current = file->symbol(index); }
 
-private:
+ private:
   ElfFile::Symbol current;
 };
 
@@ -752,24 +754,26 @@ struct SymbolIteratorPair {
   SymbolIterator endIter;
 };
 
-} // namespace loader
+}  // namespace loader
 
 namespace std {
-template <> struct iterator_traits<loader::SectionIterator> {
+template <>
+struct iterator_traits<loader::SectionIterator> {
   using difference_type = decltype(loader::SectionIterator::index);
   using value_type = loader::ElfFile::Section;
   using pointer = loader::ElfFile::Section *;
   using reference = loader::ElfFile::Section &;
   using iterator_category = std::bidirectional_iterator_tag;
 };
-template <> struct iterator_traits<loader::SymbolIterator> {
+template <>
+struct iterator_traits<loader::SymbolIterator> {
   using difference_type = decltype(loader::SymbolIterator::index);
   using value_type = loader::ElfFile::Symbol;
   using pointer = loader::ElfFile::Symbol *;
   using reference = loader::ElfFile::Symbol &;
   using iterator_category = std::bidirectional_iterator_tag;
 };
-} // namespace std
+}  // namespace std
 
 static_assert(cargo::is_input_iterator<loader::SectionIterator>::value,
               "SectionIterator is not an input iterator");

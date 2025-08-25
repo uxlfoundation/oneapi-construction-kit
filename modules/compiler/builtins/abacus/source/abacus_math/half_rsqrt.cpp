@@ -25,7 +25,8 @@
 #include <abacus/internal/rsqrt_unsafe.h>
 
 namespace {
-template <typename T> T half_rsqrt(const T x) {
+template <typename T>
+T half_rsqrt(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
 
@@ -68,7 +69,7 @@ template <typename T> T half_rsqrt(const T x) {
 
   return ans;
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_half_rsqrt(abacus_float x) {
   return half_rsqrt<>(x);

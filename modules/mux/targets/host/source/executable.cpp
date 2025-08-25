@@ -31,7 +31,8 @@
 host::executable_s::executable_s(mux_device_t device,
                                  utils::jit_kernel_s kernel,
                                  mux::allocator allocator)
-    : jit_kernel_name(kernel.name), elf_contents(allocator),
+    : jit_kernel_name(kernel.name),
+      elf_contents(allocator),
       allocated_pages(allocator) {
   this->device = device;
   kernels.emplace(jit_kernel_name,

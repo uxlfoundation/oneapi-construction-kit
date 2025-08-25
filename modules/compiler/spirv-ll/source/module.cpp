@@ -52,23 +52,46 @@ uint32_t spirv_ll::ModuleHeader::schema() const {
 spirv_ll::Module::Module(
     spirv_ll::Context &context, llvm::ArrayRef<uint32_t> code,
     cargo::optional<const spirv_ll::SpecializationInfo &> specInfo)
-    : spirv_ll::ModuleHeader{code}, context(context),
+    : spirv_ll::ModuleHeader{code},
+      context(context),
       llvmModule(new llvm::Module{"SPIR-V", *context.llvmContext}),
-      fenceWrapperFcn(nullptr), barrierWrapperFcn(nullptr), capabilities(),
-      ExtendedInstrSetBindings(), addressingModel(0), EntryPoints(),
-      ExecutionModes(), sourceLanguage{}, sourceMetadataString(),
-      CompileUnit(nullptr), File(nullptr), LoopControl(), specInfo(specInfo),
-      WorkgroupSize({{1, 1, 1}}), deferredSpecConstantOps(),
+      fenceWrapperFcn(nullptr),
+      barrierWrapperFcn(nullptr),
+      capabilities(),
+      ExtendedInstrSetBindings(),
+      addressingModel(0),
+      EntryPoints(),
+      ExecutionModes(),
+      sourceLanguage{},
+      sourceMetadataString(),
+      CompileUnit(nullptr),
+      File(nullptr),
+      LoopControl(),
+      specInfo(specInfo),
+      WorkgroupSize({{1, 1, 1}}),
+      deferredSpecConstantOps(),
       ImplicitDebugScopes(true) {}
 
 spirv_ll::Module::Module(spirv_ll::Context &context,
                          llvm::ArrayRef<uint32_t> code)
-    : spirv_ll::ModuleHeader{code}, context(context), llvmModule(nullptr),
-      fenceWrapperFcn(nullptr), barrierWrapperFcn(nullptr), capabilities(),
-      ExtendedInstrSetBindings(), addressingModel(0), EntryPoints(),
-      ExecutionModes(), sourceLanguage{}, sourceMetadataString(),
-      CompileUnit(nullptr), File(nullptr), LoopControl(), specInfo(),
-      WorkgroupSize({{1, 1, 1}}), deferredSpecConstantOps(),
+    : spirv_ll::ModuleHeader{code},
+      context(context),
+      llvmModule(nullptr),
+      fenceWrapperFcn(nullptr),
+      barrierWrapperFcn(nullptr),
+      capabilities(),
+      ExtendedInstrSetBindings(),
+      addressingModel(0),
+      EntryPoints(),
+      ExecutionModes(),
+      sourceLanguage{},
+      sourceMetadataString(),
+      CompileUnit(nullptr),
+      File(nullptr),
+      LoopControl(),
+      specInfo(),
+      WorkgroupSize({{1, 1, 1}}),
+      deferredSpecConstantOps(),
       ImplicitDebugScopes(true) {}
 
 void spirv_ll::Module::associateExtendedInstrSet(spv::Id id,
@@ -76,8 +99,8 @@ void spirv_ll::Module::associateExtendedInstrSet(spv::Id id,
   ExtendedInstrSetBindings.insert({id, iset});
 }
 
-spirv_ll::ExtendedInstrSet
-spirv_ll::Module::getExtendedInstrSet(spv::Id id) const {
+spirv_ll::ExtendedInstrSet spirv_ll::Module::getExtendedInstrSet(
+    spv::Id id) const {
   auto found = ExtendedInstrSetBindings.find(id);
   SPIRV_LL_ASSERT(found != ExtendedInstrSetBindings.end(),
                   "Bad extended instruction set lookup!");
@@ -98,8 +121,8 @@ void spirv_ll::Module::addEntryPoint(const OpEntryPoint *op) {
   }
 }
 
-const spirv_ll::OpEntryPoint *
-spirv_ll::Module::getEntryPoint(spv::Id id) const {
+const spirv_ll::OpEntryPoint *spirv_ll::Module::getEntryPoint(
+    spv::Id id) const {
   auto found = EntryPoints.find(id);
   return found != EntryPoints.end() ? found->getSecond() : nullptr;
 }
@@ -125,9 +148,8 @@ spirv_ll::Module::getExecutionModes(spv::Id entryPoint) const {
   return {};
 }
 
-const spirv_ll::OpExecutionMode *
-spirv_ll::Module::getExecutionMode(spv::Id entryPoint,
-                                   spv::ExecutionMode mode) const {
+const spirv_ll::OpExecutionMode *spirv_ll::Module::getExecutionMode(
+    spv::Id entryPoint, spv::ExecutionMode mode) const {
   auto executionModes = getExecutionModes(entryPoint);
   auto found = std::find_if(
       executionModes.begin(), executionModes.end(),
@@ -186,8 +208,8 @@ void spirv_ll::Module::addLexicalBlock(llvm::BasicBlock *b_block,
   LexicalBlocks.insert({b_block, lex_block});
 }
 
-llvm::DILexicalBlock *
-spirv_ll::Module::getLexicalBlock(llvm::BasicBlock *block) const {
+llvm::DILexicalBlock *spirv_ll::Module::getLexicalBlock(
+    llvm::BasicBlock *block) const {
   auto found = LexicalBlocks.find(block);
   return found != LexicalBlocks.end() ? found->getSecond() : nullptr;
 }
@@ -205,8 +227,8 @@ void spirv_ll::Module::addDebugFunctionScope(
   FunctionScopes.insert({function_id, function_scope});
 }
 
-llvm::DISubprogram *
-spirv_ll::Module::getDebugFunctionScope(spv::Id function_id) const {
+llvm::DISubprogram *spirv_ll::Module::getDebugFunctionScope(
+    spv::Id function_id) const {
   auto found = FunctionScopes.find(function_id);
   return found != FunctionScopes.end() ? found->getSecond() : nullptr;
 }
@@ -293,9 +315,8 @@ spirv_ll::Module::getDecorations(spv::Id id, spv::Decoration decoration) const {
   return matching;
 }
 
-const spirv_ll::OpDecorateBase *
-spirv_ll::Module::getFirstDecoration(spv::Id id,
-                                     spv::Decoration decoration) const {
+const spirv_ll::OpDecorateBase *spirv_ll::Module::getFirstDecoration(
+    spv::Id id, spv::Decoration decoration) const {
   for (auto op : getDecorations(id)) {
     if (decoration == op->getDecoration()) {
       return op;
@@ -339,11 +360,11 @@ void spirv_ll::Module::resolveDecorations(spv::Id id) {
   auto decorations = getDecorations(id);
   for (auto &decorateOp : decorations) {
     switch (decorateOp->getDecoration()) {
-    default:
-      break;
-    case spv::Decoration::DecorationSpecId:
-      addSpecId(id, decorateOp->getValueAtOffset(3));
-      break;
+      default:
+        break;
+      case spv::Decoration::DecorationSpecId:
+        addSpecId(id, decorateOp->getValueAtOffset(3));
+        break;
     }
   }
 }
@@ -466,30 +487,30 @@ void spirv_ll::Module::updateIncompleteStruct(spv::Id member_id) {
 llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
     uint32_t storage_class) const {
   switch (storage_class) {
-  default:
-    return makeStringError("Unknown StorageClass " +
-                           std::to_string(storage_class));
-  case spv::StorageClassFunction:
-  case spv::StorageClassPrivate:
-  case spv::StorageClassAtomicCounter:
-  case spv::StorageClassInput:
-    // private
-    return 0;
-  case spv::StorageClassCrossWorkgroup:
-  case spv::StorageClassImage:
-    // global
-    return 1;
-  case spv::StorageClassUniformConstant:
-    // constant
-    return 2;
-  case spv::StorageClassWorkgroup:
-    // local
-    return 3;
-  case spv::StorageClassGeneric:
-    if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
+    default:
+      return makeStringError("Unknown StorageClass " +
+                             std::to_string(storage_class));
+    case spv::StorageClassFunction:
+    case spv::StorageClassPrivate:
+    case spv::StorageClassAtomicCounter:
+    case spv::StorageClassInput:
+      // private
       return 0;
-    }
-    return 4;
+    case spv::StorageClassCrossWorkgroup:
+    case spv::StorageClassImage:
+      // global
+      return 1;
+    case spv::StorageClassUniformConstant:
+      // constant
+      return 2;
+    case spv::StorageClassWorkgroup:
+      // local
+      return 3;
+    case spv::StorageClassGeneric:
+      if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
+        return 0;
+      }
+      return 4;
   }
 }
 
@@ -550,8 +571,8 @@ void spirv_ll::Module::addSampledImage(spv::Id id, llvm::Value *image,
   SampledImagesMap.insert({id, sampledImage});
 }
 
-spirv_ll::Module::SampledImage
-spirv_ll::Module::getSampledImage(spv::Id id) const {
+spirv_ll::Module::SampledImage spirv_ll::Module::getSampledImage(
+    spv::Id id) const {
   return SampledImagesMap.lookup(id);
 }
 
@@ -591,8 +612,8 @@ llvm::Value *spirv_ll::Module::getValue(spv::Id id) const {
 
 void spirv_ll::Module::addBuiltInID(spv::Id id) { BuiltInVarIDs.push_back(id); }
 
-const llvm::SmallVector<spv::Id, 4> &
-spirv_ll::Module::getBuiltInVarIDs() const {
+const llvm::SmallVector<spv::Id, 4> &spirv_ll::Module::getBuiltInVarIDs()
+    const {
   return BuiltInVarIDs;
 }
 

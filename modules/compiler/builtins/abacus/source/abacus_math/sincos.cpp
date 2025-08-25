@@ -51,7 +51,8 @@ struct sincos_helper {
 };
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct sincos_helper<T, abacus_half> {
+template <typename T>
+struct sincos_helper<T, abacus_half> {
   static T _(const T x, T *out_cos) {
     using SignedType = typename TypeTraits<T>::SignedType;
 
@@ -89,12 +90,13 @@ template <typename T> struct sincos_helper<T, abacus_half> {
     return sinResult;
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> inline T sincos(const T x, T *out_cos) {
+template <typename T>
+inline T sincos(const T x, T *out_cos) {
   return sincos_helper<T>::_(x, out_cos);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sincos(abacus_half x, abacus_half *o) {
@@ -115,7 +117,7 @@ abacus_half8 ABACUS_API __abacus_sincos(abacus_half8 x, abacus_half8 *o) {
 abacus_half16 ABACUS_API __abacus_sincos(abacus_half16 x, abacus_half16 *o) {
   return sincos<>(x, o);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_sincos(abacus_float x, abacus_float *o) {
   return sincos<>(x, o);
@@ -156,4 +158,4 @@ abacus_double16 ABACUS_API __abacus_sincos(abacus_double16 x,
                                            abacus_double16 *o) {
   return sincos<>(x, o);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

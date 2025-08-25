@@ -41,7 +41,7 @@ namespace utils {
 /// Runs over all kernels with "kernel" metadata.
 class ReduceToFunctionPass final
     : public llvm::PassInfoMixin<ReduceToFunctionPass> {
-public:
+ public:
   ReduceToFunctionPass() {}
   ReduceToFunctionPass(const llvm::ArrayRef<llvm::StringRef> &RefNames) {
     llvm::transform(RefNames, std::back_inserter(Names),
@@ -50,10 +50,10 @@ public:
 
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 
-private:
+ private:
   llvm::SmallVector<std::string, 4> Names;
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_REDUCE_TO_FUNCTION_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REDUCE_TO_FUNCTION_PASS_H_INCLUDED

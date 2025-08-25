@@ -22,7 +22,8 @@
 #include <abacus/internal/trunc_unsafe.h>
 
 namespace {
-template <typename T> static T rint_helper_scalar(const T x) {
+template <typename T>
+static T rint_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -49,7 +50,8 @@ template <typename T> static T rint_helper_scalar(const T x) {
   return __abacus_copysign(result, x);
 }
 
-template <typename T> static T rint_helper_vector(const T x) {
+template <typename T>
+static T rint_helper_vector(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -62,10 +64,10 @@ template <typename T> static T rint_helper_vector(const T x) {
   const T xTrunc = abacus::detail::cast::convert<T>(xTruncated);
   const T diff = (xAbs - xTrunc);
 
-  T r = __abacus_select(xTrunc, xTrunc + one,
-                        (diff > onehalf) |
-                            ((diff == onehalf) &
-                             ((SignedType)1 == (xTruncated & (SignedType)1))));
+  T r = __abacus_select(
+      xTrunc, xTrunc + one,
+      (diff > onehalf) | ((diff == onehalf) &
+                          ((SignedType)1 == (xTruncated & (SignedType)1))));
 
   r = __abacus_copysign(r, x);
 
@@ -74,7 +76,7 @@ template <typename T> static T rint_helper_vector(const T x) {
 
   return __abacus_select(r, zero, abacus::internal::is_denorm(x));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_rint(abacus_half x) {
@@ -95,7 +97,7 @@ abacus_half8 ABACUS_API __abacus_rint(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_rint(abacus_half16 x) {
   return rint_helper_vector(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_rint(abacus_float x) {
   return rint_helper_scalar(x);
@@ -135,4 +137,4 @@ abacus_double8 ABACUS_API __abacus_rint(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_rint(abacus_double16 x) {
   return rint_helper_vector(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

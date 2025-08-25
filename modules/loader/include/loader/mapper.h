@@ -65,11 +65,11 @@ struct PageRange {
   /// @brief Gets the allocated memory range.
   cargo::array_view<uint8_t> data() const { return {pages_begin, pages_end}; }
 
-private:
+ private:
   uint8_t *pages_begin;
   uint8_t *pages_end;
 };
 
-} // namespace loader
+}  // namespace loader
 
 #endif

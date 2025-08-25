@@ -125,7 +125,7 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
   using base = detail::optional_move_assign_base<wrap_reference_t<T>>;
   using storage_type = wrap_reference_t<T>;
 
-public:
+ public:
   /// @brief Type of the contained element.
   using value_type = T;
 
@@ -311,7 +311,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto and_then(F &&f) & {
+  template <class F>
+  constexpr auto and_then(F &&f) & {
     using result = invoke_result_t<F, T &>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -331,7 +332,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto and_then(F &&f) && {
+  template <class F>
+  constexpr auto and_then(F &&f) && {
     using result = invoke_result_t<F, T &&>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -351,7 +353,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto and_then(F &&f) const & {
+  template <class F>
+  constexpr auto and_then(F &&f) const & {
     using result = invoke_result_t<F, const T &>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -371,7 +374,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto and_then(F &&f) const && {
+  template <class F>
+  constexpr auto and_then(F &&f) const && {
     using result = invoke_result_t<F, const T &&>;
     static_assert(detail::is_optional<result>::value,
                   "F must return an optional");
@@ -388,7 +392,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto map(F &&f) & {
+  template <class F>
+  constexpr auto map(F &&f) & {
     return optional_map_impl(*this, std::forward<F>(f));
   }
 
@@ -401,7 +406,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto map(F &&f) && {
+  template <class F>
+  constexpr auto map(F &&f) && {
     return optional_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -414,7 +420,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// value())`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto map(F &&f) const & {
+  template <class F>
+  constexpr auto map(F &&f) const & {
     return optional_map_impl(*this, std::forward<F>(f));
   }
 
@@ -427,7 +434,8 @@ public:
   ///
   /// @return Let `U` be the result of `std::invoke(std::forward<F>(f),
   /// std::move(value()))`. Returns a `std::optional<U>`.
-  template <class F> constexpr auto map(F &&f) const && {
+  template <class F>
+  constexpr auto map(F &&f) const && {
     return optional_map_impl(std::move(*this), std::forward<F>(f));
   }
 
@@ -556,7 +564,8 @@ public:
   ///
   /// If there is a value stored, then `f` is called with `**this`
   /// and the value is returned. Otherwise `u` is returned.
-  template <class F, class U> U map_or(F &&f, U &&u) & {
+  template <class F, class U>
+  U map_or(F &&f, U &&u) & {
     return has_value() ? invoke(std::forward<F>(f), **this)
                        : std::forward<U>(u);
   }
@@ -566,7 +575,8 @@ public:
   ///
   /// If there is a value stored, then `f` is called with `std::move(**this)`
   /// and the value is returned. Otherwise `u` is returned.
-  template <class F, class U> U map_or(F &&f, U &&u) && {
+  template <class F, class U>
+  U map_or(F &&f, U &&u) && {
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : std::forward<U>(u);
   }
@@ -576,7 +586,8 @@ public:
   ///
   /// If there is a value stored, then `f` is called with `**this`
   /// and the value is returned. Otherwise `u` is returned.
-  template <class F, class U> U map_or(F &&f, U &&u) const & {
+  template <class F, class U>
+  U map_or(F &&f, U &&u) const & {
     return has_value() ? invoke(std::forward<F>(f), **this)
                        : std::forward<U>(u);
   }
@@ -586,7 +597,8 @@ public:
   ///
   /// If there is a value stored, then `f` is called with `std::move(**this)`
   /// and the value is returned. Otherwise `u` is returned.
-  template <class F, class U> U map_or(F &&f, U &&u) const && {
+  template <class F, class U>
+  U map_or(F &&f, U &&u) const && {
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : std::forward<U>(u);
   }
@@ -597,7 +609,8 @@ public:
   /// If there is a value stored, then `f` is
   /// called with `**this` and the value is returned. Otherwise
   /// `std::forward<U>(u)()` is returned.
-  template <class F, class U> invoke_result_t<U> map_or_else(F &&f, U &&u) & {
+  template <class F, class U>
+  invoke_result_t<U> map_or_else(F &&f, U &&u) & {
     return has_value() ? invoke(std::forward<F>(f), **this)
                        : std::forward<U>(u)();
   }
@@ -608,7 +621,8 @@ public:
   /// If there is a value stored, then `f` is
   /// called with `std::move(**this)` and the value is returned. Otherwise
   /// `std::forward<U>(u)()` is returned.
-  template <class F, class U> invoke_result_t<U> map_or_else(F &&f, U &&u) && {
+  template <class F, class U>
+  invoke_result_t<U> map_or_else(F &&f, U &&u) && {
     return has_value() ? invoke(std::forward<F>(f), std::move(**this))
                        : std::forward<U>(u)();
   }
@@ -744,7 +758,8 @@ public:
   /// @param args Arguments to construct the value with.
   ///
   /// @return The constructed value.
-  template <class... Args> T &emplace(Args &&...args) {
+  template <class... Args>
+  T &emplace(Args &&...args) {
     static_assert(std::is_constructible_v<T, Args &&...>,
                   "T must be constructible with Args");
     *this = nullopt;
@@ -886,18 +901,20 @@ public:
   }
 
   /// @return The stored value if there is one, otherwise `u`.
-  template <class U> constexpr T value_or(U &&u) const & {
-    static_assert(std::is_copy_constructible_v<T> &&
-                      std::is_convertible_v<U &&, T>,
-                  "T must be copy constructible and convertible from U");
+  template <class U>
+  constexpr T value_or(U &&u) const & {
+    static_assert(
+        std::is_copy_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be copy constructible and convertible from U");
     return has_value() ? **this : static_cast<T>(std::forward<U>(u));
   }
 
   /// @return The stored value if there is one, otherwise `u`.
-  template <class U> constexpr T value_or(U &&u) && {
-    static_assert(std::is_move_constructible_v<T> &&
-                      std::is_convertible_v<U &&, T>,
-                  "T must be move constructible and convertible from U");
+  template <class U>
+  constexpr T value_or(U &&u) && {
+    static_assert(
+        std::is_move_constructible_v<T> && std::is_convertible_v<U &&, T>,
+        "T must be move constructible and convertible from U");
     return has_value() ? **this : static_cast<T>(std::forward<U>(u));
   }
 
@@ -1007,14 +1024,16 @@ constexpr bool operator!=(nullopt_t, const optional<T> &rhs) {
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator<(const optional<T> &, nullopt_t) {
+template <class T>
+constexpr bool operator<(const optional<T> &, nullopt_t) {
   return false;
 }
 
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator<(nullopt_t, const optional<T> &rhs) {
+template <class T>
+constexpr bool operator<(nullopt_t, const optional<T> &rhs) {
   return rhs.has_value();
 }
 
@@ -1029,28 +1048,32 @@ constexpr bool operator<=(const optional<T> &lhs, nullopt_t) {
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator<=(nullopt_t, const optional<T> &) {
+template <class T>
+constexpr bool operator<=(nullopt_t, const optional<T> &) {
   return true;
 }
 
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator>(const optional<T> &lhs, nullopt_t) {
+template <class T>
+constexpr bool operator>(const optional<T> &lhs, nullopt_t) {
   return lhs.has_value();
 }
 
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator>(nullopt_t, const optional<T> &) {
+template <class T>
+constexpr bool operator>(nullopt_t, const optional<T> &) {
   return false;
 }
 
 /// @brief Compares the optional with a `nullopt`.
 ///
 /// @return The optional is less than `nullopt` only if it has no value.
-template <class T> constexpr bool operator>=(const optional<T> &, nullopt_t) {
+template <class T>
+constexpr bool operator>=(const optional<T> &, nullopt_t) {
   return true;
 }
 
@@ -1192,7 +1215,8 @@ void swap(optional<T> &lhs, optional<T> &rhs) {
 }
 
 /// @brief Creates an optional from `v`.
-template <class T> constexpr optional<std::decay_t<T>> make_optional(T &&v) {
+template <class T>
+constexpr optional<std::decay_t<T>> make_optional(T &&v) {
   return optional<std::decay_t<T>>(std::forward<T>(v));
 }
 
@@ -1209,7 +1233,8 @@ constexpr optional<T> make_optional(std::initializer_list<U> il,
   return optional<T>(in_place, il, std::forward<Args>(args)...);
 }
 
-template <class T> optional(T) -> optional<T>;
+template <class T>
+optional(T) -> optional<T>;
 
 /// @}
 
@@ -1234,19 +1259,18 @@ auto optional_map_impl(Opt &&opt, F &&f) -> optional<monostate> {
   }
   return nullopt;
 }
-} // namespace detail
+}  // namespace detail
 
-} // namespace cargo
+}  // namespace cargo
 
 namespace std {
-template <class T> struct hash<cargo::optional<T>> { // NOLINT(cert-dcl58-cpp)
+template <class T>
+struct hash<cargo::optional<T>> {  // NOLINT(cert-dcl58-cpp)
   ::std::size_t operator()(const cargo::optional<T> &o) const {
-    if (!o.has_value()) {
-      return 0;
-    }
+    if (!o.has_value()) return 0;
     return std::hash<std::remove_const_t<T>>()(*o);
   }
 };
-} // namespace std
+}  // namespace std
 
-#endif // CARGO_OPTIONAL_H_INCLUDED
+#endif  // CARGO_OPTIONAL_H_INCLUDED

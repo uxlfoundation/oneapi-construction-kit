@@ -32,7 +32,8 @@ namespace {
 //    * We do at most 6 iterations shifting by 40 each time
 //    * And then one cleanup for (x exponent - m exponent) % 40
 // 4. Reconstructs the result from the new mantissa + m's exponent
-template <typename T> T fmod_helper(const T x, const T m) {
+template <typename T>
+T fmod_helper(const T x, const T m) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   const T result = abacus::internal::fmod_unsafe(x, m);
 
@@ -40,7 +41,7 @@ template <typename T> T fmod_helper(const T x, const T m) {
       (__abacus_isfinite(x) == 0) | __abacus_isnan(m) | (m == (T)0);
   return __abacus_select(__abacus_copysign(result, x), FPShape<T>::NaN(), cond);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fmod(abacus_half x, abacus_half m) {
@@ -61,7 +62,7 @@ abacus_half8 ABACUS_API __abacus_fmod(abacus_half8 x, abacus_half8 m) {
 abacus_half16 ABACUS_API __abacus_fmod(abacus_half16 x, abacus_half16 m) {
   return fmod_helper(x, m);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_fmod(abacus_float x, abacus_float m) {
   return fmod_helper(x, m);
@@ -101,4 +102,4 @@ abacus_double8 ABACUS_API __abacus_fmod(abacus_double8 x, abacus_double8 m) {
 abacus_double16 ABACUS_API __abacus_fmod(abacus_double16 x, abacus_double16 m) {
   return fmod_helper(x, m);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

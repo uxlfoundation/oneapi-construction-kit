@@ -92,7 +92,7 @@ mux_result_t readBinaryMetadata(
   }
   return mux_success;
 }
-} // namespace
+}  // namespace
 
 namespace riscv {
 // Executable from binary
@@ -100,9 +100,9 @@ executable_s::executable_s(mux::hal::device *device,
                            mux::dynamic_array<uint8_t> &&object_code)
     : mux::hal::executable(device, std::move(object_code)) {}
 
-cargo::expected<riscv::executable_s *, mux_result_t>
-executable_s::create(riscv::device_s *device, const void *binary,
-                     uint64_t binary_length, mux::allocator allocator) {
+cargo::expected<riscv::executable_s *, mux_result_t> executable_s::create(
+    riscv::device_s *device, const void *binary, uint64_t binary_length,
+    mux::allocator allocator) {
   auto executable = mux::hal::executable::create<riscv::executable_s>(
       device, binary, binary_length, allocator);
   if (!executable) {
@@ -122,7 +122,7 @@ void executable_s::destroy(device_s *device, executable_s *executable,
   (void)device;
   allocator.destroy(executable);
 }
-} // namespace riscv
+}  // namespace riscv
 
 mux_result_t riscvCreateExecutable(mux_device_t device, const void *binary,
                                    uint64_t binary_length,

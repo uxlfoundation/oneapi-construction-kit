@@ -24,8 +24,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-host::RemoveByValAttributesPass::run(Module &M, ModuleAnalysisManager &) {
+PreservedAnalyses host::RemoveByValAttributesPass::run(
+    Module &M, ModuleAnalysisManager &) {
   // This pass is a workaround for an issue specific to 64-bit X86 ABI
   // lowering: bug https://github.com/llvm/llvm-project/issues/34300.
   if (Triple(M.getTargetTriple()).getArch() != Triple::x86_64) {

@@ -18,7 +18,8 @@
 #include <abacus/abacus_math.h>
 #include <abacus/internal/fma.h>
 
-template <typename T> static inline T fma_helper(T x, T y, T z) {
+template <typename T>
+static inline T fma_helper(T x, T y, T z) {
   abacus::internal::inplace_fma(x, y, z);
   return x;
 }
@@ -48,7 +49,7 @@ abacus_half16 ABACUS_API __abacus_fma(abacus_half16 x, abacus_half16 y,
                                       abacus_half16 z) {
   return fma_helper(x, y, z);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_fma(abacus_float x, abacus_float y,
                                      abacus_float z) {
@@ -100,4 +101,4 @@ abacus_double16 ABACUS_API __abacus_fma(abacus_double16 x, abacus_double16 y,
                                         abacus_double16 z) {
   return fma_helper(x, y, z);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

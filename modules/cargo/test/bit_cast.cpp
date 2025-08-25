@@ -28,7 +28,7 @@ TEST(bit_cast, int32_uint32) {
 TEST(bit_cast, float_uint32_float) {
   const float in = 23.0f;
   uint32_t out = cargo::bit_cast<uint32_t>(in);
-  out |= 0x80000000; // flip sign bit
+  out |= 0x80000000;  // flip sign bit
   ASSERT_FLOAT_EQ(-23.0f, cargo::bit_cast<float>(out));
 }
 

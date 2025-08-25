@@ -194,14 +194,14 @@ GroupAsyncCopiesBuilder::create<GroupAsyncCopiesBuilder::GroupAsyncCopy3D3D>(
 
 llvm::Error GroupAsyncCopiesBuilder::create(const OpExtInst &opc) {
   switch (opc.Instruction()) {
-  case GroupAsyncCopy2D2D:
-    return create<GroupAsyncCopy2D2D>(opc);
-  case GroupAsyncCopy3D3D:
-    return create<GroupAsyncCopy3D3D>(opc);
-  default:
-    return makeStringError(
-        "Unrecognized Codeplay.GroupAsyncCopies extended instruction " +
-        std::to_string(opc.Instruction()));
+    case GroupAsyncCopy2D2D:
+      return create<GroupAsyncCopy2D2D>(opc);
+    case GroupAsyncCopy3D3D:
+      return create<GroupAsyncCopy3D3D>(opc);
+    default:
+      return makeStringError(
+          "Unrecognized Codeplay.GroupAsyncCopies extended instruction " +
+          std::to_string(opc.Instruction()));
   }
 }
-} // namespace spirv_ll
+}  // namespace spirv_ll

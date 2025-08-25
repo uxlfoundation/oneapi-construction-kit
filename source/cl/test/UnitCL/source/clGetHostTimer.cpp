@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clGetHostTimerTest : public ucl::DeviceTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(DeviceTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {

@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clEnqueueSVMMemFillTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {

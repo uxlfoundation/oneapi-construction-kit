@@ -70,7 +70,8 @@ constexpr auto invoke(Fn &&f, Args &&...args) noexcept(
 /// @}
 
 namespace detail {
-template <class F, class, class... Us> struct invoke_result_impl;
+template <class F, class, class... Us>
+struct invoke_result_impl;
 
 template <class F, class... Us>
 struct invoke_result_impl<
@@ -80,7 +81,7 @@ struct invoke_result_impl<
   using type =
       decltype(cargo::invoke(std::declval<F>(), std::declval<Us>()...));
 };
-} // namespace detail
+}  // namespace detail
 
 /// @addtogroup cargo
 /// @{
@@ -104,7 +105,7 @@ template <class R, class F, class... Args>
 struct is_invocable_r_impl<
     typename std::is_convertible<invoke_result_t<F, Args...>, R>::type, R, F,
     Args...> : std::true_type {};
-} // namespace detail
+}  // namespace detail
 
 /// @addtogroup cargo
 /// @{
@@ -124,6 +125,6 @@ using wrap_reference_t =
                        std::reference_wrapper<std::remove_reference_t<T>>, T>;
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
 #endif

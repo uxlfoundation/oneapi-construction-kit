@@ -25,7 +25,8 @@ namespace {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T _(const T x) {
     const abacus_float polynomial[9] = {
         +0.999999984530f,    -0.333330722167f,    +0.199926035420f,
@@ -50,14 +51,16 @@ static ABACUS_CONSTANT abacus_double polynomialD[19] = {
     0.1612562456785227657e-2, -0.3235206349294761306e-3,
     0.3072764408780525257e-4};
 
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T _(const T x) {
     return x * abacus::internal::horner_polynomial(x * x, polynomialD);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> T ABACUS_API atan2(const T x, const T y) {
+template <typename T>
+T ABACUS_API atan2(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -100,7 +103,8 @@ static ABACUS_CONSTANT abacus_half _atan2H[5] = {
     1.0f16, -0.330078125f16, 0.175048828125f16, -7.48291015625e-2f16,
     1.532745361328125e-2f16};
 
-template <typename T> T atan2_half(const T y, const T x) {
+template <typename T>
+T atan2_half(const T y, const T x) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef FPShape<abacus_half> Shape;
@@ -164,7 +168,8 @@ template <typename T> T atan2_half(const T y, const T x) {
   return ans;
 }
 
-template <> abacus_half atan2_half(const abacus_half y, const abacus_half x) {
+template <>
+abacus_half atan2_half(const abacus_half y, const abacus_half x) {
   typedef FPShape<abacus_half> Shape;
 
   const abacus_ushort sign_mask = Shape::SignMask();
@@ -229,8 +234,8 @@ template <> abacus_half atan2_half(const abacus_half y, const abacus_half x) {
   return (ans + (pi_multiplication_factor * pi)) +
          (pi_multiplication_factor * pi_lo);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
-} // namespace
+#endif  // __CA_BUILTINS_HALF_SUPPORT
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_atan2(abacus_half x, abacus_half y) {
@@ -251,7 +256,7 @@ abacus_half8 ABACUS_API __abacus_atan2(abacus_half8 x, abacus_half8 y) {
 abacus_half16 ABACUS_API __abacus_atan2(abacus_half16 x, abacus_half16 y) {
   return atan2_half(x, y);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_atan2(abacus_float x, abacus_float y) {
   return atan2<>(x, y);
@@ -292,4 +297,4 @@ abacus_double16 ABACUS_API __abacus_atan2(abacus_double16 x,
                                           abacus_double16 y) {
   return atan2<>(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

@@ -969,11 +969,10 @@ bool foldRootFuncs(Module &module) {
 
   return modified;
 }
-} // namespace
+}  // namespace
 
-PreservedAnalyses
-compiler::BuiltinSimplificationPass::run(Module &module,
-                                         ModuleAnalysisManager &) {
+PreservedAnalyses compiler::BuiltinSimplificationPass::run(
+    Module &module, ModuleAnalysisManager &) {
   bool Changed = false;
 
   bool LocalChanged;

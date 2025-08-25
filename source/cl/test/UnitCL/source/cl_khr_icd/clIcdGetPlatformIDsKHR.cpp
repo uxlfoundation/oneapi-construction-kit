@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clIcdGetPlatformIDsKHRTest : public ucl::PlatformTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(PlatformTest::SetUp());
     if (!isPlatformExtensionSupported("cl_khr_icd")) {

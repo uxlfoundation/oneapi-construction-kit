@@ -29,12 +29,12 @@ namespace extension {
 
 /// @brief Definition of cl_codeplay_extra_build_options extension.
 class codeplay_extra_build_options final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   codeplay_extra_build_options();
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_CODEPLAY_EXTRA_BUILD_OPTIONS_H_INCLUDED
+#endif  // EXTENSION_CODEPLAY_EXTRA_BUILD_OPTIONS_H_INCLUDED

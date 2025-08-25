@@ -25,7 +25,7 @@
 
 class clEnqueueNDRangeKernelTest : public ucl::CommandQueueTest,
                                    TestWithEventWaitList {
-protected:
+ protected:
   enum { SIZE = 128 };
 
   void SetUp() override {
@@ -125,18 +125,18 @@ TEST_F(clEnqueueNDRangeKernelTest, ThreeDimensions) {
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidQueue) {
   const size_t global_size = SIZE / sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_QUEUE,
-                    clEnqueueNDRangeKernel(nullptr, kernel, 1, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_QUEUE,
+      clEnqueueNDRangeKernel(nullptr, kernel, 1, nullptr, &global_size, nullptr,
+                             0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidKernel) {
   const size_t global_size = SIZE / sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(CL_INVALID_KERNEL,
-                    clEnqueueNDRangeKernel(command_queue, nullptr, 1, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_KERNEL,
+      clEnqueueNDRangeKernel(command_queue, nullptr, 1, nullptr, &global_size,
+                             nullptr, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, QueueHasOtherContext) {
@@ -151,10 +151,10 @@ TEST_F(clEnqueueNDRangeKernelTest, QueueHasOtherContext) {
   EXPECT_SUCCESS(errorcode);
 
   const size_t global_size = SIZE / sizeof(cl_int);
-  EXPECT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clEnqueueNDRangeKernel(queue, kernel, 1, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clEnqueueNDRangeKernel(queue, kernel, 1, nullptr, &global_size, nullptr,
+                             0, nullptr, nullptr));
 
   EXPECT_SUCCESS(clReleaseCommandQueue(queue));
   EXPECT_SUCCESS(clReleaseContext(context));
@@ -167,28 +167,28 @@ TEST_F(clEnqueueNDRangeKernelTest, KernelArgsNotSet) {
   ASSERT_SUCCESS(errorcode);
 
   const size_t global_size = SIZE / sizeof(cl_int);
-  EXPECT_EQ_ERRCODE(CL_INVALID_KERNEL_ARGS,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_INVALID_KERNEL_ARGS,
+      clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &global_size,
+                             nullptr, 0, nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseKernel(kernel));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidWorkDimSmall) {
   const size_t global_size = SIZE / sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_DIMENSION,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 0, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_DIMENSION,
+      clEnqueueNDRangeKernel(command_queue, kernel, 0, nullptr, &global_size,
+                             nullptr, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidWorkDimBig) {
   const size_t global_size = SIZE / sizeof(cl_int);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_DIMENSION,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 4, nullptr,
-                                           &global_size, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_DIMENSION,
+      clEnqueueNDRangeKernel(command_queue, kernel, 4, nullptr, &global_size,
+                             nullptr, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSize1D) {
@@ -221,9 +221,9 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSize1D) {
   // Note that even if we expect CL_SUCCESS, it is still safe to enqueue the
   // large range because the kernel doesn't use get_global_id to index into
   // buffers.
-  ASSERT_EQ_ERRCODE(expected,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr,
-                                           &size, &size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      expected, clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &size,
+                                       &size, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSizeBigCube) {
@@ -253,9 +253,9 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSizeBigCube) {
   // The following two statements trigger divide by zero warnings in clang-tidy
   // because it does not understand gtest assertions so mark them NOLINT to
   // disable the check.
-  ASSERT_LE(size[0], std::numeric_limits<size_t>::max() / size[1]); // NOLINT
+  ASSERT_LE(size[0], std::numeric_limits<size_t>::max() / size[1]);  // NOLINT
   ASSERT_LE(size[0] * size[1],
-            std::numeric_limits<size_t>::max() / size[2]); // NOLINT
+            std::numeric_limits<size_t>::max() / size[2]);  // NOLINT
   const size_t total_size = size[0] * size[1] * size[2];
 
   // Although the above checks ensure that CL_INVALID_WORK_ITEM_SIZE is never
@@ -271,9 +271,9 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkSizeBigCube) {
   // Note that even if we expect CL_SUCCESS, it is still safe to enqueue the
   // large range because the kernel doesn't use get_global_id to index into
   // buffers.
-  ASSERT_EQ_ERRCODE(expected,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
-                                           size, size, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      expected, clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, size,
+                                       size, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, InvalidLocalWorkItemSize) {
@@ -316,7 +316,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ChangeKernelArguments) {
 
   // Prepare the alternate buffer data
   char newBuffer[SIZE];
-  newBuffer[0] = 21; // Only the first element is actually used
+  newBuffer[0] = 21;  // Only the first element is actually used
 
   cl_mem newInMem = clCreateBuffer(context, 0, SIZE, nullptr, &err);
   EXPECT_TRUE(newInMem);
@@ -436,10 +436,10 @@ TEST_F(clEnqueueNDRangeKernelTest, InvalidGlobalOffset) {
                                  std::numeric_limits<size_t>::max(),
                                  std::numeric_limits<size_t>::max()};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_GLOBAL_OFFSET,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 1,
-                                           global_work_offset, global_size,
-                                           nullptr, 0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_GLOBAL_OFFSET,
+      clEnqueueNDRangeKernel(command_queue, kernel, 1, global_work_offset,
+                             global_size, nullptr, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelTest, NullBuffer) {
@@ -574,7 +574,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentContextCreateAndEnqueue) {
 // options in the presence of parallel builds.
 TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildDefines) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection does not support rebuilding a program.
+    GTEST_SKIP();  // Injection does not support rebuilding a program.
   }
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
@@ -698,8 +698,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ConcurrentBuildOptions) {
 // if newly enqueued commands internally reuse the signaling primitive but
 // also depend on the earlier commands now waiting on them to complete.
 TEST_F(clEnqueueNDRangeKernelTest, NoDeadlockDueToInternalEventCaching) {
-  auto possible_deadlock_callback = [](cl_event, cl_int,
-                                       void *user_data) CL_LAMBDA_CALLBACK {
+  auto possible_deadlock_callback = [](cl_event, cl_int, void *user_data) CL_LAMBDA_CALLBACK {
     // Event should be from the predecessing command.
     cl_event predecessing_command_event = *(static_cast<cl_event *>(user_data));
     cl_int status = CL_QUEUED;
@@ -821,7 +820,7 @@ TEST_F(clEnqueueNDRangeKernelTest, ZeroNDRange) {
 #endif
 
 class clEnqueueNDRangeKernelByValStructTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   enum { NUM = 64 };
 
   cl_program program = nullptr;
@@ -939,7 +938,7 @@ TEST_F(clEnqueueNDRangeKernelByValStructTest, Default) {
 
 class clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest
     : public ucl::CommandQueueTest {
-protected:
+ protected:
   enum { SIZE = 128 };
 
   void SetUp() override {
@@ -975,8 +974,8 @@ protected:
     ASSERT_SUCCESS(errorcode);
   }
 
-  bool
-  isValidWorkGroupSize(const std::array<size_t, 3> &work_group_size) const {
+  bool isValidWorkGroupSize(
+      const std::array<size_t, 3> &work_group_size) const {
     return work_group_size[0] <= max_work_item_sizes[0] &&
            work_group_size[1] <= max_work_item_sizes[1] &&
            work_group_size[2] <= max_work_item_sizes[2] &&
@@ -1028,10 +1027,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 8, 9)))"
       "foo() {int a = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
-                                           sizes, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, sizes, nullptr,
+                             0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
@@ -1045,10 +1044,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 8, 9)))"
       "foo() {int a = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 2, nullptr,
-                                           sizes, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 2, nullptr, sizes, nullptr,
+                             0, nullptr, nullptr));
 }
 
 // CL_INVALID_WORK_GROUP_SIZE if local_work_size is specified and number of
@@ -1068,10 +1067,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 11, 13)))"
       "foo() {int a = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
-                                           sizes, &local_size[0], 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, sizes,
+                             &local_size[0], 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
@@ -1104,10 +1103,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 8, 9)))"
       "foo() {int b = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
-                                           sizes, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, sizes, nullptr,
+                             0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
@@ -1122,10 +1121,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 8, 9)))"
       "foo() {int b = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 2, nullptr,
-                                           sizes, nullptr, 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 2, nullptr, sizes, nullptr,
+                             0, nullptr, nullptr));
 }
 
 // CL_INVALID_WORK_GROUP_SIZE if local_work_size is specified and number of
@@ -1148,10 +1147,10 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
       "kernel void __attribute__((reqd_work_group_size(7, 11, 13)))"
       "foo() {int b = 42;}";
   SetUpProgram(source);
-  ASSERT_EQ_ERRCODE(CL_INVALID_WORK_GROUP_SIZE,
-                    clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr,
-                                           sizes, &local_size[0], 0, nullptr,
-                                           nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_WORK_GROUP_SIZE,
+      clEnqueueNDRangeKernel(command_queue, kernel, 3, nullptr, sizes,
+                             &local_size[0], 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest, ReqdWorkGroupSize) {
@@ -1162,17 +1161,18 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest, ReqdWorkGroupSize) {
   const size_t size = local_size[0] * local_size[1] * local_size[2];
   const size_t sizes[3] = {size, size, size};
 
-  const char *source = "kernel void foo(__global uint* out)"
-                       "    __attribute__((reqd_work_group_size(13, 3, 5))) {\n"
-                       "  const size_t xId = get_global_id(0);\n"
-                       "  const size_t yId = get_global_id(1);\n"
-                       "  const size_t zId = get_global_id(2);\n"
-                       "  const size_t id = xId + (get_global_size(0) * yId) +"
-                       "    (get_global_size(0) * get_global_size(1) * zId);\n"
-                       "  out[(id * 3) + 0] = get_local_size(0);\n"
-                       "  out[(id * 3) + 1] = get_local_size(1);\n"
-                       "  out[(id * 3) + 2] = get_local_size(2);\n"
-                       "}";
+  const char *source =
+      "kernel void foo(__global uint* out)"
+      "    __attribute__((reqd_work_group_size(13, 3, 5))) {\n"
+      "  const size_t xId = get_global_id(0);\n"
+      "  const size_t yId = get_global_id(1);\n"
+      "  const size_t zId = get_global_id(2);\n"
+      "  const size_t id = xId + (get_global_size(0) * yId) +"
+      "    (get_global_size(0) * get_global_size(1) * zId);\n"
+      "  out[(id * 3) + 0] = get_local_size(0);\n"
+      "  out[(id * 3) + 1] = get_local_size(1);\n"
+      "  out[(id * 3) + 2] = get_local_size(2);\n"
+      "}";
 
   SetUpProgram(source);
 
@@ -1226,17 +1226,18 @@ TEST_F(clEnqueueNDRangeKernelWithReqdWorkGroupSizeTest,
   const size_t size = local_size[0] * local_size[1] * local_size[2];
   const size_t sizes[3] = {size, size, size};
 
-  const char *source = "kernel void foo(__global uint* out)"
-                       "    __attribute__((reqd_work_group_size(13, 3, 5))) {\n"
-                       "  const size_t xId = get_global_id(0);\n"
-                       "  const size_t yId = get_global_id(1);\n"
-                       "  const size_t zId = get_global_id(2);\n"
-                       "  const size_t id = xId + (get_global_size(0) * yId) +"
-                       "    (get_global_size(0) * get_global_size(1) * zId);\n"
-                       "  out[(id * 3) + 0] = get_local_size(0);\n"
-                       "  out[(id * 3) + 1] = get_local_size(1);\n"
-                       "  out[(id * 3) + 2] = get_local_size(2);\n"
-                       "}";
+  const char *source =
+      "kernel void foo(__global uint* out)"
+      "    __attribute__((reqd_work_group_size(13, 3, 5))) {\n"
+      "  const size_t xId = get_global_id(0);\n"
+      "  const size_t yId = get_global_id(1);\n"
+      "  const size_t zId = get_global_id(2);\n"
+      "  const size_t id = xId + (get_global_size(0) * yId) +"
+      "    (get_global_size(0) * get_global_size(1) * zId);\n"
+      "  out[(id * 3) + 0] = get_local_size(0);\n"
+      "  out[(id * 3) + 1] = get_local_size(1);\n"
+      "  out[(id * 3) + 2] = get_local_size(2);\n"
+      "}";
 
   SetUpProgram(source);
 
@@ -1804,7 +1805,7 @@ const size_t offsets[][3] = {
     {1, 1, 1}, {1, 1, 0}, {1, 0, 1}, {1, 0, 0},
     {0, 1, 1}, {0, 1, 0}, {0, 0, 1}, {0, 0, 0},
 };
-} // namespace
+}  // namespace
 
 INSTANTIATE_TEST_CASE_P(VariousNDRangeValues,
                         clEnqueueNDRangeKernelWorkItemTest,
@@ -1926,51 +1927,52 @@ struct clEnqueueNDRangeImageTest
     src_desc.buffer = nullptr;
 
     switch (object_type) {
-    case CL_MEM_OBJECT_IMAGE1D:
-      desc.image_width = 16;
-      src_desc.image_width = 16;
-      kernel = clCreateKernel(program, "img_copy1d", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-      desc.image_width = 16;
-      desc.image_array_size = 8;
-      src_desc.image_width = 16;
-      src_desc.image_array_size = 8;
-      kernel = clCreateKernel(program, "img_copy1d_array", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-      desc.image_width = 16;
-      src_desc.image_width = 16;
-      kernel = clCreateKernel(program, "img_copy1d_buffer", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE2D:
-      desc.image_width = 16;
-      desc.image_height = 16;
-      src_desc.image_width = 16;
-      src_desc.image_height = 16;
-      kernel = clCreateKernel(program, "img_copy2d", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-      desc.image_width = 12;
-      desc.image_height = 12;
-      desc.image_array_size = 4;
-      src_desc.image_width = 12;
-      src_desc.image_height = 12;
-      src_desc.image_array_size = 4;
-      kernel = clCreateKernel(program, "img_copy2d_array", &error);
-      break;
-    case CL_MEM_OBJECT_IMAGE3D:
-      desc.image_width = 8;
-      desc.image_height = 8;
-      desc.image_depth = 8;
-      src_desc.image_width = 8;
-      src_desc.image_height = 8;
-      src_desc.image_depth = 8;
-      kernel = clCreateKernel(program, "img_copy3d", &error);
-      break;
-    default:
-      (void)fprintf(stderr, "unexpected object type %ld\n", (long)object_type);
-      ASSERT_TRUE(false);
+      case CL_MEM_OBJECT_IMAGE1D:
+        desc.image_width = 16;
+        src_desc.image_width = 16;
+        kernel = clCreateKernel(program, "img_copy1d", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+        desc.image_width = 16;
+        desc.image_array_size = 8;
+        src_desc.image_width = 16;
+        src_desc.image_array_size = 8;
+        kernel = clCreateKernel(program, "img_copy1d_array", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+        desc.image_width = 16;
+        src_desc.image_width = 16;
+        kernel = clCreateKernel(program, "img_copy1d_buffer", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE2D:
+        desc.image_width = 16;
+        desc.image_height = 16;
+        src_desc.image_width = 16;
+        src_desc.image_height = 16;
+        kernel = clCreateKernel(program, "img_copy2d", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+        desc.image_width = 12;
+        desc.image_height = 12;
+        desc.image_array_size = 4;
+        src_desc.image_width = 12;
+        src_desc.image_height = 12;
+        src_desc.image_array_size = 4;
+        kernel = clCreateKernel(program, "img_copy2d_array", &error);
+        break;
+      case CL_MEM_OBJECT_IMAGE3D:
+        desc.image_width = 8;
+        desc.image_height = 8;
+        desc.image_depth = 8;
+        src_desc.image_width = 8;
+        src_desc.image_height = 8;
+        src_desc.image_depth = 8;
+        kernel = clCreateKernel(program, "img_copy3d", &error);
+        break;
+      default:
+        (void)fprintf(stderr, "unexpected object type %ld\n",
+                      (long)object_type);
+        ASSERT_TRUE(false);
     }
 
     if (!UCL::isImageFormatSupported(context,
@@ -2047,27 +2049,27 @@ TEST_P(clEnqueueNDRangeImageTest, DefaultCopyImage) {
   size_t region[3] = {desc.image_width, desc.image_height, desc.image_depth};
 
   switch (object_type) {
-  case CL_MEM_OBJECT_IMAGE1D:
-  case CL_MEM_OBJECT_IMAGE1D_BUFFER:
-    numPixels = desc.image_width;
-    break;
-  case CL_MEM_OBJECT_IMAGE1D_ARRAY:
-    numPixels = desc.image_width * desc.image_array_size;
-    region[1] = desc.image_array_size;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D:
-    numPixels = desc.image_width * desc.image_height;
-    break;
-  case CL_MEM_OBJECT_IMAGE2D_ARRAY:
-    numPixels = desc.image_width * desc.image_height * desc.image_array_size;
-    region[2] = desc.image_array_size;
-    break;
-  case CL_MEM_OBJECT_IMAGE3D:
-    numPixels = desc.image_width * desc.image_height * desc.image_depth;
-    break;
-  default:
-    (void)fprintf(stderr, "unexpected object type %ld\n", (long)object_type);
-    ASSERT_TRUE(false);
+    case CL_MEM_OBJECT_IMAGE1D:
+    case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+      numPixels = desc.image_width;
+      break;
+    case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+      numPixels = desc.image_width * desc.image_array_size;
+      region[1] = desc.image_array_size;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D:
+      numPixels = desc.image_width * desc.image_height;
+      break;
+    case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+      numPixels = desc.image_width * desc.image_height * desc.image_array_size;
+      region[2] = desc.image_array_size;
+      break;
+    case CL_MEM_OBJECT_IMAGE3D:
+      numPixels = desc.image_width * desc.image_height * desc.image_depth;
+      break;
+    default:
+      (void)fprintf(stderr, "unexpected object type %ld\n", (long)object_type);
+      ASSERT_TRUE(false);
   }
 
   UCL::vector<cl_float4> srcPixels(numPixels);
@@ -2122,7 +2124,7 @@ INSTANTIATE_TEST_CASE_P(
 class clEnqueueNDRangeKernelZeroDimension
     : public clEnqueueNDRangeKernelTest,
       public testing::WithParamInterface<size_t> {
-protected:
+ protected:
   void SetUp() override {
     clEnqueueNDRangeKernelTest::SetUp();
     // Returning CL_INVALID_GLOBAL_WORK_SIZE for NDRanges with a zero-sized
@@ -2157,14 +2159,14 @@ class LinearIDTest
     : public ucl::CommandQueueTest,
       public testing::WithParamInterface<
           std::tuple<size_t, std::array<size_t, 3>, std::array<size_t, 3>>> {
-public:
+ public:
   static constexpr std::array<size_t, 3> dimensions{1, 2, 3};
   static constexpr std::array<std::array<size_t, 3>, 2> global_sizes{
       {{128, 128, 128}, {32, 64, 128}}};
   static constexpr std::array<std::array<size_t, 3>, 2> global_offsets{
       {{0, 0, 0}, {1, 2, 3}}};
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     // get_local_linear_id and get_global_linear_id were
@@ -2314,7 +2316,7 @@ INSTANTIATE_TEST_CASE_P(
 #endif
 
 class GetEnqueuedLocalSizeTest : public ucl::CommandQueueTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     // get_enqueued_local_size was introduced for non-uniform workgroups

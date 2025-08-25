@@ -481,6 +481,6 @@ CL_API_ENTRY cl_int CL_API_CALL SetContextDestructorCallback(
     void *user_data);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
 #endif

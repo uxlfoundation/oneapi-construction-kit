@@ -23,7 +23,7 @@
 
 template <typename T>
 class KernelArgumentTypesTest : public ucl::CommandQueueTest {
-public:
+ public:
   using TestType = T;
 
   // We override operator new to correctly align Heap allocations of this
@@ -46,7 +46,7 @@ public:
   // We override operator delete to match the override of operator new.
   void operator delete(void *p) { UCL::aligned_free(p); }
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     doubleFPConfig = getDeviceDoubleFpConfig();

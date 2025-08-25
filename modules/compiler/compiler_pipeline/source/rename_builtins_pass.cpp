@@ -20,9 +20,8 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Operator.h>
 
-llvm::PreservedAnalyses
-compiler::utils::RenameBuiltinsPass::run(llvm::Module &M,
-                                         llvm::ModuleAnalysisManager &) {
+llvm::PreservedAnalyses compiler::utils::RenameBuiltinsPass::run(
+    llvm::Module &M, llvm::ModuleAnalysisManager &) {
   bool Changed = false;
   constexpr llvm::StringLiteral CoreFnPrefix = "__core";
   constexpr llvm::StringLiteral MuxFnPrefix = "__mux";

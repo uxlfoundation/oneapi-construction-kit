@@ -21,8 +21,9 @@
 
 namespace abacus {
 namespace internal {
-template <typename T> void inplace_fma(T &, T &, T &);
-} // namespace internal
-} // namespace abacus
+template <typename T>
+void inplace_fma(T &, T &, T &);
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_FMA_H__
+#endif  //__ABACUS_INTERNAL_FMA_H__

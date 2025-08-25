@@ -61,7 +61,7 @@ struct Environment : public testing::Environment {
 
   static Environment *instance;
 
-private:
+ private:
   std::string kernel_dir_path;
   std::string kernel_build_options;
   cl_platform_id platform;
@@ -69,6 +69,6 @@ private:
   bool do_vectorizer_check;
   kts::ucl::InputGenerator generator;
 };
-} // namespace ucl
+}  // namespace ucl
 
-#endif // UNITCL_ENVIRONMENT_H_INCLUDED
+#endif  // UNITCL_ENVIRONMENT_H_INCLUDED

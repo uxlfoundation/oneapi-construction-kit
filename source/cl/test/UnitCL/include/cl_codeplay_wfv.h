@@ -54,7 +54,7 @@ struct cl_codeplay_wfv_Test : ucl::ContextTest {
 
   void CreateProgram(const char *source) {
     if (UCL::isInterceptLayerPresent()) {
-      GTEST_SKIP(); // Injection creates programs from binaries, can't compile.
+      GTEST_SKIP();  // Injection creates programs from binaries, can't compile.
     }
     cl_int error;
     program = clCreateProgramWithSource(context, 1, &source, nullptr, &error);

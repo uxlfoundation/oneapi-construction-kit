@@ -21,9 +21,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::utils::FixupCallingConventionPass::run(Module &M,
-                                                 ModuleAnalysisManager &) {
+PreservedAnalyses compiler::utils::FixupCallingConventionPass::run(
+    Module &M, ModuleAnalysisManager &) {
   bool Changed = false;
 
   for (auto &F : M.functions()) {

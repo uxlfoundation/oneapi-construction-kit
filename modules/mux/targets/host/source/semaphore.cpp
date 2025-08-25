@@ -66,7 +66,7 @@ void semaphore_s::reset() {
 }
 
 semaphore_s::~semaphore_s() {}
-} // namespace host
+}  // namespace host
 
 mux_result_t hostCreateSemaphore(mux_device_t device,
                                  mux_allocator_info_t allocator_info,

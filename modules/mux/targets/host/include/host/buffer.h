@@ -33,6 +33,6 @@ struct buffer_s final : public mux_buffer_s {
 };
 
 /// @}
-} // namespace host
+}  // namespace host
 
-#endif // HOST_BUFFER_H_INCLUDED
+#endif  // HOST_BUFFER_H_INCLUDED

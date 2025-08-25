@@ -22,7 +22,8 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
-template <typename T> T native_log10(const T x) {
+template <typename T>
+T native_log10(const T x) {
   // r = log10(x), x = f * 2^n
   // r = log10(f * 2^n)
   // r = log10(f) + log10(2^n)
@@ -41,7 +42,7 @@ template <typename T> T native_log10(const T x) {
   const abacus_float oneOverlog210 = 0.301029995663981195213738894725f;
   return (f * log10f) + (abacus::detail::cast::convert<T>(n) * oneOverlog210);
 }
-} // namespace
+}  // namespace
 
 abacus_float ABACUS_API __abacus_native_log10(abacus_float x) {
   return native_log10<>(x);

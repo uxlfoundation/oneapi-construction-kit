@@ -88,6 +88,6 @@ struct CAMD_BlockInfo {
 };
 
 /// @}
-} // namespace md
+}  // namespace md
 
-#endif // MD_DETAIL_METADATA_IMPL_H_INCLUDED
+#endif  // MD_DETAIL_METADATA_IMPL_H_INCLUDED

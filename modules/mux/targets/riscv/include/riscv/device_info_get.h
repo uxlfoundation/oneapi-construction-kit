@@ -30,7 +30,7 @@ namespace riscv {
 /// @brief get the riscv device infos as an array view.
 cargo::array_view<riscv::device_info_s> GetDeviceInfosArray();
 
-} // namespace riscv
+}  // namespace riscv
 
 // namespace riscv
 #endif

@@ -80,17 +80,17 @@ TEST_P(muxGetQueryPoolResultsDurationTest, Default) {
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidQueue) {
   mux_query_duration_result_s duration;
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(nullptr, query_pool, 0, 1,
-                                         sizeof(mux_query_duration_result_s),
-                                         &duration,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(nullptr, query_pool, 0, 1,
+                             sizeof(mux_query_duration_result_s), &duration,
+                             sizeof(mux_query_duration_result_s)));
   mux_queue_s invalid_queue = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(&invalid_queue, query_pool, 0, 1,
-                                         sizeof(mux_query_duration_result_s),
-                                         &duration,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(&invalid_queue, query_pool, 0, 1,
+                             sizeof(mux_query_duration_result_s), &duration,
+                             sizeof(mux_query_duration_result_s)));
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidQueryPool) {
@@ -100,29 +100,29 @@ TEST_P(muxGetQueryPoolResultsDurationTest, InvalidQueryPool) {
                       queue, nullptr, 0, 1, sizeof(mux_query_duration_result_s),
                       &duration, sizeof(mux_query_duration_result_s)));
   mux_query_pool_s invalid_query_pool = {};
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(queue, &invalid_query_pool, 0, 1,
-                                         sizeof(mux_query_duration_result_s),
-                                         &duration,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(queue, &invalid_query_pool, 0, 1,
+                             sizeof(mux_query_duration_result_s), &duration,
+                             sizeof(mux_query_duration_result_s)));
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidQueryIndex) {
   mux_query_duration_result_s duration;
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(queue, query_pool, 1, 1,
-                                         sizeof(mux_query_duration_result_s),
-                                         &duration,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(queue, query_pool, 1, 1,
+                             sizeof(mux_query_duration_result_s), &duration,
+                             sizeof(mux_query_duration_result_s)));
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidQueryCount) {
   mux_query_duration_result_s duration;
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(queue, query_pool, 0, 2,
-                                         sizeof(mux_query_duration_result_s),
-                                         &duration,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(queue, query_pool, 0, 2,
+                             sizeof(mux_query_duration_result_s), &duration,
+                             sizeof(mux_query_duration_result_s)));
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidSize) {
@@ -135,11 +135,11 @@ TEST_P(muxGetQueryPoolResultsDurationTest, InvalidSize) {
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidData) {
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxGetQueryPoolResults(queue, query_pool, 0, 1,
-                                         sizeof(mux_query_duration_result_s),
-                                         nullptr,
-                                         sizeof(mux_query_duration_result_s)));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxGetQueryPoolResults(queue, query_pool, 0, 1,
+                             sizeof(mux_query_duration_result_s), nullptr,
+                             sizeof(mux_query_duration_result_s)));
 }
 
 TEST_P(muxGetQueryPoolResultsDurationTest, InvalidStride) {
@@ -228,24 +228,24 @@ struct muxGetQueryPoolResultsCounterTest : DeviceCompilerTest {
 
   void PrintCounterValue(mux_query_counter_result_s &result) {
     switch (counters[query_index].storage) {
-    case mux_query_counter_result_type_int32:
-      std::cout << result.int32 << "\n";
-      break;
-    case mux_query_counter_result_type_int64:
-      std::cout << result.int64 << "\n";
-      break;
-    case mux_query_counter_result_type_uint32:
-      std::cout << result.uint32 << "\n";
-      break;
-    case mux_query_counter_result_type_uint64:
-      std::cout << result.uint64 << "\n";
-      break;
-    case mux_query_counter_result_type_float32:
-      std::cout << result.float32 << "\n";
-      break;
-    case mux_query_counter_result_type_float64:
-      std::cout << result.float64 << "\n";
-      break;
+      case mux_query_counter_result_type_int32:
+        std::cout << result.int32 << "\n";
+        break;
+      case mux_query_counter_result_type_int64:
+        std::cout << result.int64 << "\n";
+        break;
+      case mux_query_counter_result_type_uint32:
+        std::cout << result.uint32 << "\n";
+        break;
+      case mux_query_counter_result_type_uint64:
+        std::cout << result.uint64 << "\n";
+        break;
+      case mux_query_counter_result_type_float32:
+        std::cout << result.float32 << "\n";
+        break;
+      case mux_query_counter_result_type_float64:
+        std::cout << result.float64 << "\n";
+        break;
     }
   }
 };

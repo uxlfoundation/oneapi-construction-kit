@@ -42,7 +42,7 @@ namespace extension {
 /// @{
 
 class khr_command_buffer : public extension {
-public:
+ public:
   khr_command_buffer();
   /// @brief Queries for the extension function associated with
   /// `func_name`.
@@ -55,9 +55,8 @@ public:
   ///
   /// @return Returns a pointer to the extension function with
   /// `func_name` or `nullptr` if it does not exist.
-  void *
-  GetExtensionFunctionAddressForPlatform(cl_platform_id platform,
-                                         const char *func_name) const override;
+  void *GetExtensionFunctionAddressForPlatform(
+      cl_platform_id platform, const char *func_name) const override;
 
   /// @copydoc extension::extension::GetDeviceInfo
   cl_int GetDeviceInfo(cl_device_id device, cl_device_info param_name,
@@ -66,7 +65,7 @@ public:
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
 #ifdef OCL_EXTENSION_cl_khr_command_buffer
 /// @addtogroup cl
@@ -74,7 +73,7 @@ public:
 
 /// @brief Definition of the OpenCL cl_mutable_command_khr object.
 struct _cl_mutable_command_khr final {
-private:
+ private:
   /// @brief Private constructor, use the `create()` function instead.
   ///
   /// By making the constructor private we can restrict creation of
@@ -88,7 +87,7 @@ private:
   /// command.
   _cl_mutable_command_khr(cl_uint id, cl_kernel kernel);
 
-public:
+ public:
   /// @brief Destructor.
   ~_cl_mutable_command_khr();
 
@@ -144,7 +143,7 @@ public:
 /// avoid stack allocations and add a static factory method called `create()`
 /// which heap allocates _cl_command_buffer_khr instances.
 struct _cl_command_buffer_khr final : public cl::base<_cl_command_buffer_khr> {
-private:
+ private:
   /// @brief Kernels associated to the command-buffer via a call to
   /// clEnqueueCommandNDRangeKHR
   cargo::small_vector<cl_kernel, 8> kernels;
@@ -212,7 +211,7 @@ private:
   convertWaitList(
       const cargo::array_view<const cl_sync_point_khr> &cl_wait_list);
 
-public:
+ public:
   /// @brief Boolean flag indicating whether the clFinalizeCommandBufferKHR API
   /// has been called on this command-buffer.
   cl_bool is_finalized;
@@ -304,11 +303,11 @@ public:
   /// other commands can wait on.
   ///
   /// @return CL_SUCCESS if successful, otherwise appropriate OpenCL error code.
-  cl_int
-  commandCopyBuffer(cl_mem src_buffer, cl_mem dst_buffer, size_t src_offset,
-                    size_t dst_offset, size_t size,
-                    cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
-                    cl_sync_point_khr *cl_sync_point);
+  cl_int commandCopyBuffer(
+      cl_mem src_buffer, cl_mem dst_buffer, size_t src_offset,
+      size_t dst_offset, size_t size,
+      cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
+      cl_sync_point_khr *cl_sync_point);
 
   /// @brief Add a copy image command to the command-buffer.
   ///
@@ -325,11 +324,11 @@ public:
   /// other commands can wait on.
   ///
   /// @return CL_SUCCESS if successful, otherwise appropriate OpenCL error code.
-  cl_int
-  commandCopyImage(cl_mem src_image, cl_mem dst_image, const size_t *src_origin,
-                   const size_t *dst_origin, const size_t *region,
-                   cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
-                   cl_sync_point_khr *cl_sync_point);
+  cl_int commandCopyImage(
+      cl_mem src_image, cl_mem dst_image, const size_t *src_origin,
+      const size_t *dst_origin, const size_t *region,
+      cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
+      cl_sync_point_khr *cl_sync_point);
 
   /// @brief Add a copy buffer rect command to the command-buffer.
   ///
@@ -373,11 +372,10 @@ public:
   /// other commands can wait on.
   ///
   /// @return CL_SUCCESS or appropriate OpenCL error code.
-  cl_int
-  commandFillBuffer(cl_mem buffer, const void *pattern, size_t pattern_size,
-                    size_t offset, size_t size,
-                    cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
-                    cl_sync_point_khr *cl_sync_point);
+  cl_int commandFillBuffer(
+      cl_mem buffer, const void *pattern, size_t pattern_size, size_t offset,
+      size_t size, cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
+      cl_sync_point_khr *cl_sync_point);
 
   /// @brief Add a fill image command to the command-buffer.
   ///
@@ -391,11 +389,11 @@ public:
   /// other commands can wait on.
   ///
   /// @return CL_SUCCESS or appropriate OpenCL error code.
-  cl_int
-  commandFillImage(cl_mem image, const void *fill_color, const size_t *origin,
-                   const size_t *region,
-                   cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
-                   cl_sync_point_khr *cl_sync_point);
+  cl_int commandFillImage(
+      cl_mem image, const void *fill_color, const size_t *origin,
+      const size_t *region,
+      cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
+      cl_sync_point_khr *cl_sync_point);
 
   /// @brief Add a copy buffer to image command to the command-buffer.
   ///
@@ -491,5 +489,5 @@ public:
 #endif
 };
 /// @}
-#endif // OCL_EXTENSION_cl_khr_command_buffer
-#endif // CL_EXTENSION_KHR_COMMAND_BUFFER_H_INCLUDED
+#endif  // OCL_EXTENSION_cl_khr_command_buffer
+#endif  // CL_EXTENSION_KHR_COMMAND_BUFFER_H_INCLUDED

@@ -16,9 +16,9 @@
 
 #include <abacus/abacus_detail_integer.h>
 
-#define DEF(TYPE)                                                              \
-  TYPE ABACUS_API __abacus_ctz(TYPE x) {                                       \
-    return (TYPE)abacus::detail::integer::ctz(x);                              \
+#define DEF(TYPE)                                 \
+  TYPE ABACUS_API __abacus_ctz(TYPE x) {          \
+    return (TYPE)abacus::detail::integer::ctz(x); \
   }
 
 DEF(abacus_char)

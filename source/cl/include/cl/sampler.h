@@ -114,6 +114,6 @@ CL_API_ENTRY cl_int CL_API_CALL GetSamplerInfo(cl_sampler sampler,
                                                size_t *param_value_size_ret);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_SAMPLER_H_INCLUDED
+#endif  // CL_SAMPLER_H_INCLUDED

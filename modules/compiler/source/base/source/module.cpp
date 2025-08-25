@@ -116,9 +116,9 @@ namespace {
 // access early pipeline hooks in O0 mode. Thus, we build our pipelines
 // manually in older versions. For the newer versions, a few parameters got
 // changed around; not a big deal, just a few ugly ifdefs
-inline llvm::ModulePassManager
-buildPerModuleDefaultPipeline(llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
-                              std::optional<llvm::ModulePassManager> EP) {
+inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
+    llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
+    std::optional<llvm::ModulePassManager> EP) {
   assert(OL != llvm::OptimizationLevel::O0);
   if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
@@ -134,9 +134,8 @@ buildPerModuleDefaultPipeline(llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
   return PB.buildPerModuleDefaultPipeline(OL);
 }
 
-inline llvm::ModulePassManager
-buildO0DefaultPipeline(llvm::PassBuilder &PB,
-                       std::optional<llvm::ModulePassManager> EP) {
+inline llvm::ModulePassManager buildO0DefaultPipeline(
+    llvm::PassBuilder &PB, std::optional<llvm::ModulePassManager> EP) {
   if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
         [&EP](llvm::ModulePassManager &MPM, llvm::OptimizationLevel) {
@@ -146,9 +145,9 @@ buildO0DefaultPipeline(llvm::PassBuilder &PB,
   return PB.buildO0DefaultPipeline(llvm::OptimizationLevel::O0);
 }
 
-inline llvm::ModulePassManager
-buildPipeline(llvm::PassBuilder &PB, clang::CodeGenOptions Opts,
-              std::optional<llvm::ModulePassManager> EP) {
+inline llvm::ModulePassManager buildPipeline(
+    llvm::PassBuilder &PB, clang::CodeGenOptions Opts,
+    std::optional<llvm::ModulePassManager> EP) {
   return Opts.OptimizationLevel == 0
              ? buildO0DefaultPipeline(PB, std::move(EP))
              : buildPerModuleDefaultPipeline(PB, llvm::OptimizationLevel::O3,
@@ -187,7 +186,7 @@ void runFrontendPipeline(
 }
 
 class DeserializeMemoryBuffer final : public llvm::MemoryBuffer {
-public:
+ public:
   DeserializeMemoryBuffer(llvm::StringRef buffer) {
     init(buffer.begin(), buffer.end(), false);
   }
@@ -198,7 +197,7 @@ public:
 };
 
 class BakedMemoryBuffer : public llvm::MemoryBuffer {
-public:
+ public:
   BakedMemoryBuffer(const void *const buffer, const uint32_t size) {
     init(static_cast<const char *>(buffer),
          static_cast<const char *>(buffer) + size, true);
@@ -332,14 +331,17 @@ inline void supportOpenCLOpt(clang::CompilerInstance &instance,
                              const std::string opt) {
   instance.getTarget().getSupportedOpenCLOpts().insert({opt, true});
 }
-} // namespace
+}  // namespace
 
 namespace compiler {
 BaseModule::BaseModule(compiler::BaseTarget &target,
                        compiler::BaseContext &context, uint32_t &num_errors,
                        std::string &log)
-    : target(target), context(context), state(ModuleState::NONE),
-      num_errors(num_errors), log(log) {}
+    : target(target),
+      context(context),
+      state(ModuleState::NONE),
+      num_errors(num_errors),
+      log(log) {}
 
 BaseModule::~BaseModule() {
   if (llvm_module || finalized_llvm_module) {
@@ -373,12 +375,12 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
   // Select the appropriate error code.
   const Result invalid_options = [](const compiler::Options::Mode mode) {
     switch (mode) {
-    case compiler::Options::Mode::BUILD:
-      return Result::INVALID_BUILD_OPTIONS;
-    case compiler::Options::Mode::COMPILE:
-      return Result::INVALID_COMPILER_OPTIONS;
-    case compiler::Options::Mode::LINK:
-      return Result::INVALID_LINKER_OPTIONS;
+      case compiler::Options::Mode::BUILD:
+        return Result::INVALID_BUILD_OPTIONS;
+      case compiler::Options::Mode::COMPILE:
+        return Result::INVALID_COMPILER_OPTIONS;
+      case compiler::Options::Mode::LINK:
+        return Result::INVALID_LINKER_OPTIONS;
     }
     return Result::SUCCESS;
   }(mode);
@@ -636,12 +638,12 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
   }
 
   switch (parse_result) {
-  case cargo::success:
-    break;
-  case cargo::bad_argument:
-    return invalid_options;
-  default:
-    return Result::OUT_OF_MEMORY;
+    case cargo::success:
+      break;
+    case cargo::bad_argument:
+      return invalid_options;
+    default:
+      return Result::OUT_OF_MEMORY;
   }
 
   // -enable-link-options is only valid with -create-library.
@@ -694,8 +696,9 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
 
   if ("always" == cl_wfv) {
     if (!compiler_info->vectorizable) {
-      addDiagnostic("Ignoring -cl-wfv=always option: Device does not support "
-                    "vectorization.");
+      addDiagnostic(
+          "Ignoring -cl-wfv=always option: Device does not support "
+          "vectorization.");
     } else {
       options.vectorization_mode = compiler::VectorizationMode::ALWAYS;
     }
@@ -737,7 +740,7 @@ Result BaseModule::parseOptions(cargo::string_view input_options,
 
 class StripFastMathAttrs final
     : public llvm::PassInfoMixin<StripFastMathAttrs> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Function &F,
                               llvm::FunctionAnalysisManager &) {
     auto version = compiler::utils::getOpenCLVersion(*F.getParent());
@@ -1022,18 +1025,18 @@ void BaseModule::addDefaultOpenCLPreprocessorOpts(
   addMacroUndef("__opencl_c_read_write_images", macro_defs);
 }
 
-clang::LangStandard::Kind
-BaseModule::setClangOpenCLStandard(clang::LangOptions &lang_opts) const {
+clang::LangStandard::Kind BaseModule::setClangOpenCLStandard(
+    clang::LangOptions &lang_opts) const {
   switch (options.standard) {
-  case Standard::OpenCLC11:
-    lang_opts.OpenCLVersion = 110;
-    return clang::LangStandard::lang_opencl11;
-  case Standard::OpenCLC12:
-    lang_opts.OpenCLVersion = 120;
-    return clang::LangStandard::lang_opencl12;
-  case Standard::OpenCLC30:
-    lang_opts.OpenCLVersion = 300;
-    return clang::LangStandard::lang_opencl30;
+    case Standard::OpenCLC11:
+      lang_opts.OpenCLVersion = 110;
+      return clang::LangStandard::lang_opencl11;
+    case Standard::OpenCLC12:
+      lang_opts.OpenCLVersion = 120;
+      return clang::LangStandard::lang_opencl12;
+    case Standard::OpenCLC30:
+      lang_opts.OpenCLVersion = 300;
+      return clang::LangStandard::lang_opencl30;
   }
 
   llvm_unreachable("clang language standard not initialised");
@@ -1077,9 +1080,9 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
   lang_opts.NoSignedZero = options.no_signed_zeros;
   lang_opts.UnsafeFPMath = options.unsafe_math_optimizations;
   lang_opts.AllowFPReassoc =
-      options.unsafe_math_optimizations; // Spec does not mandate this.
+      options.unsafe_math_optimizations;  // Spec does not mandate this.
   lang_opts.AllowRecip =
-      options.unsafe_math_optimizations; // Spec does not mandate this.
+      options.unsafe_math_optimizations;  // Spec does not mandate this.
 
   // Override the C99 inline semantics to accommodate for more OpenCL C
   // programs in the wild.
@@ -1090,9 +1093,8 @@ void BaseModule::setDefaultOpenCLLangOpts(clang::LangOptions &lang_opts) const {
       device_info->supports_generic_address_space;
 }
 
-std::string
-BaseModule::debugDumpKernelSource(llvm::StringRef source,
-                                  llvm::ArrayRef<std::string> definitions) {
+std::string BaseModule::debugDumpKernelSource(
+    llvm::StringRef source, llvm::ArrayRef<std::string> definitions) {
   std::string dbg_filename;
 #if defined(NDEBUG) && !defined(CA_ENABLE_DEBUG_SUPPORT)
   (void)source;
@@ -1148,7 +1150,7 @@ BaseModule::debugDumpKernelSource(llvm::StringRef source,
     // Print the source
     dbg_fout << source.data();
   }
-#endif // CA_ENABLE_DEBUG_SUPPORT
+#endif  // CA_ENABLE_DEBUG_SUPPORT
 
   return dbg_filename;
 }
@@ -1196,8 +1198,8 @@ std::string BaseModule::printKernelSource(llvm::StringRef source,
   return kernel_file_name.str();
 }
 
-Result
-BaseModule::setOpenCLInstanceDefaults(clang::CompilerInstance &instance) {
+Result BaseModule::setOpenCLInstanceDefaults(
+    clang::CompilerInstance &instance) {
   mux_device_info_t device_info = target.getCompilerInfo()->device_info;
   auto &codeGenOpts = instance.getCodeGenOpts();
 
@@ -1346,8 +1348,9 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance,
       reader->ReadAST(builtinsName, clang::serialization::MK_PCH,
                       clang::SourceLocation(), clang::ASTReader::ARR_None);
   if (clang::ASTReader::Success != astReaderResult) {
-    CPL_ABORT("BaseModule::loadBuiltinsPCH. Error compiling program: unable "
-              "to load precompiled header.");
+    CPL_ABORT(
+        "BaseModule::loadBuiltinsPCH. Error compiling program: unable "
+        "to load precompiled header.");
   }
 
   const ScopedDiagnosticHandler handler(*this, C);
@@ -1358,8 +1361,9 @@ void BaseModule::loadBuiltinsPCH(clang::CompilerInstance &instance,
       reader->getModuleManager().lookupByFileName(builtinsName);
   const bool builtinsLoaded = loadKernelAPIHeader(instance, moduleFile);
   if (!builtinsLoaded) {
-    CPL_ABORT("BaseModule::loadBuiltinsPCH. Error compiling program: unable "
-              "to load builtins header.");
+    CPL_ABORT(
+        "BaseModule::loadBuiltinsPCH. Error compiling program: unable "
+        "to load builtins header.");
   }
 
   const llvm::IntrusiveRefCntPtr<clang::ExternalASTSource> pchAST(
@@ -1393,7 +1397,8 @@ BaseModule::FrontendDiagnosticPrinter::FrontendDiagnosticPrinter(
                                    &diags,
 #endif
                                    /*OwnsOutputStream=*/false),
-      base_module(base_module), TempOS(TempStr) {
+      base_module(base_module),
+      TempOS(TempStr) {
 }
 
 void BaseModule::FrontendDiagnosticPrinter::HandleDiagnostic(
@@ -1466,7 +1471,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
       debugDumpKernelSource(source, options.definitions);
 #else
   const std::string dbg_filename;
-#endif // CA_ENABLE_DEBUG_SUPPORT
+#endif  // CA_ENABLE_DEBUG_SUPPORT
 
   instance.createDiagnostics(
 #if LLVM_VERSION_GREATER_EQUAL(20, 0)
@@ -1555,11 +1560,11 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
 
     auto filter_func = [](const llvm::DiagnosticInfo &DI) {
       switch (DI.getSeverity()) {
-      default:
-        return false;
-      case llvm::DiagnosticSeverity::DS_Warning:
-      case llvm::DiagnosticSeverity::DS_Error:
-        return true;
+        default:
+          return false;
+        case llvm::DiagnosticSeverity::DS_Warning:
+        case llvm::DiagnosticSeverity::DS_Error:
+          return true;
       }
     };
     const ScopedDiagnosticHandler handler(*this, C, filter_func);
@@ -1579,8 +1584,9 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
       // multiple times.
       const llvm::Module *m = input_module->llvm_module.get();
       if (&C != &m->getContext()) {
-        CPL_ABORT("BaseModule::link. Error linking program: Cannot clone "
-                  "with incompatible contexts.");
+        CPL_ABORT(
+            "BaseModule::link. Error linking program: Cannot clone "
+            "with incompatible contexts.");
       }
       auto clone = llvm::CloneModule(*m);
 
@@ -1596,14 +1602,15 @@ Result BaseModule::link(cargo::array_view<Module *> input_modules) {
     }
 
     switch (state) {
-    case ModuleState::COMPILED_OBJECT:
-      this->llvm_module.reset();
-      break;
-    case ModuleState::NONE:
-      break;
-    default:
-      CPL_ABORT("BaseModule::link. Error linking program: Program in invalid "
-                "state.");
+      case ModuleState::COMPILED_OBJECT:
+        this->llvm_module.reset();
+        break;
+      case ModuleState::NONE:
+        break;
+      default:
+        CPL_ABORT(
+            "BaseModule::link. Error linking program: Program in invalid "
+            "state.");
     }
 
     // Always creates a library. clBuildProgram and clLinkProgram call this
@@ -1661,9 +1668,9 @@ bool BaseModule::DiagnosticHandler::handleDiagnostics(
   return true;
 }
 
-Result
-BaseModule::finalize(ProgramInfo *program_info,
-                     std::vector<builtins::printf::descriptor> &printf_calls) {
+Result BaseModule::finalize(
+    ProgramInfo *program_info,
+    std::vector<builtins::printf::descriptor> &printf_calls) {
   return target.withLLVMContextDo([&](llvm::LLVMContext &C) -> Result {
     // Numerous things below touch LLVM's global state, in particular
     // retriggering command-line option parsing at various points. Ensure we
@@ -1672,8 +1679,9 @@ BaseModule::finalize(ProgramInfo *program_info,
         compiler::utils::getLLVMGlobalMutex());
 
     if (!llvm_module) {
-      CPL_ABORT("BaseModule::finalize. Error finalizing "
-                "program: Module is not initialised.");
+      CPL_ABORT(
+          "BaseModule::finalize. Error finalizing "
+          "program: Module is not initialised.");
     }
 
     mux_device_info_t device_info = target.getCompilerInfo()->device_info;
@@ -1682,8 +1690,9 @@ BaseModule::finalize(ProgramInfo *program_info,
     // mismatching contexts.
     const llvm::Module *m = llvm_module.get();
     if (&C != &m->getContext()) {
-      CPL_ABORT("BaseModule::finalize. Error finalizing program: Cannot "
-                "clone with incompatible contexts.");
+      CPL_ABORT(
+          "BaseModule::finalize. Error finalizing program: Cannot "
+          "clone with incompatible contexts.");
     }
 
     auto pass_mach = createPassMachinery(C);
@@ -1888,7 +1897,7 @@ std::size_t BaseModule::size() {
 
   // Serialize the LLVM module.
   struct ostream final : public llvm::raw_ostream {
-    std::size_t size; // the total number of bytes required for the stream
+    std::size_t size;  // the total number of bytes required for the stream
 
     explicit ostream() : size(0) {}
 
@@ -1927,7 +1936,7 @@ std::size_t BaseModule::serialize(std::uint8_t *output_buffer) {
   // Serialize the LLVM module.
   struct ostream final : public llvm::raw_ostream {
     char *binary;
-    std::size_t size; // the total number of bytes required for the stream
+    std::size_t size;  // the total number of bytes required for the stream
 
     explicit ostream(char *binary) : binary(binary), size(0) {}
 
@@ -2071,12 +2080,12 @@ void BaseModule::populatePPOpts(clang::CompilerInstance &instance,
   auto &pp_opts = instance.getPreprocessorOpts();
   for (const auto &def : macro_defs) {
     switch (def.first) {
-    case MacroDefType::Def:
-      pp_opts.addMacroDef(def.second);
-      break;
-    case MacroDefType::Undef:
-      pp_opts.addMacroUndef(def.second);
-      break;
+      case MacroDefType::Def:
+        pp_opts.addMacroDef(def.second);
+        break;
+      case MacroDefType::Undef:
+        pp_opts.addMacroUndef(def.second);
+        break;
     }
   }
 }
@@ -2088,8 +2097,8 @@ void BaseModule::populateOpenCLOpts(clang::CompilerInstance &instance,
   }
 }
 
-std::unique_ptr<compiler::utils::PassMachinery>
-BaseModule::createPassMachinery(llvm::LLVMContext &C) {
+std::unique_ptr<compiler::utils::PassMachinery> BaseModule::createPassMachinery(
+    llvm::LLVMContext &C) {
   return std::make_unique<BaseModulePassMachinery>(
       C, /*TM*/ nullptr, /*Info*/ std::nullopt,
       /*BICallback*/ nullptr, target.getContext().isLLVMVerifyEachEnabled(),
@@ -2132,4 +2141,4 @@ void BaseModule::initializePassMachineryForFinalize(
   pass_mach.initializeFinish();
 }
 
-} // namespace compiler
+}  // namespace compiler

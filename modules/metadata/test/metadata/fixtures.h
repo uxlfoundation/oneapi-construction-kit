@@ -27,11 +27,11 @@
 /// state.
 ///
 /// @param ... Expression to invoke.
-#define UMD_RETURN_ON_FATAL_FAILURE(...)                                       \
-  __VA_ARGS__;                                                                 \
-  if (this->HasFatalFailure() || this->IsSkipped()) {                          \
-    return;                                                                    \
-  }                                                                            \
+#define UMD_RETURN_ON_FATAL_FAILURE(...)              \
+  __VA_ARGS__;                                        \
+  if (this->HasFatalFailure() || this->IsSkipped()) { \
+    return;                                           \
+  }                                                   \
   (void)0
 
 struct MetadataTest : ::testing::Test {
@@ -152,4 +152,4 @@ static constexpr uint8_t example_md_bin[] = {
     0x00, 0x00, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x01, 0x00, 0x00};
 
-#endif // MD_TEST_FIXTURES_H_INCLUDED
+#endif  // MD_TEST_FIXTURES_H_INCLUDED

@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-#include <CL/cl_ext_codeplay_host.h> // Customer library header
+#include <CL/cl_ext_codeplay_host.h>  // Customer library header
 #include <cl/config.h>
 #include <cl/device.h>
 #include <cl/macros.h>
-#include <extension/codeplay_set_threads.h> // This extension's header
+#include <extension/codeplay_set_threads.h>  // This extension's header
 #include <host/device.h>
 
 #include <cstring>

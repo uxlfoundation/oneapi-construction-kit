@@ -52,11 +52,11 @@
 /// TODO: Merge with version in UnitMux (see CA-3593).
 ///
 /// @param ... Expression to invoke.
-#define RETURN_ON_SKIP_OR_FATAL_FAILURE(...)                                   \
-  __VA_ARGS__;                                                                 \
-  if (HasFatalFailure() || IsSkipped()) {                                      \
-    return;                                                                    \
-  }                                                                            \
+#define RETURN_ON_SKIP_OR_FATAL_FAILURE(...) \
+  __VA_ARGS__;                               \
+  if (HasFatalFailure() || IsSkipped()) {    \
+    return;                                  \
+  }                                          \
   (void)0
 
 /// @brief Detect the builtin capabilities of a mux device.
@@ -167,8 +167,9 @@ struct CompilerTargetTest : CompilerContextTest {
     // Create compiler target.
     target = compiler_info->createTarget(context.get(), nullptr);
     ASSERT_NE(target, nullptr);
-    ASSERT_EQ(compiler::Result::SUCCESS, target->init(detectBuiltinCapabilities(
-                                             compiler_info->device_info)));
+    ASSERT_EQ(
+        compiler::Result::SUCCESS,
+        target->init(detectBuiltinCapabilities(compiler_info->device_info)));
   }
 
   /// @brief Virtual method to clean up any resources this fixture allocated.
@@ -297,8 +298,8 @@ struct CompilerKernelTest : OpenCLCModuleTest {
 /// compatible with gtest.
 ///
 /// TODO: Merge this with the function in UnitMux (see CA-3593).
-static inline std::string
-printDeviceName(const testing::TestParamInfo<const compiler::Info *> &info) {
+static inline std::string printDeviceName(
+    const testing::TestParamInfo<const compiler::Info *> &info) {
   std::string name{info.param->device_info->device_name};
   std::replace_if(
       std::begin(name), std::end(name),
@@ -352,8 +353,8 @@ struct CompilerLLVMModuleTest : ::testing::Test {
 ///
 /// @param[in] FIXTURE Test fixture to instantiate, must be derived from
 /// CompilerContextTest.
-#define INSTANTIATE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE)                      \
-  INSTANTIATE_TEST_SUITE_P(                                                    \
+#define INSTANTIATE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE) \
+  INSTANTIATE_TEST_SUITE_P(                               \
       , FIXTURE, testing::ValuesIn(compiler::compilers()), printDeviceName)
 
 /// @brief Macro for instantiating test fixture parameterized over all
@@ -367,10 +368,10 @@ struct CompilerLLVMModuleTest : ::testing::Test {
 ///
 /// @param[in] FIXTURE Test fixture to instantiate, must be derived from
 /// CompilerContextTest.
-#define INSTANTIATE_DEFERRABLE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE)           \
-  INSTANTIATE_TEST_SUITE_P(                                                    \
-      , FIXTURE, testing::ValuesIn(deferrableCompilers()), printDeviceName);   \
-  /* We do not know whether there are any deferrable compilers. */             \
+#define INSTANTIATE_DEFERRABLE_COMPILER_TARGET_TEST_SUITE_P(FIXTURE)         \
+  INSTANTIATE_TEST_SUITE_P(                                                  \
+      , FIXTURE, testing::ValuesIn(deferrableCompilers()), printDeviceName); \
+  /* We do not know whether there are any deferrable compilers. */           \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#endif // COMPILER_UNITCOMPILER_COMMON_H_INCLUDED
+#endif  // COMPILER_UNITCOMPILER_COMMON_H_INCLUDED

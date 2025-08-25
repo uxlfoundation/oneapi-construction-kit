@@ -26,13 +26,13 @@
 /// Based on work by Benie.
 ///
 class ErrcodeRetWrapper {
-public:
+ public:
   ErrcodeRetWrapper(int errcode_ret) : errcode_ret_(errcode_ret) {}
 
   const char *description_c_str() const {
-#define ERRCODE_RET_WRAPPER_CASE(ERRCODE)                                      \
-  case ERRCODE: {                                                              \
-    return #ERRCODE;                                                           \
+#define ERRCODE_RET_WRAPPER_CASE(ERRCODE) \
+  case ERRCODE: {                         \
+    return #ERRCODE;                      \
   } break
 
     switch (errcode_ret_) {
@@ -97,18 +97,18 @@ public:
       ERRCODE_RET_WRAPPER_CASE(CL_INVALID_LINKER_OPTIONS);
       ERRCODE_RET_WRAPPER_CASE(CL_INVALID_DEVICE_PARTITION_COUNT);
       ERRCODE_RET_WRAPPER_CASE(CL_PLATFORM_NOT_FOUND_KHR);
-    default: {
-      std::stringstream strstr;
-      strstr.str("");
-      strstr << "Unknown error code: ";
-      strstr << errcode_ret_;
-      // Static member variable is prone to threading race conditions but is
-      // mainly used to flag unknown error codes and allows this to be a
-      // simple C string. As unknown error code problems should be fixed
-      // immediately, the chance for a race shouldn't occur regularly.
-      static const std::string str = strstr.str();
-      return str.c_str();
-    } break;
+      default: {
+        std::stringstream strstr;
+        strstr.str("");
+        strstr << "Unknown error code: ";
+        strstr << errcode_ret_;
+        // Static member variable is prone to threading race conditions but is
+        // mainly used to flag unknown error codes and allows this to be a
+        // simple C string. As unknown error code problems should be fixed
+        // immediately, the chance for a race shouldn't occur regularly.
+        static const std::string str = strstr.str();
+        return str.c_str();
+      } break;
     }
 
 #undef ERRCODE_RET_WRAPPER_CASE
@@ -127,19 +127,19 @@ inline std::ostream &operator<<(std::ostream &os,
 }
 
 #ifndef ASSERT_EQ_ERRCODE
-#define ASSERT_EQ_ERRCODE(val1, val2)                                          \
+#define ASSERT_EQ_ERRCODE(val1, val2) \
   ASSERT_EQ(ErrcodeRetWrapper(val1), ErrcodeRetWrapper(val2))
 #endif
 
 #ifndef EXPECT_EQ_ERRCODE
-#define EXPECT_EQ_ERRCODE(val1, val2)                                          \
+#define EXPECT_EQ_ERRCODE(val1, val2) \
   EXPECT_EQ(ErrcodeRetWrapper(val1), ErrcodeRetWrapper(val2))
 #endif
 
 cl_platform_id getPlatform();
 
 class MultiDeviceContext : public ::testing::Test {
-public:
+ public:
   MultiDeviceContext() : platform(nullptr), devices(), context(nullptr) {}
 
   virtual void SetUp() override {
@@ -203,7 +203,7 @@ public:
 };
 
 class MultiDeviceCommandQueue : public MultiDeviceContext {
-public:
+ public:
   MultiDeviceCommandQueue() {}
 
   virtual void SetUp() override {

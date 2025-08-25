@@ -36,7 +36,7 @@ struct Base {};
 struct Derived : Base {};
 
 Derived *getDerived() { return nullptr; }
-} // namespace
+}  // namespace
 
 TEST(function_ref, constructors) {
   const cargo::function_ref<void(void)> fr1 = [] {};

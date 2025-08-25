@@ -67,10 +67,10 @@ TEST_P(Execution, Regression_103_Byval_Struct_Align) {
   const cl_uint int1 = 0xfefefefeull;
 
   kts::Reference1D<cl_int> refOut = [&ms1, &ms2, &ms3](size_t idx) {
-    const int r1 = (ms1.foo - ms1.bar) * ms1.gee; // (2 - 1) * 2 = 2
-    const int r2 = (ms2.foo - ms2.bar) * ms2.gee; // (4 - 3) * 5 = 5
-    const int r3 = (ms3.foo - ms3.bar) * ms3.gee; // (6 - 9) * 7 = -21
-    const int out = (idx * r1) + (r2 * 10 - r3);  // idx * 2 + (5 *10 - (-21))
+    const int r1 = (ms1.foo - ms1.bar) * ms1.gee;  // (2 - 1) * 2 = 2
+    const int r2 = (ms2.foo - ms2.bar) * ms2.gee;  // (4 - 3) * 5 = 5
+    const int r3 = (ms3.foo - ms3.bar) * ms3.gee;  // (6 - 9) * 7 = -21
+    const int out = (idx * r1) + (r2 * 10 - r3);   // idx * 2 + (5 *10 - (-21))
     return out;
   };
 

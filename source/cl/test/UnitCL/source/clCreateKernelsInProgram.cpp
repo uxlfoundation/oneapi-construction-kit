@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clCreateKernelsInProgramGoodTest : public ucl::ContextTest {
-protected:
+ protected:
   enum { NUM_KERNELS = 10 };
 
   void SetUp() override {
@@ -54,7 +54,7 @@ protected:
 };
 
 class clCreateKernelsInProgramBadTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {

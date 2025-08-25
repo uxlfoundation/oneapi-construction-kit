@@ -115,14 +115,16 @@ TEST_P(Execution, Regression_07_Mad_Sat_Long) {
   // correct so silence the failures to allow cross-validation of UnitCL
   // against other implementations.
   if (UCL::isDevice_IntelNeo(this->device)) {
-    printf("Intel NEO driver appears to get wrong result for mad_sat, so we "
-           "skip the test there.\n");
+    printf(
+        "Intel NEO driver appears to get wrong result for mad_sat, so we "
+        "skip the test there.\n");
     GTEST_SKIP();
   }
   if (UCL::isDevice_Oclgrind(this->device)) {
     // https://github.com/jrprice/Oclgrind/issues/117
-    printf("Oclgrind appears to get wrong result for mad_sat, so we skip the "
-           "test there.\n");
+    printf(
+        "Oclgrind appears to get wrong result for mad_sat, so we skip the "
+        "test there.\n");
     GTEST_SKIP();
   }
 
@@ -427,7 +429,7 @@ TEST_P(Execution, Regression_18_Uniform_Alloca) {
 
 TEST_P(Execution, Regression_19_Memcpy_Optimization) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection causes validation failure.
+    GTEST_SKIP();  // Injection causes validation failure.
   }
   // This tests assumes that clang will optimize the struct copying into a
   // memcpy.
@@ -463,40 +465,32 @@ static cl_int calc_group_barrier(size_t x, int vector_width) {
             (k * GROUP_RANGE_2D * GROUP_RANGE_1D) + (j * GROUP_RANGE_1D) + i;
         const int g = linearIndex * vector_width;
         switch (x - g) {
-        case 0:
-          return i;
-          break;
-        case 1:
-          return j;
-          break;
-        case 2:
-          return k;
-          break;
-        case 3:
-          return linearIndex;
-          break;
-        case 4:
-          if (vector_width == 8) {
+          case 0:
             return i;
-          }
-          break;
-        case 5:
-          if (vector_width == 8) {
+            break;
+          case 1:
             return j;
-          }
-          break;
-        case 6:
-          if (vector_width == 8) {
+            break;
+          case 2:
             return k;
-          }
-          break;
-        case 7:
-          if (vector_width == 8) {
+            break;
+          case 3:
             return linearIndex;
-          }
-          break;
-        default:
-          break; // No match on this iteration.
+            break;
+          case 4:
+            if (vector_width == 8) return i;
+            break;
+          case 5:
+            if (vector_width == 8) return j;
+            break;
+          case 6:
+            if (vector_width == 8) return k;
+            break;
+          case 7:
+            if (vector_width == 8) return linearIndex;
+            break;
+          default:
+            break;  // No match on this iteration.
         }
       }
     }
@@ -660,7 +654,7 @@ TEST_P(Execution, Regression_24_MemOp_Loop_Dep) {
 
 TEST_P(Execution, Regression_25_Multiple_Inlining) {
   if (UCL::isInterceptLayerPresent()) {
-    GTEST_SKIP(); // Injection causes a deadlock during kernel execeution.
+    GTEST_SKIP();  // Injection causes a deadlock during kernel execeution.
   }
   AddInputBuffer(kts::N, kts::Ref_A);
   AddOutputBuffer(kts::N, kts::Ref_A);

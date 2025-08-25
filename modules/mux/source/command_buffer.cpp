@@ -32,7 +32,7 @@ bool waitlistIsInvalid(uint32_t num_sync_points_in_wait_list,
   }
   return false;
 }
-} // anonymous namespace
+}  // anonymous namespace
 
 mux_result_t muxCreateCommandBuffer(mux_device_t device,
                                     mux_callback_info_t callback_info,
@@ -711,14 +711,14 @@ mux_result_t muxCommandReadImage(mux_command_buffer_t command_buffer,
   mux_extent_3d_t size = image->size;
   if (image->array_layers) {
     switch (image->type) {
-    default:
-      break;
-    case mux_image_type_1d:
-      size.y = image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = image->array_layers;
-      break;
+      default:
+        break;
+      case mux_image_type_1d:
+        size.y = image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = image->array_layers;
+        break;
     }
   }
 
@@ -767,14 +767,14 @@ mux_result_t muxCommandWriteImage(mux_command_buffer_t command_buffer,
   mux_extent_3d_t size = image->size;
   if (image->array_layers) {
     switch (image->type) {
-    default:
-      break;
-    case mux_image_type_1d:
-      size.y = image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = image->array_layers;
-      break;
+      default:
+        break;
+      case mux_image_type_1d:
+        size.y = image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = image->array_layers;
+        break;
     }
   }
 
@@ -837,14 +837,14 @@ mux_result_t muxCommandFillImage(mux_command_buffer_t command_buffer,
   mux_extent_3d_t size = image->size;
   if (image->array_layers) {
     switch (image->type) {
-    case mux_image_type_1d:
-      size.y = image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = image->array_layers;
-      break;
-    default:
-      break;
+      case mux_image_type_1d:
+        size.y = image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = image->array_layers;
+        break;
+      default:
+        break;
     }
   }
 
@@ -894,14 +894,14 @@ mux_result_t muxCommandCopyImage(mux_command_buffer_t command_buffer,
   mux_extent_3d_t size = src_image->size;
   if (src_image->array_layers) {
     switch (src_image->type) {
-    case mux_image_type_1d:
-      size.y = src_image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = src_image->array_layers;
-      break;
-    default:
-      break;
+      case mux_image_type_1d:
+        size.y = src_image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = src_image->array_layers;
+        break;
+      default:
+        break;
     }
   }
 
@@ -915,14 +915,14 @@ mux_result_t muxCommandCopyImage(mux_command_buffer_t command_buffer,
   size = dst_image->size;
   if (dst_image->array_layers) {
     switch (dst_image->type) {
-    case mux_image_type_1d:
-      size.y = dst_image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = dst_image->array_layers;
-      break;
-    default:
-      break;
+      case mux_image_type_1d:
+        size.y = dst_image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = dst_image->array_layers;
+        break;
+      default:
+        break;
     }
   }
 
@@ -971,14 +971,14 @@ mux_result_t muxCommandCopyImageToBuffer(
   mux_extent_3d_t size = src_image->size;
   if (src_image->array_layers) {
     switch (src_image->type) {
-    case mux_image_type_1d:
-      size.y = src_image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = src_image->array_layers;
-      break;
-    default:
-      break;
+      case mux_image_type_1d:
+        size.y = src_image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = src_image->array_layers;
+        break;
+      default:
+        break;
     }
   }
 
@@ -1038,14 +1038,14 @@ mux_result_t muxCommandCopyBufferToImage(
   mux_extent_3d_t size = dst_image->size;
   if (dst_image->array_layers) {
     switch (dst_image->type) {
-    case mux_image_type_1d:
-      size.y = dst_image->array_layers;
-      break;
-    case mux_image_type_2d:
-      size.z = dst_image->array_layers;
-      break;
-    default:
-      break;
+      case mux_image_type_1d:
+        size.y = dst_image->array_layers;
+        break;
+      case mux_image_type_2d:
+        size.z = dst_image->array_layers;
+        break;
+      default:
+        break;
     }
   }
 
@@ -1239,13 +1239,12 @@ mux_result_t muxCommandEndQuery(mux_command_buffer_t command_buffer,
   return error;
 }
 
-mux_result_t
-muxCommandResetQueryPool(mux_command_buffer_t command_buffer,
-                         mux_query_pool_t query_pool, uint32_t query_index,
-                         uint32_t query_count,
-                         uint32_t num_sync_points_in_wait_list,
-                         const mux_sync_point_t *sync_point_wait_list,
-                         mux_sync_point_t *sync_point) {
+mux_result_t muxCommandResetQueryPool(
+    mux_command_buffer_t command_buffer, mux_query_pool_t query_pool,
+    uint32_t query_index, uint32_t query_count,
+    uint32_t num_sync_points_in_wait_list,
+    const mux_sync_point_t *sync_point_wait_list,
+    mux_sync_point_t *sync_point) {
   const tracer::TraceGuard<tracer::Mux> trace(__func__);
 
   if (mux::objectIsInvalid(command_buffer)) {

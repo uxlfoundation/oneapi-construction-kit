@@ -89,8 +89,8 @@ typedef struct _cl_mem_buffer final : public _cl_mem {
   /// memory allocation size of any device.
   /// @retval `CL_MEM_OBJECT_ALLOCATION_FAILURE` if there is an issue when
   /// binding, mapping or flushing mapped memory.
-  static cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int>
-  create(cl_context context, cl_mem_flags flags, size_t size, void *host_ptr);
+  static cargo::expected<std::unique_ptr<_cl_mem_buffer>, cl_int> create(
+      cl_context context, cl_mem_flags flags, size_t size, void *host_ptr);
 
   /// @brief Synchronize data when a buffer has multiple device in its context.
   ///
@@ -367,6 +367,6 @@ EnqueueFillBuffer(cl_command_queue command_queue, cl_mem buffer,
                   const cl_event *event_wait_list, cl_event *event);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_BUFFER_H_INCLUDED
+#endif  // CL_BUFFER_H_INCLUDED

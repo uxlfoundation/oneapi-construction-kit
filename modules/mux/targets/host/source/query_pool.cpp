@@ -204,24 +204,24 @@ void host::query_pool_s::endEvents() {
     for (size_t i = 0; i < event_info.results.size(); i++) {
       auto &result = event_info.results[i];
       switch (result.storage) {
-      case mux_query_counter_result_type_int32:
-        result.int32 = static_cast<int32_t>(papi_values_out[i]);
-        break;
-      case mux_query_counter_result_type_int64:
-        result.int64 = static_cast<int64_t>(papi_values_out[i]);
-        break;
-      case mux_query_counter_result_type_uint32:
-        result.uint32 = static_cast<uint32_t>(papi_values_out[i]);
-        break;
-      case mux_query_counter_result_type_uint64:
-        result.uint64 = static_cast<uint64_t>(papi_values_out[i]);
-        break;
-      case mux_query_counter_result_type_float32:
-        result.float32 = static_cast<float>(papi_values_out[i]);
-        break;
-      case mux_query_counter_result_type_float64:
-        result.float64 = static_cast<double>(papi_values_out[i]);
-        break;
+        case mux_query_counter_result_type_int32:
+          result.int32 = static_cast<int32_t>(papi_values_out[i]);
+          break;
+        case mux_query_counter_result_type_int64:
+          result.int64 = static_cast<int64_t>(papi_values_out[i]);
+          break;
+        case mux_query_counter_result_type_uint32:
+          result.uint32 = static_cast<uint32_t>(papi_values_out[i]);
+          break;
+        case mux_query_counter_result_type_uint64:
+          result.uint64 = static_cast<uint64_t>(papi_values_out[i]);
+          break;
+        case mux_query_counter_result_type_float32:
+          result.float32 = static_cast<float>(papi_values_out[i]);
+          break;
+        case mux_query_counter_result_type_float64:
+          result.float64 = static_cast<double>(papi_values_out[i]);
+          break;
       }
     }
     std::fill_n(papi_values_out.begin(), papi_values_out.size(), 0);
@@ -235,33 +235,33 @@ void host::query_pool_s::freeEvents(mux::allocator &allocator) {
   }
 }
 
-mux_result_t
-host::query_pool_s::readPapiResults(mux_query_counter_result_s *results,
-                                    size_t result_count, size_t query_index) {
+mux_result_t host::query_pool_s::readPapiResults(
+    mux_query_counter_result_s *results, size_t result_count,
+    size_t query_index) {
   for (size_t result_index = 0; result_index < result_count; result_index++) {
     // Before we accumulate the results from all the worker threads, zero out
     // the output result struct. We can just check the first `event_info`'s
     // type for the appropriate query index, they should all have the same
     // storage type for a given index.
     switch (papi_event_infos[0].results[query_index + result_index].storage) {
-    case mux_query_counter_result_type_int32:
-      results[result_index].int32 = 0;
-      break;
-    case mux_query_counter_result_type_int64:
-      results[result_index].int64 = 0;
-      break;
-    case mux_query_counter_result_type_uint32:
-      results[result_index].uint32 = 0;
-      break;
-    case mux_query_counter_result_type_uint64:
-      results[result_index].uint64 = 0;
-      break;
-    case mux_query_counter_result_type_float32:
-      results[result_index].float32 = 0;
-      break;
-    case mux_query_counter_result_type_float64:
-      results[result_index].float64 = 0;
-      break;
+      case mux_query_counter_result_type_int32:
+        results[result_index].int32 = 0;
+        break;
+      case mux_query_counter_result_type_int64:
+        results[result_index].int64 = 0;
+        break;
+      case mux_query_counter_result_type_uint32:
+        results[result_index].uint32 = 0;
+        break;
+      case mux_query_counter_result_type_uint64:
+        results[result_index].uint64 = 0;
+        break;
+      case mux_query_counter_result_type_float32:
+        results[result_index].float32 = 0;
+        break;
+      case mux_query_counter_result_type_float64:
+        results[result_index].float64 = 0;
+        break;
     }
 
     // Accumulate the results from each worker thread's event info into the
@@ -270,24 +270,24 @@ host::query_pool_s::readPapiResults(mux_query_counter_result_s *results,
     for (const auto &event_info : papi_event_infos) {
       auto &result = event_info.results[query_index + result_index];
       switch (event_info.results[query_index + result_index].storage) {
-      case mux_query_counter_result_type_int32:
-        results[result_index].int32 += result.int32;
-        break;
-      case mux_query_counter_result_type_int64:
-        results[result_index].int64 += result.int64;
-        break;
-      case mux_query_counter_result_type_uint32:
-        results[result_index].uint32 += result.uint32;
-        break;
-      case mux_query_counter_result_type_uint64:
-        results[result_index].uint64 += result.uint64;
-        break;
-      case mux_query_counter_result_type_float32:
-        results[result_index].float32 += result.float32;
-        break;
-      case mux_query_counter_result_type_float64:
-        results[result_index].float64 += result.float64;
-        break;
+        case mux_query_counter_result_type_int32:
+          results[result_index].int32 += result.int32;
+          break;
+        case mux_query_counter_result_type_int64:
+          results[result_index].int64 += result.int64;
+          break;
+        case mux_query_counter_result_type_uint32:
+          results[result_index].uint32 += result.uint32;
+          break;
+        case mux_query_counter_result_type_uint64:
+          results[result_index].uint64 += result.uint64;
+          break;
+        case mux_query_counter_result_type_float32:
+          results[result_index].float32 += result.float32;
+          break;
+        case mux_query_counter_result_type_float64:
+          results[result_index].float64 += result.float64;
+          break;
       }
     }
   }
@@ -296,11 +296,10 @@ host::query_pool_s::readPapiResults(mux_query_counter_result_s *results,
 
 #endif
 
-mux_result_t
-hostGetSupportedQueryCounters(mux_device_t device, mux_queue_type_e queue_type,
-                              uint32_t count, mux_query_counter_t *out_counters,
-                              mux_query_counter_description_t *out_descriptions,
-                              uint32_t *out_count) {
+mux_result_t hostGetSupportedQueryCounters(
+    mux_device_t device, mux_queue_type_e queue_type, uint32_t count,
+    mux_query_counter_t *out_counters,
+    mux_query_counter_description_t *out_descriptions, uint32_t *out_count) {
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
   auto host_device_info = static_cast<host::device_info_s *>(device->info);
   if (out_count) {

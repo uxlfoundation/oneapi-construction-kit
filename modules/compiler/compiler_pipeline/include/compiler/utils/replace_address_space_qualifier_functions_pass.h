@@ -31,14 +31,14 @@ namespace utils {
 ///
 class ReplaceAddressSpaceQualifierFunctionsPass final
     : public llvm::PassInfoMixin<ReplaceAddressSpaceQualifierFunctionsPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 
   static bool isRequired() { return true; }
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // UTILS_REPLACE_ADDRESS_SPACE_QUALIFIER_FUNCTIONS_PASS_H_INCLUDED
+#endif  // UTILS_REPLACE_ADDRESS_SPACE_QUALIFIER_FUNCTIONS_PASS_H_INCLUDED

@@ -47,12 +47,14 @@
 
 namespace spirv_ll {
 
-template <> llvm::Error Builder::create<OpNop>(const OpNop *) {
+template <>
+llvm::Error Builder::create<OpNop>(const OpNop *) {
   // Intentional no-op
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUndef>(const OpUndef *op) {
+template <>
+llvm::Error Builder::create<OpUndef>(const OpUndef *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -82,7 +84,8 @@ llvm::Error Builder::create<OpModuleProcessed>(const OpModuleProcessed *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSource>(const OpSource *op) {
+template <>
+llvm::Error Builder::create<OpSource>(const OpSource *op) {
   module.setSourceLanguage(op->SourceLanguage());
 
   if (module.getSourceMetadataString().size() > 0) {
@@ -92,21 +95,21 @@ template <> llvm::Error Builder::create<OpSource>(const OpSource *op) {
 
   std::string source = "Source language: ";
   switch (op->SourceLanguage()) {
-  case spv::SourceLanguage::SourceLanguageESSL:
-    source += "ESSL";
-    break;
-  case spv::SourceLanguage::SourceLanguageGLSL:
-    source += "GLSL";
-    break;
-  case spv::SourceLanguage::SourceLanguageOpenCL_C:
-    source += "OpenCL C";
-    break;
-  case spv::SourceLanguage::SourceLanguageOpenCL_CPP:
-    source += "OpenCL C++";
-    break;
-  default:
-    source += "Unknown";
-    break;
+    case spv::SourceLanguage::SourceLanguageESSL:
+      source += "ESSL";
+      break;
+    case spv::SourceLanguage::SourceLanguageGLSL:
+      source += "GLSL";
+      break;
+    case spv::SourceLanguage::SourceLanguageOpenCL_C:
+      source += "OpenCL C";
+      break;
+    case spv::SourceLanguage::SourceLanguageOpenCL_CPP:
+      source += "OpenCL C++";
+      break;
+    default:
+      source += "Unknown";
+      break;
   }
   source += ", Version: " + std::to_string(op->Version());
 
@@ -123,16 +126,19 @@ template <> llvm::Error Builder::create<OpSource>(const OpSource *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpName>(const OpName *op) {
+template <>
+llvm::Error Builder::create<OpName>(const OpName *op) {
   module.addName(op->Target(), op->Name().str());
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpMemberName>(const OpMemberName *) {
+template <>
+llvm::Error Builder::create<OpMemberName>(const OpMemberName *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpString>(const OpString *op) {
+template <>
+llvm::Error Builder::create<OpString>(const OpString *op) {
   module.addDebugString(op->IdResult(), op->String().str());
   return llvm::Error::success();
 }
@@ -168,9 +174,8 @@ llvm::DICompileUnit *Builder::getOrCreateDICompileUnit(const OpLine *op_line) {
   return compile_unit;
 }
 
-llvm::DILexicalBlock *
-Builder::getOrCreateDebugBasicBlockScope(llvm::BasicBlock &bb,
-                                         const OpLine *op_line) {
+llvm::DILexicalBlock *Builder::getOrCreateDebugBasicBlockScope(
+    llvm::BasicBlock &bb, const OpLine *op_line) {
   if (auto *const di_block = module.getLexicalBlock(&bb)) {
     return di_block;
   }
@@ -185,9 +190,8 @@ Builder::getOrCreateDebugBasicBlockScope(llvm::BasicBlock &bb,
   return di_block;
 }
 
-llvm::DISubprogram *
-Builder::getOrCreateDebugFunctionScope(llvm::Function &function,
-                                       const OpLine *op_line) {
+llvm::DISubprogram *Builder::getOrCreateDebugFunctionScope(
+    llvm::Function &function, const OpLine *op_line) {
   const OpFunction *opFunction = module.get<OpFunction>(&function);
   // If we have a llvm::Function we should have an OpFunction.
   SPIRV_LL_ASSERT_PTR(opFunction);
@@ -227,7 +231,8 @@ Builder::getOrCreateDebugFunctionScope(llvm::Function &function,
   return function_scope;
 }
 
-template <> llvm::Error Builder::create<OpLine>(const OpLine *op) {
+template <>
+llvm::Error Builder::create<OpLine>(const OpLine *op) {
   // Close the current range, if applicable.
   // Note we don't close the current range afterwards, since we'll just
   // overwrite it with a new one a few lines down.
@@ -325,7 +330,8 @@ void Builder::applyDebugInfoAtClosedRangeOrScope() {
       LineRangeBeginTy{line_range->op_line, std::prev(range_end)});
 }
 
-template <> llvm::Error Builder::create<OpExtension>(const OpExtension *op) {
+template <>
+llvm::Error Builder::create<OpExtension>(const OpExtension *op) {
   auto extension = op->Name();
   if (std::none_of(deviceInfo.extensions.begin(), deviceInfo.extensions.end(),
                    [&](const std::string &deviceExtension) {
@@ -375,8 +381,8 @@ llvm::Error Builder::create<OpExtInstImport>(const OpExtInstImport *op) {
   return llvm::Error::success();
 }
 
-spirv_ll::ExtInstSetHandler *
-Builder::getExtInstHandler(ExtendedInstrSet set) const {
+spirv_ll::ExtInstSetHandler *Builder::getExtInstHandler(
+    ExtendedInstrSet set) const {
   auto handler_it = ext_inst_handlers.find(set);
   if (handler_it == ext_inst_handlers.end()) {
     return nullptr;
@@ -384,7 +390,8 @@ Builder::getExtInstHandler(ExtendedInstrSet set) const {
   return handler_it->second.get();
 }
 
-template <> llvm::Error Builder::create<OpExtInst>(const OpExtInst *op) {
+template <>
+llvm::Error Builder::create<OpExtInst>(const OpExtInst *op) {
   if (auto *handler =
           getExtInstHandler(module.getExtendedInstrSet(op->Set()))) {
     return handler->create(*op);
@@ -397,16 +404,16 @@ template <>
 llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
   bool addressingModelValid;
   switch (deviceInfo.addressingModel) {
-  case spv::AddressingModel::AddressingModelLogical:
-  case spv::AddressingModel::AddressingModelPhysical32:
-  case spv::AddressingModel::AddressingModelPhysical64:
-    addressingModelValid =
-        op->AddressingModel() == deviceInfo.addressingModel ||
-        op->AddressingModel() == spv::AddressingModel::AddressingModelLogical;
-    break;
-  default:
-    addressingModelValid = false;
-    break;
+    case spv::AddressingModel::AddressingModelLogical:
+    case spv::AddressingModel::AddressingModelPhysical32:
+    case spv::AddressingModel::AddressingModelPhysical64:
+      addressingModelValid =
+          op->AddressingModel() == deviceInfo.addressingModel ||
+          op->AddressingModel() == spv::AddressingModel::AddressingModelLogical;
+      break;
+    default:
+      addressingModelValid = false;
+      break;
   }
   if (!addressingModelValid) {
     return makeStringError("OpMemoryModel AddressingModel " +
@@ -414,17 +421,17 @@ llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
                            " not supported by device");
   }
   switch (op->AddressingModel()) {
-  case spv::AddressingModel::AddressingModelLogical:
-    module.setAddressingModel(0);
-    break;
-  case spv::AddressingModel::AddressingModelPhysical32:
-    module.setAddressingModel(32);
-    break;
-  case spv::AddressingModel::AddressingModelPhysical64:
-    module.setAddressingModel(64);
-    break;
-  default:
-    llvm_unreachable("Unsupported value provided for addressing model.");
+    case spv::AddressingModel::AddressingModelLogical:
+      module.setAddressingModel(0);
+      break;
+    case spv::AddressingModel::AddressingModelPhysical32:
+      module.setAddressingModel(32);
+      break;
+    case spv::AddressingModel::AddressingModelPhysical64:
+      module.setAddressingModel(64);
+      break;
+    default:
+      llvm_unreachable("Unsupported value provided for addressing model.");
   }
 
 #if LLVM_VERSION_GREATER_EQUAL(21, 0)
@@ -453,7 +460,8 @@ llvm::Error Builder::create<OpMemoryModel>(const OpMemoryModel *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpEntryPoint>(const OpEntryPoint *op) {
+template <>
+llvm::Error Builder::create<OpEntryPoint>(const OpEntryPoint *op) {
   module.addName(op->EntryPoint(), op->Name().str());
   module.addEntryPoint(op);
   return llvm::Error::success();
@@ -463,21 +471,22 @@ template <>
 llvm::Error Builder::create<OpExecutionMode>(const OpExecutionMode *op) {
   module.addExecutionMode(op);
   switch (op->Mode()) {
-  case spv::ExecutionMode::ExecutionModeLocalSize: {
-    llvm::SmallVector<uint32_t, 3> workgroup_size;
-    for (uint32_t wgs_index = 0; wgs_index < 3; wgs_index++) {
-      workgroup_size.push_back(op->getValueAtOffset(3 + wgs_index));
+    case spv::ExecutionMode::ExecutionModeLocalSize: {
+      llvm::SmallVector<uint32_t, 3> workgroup_size;
+      for (uint32_t wgs_index = 0; wgs_index < 3; wgs_index++) {
+        workgroup_size.push_back(op->getValueAtOffset(3 + wgs_index));
+      }
+      module.setWGS(workgroup_size[0], workgroup_size[1], workgroup_size[2]);
+      break;
     }
-    module.setWGS(workgroup_size[0], workgroup_size[1], workgroup_size[2]);
-    break;
-  }
-  default:
-    break;
+    default:
+      break;
   }
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpCapability>(const OpCapability *op) {
+template <>
+llvm::Error Builder::create<OpCapability>(const OpCapability *op) {
   auto capability = op->Capability();
   if (std::none_of(deviceInfo.capabilities.begin(),
                    deviceInfo.capabilities.end(),
@@ -491,22 +500,26 @@ template <> llvm::Error Builder::create<OpCapability>(const OpCapability *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeVoid>(const OpTypeVoid *op) {
+template <>
+llvm::Error Builder::create<OpTypeVoid>(const OpTypeVoid *op) {
   module.addID(op->IdResult(), op, IRBuilder.getVoidTy());
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeBool>(const OpTypeBool *op) {
+template <>
+llvm::Error Builder::create<OpTypeBool>(const OpTypeBool *op) {
   module.addID(op->IdResult(), op, IRBuilder.getInt1Ty());
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeInt>(const OpTypeInt *op) {
+template <>
+llvm::Error Builder::create<OpTypeInt>(const OpTypeInt *op) {
   module.addID(op->IdResult(), op, IRBuilder.getIntNTy(op->Width()));
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeFloat>(const OpTypeFloat *op) {
+template <>
+llvm::Error Builder::create<OpTypeFloat>(const OpTypeFloat *op) {
   if (op->Width() == 16) {
     module.addID(op->IdResult(), op, IRBuilder.getHalfTy());
   } else if (op->Width() == 32) {
@@ -517,7 +530,8 @@ template <> llvm::Error Builder::create<OpTypeFloat>(const OpTypeFloat *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeVector>(const OpTypeVector *op) {
+template <>
+llvm::Error Builder::create<OpTypeVector>(const OpTypeVector *op) {
   llvm::Type *componentType = module.getLLVMType(op->ComponentType());
 
   SPIRV_LL_ASSERT_PTR(componentType);
@@ -527,7 +541,8 @@ template <> llvm::Error Builder::create<OpTypeVector>(const OpTypeVector *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
+template <>
+llvm::Error Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
   llvm::Type *columnType = module.getLLVMType(op->ColumnType());
 
   SPIRV_LL_ASSERT_PTR(columnType);
@@ -537,33 +552,34 @@ template <> llvm::Error Builder::create<OpTypeMatrix>(const OpTypeMatrix *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
+template <>
+llvm::Error Builder::create<OpTypeImage>(const OpTypeImage *op) {
   llvm::Type *imageType = nullptr;
   auto &ctx = *context.llvmContext;
 
   switch (op->Dim()) {
-  default:
-    break;
-  case spv::Dim::Dim1D:
-    if (op->Arrayed() == 1) {
-      imageType = compiler::utils::tgtext::getImage1DArrayTy(ctx);
-    } else {
-      imageType = compiler::utils::tgtext::getImage1DTy(ctx);
-    }
-    break;
-  case spv::Dim::Dim2D:
-    if (op->Arrayed() == 1) {
-      imageType = compiler::utils::tgtext::getImage2DArrayTy(ctx);
-    } else {
-      imageType = compiler::utils::tgtext::getImage2DTy(ctx);
-    }
-    break;
-  case spv::Dim::Dim3D:
-    imageType = compiler::utils::tgtext::getImage3DTy(ctx);
-    break;
-  case spv::Dim::DimBuffer:
-    imageType = compiler::utils::tgtext::getImage1DBufferTy(ctx);
-    break;
+    default:
+      break;
+    case spv::Dim::Dim1D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage1DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage1DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim2D:
+      if (op->Arrayed() == 1) {
+        imageType = compiler::utils::tgtext::getImage2DArrayTy(ctx);
+      } else {
+        imageType = compiler::utils::tgtext::getImage2DTy(ctx);
+      }
+      break;
+    case spv::Dim::Dim3D:
+      imageType = compiler::utils::tgtext::getImage3DTy(ctx);
+      break;
+    case spv::Dim::DimBuffer:
+      imageType = compiler::utils::tgtext::getImage1DBufferTy(ctx);
+      break;
   }
 
   if (!imageType) {
@@ -588,7 +604,8 @@ llvm::Error Builder::create<OpTypeSampledImage>(const OpTypeSampledImage *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeArray>(const OpTypeArray *op) {
+template <>
+llvm::Error Builder::create<OpTypeArray>(const OpTypeArray *op) {
   llvm::Type *elementType = module.getLLVMType(op->ElementType());
   llvm::Value *length = module.getValue(op->Length());
 
@@ -612,7 +629,8 @@ llvm::Error Builder::create<OpTypeRuntimeArray>(const OpTypeRuntimeArray *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeStruct>(const OpTypeStruct *op) {
+template <>
+llvm::Error Builder::create<OpTypeStruct>(const OpTypeStruct *op) {
   bool forwardDeclared = false;
   llvm::SmallVector<spv::Id, 4> memberTypeIDs;
   llvm::SmallVector<spv::Id, 2> forwardPointerIDs;
@@ -655,7 +673,8 @@ template <> llvm::Error Builder::create<OpTypeStruct>(const OpTypeStruct *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeOpaque>(const OpTypeOpaque *op) {
+template <>
+llvm::Error Builder::create<OpTypeOpaque>(const OpTypeOpaque *op) {
   module.addID(op->IdResult(), op,
                llvm::StructType::create(*context.llvmContext, op->Name()));
   return llvm::Error::success();
@@ -700,7 +719,8 @@ llvm::Error Builder::create<OpTypeFunction>(const OpTypeFunction *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
+template <>
+llvm::Error Builder::create<OpTypeEvent>(const OpTypeEvent *op) {
   module.addID(op->IdResult(), op,
                compiler::utils::tgtext::getEventTy(*context.llvmContext));
   return llvm::Error::success();
@@ -727,19 +747,21 @@ llvm::Error Builder::create<OpTypeReserveId>(const OpTypeReserveId *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTypeQueue>(const OpTypeQueue *) {
+template <>
+llvm::Error Builder::create<OpTypeQueue>(const OpTypeQueue *) {
   return errorUnsupportedDeviceEnqueueOp("OpTypeQueue");
 }
 
-template <> llvm::Error Builder::create<OpTypePipe>(const OpTypePipe *) {
+template <>
+llvm::Error Builder::create<OpTypePipe>(const OpTypePipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpTypeForwardPointer>(const OpTypeForwardPointer *op) {
+llvm::Error Builder::create<OpTypeForwardPointer>(
+    const OpTypeForwardPointer *op) {
   module.addForwardPointer(op->PointerType());
   return llvm::Error::success();
 }
@@ -770,7 +792,8 @@ llvm::Error Builder::create<OpConstantFalse>(const OpConstantFalse *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpConstant>(const OpConstant *op) {
+template <>
+llvm::Error Builder::create<OpConstant>(const OpConstant *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
@@ -822,8 +845,8 @@ template <> llvm::Error Builder::create<OpConstant>(const OpConstant *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpConstantComposite>(const OpConstantComposite *op) {
+llvm::Error Builder::create<OpConstantComposite>(
+    const OpConstantComposite *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
 
   SPIRV_LL_ASSERT_PTR(type);
@@ -864,19 +887,19 @@ llvm::Error Builder::create<OpConstantSampler>(const OpConstantSampler *op) {
   // Translate SPIR-V enums into values from SPIR 1.2 spec Table 4
   // https://www.khronos.org/registry/SPIR/specs/spir_spec-1.2.pdf
   static const uint32_t addressingModes[] = {
-      0x0000, // CLK_ADDRESS_NONE
-      0x0002, // CLK_ADDRESS_CLAMP_TO_EDGE
-      0x0004, // CLK_ADDRESS_CLAMP
-      0x0006, // CLK_ADDRESS_REPEAT
-      0x0008, // CLK_ADDRESS_MIRRORED_REPEAT
+      0x0000,  // CLK_ADDRESS_NONE
+      0x0002,  // CLK_ADDRESS_CLAMP_TO_EDGE
+      0x0004,  // CLK_ADDRESS_CLAMP
+      0x0006,  // CLK_ADDRESS_REPEAT
+      0x0008,  // CLK_ADDRESS_MIRRORED_REPEAT
   };
   static const uint32_t normalizedCoords[] = {
-      0x0000, // CLK_NORMALIZED_COORDS_FALSE
-      0x0001, // CLK_NORMALIZED_COORDS_TRUE
+      0x0000,  // CLK_NORMALIZED_COORDS_FALSE
+      0x0001,  // CLK_NORMALIZED_COORDS_TRUE
   };
   static const uint32_t filterModes[] = {
-      0x0010, // CLK_FILTER_NEAREST
-      0x0020, // CLK_FILTER_LINEAR
+      0x0010,  // CLK_FILTER_NEAREST
+      0x0020,  // CLK_FILTER_LINEAR
   };
   const uint32_t samplerValue = addressingModes[op->SamplerAddressingMode()] |
                                 normalizedCoords[op->Param()] |
@@ -904,46 +927,46 @@ llvm::Error Builder::create<OpConstantNull>(const OpConstantNull *op) {
   llvm::Constant *constant = nullptr;
 
   switch (type->getTypeID()) {
-  case llvm::Type::TypeID::HalfTyID:
-  case llvm::Type::TypeID::FloatTyID:
-  case llvm::Type::TypeID::DoubleTyID:
-    constant = llvm::ConstantFP::get(type, 0);
-    break;
-  case llvm::Type::TypeID::IntegerTyID:
-    constant = llvm::ConstantInt::get(type, 0);
-    break;
-  case llvm::Type::TypeID::StructTyID:
-  case llvm::Type::TypeID::ArrayTyID:
-    constant = llvm::ConstantAggregateZero::get(type);
-    break;
-  case llvm::Type::FixedVectorTyID: {
-    auto *vecTy = llvm::cast<llvm::FixedVectorType>(type);
-    llvm::Constant *element = nullptr;
-    if (vecTy->getElementType()->isIntegerTy()) {
-      element = llvm::ConstantInt::get(vecTy->getElementType(), 0);
-    } else if (vecTy->getElementType()->isFloatingPointTy()) {
-      element = llvm::ConstantFP::get(vecTy->getElementType(), 0.0);
-    }
-    const uint32_t numElements = vecTy->getNumElements();
-    constant = llvm::ConstantVector::getSplat(
-        llvm::ElementCount::getFixed(numElements), element);
-    break;
-  }
-  case llvm::Type::TypeID::PointerTyID:
-    constant =
-        llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(type));
-    break;
-  case llvm::Type::TypeID::TargetExtTyID:
-    // Only Events may be zero-initialized.
-    if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
-      constant =
-          llvm::ConstantTargetNone::get(llvm::cast<llvm::TargetExtType>(type));
+    case llvm::Type::TypeID::HalfTyID:
+    case llvm::Type::TypeID::FloatTyID:
+    case llvm::Type::TypeID::DoubleTyID:
+      constant = llvm::ConstantFP::get(type, 0);
+      break;
+    case llvm::Type::TypeID::IntegerTyID:
+      constant = llvm::ConstantInt::get(type, 0);
+      break;
+    case llvm::Type::TypeID::StructTyID:
+    case llvm::Type::TypeID::ArrayTyID:
+      constant = llvm::ConstantAggregateZero::get(type);
+      break;
+    case llvm::Type::FixedVectorTyID: {
+      auto *vecTy = llvm::cast<llvm::FixedVectorType>(type);
+      llvm::Constant *element = nullptr;
+      if (vecTy->getElementType()->isIntegerTy()) {
+        element = llvm::ConstantInt::get(vecTy->getElementType(), 0);
+      } else if (vecTy->getElementType()->isFloatingPointTy()) {
+        element = llvm::ConstantFP::get(vecTy->getElementType(), 0.0);
+      }
+      const uint32_t numElements = vecTy->getNumElements();
+      constant = llvm::ConstantVector::getSplat(
+          llvm::ElementCount::getFixed(numElements), element);
       break;
     }
-    [[fallthrough]];
-  default:
-    // TODO: the opencl types: device event, reservation ID and queue
-    llvm_unreachable("Unsupported type provided to OpConstantNull");
+    case llvm::Type::TypeID::PointerTyID:
+      constant =
+          llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(type));
+      break;
+    case llvm::Type::TypeID::TargetExtTyID:
+      // Only Events may be zero-initialized.
+      if (llvm::cast<llvm::TargetExtType>(type)->getName() == "spirv.Event") {
+        constant = llvm::ConstantTargetNone::get(
+            llvm::cast<llvm::TargetExtType>(type));
+        break;
+      }
+      [[fallthrough]];
+    default:
+      // TODO: the opencl types: device event, reservation ID and queue
+      llvm_unreachable("Unsupported type provided to OpConstantNull");
   }
   constant->setName(module.getName(op->IdResult()));
   module.addID(op->IdResult(), op, constant);
@@ -983,8 +1006,8 @@ llvm::Error Builder::create<OpSpecConstantTrue>(const OpSpecConstantTrue *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSpecConstantFalse>(const OpSpecConstantFalse *op) {
+llvm::Error Builder::create<OpSpecConstantFalse>(
+    const OpSpecConstantFalse *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -1034,52 +1057,52 @@ llvm::Error Builder::create<OpSpecConstant>(const OpSpecConstant *op) {
       if (specInfo->isSpecialized(*specId)) {
         int size = type->getScalarSizeInBits();
         switch (size) {
-        case 1:
-          if (module.hasCapability(spv::CapabilityKernel)) {
-            // OpenCL SPIR-V spec constant bool is 8 bits.
-            size = 8;
-          } else {
-            // Vulkan SPIR-V spec constant bool is 32 bits.
-            size = 32;
-          }
-          break;
-        case 8:
-          if (!module.hasCapability(spv::CapabilityKernel)) {
-            // Vulkan SPIR-V does not support 8 bit integers.
-            size = -1;
-          }
-          break;
-        default:
-          break;
+          case 1:
+            if (module.hasCapability(spv::CapabilityKernel)) {
+              // OpenCL SPIR-V spec constant bool is 8 bits.
+              size = 8;
+            } else {
+              // Vulkan SPIR-V spec constant bool is 32 bits.
+              size = 32;
+            }
+            break;
+          case 8:
+            if (!module.hasCapability(spv::CapabilityKernel)) {
+              // Vulkan SPIR-V does not support 8 bit integers.
+              size = -1;
+            }
+            break;
+          default:
+            break;
         }
         // SpecializationInfo::getValue does not require the type to match, it
         // merely requires the type to have the correct size. Use integer types
         // for everything to avoid a need for the host compiler to support
         // device types.
         switch (size) {
-        case 8: {
-          auto specValue = specInfo->getValue<uint8_t>(*specId);
-          SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
-          value = *specValue;
-        } break;
-        case 16: {
-          auto specValue = specInfo->getValue<uint16_t>(*specId);
-          SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
-          value = *specValue;
-        } break;
-        case 32: {
-          auto specValue = specInfo->getValue<uint32_t>(*specId);
-          SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
-          value = *specValue;
-        } break;
-        case 64: {
-          auto specValue = specInfo->getValue<uint64_t>(*specId);
-          SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
-          value = *specValue;
-        } break;
-        default:
-          llvm_unreachable("Invalid type provided to OpSpecConstant");
-          break;
+          case 8: {
+            auto specValue = specInfo->getValue<uint8_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 16: {
+            auto specValue = specInfo->getValue<uint16_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 32: {
+            auto specValue = specInfo->getValue<uint32_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          case 64: {
+            auto specValue = specInfo->getValue<uint64_t>(*specId);
+            SPIRV_LL_ASSERT(specValue, specValue.error().message.c_str());
+            value = *specValue;
+          } break;
+          default:
+            llvm_unreachable("Invalid type provided to OpSpecConstant");
+            break;
         }
       }
     }
@@ -1100,8 +1123,8 @@ llvm::Error Builder::create<OpSpecConstant>(const OpSpecConstant *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSpecConstantComposite>(const OpSpecConstantComposite *op) {
+llvm::Error Builder::create<OpSpecConstantComposite>(
+    const OpSpecConstantComposite *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -1116,20 +1139,21 @@ Builder::create<OpSpecConstantComposite>(const OpSpecConstantComposite *op) {
   llvm::Constant *spec_constant_composite = nullptr;
 
   switch (type->getTypeID()) {
-  case llvm::Type::FixedVectorTyID:
-    spec_constant_composite = llvm::ConstantVector::get(constituents);
-    break;
-  case llvm::Type::ArrayTyID:
-    spec_constant_composite = llvm::ConstantArray::get(
-        llvm::cast<llvm::ArrayType>(type), constituents);
-    break;
-  case llvm::Type::StructTyID:
-    spec_constant_composite = llvm::ConstantStruct::get(
-        llvm::cast<llvm::StructType>(type), constituents);
-    break;
-  default:
-    llvm_unreachable("Non-composite type supplied to OpSpecConstantComposite");
-    break;
+    case llvm::Type::FixedVectorTyID:
+      spec_constant_composite = llvm::ConstantVector::get(constituents);
+      break;
+    case llvm::Type::ArrayTyID:
+      spec_constant_composite = llvm::ConstantArray::get(
+          llvm::cast<llvm::ArrayType>(type), constituents);
+      break;
+    case llvm::Type::StructTyID:
+      spec_constant_composite = llvm::ConstantStruct::get(
+          llvm::cast<llvm::StructType>(type), constituents);
+      break;
+    default:
+      llvm_unreachable(
+          "Non-composite type supplied to OpSpecConstantComposite");
+      break;
   }
 
   if (auto op_decorate =
@@ -1161,510 +1185,521 @@ llvm::Error Builder::create<OpSpecConstantOp>(const OpSpecConstantOp *op) {
   const int thirdArgIndex = 6;
 
   switch (op->Opcode()) {
-  case spv::OpSConvert: {
-    llvm::Value *operand = module.getValue(op->getValueAtOffset(firstArgIndex));
+    case spv::OpSConvert: {
+      llvm::Value *operand =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
 
-    result = IRBuilder.CreateIntCast(
-        operand, result_type,
-        llvm::cast<llvm::IntegerType>(result_type)->getSignBit());
-    break;
-  }
-  case spv::OpFConvert: {
-    llvm::Value *operand = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateFPCast(operand, result_type);
-    break;
-  }
-  case spv::OpSNegate: {
-    llvm::Value *operand = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateNeg(operand);
-    break;
-  }
-  case spv::OpNot: {
-    llvm::Value *operand = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateNot(operand);
-    break;
-  }
-  case spv::OpIAdd: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateAdd(lhs, rhs);
-    break;
-  }
-  case spv::OpISub: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateSub(lhs, rhs);
-    break;
-  }
-  case spv::OpIMul: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateMul(lhs, rhs);
-    break;
-  }
-  case spv::OpUDiv: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateUDiv(lhs, rhs);
-    break;
-  }
-  case spv::OpSDiv: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateSDiv(lhs, rhs);
-    break;
-  }
-  case spv::OpUMod: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateURem(lhs, rhs);
-    break;
-  }
-  case spv::OpSRem: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateSRem(lhs, rhs);
-    break;
-  }
-  case spv::OpSMod: {
-    llvm::Value *num = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *denom = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    llvm::Constant *zero = llvm::ConstantInt::getSigned(result_type, 0);
-    llvm::Value *cmp = IRBuilder.CreateICmpSLT(denom, zero);
-    llvm::Value *absDenom =
-        IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
-
-    llvm::Value *sRem = IRBuilder.CreateSRem(num, denom);
-    result =
-        IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom), sRem);
-    break;
-  }
-  case spv::OpShiftRightLogical: {
-    llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *shift = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateLShr(value, shift);
-    break;
-  }
-  case spv::OpShiftRightArithmetic: {
-    llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *shift = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateAShr(value, shift);
-    break;
-  }
-  case spv::OpShiftLeftLogical: {
-    llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *shift = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateShl(value, shift);
-    break;
-  }
-  case spv::OpBitwiseOr: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateOr(lhs, rhs);
-    break;
-  }
-  case spv::OpBitwiseXor: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateXor(lhs, rhs);
-    break;
-  }
-  case spv::OpBitwiseAnd: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateAnd(lhs, rhs);
-    break;
-  }
-  case spv::OpVectorShuffle: {
-    llvm::Value *v1 = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *v2 = module.getValue(op->getValueAtOffset(secondArgIndex));
-    llvm::SmallVector<int, 4> components;
-    // base word count is four plus the two used for the vector operands
-    for (int comp_index = 0; comp_index < op->wordCount() - thirdArgIndex;
-         comp_index++) {
-      // FIXME: wording in the spec is weird here, all operands must be
-      // IDs of
-      // constants but in the actual shuffle vector instruction these are
-      // literals, determine which applies here
-      const int component =
-          static_cast<int>(op->getValueAtOffset(thirdArgIndex + comp_index));
-      components.push_back(component);
+      result = IRBuilder.CreateIntCast(
+          operand, result_type,
+          llvm::cast<llvm::IntegerType>(result_type)->getSignBit());
+      break;
     }
+    case spv::OpFConvert: {
+      llvm::Value *operand =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
 
-    result = IRBuilder.CreateShuffleVector(v1, v2, components);
-    break;
-  }
-  case spv::OpCompositeExtract: {
-    llvm::Value *composite =
-        module.getValue(op->getValueAtOffset(firstArgIndex));
+      result = IRBuilder.CreateFPCast(operand, result_type);
+      break;
+    }
+    case spv::OpSNegate: {
+      llvm::Value *operand =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
 
-    if (composite->getType()->isVectorTy()) {
-      const uint32_t index = op->getValueAtOffset(secondArgIndex);
+      result = IRBuilder.CreateNeg(operand);
+      break;
+    }
+    case spv::OpNot: {
+      llvm::Value *operand =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
 
-      result = IRBuilder.CreateExtractElement(composite, index);
-    } else {
-      llvm::SmallVector<uint32_t, 2> indexes;
+      result = IRBuilder.CreateNot(operand);
+      break;
+    }
+    case spv::OpIAdd: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
 
-      for (int i = 0; i < op->wordCount() - secondArgIndex; i++) {
-        const uint32_t index = op->getValueAtOffset(secondArgIndex + i);
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateAdd(lhs, rhs);
+      break;
+    }
+    case spv::OpISub: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateSub(lhs, rhs);
+      break;
+    }
+    case spv::OpIMul: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateMul(lhs, rhs);
+      break;
+    }
+    case spv::OpUDiv: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateUDiv(lhs, rhs);
+      break;
+    }
+    case spv::OpSDiv: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateSDiv(lhs, rhs);
+      break;
+    }
+    case spv::OpUMod: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateURem(lhs, rhs);
+      break;
+    }
+    case spv::OpSRem: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateSRem(lhs, rhs);
+      break;
+    }
+    case spv::OpSMod: {
+      llvm::Value *num = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *denom =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      llvm::Constant *zero = llvm::ConstantInt::getSigned(result_type, 0);
+      llvm::Value *cmp = IRBuilder.CreateICmpSLT(denom, zero);
+      llvm::Value *absDenom =
+          IRBuilder.CreateSelect(cmp, IRBuilder.CreateNeg(denom), denom);
+
+      llvm::Value *sRem = IRBuilder.CreateSRem(num, denom);
+      result = IRBuilder.CreateSelect(cmp, IRBuilder.CreateAdd(sRem, absDenom),
+                                      sRem);
+      break;
+    }
+    case spv::OpShiftRightLogical: {
+      llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *shift =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateLShr(value, shift);
+      break;
+    }
+    case spv::OpShiftRightArithmetic: {
+      llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *shift =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateAShr(value, shift);
+      break;
+    }
+    case spv::OpShiftLeftLogical: {
+      llvm::Value *value = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *shift =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateShl(value, shift);
+      break;
+    }
+    case spv::OpBitwiseOr: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateOr(lhs, rhs);
+      break;
+    }
+    case spv::OpBitwiseXor: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateXor(lhs, rhs);
+      break;
+    }
+    case spv::OpBitwiseAnd: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateAnd(lhs, rhs);
+      break;
+    }
+    case spv::OpVectorShuffle: {
+      llvm::Value *v1 = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *v2 = module.getValue(op->getValueAtOffset(secondArgIndex));
+      llvm::SmallVector<int, 4> components;
+      // base word count is four plus the two used for the vector operands
+      for (int comp_index = 0; comp_index < op->wordCount() - thirdArgIndex;
+           comp_index++) {
+        // FIXME: wording in the spec is weird here, all operands must be
+        // IDs of
+        // constants but in the actual shuffle vector instruction these are
+        // literals, determine which applies here
+        const int component =
+            static_cast<int>(op->getValueAtOffset(thirdArgIndex + comp_index));
+        components.push_back(component);
+      }
+
+      result = IRBuilder.CreateShuffleVector(v1, v2, components);
+      break;
+    }
+    case spv::OpCompositeExtract: {
+      llvm::Value *composite =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      if (composite->getType()->isVectorTy()) {
+        const uint32_t index = op->getValueAtOffset(secondArgIndex);
+
+        result = IRBuilder.CreateExtractElement(composite, index);
+      } else {
+        llvm::SmallVector<uint32_t, 2> indexes;
+
+        for (int i = 0; i < op->wordCount() - secondArgIndex; i++) {
+          const uint32_t index = op->getValueAtOffset(secondArgIndex + i);
+
+          indexes.push_back(index);
+        }
+
+        result = IRBuilder.CreateExtractValue(composite, indexes);
+      }
+      break;
+    }
+    case spv::OpCompositeInsert: {
+      llvm::Value *object =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *composite =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      if (result_type->isVectorTy()) {
+        const uint32_t index = op->getValueAtOffset(thirdArgIndex);
+
+        result = IRBuilder.CreateInsertElement(composite, object, index);
+      } else {
+        llvm::SmallVector<uint32_t, 2> indexes;
+
+        for (int i = 0; i < op->wordCount() - thirdArgIndex; i++) {
+          const uint32_t index = op->getValueAtOffset(thirdArgIndex + i);
+
+          indexes.push_back(index);
+        }
+
+        result = IRBuilder.CreateInsertValue(composite, object, indexes);
+      }
+      break;
+    }
+    case spv::OpLogicalOr: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateOr(lhs, rhs);
+      break;
+    }
+    case spv::OpLogicalAnd: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateAnd(lhs, rhs);
+      break;
+    }
+    case spv::OpLogicalNot: {
+      llvm::Value *operand =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateNot(operand);
+      break;
+    }
+    case spv::OpLogicalEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      // boolean values are represented as 1 bit integers so the icmp
+      // instructions can be used
+      result = IRBuilder.CreateICmpEQ(lhs, rhs);
+      break;
+    }
+    case spv::OpLogicalNotEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpNE(lhs, rhs);
+      break;
+    }
+    case spv::OpSelect: {
+      llvm::Value *condition =
+          module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *object_1 =
+          module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      llvm::Value *object_2 =
+          module.getValue(op->getValueAtOffset(thirdArgIndex));
+
+      result = IRBuilder.CreateSelect(condition, object_1, object_2);
+      break;
+    }
+    case spv::OpIEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpEQ(lhs, rhs);
+      break;
+    }
+    case spv::OpINotEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpNE(lhs, rhs);
+      break;
+    }
+    case spv::OpULessThan: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpULT(lhs, rhs);
+      break;
+    }
+    case spv::OpSLessThan: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpSLT(lhs, rhs);
+      break;
+    }
+    case spv::OpUGreaterThan: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpUGT(lhs, rhs);
+      break;
+    }
+    case spv::OpSGreaterThan: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpSGT(lhs, rhs);
+      break;
+    }
+    case spv::OpULessThanEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpULE(lhs, rhs);
+      break;
+    }
+    case spv::OpSLessThanEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpSLE(lhs, rhs);
+      break;
+    }
+    case spv::OpUGreaterThanEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpUGE(lhs, rhs);
+      break;
+    }
+    case spv::OpSGreaterThanEqual: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateICmpSGE(lhs, rhs);
+      break;
+    }
+    case spv::OpConvertFToS: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateFPToSI(val, result_type);
+      break;
+    }
+    case spv::OpConvertSToF: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateSIToFP(val, result_type);
+      break;
+    }
+    case spv::OpConvertFToU: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateFPToUI(val, result_type);
+      break;
+    }
+    case spv::OpConvertUToF: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateUIToFP(val, result_type);
+      break;
+    }
+    case spv::OpUConvert: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateZExtOrTrunc(val, result_type);
+      break;
+    }
+    case spv::OpConvertPtrToU: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreatePtrToInt(val, result_type);
+      break;
+    }
+    case spv::OpConvertUToPtr: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateIntToPtr(val, result_type);
+      break;
+    }
+    case spv::OpGenericCastToPtr: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreatePointerCast(val, result_type);
+      break;
+    }
+    case spv::OpPtrCastToGeneric: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreatePointerCast(val, result_type);
+      break;
+    }
+    case spv::OpBitcast: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateBitCast(val, result_type);
+      break;
+    }
+    case spv::OpFNegate: {
+      llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      result = IRBuilder.CreateFNeg(val);
+      break;
+    }
+    case spv::OpFAdd: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateFAdd(lhs, rhs);
+      break;
+    }
+    case spv::OpFSub: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateFSub(lhs, rhs);
+      break;
+    }
+    case spv::OpFMul: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateFMul(lhs, rhs);
+      break;
+    }
+    case spv::OpFDiv: {
+      llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
+
+      llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
+
+      result = IRBuilder.CreateFDiv(lhs, rhs);
+      break;
+    }
+    case spv::OpFRem: {
+      // Defer the op so we can call the fmod builtin.
+      module.deferSpecConstantOp(op);
+
+      return llvm::Error::success();
+      break;
+    }
+    case spv::OpAccessChain:
+    case spv::OpPtrAccessChain:
+    case spv::OpInBoundsAccessChain:
+    case spv::OpInBoundsPtrAccessChain: {
+      llvm::Value *base = module.getValue(op->getValueAtOffset(firstArgIndex));
+      SPIRV_LL_ASSERT_PTR(base);
+      auto *pointerTy = module.get<OpTypePointer>(op->IdResultType());
+      SPIRV_LL_ASSERT(pointerTy, "Result type is not a pointer");
+
+      llvm::SmallVector<llvm::Value *, 8> indexes;
+
+      // If this isn't a PtrAccessChain we need an additional dereference at the
+      // start.
+      if (op->Opcode() == spv::OpAccessChain ||
+          op->Opcode() == spv::OpInBoundsAccessChain) {
+        indexes.push_back(IRBuilder.getInt32(0));
+      }
+
+      for (int32_t i = 0; i < op->wordCount() - secondArgIndex; i++) {
+        llvm::Value *index =
+            module.getValue(op->getValueAtOffset(secondArgIndex + i));
 
         indexes.push_back(index);
       }
 
-      result = IRBuilder.CreateExtractValue(composite, indexes);
-    }
-    break;
-  }
-  case spv::OpCompositeInsert: {
-    llvm::Value *object = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *composite =
-        module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    if (result_type->isVectorTy()) {
-      const uint32_t index = op->getValueAtOffset(thirdArgIndex);
-
-      result = IRBuilder.CreateInsertElement(composite, object, index);
-    } else {
-      llvm::SmallVector<uint32_t, 2> indexes;
-
-      for (int i = 0; i < op->wordCount() - thirdArgIndex; i++) {
-        const uint32_t index = op->getValueAtOffset(thirdArgIndex + i);
-
-        indexes.push_back(index);
+      auto elementType =
+          module.getLLVMType(pointerTy->getTypePointer()->Type());
+      SPIRV_LL_ASSERT_PTR(elementType);
+      if (elementType->isStructTy()) {
+        checkMemberDecorations(elementType, indexes, op->IdResult());
       }
 
-      result = IRBuilder.CreateInsertValue(composite, object, indexes);
+      result = IRBuilder.CreateGEP(elementType, base, indexes);
+
+      // Set inbounds if this is an inbounds instruction.
+      if (op->Opcode() == spv::OpInBoundsAccessChain ||
+          op->Opcode() == spv::OpInBoundsPtrAccessChain) {
+        llvm::cast<llvm::GetElementPtrInst>(result)->setIsInBounds();
+      }
+
+      break;
     }
-    break;
-  }
-  case spv::OpLogicalOr: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateOr(lhs, rhs);
-    break;
-  }
-  case spv::OpLogicalAnd: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateAnd(lhs, rhs);
-    break;
-  }
-  case spv::OpLogicalNot: {
-    llvm::Value *operand = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateNot(operand);
-    break;
-  }
-  case spv::OpLogicalEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    // boolean values are represented as 1 bit integers so the icmp
-    // instructions can be used
-    result = IRBuilder.CreateICmpEQ(lhs, rhs);
-    break;
-  }
-  case spv::OpLogicalNotEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpNE(lhs, rhs);
-    break;
-  }
-  case spv::OpSelect: {
-    llvm::Value *condition =
-        module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *object_1 =
-        module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    llvm::Value *object_2 =
-        module.getValue(op->getValueAtOffset(thirdArgIndex));
-
-    result = IRBuilder.CreateSelect(condition, object_1, object_2);
-    break;
-  }
-  case spv::OpIEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpEQ(lhs, rhs);
-    break;
-  }
-  case spv::OpINotEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpNE(lhs, rhs);
-    break;
-  }
-  case spv::OpULessThan: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpULT(lhs, rhs);
-    break;
-  }
-  case spv::OpSLessThan: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpSLT(lhs, rhs);
-    break;
-  }
-  case spv::OpUGreaterThan: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpUGT(lhs, rhs);
-    break;
-  }
-  case spv::OpSGreaterThan: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpSGT(lhs, rhs);
-    break;
-  }
-  case spv::OpULessThanEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpULE(lhs, rhs);
-    break;
-  }
-  case spv::OpSLessThanEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpSLE(lhs, rhs);
-    break;
-  }
-  case spv::OpUGreaterThanEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpUGE(lhs, rhs);
-    break;
-  }
-  case spv::OpSGreaterThanEqual: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateICmpSGE(lhs, rhs);
-    break;
-  }
-  case spv::OpConvertFToS: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateFPToSI(val, result_type);
-    break;
-  }
-  case spv::OpConvertSToF: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateSIToFP(val, result_type);
-    break;
-  }
-  case spv::OpConvertFToU: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateFPToUI(val, result_type);
-    break;
-  }
-  case spv::OpConvertUToF: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateUIToFP(val, result_type);
-    break;
-  }
-  case spv::OpUConvert: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateZExtOrTrunc(val, result_type);
-    break;
-  }
-  case spv::OpConvertPtrToU: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreatePtrToInt(val, result_type);
-    break;
-  }
-  case spv::OpConvertUToPtr: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateIntToPtr(val, result_type);
-    break;
-  }
-  case spv::OpGenericCastToPtr: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreatePointerCast(val, result_type);
-    break;
-  }
-  case spv::OpPtrCastToGeneric: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreatePointerCast(val, result_type);
-    break;
-  }
-  case spv::OpBitcast: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateBitCast(val, result_type);
-    break;
-  }
-  case spv::OpFNegate: {
-    llvm::Value *val = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    result = IRBuilder.CreateFNeg(val);
-    break;
-  }
-  case spv::OpFAdd: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateFAdd(lhs, rhs);
-    break;
-  }
-  case spv::OpFSub: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateFSub(lhs, rhs);
-    break;
-  }
-  case spv::OpFMul: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateFMul(lhs, rhs);
-    break;
-  }
-  case spv::OpFDiv: {
-    llvm::Value *lhs = module.getValue(op->getValueAtOffset(firstArgIndex));
-
-    llvm::Value *rhs = module.getValue(op->getValueAtOffset(secondArgIndex));
-
-    result = IRBuilder.CreateFDiv(lhs, rhs);
-    break;
-  }
-  case spv::OpFRem: {
-    // Defer the op so we can call the fmod builtin.
-    module.deferSpecConstantOp(op);
-
-    return llvm::Error::success();
-    break;
-  }
-  case spv::OpAccessChain:
-  case spv::OpPtrAccessChain:
-  case spv::OpInBoundsAccessChain:
-  case spv::OpInBoundsPtrAccessChain: {
-    llvm::Value *base = module.getValue(op->getValueAtOffset(firstArgIndex));
-    SPIRV_LL_ASSERT_PTR(base);
-    auto *pointerTy = module.get<OpTypePointer>(op->IdResultType());
-    SPIRV_LL_ASSERT(pointerTy, "Result type is not a pointer");
-
-    llvm::SmallVector<llvm::Value *, 8> indexes;
-
-    // If this isn't a PtrAccessChain we need an additional dereference at the
-    // start.
-    if (op->Opcode() == spv::OpAccessChain ||
-        op->Opcode() == spv::OpInBoundsAccessChain) {
-      indexes.push_back(IRBuilder.getInt32(0));
+    // FMod can't be translated here because a call to our copysign builtin is
+    // needed, and builtin calls can't be generated outside the scope of a
+    // function, so defer the translation.
+    case spv::OpFMod: {
+      module.deferSpecConstantOp(op);
+      return llvm::Error::success();
     }
-
-    for (int32_t i = 0; i < op->wordCount() - secondArgIndex; i++) {
-      llvm::Value *index =
-          module.getValue(op->getValueAtOffset(secondArgIndex + i));
-
-      indexes.push_back(index);
-    }
-
-    auto elementType = module.getLLVMType(pointerTy->getTypePointer()->Type());
-    SPIRV_LL_ASSERT_PTR(elementType);
-    if (elementType->isStructTy()) {
-      checkMemberDecorations(elementType, indexes, op->IdResult());
-    }
-
-    result = IRBuilder.CreateGEP(elementType, base, indexes);
-
-    // Set inbounds if this is an inbounds instruction.
-    if (op->Opcode() == spv::OpInBoundsAccessChain ||
-        op->Opcode() == spv::OpInBoundsPtrAccessChain) {
-      llvm::cast<llvm::GetElementPtrInst>(result)->setIsInBounds();
-    }
-
-    break;
-  }
-  // FMod can't be translated here because a call to our copysign builtin is
-  // needed, and builtin calls can't be generated outside the scope of a
-  // function, so defer the translation.
-  case spv::OpFMod: {
-    module.deferSpecConstantOp(op);
-    return llvm::Error::success();
-  }
-  default:
-    llvm_unreachable("Invalid OpCode given to OpSpecConstantOp");
+    default:
+      llvm_unreachable("Invalid OpCode given to OpSpecConstantOp");
   }
   module.addID(op->IdResult(), op, result);
   return llvm::Error::success();
 }
 
-static std::optional<std::pair<uint32_t, const char *>>
-getLinkage(Module &module, spv::Id id) {
+static std::optional<std::pair<uint32_t, const char *>> getLinkage(
+    Module &module, spv::Id id) {
   if (auto decoration =
           module.getFirstDecoration(id, spv::DecorationLinkageAttributes)) {
     // the actual linkage enum comes after a string literal, but it's the
@@ -1677,7 +1712,8 @@ getLinkage(Module &module, spv::Id id) {
   return std::nullopt;
 }
 
-template <> llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
+template <>
+llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
   // get function type
   auto *function_type = llvm::dyn_cast<llvm::FunctionType>(
       module.getLLVMType(op->FunctionType()));
@@ -1727,193 +1763,204 @@ template <> llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
     }
 
     switch (ep_op->ExecutionModel()) {
-    case spv::ExecutionModelKernel: {
-      kernel_function = llvm::Function::Create(
-          function_type, llvm::GlobalValue::LinkageTypes::ExternalLinkage, name,
-          module.llvmModule.get());
-      kernel_function->setCallingConv(llvm::CallingConv::SPIR_KERNEL);
+      case spv::ExecutionModelKernel: {
+        kernel_function = llvm::Function::Create(
+            function_type, llvm::GlobalValue::LinkageTypes::ExternalLinkage,
+            name, module.llvmModule.get());
+        kernel_function->setCallingConv(llvm::CallingConv::SPIR_KERNEL);
 
-      // The kernel argument metadata will be populated in OpFunctionEnd when
-      // all the information is available, setting these to empty lists here
-      // so they exist when a kernel has no arguments and the order of
-      // metadata matches the output of clang.
-      kernel_function->setMetadata("kernel_arg_addr_space",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
-      kernel_function->setMetadata("kernel_arg_access_qual",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
-      kernel_function->setMetadata("kernel_arg_type",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
-      kernel_function->setMetadata("kernel_arg_base_type",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
-      kernel_function->setMetadata("kernel_arg_type_qual",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
-      kernel_function->setMetadata("kernel_arg_name",
-                                   llvm::MDNode::get(*context.llvmContext, {}));
+        // The kernel argument metadata will be populated in OpFunctionEnd when
+        // all the information is available, setting these to empty lists here
+        // so they exist when a kernel has no arguments and the order of
+        // metadata matches the output of clang.
+        kernel_function->setMetadata(
+            "kernel_arg_addr_space",
+            llvm::MDNode::get(*context.llvmContext, {}));
+        kernel_function->setMetadata(
+            "kernel_arg_access_qual",
+            llvm::MDNode::get(*context.llvmContext, {}));
+        kernel_function->setMetadata(
+            "kernel_arg_type", llvm::MDNode::get(*context.llvmContext, {}));
+        kernel_function->setMetadata(
+            "kernel_arg_base_type",
+            llvm::MDNode::get(*context.llvmContext, {}));
+        kernel_function->setMetadata(
+            "kernel_arg_type_qual",
+            llvm::MDNode::get(*context.llvmContext, {}));
+        kernel_function->setMetadata(
+            "kernel_arg_name", llvm::MDNode::get(*context.llvmContext, {}));
 
-      for (auto executionMode : module.getExecutionModes(op->IdResult())) {
-        switch (executionMode->Mode()) {
-        case spv::ExecutionModeLocalSize:
-          // Specify the required work group size.
-          kernel_function->setMetadata(
-              "reqd_work_group_size",
-              llvm::MDNode::get(
-                  *context.llvmContext,
-                  {
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(3))),
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(4))),
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(5))),
-                  }));
-          break;
-        case spv::ExecutionModeLocalSizeHint:
-          // Speficy the work group size hint.
-          kernel_function->setMetadata(
-              "work_group_size_hint",
-              llvm::MDNode::get(
-                  *context.llvmContext,
-                  {
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(3))),
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(4))),
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
-                          executionMode->getValueAtOffset(5))),
-                  }));
-          break;
-        case spv::ExecutionModeVecTypeHint: {
-          const uint32_t vectorType = executionMode->getValueAtOffset(3);
-          //  The 16 high-order bits of Vector Type operand specify the
-          //  number of components of the vector.
-          uint16_t numElements = (vectorType & 0xFFFF0000) >> 16;
-          // Supported vector Component Counts are 2, 3, 4, 8, or 16.
-          // 0 or 1 represents a scalar hint
-          SPIRV_LL_ASSERT(
-              numElements <= 16 &&
-                  (numElements == 0 || llvm::isPowerOf2_32(numElements) ||
-                   numElements == 3),
-              "OpExecutionMode VecTypeHint invalid number of components");
-          // The 16 low-order bits of Vector Type operand specify the data
-          // type of the vector.
-          const uint16_t dataType = vectorType & 0x0000FFFF;
-          // llvm-spirv encodes scalar hints as vectors of length 0 rather
-          // than 1. This is an upsteam bug that may be resolved to encode
-          // the legnth as 1, so here we handle both cases.
-          numElements = std::max(numElements, static_cast<uint16_t>(1));
-          llvm::Type *vecTypeHint;
-          switch (dataType) {
-          case 0: // 8-bit integer value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::IntegerType::get(*context.llvmContext, 8), numElements);
-            break;
-          case 1: // 16-bit integer value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::IntegerType::get(*context.llvmContext, 16), numElements);
-            break;
-          case 2: // 32-bit integer value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::IntegerType::get(*context.llvmContext, 32), numElements);
-            break;
-          case 3: // 64-bit integer value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::IntegerType::get(*context.llvmContext, 64), numElements);
-            break;
-          case 4: // 16-bit float value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::Type::getHalfTy(*context.llvmContext), numElements);
-            break;
-          case 5: // 32-bit float value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::Type::getFloatTy(*context.llvmContext), numElements);
-            break;
-          case 6: // 64-bit float value
-            vecTypeHint = llvm::FixedVectorType::get(
-                llvm::Type::getDoubleTy(*context.llvmContext), numElements);
-            break;
-          default:
-            llvm_unreachable("OpExecutionMode VecTypeHint invalid vector type");
+        for (auto executionMode : module.getExecutionModes(op->IdResult())) {
+          switch (executionMode->Mode()) {
+            case spv::ExecutionModeLocalSize:
+              // Specify the required work group size.
+              kernel_function->setMetadata(
+                  "reqd_work_group_size",
+                  llvm::MDNode::get(
+                      *context.llvmContext,
+                      {
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(3))),
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(4))),
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(5))),
+                      }));
+              break;
+            case spv::ExecutionModeLocalSizeHint:
+              // Speficy the work group size hint.
+              kernel_function->setMetadata(
+                  "work_group_size_hint",
+                  llvm::MDNode::get(
+                      *context.llvmContext,
+                      {
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(3))),
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(4))),
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(
+                              executionMode->getValueAtOffset(5))),
+                      }));
+              break;
+            case spv::ExecutionModeVecTypeHint: {
+              const uint32_t vectorType = executionMode->getValueAtOffset(3);
+              //  The 16 high-order bits of Vector Type operand specify the
+              //  number of components of the vector.
+              uint16_t numElements = (vectorType & 0xFFFF0000) >> 16;
+              // Supported vector Component Counts are 2, 3, 4, 8, or 16.
+              // 0 or 1 represents a scalar hint
+              SPIRV_LL_ASSERT(
+                  numElements <= 16 &&
+                      (numElements == 0 || llvm::isPowerOf2_32(numElements) ||
+                       numElements == 3),
+                  "OpExecutionMode VecTypeHint invalid number of components");
+              // The 16 low-order bits of Vector Type operand specify the data
+              // type of the vector.
+              const uint16_t dataType = vectorType & 0x0000FFFF;
+              // llvm-spirv encodes scalar hints as vectors of length 0 rather
+              // than 1. This is an upsteam bug that may be resolved to encode
+              // the legnth as 1, so here we handle both cases.
+              numElements = std::max(numElements, static_cast<uint16_t>(1));
+              llvm::Type *vecTypeHint;
+              switch (dataType) {
+                case 0:  // 8-bit integer value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::IntegerType::get(*context.llvmContext, 8),
+                      numElements);
+                  break;
+                case 1:  // 16-bit integer value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::IntegerType::get(*context.llvmContext, 16),
+                      numElements);
+                  break;
+                case 2:  // 32-bit integer value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::IntegerType::get(*context.llvmContext, 32),
+                      numElements);
+                  break;
+                case 3:  // 64-bit integer value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::IntegerType::get(*context.llvmContext, 64),
+                      numElements);
+                  break;
+                case 4:  // 16-bit float value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::Type::getHalfTy(*context.llvmContext), numElements);
+                  break;
+                case 5:  // 32-bit float value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::Type::getFloatTy(*context.llvmContext),
+                      numElements);
+                  break;
+                case 6:  // 64-bit float value
+                  vecTypeHint = llvm::FixedVectorType::get(
+                      llvm::Type::getDoubleTy(*context.llvmContext),
+                      numElements);
+                  break;
+                default:
+                  llvm_unreachable(
+                      "OpExecutionMode VecTypeHint invalid vector type");
+              }
+
+              kernel_function->setMetadata(
+                  "vec_type_hint",
+                  llvm::MDNode::get(
+                      *context.llvmContext,
+                      {
+                          llvm::ConstantAsMetadata::get(
+                              llvm::UndefValue::get(vecTypeHint)),
+                          // The OpenCL SPIR-V spec does not handle the
+                          // signed integer case, so this flag is always 0.
+                          llvm::ConstantAsMetadata::get(IRBuilder.getInt32(0)),
+                      }));
+            } break;
+            case spv::ExecutionModeContractionOff:
+              // Contraction is impossible at IR level as there are no
+              // contracted operation instructions. In LLVM it is possible to
+              // explicitly request that the backend attempt contraction, but
+              // not to explicitly disallow it, so all we can do here is make
+              // sure we aren't explicitly requesting contraction.
+              if (IRBuilder.getFastMathFlags().allowContract()) {
+                llvm::FastMathFlags newFlags(IRBuilder.getFastMathFlags());
+                newFlags.setAllowContract(false);
+                IRBuilder.setFastMathFlags(newFlags);
+              }
+              break;
+            case spv::ExecutionModeMaxWorkDimINTEL: {
+              const uint32_t maxDim = executionMode->getValueAtOffset(3);
+              // Specify the max work group dim.
+              kernel_function->setMetadata(
+                  "max_work_dim",
+                  llvm::MDNode::get(*context.llvmContext,
+                                    {llvm::ConstantAsMetadata::get(
+                                        IRBuilder.getInt32(maxDim))}));
+            } break;
+            case spv::ExecutionModeSubgroupSize: {
+              const uint32_t sgSize = executionMode->getValueAtOffset(3);
+              // Specify the required sub group size.
+              kernel_function->setMetadata(
+                  "intel_reqd_sub_group_size",
+                  llvm::MDNode::get(*context.llvmContext,
+                                    {llvm::ConstantAsMetadata::get(
+                                        IRBuilder.getInt32(sgSize))}));
+              break;
+            }
+            case spv::ExecutionModeSubgroupsPerWorkgroup:
+              // We declare we support SubgroupDispatch but really we only do so
+              // to handle SubgroupSize.
+              return makeStringError(
+                  "Execution Mode SubgroupsPerWorkgroup is not supported.");
+            case spv::ExecutionModeSubgroupsPerWorkgroupId:
+              // We declare we support SubgroupDispatch but really we only do so
+              // to handle SubgroupSize.
+              return makeStringError(
+                  "Execution Mode SubgroupsPerWorkgroupId is not supported.");
+            default:
+              break;
           }
-
-          kernel_function->setMetadata(
-              "vec_type_hint",
-              llvm::MDNode::get(
-                  *context.llvmContext,
-                  {
-                      llvm::ConstantAsMetadata::get(
-                          llvm::UndefValue::get(vecTypeHint)),
-                      // The OpenCL SPIR-V spec does not handle the
-                      // signed integer case, so this flag is always 0.
-                      llvm::ConstantAsMetadata::get(IRBuilder.getInt32(0)),
-                  }));
-        } break;
-        case spv::ExecutionModeContractionOff:
-          // Contraction is impossible at IR level as there are no
-          // contracted operation instructions. In LLVM it is possible to
-          // explicitly request that the backend attempt contraction, but
-          // not to explicitly disallow it, so all we can do here is make
-          // sure we aren't explicitly requesting contraction.
-          if (IRBuilder.getFastMathFlags().allowContract()) {
-            llvm::FastMathFlags newFlags(IRBuilder.getFastMathFlags());
-            newFlags.setAllowContract(false);
-            IRBuilder.setFastMathFlags(newFlags);
-          }
-          break;
-        case spv::ExecutionModeMaxWorkDimINTEL: {
-          const uint32_t maxDim = executionMode->getValueAtOffset(3);
-          // Specify the max work group dim.
-          kernel_function->setMetadata(
-              "max_work_dim",
-              llvm::MDNode::get(
-                  *context.llvmContext,
-                  {llvm::ConstantAsMetadata::get(IRBuilder.getInt32(maxDim))}));
-        } break;
-        case spv::ExecutionModeSubgroupSize: {
-          const uint32_t sgSize = executionMode->getValueAtOffset(3);
-          // Specify the required sub group size.
-          kernel_function->setMetadata(
-              "intel_reqd_sub_group_size",
-              llvm::MDNode::get(
-                  *context.llvmContext,
-                  {llvm::ConstantAsMetadata::get(IRBuilder.getInt32(sgSize))}));
-          break;
         }
-        case spv::ExecutionModeSubgroupsPerWorkgroup:
-          // We declare we support SubgroupDispatch but really we only do so
-          // to handle SubgroupSize.
-          return makeStringError(
-              "Execution Mode SubgroupsPerWorkgroup is not supported.");
-        case spv::ExecutionModeSubgroupsPerWorkgroupId:
-          // We declare we support SubgroupDispatch but really we only do so
-          // to handle SubgroupSize.
-          return makeStringError(
-              "Execution Mode SubgroupsPerWorkgroupId is not supported.");
-        default:
-          break;
+
+        function = llvm::Function::Create(function_type, linkage, name,
+                                          module.llvmModule.get());
+        function->setCallingConv(llvm::CallingConv::SPIR_FUNC);
+
+        llvm::SmallVector<llvm::Value *, 4> kernel_args;
+        kernel_args.reserve(kernel_function->arg_size());
+        for (auto &kernel_arg : kernel_function->args()) {
+          kernel_args.push_back(&kernel_arg);
         }
-      }
 
-      function = llvm::Function::Create(function_type, linkage, name,
-                                        module.llvmModule.get());
-      function->setCallingConv(llvm::CallingConv::SPIR_FUNC);
-
-      llvm::SmallVector<llvm::Value *, 4> kernel_args;
-      kernel_args.reserve(kernel_function->arg_size());
-      for (auto &kernel_arg : kernel_function->args()) {
-        kernel_args.push_back(&kernel_arg);
-      }
-
-      IRBuilder.SetInsertPoint(llvm::BasicBlock::Create(
-          *context.llvmContext, "entry", kernel_function));
-      auto *call = IRBuilder.CreateCall(function_type, function, kernel_args);
-      call->setCallingConv(function->getCallingConv());
-      IRBuilder.CreateRetVoid();
-      IRBuilder.ClearInsertionPoint();
-    } break;
-    default:
-      return makeStringError(
-          llvm::formatv("Execution model (ID = {0}) is not supported",
-                        ep_op->ExecutionModel()));
+        IRBuilder.SetInsertPoint(llvm::BasicBlock::Create(
+            *context.llvmContext, "entry", kernel_function));
+        auto *call = IRBuilder.CreateCall(function_type, function, kernel_args);
+        call->setCallingConv(function->getCallingConv());
+        IRBuilder.CreateRetVoid();
+        IRBuilder.ClearInsertionPoint();
+      } break;
+      default:
+        return makeStringError(
+            llvm::formatv("Execution model (ID = {0}) is not supported",
+                          ep_op->ExecutionModel()));
     }
   } else {
     // DPC++ rejects variadic functions in SYCL code, with the exception of
@@ -1986,8 +2033,8 @@ template <> llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFunctionParameter>(const OpFunctionParameter *op) {
+llvm::Error Builder::create<OpFunctionParameter>(
+    const OpFunctionParameter *op) {
   SPIRV_LL_ASSERT_PTR(getCurrentFunction());
   auto *function_arg = popFunctionArg();
   SPIRV_LL_ASSERT_PTR(function_arg);
@@ -2009,15 +2056,15 @@ Builder::create<OpFunctionParameter>(const OpFunctionParameter *op) {
         // Attributes are only applicable to certain types.
         if (arg->getType()->isIntegerTy()) {
           switch (funcParamAttr->getValueAtOffset(3)) {
-          case spv::FunctionParameterAttributeZext:
-            attrs.addAttribute(llvm::Attribute::ZExt);
-            break;
-          case spv::FunctionParameterAttributeSext:
-            attrs.addAttribute(llvm::Attribute::SExt);
-            break;
-          default:
-            return makeStringError(
-                "Invalid function parameter attribute for integer type.");
+            case spv::FunctionParameterAttributeZext:
+              attrs.addAttribute(llvm::Attribute::ZExt);
+              break;
+            case spv::FunctionParameterAttributeSext:
+              attrs.addAttribute(llvm::Attribute::SExt);
+              break;
+            default:
+              return makeStringError(
+                  "Invalid function parameter attribute for integer type.");
           }
         } else if (arg->getType()->isPointerTy()) {
           auto *ty = module.get<OpType>(op->IdResultType());
@@ -2025,33 +2072,33 @@ Builder::create<OpFunctionParameter>(const OpFunctionParameter *op) {
           auto *paramTy = module.getLLVMType(ty->getTypePointer()->Type());
           SPIRV_LL_ASSERT_PTR(paramTy);
           switch (funcParamAttr->getValueAtOffset(3)) {
-          case spv::FunctionParameterAttributeByVal:
-            attrs.addByValAttr(paramTy);
-            attrs.addAlignmentAttr(1);
-            break;
-          case spv::FunctionParameterAttributeSret:
-            attrs.addStructRetAttr(paramTy);
-            attrs.addAlignmentAttr(1);
-            break;
-          case spv::FunctionParameterAttributeNoAlias:
-            attrs.addAttribute(llvm::Attribute::NoAlias);
-            break;
-          case spv::FunctionParameterAttributeNoCapture:
+            case spv::FunctionParameterAttributeByVal:
+              attrs.addByValAttr(paramTy);
+              attrs.addAlignmentAttr(1);
+              break;
+            case spv::FunctionParameterAttributeSret:
+              attrs.addStructRetAttr(paramTy);
+              attrs.addAlignmentAttr(1);
+              break;
+            case spv::FunctionParameterAttributeNoAlias:
+              attrs.addAttribute(llvm::Attribute::NoAlias);
+              break;
+            case spv::FunctionParameterAttributeNoCapture:
 #if LLVM_VERSION_GREATER_EQUAL(21, 0)
-            attrs.addCapturesAttr(llvm::CaptureInfo::none());
+              attrs.addCapturesAttr(llvm::CaptureInfo::none());
 #else
-            attrs.addAttribute(llvm::Attribute::NoCapture);
+              attrs.addAttribute(llvm::Attribute::NoCapture);
 #endif
-            break;
-          case spv::FunctionParameterAttributeNoWrite:
-            attrs.addAttribute(llvm::Attribute::ReadOnly);
-            break;
-          case spv::FunctionParameterAttributeNoReadWrite:
-            attrs.addAttribute(llvm::Attribute::WriteOnly);
-            break;
-          default:
-            return makeStringError(
-                "Invalid function parameter attribute for pointer type.");
+              break;
+            case spv::FunctionParameterAttributeNoWrite:
+              attrs.addAttribute(llvm::Attribute::ReadOnly);
+              break;
+            case spv::FunctionParameterAttributeNoReadWrite:
+              attrs.addAttribute(llvm::Attribute::WriteOnly);
+              break;
+            default:
+              return makeStringError(
+                  "Invalid function parameter attribute for pointer type.");
           }
         }
       }
@@ -2165,16 +2212,16 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
       auto arrayed =
           tgtExtTy->getIntParameter(compiler::utils::tgtext::ImageTyArrayedIdx);
       switch (dim) {
-      default:
-        break;
-      case compiler::utils::tgtext::ImageDim1D:
-        return arrayed ? "image1d_array_t" : "image1d_t";
-      case compiler::utils::tgtext::ImageDim2D:
-        return arrayed ? "image2d_array_t" : "image2d_t";
-      case compiler::utils::tgtext::ImageDim3D:
-        return "image3d_t";
-      case compiler::utils::tgtext::ImageDimBuffer:
-        return "image1d_buffer_t";
+        default:
+          break;
+        case compiler::utils::tgtext::ImageDim1D:
+          return arrayed ? "image1d_array_t" : "image1d_t";
+        case compiler::utils::tgtext::ImageDim2D:
+          return arrayed ? "image2d_array_t" : "image2d_t";
+        case compiler::utils::tgtext::ImageDim3D:
+          return "image3d_t";
+        case compiler::utils::tgtext::ImageDimBuffer:
+          return "image1d_buffer_t";
       }
     }
     SPIRV_LL_ABORT("Unknown Target Extension Type");
@@ -2182,9 +2229,10 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   auto argOp = module.get<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
-} // namespace
+}  // namespace
 
-template <> llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
+template <>
+llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
   llvm::Function *function = getCurrentFunction();
   llvm::Function *kernel_function = getCurrentFunctionKernel();
   SPIRV_LL_ASSERT_PTR(function);
@@ -2233,17 +2281,17 @@ template <> llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {
         auto *const opTypeImage = module.get<OpType>(typeID)->getTypeImage();
         if (opTypeImage->wordCount() > 9) {
           switch (opTypeImage->AccessQualifier()) {
-          case spv::AccessQualifierReadOnly:
-            argAccessQual = "read_only";
-            break;
-          case spv::AccessQualifierWriteOnly:
-            argAccessQual = "write_only";
-            break;
-          case spv::AccessQualifierReadWrite:
-            argAccessQual = "read_write";
-            break;
-          default:
-            llvm_unreachable("invalid OpTypeImage Access Qualifier");
+            case spv::AccessQualifierReadOnly:
+              argAccessQual = "read_only";
+              break;
+            case spv::AccessQualifierWriteOnly:
+              argAccessQual = "write_only";
+              break;
+            case spv::AccessQualifierReadWrite:
+              argAccessQual = "read_write";
+              break;
+            default:
+              llvm_unreachable("invalid OpTypeImage Access Qualifier");
           }
         }
       }
@@ -2386,29 +2434,29 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
                       "arg operand type is not a pointer");
       auto &ctx = call->getContext();
       switch (kind) {
-      case llvm::Attribute::ByVal:
-        call->addParamAttr(
-            i, llvm::Attribute::get(ctx, kind, call->getParamByValType(i)));
-        break;
-      case llvm::Attribute::ByRef:
-        call->addParamAttr(
-            i, llvm::Attribute::get(ctx, kind, callee->getParamByRefType(i)));
-        break;
-      case llvm::Attribute::StructRet:
-        call->addParamAttr(
-            i, llvm::Attribute::get(ctx, kind, call->getParamStructRetType(i)));
-        break;
+        case llvm::Attribute::ByVal:
+          call->addParamAttr(
+              i, llvm::Attribute::get(ctx, kind, call->getParamByValType(i)));
+          break;
+        case llvm::Attribute::ByRef:
+          call->addParamAttr(
+              i, llvm::Attribute::get(ctx, kind, callee->getParamByRefType(i)));
+          break;
+        case llvm::Attribute::StructRet:
+          call->addParamAttr(i, llvm::Attribute::get(
+                                    ctx, kind, call->getParamStructRetType(i)));
+          break;
 #if LLVM_VERSION_GREATER_EQUAL(21, 0)
-      case llvm::Attribute::Captures:
-        call->addParamAttr(i, llvm::Attribute::getWithCaptureInfo(
-                                  ctx, call->getCaptureInfo(i)));
-        break;
+        case llvm::Attribute::Captures:
+          call->addParamAttr(i, llvm::Attribute::getWithCaptureInfo(
+                                    ctx, call->getCaptureInfo(i)));
+          break;
 #endif
-      default:
-        SPIRV_LL_ASSERT(!llvm::Attribute::isTypeAttrKind(kind),
-                        "Unhandled type attribute");
-        call->addParamAttr(i, llvm::Attribute::get(ctx, kind));
-        break;
+        default:
+          SPIRV_LL_ASSERT(!llvm::Attribute::isTypeAttrKind(kind),
+                          "Unhandled type attribute");
+          call->addParamAttr(i, llvm::Attribute::get(ctx, kind));
+          break;
       }
     }
     for (auto kind : val_attr_kinds) {
@@ -2423,7 +2471,8 @@ llvm::Error Builder::create<OpFunctionCall>(const OpFunctionCall *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
+template <>
+llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
   auto *resultTy = module.get<OpTypePointer>(op->IdResultType());
   SPIRV_LL_ASSERT(resultTy, "Result type is not a pointer");
   auto varTy = module.getLLVMType(resultTy->getTypePointer()->Type());
@@ -2460,135 +2509,135 @@ template <> llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
       }
       value = new llvm::GlobalVariable(
           *module.llvmModule, varTy,
-          false,                              // isConstant
-          llvm::GlobalValue::ExternalLinkage, // Linkage
-          llvm::UndefValue::get(varTy),       // Initializer
-          name,                               // Name
-          nullptr,                            // InsertBefore
-          llvm::GlobalValue::NotThreadLocal,  // TLMode
-          addrSpaceOrError.get(),             // AddressSpace
-          false                               // isExternallyInitialized
+          false,                               // isConstant
+          llvm::GlobalValue::ExternalLinkage,  // Linkage
+          llvm::UndefValue::get(varTy),        // Initializer
+          name,                                // Name
+          nullptr,                             // InsertBefore
+          llvm::GlobalValue::NotThreadLocal,   // TLMode
+          addrSpaceOrError.get(),              // AddressSpace
+          false                                // isExternallyInitialized
       );
     } else {
       // Following is the set of StorageClasses supported by the Kernel
       // capability.
       switch (op->StorageClass()) {
-      case spv::StorageClassUniformConstant: {
-        // Shared externally, visible across all functions in all invocations
-        // in all work groups. Graphics uniform memory. OpenCL constant
-        // memory. Variables declared with this storage class are read-only.
-        // They may have initializers, as allowed by the client API.
-        auto constantValue = new llvm::GlobalVariable(
-            *module.llvmModule, varTy,
-            true,                              // isConstant
-            llvm::GlobalValue::PrivateLinkage, // Linkage
-            initializer,                       // Initializer
-            name,                              // Name
-            nullptr,                           // InsertBefore
-            llvm::GlobalValue::NotThreadLocal, // TLMode
-            2,                                 // AddressSpace
-            false                              // isExternallyInitialized
-        );
+        case spv::StorageClassUniformConstant: {
+          // Shared externally, visible across all functions in all invocations
+          // in all work groups. Graphics uniform memory. OpenCL constant
+          // memory. Variables declared with this storage class are read-only.
+          // They may have initializers, as allowed by the client API.
+          auto constantValue = new llvm::GlobalVariable(
+              *module.llvmModule, varTy,
+              true,                               // isConstant
+              llvm::GlobalValue::PrivateLinkage,  // Linkage
+              initializer,                        // Initializer
+              name,                               // Name
+              nullptr,                            // InsertBefore
+              llvm::GlobalValue::NotThreadLocal,  // TLMode
+              2,                                  // AddressSpace
+              false                               // isExternallyInitialized
+          );
 
-        // The unnamed_addr attribute indicates that constant global
-        // variables with identical initializers can be merged.
-        constantValue->setUnnamedAddr(llvm::GlobalValue::UnnamedAddr::Global);
-        value = constantValue;
-      } break;
-      case spv::StorageClassInput: {
-        // Input from pipeline. Visible across all functions in the current
-        // invocation. Variables declared with this storage class are
-        // read-only, and cannot have initializers.
-        // FIXME: These are handled in the BuiltIn decoration branch above
-        // making this case a no-op. Once upstream producers correctly
-        // specify the StorageClass for BuiltIn variables the branch can be
-        // removed and the implementation moved here.
-      } break;
-      case spv::StorageClassWorkgroup: {
-        // Shared across all invocations within a work group. Visible across
-        // all functions. The OpenGL "shared" storage qualifier. OpenCL local
-        // memory.
-        value = new llvm::GlobalVariable(
-            *module.llvmModule, varTy,
-            false,                              // isConstant
-            llvm::GlobalValue::InternalLinkage, // Linkage
-            initializer,                        // Initializer
-            name,                               // Name
-            nullptr,                            // InsertBefore
-            llvm::GlobalValue::NotThreadLocal,  // TLMode
-            3,                                  // AddressSpace
-            false                               // isExternallyInitialized
-        );
-      } break;
-      case spv::StorageClassCrossWorkgroup: {
-        // Visible across all functions of all invocations of all work groups.
-        // OpenCL global memory.
-        auto globalValue = new llvm::GlobalVariable(
-            *module.llvmModule, varTy,
-            false,                              // isConstant
-            llvm::GlobalValue::ExternalLinkage, // Linkage
-            initializer,                        // Initializer
-            name,                               // Name
-            nullptr,                            // InsertBefore
-            llvm::GlobalValue::NotThreadLocal,  // TLMode
-            1,                                  // AddressSpace
-            false                               // isExternallyInitialized
-        );
-        value = globalValue;
-      } break;
-      case spv::StorageClassFunction: {
-        // Visible only within the declaring function of the current
-        // invocation. Regular function memory.
-        if (!IRBuilder.GetInsertBlock()) {
-          return makeStringError(
-              "invalid SPIR-V: variables can not have a function[7] "
-              "storage class outside of a function");
-        }
-        auto *alloca = IRBuilder.CreateAlloca(varTy);
-        alloca->setName(name);
-        if (initializer) {
-          IRBuilder.CreateStore(initializer, alloca);
-        }
-        value = alloca;
-      } break;
-      case spv::StorageClassGeneric: {
-        if (module.isExtensionEnabled(
-                "SPV_codeplay_usm_generic_storage_class")) {
-          // If we haven't encountered an OpFunction instruction yet then this
-          // is a global variable, otherwise we can just generate an alloca.
-          if (module.llvmModule->getFunctionList().empty()) {
-            auto globalValue = new llvm::GlobalVariable(
-                *module.llvmModule, varTy,
-                false,                              // isConstant
-                llvm::GlobalValue::ExternalLinkage, // Linkage
-                initializer,                        // Initializer
-                name,                               // Name
-                nullptr,                            // InsertBefore
-                llvm::GlobalValue::NotThreadLocal,  // TLMode
-                0,                                  // AddressSpace
-                false                               // isExternallyInitialized
-            );
-            value = globalValue;
-          } else {
-            auto *alloca = IRBuilder.CreateAlloca(varTy);
-            alloca->setName(name);
-            if (initializer) {
-              IRBuilder.CreateStore(initializer, alloca);
-            }
-            value = alloca;
+          // The unnamed_addr attribute indicates that constant global
+          // variables with identical initializers can be merged.
+          constantValue->setUnnamedAddr(llvm::GlobalValue::UnnamedAddr::Global);
+          value = constantValue;
+        } break;
+        case spv::StorageClassInput: {
+          // Input from pipeline. Visible across all functions in the current
+          // invocation. Variables declared with this storage class are
+          // read-only, and cannot have initializers.
+          // FIXME: These are handled in the BuiltIn decoration branch above
+          // making this case a no-op. Once upstream producers correctly
+          // specify the StorageClass for BuiltIn variables the branch can be
+          // removed and the implementation moved here.
+        } break;
+        case spv::StorageClassWorkgroup: {
+          // Shared across all invocations within a work group. Visible across
+          // all functions. The OpenGL "shared" storage qualifier. OpenCL local
+          // memory.
+          value = new llvm::GlobalVariable(
+              *module.llvmModule, varTy,
+              false,                               // isConstant
+              llvm::GlobalValue::InternalLinkage,  // Linkage
+              initializer,                         // Initializer
+              name,                                // Name
+              nullptr,                             // InsertBefore
+              llvm::GlobalValue::NotThreadLocal,   // TLMode
+              3,                                   // AddressSpace
+              false                                // isExternallyInitialized
+          );
+        } break;
+        case spv::StorageClassCrossWorkgroup: {
+          // Visible across all functions of all invocations of all work groups.
+          // OpenCL global memory.
+          auto globalValue = new llvm::GlobalVariable(
+              *module.llvmModule, varTy,
+              false,                               // isConstant
+              llvm::GlobalValue::ExternalLinkage,  // Linkage
+              initializer,                         // Initializer
+              name,                                // Name
+              nullptr,                             // InsertBefore
+              llvm::GlobalValue::NotThreadLocal,   // TLMode
+              1,                                   // AddressSpace
+              false                                // isExternallyInitialized
+          );
+          value = globalValue;
+        } break;
+        case spv::StorageClassFunction: {
+          // Visible only within the declaring function of the current
+          // invocation. Regular function memory.
+          if (!IRBuilder.GetInsertBlock()) {
+            return makeStringError(
+                "invalid SPIR-V: variables can not have a function[7] "
+                "storage class outside of a function");
           }
-        } else {
-          // This requires the GenericPointer capability, which we do not
-          // currently support.
-          SPIRV_LL_ABORT("StorageClass Generic not supported");
-        }
-      } break;
-      case spv::StorageClassImage: {
-        // For holding image memory.
-        SPIRV_LL_ABORT("StorageClass Image not implemented");
-      } break;
-      default:
-        SPIRV_LL_ABORT("OpVariable invalid Kernel StorageClass");
+          auto *alloca = IRBuilder.CreateAlloca(varTy);
+          alloca->setName(name);
+          if (initializer) {
+            IRBuilder.CreateStore(initializer, alloca);
+          }
+          value = alloca;
+        } break;
+        case spv::StorageClassGeneric: {
+          if (module.isExtensionEnabled(
+                  "SPV_codeplay_usm_generic_storage_class")) {
+            // If we haven't encountered an OpFunction instruction yet then this
+            // is a global variable, otherwise we can just generate an alloca.
+            if (module.llvmModule->getFunctionList().empty()) {
+              auto globalValue = new llvm::GlobalVariable(
+                  *module.llvmModule, varTy,
+                  false,                               // isConstant
+                  llvm::GlobalValue::ExternalLinkage,  // Linkage
+                  initializer,                         // Initializer
+                  name,                                // Name
+                  nullptr,                             // InsertBefore
+                  llvm::GlobalValue::NotThreadLocal,   // TLMode
+                  0,                                   // AddressSpace
+                  false  // isExternallyInitialized
+              );
+              value = globalValue;
+            } else {
+              auto *alloca = IRBuilder.CreateAlloca(varTy);
+              alloca->setName(name);
+              if (initializer) {
+                IRBuilder.CreateStore(initializer, alloca);
+              }
+              value = alloca;
+            }
+          } else {
+            // This requires the GenericPointer capability, which we do not
+            // currently support.
+            SPIRV_LL_ABORT("StorageClass Generic not supported");
+          }
+        } break;
+        case spv::StorageClassImage: {
+          // For holding image memory.
+          SPIRV_LL_ABORT("StorageClass Image not implemented");
+        } break;
+        default:
+          SPIRV_LL_ABORT("OpVariable invalid Kernel StorageClass");
       }
       if (auto alignment = module.getFirstDecoration(
               op->IdResult(), spv::DecorationAlignment)) {
@@ -2635,7 +2684,8 @@ llvm::Error Builder::create<OpImageTexelPointer>(const OpImageTexelPointer *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpLoad>(const OpLoad *op) {
+template <>
+llvm::Error Builder::create<OpLoad>(const OpLoad *op) {
   llvm::Value *ptr = module.getValue(op->Pointer());
   llvm::Type *type = module.getLLVMType(op->IdResultType());
 
@@ -2673,7 +2723,8 @@ template <> llvm::Error Builder::create<OpLoad>(const OpLoad *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpStore>(const OpStore *op) {
+template <>
+llvm::Error Builder::create<OpStore>(const OpStore *op) {
   llvm::Value *ptr = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(ptr);
 
@@ -2709,7 +2760,8 @@ template <> llvm::Error Builder::create<OpStore>(const OpStore *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpCopyMemory>(const OpCopyMemory *op) {
+template <>
+llvm::Error Builder::create<OpCopyMemory>(const OpCopyMemory *op) {
   llvm::Value *source = module.getValue(op->Source());
   SPIRV_LL_ASSERT_PTR(source);
   SPIRV_LL_ASSERT(source->getType()->isPointerTy(), "Source is not a pointer");
@@ -2723,9 +2775,9 @@ template <> llvm::Error Builder::create<OpCopyMemory>(const OpCopyMemory *op) {
   auto *targetOpType = module.getResultType(op->Target());
   (void)targetOpType;
   SPIRV_LL_ASSERT_PTR(targetOpType);
-  SPIRV_LL_ASSERT(sourceOpType->isPointerType() &&
-                      targetOpType->isPointerType(),
-                  "Source and Target are not pointers");
+  SPIRV_LL_ASSERT(
+      sourceOpType->isPointerType() && targetOpType->isPointerType(),
+      "Source and Target are not pointers");
 
   auto *pointeeType =
       module.getLLVMType(sourceOpType->getTypePointer()->Type());
@@ -2855,8 +2907,8 @@ llvm::Error Builder::create<OpAccessChain>(const OpAccessChain *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpInBoundsAccessChain>(const OpInBoundsAccessChain *op) {
+llvm::Error Builder::create<OpInBoundsAccessChain>(
+    const OpInBoundsAccessChain *op) {
   auto base = module.getValue(op->Base());
   SPIRV_LL_ASSERT_PTR(base);
 
@@ -2916,8 +2968,8 @@ llvm::Error Builder::create<OpPtrAccessChain>(const OpPtrAccessChain *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpGenericPtrMemSemantics>(const OpGenericPtrMemSemantics *) {
+llvm::Error Builder::create<OpGenericPtrMemSemantics>(
+    const OpGenericPtrMemSemantics *) {
   // The generic storage class requires the GenericPointer capability, which is
   // not supported by OpenCL 1.2, see the OpenCL SPIR-V environment spec section
   // 6.1.
@@ -2925,8 +2977,8 @@ Builder::create<OpGenericPtrMemSemantics>(const OpGenericPtrMemSemantics *) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpInBoundsPtrAccessChain>(const OpInBoundsPtrAccessChain *op) {
+llvm::Error Builder::create<OpInBoundsPtrAccessChain>(
+    const OpInBoundsPtrAccessChain *op) {
   auto base = module.getValue(op->Base());
   SPIRV_LL_ASSERT_PTR(base);
 
@@ -2953,7 +3005,8 @@ Builder::create<OpInBoundsPtrAccessChain>(const OpInBoundsPtrAccessChain *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDecorate>(const OpDecorate *op) {
+template <>
+llvm::Error Builder::create<OpDecorate>(const OpDecorate *op) {
   module.addDecoration(op->Target(), op);
   return llvm::Error::success();
 }
@@ -2984,8 +3037,8 @@ llvm::Error Builder::create<OpGroupDecorate>(const OpGroupDecorate *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupMemberDecorate>(const OpGroupMemberDecorate *op) {
+llvm::Error Builder::create<OpGroupMemberDecorate>(
+    const OpGroupMemberDecorate *op) {
   auto groupDecorations = module.getDecorations(op->DecorationGroup());
 
   for (auto target : op->Targets()) {
@@ -2998,8 +3051,8 @@ Builder::create<OpGroupMemberDecorate>(const OpGroupMemberDecorate *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpVectorExtractDynamic>(const OpVectorExtractDynamic *op) {
+llvm::Error Builder::create<OpVectorExtractDynamic>(
+    const OpVectorExtractDynamic *op) {
   llvm::Value *vector = module.getValue(op->Vector());
   SPIRV_LL_ASSERT_PTR(vector);
 
@@ -3014,8 +3067,8 @@ Builder::create<OpVectorExtractDynamic>(const OpVectorExtractDynamic *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpVectorInsertDynamic>(const OpVectorInsertDynamic *op) {
+llvm::Error Builder::create<OpVectorInsertDynamic>(
+    const OpVectorInsertDynamic *op) {
   llvm::Value *component = module.getValue(op->Component());
   SPIRV_LL_ASSERT_PTR(component);
 
@@ -3063,8 +3116,8 @@ llvm::Error Builder::create<OpVectorShuffle>(const OpVectorShuffle *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpCompositeConstruct>(const OpCompositeConstruct *op) {
+llvm::Error Builder::create<OpCompositeConstruct>(
+    const OpCompositeConstruct *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -3170,7 +3223,8 @@ llvm::Error Builder::create<OpCompositeInsert>(const OpCompositeInsert *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpCopyObject>(const OpCopyObject *op) {
+template <>
+llvm::Error Builder::create<OpCopyObject>(const OpCopyObject *op) {
   llvm::Value *object = module.getValue(op->Operand());
   SPIRV_LL_ASSERT_PTR(object);
 
@@ -3199,7 +3253,8 @@ template <> llvm::Error Builder::create<OpCopyObject>(const OpCopyObject *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpTranspose>(const OpTranspose *) {
+template <>
+llvm::Error Builder::create<OpTranspose>(const OpTranspose *) {
   // TODO: transpose builtin
   return llvm::Error::success();
 }
@@ -3234,16 +3289,16 @@ llvm::Error Builder::create<OpSampledImage>(const OpSampledImage *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpImageSampleImplicitLod>(const OpImageSampleImplicitLod *) {
+llvm::Error Builder::create<OpImageSampleImplicitLod>(
+    const OpImageSampleImplicitLod *) {
   // This instruction is Shader capability so it will remain unimplemented until
   // VK has image support
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpImageSampleExplicitLod>(const OpImageSampleExplicitLod *op) {
+llvm::Error Builder::create<OpImageSampleExplicitLod>(
+    const OpImageSampleExplicitLod *op) {
   auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
@@ -3314,14 +3369,16 @@ llvm::Error Builder::create<OpImageSampleProjDrefExplicitLod>(
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpImageFetch>(const OpImageFetch *) {
+template <>
+llvm::Error Builder::create<OpImageFetch>(const OpImageFetch *) {
   // This instruction is Vulkan exclusive as it requires the OpTypeImage to have
   // sampled set to 1, which the OpenCL SPIR-V environment spec forbids. For
   // this reason it will remain unimplemented until VK gets image support.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpImageGather>(const OpImageGather *) {
+template <>
+llvm::Error Builder::create<OpImageGather>(const OpImageGather *) {
   // This instruction is Shader capability so it will remain unimplemented until
   // VK has image support
   return llvm::Error::success();
@@ -3334,7 +3391,8 @@ llvm::Error Builder::create<OpImageDrefGather>(const OpImageDrefGather *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpImageRead>(const OpImageRead *op) {
+template <>
+llvm::Error Builder::create<OpImageRead>(const OpImageRead *op) {
   auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
@@ -3353,7 +3411,8 @@ template <> llvm::Error Builder::create<OpImageRead>(const OpImageRead *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpImageWrite>(const OpImageWrite *op) {
+template <>
+llvm::Error Builder::create<OpImageWrite>(const OpImageWrite *op) {
   auto image = module.getValue(op->Image());
   SPIRV_LL_ASSERT_PTR(image);
 
@@ -3374,7 +3433,8 @@ template <> llvm::Error Builder::create<OpImageWrite>(const OpImageWrite *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpImage>(const OpImage *op) {
+template <>
+llvm::Error Builder::create<OpImage>(const OpImage *op) {
   auto sampledImage = module.getSampledImage(op->SampledImage());
   module.addID(op->IdResult(), op, sampledImage.image);
   return llvm::Error::success();
@@ -3413,8 +3473,8 @@ llvm::Error Builder::create<OpImageQueryOrder>(const OpImageQueryOrder *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpImageQuerySizeLod>(const OpImageQuerySizeLod *op) {
+llvm::Error Builder::create<OpImageQuerySizeLod>(
+    const OpImageQuerySizeLod *op) {
   llvm::Type *returnType = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(returnType);
 
@@ -3541,10 +3601,10 @@ llvm::Error Builder::create<OpConvertFToU>(const OpConvertFToU *op) {
   auto value = module.getValue(op->FloatValue());
   SPIRV_LL_ASSERT_PTR(value);
 
-  module.addID(op->IdResult(), op,
-               createConversionBuiltinCall(value, MangleInfo(op->FloatValue()),
-                                           retTy, op->IdResultType(),
-                                           op->IdResult()));
+  module.addID(
+      op->IdResult(), op,
+      createConversionBuiltinCall(value, MangleInfo(op->FloatValue()), retTy,
+                                  op->IdResultType(), op->IdResult()));
 
   return llvm::Error::success();
 }
@@ -3596,7 +3656,8 @@ llvm::Error Builder::create<OpConvertUToF>(const OpConvertUToF *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUConvert>(const OpUConvert *op) {
+template <>
+llvm::Error Builder::create<OpUConvert>(const OpUConvert *op) {
   auto retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
@@ -3609,7 +3670,8 @@ template <> llvm::Error Builder::create<OpUConvert>(const OpUConvert *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSConvert>(const OpSConvert *op) {
+template <>
+llvm::Error Builder::create<OpSConvert>(const OpSConvert *op) {
   llvm::Type *retTy = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(retTy);
 
@@ -3622,7 +3684,8 @@ template <> llvm::Error Builder::create<OpSConvert>(const OpSConvert *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFConvert>(const OpFConvert *op) {
+template <>
+llvm::Error Builder::create<OpFConvert>(const OpFConvert *op) {
   llvm::Value *value = module.getValue(op->FloatValue());
   SPIRV_LL_ASSERT_PTR(value);
 
@@ -3643,10 +3706,10 @@ llvm::Error Builder::create<OpQuantizeToF16>(const OpQuantizeToF16 *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
-  module.addID(op->IdResult(), op,
-               createMangledBuiltinCall("quantizeToF16", type,
-                                        op->IdResultType(), {val},
-                                        MangleInfo(op->Value())));
+  module.addID(
+      op->IdResult(), op,
+      createMangledBuiltinCall("quantizeToF16", type, op->IdResultType(), {val},
+                               MangleInfo(op->Value())));
   return llvm::Error::success();
 }
 
@@ -3758,7 +3821,8 @@ llvm::Error Builder::create<OpGenericCastToPtrExplicit>(
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitcast>(const OpBitcast *op) {
+template <>
+llvm::Error Builder::create<OpBitcast>(const OpBitcast *op) {
   llvm::Value *value = module.getValue(op->Operand());
   SPIRV_LL_ASSERT_PTR(value);
 
@@ -3770,7 +3834,8 @@ template <> llvm::Error Builder::create<OpBitcast>(const OpBitcast *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSNegate>(const OpSNegate *op) {
+template <>
+llvm::Error Builder::create<OpSNegate>(const OpSNegate *op) {
   llvm::Value *value = module.getValue(op->Operand());
 
   SPIRV_LL_ASSERT_PTR(value);
@@ -3779,7 +3844,8 @@ template <> llvm::Error Builder::create<OpSNegate>(const OpSNegate *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFNegate>(const OpFNegate *op) {
+template <>
+llvm::Error Builder::create<OpFNegate>(const OpFNegate *op) {
   llvm::Value *value = module.getValue(op->Operand());
 
   SPIRV_LL_ASSERT_PTR(value);
@@ -3788,7 +3854,8 @@ template <> llvm::Error Builder::create<OpFNegate>(const OpFNegate *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIAdd>(const OpIAdd *op) {
+template <>
+llvm::Error Builder::create<OpIAdd>(const OpIAdd *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3808,7 +3875,8 @@ template <> llvm::Error Builder::create<OpIAdd>(const OpIAdd *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFAdd>(const OpFAdd *op) {
+template <>
+llvm::Error Builder::create<OpFAdd>(const OpFAdd *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3820,7 +3888,8 @@ template <> llvm::Error Builder::create<OpFAdd>(const OpFAdd *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpISub>(const OpISub *op) {
+template <>
+llvm::Error Builder::create<OpISub>(const OpISub *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3840,7 +3909,8 @@ template <> llvm::Error Builder::create<OpISub>(const OpISub *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFSub>(const OpFSub *op) {
+template <>
+llvm::Error Builder::create<OpFSub>(const OpFSub *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3852,7 +3922,8 @@ template <> llvm::Error Builder::create<OpFSub>(const OpFSub *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIMul>(const OpIMul *op) {
+template <>
+llvm::Error Builder::create<OpIMul>(const OpIMul *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3872,7 +3943,8 @@ template <> llvm::Error Builder::create<OpIMul>(const OpIMul *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFMul>(const OpFMul *op) {
+template <>
+llvm::Error Builder::create<OpFMul>(const OpFMul *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3884,7 +3956,8 @@ template <> llvm::Error Builder::create<OpFMul>(const OpFMul *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUDiv>(const OpUDiv *op) {
+template <>
+llvm::Error Builder::create<OpUDiv>(const OpUDiv *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3896,7 +3969,8 @@ template <> llvm::Error Builder::create<OpUDiv>(const OpUDiv *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSDiv>(const OpSDiv *op) {
+template <>
+llvm::Error Builder::create<OpSDiv>(const OpSDiv *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3908,7 +3982,8 @@ template <> llvm::Error Builder::create<OpSDiv>(const OpSDiv *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFDiv>(const OpFDiv *op) {
+template <>
+llvm::Error Builder::create<OpFDiv>(const OpFDiv *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3920,7 +3995,8 @@ template <> llvm::Error Builder::create<OpFDiv>(const OpFDiv *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUMod>(const OpUMod *op) {
+template <>
+llvm::Error Builder::create<OpUMod>(const OpUMod *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3932,7 +4008,8 @@ template <> llvm::Error Builder::create<OpUMod>(const OpUMod *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSRem>(const OpSRem *op) {
+template <>
+llvm::Error Builder::create<OpSRem>(const OpSRem *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3944,7 +4021,8 @@ template <> llvm::Error Builder::create<OpSRem>(const OpSRem *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSMod>(const OpSMod *op) {
+template <>
+llvm::Error Builder::create<OpSMod>(const OpSMod *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -3968,7 +4046,8 @@ template <> llvm::Error Builder::create<OpSMod>(const OpSMod *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFRem>(const OpFRem *op) {
+template <>
+llvm::Error Builder::create<OpFRem>(const OpFRem *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -3985,7 +4064,8 @@ template <> llvm::Error Builder::create<OpFRem>(const OpFRem *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFMod>(const OpFMod *op) {
+template <>
+llvm::Error Builder::create<OpFMod>(const OpFMod *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4010,8 +4090,8 @@ template <> llvm::Error Builder::create<OpFMod>(const OpFMod *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpVectorTimesScalar>(const OpVectorTimesScalar *op) {
+llvm::Error Builder::create<OpVectorTimesScalar>(
+    const OpVectorTimesScalar *op) {
   llvm::Value *scalarValue = module.getValue(op->Scalar());
   SPIRV_LL_ASSERT_PTR(scalarValue);
 
@@ -4060,7 +4140,8 @@ llvm::Error Builder::create<OpOuterProduct>(const OpOuterProduct *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDot>(const OpDot *op) {
+template <>
+llvm::Error Builder::create<OpDot>(const OpDot *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4078,7 +4159,8 @@ template <> llvm::Error Builder::create<OpDot>(const OpDot *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
+template <>
+llvm::Error Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4094,14 +4176,14 @@ template <> llvm::Error Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
   std::string functionName;
 
   switch (operandType->getIntegerBitWidth()) {
-  case 16:
-  case 32:
-  case 64:
-    functionName = "llvm.uadd.with.overflow.i" +
-                   std::to_string(operandType->getIntegerBitWidth());
-    break;
-  default:
-    llvm_unreachable("Unsupported integer type passed to OpIAddCarry");
+    case 16:
+    case 32:
+    case 64:
+      functionName = "llvm.uadd.with.overflow.i" +
+                     std::to_string(operandType->getIntegerBitWidth());
+      break;
+    default:
+      llvm_unreachable("Unsupported integer type passed to OpIAddCarry");
   }
 
   llvm::Function *intrinsic = module.llvmModule->getFunction(functionName);
@@ -4135,7 +4217,8 @@ template <> llvm::Error Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
+template <>
+llvm::Error Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4151,14 +4234,14 @@ template <> llvm::Error Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
   std::string functionName;
 
   switch (operandType->getIntegerBitWidth()) {
-  case 16:
-  case 32:
-  case 64:
-    functionName = "llvm.usub.with.overflow.i" +
-                   std::to_string(operandType->getIntegerBitWidth());
-    break;
-  default:
-    return makeStringError("Unsupported integer type passed to OpISubBorrow");
+    case 16:
+    case 32:
+    case 64:
+      functionName = "llvm.usub.with.overflow.i" +
+                     std::to_string(operandType->getIntegerBitWidth());
+      break;
+    default:
+      return makeStringError("Unsupported integer type passed to OpISubBorrow");
   }
 
   llvm::Function *intrinsic = module.llvmModule->getFunction(functionName);
@@ -4215,9 +4298,9 @@ llvm::Error Builder::create<OpUMulExtended>(const OpUMulExtended *op) {
       llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *result =
-      llvm::ConstantStruct::get(type, {llvm::UndefValue::get(operandType),
-                                       llvm::UndefValue::get(operandType)});
+  llvm::Value *result = llvm::ConstantStruct::get(
+      type,
+      {llvm::UndefValue::get(operandType), llvm::UndefValue::get(operandType)});
 
   result = IRBuilder.CreateInsertValue(result, lowOrderBits, 0);
   result = IRBuilder.CreateInsertValue(result, highOrderBits, 1);
@@ -4250,9 +4333,9 @@ llvm::Error Builder::create<OpSMulExtended>(const OpSMulExtended *op) {
       llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *result =
-      llvm::ConstantStruct::get(type, {llvm::UndefValue::get(operandType),
-                                       llvm::UndefValue::get(operandType)});
+  llvm::Value *result = llvm::ConstantStruct::get(
+      type,
+      {llvm::UndefValue::get(operandType), llvm::UndefValue::get(operandType)});
 
   result = IRBuilder.CreateInsertValue(result, lowOrderBits, 0);
   result = IRBuilder.CreateInsertValue(result, highOrderBits, 1);
@@ -4261,7 +4344,8 @@ llvm::Error Builder::create<OpSMulExtended>(const OpSMulExtended *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAny>(const OpAny *op) {
+template <>
+llvm::Error Builder::create<OpAny>(const OpAny *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4291,7 +4375,8 @@ template <> llvm::Error Builder::create<OpAny>(const OpAny *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAll>(const OpAll *op) {
+template <>
+llvm::Error Builder::create<OpAll>(const OpAll *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4321,7 +4406,8 @@ template <> llvm::Error Builder::create<OpAll>(const OpAll *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIsNan>(const OpIsNan *op) {
+template <>
+llvm::Error Builder::create<OpIsNan>(const OpIsNan *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4340,7 +4426,8 @@ template <> llvm::Error Builder::create<OpIsNan>(const OpIsNan *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIsInf>(const OpIsInf *op) {
+template <>
+llvm::Error Builder::create<OpIsInf>(const OpIsInf *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4359,7 +4446,8 @@ template <> llvm::Error Builder::create<OpIsInf>(const OpIsInf *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIsFinite>(const OpIsFinite *op) {
+template <>
+llvm::Error Builder::create<OpIsFinite>(const OpIsFinite *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4378,7 +4466,8 @@ template <> llvm::Error Builder::create<OpIsFinite>(const OpIsFinite *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIsNormal>(const OpIsNormal *op) {
+template <>
+llvm::Error Builder::create<OpIsNormal>(const OpIsNormal *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4397,7 +4486,8 @@ template <> llvm::Error Builder::create<OpIsNormal>(const OpIsNormal *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSignBitSet>(const OpSignBitSet *op) {
+template <>
+llvm::Error Builder::create<OpSignBitSet>(const OpSignBitSet *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4439,7 +4529,8 @@ llvm::Error Builder::create<OpLessOrGreater>(const OpLessOrGreater *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpOrdered>(const OpOrdered *op) {
+template <>
+llvm::Error Builder::create<OpOrdered>(const OpOrdered *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4461,7 +4552,8 @@ template <> llvm::Error Builder::create<OpOrdered>(const OpOrdered *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUnordered>(const OpUnordered *op) {
+template <>
+llvm::Error Builder::create<OpUnordered>(const OpUnordered *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -4509,7 +4601,8 @@ llvm::Error Builder::create<OpLogicalNotEqual>(const OpLogicalNotEqual *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpLogicalOr>(const OpLogicalOr *op) {
+template <>
+llvm::Error Builder::create<OpLogicalOr>(const OpLogicalOr *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4521,7 +4614,8 @@ template <> llvm::Error Builder::create<OpLogicalOr>(const OpLogicalOr *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpLogicalAnd>(const OpLogicalAnd *op) {
+template <>
+llvm::Error Builder::create<OpLogicalAnd>(const OpLogicalAnd *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4533,7 +4627,8 @@ template <> llvm::Error Builder::create<OpLogicalAnd>(const OpLogicalAnd *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpLogicalNot>(const OpLogicalNot *op) {
+template <>
+llvm::Error Builder::create<OpLogicalNot>(const OpLogicalNot *op) {
   llvm::Value *value = module.getValue(op->Operand());
   SPIRV_LL_ASSERT_PTR(value);
 
@@ -4542,7 +4637,8 @@ template <> llvm::Error Builder::create<OpLogicalNot>(const OpLogicalNot *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSelect>(const OpSelect *op) {
+template <>
+llvm::Error Builder::create<OpSelect>(const OpSelect *op) {
   llvm::Value *condition = module.getValue(op->Condition());
   SPIRV_LL_ASSERT_PTR(condition);
 
@@ -4557,7 +4653,8 @@ template <> llvm::Error Builder::create<OpSelect>(const OpSelect *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpIEqual>(const OpIEqual *op) {
+template <>
+llvm::Error Builder::create<OpIEqual>(const OpIEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4569,7 +4666,8 @@ template <> llvm::Error Builder::create<OpIEqual>(const OpIEqual *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpINotEqual>(const OpINotEqual *op) {
+template <>
+llvm::Error Builder::create<OpINotEqual>(const OpINotEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4608,8 +4706,8 @@ llvm::Error Builder::create<OpSGreaterThan>(const OpSGreaterThan *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpUGreaterThanEqual>(const OpUGreaterThanEqual *op) {
+llvm::Error Builder::create<OpUGreaterThanEqual>(
+    const OpUGreaterThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4622,8 +4720,8 @@ Builder::create<OpUGreaterThanEqual>(const OpUGreaterThanEqual *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSGreaterThanEqual>(const OpSGreaterThanEqual *op) {
+llvm::Error Builder::create<OpSGreaterThanEqual>(
+    const OpSGreaterThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4635,7 +4733,8 @@ Builder::create<OpSGreaterThanEqual>(const OpSGreaterThanEqual *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpULessThan>(const OpULessThan *op) {
+template <>
+llvm::Error Builder::create<OpULessThan>(const OpULessThan *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4647,7 +4746,8 @@ template <> llvm::Error Builder::create<OpULessThan>(const OpULessThan *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSLessThan>(const OpSLessThan *op) {
+template <>
+llvm::Error Builder::create<OpSLessThan>(const OpSLessThan *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4685,7 +4785,8 @@ llvm::Error Builder::create<OpSLessThanEqual>(const OpSLessThanEqual *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFOrdEqual>(const OpFOrdEqual *op) {
+template <>
+llvm::Error Builder::create<OpFOrdEqual>(const OpFOrdEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4776,8 +4877,8 @@ llvm::Error Builder::create<OpFOrdGreaterThan>(const OpFOrdGreaterThan *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFUnordGreaterThan>(const OpFUnordGreaterThan *op) {
+llvm::Error Builder::create<OpFUnordGreaterThan>(
+    const OpFUnordGreaterThan *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4790,8 +4891,8 @@ Builder::create<OpFUnordGreaterThan>(const OpFUnordGreaterThan *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFOrdLessThanEqual>(const OpFOrdLessThanEqual *op) {
+llvm::Error Builder::create<OpFOrdLessThanEqual>(
+    const OpFOrdLessThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4804,8 +4905,8 @@ Builder::create<OpFOrdLessThanEqual>(const OpFOrdLessThanEqual *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFUnordLessThanEqual>(const OpFUnordLessThanEqual *op) {
+llvm::Error Builder::create<OpFUnordLessThanEqual>(
+    const OpFUnordLessThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4818,8 +4919,8 @@ Builder::create<OpFUnordLessThanEqual>(const OpFUnordLessThanEqual *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFOrdGreaterThanEqual>(const OpFOrdGreaterThanEqual *op) {
+llvm::Error Builder::create<OpFOrdGreaterThanEqual>(
+    const OpFOrdGreaterThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4832,8 +4933,8 @@ Builder::create<OpFOrdGreaterThanEqual>(const OpFOrdGreaterThanEqual *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpFUnordGreaterThanEqual>(const OpFUnordGreaterThanEqual *op) {
+llvm::Error Builder::create<OpFUnordGreaterThanEqual>(
+    const OpFUnordGreaterThanEqual *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4846,8 +4947,8 @@ Builder::create<OpFUnordGreaterThanEqual>(const OpFUnordGreaterThanEqual *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpShiftRightLogical>(const OpShiftRightLogical *op) {
+llvm::Error Builder::create<OpShiftRightLogical>(
+    const OpShiftRightLogical *op) {
   llvm::Value *base = module.getValue(op->Base());
 
   SPIRV_LL_ASSERT_PTR(base);
@@ -4861,8 +4962,8 @@ Builder::create<OpShiftRightLogical>(const OpShiftRightLogical *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpShiftRightArithmetic>(const OpShiftRightArithmetic *op) {
+llvm::Error Builder::create<OpShiftRightArithmetic>(
+    const OpShiftRightArithmetic *op) {
   llvm::Value *base = module.getValue(op->Base());
 
   SPIRV_LL_ASSERT_PTR(base);
@@ -4897,7 +4998,8 @@ llvm::Error Builder::create<OpShiftLeftLogical>(const OpShiftLeftLogical *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitwiseOr>(const OpBitwiseOr *op) {
+template <>
+llvm::Error Builder::create<OpBitwiseOr>(const OpBitwiseOr *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4908,7 +5010,8 @@ template <> llvm::Error Builder::create<OpBitwiseOr>(const OpBitwiseOr *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitwiseXor>(const OpBitwiseXor *op) {
+template <>
+llvm::Error Builder::create<OpBitwiseXor>(const OpBitwiseXor *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4919,7 +5022,8 @@ template <> llvm::Error Builder::create<OpBitwiseXor>(const OpBitwiseXor *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitwiseAnd>(const OpBitwiseAnd *op) {
+template <>
+llvm::Error Builder::create<OpBitwiseAnd>(const OpBitwiseAnd *op) {
   llvm::Value *lhs = module.getValue(op->Operand1());
   SPIRV_LL_ASSERT_PTR(lhs);
 
@@ -4930,7 +5034,8 @@ template <> llvm::Error Builder::create<OpBitwiseAnd>(const OpBitwiseAnd *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpNot>(const OpNot *op) {
+template <>
+llvm::Error Builder::create<OpNot>(const OpNot *op) {
   llvm::Value *operand = module.getValue(op->Operand());
   SPIRV_LL_ASSERT_PTR(operand);
 
@@ -5069,12 +5174,14 @@ llvm::Error Builder::create<OpBitFieldUExtract>(const OpBitFieldUExtract *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitReverse>(const OpBitReverse *) {
+template <>
+llvm::Error Builder::create<OpBitReverse>(const OpBitReverse *) {
   // TODO: implement this as a builtin
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBitCount>(const OpBitCount *op) {
+template <>
+llvm::Error Builder::create<OpBitCount>(const OpBitCount *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -5088,49 +5195,57 @@ template <> llvm::Error Builder::create<OpBitCount>(const OpBitCount *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdx>(const OpDPdx *) {
+template <>
+llvm::Error Builder::create<OpDPdx>(const OpDPdx *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdy>(const OpDPdy *) {
+template <>
+llvm::Error Builder::create<OpDPdy>(const OpDPdy *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFwidth>(const OpFwidth *) {
+template <>
+llvm::Error Builder::create<OpFwidth>(const OpFwidth *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdxFine>(const OpDPdxFine *) {
+template <>
+llvm::Error Builder::create<OpDPdxFine>(const OpDPdxFine *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdyFine>(const OpDPdyFine *) {
+template <>
+llvm::Error Builder::create<OpDPdyFine>(const OpDPdyFine *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpFwidthFine>(const OpFwidthFine *) {
+template <>
+llvm::Error Builder::create<OpFwidthFine>(const OpFwidthFine *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdxCoarse>(const OpDPdxCoarse *) {
+template <>
+llvm::Error Builder::create<OpDPdxCoarse>(const OpDPdxCoarse *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpDPdyCoarse>(const OpDPdyCoarse *) {
+template <>
+llvm::Error Builder::create<OpDPdyCoarse>(const OpDPdyCoarse *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
   return llvm::Error::success();
@@ -5143,7 +5258,8 @@ llvm::Error Builder::create<OpFwidthCoarse>(const OpFwidthCoarse *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpEmitVertex>(const OpEmitVertex *) {
+template <>
+llvm::Error Builder::create<OpEmitVertex>(const OpEmitVertex *) {
   // This instruction requires the Geometry capability, which is not supported.
   return llvm::Error::success();
 }
@@ -5162,8 +5278,8 @@ llvm::Error Builder::create<OpEmitStreamVertex>(const OpEmitStreamVertex *) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpEndStreamPrimitive>(const OpEndStreamPrimitive *) {
+llvm::Error Builder::create<OpEndStreamPrimitive>(
+    const OpEndStreamPrimitive *) {
   // This instruction requires the GeometryStreams capability, which is not
   // supported.
   return llvm::Error::success();
@@ -5301,7 +5417,8 @@ llvm::Error Builder::create<OpMemoryBarrier>(const OpMemoryBarrier *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicLoad>(const OpAtomicLoad *op) {
+template <>
+llvm::Error Builder::create<OpAtomicLoad>(const OpAtomicLoad *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
@@ -5357,8 +5474,8 @@ llvm::Error Builder::create<OpAtomicExchange>(const OpAtomicExchange *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpAtomicCompareExchange>(const OpAtomicCompareExchange *op) {
+llvm::Error Builder::create<OpAtomicCompareExchange>(
+    const OpAtomicCompareExchange *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
@@ -5460,36 +5577,42 @@ void Builder::generateBinaryAtomic(const OpResult *op, spv::Id pointerID,
                createBuiltinCall(mangled_name, retTy, {pointer, value}));
 }
 
-template <> llvm::Error Builder::create<OpAtomicIAdd>(const OpAtomicIAdd *op) {
+template <>
+llvm::Error Builder::create<OpAtomicIAdd>(const OpAtomicIAdd *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_add", is_signed);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicISub>(const OpAtomicISub *op) {
+template <>
+llvm::Error Builder::create<OpAtomicISub>(const OpAtomicISub *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_sub", is_signed);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicSMin>(const OpAtomicSMin *op) {
+template <>
+llvm::Error Builder::create<OpAtomicSMin>(const OpAtomicSMin *op) {
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_min", true);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicUMin>(const OpAtomicUMin *op) {
+template <>
+llvm::Error Builder::create<OpAtomicUMin>(const OpAtomicUMin *op) {
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_min", false);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicSMax>(const OpAtomicSMax *op) {
+template <>
+llvm::Error Builder::create<OpAtomicSMax>(const OpAtomicSMax *op) {
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_max", true);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicUMax>(const OpAtomicUMax *op) {
+template <>
+llvm::Error Builder::create<OpAtomicUMax>(const OpAtomicUMax *op) {
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_max", false);
   return llvm::Error::success();
 }
@@ -5515,28 +5638,32 @@ llvm::Error Builder::create<OpAtomicFMaxEXT>(const OpAtomicFMaxEXT *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicAnd>(const OpAtomicAnd *op) {
+template <>
+llvm::Error Builder::create<OpAtomicAnd>(const OpAtomicAnd *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_and", is_signed);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicOr>(const OpAtomicOr *op) {
+template <>
+llvm::Error Builder::create<OpAtomicOr>(const OpAtomicOr *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_or", is_signed);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpAtomicXor>(const OpAtomicXor *op) {
+template <>
+llvm::Error Builder::create<OpAtomicXor>(const OpAtomicXor *op) {
   const auto retOp = op->IdResultType();
   const auto is_signed = module.get<OpTypeInt>(retOp)->Signedness();
   generateBinaryAtomic(op, op->Pointer(), op->Value(), "atomic_xor", is_signed);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpPhi>(const OpPhi *op) {
+template <>
+llvm::Error Builder::create<OpPhi>(const OpPhi *op) {
   const unsigned num_values = op->wordCount() - 3;
   llvm::Type *result_ty = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(result_ty);
@@ -5568,7 +5695,8 @@ void Builder::populatePhi(const OpPhi &op) {
   }
 }
 
-template <> llvm::Error Builder::create<OpLoopMerge>(const OpLoopMerge *op) {
+template <>
+llvm::Error Builder::create<OpLoopMerge>(const OpLoopMerge *op) {
   llvm::MDNode *loop_control = nullptr;
 
   // account for the technically legal combination of Unroll and DontUnroll
@@ -5579,21 +5707,22 @@ template <> llvm::Error Builder::create<OpLoopMerge>(const OpLoopMerge *op) {
       static_cast<uint32_t>(spv::LoopControlDontUnrollMask);
 
   switch (op->LoopControl()) {
-  case spv::LoopControlMaskNone:
-  case UnrollDontUnroll:
-    break;
-  case spv::LoopControlUnrollMask:
-    loop_control = llvm::MDNode::get(
-        *context.llvmContext,
-        llvm::MDString::get(*context.llvmContext, "llvm.loop.unroll.enable"));
-    break;
-  case spv::LoopControlDontUnrollMask:
-    loop_control = llvm::MDNode::get(
-        *context.llvmContext,
-        llvm::MDString::get(*context.llvmContext, "llvm.loop.unroll.disable"));
-    break;
-  default:
-    llvm_unreachable("Invalid loop control value provided to OpLoopMerge!");
+    case spv::LoopControlMaskNone:
+    case UnrollDontUnroll:
+      break;
+    case spv::LoopControlUnrollMask:
+      loop_control = llvm::MDNode::get(
+          *context.llvmContext,
+          llvm::MDString::get(*context.llvmContext, "llvm.loop.unroll.enable"));
+      break;
+    case spv::LoopControlDontUnrollMask:
+      loop_control =
+          llvm::MDNode::get(*context.llvmContext,
+                            llvm::MDString::get(*context.llvmContext,
+                                                "llvm.loop.unroll.disable"));
+      break;
+    default:
+      llvm_unreachable("Invalid loop control value provided to OpLoopMerge!");
   }
 
   if (loop_control) {
@@ -5626,7 +5755,8 @@ llvm::BasicBlock *Builder::getOrCreateBasicBlock(spv::Id label) {
   return bb;
 }
 
-template <> llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
+template <>
+llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
   llvm::Function *current_function = getCurrentFunction();
   SPIRV_LL_ASSERT_PTR(current_function);
 
@@ -5672,7 +5802,8 @@ template <> llvm::Error Builder::create<OpLabel>(const OpLabel *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpBranch>(const OpBranch *op) {
+template <>
+llvm::Error Builder::create<OpBranch>(const OpBranch *op) {
   llvm::BasicBlock *bb = getOrCreateBasicBlock(op->TargetLabel());
   SPIRV_LL_ASSERT_PTR(bb);
 
@@ -5685,8 +5816,8 @@ template <> llvm::Error Builder::create<OpBranch>(const OpBranch *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpBranchConditional>(const OpBranchConditional *op) {
+llvm::Error Builder::create<OpBranchConditional>(
+    const OpBranchConditional *op) {
   llvm::BasicBlock *true_bb = getOrCreateBasicBlock(op->TrueLabel());
   SPIRV_LL_ASSERT_PTR(true_bb);
   llvm::BasicBlock *false_bb = getOrCreateBasicBlock(op->FalseLabel());
@@ -5732,7 +5863,8 @@ Builder::create<OpBranchConditional>(const OpBranchConditional *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpSwitch>(const OpSwitch *op) {
+template <>
+llvm::Error Builder::create<OpSwitch>(const OpSwitch *op) {
   llvm::Value *selector = module.getValue(op->Selector());
   SPIRV_LL_ASSERT_PTR(selector);
 
@@ -5760,7 +5892,8 @@ template <> llvm::Error Builder::create<OpSwitch>(const OpSwitch *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpKill>(const OpKill *) {
+template <>
+llvm::Error Builder::create<OpKill>(const OpKill *) {
   // This instruction is only valid in the Fragment execuction model, which is
   // not supported.
 
@@ -5770,7 +5903,8 @@ template <> llvm::Error Builder::create<OpKill>(const OpKill *) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpReturn>(const OpReturn *) {
+template <>
+llvm::Error Builder::create<OpReturn>(const OpReturn *) {
   SPIRV_LL_ASSERT_PTR(getCurrentFunction());
   IRBuilder.CreateRetVoid();
 
@@ -5795,7 +5929,8 @@ llvm::Error Builder::create<OpReturnValue>(const OpReturnValue *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpUnreachable>(const OpUnreachable *) {
+template <>
+llvm::Error Builder::create<OpUnreachable>(const OpUnreachable *) {
   IRBuilder.CreateUnreachable();
 
   // This instruction ends a block, and thus a scope.
@@ -5907,18 +6042,18 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   const auto operation = op->Operation();
   std::string operationName;
   switch (operation) {
-  default:
-    SPIRV_LL_ABORT("unhandled scope");
-    break;
-  case spv::GroupOperationReduce:
-    operationName = "reduce";
-    break;
-  case spv::GroupOperationExclusiveScan:
-    operationName = "scan_exclusive";
-    break;
-  case spv::GroupOperationInclusiveScan:
-    operationName = "scan_inclusive";
-    break;
+    default:
+      SPIRV_LL_ABORT("unhandled scope");
+      break;
+    case spv::GroupOperationReduce:
+      operationName = "reduce";
+      break;
+    case spv::GroupOperationExclusiveScan:
+      operationName = "scan_exclusive";
+      break;
+    case spv::GroupOperationInclusiveScan:
+      operationName = "scan_inclusive";
+      break;
   }
 
   auto *x = module.getValue(op->X());
@@ -5939,12 +6074,8 @@ void Builder::generateReduction(const T *op, const std::string &opName,
   // wrapper. This is important for distinguishing between smin/smax, for
   // example.
   const char *prefix = "";
-  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned) {
-    prefix = "s";
-  }
-  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned) {
-    prefix = "u";
-  }
+  if (signInfo == MangleInfo::ForceSignInfo::ForceSigned) prefix = "s";
+  if (signInfo == MangleInfo::ForceSignInfo::ForceUnsigned) prefix = "u";
   const std::string cacheName = prefix + opName;
   auto *&reductionWrapper =
       module.reductionWrapperMap[operation][cacheName]
@@ -6134,12 +6265,14 @@ void Builder::generatePredicate(const T *op, const std::string &opName) {
   module.addID(op->IdResult(), op, result);
 }
 
-template <> llvm::Error Builder::create<OpGroupAll>(const OpGroupAll *op) {
+template <>
+llvm::Error Builder::create<OpGroupAll>(const OpGroupAll *op) {
   generatePredicate(op, "all");
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupAny>(const OpGroupAny *op) {
+template <>
+llvm::Error Builder::create<OpGroupAny>(const OpGroupAny *op) {
   generatePredicate(op, "any");
   return llvm::Error::success();
 }
@@ -6354,42 +6487,50 @@ llvm::Error Builder::create<OpGroupBroadcast>(const OpGroupBroadcast *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupIAdd>(const OpGroupIAdd *op) {
+template <>
+llvm::Error Builder::create<OpGroupIAdd>(const OpGroupIAdd *op) {
   generateReduction(op, "add");
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupFAdd>(const OpGroupFAdd *op) {
+template <>
+llvm::Error Builder::create<OpGroupFAdd>(const OpGroupFAdd *op) {
   generateReduction(op, "add");
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupFMin>(const OpGroupFMin *op) {
+template <>
+llvm::Error Builder::create<OpGroupFMin>(const OpGroupFMin *op) {
   generateReduction(op, "min");
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupUMin>(const OpGroupUMin *op) {
+template <>
+llvm::Error Builder::create<OpGroupUMin>(const OpGroupUMin *op) {
   generateReduction(op, "min", MangleInfo::ForceSignInfo::ForceUnsigned);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupSMin>(const OpGroupSMin *op) {
+template <>
+llvm::Error Builder::create<OpGroupSMin>(const OpGroupSMin *op) {
   generateReduction(op, "min", MangleInfo::ForceSignInfo::ForceSigned);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupFMax>(const OpGroupFMax *op) {
+template <>
+llvm::Error Builder::create<OpGroupFMax>(const OpGroupFMax *op) {
   generateReduction(op, "max");
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupUMax>(const OpGroupUMax *op) {
+template <>
+llvm::Error Builder::create<OpGroupUMax>(const OpGroupUMax *op) {
   generateReduction(op, "max", MangleInfo::ForceSignInfo::ForceUnsigned);
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpGroupSMax>(const OpGroupSMax *op) {
+template <>
+llvm::Error Builder::create<OpGroupSMax>(const OpGroupSMax *op) {
   generateReduction(op, "max", MangleInfo::ForceSignInfo::ForceSigned);
   return llvm::Error::success();
 }
@@ -6408,43 +6549,43 @@ llvm::Error Builder::create<OpGroupFMulKHR>(const OpGroupFMulKHR *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupBitwiseAndKHR>(const OpGroupBitwiseAndKHR *op) {
+llvm::Error Builder::create<OpGroupBitwiseAndKHR>(
+    const OpGroupBitwiseAndKHR *op) {
   generateReduction(op, "and");
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupBitwiseOrKHR>(const OpGroupBitwiseOrKHR *op) {
+llvm::Error Builder::create<OpGroupBitwiseOrKHR>(
+    const OpGroupBitwiseOrKHR *op) {
   generateReduction(op, "or");
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupBitwiseXorKHR>(const OpGroupBitwiseXorKHR *op) {
+llvm::Error Builder::create<OpGroupBitwiseXorKHR>(
+    const OpGroupBitwiseXorKHR *op) {
   generateReduction(op, "xor");
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupLogicalAndKHR>(const OpGroupLogicalAndKHR *op) {
+llvm::Error Builder::create<OpGroupLogicalAndKHR>(
+    const OpGroupLogicalAndKHR *op) {
   generateReduction(op, "logical_and");
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupLogicalOrKHR>(const OpGroupLogicalOrKHR *op) {
+llvm::Error Builder::create<OpGroupLogicalOrKHR>(
+    const OpGroupLogicalOrKHR *op) {
   generateReduction(op, "logical_or");
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupLogicalXorKHR>(const OpGroupLogicalXorKHR *op) {
+llvm::Error Builder::create<OpGroupLogicalXorKHR>(
+    const OpGroupLogicalXorKHR *op) {
   generateReduction(op, "logical_xor");
   return llvm::Error::success();
 }
@@ -6471,8 +6612,8 @@ llvm::Error Builder::create<OpSubgroupShuffle>(const OpSubgroupShuffle *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSubgroupShuffleUp>(const OpSubgroupShuffleUp *op) {
+llvm::Error Builder::create<OpSubgroupShuffleUp>(
+    const OpSubgroupShuffleUp *op) {
   std::string muxBuiltinName = "__mux_sub_group_shuffle_up_";
 
   auto *previous = module.getValue(op->Previous());
@@ -6496,8 +6637,8 @@ Builder::create<OpSubgroupShuffleUp>(const OpSubgroupShuffleUp *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSubgroupShuffleDown>(const OpSubgroupShuffleDown *op) {
+llvm::Error Builder::create<OpSubgroupShuffleDown>(
+    const OpSubgroupShuffleDown *op) {
   std::string muxBuiltinName = "__mux_sub_group_shuffle_down_";
 
   auto *current = module.getValue(op->Current());
@@ -6521,8 +6662,8 @@ Builder::create<OpSubgroupShuffleDown>(const OpSubgroupShuffleDown *op) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSubgroupShuffleXor>(const OpSubgroupShuffleXor *op) {
+llvm::Error Builder::create<OpSubgroupShuffleXor>(
+    const OpSubgroupShuffleXor *op) {
   std::string muxBuiltinName = "__mux_sub_group_shuffle_xor_";
 
   auto *data = module.getValue(op->Data());
@@ -6542,13 +6683,15 @@ Builder::create<OpSubgroupShuffleXor>(const OpSubgroupShuffleXor *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpReadPipe>(const OpReadPipe *) {
+template <>
+llvm::Error Builder::create<OpReadPipe>(const OpReadPipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpWritePipe>(const OpWritePipe *) {
+template <>
+llvm::Error Builder::create<OpWritePipe>(const OpWritePipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
@@ -6569,16 +6712,16 @@ llvm::Error Builder::create<OpReservedWritePipe>(const OpReservedWritePipe *) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpReserveReadPipePackets>(const OpReserveReadPipePackets *) {
+llvm::Error Builder::create<OpReserveReadPipePackets>(
+    const OpReserveReadPipePackets *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpReserveWritePipePackets>(const OpReserveWritePipePackets *) {
+llvm::Error Builder::create<OpReserveWritePipePackets>(
+    const OpReserveWritePipePackets *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
@@ -6636,16 +6779,16 @@ llvm::Error Builder::create<OpGroupReserveWritePipePackets>(
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupCommitReadPipe>(const OpGroupCommitReadPipe *) {
+llvm::Error Builder::create<OpGroupCommitReadPipe>(
+    const OpGroupCommitReadPipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpGroupCommitWritePipe>(const OpGroupCommitWritePipe *) {
+llvm::Error Builder::create<OpGroupCommitWritePipe>(
+    const OpGroupCommitWritePipe *) {
   // Capability Pipes isn't supported by CL 1.2, see OpenCL SPIR-V
   // environment spec section 6.1 for supported capabilities.
   return llvm::Error::success();
@@ -6674,8 +6817,8 @@ llvm::Error Builder::create<OpGetKernelNDrangeMaxSubGroupSize>(
 }
 
 template <>
-llvm::Error
-Builder::create<OpGetKernelWorkGroupSize>(const OpGetKernelWorkGroupSize *) {
+llvm::Error Builder::create<OpGetKernelWorkGroupSize>(
+    const OpGetKernelWorkGroupSize *) {
   return errorUnsupportedDeviceEnqueueOp("OpGetKernelWorkGroupSize");
 }
 
@@ -6686,7 +6829,8 @@ llvm::Error Builder::create<OpGetKernelPreferredWorkGroupSizeMultiple>(
       "OpGetKernelPreferredWorkGroupSizeMultiple");
 }
 
-template <> llvm::Error Builder::create<OpRetainEvent>(const OpRetainEvent *) {
+template <>
+llvm::Error Builder::create<OpRetainEvent>(const OpRetainEvent *) {
   return errorUnsupportedDeviceEnqueueOp("OpRetainEvent");
 }
 
@@ -6706,8 +6850,8 @@ llvm::Error Builder::create<OpIsValidEvent>(const OpIsValidEvent *) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpSetUserEventStatus>(const OpSetUserEventStatus *) {
+llvm::Error Builder::create<OpSetUserEventStatus>(
+    const OpSetUserEventStatus *) {
   return errorUnsupportedDeviceEnqueueOp("OpSetUserEventStatus");
 }
 
@@ -6819,8 +6963,8 @@ llvm::Error Builder::create<OpImageSparseGather>(const OpImageSparseGather *) {
 }
 
 template <>
-llvm::Error
-Builder::create<OpImageSparseDrefGather>(const OpImageSparseDrefGather *) {
+llvm::Error Builder::create<OpImageSparseDrefGather>(
+    const OpImageSparseDrefGather *) {
   // This instruction requires the SparseResidency capability which is not
   // supported by OpenCL 1.2 (see OpenCL SPIR-V environment spec section 6.1)
   return llvm::Error::success();
@@ -6834,15 +6978,16 @@ llvm::Error Builder::create<OpImageSparseTexelsResident>(
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpNoLine>(const OpNoLine *) {
+template <>
+llvm::Error Builder::create<OpNoLine>(const OpNoLine *) {
   applyDebugInfoAtClosedRangeOrScope();
   setCurrentOpLineRange(std::nullopt);
   return llvm::Error::success();
 }
 
 template <>
-llvm::Error
-Builder::create<OpAtomicFlagTestAndSet>(const OpAtomicFlagTestAndSet *op) {
+llvm::Error Builder::create<OpAtomicFlagTestAndSet>(
+    const OpAtomicFlagTestAndSet *op) {
   auto pointer = module.getValue(op->Pointer());
   SPIRV_LL_ASSERT_PTR(pointer);
 
@@ -6898,7 +7043,8 @@ llvm::Error Builder::create<OpAssumeTrueKHR>(const OpAssumeTrueKHR *op) {
   return llvm::Error::success();
 }
 
-template <> llvm::Error Builder::create<OpExpectKHR>(const OpExpectKHR *op) {
+template <>
+llvm::Error Builder::create<OpExpectKHR>(const OpExpectKHR *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
@@ -6920,4 +7066,4 @@ template <> llvm::Error Builder::create<OpExpectKHR>(const OpExpectKHR *op) {
   return llvm::Error::success();
 }
 
-} // namespace spirv_ll
+}  // namespace spirv_ll

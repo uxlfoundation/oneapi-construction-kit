@@ -136,10 +136,10 @@ TEST_F(CommandBufferCopyImageToBufferTest, InvalidCommandBuffer) {
   const size_t origin[] = {0, 0, 0};
   const size_t region[] = {image_width, image_height, 1};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_COMMAND_BUFFER_KHR,
-                    clCommandCopyImageToBufferKHR(nullptr, nullptr, image,
-                                                  buffer, origin, region, 0, 0,
-                                                  nullptr, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_COMMAND_BUFFER_KHR,
+      clCommandCopyImageToBufferKHR(nullptr, nullptr, image, buffer, origin,
+                                    region, 0, 0, nullptr, nullptr, nullptr));
 
   ASSERT_SUCCESS(clFinalizeCommandBufferKHR(command_buffer));
   ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,

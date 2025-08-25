@@ -40,7 +40,7 @@ image_s::image_s(mux_memory_requirements_s memory_requirements,
   this->slice_size = slice_size;
   this->tiling = mux_image_tiling_linear;
 }
-} // namespace host
+}  // namespace host
 
 #ifdef HOST_IMAGE_SUPPORT
 namespace {
@@ -60,26 +60,26 @@ inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
                                   uint64_t slice_size) {
   cl_mem_object_type imageType;
   switch (type) {
-  case mux_image_type_1d:
-    imageType =
-        (array_layers) ? CL_MEM_OBJECT_IMAGE1D_ARRAY : CL_MEM_OBJECT_IMAGE1D;
-    break;
-  case mux_image_type_2d:
-    imageType =
-        (array_layers) ? CL_MEM_OBJECT_IMAGE2D_ARRAY : CL_MEM_OBJECT_IMAGE2D;
-    break;
-  case mux_image_type_3d:
-    imageType = CL_MEM_OBJECT_IMAGE3D;
-    break;
-  default:
-    abort();
+    case mux_image_type_1d:
+      imageType =
+          (array_layers) ? CL_MEM_OBJECT_IMAGE1D_ARRAY : CL_MEM_OBJECT_IMAGE1D;
+      break;
+    case mux_image_type_2d:
+      imageType =
+          (array_layers) ? CL_MEM_OBJECT_IMAGE2D_ARRAY : CL_MEM_OBJECT_IMAGE2D;
+      break;
+    case mux_image_type_3d:
+      imageType = CL_MEM_OBJECT_IMAGE3D;
+      break;
+    default:
+      abort();
   }
   const size_t rowPitch = static_cast<size_t>(row_size);
   const size_t slicePitch = static_cast<size_t>(slice_size);
   return {imageType, width,      height, depth, array_layers,
           rowPitch,  slicePitch, 0,      0,     {/*nullptr*/}};
 }
-} // namespace
+}  // namespace
 #endif
 
 mux_result_t hostCreateImage(mux_device_t device, mux_image_type_e type,
@@ -106,137 +106,137 @@ mux_result_t hostCreateImage(mux_device_t device, mux_image_type_e type,
   // specification.
   uint32_t alignment = 4;
   switch (format) {
-  // 1 byte
-  case mux_image_format_A8_sint:
-  case mux_image_format_A8_snorm:
-  case mux_image_format_A8_uint:
-  case mux_image_format_A8_unorm:
-  case mux_image_format_INTENSITY8_snorm:
-  case mux_image_format_INTENSITY8_unorm:
-  case mux_image_format_LUMINANCE8_snorm:
-  case mux_image_format_LUMINANCE8_unorm:
-  case mux_image_format_R8_sint:
-  case mux_image_format_R8_snorm:
-  case mux_image_format_R8_uint:
-  case mux_image_format_R8_unorm:
-    alignment = 1;
-    break;
+    // 1 byte
+    case mux_image_format_A8_sint:
+    case mux_image_format_A8_snorm:
+    case mux_image_format_A8_uint:
+    case mux_image_format_A8_unorm:
+    case mux_image_format_INTENSITY8_snorm:
+    case mux_image_format_INTENSITY8_unorm:
+    case mux_image_format_LUMINANCE8_snorm:
+    case mux_image_format_LUMINANCE8_unorm:
+    case mux_image_format_R8_sint:
+    case mux_image_format_R8_snorm:
+    case mux_image_format_R8_uint:
+    case mux_image_format_R8_unorm:
+      alignment = 1;
+      break;
 
-  // 2 bytes
-  case mux_image_format_A16_sfloat:
-  case mux_image_format_A16_sint:
-  case mux_image_format_A16_snorm:
-  case mux_image_format_A16_uint:
-  case mux_image_format_A16_unorm:
-  case mux_image_format_INTENSITY16_sfloat:
-  case mux_image_format_INTENSITY16_snorm:
-  case mux_image_format_INTENSITY16_unorm:
-  case mux_image_format_LUMINANCE16_sfloat:
-  case mux_image_format_LUMINANCE16_snorm:
-  case mux_image_format_LUMINANCE16_unorm:
-  case mux_image_format_R16_sfloat:
-  case mux_image_format_R16_sint:
-  case mux_image_format_R16_snorm:
-  case mux_image_format_R16_uint:
-  case mux_image_format_R16_unorm:
-  case mux_image_format_R5G5B5_unorm_pack16:
-  case mux_image_format_R5G5B5x1_unorm_pack16:
-  case mux_image_format_R5G6B5_unorm_pack16:
-  case mux_image_format_R5G6B5x0_unorm_pack16:
-  case mux_image_format_R8A8_sint:
-  case mux_image_format_R8A8_snorm:
-  case mux_image_format_R8A8_uint:
-  case mux_image_format_R8A8_unorm:
-  case mux_image_format_R8G8_sint:
-  case mux_image_format_R8G8_snorm:
-  case mux_image_format_R8G8_uint:
-  case mux_image_format_R8G8_unorm:
-  case mux_image_format_R8x8_sint:
-  case mux_image_format_R8x8_snorm:
-  case mux_image_format_R8x8_uint:
-  case mux_image_format_R8x8_unorm:
-  case mux_image_format_R8G8Bx_sint:
-  case mux_image_format_R8G8Bx_snorm:
-  case mux_image_format_R8G8Bx_uint:
-  case mux_image_format_R8G8Bx_unorm:
-    alignment = 2;
-    break;
+    // 2 bytes
+    case mux_image_format_A16_sfloat:
+    case mux_image_format_A16_sint:
+    case mux_image_format_A16_snorm:
+    case mux_image_format_A16_uint:
+    case mux_image_format_A16_unorm:
+    case mux_image_format_INTENSITY16_sfloat:
+    case mux_image_format_INTENSITY16_snorm:
+    case mux_image_format_INTENSITY16_unorm:
+    case mux_image_format_LUMINANCE16_sfloat:
+    case mux_image_format_LUMINANCE16_snorm:
+    case mux_image_format_LUMINANCE16_unorm:
+    case mux_image_format_R16_sfloat:
+    case mux_image_format_R16_sint:
+    case mux_image_format_R16_snorm:
+    case mux_image_format_R16_uint:
+    case mux_image_format_R16_unorm:
+    case mux_image_format_R5G5B5_unorm_pack16:
+    case mux_image_format_R5G5B5x1_unorm_pack16:
+    case mux_image_format_R5G6B5_unorm_pack16:
+    case mux_image_format_R5G6B5x0_unorm_pack16:
+    case mux_image_format_R8A8_sint:
+    case mux_image_format_R8A8_snorm:
+    case mux_image_format_R8A8_uint:
+    case mux_image_format_R8A8_unorm:
+    case mux_image_format_R8G8_sint:
+    case mux_image_format_R8G8_snorm:
+    case mux_image_format_R8G8_uint:
+    case mux_image_format_R8G8_unorm:
+    case mux_image_format_R8x8_sint:
+    case mux_image_format_R8x8_snorm:
+    case mux_image_format_R8x8_uint:
+    case mux_image_format_R8x8_unorm:
+    case mux_image_format_R8G8Bx_sint:
+    case mux_image_format_R8G8Bx_snorm:
+    case mux_image_format_R8G8Bx_uint:
+    case mux_image_format_R8G8Bx_unorm:
+      alignment = 2;
+      break;
 
-  // 4 bytes
-  case mux_image_format_A32_sfloat:
-  case mux_image_format_A32_sint:
-  case mux_image_format_A32_uint:
-  case mux_image_format_A8R8G8B8_sint:
-  case mux_image_format_A8R8G8B8_snorm:
-  case mux_image_format_A8R8G8B8_uint:
-  case mux_image_format_A8R8G8B8_unorm:
-  case mux_image_format_B8G8R8A8_sint:
-  case mux_image_format_B8G8R8A8_snorm:
-  case mux_image_format_B8G8R8A8_uint:
-  case mux_image_format_B8G8R8A8_unorm:
-  case mux_image_format_INTENSITY32_sfloat:
-  case mux_image_format_LUMINANCE32_sfloat:
-  case mux_image_format_R10G10B10_unorm_pack32:
-  case mux_image_format_R10G10B10x2_unorm_pack32:
-  case mux_image_format_R16A16_sfloat:
-  case mux_image_format_R16A16_sint:
-  case mux_image_format_R16A16_snorm:
-  case mux_image_format_R16A16_uint:
-  case mux_image_format_R16A16_unorm:
-  case mux_image_format_R16G16_sfloat:
-  case mux_image_format_R16G16_sint:
-  case mux_image_format_R16G16_snorm:
-  case mux_image_format_R16G16_uint:
-  case mux_image_format_R16G16_unorm:
-  case mux_image_format_R16x16_sfloat:
-  case mux_image_format_R16x16_sint:
-  case mux_image_format_R16x16_snorm:
-  case mux_image_format_R16x16_uint:
-  case mux_image_format_R16x16_unorm:
-  case mux_image_format_R32_sfloat:
-  case mux_image_format_R32_sint:
-  case mux_image_format_R32_uint:
-  case mux_image_format_R8G8B8A8_sint:
-  case mux_image_format_R8G8B8A8_snorm:
-  case mux_image_format_R8G8B8A8_uint:
-  case mux_image_format_R8G8B8A8_unorm:
-    alignment = 4;
-    break;
+    // 4 bytes
+    case mux_image_format_A32_sfloat:
+    case mux_image_format_A32_sint:
+    case mux_image_format_A32_uint:
+    case mux_image_format_A8R8G8B8_sint:
+    case mux_image_format_A8R8G8B8_snorm:
+    case mux_image_format_A8R8G8B8_uint:
+    case mux_image_format_A8R8G8B8_unorm:
+    case mux_image_format_B8G8R8A8_sint:
+    case mux_image_format_B8G8R8A8_snorm:
+    case mux_image_format_B8G8R8A8_uint:
+    case mux_image_format_B8G8R8A8_unorm:
+    case mux_image_format_INTENSITY32_sfloat:
+    case mux_image_format_LUMINANCE32_sfloat:
+    case mux_image_format_R10G10B10_unorm_pack32:
+    case mux_image_format_R10G10B10x2_unorm_pack32:
+    case mux_image_format_R16A16_sfloat:
+    case mux_image_format_R16A16_sint:
+    case mux_image_format_R16A16_snorm:
+    case mux_image_format_R16A16_uint:
+    case mux_image_format_R16A16_unorm:
+    case mux_image_format_R16G16_sfloat:
+    case mux_image_format_R16G16_sint:
+    case mux_image_format_R16G16_snorm:
+    case mux_image_format_R16G16_uint:
+    case mux_image_format_R16G16_unorm:
+    case mux_image_format_R16x16_sfloat:
+    case mux_image_format_R16x16_sint:
+    case mux_image_format_R16x16_snorm:
+    case mux_image_format_R16x16_uint:
+    case mux_image_format_R16x16_unorm:
+    case mux_image_format_R32_sfloat:
+    case mux_image_format_R32_sint:
+    case mux_image_format_R32_uint:
+    case mux_image_format_R8G8B8A8_sint:
+    case mux_image_format_R8G8B8A8_snorm:
+    case mux_image_format_R8G8B8A8_uint:
+    case mux_image_format_R8G8B8A8_unorm:
+      alignment = 4;
+      break;
 
-  // 8 bytes, 3 channel formats are promoted due to three element vectors
-  // being the size of 4 element vectors in OpenCL.
-  case mux_image_format_R16G16B16_sfloat:
-  case mux_image_format_R16G16B16_sint:
-  case mux_image_format_R16G16B16_snorm:
-  case mux_image_format_R16G16B16_unorm:
-  case mux_image_format_R16G16B16A16_sfloat:
-  case mux_image_format_R16G16B16A16_sint:
-  case mux_image_format_R16G16B16A16_snorm:
-  case mux_image_format_R16G16B16A16_uint:
-  case mux_image_format_R16G16B16A16_unorm:
-  case mux_image_format_R16G16B16B16_uint:
-  case mux_image_format_R32A32_sfloat:
-  case mux_image_format_R32A32_sint:
-  case mux_image_format_R32A32_uint:
-  case mux_image_format_R32G32_sfloat:
-  case mux_image_format_R32G32_sint:
-  case mux_image_format_R32G32_uint:
-  case mux_image_format_R32x32_sfloat:
-  case mux_image_format_R32x32_sint:
-  case mux_image_format_R32x32_uint:
-    alignment = 8;
-    break;
+    // 8 bytes, 3 channel formats are promoted due to three element vectors
+    // being the size of 4 element vectors in OpenCL.
+    case mux_image_format_R16G16B16_sfloat:
+    case mux_image_format_R16G16B16_sint:
+    case mux_image_format_R16G16B16_snorm:
+    case mux_image_format_R16G16B16_unorm:
+    case mux_image_format_R16G16B16A16_sfloat:
+    case mux_image_format_R16G16B16A16_sint:
+    case mux_image_format_R16G16B16A16_snorm:
+    case mux_image_format_R16G16B16A16_uint:
+    case mux_image_format_R16G16B16A16_unorm:
+    case mux_image_format_R16G16B16B16_uint:
+    case mux_image_format_R32A32_sfloat:
+    case mux_image_format_R32A32_sint:
+    case mux_image_format_R32A32_uint:
+    case mux_image_format_R32G32_sfloat:
+    case mux_image_format_R32G32_sint:
+    case mux_image_format_R32G32_uint:
+    case mux_image_format_R32x32_sfloat:
+    case mux_image_format_R32x32_sint:
+    case mux_image_format_R32x32_uint:
+      alignment = 8;
+      break;
 
-  // 16 bytes, 3 channel formats are promoted due to three element vectors
-  // being the size of 4 element vectors in OpenCL.
-  case mux_image_format_R32G32B32_sfloat:
-  case mux_image_format_R32G32B32_sint:
-  case mux_image_format_R32G32B32_uint:
-  case mux_image_format_R32G32B32A32_sfloat:
-  case mux_image_format_R32G32B32A32_sint:
-  case mux_image_format_R32G32B32A32_uint:
-    alignment = 16;
-    break;
+    // 16 bytes, 3 channel formats are promoted due to three element vectors
+    // being the size of 4 element vectors in OpenCL.
+    case mux_image_format_R32G32B32_sfloat:
+    case mux_image_format_R32G32B32_sint:
+    case mux_image_format_R32G32B32_uint:
+    case mux_image_format_R32G32B32A32_sfloat:
+    case mux_image_format_R32G32B32A32_sint:
+    case mux_image_format_R32G32B32A32_uint:
+      alignment = 16;
+      break;
   }
 
   // TODO: Also report host::memory_s::HEAP_ANY
@@ -333,25 +333,25 @@ mux_result_t hostGetSupportedImageFormats(mux_device_t device,
 
   cl_mem_flags imgFlags = CL_MEM_READ_WRITE;
   switch (allocation_type) {
-  case mux_allocation_type_alloc_host:
-    imgFlags |= CL_MEM_ALLOC_HOST_PTR;
-    break;
-  case mux_allocation_type_alloc_device:
-    break;
+    case mux_allocation_type_alloc_host:
+      imgFlags |= CL_MEM_ALLOC_HOST_PTR;
+      break;
+    case mux_allocation_type_alloc_device:
+      break;
   }
 
   cl_mem_object_type imgType;
   switch (image_type) {
-  default: // NOTE: We should never hit this case.
-  case mux_image_type_1d:
-    imgType = CL_MEM_OBJECT_IMAGE1D;
-    break;
-  case mux_image_type_2d:
-    imgType = CL_MEM_OBJECT_IMAGE2D;
-    break;
-  case mux_image_type_3d:
-    imgType = CL_MEM_OBJECT_IMAGE3D;
-    break;
+    default:  // NOTE: We should never hit this case.
+    case mux_image_type_1d:
+      imgType = CL_MEM_OBJECT_IMAGE1D;
+      break;
+    case mux_image_type_2d:
+      imgType = CL_MEM_OBJECT_IMAGE2D;
+      break;
+    case mux_image_type_3d:
+      imgType = CL_MEM_OBJECT_IMAGE3D;
+      break;
   }
 
   uint32_t imgCount;

@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clGetCommandQueueInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     ASSERT_SUCCESS(clGetDeviceInfo(device, CL_DEVICE_QUEUE_PROPERTIES,
@@ -199,10 +199,10 @@ TEST_F(clGetCommandQueueInfoTest, QueueDeviceDeviceInvalidValue) {
     GTEST_SKIP();
   }
   cl_command_queue commandQueue;
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE_DEFAULT,
-                                          sizeof(commandQueue) - 1,
-                                          static_cast<void *>(&commandQueue),
-                                          nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clGetCommandQueueInfo(queue, CL_QUEUE_DEVICE_DEFAULT,
+                            sizeof(commandQueue) - 1,
+                            static_cast<void *>(&commandQueue), nullptr));
 }
 #endif

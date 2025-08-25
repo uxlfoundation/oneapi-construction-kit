@@ -29,7 +29,7 @@ static const cl_mem_object_type image_types[] = {
     CL_MEM_OBJECT_IMAGE1D,       CL_MEM_OBJECT_IMAGE2D,
     CL_MEM_OBJECT_IMAGE3D,       CL_MEM_OBJECT_IMAGE1D_BUFFER,
     CL_MEM_OBJECT_IMAGE1D_ARRAY, CL_MEM_OBJECT_IMAGE2D_ARRAY};
-} // namespace
+}  // namespace
 
 struct clEnqueueFillImageTest
     : ucl::CommandQueueTest,

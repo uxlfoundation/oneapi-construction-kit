@@ -67,17 +67,17 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
   // We need xMant1m*(xMant1m*(xMant1m*(xMant1m*poly + 1/3) - 0.5) + 1)
   // accurately
   T first_term_const =
-      0.333333333333333314829616256247390992939472198486328125; // closest
-                                                                // thing to 1/3
-                                                                // in float
-                                                                // Causes
-                                                                // accuracy
-                                                                // problems
+      0.333333333333333314829616256247390992939472198486328125;  // closest
+                                                                 // thing to 1/3
+                                                                 // in float
+                                                                 // Causes
+                                                                 // accuracy
+                                                                 // problems
   const T error_in_1_over_3 =
-      1.85037170770859423403938611348470052083333333333333333e-17; // Error
-                                                                   // between
-                                                                   // 1/3 and
-                                                                   // first_term_const
+      1.85037170770859423403938611348470052083333333333333333e-17;  // Error
+                                                                    // between
+                                                                    // 1/3 and
+                                                                    // first_term_const
 
   T first_term_lo;
   T first_term_hi =
@@ -101,9 +101,9 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
   T second_term_lo_hi = abacus::internal::multiply_exact_unsafe(
       xMant1m, first_term_lo, &second_term_lo_lo);
 
-  second_term_hi_lo += second_term_lo_hi; // Exact
+  second_term_hi_lo += second_term_lo_hi;  // Exact
   abacus::internal::add_exact_unsafe(&second_term_const, &second_term_hi_hi);
-  second_term_hi_hi += second_term_hi_lo; // Exact
+  second_term_hi_hi += second_term_hi_lo;  // Exact
 
   //--------------------------------------------------------------------------
   // we multiply (second_term_const + second_term_hi_hi) by xMant1m and add 1.
@@ -140,7 +140,7 @@ inline T log_extended_precision(const T &xMant, T *out_remainder) {
 
   return final_term_hi_hi;
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_LOG_EXTENDED_PRECISION_H__
+#endif  //__ABACUS_INTERNAL_LOG_EXTENDED_PRECISION_H__

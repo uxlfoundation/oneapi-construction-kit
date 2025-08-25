@@ -42,9 +42,10 @@ struct CreateData {
     context = clCreateContext(nullptr, 1, &device, nullptr, nullptr, &status);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, status);
 
-    const char *str = "kernel void func(global int* o, global int* i) {\n"
-                      "  o[get_global_id(0)] = i[get_global_id(0)];\n"
-                      "}\n";
+    const char *str =
+        "kernel void func(global int* o, global int* i) {\n"
+        "  o[get_global_id(0)] = i[get_global_id(0)];\n"
+        "}\n";
 
     program = clCreateProgramWithSource(context, 1, &str, nullptr, &status);
     ASSERT_EQ_ERRCODE(CL_SUCCESS, status);

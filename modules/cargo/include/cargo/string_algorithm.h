@@ -100,9 +100,8 @@ inline std::vector<cargo::string_view> split_all(cargo::string_view string,
 /// on.
 ///
 /// @return Returns a vector of split string views.
-inline std::vector<cargo::string_view>
-split_of(cargo::string_view string,
-         cargo::string_view delimiters = " \t\n\v\f\r") {
+inline std::vector<cargo::string_view> split_of(
+    cargo::string_view string, cargo::string_view delimiters = " \t\n\v\f\r") {
   if (string.empty()) {
     return {};
   }
@@ -130,9 +129,8 @@ split_of(cargo::string_view string,
 /// on.
 ///
 /// @return Returns a vector of split string views.
-inline std::vector<cargo::string_view>
-split_all_of(cargo::string_view string,
-             cargo::string_view delimiters = " \t\n\v\f\r") {
+inline std::vector<cargo::string_view> split_all_of(
+    cargo::string_view string, cargo::string_view delimiters = " \t\n\v\f\r") {
   if (string.empty()) {
     return {};
   }
@@ -164,14 +162,13 @@ split_all_of(cargo::string_view string,
 /// string must be delimited by the same quoting character from both sides.
 ///
 /// @return Returns a vector of split string views.
-inline std::vector<cargo::string_view>
-split_with_quotes(cargo::string_view string,
-                  cargo::string_view delimiters = " \t\n\v\f\r",
-                  cargo::string_view quotes = "'\"") {
+inline std::vector<cargo::string_view> split_with_quotes(
+    cargo::string_view string, cargo::string_view delimiters = " \t\n\v\f\r",
+    cargo::string_view quotes = "'\"") {
   if (string.empty()) {
     return {};
   }
-  if (delimiters.empty()) { // assume no splitting requested
+  if (delimiters.empty()) {  // assume no splitting requested
     return {{string}};
   }
   std::vector<cargo::string_view> items;
@@ -193,9 +190,9 @@ split_with_quotes(cargo::string_view string,
     char current = string[last];
     if (quote) {
       if (current == *quote) {
-        last--;               // don't include the quote in the argument
-        terminate_argument(); // advances last to quote
-        last++;               // so skip it
+        last--;                // don't include the quote in the argument
+        terminate_argument();  // advances last to quote
+        last++;                // so skip it
         first = last;
         quote.reset();
         // prevent adding an unnecessary empty argument
@@ -214,7 +211,7 @@ split_with_quotes(cargo::string_view string,
       } else if (delimiters.find_first_of(current) !=
                  cargo::string_view::npos) {
         if (!prev_was_delimiter) {
-          last--; // don't include delimiter in the argument
+          last--;  // don't include delimiter in the argument
           terminate_argument();
           prev_was_delimiter = true;
         }
@@ -264,9 +261,8 @@ inline std::string join(Iterator first, Iterator last,
 /// @param delimiters Set of character delimiters to trim from the string.
 ///
 /// @return Returns a new string trimmed on the left.
-inline cargo::string_view
-trim_left(cargo::string_view string,
-          cargo::string_view delimiters = " \t\n\v\f\r") {
+inline cargo::string_view trim_left(
+    cargo::string_view string, cargo::string_view delimiters = " \t\n\v\f\r") {
   string.remove_prefix(
       std::min(string.find_first_not_of(delimiters), string.size()));
   return string;
@@ -278,9 +274,8 @@ trim_left(cargo::string_view string,
 /// @param delimiters Set of character delimiters to trim from the string.
 ///
 /// @return Returns a new string trimmed on the right.
-inline cargo::string_view
-trim_right(cargo::string_view string,
-           cargo::string_view delimiters = " \t\n\v\f\r") {
+inline cargo::string_view trim_right(
+    cargo::string_view string, cargo::string_view delimiters = " \t\n\v\f\r") {
   string.remove_suffix(string.size() -
                        (string.find_last_not_of(delimiters) + 1));
   return string;
@@ -298,6 +293,6 @@ inline cargo::string_view trim(cargo::string_view string,
 }
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_STRING_H_INCLUDED
+#endif  // CARGO_STRING_H_INCLUDED

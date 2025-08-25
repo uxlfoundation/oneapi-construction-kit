@@ -18,7 +18,8 @@
 
 #include "fixtures.h"
 
-template <class> struct MDAllocatorTypeTest : MDAllocatorTest {};
+template <class>
+struct MDAllocatorTypeTest : MDAllocatorTest {};
 
 TYPED_TEST_SUITE_P(MDAllocatorTypeTest);
 

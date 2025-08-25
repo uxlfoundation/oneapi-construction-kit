@@ -36,7 +36,7 @@
 
 /// @brief Definition of the OpenCL platform object.
 struct _cl_platform_id final : cl::base<_cl_platform_id> {
-private:
+ private:
   /// @brief Private default constructor.
   ///
   /// The default constructor populates the ICD dispatch table, creates all
@@ -45,7 +45,7 @@ private:
   /// @see _cl_platform_id::getInstance()
   _cl_platform_id() : base<_cl_platform_id>(cl::ref_count_type::INTERNAL) {}
 
-public:
+ public:
   /// @brief The only way to access the single `cl_platform_id` instance.
   ///
   /// There are multiple entry points which require the platform to be
@@ -77,13 +77,13 @@ public:
   /// @brief List of devices owned by the platform.
   cargo::dynamic_array<cl_device_id> devices;
 
-private:
+ private:
   /// @brief Compiler library.
   cargo::expected<std::unique_ptr<compiler::Library>, std::string>
       compiler_library;
 
 #if defined(CL_VERSION_3_0)
-public:
+ public:
   /// @brief Resolution of the timestamp returned by clGetHostTimer and
   /// clGetDeviceAndHostTimer.
   cl_ulong host_timer_resolution = 0;
@@ -154,6 +154,6 @@ CL_API_ENTRY void *CL_API_CALL
 GetExtensionFunctionAddress(const char *func_name);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_PLATFORM_H_INCLUDED
+#endif  // CL_PLATFORM_H_INCLUDED

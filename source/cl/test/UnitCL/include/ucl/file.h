@@ -34,7 +34,8 @@ struct File {
 
   ~File() { (void)std::fclose(file); }
 
-  template <class Container> Container read() {
+  template <class Container>
+  Container read() {
     Container content;
     using value_type = typename Container::value_type;
     std::array<value_type, 256> buffer;
@@ -43,9 +44,7 @@ struct File {
       const size_t objects =
           std::fread(buffer.data(), sizeof(value_type), buffer_size, file);
       content.insert(content.end(), buffer.data(), buffer.data() + objects);
-      if (objects < buffer_size) {
-        break;
-      }
+      if (objects < buffer_size) break;
     }
     return content;
   }
@@ -53,6 +52,6 @@ struct File {
   std::string name;
   FILE *file = nullptr;
 };
-} // namespace ucl
+}  // namespace ucl
 
-#endif // UNITCL_FILE_H_INCLUDED
+#endif  // UNITCL_FILE_H_INCLUDED

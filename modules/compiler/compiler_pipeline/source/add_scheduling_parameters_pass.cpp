@@ -30,9 +30,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::utils::AddSchedulingParametersPass::run(Module &M,
-                                                  ModuleAnalysisManager &AM) {
+PreservedAnalyses compiler::utils::AddSchedulingParametersPass::run(
+    Module &M, ModuleAnalysisManager &AM) {
   auto &BI = AM.getResult<BuiltinInfoAnalysis>(M);
 
   auto &Ctx = M.getContext();

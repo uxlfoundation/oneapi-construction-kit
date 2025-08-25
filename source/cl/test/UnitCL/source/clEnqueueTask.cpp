@@ -18,7 +18,7 @@
 #include "EventWaitList.h"
 
 class clEnqueueTaskTest : public ucl::CommandQueueTest, TestWithEventWaitList {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -180,10 +180,10 @@ TEST_F(clEnqueueTaskTest, DefaultWithEventWaitList) {
                                    static_cast<void *>(&output_mem)));
   cl_int pattern = 0;
   cl_event fill_event;
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clEnqueueFillBuffer(command_queue, input_mem, &pattern,
-                                        sizeof(cl_int), 0, sizeof(cl_int), 0,
-                                        nullptr, &fill_event));
+  EXPECT_EQ_ERRCODE(
+      CL_SUCCESS,
+      clEnqueueFillBuffer(command_queue, input_mem, &pattern, sizeof(cl_int), 0,
+                          sizeof(cl_int), 0, nullptr, &fill_event));
   EXPECT_TRUE(fill_event);
   cl_event task_event;
   EXPECT_SUCCESS(
@@ -199,8 +199,9 @@ TEST_F(clEnqueueTaskTest, DefaultWithEventWaitList) {
 }
 
 TEST_F(clEnqueueTaskTest, TaskExecutesExactlyOnce) {
-  const char *source = "kernel void foo(global int *x)"
-                       "{ atomic_inc(x); }";
+  const char *source =
+      "kernel void foo(global int *x)"
+      "{ atomic_inc(x); }";
   ASSERT_SUCCESS(SetUpProgram(source));
 
   cl_int status = !CL_SUCCESS;
@@ -214,16 +215,16 @@ TEST_F(clEnqueueTaskTest, TaskExecutesExactlyOnce) {
   EXPECT_EQ_ERRCODE(CL_SUCCESS, clSetKernelArg(kernel, 0, sizeof(cl_mem),
                                                static_cast<void *>(&buffer)));
 
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clEnqueueWriteBuffer(command_queue, buffer, CL_TRUE, 0,
-                                         sizeof(cl_int), &data, 0, nullptr,
-                                         nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_SUCCESS,
+      clEnqueueWriteBuffer(command_queue, buffer, CL_TRUE, 0, sizeof(cl_int),
+                           &data, 0, nullptr, nullptr));
   EXPECT_EQ_ERRCODE(CL_SUCCESS,
                     clEnqueueTask(command_queue, kernel, 0, nullptr, nullptr));
-  EXPECT_EQ_ERRCODE(CL_SUCCESS,
-                    clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0,
-                                        sizeof(cl_int), &data, 0, nullptr,
-                                        nullptr));
+  EXPECT_EQ_ERRCODE(
+      CL_SUCCESS,
+      clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0, sizeof(cl_int),
+                          &data, 0, nullptr, nullptr));
   EXPECT_EQ(1, data);
   EXPECT_SUCCESS(clReleaseMemObject(buffer));
 }
@@ -232,7 +233,7 @@ GENERATE_EVENT_WAIT_LIST_TESTS(clEnqueueTaskTest)
 
 class clEnqueueTaskTestWithReqdWorkGroupSizeTest
     : public ucl::CommandQueueTest {
-protected:
+ protected:
   cl_int SetUpProgram(const char *source) {
     cl_int status = CL_SUCCESS;
     const size_t source_length = strlen(source);
@@ -257,8 +258,9 @@ TEST_F(clEnqueueTaskTestWithReqdWorkGroupSizeTest, DefaultNoAttribute) {
   if (!getDeviceCompilerAvailable()) {
     GTEST_SKIP();
   }
-  const char *source = "kernel void foo()"
-                       "{int a = 42;}";
+  const char *source =
+      "kernel void foo()"
+      "{int a = 42;}";
   ASSERT_SUCCESS(SetUpProgram(source));
   cl_event event;
   EXPECT_EQ_ERRCODE(CL_SUCCESS,

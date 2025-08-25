@@ -31,11 +31,11 @@ constexpr size_t TOTAL_LENGTH =
     DIMENSION_LENGTH * DIMENSION_LENGTH * DIMENSION_LENGTH;
 
 constexpr cl_uchar INITIAL_SCRATCH = 0xFF;
-} // namespace
+}  // namespace
 
 class clEnqueueReadBufferRectTest : public ucl::CommandQueueTest,
                                     TestWithEventWaitList {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     for (unsigned int x = 0; x < DIMENSION_LENGTH; x++) {
@@ -457,11 +457,11 @@ TEST_F(clEnqueueReadBufferRectTest, EventIsInDifferentContext) {
   const size_t region[DIMENSIONS] = {DIMENSION_LENGTH, DIMENSION_LENGTH,
                                      DIMENSION_LENGTH};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_CONTEXT,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, 0, 0, scratch, 1, &userEvent,
-                                            nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_CONTEXT,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, 0, 0, scratch, 1,
+                              &userEvent, nullptr));
 
   ASSERT_SUCCESS(clReleaseEvent(userEvent));
   ASSERT_SUCCESS(clReleaseContext(otherContext));
@@ -559,11 +559,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidBufferRowPitchIsOutOfBounds) {
 
   const size_t invalidRowPitch = DIMENSION_LENGTH * 2;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region,
-                                            invalidRowPitch, 0, 0, 0, scratch,
-                                            0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, invalidRowPitch, 0, 0, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidBufferSlicePitchIsOutOfBounds) {
@@ -574,11 +574,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidBufferSlicePitchIsOutOfBounds) {
 
   const size_t invalidSlicePitch = DIMENSION_LENGTH * DIMENSION_LENGTH * 2;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            invalidSlicePitch, 0, 0, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, invalidSlicePitch, 0, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidRegion) {
@@ -666,11 +666,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidBufferRowPitchIsLessThanRegion) {
 
   const size_t invalidRowPitch = 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region,
-                                            invalidRowPitch, 0, 0, 0, scratch,
-                                            0, nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, invalidRowPitch, 0, 0, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidBufferSlicePitchIsLessThanRegion) {
@@ -681,11 +681,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidBufferSlicePitchIsLessThanRegion) {
 
   const size_t invalidSlicePitch = 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            invalidSlicePitch, 0, 0, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, invalidSlicePitch, 0, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest,
@@ -697,11 +697,11 @@ TEST_F(clEnqueueReadBufferRectTest,
 
   const size_t invalidSlicePitch = (DIMENSION_LENGTH * DIMENSION_LENGTH) + 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            invalidSlicePitch, 0, 0, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, invalidSlicePitch, 0, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidHostRowPitchIsLessThanRegion) {
@@ -712,11 +712,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidHostRowPitchIsLessThanRegion) {
 
   const size_t invalidRowPitch = 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, invalidRowPitch, 0, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, invalidRowPitch, 0,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidHostSlicePitchIsLessThanRegion) {
@@ -727,11 +727,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidHostSlicePitchIsLessThanRegion) {
 
   const size_t invalidSlicePitch = 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, 0, invalidSlicePitch, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, 0, invalidSlicePitch,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest,
@@ -743,11 +743,11 @@ TEST_F(clEnqueueReadBufferRectTest,
 
   const size_t invalidSlicePitch = (DIMENSION_LENGTH * DIMENSION_LENGTH) + 1;
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                    clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, 0, invalidSlicePitch, scratch, 0,
-                                            nullptr, nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_VALUE,
+      clEnqueueReadBufferRect(command_queue, buffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, 0, invalidSlicePitch,
+                              scratch, 0, nullptr, nullptr));
 }
 
 TEST_F(clEnqueueReadBufferRectTest, InvalidMemObjectIsHostWriteOnly) {
@@ -764,11 +764,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidMemObjectIsHostWriteOnly) {
   const size_t region[DIMENSIONS] = {DIMENSION_LENGTH, DIMENSION_LENGTH,
                                      DIMENSION_LENGTH};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clEnqueueReadBufferRect(command_queue, otherBuffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, 0, 0, scratch, 0, nullptr,
-                                            nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clEnqueueReadBufferRect(command_queue, otherBuffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, 0, 0, scratch, 0,
+                              nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherBuffer));
 }
@@ -787,11 +787,11 @@ TEST_F(clEnqueueReadBufferRectTest, InvalidMemObjectIsHostNoAccess) {
   const size_t region[DIMENSIONS] = {DIMENSION_LENGTH, DIMENSION_LENGTH,
                                      DIMENSION_LENGTH};
 
-  ASSERT_EQ_ERRCODE(CL_INVALID_OPERATION,
-                    clEnqueueReadBufferRect(command_queue, otherBuffer, CL_TRUE,
-                                            bufferOrigin, hostOrigin, region, 0,
-                                            0, 0, 0, scratch, 0, nullptr,
-                                            nullptr));
+  ASSERT_EQ_ERRCODE(
+      CL_INVALID_OPERATION,
+      clEnqueueReadBufferRect(command_queue, otherBuffer, CL_TRUE, bufferOrigin,
+                              hostOrigin, region, 0, 0, 0, 0, scratch, 0,
+                              nullptr, nullptr));
 
   ASSERT_SUCCESS(clReleaseMemObject(otherBuffer));
 }

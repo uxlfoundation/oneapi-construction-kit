@@ -56,20 +56,20 @@ cl_int extension::khr_icd::GetPlatformInfo(cl_platform_id platform,
   const void *value_pointer = nullptr;
 
   switch (param_name) {
-  case CL_PLATFORM_ICD_SUFFIX_KHR: {
-    // See The OpenCL Extension Specification, version: 1.2, document
-    // revision: 19, last revision date: 1/16/14, section 9.18.10
-    // Additions to Chapter 9 of the OpenCL 1.2 Extension Specification
-    static const char icd_suffix[] = "CODEPLAY";
-    value_size = sizeof(icd_suffix);
-    value_pointer = icd_suffix;
-    break;
-  }
-  default: {
-    // Call default implementation that uses the constructor set name.
-    return extension::GetPlatformInfo(platform, param_name, param_value_size,
-                                      param_value, param_value_size_ret);
-  }
+    case CL_PLATFORM_ICD_SUFFIX_KHR: {
+      // See The OpenCL Extension Specification, version: 1.2, document
+      // revision: 19, last revision date: 1/16/14, section 9.18.10
+      // Additions to Chapter 9 of the OpenCL 1.2 Extension Specification
+      static const char icd_suffix[] = "CODEPLAY";
+      value_size = sizeof(icd_suffix);
+      value_pointer = icd_suffix;
+      break;
+    }
+    default: {
+      // Call default implementation that uses the constructor set name.
+      return extension::GetPlatformInfo(platform, param_name, param_value_size,
+                                        param_value, param_value_size_ret);
+    }
   }
 
   OCL_CHECK(nullptr != param_value && param_value_size < value_size,
@@ -314,7 +314,7 @@ cl_int CL_API_CALL IcdGetPlatformIDsKHR(cl_uint num_entries,
                                         cl_uint *num_platforms) {
   return cl::GetPlatformIDs(num_entries, platforms, num_platforms);
 }
-} // namespace
+}  // namespace
 
 CL_API_ENTRY cl_int CL_API_CALL clIcdGetPlatformIDsKHR(
     cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) {

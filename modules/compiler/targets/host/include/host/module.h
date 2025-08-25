@@ -56,7 +56,7 @@ void initializePassMachineryForFinalize(
 /// @brief A class that drives the compilation process and stores the compiled
 /// binary.
 class HostModule : public compiler::BaseModule {
-public:
+ public:
   HostModule(compiler::BaseTarget &target, compiler::BaseContext &context,
              uint32_t &num_errors, std::string &log);
 
@@ -64,25 +64,25 @@ public:
   HostModule &operator=(const HostModule &) = delete;
 
   /// @see Module::createBinary
-  compiler::Result
-  createBinary(cargo::array_view<std::uint8_t> &buffer) override;
+  compiler::Result createBinary(
+      cargo::array_view<std::uint8_t> &buffer) override;
 
   /// @see Module::buildTargetPipeline
-  llvm::ModulePassManager
-  getLateTargetPasses(compiler::utils::PassMachinery &) override;
+  llvm::ModulePassManager getLateTargetPasses(
+      compiler::utils::PassMachinery &) override;
 
   /// @see BaseModule::createKernel
   compiler::Kernel *createKernel(const std::string &name) override;
 
   /// @see BaseModule::createPassMachinery
-  std::unique_ptr<compiler::utils::PassMachinery>
-  createPassMachinery(llvm::LLVMContext &) override;
+  std::unique_ptr<compiler::utils::PassMachinery> createPassMachinery(
+      llvm::LLVMContext &) override;
 
   /// @see BaseModule::initializePassMachineryForFinalize
   void initializePassMachineryForFinalize(
       compiler::utils::PassMachinery &passMach) const override;
 
-private:
+ private:
   /// @brief Compiled object code compiler from the LLVM module.
   cargo::dynamic_array<uint8_t> object_code;
 
@@ -100,7 +100,7 @@ private:
   cargo::expected<cargo::dynamic_array<uint8_t>, compiler::Result>
   hostCompileObject(HostTarget &target, const compiler::Options &build_options,
                     llvm::Module *module);
-}; // class Module
-} // namespace host
+};  // class Module
+}  // namespace host
 
-#endif // HOST_MODULE_H_INCLUDED
+#endif  // HOST_MODULE_H_INCLUDED

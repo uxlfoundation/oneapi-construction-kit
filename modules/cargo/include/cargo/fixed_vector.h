@@ -37,6 +37,6 @@ namespace cargo {
 template <class T, size_t N>
 using fixed_vector = cargo::small_vector<T, N, cargo::nullacator<T>>;
 
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_FIXED_VECTOR_H_INCLUDED
+#endif  // CARGO_FIXED_VECTOR_H_INCLUDED

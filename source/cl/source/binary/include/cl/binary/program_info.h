@@ -39,11 +39,10 @@ namespace binary {
 ///
 /// @return Returns a valid ProgramInfo if successful, or cargo::nullopt
 /// otherwise.
-cargo::optional<compiler::ProgramInfo>
-kernelDeclsToProgramInfo(const cargo::small_vector<std::string, 8> &decls,
-                         bool store_arg_metadata);
+cargo::optional<compiler::ProgramInfo> kernelDeclsToProgramInfo(
+    const cargo::small_vector<std::string, 8> &decls, bool store_arg_metadata);
 
-} // namespace binary
-} // namespace cl
+}  // namespace binary
+}  // namespace cl
 
-#endif // CL_BINARY_PROGRAM_INFO_H_INCLUDED
+#endif  // CL_BINARY_PROGRAM_INFO_H_INCLUDED

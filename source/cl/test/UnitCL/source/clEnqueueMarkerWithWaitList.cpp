@@ -21,7 +21,7 @@
 
 class clEnqueueMarkerWithWaitListTest : public ucl::CommandQueueTest,
                                         TestWithEventWaitList {
-protected:
+ protected:
   void EventWaitListAPICall(cl_int err, cl_uint num_events,
                             const cl_event *events, cl_event *event) override {
     ASSERT_EQ_ERRCODE(err, clEnqueueMarkerWithWaitList(

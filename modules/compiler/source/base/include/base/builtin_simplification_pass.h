@@ -39,6 +39,6 @@ struct BuiltinSimplificationPass final
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_BUILTIN_SIMPLIFICATION_PASS_H_INCLUDED
+#endif  // BASE_BUILTIN_SIMPLIFICATION_PASS_H_INCLUDED

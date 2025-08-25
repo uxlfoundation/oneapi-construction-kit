@@ -34,9 +34,9 @@ struct cl_khr_command_buffer_Test : public ucl::CommandQueueTest {
     }
 
     // If it is supported get the addresses of all the APIs here.
-#define GET_EXTENSION_ADDRESS(FUNC)                                            \
-  FUNC = reinterpret_cast<FUNC##_fn>(                                          \
-      clGetExtensionFunctionAddressForPlatform(platform, #FUNC));              \
+#define GET_EXTENSION_ADDRESS(FUNC)                               \
+  FUNC = reinterpret_cast<FUNC##_fn>(                             \
+      clGetExtensionFunctionAddressForPlatform(platform, #FUNC)); \
   ASSERT_NE(nullptr, FUNC) << "Could not get address of " << #FUNC;
 
     GET_EXTENSION_ADDRESS(clCreateCommandBufferKHR);
@@ -94,4 +94,4 @@ struct cl_khr_command_buffer_Test : public ucl::CommandQueueTest {
 
   cl_device_command_buffer_capabilities_khr capabilities = 0;
 };
-#endif // UNITCL_COMMAND_BUFFER_H_INCLUDED
+#endif  // UNITCL_COMMAND_BUFFER_H_INCLUDED

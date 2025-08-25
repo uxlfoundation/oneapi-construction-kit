@@ -39,6 +39,6 @@ struct codeplay_kernel_debug final : extension {
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_CODEPLAY_KERNEL_DEBUG_H_INCLUDED
+#endif  // EXTENSION_CODEPLAY_KERNEL_DEBUG_H_INCLUDED

@@ -50,7 +50,8 @@ namespace ucl {
 ///
 /// @tparam T OpenCL vector type to wrap.
 /// @tparam Tag Tag type to disambiguate `cl_half` from `cl_short`.
-template <class T, class Tag> struct ScalarType {
+template <class T, class Tag>
+struct ScalarType {
   using cl_type = T;
   using value_type = T;
 
@@ -107,7 +108,7 @@ template <class T, class Tag> struct ScalarType {
     return Name;
   }
 
-private:
+ private:
   cl_type Value;
 };
 
@@ -206,7 +207,8 @@ inline bool operator>=(const ScalarType<T, Tag> &left,
 /// @tparam T OpenCL vector type to wrap.
 /// @tparam N Number of accessible element in the vector type.
 /// @tparam Tag Tag type to disambiguate `cl_half<n>` from `cl_short<n>`.
-template <class T, size_t N, class Tag> struct VectorType {
+template <class T, size_t N, class Tag>
+struct VectorType {
   using cl_type = T;
   using value_type =
       std::remove_reference_t<decltype(std::declval<cl_type>().s[0])>;
@@ -388,7 +390,7 @@ template <class T, size_t N, class Tag> struct VectorType {
     return Name;
   }
 
-private:
+ private:
   cl_type Vector;
 };
 
@@ -402,7 +404,8 @@ private:
 /// then passed as an argument to the kernel under test.
 ///
 /// @tparam T OpenCL vector type to wrap.
-template <class T, class Tag> struct PackedVector3Type : VectorType<T, 3, Tag> {
+template <class T, class Tag>
+struct PackedVector3Type : VectorType<T, 3, Tag> {
   using cl_type = typename VectorType<T, 3, Tag>::cl_type;
   using value_type = typename VectorType<T, 3, Tag>::value_type;
   using reference = typename VectorType<T, 3, Tag>::reference;
@@ -551,14 +554,14 @@ inline bool operator>=(const VectorType<T, N, Tag> &left,
       [](const T &a, const T &b) -> bool { return a >= b; });
 }
 
-#define TYPES(NAME, TYPE)                                                      \
-  struct NAME##Tag {};                                                         \
-  using NAME = ScalarType<TYPE, NAME##Tag>;                                    \
-  using NAME##2 = VectorType<TYPE##2, 2, NAME##Tag>;                           \
-  using NAME##3 = VectorType<TYPE##3, 3, NAME##Tag>;                           \
-  using Packed##NAME##3 = PackedVector3Type<TYPE##3, NAME##Tag>;               \
-  using NAME##4 = VectorType<TYPE##4, 4, NAME##Tag>;                           \
-  using NAME##8 = VectorType<TYPE##8, 8, NAME##Tag>;                           \
+#define TYPES(NAME, TYPE)                                        \
+  struct NAME##Tag {};                                           \
+  using NAME = ScalarType<TYPE, NAME##Tag>;                      \
+  using NAME##2 = VectorType<TYPE##2, 2, NAME##Tag>;             \
+  using NAME##3 = VectorType<TYPE##3, 3, NAME##Tag>;             \
+  using Packed##NAME##3 = PackedVector3Type<TYPE##3, NAME##Tag>; \
+  using NAME##4 = VectorType<TYPE##4, 4, NAME##Tag>;             \
+  using NAME##8 = VectorType<TYPE##8, 8, NAME##Tag>;             \
   using NAME##16 = VectorType<TYPE##16, 16, NAME##Tag>
 
 TYPES(Char, cl_char);
@@ -632,17 +635,19 @@ inline std::ostream &operator<<(std::ostream &out,
   return out;
 }
 
-template <typename> struct is_scalar : public std::false_type {};
+template <typename>
+struct is_scalar : public std::false_type {};
 
 template <typename ValTy, typename TagTy>
 struct is_scalar<ucl::ScalarType<ValTy, TagTy>> : public std::true_type {};
 
-template <typename> struct is_vector : public std::false_type {};
+template <typename>
+struct is_vector : public std::false_type {};
 
 template <typename T, std::size_t Size, typename TagTy>
 struct is_vector<ucl::VectorType<T, Size, TagTy>> : public std::true_type {};
 
-} // namespace ucl
+}  // namespace ucl
 
 namespace testing {
 namespace internal {
@@ -651,155 +656,281 @@ namespace internal {
 // disable RTTI. This could is likely to break if the googletest API is
 // changed.
 
-template <> inline std::string GetTypeName<ucl::Char>() { return "cl_char"; }
-template <> inline std::string GetTypeName<ucl::Char2>() { return "cl_char2"; }
-template <> inline std::string GetTypeName<ucl::Char3>() { return "cl_char3"; }
-template <> inline std::string GetTypeName<ucl::Char4>() { return "cl_char4"; }
-template <> inline std::string GetTypeName<ucl::Char8>() { return "cl_char8"; }
-template <> inline std::string GetTypeName<ucl::Char16>() {
+template <>
+inline std::string GetTypeName<ucl::Char>() {
+  return "cl_char";
+}
+template <>
+inline std::string GetTypeName<ucl::Char2>() {
+  return "cl_char2";
+}
+template <>
+inline std::string GetTypeName<ucl::Char3>() {
+  return "cl_char3";
+}
+template <>
+inline std::string GetTypeName<ucl::Char4>() {
+  return "cl_char4";
+}
+template <>
+inline std::string GetTypeName<ucl::Char8>() {
+  return "cl_char8";
+}
+template <>
+inline std::string GetTypeName<ucl::Char16>() {
   return "cl_char16";
 }
 
-template <> inline std::string GetTypeName<ucl::UChar>() { return "cl_uchar"; }
-template <> inline std::string GetTypeName<ucl::UChar2>() {
+template <>
+inline std::string GetTypeName<ucl::UChar>() {
+  return "cl_uchar";
+}
+template <>
+inline std::string GetTypeName<ucl::UChar2>() {
   return "cl_uchar2";
 }
-template <> inline std::string GetTypeName<ucl::UChar3>() {
+template <>
+inline std::string GetTypeName<ucl::UChar3>() {
   return "cl_uchar3";
 }
-template <> inline std::string GetTypeName<ucl::UChar4>() {
+template <>
+inline std::string GetTypeName<ucl::UChar4>() {
   return "cl_uchar4";
 }
-template <> inline std::string GetTypeName<ucl::UChar8>() {
+template <>
+inline std::string GetTypeName<ucl::UChar8>() {
   return "cl_uchar8";
 }
-template <> inline std::string GetTypeName<ucl::UChar16>() {
+template <>
+inline std::string GetTypeName<ucl::UChar16>() {
   return "cl_uchar16";
 }
 
-template <> inline std::string GetTypeName<ucl::Short>() { return "cl_short"; }
-template <> inline std::string GetTypeName<ucl::Short2>() {
+template <>
+inline std::string GetTypeName<ucl::Short>() {
+  return "cl_short";
+}
+template <>
+inline std::string GetTypeName<ucl::Short2>() {
   return "cl_short2";
 }
-template <> inline std::string GetTypeName<ucl::Short3>() {
+template <>
+inline std::string GetTypeName<ucl::Short3>() {
   return "cl_short3";
 }
-template <> inline std::string GetTypeName<ucl::Short4>() {
+template <>
+inline std::string GetTypeName<ucl::Short4>() {
   return "cl_short4";
 }
-template <> inline std::string GetTypeName<ucl::Short8>() {
+template <>
+inline std::string GetTypeName<ucl::Short8>() {
   return "cl_short8";
 }
-template <> inline std::string GetTypeName<ucl::Short16>() {
+template <>
+inline std::string GetTypeName<ucl::Short16>() {
   return "cl_short16";
 }
 
-template <> inline std::string GetTypeName<ucl::UShort>() {
+template <>
+inline std::string GetTypeName<ucl::UShort>() {
   return "cl_ushort";
 }
-template <> inline std::string GetTypeName<ucl::UShort2>() {
+template <>
+inline std::string GetTypeName<ucl::UShort2>() {
   return "cl_ushort2";
 }
-template <> inline std::string GetTypeName<ucl::UShort3>() {
+template <>
+inline std::string GetTypeName<ucl::UShort3>() {
   return "cl_ushort3";
 }
-template <> inline std::string GetTypeName<ucl::UShort4>() {
+template <>
+inline std::string GetTypeName<ucl::UShort4>() {
   return "cl_ushort4";
 }
-template <> inline std::string GetTypeName<ucl::UShort8>() {
+template <>
+inline std::string GetTypeName<ucl::UShort8>() {
   return "cl_ushort8";
 }
-template <> inline std::string GetTypeName<ucl::UShort16>() {
+template <>
+inline std::string GetTypeName<ucl::UShort16>() {
   return "cl_ushort16";
 }
 
-template <> inline std::string GetTypeName<ucl::Int>() { return "cl_int"; }
-template <> inline std::string GetTypeName<ucl::Int2>() { return "cl_int2"; }
-template <> inline std::string GetTypeName<ucl::Int3>() { return "cl_int3"; }
-template <> inline std::string GetTypeName<ucl::Int4>() { return "cl_int4"; }
-template <> inline std::string GetTypeName<ucl::Int8>() { return "cl_int8"; }
-template <> inline std::string GetTypeName<ucl::Int16>() { return "cl_int16"; }
+template <>
+inline std::string GetTypeName<ucl::Int>() {
+  return "cl_int";
+}
+template <>
+inline std::string GetTypeName<ucl::Int2>() {
+  return "cl_int2";
+}
+template <>
+inline std::string GetTypeName<ucl::Int3>() {
+  return "cl_int3";
+}
+template <>
+inline std::string GetTypeName<ucl::Int4>() {
+  return "cl_int4";
+}
+template <>
+inline std::string GetTypeName<ucl::Int8>() {
+  return "cl_int8";
+}
+template <>
+inline std::string GetTypeName<ucl::Int16>() {
+  return "cl_int16";
+}
 
-template <> inline std::string GetTypeName<ucl::UInt>() { return "cl_uint"; }
-template <> inline std::string GetTypeName<ucl::UInt2>() { return "cl_uint2"; }
-template <> inline std::string GetTypeName<ucl::UInt3>() { return "cl_uint3"; }
-template <> inline std::string GetTypeName<ucl::UInt4>() { return "cl_uint4"; }
-template <> inline std::string GetTypeName<ucl::UInt8>() { return "cl_uint8"; }
-template <> inline std::string GetTypeName<ucl::UInt16>() {
+template <>
+inline std::string GetTypeName<ucl::UInt>() {
+  return "cl_uint";
+}
+template <>
+inline std::string GetTypeName<ucl::UInt2>() {
+  return "cl_uint2";
+}
+template <>
+inline std::string GetTypeName<ucl::UInt3>() {
+  return "cl_uint3";
+}
+template <>
+inline std::string GetTypeName<ucl::UInt4>() {
+  return "cl_uint4";
+}
+template <>
+inline std::string GetTypeName<ucl::UInt8>() {
+  return "cl_uint8";
+}
+template <>
+inline std::string GetTypeName<ucl::UInt16>() {
   return "cl_uint16";
 }
 
-template <> inline std::string GetTypeName<ucl::Long>() { return "cl_long"; }
-template <> inline std::string GetTypeName<ucl::Long2>() { return "cl_long2"; }
-template <> inline std::string GetTypeName<ucl::Long3>() { return "cl_long3"; }
-template <> inline std::string GetTypeName<ucl::Long4>() { return "cl_long4"; }
-template <> inline std::string GetTypeName<ucl::Long8>() { return "cl_long8"; }
-template <> inline std::string GetTypeName<ucl::Long16>() {
+template <>
+inline std::string GetTypeName<ucl::Long>() {
+  return "cl_long";
+}
+template <>
+inline std::string GetTypeName<ucl::Long2>() {
+  return "cl_long2";
+}
+template <>
+inline std::string GetTypeName<ucl::Long3>() {
+  return "cl_long3";
+}
+template <>
+inline std::string GetTypeName<ucl::Long4>() {
+  return "cl_long4";
+}
+template <>
+inline std::string GetTypeName<ucl::Long8>() {
+  return "cl_long8";
+}
+template <>
+inline std::string GetTypeName<ucl::Long16>() {
   return "cl_long16";
 }
 
-template <> inline std::string GetTypeName<ucl::ULong>() { return "cl_ulong"; }
-template <> inline std::string GetTypeName<ucl::ULong2>() {
+template <>
+inline std::string GetTypeName<ucl::ULong>() {
+  return "cl_ulong";
+}
+template <>
+inline std::string GetTypeName<ucl::ULong2>() {
   return "cl_ulong2";
 }
-template <> inline std::string GetTypeName<ucl::ULong3>() {
+template <>
+inline std::string GetTypeName<ucl::ULong3>() {
   return "cl_ulong3";
 }
-template <> inline std::string GetTypeName<ucl::ULong4>() {
+template <>
+inline std::string GetTypeName<ucl::ULong4>() {
   return "cl_ulong4";
 }
-template <> inline std::string GetTypeName<ucl::ULong8>() {
+template <>
+inline std::string GetTypeName<ucl::ULong8>() {
   return "cl_ulong8";
 }
-template <> inline std::string GetTypeName<ucl::ULong16>() {
+template <>
+inline std::string GetTypeName<ucl::ULong16>() {
   return "cl_ulong16";
 }
 
-template <> inline std::string GetTypeName<ucl::Half>() { return "cl_half"; }
-template <> inline std::string GetTypeName<ucl::Half2>() { return "cl_half2"; }
-template <> inline std::string GetTypeName<ucl::Half3>() { return "cl_half3"; }
-template <> inline std::string GetTypeName<ucl::Half4>() { return "cl_half4"; }
-template <> inline std::string GetTypeName<ucl::Half8>() { return "cl_half8"; }
-template <> inline std::string GetTypeName<ucl::Half16>() {
+template <>
+inline std::string GetTypeName<ucl::Half>() {
+  return "cl_half";
+}
+template <>
+inline std::string GetTypeName<ucl::Half2>() {
+  return "cl_half2";
+}
+template <>
+inline std::string GetTypeName<ucl::Half3>() {
+  return "cl_half3";
+}
+template <>
+inline std::string GetTypeName<ucl::Half4>() {
+  return "cl_half4";
+}
+template <>
+inline std::string GetTypeName<ucl::Half8>() {
+  return "cl_half8";
+}
+template <>
+inline std::string GetTypeName<ucl::Half16>() {
   return "cl_half16";
 }
 
-template <> inline std::string GetTypeName<ucl::Float>() { return "cl_float"; }
-template <> inline std::string GetTypeName<ucl::Float2>() {
+template <>
+inline std::string GetTypeName<ucl::Float>() {
+  return "cl_float";
+}
+template <>
+inline std::string GetTypeName<ucl::Float2>() {
   return "cl_float2";
 }
-template <> inline std::string GetTypeName<ucl::Float3>() {
+template <>
+inline std::string GetTypeName<ucl::Float3>() {
   return "cl_float3";
 }
-template <> inline std::string GetTypeName<ucl::Float4>() {
+template <>
+inline std::string GetTypeName<ucl::Float4>() {
   return "cl_float4";
 }
-template <> inline std::string GetTypeName<ucl::Float8>() {
+template <>
+inline std::string GetTypeName<ucl::Float8>() {
   return "cl_float8";
 }
-template <> inline std::string GetTypeName<ucl::Float16>() {
+template <>
+inline std::string GetTypeName<ucl::Float16>() {
   return "cl_float16";
 }
 
-template <> inline std::string GetTypeName<ucl::Double>() {
+template <>
+inline std::string GetTypeName<ucl::Double>() {
   return "cl_double";
 }
-template <> inline std::string GetTypeName<ucl::Double2>() {
+template <>
+inline std::string GetTypeName<ucl::Double2>() {
   return "cl_double2";
 }
-template <> inline std::string GetTypeName<ucl::Double3>() {
+template <>
+inline std::string GetTypeName<ucl::Double3>() {
   return "cl_double3";
 }
-template <> inline std::string GetTypeName<ucl::Double4>() {
+template <>
+inline std::string GetTypeName<ucl::Double4>() {
   return "cl_double4";
 }
-template <> inline std::string GetTypeName<ucl::Double8>() {
+template <>
+inline std::string GetTypeName<ucl::Double8>() {
   return "cl_double8";
 }
-template <> inline std::string GetTypeName<ucl::Double16>() {
+template <>
+inline std::string GetTypeName<ucl::Double16>() {
   return "cl_double16";
 }
-} // namespace internal
-} // namespace testing
+}  // namespace internal
+}  // namespace testing
 
-#endif // UNITCL_TYPES_H_INCLUDED
+#endif  // UNITCL_TYPES_H_INCLUDED

@@ -28,10 +28,10 @@
 #include <cstdio>
 
 /// @brief Print a backtrace of the call stack with file, line info.
-#define DEBUG_BACKTRACE                                                        \
-  {                                                                            \
-    std::fprintf(stderr, "backtrace from %s:%d\n", __FILE__, __LINE__);        \
-    debug::print_backtrace(stderr);                                            \
+#define DEBUG_BACKTRACE                                                 \
+  {                                                                     \
+    std::fprintf(stderr, "backtrace from %s:%d\n", __FILE__, __LINE__); \
+    debug::print_backtrace(stderr);                                     \
   }
 
 namespace debug {
@@ -39,6 +39,6 @@ namespace debug {
 ///
 /// @param out Output destination for the backtrace.
 void print_backtrace(FILE *out);
-} // namespace debug
+}  // namespace debug
 
-#endif // DEBUG_BACKTRACE_H_INCLUDED
+#endif  // DEBUG_BACKTRACE_H_INCLUDED

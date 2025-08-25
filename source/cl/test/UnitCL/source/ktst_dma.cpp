@@ -116,7 +116,7 @@ std::shared_ptr<Half3StreamerTy> makeHalf3Streamer(F &&f) {
   return std::make_shared<Half3StreamerTy>(ref);
 }
 
-} // namespace
+}  // namespace
 
 TEST_P(Execution, Dma_01_Direct) {
   AddInputBuffer(kts::N, vaddInA);
@@ -178,7 +178,7 @@ static constexpr size_t LOCAL_ITEMS_2D = 2;
 static constexpr size_t GLOBAL_ITEMS_TOTAL = GLOBAL_ITEMS_1D * GLOBAL_ITEMS_2D;
 
 class DmaAutoConvolutionExecute : public Execution {
-public:
+ public:
   void DmaAutoConvolution(bool includeMiddle, cl_uint totalStart,
                           uint32_t maskLoop1, uint32_t maskLoop2,
                           bool extraParam) {

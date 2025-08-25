@@ -52,6 +52,6 @@ struct CombineFPExtFPTruncPass final
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_COMBINE_FPEXT_FPTRUNC_PASS_H_INCLUDED
+#endif  // BASE_COMBINE_FPEXT_FPTRUNC_PASS_H_INCLUDED

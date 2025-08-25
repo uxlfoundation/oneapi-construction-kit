@@ -26,14 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define IS_CL_SUCCESS(X)                                                       \
-  {                                                                            \
-    const cl_int ret_val = X;                                                  \
-    if (CL_SUCCESS != ret_val) {                                               \
-      (void)fprintf(stderr, "OpenCL error occurred: %s returned %d\n", #X,     \
-                    ret_val);                                                  \
-      exit(1);                                                                 \
-    }                                                                          \
+#define IS_CL_SUCCESS(X)                                                   \
+  {                                                                        \
+    const cl_int ret_val = X;                                              \
+    if (CL_SUCCESS != ret_val) {                                           \
+      (void)fprintf(stderr, "OpenCL error occurred: %s returned %d\n", #X, \
+                    ret_val);                                              \
+      exit(1);                                                             \
+    }                                                                      \
   }
 
 /// @brief Print help message on executable usage
@@ -271,4 +271,4 @@ cl_device_id selectDevice(cl_platform_id selected_platform,
   free((void *)devices);
   return selected_device_id;
 }
-#endif // CL_COMMON_EXAMPLES_H_INCLUDED
+#endif  // CL_COMMON_EXAMPLES_H_INCLUDED

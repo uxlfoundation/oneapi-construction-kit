@@ -30,10 +30,10 @@ namespace utils {
 /// the appropriate atomic llvm instructions.
 class ReplaceAtomicFuncsPass final
     : public llvm::PassInfoMixin<ReplaceAtomicFuncsPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_REPLACE_ATOMIC_FUNCS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REPLACE_ATOMIC_FUNCS_PASS_H_INCLUDED

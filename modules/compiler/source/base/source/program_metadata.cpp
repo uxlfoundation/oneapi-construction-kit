@@ -53,9 +53,9 @@ bool isImageType(llvm::StringRef type_name, const char *const compare) {
   return false;
 }
 
-compiler::ArgumentType
-createIntegerOrSamplerType(uint32_t num_elements, uint32_t element_width,
-                           const llvm::MDString *metadata) {
+compiler::ArgumentType createIntegerOrSamplerType(
+    uint32_t num_elements, uint32_t element_width,
+    const llvm::MDString *metadata) {
   if (metadata) {
     if ((metadata->getString() == "sampler_t") && 1 == num_elements &&
         32 == element_width) {
@@ -63,94 +63,94 @@ createIntegerOrSamplerType(uint32_t num_elements, uint32_t element_width,
     }
   }
   switch (num_elements) {
-  case 1:
-    switch (element_width) {
     case 1:
-      return {ArgumentKind::INT1};
+      switch (element_width) {
+        case 1:
+          return {ArgumentKind::INT1};
+        case 8:
+          return {ArgumentKind::INT8};
+        case 16:
+          return {ArgumentKind::INT16};
+        case 32:
+          return {ArgumentKind::INT32};
+        case 64:
+          return {ArgumentKind::INT64};
+        default:
+          break;
+      }
+      break;
+    case 2:
+      switch (element_width) {
+        case 8:
+          return {ArgumentKind::INT8_2};
+        case 16:
+          return {ArgumentKind::INT16_2};
+        case 32:
+          return {ArgumentKind::INT32_2};
+        case 64:
+          return {ArgumentKind::INT64_2};
+        default:
+          break;
+      }
+      break;
+    case 3:
+      switch (element_width) {
+        case 8:
+          return {ArgumentKind::INT8_3};
+        case 16:
+          return {ArgumentKind::INT16_3};
+        case 32:
+          return {ArgumentKind::INT32_3};
+        case 64:
+          return {ArgumentKind::INT64_3};
+        default:
+          break;
+      }
+      break;
+    case 4:
+      switch (element_width) {
+        case 8:
+          return {ArgumentKind::INT8_4};
+        case 16:
+          return {ArgumentKind::INT16_4};
+        case 32:
+          return {ArgumentKind::INT32_4};
+        case 64:
+          return {ArgumentKind::INT64_4};
+        default:
+          break;
+      }
+      break;
     case 8:
-      return {ArgumentKind::INT8};
+      switch (element_width) {
+        case 8:
+          return {ArgumentKind::INT8_8};
+        case 16:
+          return {ArgumentKind::INT16_8};
+        case 32:
+          return {ArgumentKind::INT32_8};
+        case 64:
+          return {ArgumentKind::INT64_8};
+        default:
+          break;
+      }
+      break;
     case 16:
-      return {ArgumentKind::INT16};
-    case 32:
-      return {ArgumentKind::INT32};
-    case 64:
-      return {ArgumentKind::INT64};
+      switch (element_width) {
+        case 8:
+          return {ArgumentKind::INT8_16};
+        case 16:
+          return {ArgumentKind::INT16_16};
+        case 32:
+          return {ArgumentKind::INT32_16};
+        case 64:
+          return {ArgumentKind::INT64_16};
+        default:
+          break;
+      }
+      break;
     default:
       break;
-    }
-    break;
-  case 2:
-    switch (element_width) {
-    case 8:
-      return {ArgumentKind::INT8_2};
-    case 16:
-      return {ArgumentKind::INT16_2};
-    case 32:
-      return {ArgumentKind::INT32_2};
-    case 64:
-      return {ArgumentKind::INT64_2};
-    default:
-      break;
-    }
-    break;
-  case 3:
-    switch (element_width) {
-    case 8:
-      return {ArgumentKind::INT8_3};
-    case 16:
-      return {ArgumentKind::INT16_3};
-    case 32:
-      return {ArgumentKind::INT32_3};
-    case 64:
-      return {ArgumentKind::INT64_3};
-    default:
-      break;
-    }
-    break;
-  case 4:
-    switch (element_width) {
-    case 8:
-      return {ArgumentKind::INT8_4};
-    case 16:
-      return {ArgumentKind::INT16_4};
-    case 32:
-      return {ArgumentKind::INT32_4};
-    case 64:
-      return {ArgumentKind::INT64_4};
-    default:
-      break;
-    }
-    break;
-  case 8:
-    switch (element_width) {
-    case 8:
-      return {ArgumentKind::INT8_8};
-    case 16:
-      return {ArgumentKind::INT16_8};
-    case 32:
-      return {ArgumentKind::INT32_8};
-    case 64:
-      return {ArgumentKind::INT64_8};
-    default:
-      break;
-    }
-    break;
-  case 16:
-    switch (element_width) {
-    case 8:
-      return {ArgumentKind::INT8_16};
-    case 16:
-      return {ArgumentKind::INT16_16};
-    case 32:
-      return {ArgumentKind::INT32_16};
-    case 64:
-      return {ArgumentKind::INT64_16};
-    default:
-      break;
-    }
-    break;
-  default:
-    break;
   }
 
   CPL_ABORT("Unknown integer argument type.");
@@ -162,54 +162,54 @@ ArgumentType createFloatingPointType(uint32_t num_elements,
                                      uint32_t element_width) {
   if (element_width == 16) {
     switch (num_elements) {
-    case 1:
-      return {ArgumentKind::HALF};
-    case 2:
-      return {ArgumentKind::HALF_2};
-    case 3:
-      return {ArgumentKind::HALF_3};
-    case 4:
-      return {ArgumentKind::HALF_4};
-    case 8:
-      return {ArgumentKind::HALF_8};
-    case 16:
-      return {ArgumentKind::HALF_16};
-    default:
-      break;
+      case 1:
+        return {ArgumentKind::HALF};
+      case 2:
+        return {ArgumentKind::HALF_2};
+      case 3:
+        return {ArgumentKind::HALF_3};
+      case 4:
+        return {ArgumentKind::HALF_4};
+      case 8:
+        return {ArgumentKind::HALF_8};
+      case 16:
+        return {ArgumentKind::HALF_16};
+      default:
+        break;
     }
   } else if (element_width == 32) {
     switch (num_elements) {
-    case 1:
-      return {ArgumentKind::FLOAT};
-    case 2:
-      return {ArgumentKind::FLOAT_2};
-    case 3:
-      return {ArgumentKind::FLOAT_3};
-    case 4:
-      return {ArgumentKind::FLOAT_4};
-    case 8:
-      return {ArgumentKind::FLOAT_8};
-    case 16:
-      return {ArgumentKind::FLOAT_16};
-    default:
-      break;
+      case 1:
+        return {ArgumentKind::FLOAT};
+      case 2:
+        return {ArgumentKind::FLOAT_2};
+      case 3:
+        return {ArgumentKind::FLOAT_3};
+      case 4:
+        return {ArgumentKind::FLOAT_4};
+      case 8:
+        return {ArgumentKind::FLOAT_8};
+      case 16:
+        return {ArgumentKind::FLOAT_16};
+      default:
+        break;
     }
   } else if (element_width == 64) {
     switch (num_elements) {
-    case 1:
-      return {ArgumentKind::DOUBLE};
-    case 2:
-      return {ArgumentKind::DOUBLE_2};
-    case 3:
-      return {ArgumentKind::DOUBLE_3};
-    case 4:
-      return {ArgumentKind::DOUBLE_4};
-    case 8:
-      return {ArgumentKind::DOUBLE_8};
-    case 16:
-      return {ArgumentKind::DOUBLE_16};
-    default:
-      break;
+      case 1:
+        return {ArgumentKind::DOUBLE};
+      case 2:
+        return {ArgumentKind::DOUBLE_2};
+      case 3:
+        return {ArgumentKind::DOUBLE_3};
+      case 4:
+        return {ArgumentKind::DOUBLE_4};
+      case 8:
+        return {ArgumentKind::DOUBLE_8};
+      case 16:
+        return {ArgumentKind::DOUBLE_16};
+      default:
+        break;
     }
   }
 
@@ -256,17 +256,17 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
   // Handle scalar types.
   llvm::IntegerType *IntTy = nullptr;
   switch (Ty->getTypeID()) {
-  default:
-    break;
-  case llvm::Type::IntegerTyID:
-    IntTy = llvm::cast<llvm::IntegerType>(Ty);
-    return createIntegerOrSamplerType(1, IntTy->getBitWidth(), metadata);
-  case llvm::Type::HalfTyID:
-    return createFloatingPointType(1, 16);
-  case llvm::Type::FloatTyID:
-    return createFloatingPointType(1, 32);
-  case llvm::Type::DoubleTyID:
-    return createFloatingPointType(1, 64);
+    default:
+      break;
+    case llvm::Type::IntegerTyID:
+      IntTy = llvm::cast<llvm::IntegerType>(Ty);
+      return createIntegerOrSamplerType(1, IntTy->getBitWidth(), metadata);
+    case llvm::Type::HalfTyID:
+      return createFloatingPointType(1, 16);
+    case llvm::Type::FloatTyID:
+      return createFloatingPointType(1, 32);
+    case llvm::Type::DoubleTyID:
+      return createFloatingPointType(1, 64);
   }
 
   // Handle vector types.
@@ -277,18 +277,18 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
 
     llvm::IntegerType *IntEleTy = nullptr;
     switch (EleTy->getTypeID()) {
-    default:
-      break;
-    case llvm::Type::IntegerTyID:
-      IntEleTy = llvm::cast<llvm::IntegerType>(EleTy);
-      return createIntegerOrSamplerType(NumEle, IntEleTy->getBitWidth(),
-                                        nullptr);
-    case llvm::Type::HalfTyID:
-      return createFloatingPointType(NumEle, 16);
-    case llvm::Type::FloatTyID:
-      return createFloatingPointType(NumEle, 32);
-    case llvm::Type::DoubleTyID:
-      return createFloatingPointType(NumEle, 64);
+      default:
+        break;
+      case llvm::Type::IntegerTyID:
+        IntEleTy = llvm::cast<llvm::IntegerType>(EleTy);
+        return createIntegerOrSamplerType(NumEle, IntEleTy->getBitWidth(),
+                                          nullptr);
+      case llvm::Type::HalfTyID:
+        return createFloatingPointType(NumEle, 16);
+      case llvm::Type::FloatTyID:
+        return createFloatingPointType(NumEle, 32);
+      case llvm::Type::DoubleTyID:
+        return createFloatingPointType(NumEle, 64);
     }
   }
 
@@ -306,36 +306,36 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
           TgtTy->getIntParameter(utils::tgtext::ImageTyArrayedIdx) ==
           utils::tgtext::ImageArrayed;
       switch (Dim) {
-      default:
-        CPL_ABORT("Unknown spirv.Image target extension type");
-      case utils::tgtext::ImageDim1D:
-        if (!Arrayed) {
-          assert(isImageType(type_name, "image1d_t") &&
+        default:
+          CPL_ABORT("Unknown spirv.Image target extension type");
+        case utils::tgtext::ImageDim1D:
+          if (!Arrayed) {
+            assert(isImageType(type_name, "image1d_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE1D};
+          } else {
+            assert(isImageType(type_name, "image1d_array_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE1D_ARRAY};
+          }
+        case utils::tgtext::ImageDim2D:
+          if (!Arrayed) {
+            assert(isImageType(type_name, "image2d_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE2D};
+          } else {
+            assert(isImageType(type_name, "image2d_array_t") &&
+                   "Unexpected image type metadata");
+            return {ArgumentKind::IMAGE2D_ARRAY};
+          }
+        case utils::tgtext::ImageDim3D:
+          assert(isImageType(type_name, "image3d_t") &&
                  "Unexpected image type metadata");
-          return {ArgumentKind::IMAGE1D};
-        } else {
-          assert(isImageType(type_name, "image1d_array_t") &&
+          return {ArgumentKind::IMAGE3D};
+        case utils::tgtext::ImageDimBuffer:
+          assert(isImageType(type_name, "image1d_buffer_t") &&
                  "Unexpected image type metadata");
-          return {ArgumentKind::IMAGE1D_ARRAY};
-        }
-      case utils::tgtext::ImageDim2D:
-        if (!Arrayed) {
-          assert(isImageType(type_name, "image2d_t") &&
-                 "Unexpected image type metadata");
-          return {ArgumentKind::IMAGE2D};
-        } else {
-          assert(isImageType(type_name, "image2d_array_t") &&
-                 "Unexpected image type metadata");
-          return {ArgumentKind::IMAGE2D_ARRAY};
-        }
-      case utils::tgtext::ImageDim3D:
-        assert(isImageType(type_name, "image3d_t") &&
-               "Unexpected image type metadata");
-        return {ArgumentKind::IMAGE3D};
-      case utils::tgtext::ImageDimBuffer:
-        assert(isImageType(type_name, "image1d_buffer_t") &&
-               "Unexpected image type metadata");
-        return {ArgumentKind::IMAGE1D_BUFFER};
+          return {ArgumentKind::IMAGE1D_BUFFER};
       }
     }
 
@@ -445,7 +445,7 @@ void populateVectorTypeHintAttribute(KernelInfo &kernel_info,
     stream << "bool";
   } else if (type_info->isVoidTy()) {
     stream << "void";
-  } else { // Defaults to int
+  } else {  // Defaults to int
     stream << "int";
   }
   if (type_hint->isVectorTy()) {
@@ -482,9 +482,8 @@ void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
 /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
 /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when there was a problem with the
 /// LLVM IR.
-cargo::expected<KernelInfo, Result>
-populateKernelInfoFromFunction(llvm::Function *function, llvm::MDNode *node,
-                               bool storeArgumentMetadata) {
+cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
+    llvm::Function *function, llvm::MDNode *node, bool storeArgumentMetadata) {
   KernelInfo kernel_info;
   kernel_info.name = function->getName().str();
   if (cargo::success !=
@@ -557,20 +556,20 @@ populateKernelInfoFromFunction(llvm::Function *function, llvm::MDNode *node,
               llvm::cast<llvm::ConstantInt>(vmdAddrQual->getValue());
 
           switch (*addressQual->getValue().getRawData()) {
-          case 0:
-            info.address_qual = AddressSpace::PRIVATE;
-            break;
-          case 1:
-            info.address_qual = AddressSpace::GLOBAL;
-            break;
-          case 2:
-            info.address_qual = AddressSpace::CONSTANT;
-            break;
-          case 3:
-            info.address_qual = AddressSpace::LOCAL;
-            break;
-          default:
-            break;
+            case 0:
+              info.address_qual = AddressSpace::PRIVATE;
+              break;
+            case 1:
+              info.address_qual = AddressSpace::GLOBAL;
+              break;
+            case 2:
+              info.address_qual = AddressSpace::CONSTANT;
+              break;
+            case 3:
+              info.address_qual = AddressSpace::LOCAL;
+              break;
+            default:
+              break;
           }
         } else if ("kernel_arg_access_qual" == mdName) {
           llvm::MDString *const accessQual =
@@ -634,7 +633,7 @@ populateKernelInfoFromFunction(llvm::Function *function, llvm::MDNode *node,
 
   return std::move(kernel_info);
 }
-} // namespace
+}  // namespace
 
 Result moduleToProgramInfo(ProgramInfo &program_info, llvm::Module *const M,
                            bool store_argument_metadata) {
@@ -665,4 +664,4 @@ Result moduleToProgramInfo(ProgramInfo &program_info, llvm::Module *const M,
 
   return Result::SUCCESS;
 }
-} // namespace compiler
+}  // namespace compiler

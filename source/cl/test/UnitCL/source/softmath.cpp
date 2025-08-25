@@ -159,7 +159,8 @@ struct SoftMathTest : ucl::CommandQueueTest,
 // parameter. Setting 'verify' template parameter to true will verify softmath
 // kernel results are byte identical to the values returned by the reference
 // kernel.
-template <bool verify> struct SoftMathTestOneArg : public SoftMathTest {
+template <bool verify>
+struct SoftMathTestOneArg : public SoftMathTest {
   static const char *program_str;
   static const char *program_vec3_str;
   static constexpr size_t bytes = 128L * 1024L * 3L;
@@ -236,7 +237,8 @@ const char *SoftMathTestOneArg<verify>::program_vec3_str =
 // parameters. Setting 'verify' template parameter to true will verify softmath
 // kernel results are byte identical to the values returned by the reference
 // kernel.
-template <bool verify> struct SoftMathTestTwoArg : public SoftMathTest {
+template <bool verify>
+struct SoftMathTestTwoArg : public SoftMathTest {
   static const char *program_str;
   static const char *program_vec3_str;
   static constexpr size_t bytes = 128L * 1024L * 3L;

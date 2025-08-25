@@ -30,11 +30,11 @@
 // UnitCL assertions can only be triggered from the outer test scope. This
 // macro is intended to be used inside functions, where it prints the error and
 // returns.
-#define UCL_SUCCESS_OR_RETURN_ERR(ERRCODE)                                     \
-  if ((ERRCODE) != CL_SUCCESS) {                                               \
-    (void)std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__,             \
-                       ucl::Error(ERRCODE).description().c_str());             \
-    return ERRCODE;                                                            \
+#define UCL_SUCCESS_OR_RETURN_ERR(ERRCODE)                         \
+  if ((ERRCODE) != CL_SUCCESS) {                                   \
+    (void)std::fprintf(stderr, "%s: %d: %s\n", __FILE__, __LINE__, \
+                       ucl::Error(ERRCODE).description().c_str()); \
+    return ERRCODE;                                                \
   }
 
 /// @brief Return if a fatal failure or skip occured invoking an expression.
@@ -45,18 +45,18 @@
 /// state.
 ///
 /// @param ... Expression to invoke.
-#define UCL_RETURN_ON_FATAL_FAILURE(...)                                       \
-  __VA_ARGS__;                                                                 \
-  if (this->HasFatalFailure() || this->IsSkipped()) {                          \
-    return;                                                                    \
-  }                                                                            \
+#define UCL_RETURN_ON_FATAL_FAILURE(...)              \
+  __VA_ARGS__;                                        \
+  if (this->HasFatalFailure() || this->IsSkipped()) { \
+    return;                                           \
+  }                                                   \
   (void)0
 
 namespace kts {
 namespace ucl {
 class InputGenerator;
-} // namespace ucl
-} // namespace kts
+}  // namespace ucl
+}  // namespace kts
 
 namespace ucl {
 struct BaseTest : testing::Test {
@@ -236,8 +236,8 @@ struct DeviceTest : PlatformTest {
   cl_bool getDevicePreferredInteropUserSync() const;
   cl_device_id getDeviceParentDevice() const;
   cl_uint getDevicePartitionMaxSubDevices() const;
-  std::vector<cl_device_partition_property>
-  getDevicePartitionProperties() const;
+  std::vector<cl_device_partition_property> getDevicePartitionProperties()
+      const;
   cl_device_affinity_domain getDevicePartitionAffinityDomain() const;
   std::vector<cl_device_partition_property> getDevicePartitionType() const;
   cl_uint getDeviceReferenceCount() const;
@@ -258,8 +258,8 @@ struct DeviceTest : PlatformTest {
   cl_bool getDeviceNonUniformWorkGroupSupport() const;
   cl_bool getDeviceWorkGroupCollectiveFunctionsSupport() const;
   cl_bool getDeviceGenericAddressSpaceSupport() const;
-  cl_device_device_enqueue_capabilities
-  getDeviceDeviceEnqueueCapabilities() const;
+  cl_device_device_enqueue_capabilities getDeviceDeviceEnqueueCapabilities()
+      const;
   cl_bool getDevicePipeSupport() const;
   size_t getDevicePreferredWorkGroupSizeMultiple() const;
   std::string getDeviceLatestConformanceVersionPassed() const;
@@ -289,6 +289,6 @@ struct CommandQueueTest : virtual ContextTest {
     command_queue = getEnvironment()->command_queues[context];
   }
 };
-} // namespace ucl
+}  // namespace ucl
 
-#endif // UNITCL_FIXTURES_H_INCLUDED
+#endif  // UNITCL_FIXTURES_H_INCLUDED

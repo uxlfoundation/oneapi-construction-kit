@@ -25,7 +25,8 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct helper<T, abacus_half> {
+template <typename T>
+struct helper<T, abacus_half> {
   static T _(const T x) {
     // Calculated by sollya/log2.sollya.
     // Polynomial approximating the function log2(x+1)/x over the range
@@ -41,7 +42,8 @@ template <typename T> struct helper<T, abacus_half> {
 };
 #endif
 
-template <typename T> struct helper<T, abacus_float> {
+template <typename T>
+struct helper<T, abacus_float> {
   static T _(const T x) {
     // see maple worksheet for polynomial derivation
     const abacus_float polynomial[11] = {+1.44269504f,
@@ -74,14 +76,16 @@ static ABACUS_CONSTANT abacus_double polynomialD[21] = {
     0.9425707890209205614610323e-1, -0.8667287589180527455416767e-1,
     0.3774234507330904507125737e-1};
 
-template <typename T> struct helper<T, abacus_double> {
+template <typename T>
+struct helper<T, abacus_double> {
   static T _(const T x) {
     return x * abacus::internal::horner_polynomial(x, polynomialD);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> T log2(const T x) {
+template <typename T>
+T log2(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type IntType;
@@ -119,7 +123,7 @@ template <typename T> T log2(const T x) {
   const SignedType cond4 = (x < static_cast<T>(0.0f)) | __abacus_isnan(x);
   return __abacus_select(result, FPShape<T>::NaN(), cond4);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_log2(abacus_half x) { return log2<>(x); }
@@ -146,4 +150,4 @@ abacus_double8 ABACUS_API __abacus_log2(abacus_double8 x) { return log2<>(x); }
 abacus_double16 ABACUS_API __abacus_log2(abacus_double16 x) {
   return log2<>(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

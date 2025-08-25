@@ -44,7 +44,7 @@ namespace md {
 template <class KeyType, class MappedType,
           template <class U> class AllocatorType = md::callback_allocator>
 class basic_map {
-public:
+ public:
   using key_type = KeyType;
   using mapped_type = MappedType;
   using value_type = std::pair<key_type, mapped_type>;
@@ -240,11 +240,11 @@ public:
         [&key](const value_type &elem) { return elem.first == key; });
   }
 
-private:
+ private:
   allocator_helper_t m_alloc;
   map_type m_data;
 };
 
 /// @}
-} // namespace md
-#endif // MD_DETAIL_BASIC_MAP_H_INCLUDED
+}  // namespace md
+#endif  // MD_DETAIL_BASIC_MAP_H_INCLUDED

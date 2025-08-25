@@ -25,7 +25,7 @@
 
 namespace llvm {
 class Module;
-} // namespace llvm
+}  // namespace llvm
 
 namespace compiler {
 /// @addtogroup cl_compiler
@@ -48,6 +48,6 @@ Result moduleToProgramInfo(ProgramInfo &program_info,
                            bool store_argument_metadata);
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // BASE_PROGRAM_METADATA_H_INCLUDED
+#endif  // BASE_PROGRAM_METADATA_H_INCLUDED

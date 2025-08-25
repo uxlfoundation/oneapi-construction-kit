@@ -29,4 +29,4 @@ understanding and verifying your patch, please include it here.*
 * Read and follow the project [Code of Conduct](https://github.com/uxlfoundation/oneapi-construction-kit/blob/main/CODE_OF_CONDUCT.md).
 * Make sure the project builds successfully with your changes.
 * Run relevant testing locally to avoid regressions.
-* Run [clang-format-20](https://clang.llvm.org/docs/ClangFormat.html) on all modified code.
+* Run [clang-format-19](https://clang.llvm.org/docs/ClangFormat.html) on all modified code.

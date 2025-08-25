@@ -35,7 +35,7 @@ namespace compiler {
 /// @brief A class that represents a kernel, contained within a `Module`, where
 /// compilation can be deferred to enqueue time.
 class Kernel {
-public:
+ public:
   /// @brief Default constructor.
   ///
   /// @param name Kernel name.
@@ -49,7 +49,8 @@ public:
   Kernel(const std::string &name, size_t preferred_local_size_x,
          size_t preferred_local_size_y, size_t preferred_local_size_z,
          size_t local_memory_size)
-      : name(name), preferred_local_size_x(preferred_local_size_x),
+      : name(name),
+        preferred_local_size_x(preferred_local_size_x),
         preferred_local_size_y(preferred_local_size_y),
         preferred_local_size_z(preferred_local_size_z),
         local_memory_size(local_memory_size) {}
@@ -81,9 +82,8 @@ public:
   /// status code if it was unsuccessful.
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::INVALID_VALUE` if the requested local size is invalid.
-  virtual cargo::expected<uint32_t, Result>
-  getDynamicWorkWidth(size_t local_size_x, size_t local_size_y,
-                      size_t local_size_z) = 0;
+  virtual cargo::expected<uint32_t, Result> getDynamicWorkWidth(
+      size_t local_size_x, size_t local_size_y, size_t local_size_z) = 0;
 
   /// @brief Creates a binary loadable by muxCreateExecutable containing (at
   /// least) this kernel, possibly optimized with a specific configuration. This
@@ -122,9 +122,8 @@ public:
   /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
   /// @retval `Result::FEATURE_UNSUPPORTED` if sub-groups are not supported by
   /// this kernel.
-  virtual cargo::expected<uint32_t, Result>
-  querySubGroupSizeForLocalSize(size_t local_size_x, size_t local_size_y,
-                                size_t local_size_z) = 0;
+  virtual cargo::expected<uint32_t, Result> querySubGroupSizeForLocalSize(
+      size_t local_size_x, size_t local_size_y, size_t local_size_z) = 0;
 
   /// @brief Calculates the local size that would return the requested sub-group
   /// size.
@@ -172,6 +171,6 @@ public:
 };
 
 /// @}
-} // namespace compiler
+}  // namespace compiler
 
-#endif // COMPILER_KERNEL_H_INCLUDED
+#endif  // COMPILER_KERNEL_H_INCLUDED

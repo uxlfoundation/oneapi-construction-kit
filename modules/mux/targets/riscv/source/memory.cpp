@@ -41,7 +41,7 @@ mux_result_t memory_s::flushFromDevice(riscv::device_s *device, uint64_t offset,
   device->profiler.update_counters(*device->hal_device);
   return mux_success;
 }
-} // namespace riscv
+}  // namespace riscv
 
 mux_result_t riscvAllocateMemory(mux_device_t device, size_t size,
                                  uint32_t heap, uint32_t memory_properties,

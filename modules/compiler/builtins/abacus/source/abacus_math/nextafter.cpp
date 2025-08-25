@@ -22,7 +22,8 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T> inline T nextafter_helper_scalar(const T x, const T y) {
+template <typename T>
+inline T nextafter_helper_scalar(const T x, const T y) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements == 1,
@@ -69,7 +70,8 @@ template <typename T> inline T nextafter_helper_scalar(const T x, const T y) {
   return abacus::detail::cast::as<T>(result);
 }
 
-template <typename T> inline T nextafter_helper_vector(const T x, const T y) {
+template <typename T>
+inline T nextafter_helper_vector(const T x, const T y) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements != 1,
@@ -109,7 +111,7 @@ template <typename T> inline T nextafter_helper_vector(const T x, const T y) {
                            __abacus_isnan(y) | __abacus_isnan(x));
   return result;
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_nextafter(abacus_half x, abacus_half y) {
@@ -130,7 +132,7 @@ abacus_half8 ABACUS_API __abacus_nextafter(abacus_half8 x, abacus_half8 y) {
 abacus_half16 ABACUS_API __abacus_nextafter(abacus_half16 x, abacus_half16 y) {
   return nextafter_helper_vector(x, y);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_nextafter(abacus_float x, abacus_float y) {
   return nextafter_helper_scalar(x, y);
@@ -176,4 +178,4 @@ abacus_double16 ABACUS_API __abacus_nextafter(abacus_double16 x,
                                               abacus_double16 y) {
   return nextafter_helper_vector(x, y);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

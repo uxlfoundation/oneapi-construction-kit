@@ -56,6 +56,6 @@ bool enumerate_device_infos();
 
 typedef device_info_s *device_info_t;
 /// @}
-} // namespace riscv
+}  // namespace riscv
 
-#endif // RISCV_DEVICE_INFO_H_INCLUDED
+#endif  // RISCV_DEVICE_INFO_H_INCLUDED

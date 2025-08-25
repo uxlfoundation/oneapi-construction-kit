@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clSVMFreeTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ucl::ContextTest::SetUp());
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {

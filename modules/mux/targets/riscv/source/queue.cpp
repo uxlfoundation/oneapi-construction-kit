@@ -184,7 +184,7 @@ void queue_s::run() {
     }
   }
 }
-} // namespace riscv
+}  // namespace riscv
 
 mux_result_t riscvGetQueue(mux_device_t device, mux_queue_type_e, uint32_t,
                            mux_queue_t *out_queue) {

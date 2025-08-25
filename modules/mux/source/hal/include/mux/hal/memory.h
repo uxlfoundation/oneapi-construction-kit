@@ -41,22 +41,22 @@ struct memory : mux_memory_s {
 
   /// @see muxAllocateMemory
   template <class Memory>
-  static cargo::expected<Memory *, mux_result_t>
-  create(::hal::hal_device_t *device, size_t size, uint32_t heap,
-         uint32_t memory_properties, mux_allocation_type_e allocation_type,
-         uint32_t alignment, mux::allocator allocator) {
+  static cargo::expected<Memory *, mux_result_t> create(
+      ::hal::hal_device_t *device, size_t size, uint32_t heap,
+      uint32_t memory_properties, mux_allocation_type_e allocation_type,
+      uint32_t alignment, mux::allocator allocator) {
     static_assert(std::is_base_of_v<mux::hal::memory, Memory>,
                   "template type Memory must derive from mux::hal::memory");
     (void)allocation_type;
     // Ensure the specified heap is valid, as heaps are target specific the
     // check must be performed by the target.
     switch (heap) {
-    case memory::HEAP_ALL:
-    case memory::HEAP_BUFFER:
-    case memory::HEAP_IMAGE:
-      break;
-    default:
-      return cargo::make_unexpected(mux_error_invalid_value);
+      case memory::HEAP_ALL:
+      case memory::HEAP_BUFFER:
+      case memory::HEAP_IMAGE:
+        break;
+      default:
+        return cargo::make_unexpected(mux_error_invalid_value);
     }
     // Align all allocations to at least 128 bytes to match the size of the
     // largest 16-wide OpenCL-C vector types.
@@ -76,9 +76,9 @@ struct memory : mux_memory_s {
 
   /// @see muxCreateMemoryFromHost
   template <class Memory>
-  static cargo::expected<Memory *, mux_result_t>
-  create(::hal::hal_device_t *device, size_t size, void *pointer,
-         mux::allocator allocator) {
+  static cargo::expected<Memory *, mux_result_t> create(
+      ::hal::hal_device_t *device, size_t size, void *pointer,
+      mux::allocator allocator) {
     static_assert(std::is_base_of_v<mux::hal::memory, Memory>,
                   "template type Memory must derive from mux::hal::memory");
     (void)device;
@@ -123,7 +123,7 @@ struct memory : mux_memory_s {
   uint64_t mapOffset;
   cargo::dynamic_array<uint8_t> mappedMemory;
 };
-} // namespace hal
-} // namespace mux
+}  // namespace hal
+}  // namespace mux
 
-#endif // MUX_HAL_MEMORY_H_INCLUDED
+#endif  // MUX_HAL_MEMORY_H_INCLUDED

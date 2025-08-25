@@ -41,7 +41,7 @@ template <template <class U> class AllocatorType = md::callback_allocator,
           template <class U, class V, template <class> class> class MapType =
               basic_map>
 class basic_stack {
-public:
+ public:
   using allocator_helper_t = AllocatorHelper<AllocatorType>;
   using self_t = basic_stack<AllocatorType, StackType, ArrayType, MapType>;
 
@@ -68,7 +68,8 @@ public:
   basic_stack(allocator_helper_t alloc, size_t reserve = 0,
               md_fmt out_fmt = md_fmt::MD_FMT_RAW_BYTES)
       : m_alloc(std::move(alloc)),
-        m_stack(m_alloc.template get_allocator<element_t>()), finalized(false),
+        m_stack(m_alloc.template get_allocator<element_t>()),
+        finalized(false),
         out_fmt(out_fmt) {
     if (reserve) {
       m_stack.reserve(reserve);
@@ -286,18 +287,19 @@ public:
   /// @param endianness The desired endianness.
   void finalize(std::vector<uint8_t> &binary, MD_ENDIAN endianness) {
     switch (out_fmt) {
-    case md_fmt::MD_FMT_RAW_BYTES:
-      RawStackSerializer<self_t>::serialize(*this, binary, endianness);
-      break;
-    case md_fmt::MD_FMT_MSGPACK:
-      BasicMsgPackStackSerializer<self_t>::serialize(*this, binary, endianness);
-      break;
-    case md_fmt::MD_FMT_JSON:
-    case md_fmt::MD_FMT_LLVM_BC_MD:
-    case md_fmt::MD_FMT_LLVM_TEXT_MD:
-    default:
-      assert(0 && "Output format unsupported");
-      break;
+      case md_fmt::MD_FMT_RAW_BYTES:
+        RawStackSerializer<self_t>::serialize(*this, binary, endianness);
+        break;
+      case md_fmt::MD_FMT_MSGPACK:
+        BasicMsgPackStackSerializer<self_t>::serialize(*this, binary,
+                                                       endianness);
+        break;
+      case md_fmt::MD_FMT_JSON:
+      case md_fmt::MD_FMT_LLVM_BC_MD:
+      case md_fmt::MD_FMT_LLVM_TEXT_MD:
+      default:
+        assert(0 && "Output format unsupported");
+        break;
     }
     m_stack.clear();
   }
@@ -369,7 +371,7 @@ public:
   /// @return md_fmt
   md_fmt get_out_fmt() const { return out_fmt; }
 
-private:
+ private:
   allocator_helper_t m_alloc;
   stack_t m_stack;
   bool finalized;
@@ -377,7 +379,7 @@ private:
 };
 
 /// @}
-} // namespace md
+}  // namespace md
 
 /// @brief Implement the API definition of md_stack_ as a specific
 /// instantiation of basic_stack
@@ -385,4 +387,4 @@ struct md_stack_ final : public md::basic_stack<> {
   using basic_stack::basic_stack;
 };
 
-#endif // MD_DETAIL_MD_STACK_H_INCLUDED
+#endif  // MD_DETAIL_MD_STACK_H_INCLUDED

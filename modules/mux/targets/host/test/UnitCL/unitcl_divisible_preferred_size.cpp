@@ -135,7 +135,7 @@ struct clEnqueueNDRangeKernel_Host : ucl::CommandQueueTest,
 
   enum { NUM_DIMENSIONS = 3, DEFAULT_DIMENSION_LENGTH = 128 };
 
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(CommandQueueTest::SetUp());
     if (!(getDeviceCompilerAvailable() && UCL::isDevice_host(device))) {

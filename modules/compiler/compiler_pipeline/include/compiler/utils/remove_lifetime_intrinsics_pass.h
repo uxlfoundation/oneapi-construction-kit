@@ -38,12 +38,12 @@ namespace utils {
 /// should only be run on debug builds of the module.
 class RemoveLifetimeIntrinsicsPass final
     : public llvm::PassInfoMixin<RemoveLifetimeIntrinsicsPass> {
-public:
+ public:
   llvm::PreservedAnalyses run(llvm::Function &,
                               llvm::FunctionAnalysisManager &);
 };
 
-} // namespace utils
-} // namespace compiler
+}  // namespace utils
+}  // namespace compiler
 
-#endif // COMPILER_UTILS_REMOVE_LIFETIME_INTRINSICS_PASS_H_INCLUDED
+#endif  // COMPILER_UTILS_REMOVE_LIFETIME_INTRINSICS_PASS_H_INCLUDED

@@ -31,10 +31,10 @@ namespace binary {
 ///
 /// @return Returns device specific SPIR-V information, or a cargo failure if
 /// there was an error.
-cargo::expected<compiler::spirv::DeviceInfo, cargo::result>
-getSPIRVDeviceInfo(mux_device_info_t device_info, cargo::string_view profile);
+cargo::expected<compiler::spirv::DeviceInfo, cargo::result> getSPIRVDeviceInfo(
+    mux_device_info_t device_info, cargo::string_view profile);
 
-} // namespace binary
-} // namespace cl
+}  // namespace binary
+}  // namespace cl
 
-#endif // CL_BINARY_SPIRV_H_INCLUDED
+#endif  // CL_BINARY_SPIRV_H_INCLUDED

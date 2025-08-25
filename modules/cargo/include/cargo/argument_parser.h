@@ -57,22 +57,22 @@ namespace cargo {
 
 /// @brief Description of an argument used with `cargo::argument_parser`.
 class argument {
-public:
+ public:
   /// @brief Parse result, used in `cargo::argument_parser::parse_args`.
   enum class parse : uint32_t {
-    NOT_FOUND,  ///< Given argument was not found.
-    INVALID,    ///< Given argument is invalid.
-    INCOMPLETE, ///< Given argument requires further parsing.
-    COMPLETE,   ///< Given argument parsing completed.
+    NOT_FOUND,   ///< Given argument was not found.
+    INVALID,     ///< Given argument is invalid.
+    INCOMPLETE,  ///< Given argument requires further parsing.
+    COMPLETE,    ///< Given argument parsing completed.
   };
 
   /// @brief Type to store the bitset of parsing options.
   using option_bitset = uint8_t;
   /// @brief Enumeration of argument parsing options.
   enum option : uint8_t {
-    NONE = 0,               ///< No optional behavior enabled.
-    STORE_TRUE = 0x1 << 1,  ///< Store `bool` argument as `true`.
-    STORE_FALSE = 0x1 << 2, ///< Store `bool` argument as `false`.
+    NONE = 0,                ///< No optional behavior enabled.
+    STORE_TRUE = 0x1 << 1,   ///< Store `bool` argument as `true`.
+    STORE_FALSE = 0x1 << 2,  ///< Store `bool` argument as `false`.
   };
 
   /// @brief Function type for custom handlers.
@@ -107,7 +107,8 @@ public:
            cargo::array_view<cargo::string_view> choices,
            cargo::string_view &storage,
            cargo::argument::option_bitset options = NONE)
-      : Name(name), Variant(ChoiceT{std::addressof(storage), choices}),
+      : Name(name),
+        Variant(ChoiceT{std::addressof(storage), choices}),
         Options(options) {}
 
   /// @brief Construct an append value argument.
@@ -131,8 +132,9 @@ public:
   argument(cargo::string_view name, custom_handler_function &&parse_argument,
            custom_handler_function &&parse_value,
            cargo::argument::option_bitset options = NONE)
-      : Name(name), Variant(CustomHandlerT{std::move(parse_argument),
-                                           std::move(parse_value)}),
+      : Name(name),
+        Variant(
+            CustomHandlerT{std::move(parse_argument), std::move(parse_value)}),
         Options(options) {}
 
   /// @brief Parse a given argument, used by `cargo::argument_parser`.
@@ -144,9 +146,9 @@ public:
   /// @retval `INCOMPLETE` argument was found, requires a value.
   /// @retval `NOT_FOUND` argument was not found.
   /// @retval `INVALID` invalid argument, value not found.
-  [[nodiscard]] cargo::error_or<cargo::argument::parse>
-  parse_arg(cargo::string_view arg) {
-    if (Name == arg) { // "<name> <value>"
+  [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_arg(
+      cargo::string_view arg) {
+    if (Name == arg) {  // "<name> <value>"
       if (auto *Bool = isType<BOOL>()) {
         **Bool = (STORE_FALSE & Options) ? false : true;
         return cargo::argument::parse::COMPLETE;
@@ -158,7 +160,7 @@ public:
         return CustomHandler->ParseArgument(arg);
       }
     }
-    if (arg.starts_with(Name)) { // "<name><value>"
+    if (arg.starts_with(Name)) {  // "<name><value>"
       auto value = arg.substr(Name.size(), cargo::string_view::npos);
       if (!value) {
         return cargo::argument::parse::NOT_FOUND;
@@ -178,8 +180,8 @@ public:
   /// @return Returns an error from `cargo::small_vector` or the parse result.
   /// @retval `COMPLETE` argument was found with no further action required.
   /// @retval `INVALID` invalid argument, value not found.
-  [[nodiscard]] cargo::error_or<cargo::argument::parse>
-  parse_value(cargo::string_view value) {
+  [[nodiscard]] cargo::error_or<cargo::argument::parse> parse_value(
+      cargo::string_view value) {
     if (isType<BOOL>()) {
       return cargo::argument::parse::INVALID;
     }
@@ -208,7 +210,7 @@ public:
     return cargo::argument::parse::COMPLETE;
   }
 
-private:
+ private:
   enum TypeT : uint8_t {
     BOOL,
     VALUE,
@@ -232,7 +234,8 @@ private:
   std::variant<BoolT, ValueT, ChoiceT, ValuesT, CustomHandlerT> Variant;
   option_bitset Options;
 
-  template <TypeT Type> auto isType() -> decltype(std::get_if<Type>(&Variant)) {
+  template <TypeT Type>
+  auto isType() -> decltype(std::get_if<Type>(&Variant)) {
     return std::get_if<Type>(&Variant);
   }
 
@@ -284,8 +287,9 @@ enum argument_parser_option : uint8_t {
 ///   return error;
 /// }
 /// ```
-template <size_t N, size_t NP = 1, size_t NU = 1> class argument_parser {
-public:
+template <size_t N, size_t NP = 1, size_t NU = 1>
+class argument_parser {
+ public:
   /// @brief Construct the argument parser.
   ///
   /// @param options Bitset of cargo::argument_parser_option values.
@@ -309,8 +313,8 @@ public:
   /// @retval `cargo::success` parsing was successful.
   /// @retval `cargo::bad_argument` an invalid argument was found.
   /// @retval `cargo::bad_alloc` allocation failure.
-  [[nodiscard]] cargo::result
-  parse_args(cargo::array_view<cargo::string_view> args) {
+  [[nodiscard]] cargo::result parse_args(
+      cargo::array_view<cargo::string_view> args) {
     if (0 == args.size()) {
       return cargo::success;
     }
@@ -332,30 +336,30 @@ public:
           return result.error();
         }
         switch (*result) {
-        case cargo::argument::parse::COMPLETE:
-          goto next_argument;
-        case cargo::argument::parse::INCOMPLETE: {
-          if (end == iter + 1) {
-            return cargo::bad_argument;
-          }
-          iter++;
-          auto result = Arg.parse_value(*iter);
-          if (!result) {
-            return result.error();
-          }
-          switch (*result) {
           case cargo::argument::parse::COMPLETE:
             goto next_argument;
-          case cargo::argument::parse::INCOMPLETE:
+          case cargo::argument::parse::INCOMPLETE: {
+            if (end == iter + 1) {
+              return cargo::bad_argument;
+            }
+            iter++;
+            auto result = Arg.parse_value(*iter);
+            if (!result) {
+              return result.error();
+            }
+            switch (*result) {
+              case cargo::argument::parse::COMPLETE:
+                goto next_argument;
+              case cargo::argument::parse::INCOMPLETE:
+              case cargo::argument::parse::INVALID:
+              case cargo::argument::parse::NOT_FOUND:
+                return cargo::bad_argument;
+            }
+          } break;
           case cargo::argument::parse::INVALID:
-          case cargo::argument::parse::NOT_FOUND:
             return cargo::bad_argument;
-          }
-        } break;
-        case cargo::argument::parse::INVALID:
-          return cargo::bad_argument;
-        case cargo::argument::parse::NOT_FOUND:
-          continue;
+          case cargo::argument::parse::NOT_FOUND:
+            continue;
         }
       }
       if (AcceptPositionalArgs && arg == "--") {
@@ -436,7 +440,7 @@ public:
     return UnrecognizedArgs;
   }
 
-private:
+ private:
   cargo::small_vector<argument, N> Args;
   cargo::small_vector<cargo::string_view, NP> PositionalArgs;
   cargo::small_vector<cargo::string_view, NU> UnrecognizedArgs;
@@ -444,6 +448,6 @@ private:
 };
 
 /// @}
-} // namespace cargo
+}  // namespace cargo
 
-#endif // CARGO_ARGUMENT_PARSER_H_INCLUDED
+#endif  // CARGO_ARGUMENT_PARSER_H_INCLUDED

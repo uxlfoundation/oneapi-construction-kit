@@ -29,11 +29,12 @@ template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct exp_unsafe_helper;
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
-template <typename T> struct exp_unsafe_helper<T, abacus_half> {
+template <typename T>
+struct exp_unsafe_helper<T, abacus_half> {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static T _(const T &x) {
     // Find k for Cody & Waite range reduction algorithm
-    const T ln2_rcp = 1.44238f16; // 1.0 / ln(2);
+    const T ln2_rcp = 1.44238f16;  // 1.0 / ln(2);
     const T cody = x * ln2_rcp + 0.5f16;
     const SignedType k = abacus::internal::floor_unsafe(cody);
 
@@ -41,8 +42,8 @@ template <typename T> struct exp_unsafe_helper<T, abacus_half> {
     // For `exp` our C is `ln(2)`. We've made C1 larger(and C2 smaller)
     // compared to the float implementation so that C1 has more trailing
     // mantissa zero bits, as we want C1 * k to be as accurate as possible.
-    const T codyWaite1 = 0.695312f16;    // 0x3990
-    const T codyWaite2 = -0.00216484f16; // 0x986F
+    const T codyWaite1 = 0.695312f16;     // 0x3990
+    const T codyWaite2 = -0.00216484f16;  // 0x986F
     const T kf = abacus::detail::cast::convert<T>(k);
 
     // Range reduced input value
@@ -63,9 +64,10 @@ template <typename T> struct exp_unsafe_helper<T, abacus_half> {
     return abacus::internal::ldexp_unsafe(result, k);
   }
 };
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
-template <typename T> struct exp_unsafe_helper<T, abacus_float> {
+template <typename T>
+struct exp_unsafe_helper<T, abacus_float> {
   static T _(const T &x) {
     const T codyWaite1 = 0.693359375f;
     const T codyWaite2 = -2.12194440e-4f;
@@ -91,7 +93,8 @@ template <typename T> struct exp_unsafe_helper<T, abacus_float> {
 };
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-template <typename T> struct exp_unsafe_helper<T, abacus_double> {
+template <typename T>
+struct exp_unsafe_helper<T, abacus_double> {
   static T _(const T &x) {
     const T codyWaite1 = abacus::detail::cast::as<abacus_double>(
         (abacus_long)0x3FE62E42FEFA3800);
@@ -127,12 +130,13 @@ template <typename T> struct exp_unsafe_helper<T, abacus_double> {
     return abacus::internal::ldexp_unsafe(result, k);
   }
 };
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-template <typename T> inline T exp_unsafe(const T &x) {
+template <typename T>
+inline T exp_unsafe(const T &x) {
   return exp_unsafe_helper<T>::_(x);
 }
-} // namespace internal
-} // namespace abacus
+}  // namespace internal
+}  // namespace abacus
 
-#endif //__ABACUS_INTERNAL_EXP_UNSAFE_H__
+#endif  //__ABACUS_INTERNAL_EXP_UNSAFE_H__

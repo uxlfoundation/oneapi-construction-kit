@@ -204,7 +204,7 @@ TEST_P(CompileOptionsTest, CombinedOptions) {
     }
     test_options.push_back(';');
   }
-  test_options.pop_back(); // Remove excess trailing ';'
+  test_options.pop_back();  // Remove excess trailing ';'
   module->getOptions().device_args = test_options;
 
   // Check we can actually compile some source with this

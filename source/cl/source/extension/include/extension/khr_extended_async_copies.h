@@ -29,12 +29,12 @@ namespace extension {
 
 /// @brief Definition of cl_khr_extended_async_copies extension.
 class khr_extended_async_copies final : public extension {
-public:
+ public:
   /// @brief Default constructor.
   khr_extended_async_copies();
 };
 
 /// @}
-} // namespace extension
+}  // namespace extension
 
-#endif // EXTENSION_KHR_EXTENDED_ASYNC_COPIES_H_INCLUDED
+#endif  // EXTENSION_KHR_EXTENDED_ASYNC_COPIES_H_INCLUDED

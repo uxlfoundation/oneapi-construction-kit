@@ -17,7 +17,7 @@
 #include "Common.h"
 
 class clSetMemObjectDestructorCallbackTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     cl_int errorcode;
@@ -49,7 +49,7 @@ TEST_F(clSetMemObjectDestructorCallbackTest, CallbackOrder) {
     unsigned *shared_id;
 
     static void CL_CALLBACK callback(cl_mem memobj, void *user_data) {
-      (void)memobj; // unused parameter
+      (void)memobj;  // unused parameter
       auto *me = static_cast<Callback *>(user_data);
 
       me->id = *(me->shared_id);

@@ -45,10 +45,10 @@ void sourceToBinaryKernel(cl_device_id device, cl_context context,
   ASSERT_SUCCESS(status);
 }
 
-} // namespace
+}  // namespace
 
 class clGetKernelArgInfoTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
     if (!getDeviceCompilerAvailable()) {
@@ -116,20 +116,20 @@ TEST_F(clGetKernelArgInfoTest, InvalidValueParamName) {
 TEST_F(clGetKernelArgInfoTest, InvalidValueArgAddressQualifier) {
   for (auto kernel : kernels) {
     cl_kernel_arg_address_qualifier address_qualifier;
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clGetKernelArgInfo(kernel, 0,
-                                         CL_KERNEL_ARG_ADDRESS_QUALIFIER, 0,
-                                         &address_qualifier, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_ADDRESS_QUALIFIER, 0,
+                           &address_qualifier, nullptr));
   }
 }
 
 TEST_F(clGetKernelArgInfoTest, InvalidValueArgAccessQualifier) {
   for (auto kernel : kernels) {
     cl_kernel_arg_access_qualifier access_qualifier;
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clGetKernelArgInfo(kernel, 0,
-                                         CL_KERNEL_ARG_ACCESS_QUALIFIER, 0,
-                                         &access_qualifier, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_ACCESS_QUALIFIER, 0,
+                           &access_qualifier, nullptr));
   }
 }
 
@@ -145,10 +145,10 @@ TEST_F(clGetKernelArgInfoTest, InvalidValueArgTypeName) {
 TEST_F(clGetKernelArgInfoTest, InvalidValueArgTypeQualifier) {
   for (auto kernel : kernels) {
     cl_kernel_arg_type_qualifier type_qualifier;
-    ASSERT_EQ_ERRCODE(CL_INVALID_VALUE,
-                      clGetKernelArgInfo(kernel, 0,
-                                         CL_KERNEL_ARG_TYPE_QUALIFIER, 0,
-                                         &type_qualifier, nullptr));
+    ASSERT_EQ_ERRCODE(
+        CL_INVALID_VALUE,
+        clGetKernelArgInfo(kernel, 0, CL_KERNEL_ARG_TYPE_QUALIFIER, 0,
+                           &type_qualifier, nullptr));
   }
 }
 
@@ -229,10 +229,10 @@ struct clGetKernelArgInfoTypeNameTest
       source.append("#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n");
     }
     source.append("kernel void foo(");
-    source.append(type_str);      // Value
-    source.append(" a, global "); // type
-    source.append(type_str);      // Pointer
-    source.append(" *out)");      // type
+    source.append(type_str);       // Value
+    source.append(" a, global ");  // type
+    source.append(type_str);       // Pointer
+    source.append(" *out)");       // type
     source.append("{ out[get_global_id(0)] = a; }");
 
     const char *sources[] = {source.c_str()};
@@ -313,7 +313,7 @@ TEST_P(clGetKernelArgInfoTypeNameTest, Default) {
 const TypeNameParam typeNameParams[] = {
     {"char", "char"},
 #if CA_3424_RESOLVED
-    {"signed char", "signed char"}, // Special case, see above.
+    {"signed char", "signed char"},  // Special case, see above.
 #endif
     {"char2", "char2"},
     {"char3", "char3"},

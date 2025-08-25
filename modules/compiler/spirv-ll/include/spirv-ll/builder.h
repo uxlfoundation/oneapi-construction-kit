@@ -39,7 +39,7 @@ namespace llvm {
 class Value;
 class Type;
 class Module;
-} // namespace llvm
+}  // namespace llvm
 
 namespace spirv_ll {
 /// @brief Type used to pass around the list of builtin IDs used by a function
@@ -69,7 +69,7 @@ static inline std::string getIDAsStr(spv::Id id, Module *module = nullptr) {
 
 /// @brief An interface for builders of extended instruction sets.
 class ExtInstSetHandler {
-public:
+ public:
   /// @brief Constructor.
   ///
   /// @param builder `Builder` object that will own this object.
@@ -96,7 +96,7 @@ public:
   /// an error value.
   virtual llvm::Error create(const OpExtInst &opc) = 0;
 
-protected:
+ protected:
   /// @brief `spirv_ll::Builder` that owns this object.
   spirv_ll::Builder &builder;
 
@@ -169,7 +169,7 @@ std::string getFPTypeName(llvm::Type *ty);
 /// necessary for generating the IR, as well as all the functions that convert
 /// SPIR-V OpCodes to LLVM IR.
 class Builder {
-public:
+ public:
   // Constructors and assignment operators
 
   /// @brief Constructor
@@ -228,7 +228,8 @@ public:
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  template <class Op> llvm::Error create(const OpCode &op) {
+  template <class Op>
+  llvm::Error create(const OpCode &op) {
     return create<Op>(module.create<Op>(op));
   }
 
@@ -239,7 +240,8 @@ public:
   ///
   /// @return Returns an `llvm::Error` object representing either success, or
   /// an error value.
-  template <class Op> llvm::Error create(const Op *op);
+  template <class Op>
+  llvm::Error create(const Op *op);
 
   /// @brief Populate the incoming edges/values for the given Phi node
   /// @param op The SpirV Op for the Phi node
@@ -386,11 +388,10 @@ public:
   /// `args`.
   ///
   /// @return Returns a pointer to a call instruction instance.
-  llvm::CallInst *
-  createMangledBuiltinCall(llvm::StringRef name, llvm::Type *retTy,
-                           MangleInfo retOp, llvm::ArrayRef<llvm::Value *> args,
-                           llvm::ArrayRef<MangleInfo> mangleInfo,
-                           bool convergent = false);
+  llvm::CallInst *createMangledBuiltinCall(
+      llvm::StringRef name, llvm::Type *retTy, MangleInfo retOp,
+      llvm::ArrayRef<llvm::Value *> args, llvm::ArrayRef<MangleInfo> mangleInfo,
+      bool convergent = false);
 
   /// @brief Helper function for constructing calls to conversion builtins.
   ///
@@ -404,11 +405,10 @@ public:
   /// @param saturated Whether we already know this is a saturated conversion.
   ///
   /// @return Returns a pointer to a call instruction instance.
-  llvm::CallInst *
-  createConversionBuiltinCall(llvm::Value *value,
-                              llvm::ArrayRef<MangleInfo> argMangleInfo,
-                              llvm::Type *retTy, MangleInfo retMangleInfo,
-                              spv::Id resultId, bool saturated = false);
+  llvm::CallInst *createConversionBuiltinCall(
+      llvm::Value *value, llvm::ArrayRef<MangleInfo> argMangleInfo,
+      llvm::Type *retTy, MangleInfo retMangleInfo, spv::Id resultId,
+      bool saturated = false);
 
   /// @brief Creates a call to an image access builtin.
   ///
@@ -425,12 +425,11 @@ public:
   /// accessed.
   ///
   /// @return Returns a pointer to a call instruction instance.
-  llvm::CallInst *
-  createImageAccessBuiltinCall(std::string name, llvm::Type *retTy,
-                               MangleInfo retMangleInfo,
-                               llvm::ArrayRef<llvm::Value *> args,
-                               llvm::ArrayRef<MangleInfo> argMangleInfo,
-                               const spirv_ll::OpTypeVector *pixelTypeOp);
+  llvm::CallInst *createImageAccessBuiltinCall(
+      std::string name, llvm::Type *retTy, MangleInfo retMangleInfo,
+      llvm::ArrayRef<llvm::Value *> args,
+      llvm::ArrayRef<MangleInfo> argMangleInfo,
+      const spirv_ll::OpTypeVector *pixelTypeOp);
 
   /// @brief Creates a call to an OpenCL builtin.
   ///
@@ -448,16 +447,16 @@ public:
   /// @return Returns a string containing the suffix.
   std::string getFPRoundingModeSuffix(uint32_t roundingMode) {
     switch (roundingMode) {
-    case spv::FPRoundingModeRTE:
-      return "_rte";
-    case spv::FPRoundingModeRTZ:
-      return "_rtz";
-    case spv::FPRoundingModeRTP:
-      return "_rtp";
-    case spv::FPRoundingModeRTN:
-      return "_rtn";
-    default:
-      llvm_unreachable("unsupported FPRoundingMode decoration");
+      case spv::FPRoundingModeRTE:
+        return "_rte";
+      case spv::FPRoundingModeRTZ:
+        return "_rtz";
+      case spv::FPRoundingModeRTP:
+        return "_rtp";
+      case spv::FPRoundingModeRTN:
+        return "_rtn";
+      default:
+        llvm_unreachable("unsupported FPRoundingMode decoration");
     }
   }
 
@@ -479,9 +478,8 @@ public:
   /// @param qualifier TypeQualifiers to mangle with pointer with (optional).
   ///
   /// @return Returns a string containing the mangled pointer prefix.
-  std::string
-  getMangledPointerPrefix(llvm::Type *ty,
-                          uint8_t qualifier = MangleInfo::TypeQualifier::NONE) {
+  std::string getMangledPointerPrefix(
+      llvm::Type *ty, uint8_t qualifier = MangleInfo::TypeQualifier::NONE) {
     SPIRV_LL_ASSERT(ty->isPointerTy(), "mangler: not a pointer type");
     std::string mangled = "P";
     if (auto addrspace = ty->getPointerAddressSpace()) {
@@ -505,18 +503,18 @@ public:
     SPIRV_LL_ASSERT(ty->isVectorTy(), "mangler: not a vector type");
     const uint32_t numElements = multi_llvm::getVectorNumElements(ty);
     switch (numElements) {
-    case 2:
-      return "Dv2_";
-    case 3:
-      return "Dv3_";
-    case 4:
-      return "Dv4_";
-    case 8:
-      return "Dv8_";
-    case 16:
-      return "Dv16_";
-    default:
-      llvm_unreachable("mangler: unsupported vector width");
+      case 2:
+        return "Dv2_";
+      case 3:
+        return "Dv3_";
+      case 4:
+        return "Dv4_";
+      case 8:
+        return "Dv8_";
+      case 16:
+        return "Dv16_";
+      default:
+        llvm_unreachable("mangler: unsupported vector width");
     }
   }
 
@@ -537,22 +535,22 @@ public:
     SPIRV_LL_ASSERT(elemTy->isIntegerTy(), "mangler: not an integer type");
     std::string name = ty->isVectorTy() ? getMangledVecPrefix(ty) : "";
     switch (elemTy->getIntegerBitWidth()) {
-    case 8:
-      // Ignore the explicit `signed char` case 'a' since it never occurs in
-      // builtin function signatures.
-      name += isSigned ? "c" : "h";
-      break;
-    case 16:
-      name += isSigned ? "s" : "t";
-      break;
-    case 32:
-      name += isSigned ? "i" : "j";
-      break;
-    case 64:
-      name += isSigned ? "l" : "m";
-      break;
-    default:
-      llvm_unreachable("mangler: unsupported integer bitwidth");
+      case 8:
+        // Ignore the explicit `signed char` case 'a' since it never occurs in
+        // builtin function signatures.
+        name += isSigned ? "c" : "h";
+        break;
+      case 16:
+        name += isSigned ? "s" : "t";
+        break;
+      case 32:
+        name += isSigned ? "i" : "j";
+        break;
+      case 64:
+        name += isSigned ? "l" : "m";
+        break;
+      default:
+        llvm_unreachable("mangler: unsupported integer bitwidth");
     }
     return name;
   }
@@ -568,17 +566,17 @@ public:
                     "mangler: not a floating-point type");
     std::string name = ty->isVectorTy() ? getMangledVecPrefix(ty) : "";
     switch (elemTy->getScalarSizeInBits()) {
-    case 16:
-      name += "Dh";
-      break;
-    case 32:
-      name += "f";
-      break;
-    case 64:
-      name += "d";
-      break;
-    default:
-      llvm_unreachable("mangler: unsupported floating-point type");
+      case 16:
+        name += "Dh";
+        break;
+      case 32:
+        name += "f";
+        break;
+      case 64:
+        name += "d";
+        break;
+      default:
+        llvm_unreachable("mangler: unsupported floating-point type");
     }
     return name;
   }
@@ -629,7 +627,7 @@ public:
     return joined;
   }
 
-private:
+ private:
   /// @brief Definitions of OpenCL `mem_fence_flags` for barrier intructions
   enum MemFenceFlags { LOCAL_MEM_FENCE = 1u, GLOBAL_MEM_FENCE = 2u };
 
@@ -673,10 +671,9 @@ private:
   ///
   /// @return Returns a pointer to a SubstitutableType if the types match or
   /// nullptr if the function parameter can not be substituted.
-  const SubstitutableType *
-  substitutableArg(llvm::Type *ty,
-                   const llvm::ArrayRef<SubstitutableType> &subTys,
-                   std::optional<MangleInfo> mangleInfo);
+  const SubstitutableType *substitutableArg(
+      llvm::Type *ty, const llvm::ArrayRef<SubstitutableType> &subTys,
+      std::optional<MangleInfo> mangleInfo);
 
   /// @brief Generate the mangled name for a function parameter type.
   ///
@@ -760,10 +757,9 @@ private:
   /// @param structTy struct type the AccessChain is indexing into.
   /// @param indexes List of AccessChain indexes.
   /// @param resultID ID of the AccessChain's resulting pointer value.
-  void
-  checkMemberDecorations(llvm::Type *structTy,
-                         const llvm::SmallVector<llvm::Value *, 8> &indexes,
-                         spv::Id resultID);
+  void checkMemberDecorations(
+      llvm::Type *structTy, const llvm::SmallVector<llvm::Value *, 8> &indexes,
+      spv::Id resultID);
 
   /// @brief Generates IR for all `OpSpecConstantOp` instructions that had been
   /// deferred.
@@ -841,6 +837,6 @@ private:
                      std::unique_ptr<spirv_ll::ExtInstSetHandler>>
       ext_inst_handlers;
 };
-} // namespace spirv_ll
+}  // namespace spirv_ll
 
-#endif // SPIRV_LL_SPV_BUILDER_H_INCLUDED
+#endif  // SPIRV_LL_SPV_BUILDER_H_INCLUDED

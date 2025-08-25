@@ -47,4 +47,4 @@ void hal_unload() {
   hal_library = nullptr;
 }
 
-} // namespace riscv
+}  // namespace riscv

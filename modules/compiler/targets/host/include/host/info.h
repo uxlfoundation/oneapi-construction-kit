@@ -56,9 +56,9 @@ struct HostInfo : compiler::Info {
   HostInfo(host::arch arch, host::os os, host::device_info_s *host_device_info);
 
   /// @see Info::createTarget
-  std::unique_ptr<compiler::Target>
-  createTarget(compiler::Context *context,
-               compiler::NotifyCallbackFn callback) const override;
+  std::unique_ptr<compiler::Target> createTarget(
+      compiler::Context *context,
+      compiler::NotifyCallbackFn callback) const override;
 
   static void get(compiler::AddCompilerFn add_compiler);
 
@@ -69,11 +69,11 @@ struct HostInfo : compiler::Info {
 
   bool supports_deferred_compilation() const override;
 
-private:
+ private:
   bool deferred_compilation_enabled;
   mutable const char *deferred_compilation_warning;
 };
 
-} // namespace host
+}  // namespace host
 
-#endif // HOST_INFO_H
+#endif  // HOST_INFO_H

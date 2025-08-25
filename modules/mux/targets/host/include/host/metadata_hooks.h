@@ -31,6 +31,6 @@ constexpr const char MD_NOTES_SECTION[] = "notes";
 cargo::optional<kernel_variant_map> readBinaryMetadata(loader::ElfFile *elf,
                                                        mux::allocator *alloc);
 
-} // namespace host
+}  // namespace host
 
-#endif // MUX_HOST_METADATA_HOOKS_H_INCLUDED
+#endif  // MUX_HOST_METADATA_HOOKS_H_INCLUDED

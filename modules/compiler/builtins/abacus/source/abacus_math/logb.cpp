@@ -20,7 +20,8 @@
 #include <abacus/abacus_relational.h>
 
 namespace {
-template <typename T> inline T logb_helper_scalar(const T x) {
+template <typename T>
+inline T logb_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
   if (!__abacus_isfinite(x)) {
@@ -34,7 +35,8 @@ template <typename T> inline T logb_helper_scalar(const T x) {
   return T(__abacus_ilogb(x));
 }
 
-template <typename T> inline T logb_helper_vector(const T x) {
+template <typename T>
+inline T logb_helper_vector(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -42,7 +44,7 @@ template <typename T> inline T logb_helper_vector(const T x) {
   result = __abacus_select(result, -ABACUS_INFINITY, x == T(-0.0));
   return __abacus_select(result, __abacus_fabs(x), ~__abacus_isfinite(x));
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_logb(abacus_half x) {
@@ -63,7 +65,7 @@ abacus_half8 ABACUS_API __abacus_logb(abacus_half8 x) {
 abacus_half16 ABACUS_API __abacus_logb(abacus_half16 x) {
   return logb_helper_vector(x);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_logb(abacus_float x) {
   return logb_helper_scalar(x);
@@ -103,4 +105,4 @@ abacus_double8 ABACUS_API __abacus_logb(abacus_double8 x) {
 abacus_double16 ABACUS_API __abacus_logb(abacus_double16 x) {
   return logb_helper_vector(x);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

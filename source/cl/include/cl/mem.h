@@ -45,7 +45,7 @@ namespace cl {
 using pfn_notify_mem_t = void(CL_CALLBACK *)(cl_mem memobj, void *user_data);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
 /// @addtogroup cl
 /// @{
@@ -307,6 +307,6 @@ CL_API_ENTRY cl_int CL_API_CALL EnqueueMigrateMemObjects(
     cl_event *event);
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_MEM_H_INCLUDED
+#endif  // CL_MEM_H_INCLUDED

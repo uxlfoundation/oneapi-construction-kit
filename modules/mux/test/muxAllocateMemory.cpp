@@ -53,10 +53,10 @@ TEST_P(muxAllocateMemoryTest, AllocDevice) {
 TEST_P(muxAllocateMemoryTest, InvalidMemoryType) {
   mux_memory_t memory;
 
-  ASSERT_ERROR_EQ(mux_error_invalid_value,
-                  muxAllocateMemory(device, 1, 1, 0,
-                                    mux_allocation_type_alloc_host, 0,
-                                    allocator, &memory));
+  ASSERT_ERROR_EQ(
+      mux_error_invalid_value,
+      muxAllocateMemory(device, 1, 1, 0, mux_allocation_type_alloc_host, 0,
+                        allocator, &memory));
 }
 
 TEST_P(muxAllocateMemoryTest, NullOutMemory) {
@@ -91,7 +91,7 @@ TEST_P(muxAllocateMemoryTest, AllocHostAlignment) {
   }
 
   const std::array<uint32_t, 5> alignments = {16, 32, 64, 128, 256};
-  const size_t size = 4; // Smaller than desired alignment
+  const size_t size = 4;  // Smaller than desired alignment
   for (const uint32_t align : alignments) {
     ASSERT_SUCCESS(muxAllocateMemory(device, size, 1, property,
                                      mux_allocation_type_alloc_host, align,
@@ -115,7 +115,7 @@ TEST_P(muxAllocateMemoryTest, DeviceAlignment) {
   }
 
   const std::array<uint32_t, 5> alignments = {16, 32, 64, 128, 256};
-  const size_t size = 4; // Smaller than desired alignment
+  const size_t size = 4;  // Smaller than desired alignment
   for (const uint32_t align : alignments) {
     ASSERT_SUCCESS(muxAllocateMemory(
         device, size, 1, mux_memory_property_host_visible,

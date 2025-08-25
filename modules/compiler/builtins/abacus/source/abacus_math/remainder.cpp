@@ -19,11 +19,12 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
-template <typename T> inline T remainder_helper(const T x, const T m) {
+template <typename T>
+inline T remainder_helper(const T x, const T m) {
   typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type unused;
   return __abacus_remquo(x, m, &unused);
 }
-} // namespace
+}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_remainder(abacus_half x, abacus_half m) {
@@ -44,7 +45,7 @@ abacus_half8 ABACUS_API __abacus_remainder(abacus_half8 x, abacus_half8 m) {
 abacus_half16 ABACUS_API __abacus_remainder(abacus_half16 x, abacus_half16 m) {
   return remainder_helper(x, m);
 }
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 abacus_float ABACUS_API __abacus_remainder(abacus_float x, abacus_float m) {
   return remainder_helper(x, m);
@@ -90,4 +91,4 @@ abacus_double16 ABACUS_API __abacus_remainder(abacus_double16 x,
                                               abacus_double16 m) {
   return remainder_helper(x, m);
 }
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

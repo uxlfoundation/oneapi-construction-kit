@@ -329,112 +329,112 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelSubGroupInfo(
   OCL_CHECK(0 == device->max_num_sub_groups, return CL_INVALID_OPERATION);
 
   switch (param_name) {
-  case CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: {
-    OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
-              return CL_INVALID_VALUE);
-    OCL_CHECK(input_value_size == 0 || input_value_size % sizeof(size_t),
-              return CL_INVALID_VALUE);
-    OCL_CHECK(!input_value, return CL_INVALID_VALUE);
-    if (param_value) {
-      // The OpenCL spec for this query says:
-      //
-      // The input_value must be an array of size_t values corresponding to
-      // the local work size parameter of the intended dispatch. The number of
-      // dimensions in the ND-range will be inferred from the value specified
-      // for input_value_size.
-      //
-      // We start by setting all dimensions to 1, then copy over the input
-      // local size. That way we always have a valid local size.
-      size_t local_size[]{1, 1, 1};
-      std::memcpy(local_size, input_value, input_value_size);
-      const auto expected_sub_group_size =
-          kernel->device_kernel_map[device]->getSubGroupSizeForLocalSize(
-              local_size[0], local_size[1], local_size[2]);
-      if (!expected_sub_group_size) {
-        return expected_sub_group_size.error();
+    case CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE: {
+      OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
+                return CL_INVALID_VALUE);
+      OCL_CHECK(input_value_size == 0 || input_value_size % sizeof(size_t),
+                return CL_INVALID_VALUE);
+      OCL_CHECK(!input_value, return CL_INVALID_VALUE);
+      if (param_value) {
+        // The OpenCL spec for this query says:
+        //
+        // The input_value must be an array of size_t values corresponding to
+        // the local work size parameter of the intended dispatch. The number of
+        // dimensions in the ND-range will be inferred from the value specified
+        // for input_value_size.
+        //
+        // We start by setting all dimensions to 1, then copy over the input
+        // local size. That way we always have a valid local size.
+        size_t local_size[]{1, 1, 1};
+        std::memcpy(local_size, input_value, input_value_size);
+        const auto expected_sub_group_size =
+            kernel->device_kernel_map[device]->getSubGroupSizeForLocalSize(
+                local_size[0], local_size[1], local_size[2]);
+        if (!expected_sub_group_size) {
+          return expected_sub_group_size.error();
+        }
+        *static_cast<size_t *>(param_value) = *expected_sub_group_size;
       }
-      *static_cast<size_t *>(param_value) = *expected_sub_group_size;
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-  } break;
-  case CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE: {
-    OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
-              return CL_INVALID_VALUE);
-    OCL_CHECK(input_value_size == 0 || input_value_size % sizeof(size_t),
-              return CL_INVALID_VALUE);
-    OCL_CHECK(!input_value, return CL_INVALID_VALUE);
-    if (param_value) {
-      // The OpenCL spec for this query says:
-      //
-      // The input_value must be an array of size_t values corresponding to
-      // the local work size parameter of the intended dispatch. The number of
-      // dimensions in the ND-range will be inferred from the value specified
-      // for input_value_size.
-      //
-      // We start by setting all dimensions to 1, then copy over the input
-      // local size. That way we always have a valid local size.
-      size_t local_size[]{1, 1, 1};
-      std::memcpy(local_size, input_value, input_value_size);
-      const auto expected_sub_group_count =
-          kernel->device_kernel_map[device]->getSubGroupCountForLocalSize(
-              local_size[0], local_size[1], local_size[2]);
-      if (!expected_sub_group_count) {
-        return expected_sub_group_count.error();
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+    } break;
+    case CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE: {
+      OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
+                return CL_INVALID_VALUE);
+      OCL_CHECK(input_value_size == 0 || input_value_size % sizeof(size_t),
+                return CL_INVALID_VALUE);
+      OCL_CHECK(!input_value, return CL_INVALID_VALUE);
+      if (param_value) {
+        // The OpenCL spec for this query says:
+        //
+        // The input_value must be an array of size_t values corresponding to
+        // the local work size parameter of the intended dispatch. The number of
+        // dimensions in the ND-range will be inferred from the value specified
+        // for input_value_size.
+        //
+        // We start by setting all dimensions to 1, then copy over the input
+        // local size. That way we always have a valid local size.
+        size_t local_size[]{1, 1, 1};
+        std::memcpy(local_size, input_value, input_value_size);
+        const auto expected_sub_group_count =
+            kernel->device_kernel_map[device]->getSubGroupCountForLocalSize(
+                local_size[0], local_size[1], local_size[2]);
+        if (!expected_sub_group_count) {
+          return expected_sub_group_count.error();
+        }
+        *static_cast<size_t *>(param_value) = *expected_sub_group_count;
       }
-      *static_cast<size_t *>(param_value) = *expected_sub_group_count;
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-  } break;
-  case CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT: {
-    OCL_CHECK(param_value &&
-                  (param_value_size % sizeof(size_t) || param_value_size == 0),
-              return CL_INVALID_VALUE);
-    OCL_CHECK(input_value_size != sizeof(size_t), return CL_INVALID_VALUE);
-    OCL_CHECK(!input_value, return CL_INVALID_VALUE);
-    if (param_value) {
-      auto *out_local_size = static_cast<size_t *>(param_value);
-      const auto sub_group_count = *static_cast<const size_t *>(input_value);
-      auto expected_local_sizes =
-          kernel->device_kernel_map[device]->getLocalSizeForSubGroupCount(
-              sub_group_count);
-      if (!expected_local_sizes) {
-        return expected_local_sizes.error();
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+    } break;
+    case CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT: {
+      OCL_CHECK(param_value && (param_value_size % sizeof(size_t) ||
+                                param_value_size == 0),
+                return CL_INVALID_VALUE);
+      OCL_CHECK(input_value_size != sizeof(size_t), return CL_INVALID_VALUE);
+      OCL_CHECK(!input_value, return CL_INVALID_VALUE);
+      if (param_value) {
+        auto *out_local_size = static_cast<size_t *>(param_value);
+        const auto sub_group_count = *static_cast<const size_t *>(input_value);
+        auto expected_local_sizes =
+            kernel->device_kernel_map[device]->getLocalSizeForSubGroupCount(
+                sub_group_count);
+        if (!expected_local_sizes) {
+          return expected_local_sizes.error();
+        }
+        std::memcpy(out_local_size, expected_local_sizes->data(),
+                    param_value_size);
       }
-      std::memcpy(out_local_size, expected_local_sizes->data(),
-                  param_value_size);
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, param_value_size
-                                                  ? param_value_size
-                                                  : 3 * sizeof(size_t));
-  } break;
-  case CL_KERNEL_MAX_NUM_SUB_GROUPS: {
-    OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      const auto expected_max_num_sub_groups =
-          kernel->device_kernel_map[device]->getMaxNumSubGroups();
-      if (!expected_max_num_sub_groups) {
-        return expected_max_num_sub_groups.error();
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, param_value_size
+                                                    ? param_value_size
+                                                    : 3 * sizeof(size_t));
+    } break;
+    case CL_KERNEL_MAX_NUM_SUB_GROUPS: {
+      OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        const auto expected_max_num_sub_groups =
+            kernel->device_kernel_map[device]->getMaxNumSubGroups();
+        if (!expected_max_num_sub_groups) {
+          return expected_max_num_sub_groups.error();
+        }
+        *static_cast<size_t *>(param_value) = *expected_max_num_sub_groups;
       }
-      *static_cast<size_t *>(param_value) = *expected_max_num_sub_groups;
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+    } break;
+    case CL_KERNEL_COMPILE_NUM_SUB_GROUPS: {
+      OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
+                return CL_INVALID_VALUE);
+      if (param_value) {
+        // TODO: Actually query this from Mux and don't just return 0 (see
+        // CA-3948).
+        *static_cast<size_t *>(param_value) = 0;
+      }
+      OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
+    } break;
+    default: {
+      return extension::GetKernelSubGroupInfo(
+          kernel, device, param_name, input_value_size, input_value,
+          param_value_size, param_value, param_value_size_ret);
     }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-  } break;
-  case CL_KERNEL_COMPILE_NUM_SUB_GROUPS: {
-    OCL_CHECK(param_value && (param_value_size < sizeof(size_t)),
-              return CL_INVALID_VALUE);
-    if (param_value) {
-      // TODO: Actually query this from Mux and don't just return 0 (see
-      // CA-3948).
-      *static_cast<size_t *>(param_value) = 0;
-    }
-    OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
-  } break;
-  default: {
-    return extension::GetKernelSubGroupInfo(
-        kernel, device, param_name, input_value_size, input_value,
-        param_value_size, param_value, param_value_size_ret);
-  }
   }
   return CL_SUCCESS;
 }

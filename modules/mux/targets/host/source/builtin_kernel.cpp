@@ -27,10 +27,10 @@ namespace {
 #ifdef CA_HOST_ENABLE_BUILTIN_KERNEL
 void nop_builtin_kernel(void *, host::schedule_info_s *) {}
 #endif
-} // namespace
+}  // namespace
 
-host::builtin_kernel_map
-host::getBuiltinKernels(mux_device_info_t device_info) {
+host::builtin_kernel_map host::getBuiltinKernels(
+    mux_device_info_t device_info) {
   host::builtin_kernel_map builtin_kernels;
 #ifndef CA_HOST_ENABLE_BUILTIN_KERNEL
   (void)device_info;

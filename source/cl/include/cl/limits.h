@@ -31,11 +31,11 @@ namespace cl {
 namespace max {
 /// @brief  Define the limits of the work item, work group.
 enum limits : uint32_t {
-  WORK_ITEM_DIM = 3, ///< Maximum supported work item dimensions.
+  WORK_ITEM_DIM = 3,  ///< Maximum supported work item dimensions.
 };
-} // namespace max
+}  // namespace max
 
 /// @}
-} // namespace cl
+}  // namespace cl
 
-#endif // CL_LIMITS_H_INCLUDED
+#endif  // CL_LIMITS_H_INCLUDED

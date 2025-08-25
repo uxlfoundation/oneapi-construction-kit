@@ -23,7 +23,7 @@
 #include "Common.h"
 
 class clCreateProgramWithBinaryTest : public ucl::ContextTest {
-protected:
+ protected:
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
 #ifndef CA_CL_ENABLE_OFFLINE_KERNEL_TESTS

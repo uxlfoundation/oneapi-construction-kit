@@ -104,9 +104,8 @@ void command_user_callback_s::operator()(
   user_function(queue, command_buffer, user_data);
 }
 
-[[nodiscard]] mux_query_duration_result_t
-command_begin_query_s::operator()(riscv::device_s *device,
-                                  mux_query_duration_result_t duration_query) {
+[[nodiscard]] mux_query_duration_result_t command_begin_query_s::operator()(
+    riscv::device_s *device, mux_query_duration_result_t duration_query) {
   if (pool->type == mux_query_type_duration) {
     return static_cast<riscv::query_pool_s *>(pool)->getDurationQueryAt(index);
   } else {
@@ -118,9 +117,8 @@ command_begin_query_s::operator()(riscv::device_s *device,
   return duration_query;
 }
 
-[[nodiscard]] mux_query_duration_result_t
-command_end_query_s::operator()(riscv::device_s *device,
-                                mux_query_duration_result_t duration_query) {
+[[nodiscard]] mux_query_duration_result_t command_end_query_s::operator()(
+    riscv::device_s *device, mux_query_duration_result_t duration_query) {
   if (pool->type == mux_query_type_duration) {
     auto end_duration_query =
         static_cast<riscv::query_pool_s *>(pool)->getDurationQueryAt(index);
@@ -150,9 +148,11 @@ sync_point_s::sync_point_s(mux_command_buffer_t command_buffer) {
 command_buffer_s::command_buffer_s(mux_device_t device,
                                    mux_allocator_info_t allocator_info,
                                    mux_fence_t fence)
-    : commands(allocator_info), pod_data_allocs(allocator_info),
+    : commands(allocator_info),
+      pod_data_allocs(allocator_info),
       kernel_arg_allocs(allocator_info),
-      kernel_descriptor_allocs(allocator_info), sync_points(allocator_info),
+      kernel_descriptor_allocs(allocator_info),
+      sync_points(allocator_info),
       allocator_info(allocator_info),
       fence(static_cast<riscv::fence_s *>(fence)) {
   this->device = device;
@@ -175,35 +175,35 @@ mux_result_t command_buffer_s::execute(riscv::queue_s *queue) {
     bool error = false;
 
     switch (command.type) {
-    case riscv::command_type_read_buffer:
-      command.read_buffer(riscv_device, error);
-      break;
-    case riscv::command_type_write_buffer:
-      command.write_buffer(riscv_device, error);
-      break;
-    case riscv::command_type_fill_buffer:
-      command.fill_buffer(riscv_device, error);
-      break;
-    case riscv::command_type_copy_buffer:
-      command.copy_buffer(riscv_device, error);
-      break;
-    case riscv::command_type_ndrange:
-      command.ndrange(queue, error);
-      break;
-    case riscv::command_type_user_callback:
-      command.user_callback(queue, this);
-      break;
-    case riscv::command_type_begin_query:
-      duration_query = command.begin_query(riscv_device, duration_query);
-      break;
-    case riscv::command_type_end_query:
-      duration_query = command.end_query(riscv_device, duration_query);
-      break;
-    case riscv::command_type_reset_query_pool:
-      command.reset_query_pool();
-      break;
-    default:
-      return mux_error_fence_failure;
+      case riscv::command_type_read_buffer:
+        command.read_buffer(riscv_device, error);
+        break;
+      case riscv::command_type_write_buffer:
+        command.write_buffer(riscv_device, error);
+        break;
+      case riscv::command_type_fill_buffer:
+        command.fill_buffer(riscv_device, error);
+        break;
+      case riscv::command_type_copy_buffer:
+        command.copy_buffer(riscv_device, error);
+        break;
+      case riscv::command_type_ndrange:
+        command.ndrange(queue, error);
+        break;
+      case riscv::command_type_user_callback:
+        command.user_callback(queue, this);
+        break;
+      case riscv::command_type_begin_query:
+        duration_query = command.begin_query(riscv_device, duration_query);
+        break;
+      case riscv::command_type_end_query:
+        duration_query = command.end_query(riscv_device, duration_query);
+        break;
+      case riscv::command_type_reset_query_pool:
+        command.reset_query_pool();
+        break;
+      default:
+        return mux_error_fence_failure;
     }
 
     if (duration_query) {
@@ -220,12 +220,12 @@ mux_result_t command_buffer_s::execute(riscv::queue_s *queue) {
 
   return mux_success;
 }
-} // namespace riscv
+}  // namespace riscv
 
-mux_result_t
-riscvCreateCommandBuffer(mux_device_t device, mux_callback_info_t callback_info,
-                         mux_allocator_info_t allocator_info,
-                         mux_command_buffer_t *out_command_buffer) {
+mux_result_t riscvCreateCommandBuffer(
+    mux_device_t device, mux_callback_info_t callback_info,
+    mux_allocator_info_t allocator_info,
+    mux_command_buffer_t *out_command_buffer) {
   mux::allocator allocator(allocator_info);
   (void)callback_info;
 
@@ -347,13 +347,12 @@ mux_result_t riscvCommandReadBufferRegions(mux_command_buffer_t command_buffer,
   return mux_success;
 }
 
-mux_result_t
-riscvCommandWriteBuffer(mux_command_buffer_t command_buffer,
-                        mux_buffer_t buffer, uint64_t offset,
-                        const void *riscv_pointer, uint64_t size,
-                        uint32_t num_sync_points_in_wait_list,
-                        const mux_sync_point_t *sync_point_wait_list,
-                        mux_sync_point_t *sync_point) {
+mux_result_t riscvCommandWriteBuffer(
+    mux_command_buffer_t command_buffer, mux_buffer_t buffer, uint64_t offset,
+    const void *riscv_pointer, uint64_t size,
+    uint32_t num_sync_points_in_wait_list,
+    const mux_sync_point_t *sync_point_wait_list,
+    mux_sync_point_t *sync_point) {
   // TODO CA-4282
   (void)num_sync_points_in_wait_list;
   (void)sync_point_wait_list;
@@ -613,14 +612,13 @@ mux_result_t riscvCommandReadImage(mux_command_buffer_t command_buffer,
   return mux_error_feature_unsupported;
 }
 
-mux_result_t
-riscvCommandWriteImage(mux_command_buffer_t command_buffer, mux_image_t image,
-                       mux_offset_3d_t offset, mux_extent_3d_t extent,
-                       uint64_t row_size, uint64_t slice_size,
-                       const void *pointer,
-                       uint32_t num_sync_points_in_wait_list,
-                       const mux_sync_point_t *sync_point_wait_list,
-                       mux_sync_point_t *sync_point) {
+mux_result_t riscvCommandWriteImage(
+    mux_command_buffer_t command_buffer, mux_image_t image,
+    mux_offset_3d_t offset, mux_extent_3d_t extent, uint64_t row_size,
+    uint64_t slice_size, const void *pointer,
+    uint32_t num_sync_points_in_wait_list,
+    const mux_sync_point_t *sync_point_wait_list,
+    mux_sync_point_t *sync_point) {
   (void)num_sync_points_in_wait_list;
   (void)sync_point_wait_list;
   (void)sync_point;
@@ -721,8 +719,8 @@ mux_result_t riscvCommandCopyBufferToImage(
 
 namespace {
 // Returns the number of bytes needed for the POD allocation
-uint32_t
-calcPodDataSize(const mux::dynamic_array<mux_descriptor_info_t> &descriptors) {
+uint32_t calcPodDataSize(
+    const mux::dynamic_array<mux_descriptor_info_t> &descriptors) {
   // All of the POD data is stored in a vector. This is so the HAL
   // does not need to take a copy and manage the memory. The specialized
   // kernel will live as long as the arguments are needed.
@@ -747,54 +745,54 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
   for (uint64_t i = 0; i < descriptors.size(); i++) {
     const auto &descriptor = descriptors[i];
     switch (descriptor.type) {
-    case mux_descriptor_info_type_buffer: {
-      const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
-      riscv::buffer_s *const riscv_buffer =
-          static_cast<riscv::buffer_s *>(info.buffer);
-      hal::hal_arg_t arg;
-      arg.kind = hal::hal_arg_address;
-      arg.space = hal::hal_space_global;
-      arg.address = riscv_buffer->targetPtr + info.offset;
-      // size is the size of a device pointer
-      arg.size = hal_device_info->word_size / 8;
-      kernel_args[i] = arg;
-    } break;
-    case mux_descriptor_info_type_plain_old_data: {
-      const mux_descriptor_info_plain_old_data_s info =
-          descriptor.plain_old_data_descriptor;
-      hal::hal_arg_t arg;
-      arg.kind = hal::hal_arg_value;
-      arg.space = hal::hal_space_global;
-      arg.size = info.length;
-      std::memcpy(pod_data.data() + write_point, info.data, info.length);
-      arg.pod_data = pod_data.data() + write_point;
-      write_point += info.length;
-      kernel_args[i] = arg;
+      case mux_descriptor_info_type_buffer: {
+        const mux_descriptor_info_buffer_s info = descriptor.buffer_descriptor;
+        riscv::buffer_s *const riscv_buffer =
+            static_cast<riscv::buffer_s *>(info.buffer);
+        hal::hal_arg_t arg;
+        arg.kind = hal::hal_arg_address;
+        arg.space = hal::hal_space_global;
+        arg.address = riscv_buffer->targetPtr + info.offset;
+        // size is the size of a device pointer
+        arg.size = hal_device_info->word_size / 8;
+        kernel_args[i] = arg;
+      } break;
+      case mux_descriptor_info_type_plain_old_data: {
+        const mux_descriptor_info_plain_old_data_s info =
+            descriptor.plain_old_data_descriptor;
+        hal::hal_arg_t arg;
+        arg.kind = hal::hal_arg_value;
+        arg.space = hal::hal_space_global;
+        arg.size = info.length;
+        std::memcpy(pod_data.data() + write_point, info.data, info.length);
+        arg.pod_data = pod_data.data() + write_point;
+        write_point += info.length;
+        kernel_args[i] = arg;
 
-    } break;
-    case mux_descriptor_info_type_shared_local_buffer: {
-      const mux_descriptor_info_shared_local_buffer_s info =
-          descriptor.shared_local_buffer_descriptor;
-      hal::hal_arg_t arg;
-      arg.kind = hal::hal_arg_address;
-      arg.space = hal::hal_space_local;
-      arg.size = info.size;
-      kernel_args[i] = arg;
-    } break;
-    case mux_descriptor_info_type_null_buffer: {
-      hal::hal_arg_t arg;
-      arg.kind = hal::hal_arg_address;
-      arg.space = hal::hal_space_global;
-      arg.address = hal::hal_nullptr;
-      arg.size = 0;
-      kernel_args[i] = arg;
-    } break;
-    default:
-      break;
+      } break;
+      case mux_descriptor_info_type_shared_local_buffer: {
+        const mux_descriptor_info_shared_local_buffer_s info =
+            descriptor.shared_local_buffer_descriptor;
+        hal::hal_arg_t arg;
+        arg.kind = hal::hal_arg_address;
+        arg.space = hal::hal_space_local;
+        arg.size = info.size;
+        kernel_args[i] = arg;
+      } break;
+      case mux_descriptor_info_type_null_buffer: {
+        hal::hal_arg_t arg;
+        arg.kind = hal::hal_arg_address;
+        arg.space = hal::hal_space_global;
+        arg.address = hal::hal_nullptr;
+        arg.size = 0;
+        kernel_args[i] = arg;
+      } break;
+      default:
+        break;
     }
   }
 }
-} // anonymous namespace
+}  // anonymous namespace
 
 mux_result_t riscvCommandNDRange(mux_command_buffer_t command_buffer,
                                  mux_kernel_t kernel,
@@ -900,29 +898,29 @@ mux_result_t riscvUpdateDescriptors(mux_command_buffer_t command_buffer,
     auto index = arg_indices[i];
     hal::hal_arg_t &arg = args[index];
     switch (arg_descriptor.type) {
-    default:
-      return mux_error_invalid_value;
-    case mux_descriptor_info_type_buffer: {
-      const mux_descriptor_info_buffer_s info =
-          descriptors[i].buffer_descriptor;
-      auto *const riscv_buffer = static_cast<riscv::buffer_s *>(info.buffer);
+      default:
+        return mux_error_invalid_value;
+      case mux_descriptor_info_type_buffer: {
+        const mux_descriptor_info_buffer_s info =
+            descriptors[i].buffer_descriptor;
+        auto *const riscv_buffer = static_cast<riscv::buffer_s *>(info.buffer);
 
-      arg.address = riscv_buffer->targetPtr + info.offset;
-    } break;
-    case mux_descriptor_info_type_plain_old_data: {
-      const mux_descriptor_info_plain_old_data_s info =
-          descriptors[i].plain_old_data_descriptor;
-      std::memcpy(arg.pod_data, info.data, arg.size);
-    } break;
-    case mux_descriptor_info_type_shared_local_buffer: {
-      const mux_descriptor_info_shared_local_buffer_s info =
-          descriptors[i].shared_local_buffer_descriptor;
-      arg.size = info.size;
-    } break;
-    case mux_descriptor_info_type_null_buffer: {
-      arg.size = 0;
-      arg.address = hal::hal_nullptr;
-    } break;
+        arg.address = riscv_buffer->targetPtr + info.offset;
+      } break;
+      case mux_descriptor_info_type_plain_old_data: {
+        const mux_descriptor_info_plain_old_data_s info =
+            descriptors[i].plain_old_data_descriptor;
+        std::memcpy(arg.pod_data, info.data, arg.size);
+      } break;
+      case mux_descriptor_info_type_shared_local_buffer: {
+        const mux_descriptor_info_shared_local_buffer_s info =
+            descriptors[i].shared_local_buffer_descriptor;
+        arg.size = info.size;
+      } break;
+      case mux_descriptor_info_type_null_buffer: {
+        arg.size = 0;
+        arg.address = hal::hal_nullptr;
+      } break;
     }
   }
 
@@ -1131,7 +1129,7 @@ mux_result_t cloneNDRangeCommand(mux_allocator_info_t allocator_info,
   }
   return mux_success;
 }
-} // anonymous namespace
+}  // anonymous namespace
 
 mux_result_t riscvCloneCommandBuffer(mux_device_t device,
                                      mux_allocator_info_t allocator_info,

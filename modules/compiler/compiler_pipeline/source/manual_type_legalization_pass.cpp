@@ -30,9 +30,8 @@
 
 using namespace llvm;
 
-PreservedAnalyses
-compiler::utils::ManualTypeLegalizationPass::run(Function &F,
-                                                 FunctionAnalysisManager &FAM) {
+PreservedAnalyses compiler::utils::ManualTypeLegalizationPass::run(
+    Function &F, FunctionAnalysisManager &FAM) {
   auto &C = F.getContext();
   auto *HalfT = Type::getHalfTy(C);
   auto *FloatT = Type::getFloatTy(C);

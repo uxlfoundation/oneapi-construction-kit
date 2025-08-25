@@ -17,13 +17,13 @@
 #include <abacus/abacus_common.h>
 #include <abacus/abacus_detail_common.h>
 
-#define DEF(TYPE)                                                              \
-  TYPE ABACUS_API __abacus_smoothstep(TYPE e0, TYPE e1, TYPE x) {              \
-    return abacus::detail::common::smoothstep(e0, e1, x);                      \
+#define DEF(TYPE)                                                 \
+  TYPE ABACUS_API __abacus_smoothstep(TYPE e0, TYPE e1, TYPE x) { \
+    return abacus::detail::common::smoothstep(e0, e1, x);         \
   }
-#define DEF2(TYPE, TYPE2)                                                      \
-  TYPE ABACUS_API __abacus_smoothstep(TYPE2 e0, TYPE2 e1, TYPE x) {            \
-    return abacus::detail::common::smoothstep(e0, e1, x);                      \
+#define DEF2(TYPE, TYPE2)                                           \
+  TYPE ABACUS_API __abacus_smoothstep(TYPE2 e0, TYPE2 e1, TYPE x) { \
+    return abacus::detail::common::smoothstep(e0, e1, x);           \
   }
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
@@ -39,7 +39,7 @@ DEF2(abacus_half3, abacus_half)
 DEF2(abacus_half4, abacus_half)
 DEF2(abacus_half8, abacus_half)
 DEF2(abacus_half16, abacus_half)
-#endif // __CA_BUILTINS_HALF_SUPPORT
+#endif  // __CA_BUILTINS_HALF_SUPPORT
 
 DEF(abacus_float)
 DEF(abacus_float2)
@@ -67,4 +67,4 @@ DEF2(abacus_double3, abacus_double)
 DEF2(abacus_double4, abacus_double)
 DEF2(abacus_double8, abacus_double)
 DEF2(abacus_double16, abacus_double)
-#endif // __CA_BUILTINS_DOUBLE_SUPPORT
+#endif  // __CA_BUILTINS_DOUBLE_SUPPORT

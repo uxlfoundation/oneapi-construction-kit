@@ -34,16 +34,16 @@
 #include "cargo/small_vector.h"
 #include "cargo/string_algorithm.h"
 
-#define CLC_CHECK_CL(EXPRESSION, MESSAGE)                                      \
-  {                                                                            \
-    cl_int result = EXPRESSION;                                                \
-    if (result != CL_SUCCESS) {                                                \
-      (void)std::fprintf(stderr, "error: %s (%s, %d)\n", MESSAGE,              \
-                         clc::cl_error_code_to_name_map[result].c_str(),       \
-                         (result));                                            \
-      return clc::result::failure;                                             \
-    }                                                                          \
-  }                                                                            \
+#define CLC_CHECK_CL(EXPRESSION, MESSAGE)                                \
+  {                                                                      \
+    cl_int result = EXPRESSION;                                          \
+    if (result != CL_SUCCESS) {                                          \
+      (void)std::fprintf(stderr, "error: %s (%s, %d)\n", MESSAGE,        \
+                         clc::cl_error_code_to_name_map[result].c_str(), \
+                         (result));                                      \
+      return clc::result::failure;                                       \
+    }                                                                    \
+  }                                                                      \
   (void)0
 
 int main(int argc, char **argv) {
@@ -138,8 +138,8 @@ static bool matchSubstring(cargo::string_view big_string,
   return big_string.find(filter) != cargo::string_view::npos;
 }
 
-static result
-printMuxCompilers(cargo::array_view<const compiler::Info *> compilers) {
+static result printMuxCompilers(
+    cargo::array_view<const compiler::Info *> compilers) {
   for (cl_uint i = 0; i < compilers.size(); i++) {
     (void)std::fprintf(stderr, "device %u: %s\n", i + 1,
                        compilers[i]->device_info->device_name);
@@ -148,9 +148,16 @@ printMuxCompilers(cargo::array_view<const compiler::Info *> compilers) {
 }
 
 driver::driver()
-    : verbose(false), dry_run(false), input_file(), output_file(""),
-      device_name_substring(""), cl_build_args(), strip_binary_header(false),
-      compiler_info(nullptr), context(nullptr), module(nullptr) {}
+    : verbose(false),
+      dry_run(false),
+      input_file(),
+      output_file(""),
+      device_name_substring(""),
+      cl_build_args(),
+      strip_binary_header(false),
+      compiler_info(nullptr),
+      context(nullptr),
+      module(nullptr) {}
 
 #define CL_STD_CHOICES "{CL1.1,CL1.2,CL3.0}\n                        "
 
@@ -244,12 +251,12 @@ result driver::parseArguments(int argc, char **argv) {
       cargo::argument_parser_option::ACCEPT_POSITIONAL |
       cargo::argument_parser_option::KEEP_UNRECOGNIZED);
 
-#define CHECK(RESULT)                                                          \
-  if (RESULT) {                                                                \
-    (void)std::fprintf(stderr,                                                 \
-                       "error: failed to parse command line arguments.\n");    \
-    return result::failure;                                                    \
-  }                                                                            \
+#define CHECK(RESULT)                                                       \
+  if (RESULT) {                                                             \
+    (void)std::fprintf(stderr,                                              \
+                       "error: failed to parse command line arguments.\n"); \
+    return result::failure;                                                 \
+  }                                                                         \
   (void)0
 
   bool show_help = false;
@@ -325,7 +332,8 @@ result driver::parseArguments(int argc, char **argv) {
 
     custom_device_option(cargo::string_view name_view,
                          cargo::string_view help_view, bool takes_value)
-        : takes_value(takes_value), name(name_view.data(), name_view.size()),
+        : takes_value(takes_value),
+          name(name_view.data(), name_view.size()),
           help(help_view.data(), help_view.size()) {};
   };
 
@@ -413,7 +421,7 @@ result driver::parseArguments(int argc, char **argv) {
         size_t name_len = option.name.length() + 2;
         if (option.takes_value) {
           device_options += " value";
-          name_len += 6; // strlen(" value")
+          name_len += 6;  // strlen(" value")
         }
 
         // Max width of option message before line break needed for help
@@ -576,14 +584,14 @@ result driver::buildProgram() {
   if (verbose) {
     const char *source_type_name;
     switch (source_type) {
-    case input_type::spirv:
-      source_type_name = "SPIR-V";
-      break;
-    case input_type::opencl_c:
-      [[fallthrough]];
-    default:
-      source_type_name = "OpenCL C";
-      break;
+      case input_type::spirv:
+        source_type_name = "SPIR-V";
+        break;
+      case input_type::opencl_c:
+        [[fallthrough]];
+      default:
+        source_type_name = "OpenCL C";
+        break;
     }
     (void)std::fprintf(stderr, "info: Input file detected to be in %s format\n",
                        source_type_name);
@@ -608,32 +616,32 @@ result driver::buildProgram() {
       cl::binary::detectMuxDeviceProfile(CL_TRUE, compiler_info->device_info);
   compiler::Result errcode = compiler::Result::SUCCESS;
   switch (source_type) {
-  case input_type::spirv: {
-    auto spv_device_info = cl::binary::getSPIRVDeviceInfo(
-        compiler_info->device_info, device_profile);
-    auto result =
-        module->compileSPIRV(source_as_spirv, *spv_device_info, cargo::nullopt);
-    if (!result) {
-      errcode = result.error();
+    case input_type::spirv: {
+      auto spv_device_info = cl::binary::getSPIRVDeviceInfo(
+          compiler_info->device_info, device_profile);
+      auto result = module->compileSPIRV(source_as_spirv, *spv_device_info,
+                                         cargo::nullopt);
+      if (!result) {
+        errcode = result.error();
+      }
+    } break;
+    case input_type::opencl_c:
+      [[fallthrough]];
+    default: {
+      if (module->parseOptions({cl_options.data(), cl_options.size() - 1},
+                               compiler::Options::Mode::BUILD) !=
+          compiler::Result::SUCCESS) {
+        (void)std::fprintf(
+            stderr, "error: Could not parse compiler options:\n%.*s\n",
+            static_cast<int>(cl_options.size() - 1), cl_options.data());
+        return result::failure;
+      }
+      errcode = module->compileOpenCLC(device_profile, source_as_string, {});
     }
-  } break;
-  case input_type::opencl_c:
-    [[fallthrough]];
-  default: {
-    if (module->parseOptions({cl_options.data(), cl_options.size() - 1},
-                             compiler::Options::Mode::BUILD) !=
-        compiler::Result::SUCCESS) {
-      (void)std::fprintf(
-          stderr, "error: Could not parse compiler options:\n%.*s\n",
-          static_cast<int>(cl_options.size() - 1), cl_options.data());
-      return result::failure;
-    }
-    errcode = module->compileOpenCLC(device_profile, source_as_string, {});
-  }
   }
 
   if (errcode == compiler::Result::BUILD_PROGRAM_FAILURE) {
-    ++module_num_errors; // ensure we fail
+    ++module_num_errors;  // ensure we fail
     errcode = compiler::Result::SUCCESS;
   }
   if (compiler::Result::SUCCESS != errcode) {
@@ -777,4 +785,4 @@ result driver::findDevice() {
   return result::success;
 }
 
-} // namespace clc
+}  // namespace clc
