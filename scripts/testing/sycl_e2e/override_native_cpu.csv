@@ -39,7 +39,6 @@ SYCL,KernelCompiler/sycl_time_trace.cpp,XFail
 SYCL,NewOffloadDriver/multisource.cpp,XFail
 SYCL,OptionalKernelFeatures/is_compatible/is_compatible_spir64.cpp,XFail
 SYCL,QueueFlushing/queue_flushing.cpp,XFail
-SYCL,Reduction/reduction_big_data.cpp,XFail
 SYCL,Regression/barrier_with_work.cpp,XFail
 SYCL,Regression/get_subgroup_sizes.cpp,XFail
 SYCL,Regression/usm_malloc_shared.cpp,XFail
