@@ -40,7 +40,8 @@ PreservedAnalyses compiler::utils::RemoveLifetimeIntrinsicsPass::run(
 
           // Second argument to intrinsic is a pointer bitcasted to `i8*`,
           // this can be removed since the lifetime intrinsic is the only use.
-          auto bitcast = dyn_cast<BitCastInst>(intrinsic->getArgOperand(1));
+          auto bitcast = dyn_cast<BitCastInst>(
+              intrinsic->getArgOperand(intrinsic->arg_size() - 1));
           if (bitcast && bitcast->hasOneUse()) {
             toDelete.push_back(bitcast);
           }
