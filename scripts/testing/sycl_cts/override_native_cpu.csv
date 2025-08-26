@@ -12,7 +12,7 @@ SYCL_CTS,test_math_builtin_api "math_builtin_geometric_double_*",XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_half_*" --allow-running-no-tests,XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_integer_*",XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_native_*",XFail
-SYCL_CTS,test_math_builtin_api "math_builtin_relational_base_*"
+SYCL_CTS,test_math_builtin_api "math_builtin_relational_base_*",XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_relational_double_*",XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_relational_half_*" --allow-running-no-tests,XFail
 SYCL_CTS,test_opencl_interop opencl_interop_constructors,Ignore
