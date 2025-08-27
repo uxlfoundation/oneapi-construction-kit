@@ -15,15 +15,15 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "refsi_perf_counters.h"
-#include "refsi_device.h"
+
 #include "refsi_accelerator.h"
+#include "refsi_device.h"
 
 PerfCounterDevice::PerfCounterDevice(RefSiDevice &soc) : soc(soc) {
   global_counters.resize(num_global_perf_counters);
 }
 
-PerfCounterDevice::~PerfCounterDevice() {
-}
+PerfCounterDevice::~PerfCounterDevice() {}
 
 bool PerfCounterDevice::get_perf_counter_index(reg_t rel_addr,
                                                size_t &counter_idx,
@@ -73,8 +73,8 @@ bool PerfCounterDevice::load(reg_t addr, size_t len, uint8_t *bytes,
       return false;
     }
     RefSiAccelerator &acc = soc.getAccelerator();
-    if (refsi_success != acc.readPerfCounter(counter_idx,
-                                             get_unit_index(unit_id), val)) {
+    if (refsi_success !=
+        acc.readPerfCounter(counter_idx, get_unit_index(unit_id), val)) {
       return false;
     }
   } else {
@@ -121,8 +121,8 @@ bool PerfCounterDevice::store(reg_t addr, size_t len, const uint8_t *bytes,
       return false;
     }
     RefSiAccelerator &acc = soc.getAccelerator();
-    if (refsi_success != acc.writePerfCounter(counter_idx,
-                                              get_unit_index(unit_id), val)) {
+    if (refsi_success !=
+        acc.writePerfCounter(counter_idx, get_unit_index(unit_id), val)) {
       return false;
     }
   } else {

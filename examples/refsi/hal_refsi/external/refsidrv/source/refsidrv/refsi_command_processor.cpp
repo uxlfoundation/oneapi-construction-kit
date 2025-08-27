@@ -16,25 +16,26 @@
 
 #include "refsidrv/refsi_command_processor.h"
 
+#include <time.h>
+
+#include <sstream>
+
 #include "refsidrv/refsi_accelerator.h"
 #include "refsidrv/refsi_device.h"
 #include "refsidrv/refsi_memory.h"
 #include "refsidrv/refsi_memory_window.h"
-
-#include <time.h>
-#include <sstream>
 
 #if defined(__BIG_ENDIAN__)
 #error Decoding CMP commands is currently only supported where the host is a little-endian system.
 #endif
 
 static float time_diff_in_sec(timespec &start, timespec &end) {
-  return (float) (end.tv_sec - start.tv_sec) +
-      ((float) ((end.tv_nsec - start.tv_nsec) * 1e-6f)) * 1e-3f;
+  return (float)(end.tv_sec - start.tv_sec) +
+         ((float)((end.tv_nsec - start.tv_nsec) * 1e-6f)) * 1e-3f;
 }
 
-RefSiCommandProcessor::RefSiCommandProcessor(RefSiDevice &soc) : soc(soc),
-  debug(soc.getDebug()) {
+RefSiCommandProcessor::RefSiCommandProcessor(RefSiDevice &soc)
+    : soc(soc), debug(soc.getDebug()) {
   registers.resize(CMP_NUM_REGS);
 }
 
@@ -112,8 +113,10 @@ void RefSiCommandProcessor::workerMain(RefSiCommandProcessor *cmp) {
       cmp->execute(*I, lock);
       if (cmp->debug) {
         clock_gettime(CLOCK_MONOTONIC, &end);
-        fprintf(stderr, "[CMP] Finished executing command buffer in "
-                "%0.3f s\n", time_diff_in_sec(start, end));
+        fprintf(stderr,
+                "[CMP] Finished executing command buffer in "
+                "%0.3f s\n",
+                time_diff_in_sec(start, end));
       }
 
       // Remove the request from the queue.
@@ -157,25 +160,25 @@ static const char *getOpcodeName(refsi_cmp_command_id opcode) {
   }
 }
 
-std::string
-RefSiCommandProcessor::getRegisterName(refsi_cmp_register_id reg_id) {
+std::string RefSiCommandProcessor::getRegisterName(
+    refsi_cmp_register_id reg_id) {
   switch (reg_id) {
-  default:
-    break;
-  case CMP_REG_SCRATCH:
-    return "SCRATCH";
-  case CMP_REG_ENTRY_PT_FN:
-    return "ENTRY_PT_FN";
-  case CMP_REG_KUB_DESC:
-    return "KUB_DESC";
-  case CMP_REG_KARGS_INFO:
-    return "KARGS_INFO";
-  case CMP_REG_TSD_INFO:
-    return "TSD_INFO";
-  case CMP_REG_STACK_TOP:
-    return "STACK_TOP";
-  case CMP_REG_RETURN_ADDR:
-    return "RETURN_ADDR";
+    default:
+      break;
+    case CMP_REG_SCRATCH:
+      return "SCRATCH";
+    case CMP_REG_ENTRY_PT_FN:
+      return "ENTRY_PT_FN";
+    case CMP_REG_KUB_DESC:
+      return "KUB_DESC";
+    case CMP_REG_KARGS_INFO:
+      return "KARGS_INFO";
+    case CMP_REG_TSD_INFO:
+      return "TSD_INFO";
+    case CMP_REG_STACK_TOP:
+      return "STACK_TOP";
+    case CMP_REG_RETURN_ADDR:
+      return "RETURN_ADDR";
   }
 
   // Handle register arrays specially.
@@ -185,18 +188,18 @@ RefSiCommandProcessor::getRegisterName(refsi_cmp_register_id reg_id) {
     if (RefSiMemoryWindow::splitCmpRegister(reg_id, canon_reg_id, window_id)) {
       std::string prefix;
       switch (canon_reg_id) {
-      case CMP_REG_WINDOW_BASE0:
-        prefix = "WINDOW_BASE";
-        break;
-      case CMP_REG_WINDOW_TARGET0:
-        prefix = "WINDOW_TARGET";
-        break;
-      case CMP_REG_WINDOW_MODE0:
-        prefix = "WINDOW_MODE";
-        break;
-      case CMP_REG_WINDOW_SCALE0:
-        prefix = "WINDOW_SCALE";
-        break;
+        case CMP_REG_WINDOW_BASE0:
+          prefix = "WINDOW_BASE";
+          break;
+        case CMP_REG_WINDOW_TARGET0:
+          prefix = "WINDOW_TARGET";
+          break;
+        case CMP_REG_WINDOW_MODE0:
+          prefix = "WINDOW_MODE";
+          break;
+        case CMP_REG_WINDOW_SCALE0:
+          prefix = "WINDOW_SCALE";
+          break;
       }
       return prefix + std::to_string(window_id);
     }
@@ -210,30 +213,30 @@ std::string RefSiCommandProcessor::formatDeviceAddress(refsi_addr_t address) {
   if ((address >= dma_io_base) && (address < (dma_io_base + dma_io_size))) {
     uint32_t reg_idx = REFSI_DMA_GET_REG(dma_io_base, address);
     switch (reg_idx) {
-    case REFSI_REG_DMACTRL:
-      return "DMA_CTRL";
-    case REFSI_REG_DMASTARTSEQ:
-      return "DMA_START_SEQ";
-    case REFSI_REG_DMADONESEQ:
-      return "DMA_DONE_SEQ";
-    case REFSI_REG_DMASRCADDR:
-      return "DMA_SRC_ADDR";
-    case REFSI_REG_DMADSTADDR:
-      return "DMA_DST_ADDR";
-    case REFSI_REG_DMAXFERSIZE0 + 0:
-      return "DMA_XFER_SIZE0";
-    case REFSI_REG_DMAXFERSIZE0 + 1:
-      return "DMA_XFER_SIZE1";
-    case REFSI_REG_DMAXFERSIZE0 + 2:
-      return "DMA_XFER_SIZE2";
-    case REFSI_REG_DMAXFERSRCSTRIDE0 + 0:
-      return "DMA_XFER_SRC_STRIDE0";
-    case REFSI_REG_DMAXFERSRCSTRIDE0 + 1:
-      return "DMA_XFER_SRC_STRIDE1";
-    case REFSI_REG_DMAXFERDSTSTRIDE0 + 0:
-      return "DMA_XFER_DST_STRIDE0";
-    case REFSI_REG_DMAXFERDSTSTRIDE0 + 1:
-      return "DMA_XFER_DST_STRIDE1";
+      case REFSI_REG_DMACTRL:
+        return "DMA_CTRL";
+      case REFSI_REG_DMASTARTSEQ:
+        return "DMA_START_SEQ";
+      case REFSI_REG_DMADONESEQ:
+        return "DMA_DONE_SEQ";
+      case REFSI_REG_DMASRCADDR:
+        return "DMA_SRC_ADDR";
+      case REFSI_REG_DMADSTADDR:
+        return "DMA_DST_ADDR";
+      case REFSI_REG_DMAXFERSIZE0 + 0:
+        return "DMA_XFER_SIZE0";
+      case REFSI_REG_DMAXFERSIZE0 + 1:
+        return "DMA_XFER_SIZE1";
+      case REFSI_REG_DMAXFERSIZE0 + 2:
+        return "DMA_XFER_SIZE2";
+      case REFSI_REG_DMAXFERSRCSTRIDE0 + 0:
+        return "DMA_XFER_SRC_STRIDE0";
+      case REFSI_REG_DMAXFERSRCSTRIDE0 + 1:
+        return "DMA_XFER_SRC_STRIDE1";
+      case REFSI_REG_DMAXFERDSTSTRIDE0 + 0:
+        return "DMA_XFER_DST_STRIDE0";
+      case REFSI_REG_DMAXFERDSTSTRIDE0 + 1:
+        return "DMA_XFER_DST_STRIDE1";
     }
   }
 
@@ -368,8 +371,8 @@ refsi_result RefSiCommandProcessor::executeLOAD_REG64(
   if (debug) {
     std::string reg_name = getRegisterName(reg_idx);
     std::string src_addr_str = formatDeviceAddress(src_addr);
-    fprintf(stderr, "[CMP] CMP_LOAD_REG64(%s, %s) -> 0x%zx\n",
-            reg_name.c_str(), src_addr_str.c_str(), val);
+    fprintf(stderr, "[CMP] CMP_LOAD_REG64(%s, %s) -> 0x%zx\n", reg_name.c_str(),
+            src_addr_str.c_str(), val);
   }
   return refsi_success;
 }
@@ -435,10 +438,10 @@ refsi_result RefSiCommandProcessor::executeCOPY_MEM64(
   uint64_t copy_size = count * reg_size;
   uint64_t src_target_offset = 0;
   uint64_t dst_target_offset = 0;
-  MemoryDevice *src_device = soc.getMemory().find_device(src_addr,
-                                                         src_target_offset);
-  MemoryDevice *dst_device = soc.getMemory().find_device(dst_addr,
-                                                         dst_target_offset);
+  MemoryDevice *src_device =
+      soc.getMemory().find_device(src_addr, src_target_offset);
+  MemoryDevice *dst_device =
+      soc.getMemory().find_device(dst_addr, dst_target_offset);
   if (!src_device || (src_target_offset + copy_size) > src_device->mem_size()) {
     return refsi_failure;
   } else if (!dst_device ||
@@ -517,8 +520,8 @@ refsi_result RefSiCommandProcessor::executeRUN_KERNEL_SLICE(
     if (stack_top != 0) {
       hart_data.stack_top_addr = stack_top;
     } else {
-      hart_data.stack_top_addr = getTCDMHartAddress(hart_id,
-                                                    tcdm_hart_size_per_hart);
+      hart_data.stack_top_addr =
+          getTCDMHartAddress(hart_id, tcdm_hart_size_per_hart);
     }
     hart_data.extra_args.push_back(slice_id);
     hart_data.extra_args.push_back(kub_addr);
@@ -540,9 +543,8 @@ refsi_result RefSiCommandProcessor::executeRUN_KERNEL_SLICE(
   }
 
   // Run the kernel.
-  return soc.getAccelerator().runKernelSlice(num_instances, entry_point,
-                                             return_addr, num_harts,
-                                             per_hart_data.data());
+  return soc.getAccelerator().runKernelSlice(
+      num_instances, entry_point, return_addr, num_harts, per_hart_data.data());
 }
 
 refsi_result RefSiCommandProcessor::executeRUN_INSTANCES(
@@ -584,9 +586,8 @@ refsi_result RefSiCommandProcessor::executeRUN_INSTANCES(
   }
 
   // Run the kernel.
-  return soc.getAccelerator().runKernelSlice(num_instances, entry_point,
-                                             return_addr, num_harts,
-                                             per_hart_data.data());
+  return soc.getAccelerator().runKernelSlice(
+      num_instances, entry_point, return_addr, num_harts, per_hart_data.data());
 }
 
 refsi_result RefSiCommandProcessor::executeSYNC_CACHE(
@@ -595,11 +596,10 @@ refsi_result RefSiCommandProcessor::executeSYNC_CACHE(
     return refsi_failure;
   }
 
-  uint32_t flags = cmd.inline_chunk & (CMP_CACHE_SYNC_ACC_DCACHE |
-                                       CMP_CACHE_SYNC_ACC_ICACHE);
+  uint32_t flags = cmd.inline_chunk &
+                   (CMP_CACHE_SYNC_ACC_DCACHE | CMP_CACHE_SYNC_ACC_ICACHE);
   if (debug) {
-    fprintf(stderr,
-            "[CMP] CMP_SYNC_CACHE(flags=0x%x)\n", flags);
+    fprintf(stderr, "[CMP] CMP_SYNC_CACHE(flags=0x%x)\n", flags);
   }
   return soc.getAccelerator().syncCache(flags);
 }

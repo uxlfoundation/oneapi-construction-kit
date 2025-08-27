@@ -16,15 +16,18 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "debugger.h"
-#include "slim_sim.h"
+
+#include <termios.h>
+#include <unistd.h>
+
+#include <cinttypes>
+#include <climits>
+#include <cmath>
+#include <iostream>
+
 #include "riscv/disasm.h"
 #include "riscv/mmu.h"
-#include <termios.h>
-#include <iostream>
-#include <climits>
-#include <cinttypes>
-#include <unistd.h>
-#include <cmath>
+#include "slim_sim.h"
 
 DECLARE_TRAP(-1, interactive)
 
@@ -55,17 +58,16 @@ static std::string readline(int fd) {
   bool noncanonical = tcgetattr(fd, &tios) == 0 && (tios.c_lflag & ICANON) == 0;
 
   std::string s;
-  for (char ch; read(fd, &ch, 1) == 1; ) {
+  for (char ch; read(fd, &ch, 1) == 1;) {
     if (ch == '\x7f') {
-      if (s.empty())
-        continue;
-      s.erase(s.end()-1);
+      if (s.empty()) continue;
+      s.erase(s.end() - 1);
 
       if (noncanonical && write(fd, "\b \b", 3) != 3) {
-        ; // shut up gcc
+        ;  // shut up gcc
       }
     } else if (noncanonical && write(fd, &ch, 1) != 1) {
-      ; // shut up gcc
+      ;  // shut up gcc
     }
 
     if (ch == '\n') {
@@ -106,13 +108,12 @@ bool debugger_t::run_command() {
       fprintf(stderr, "Unknown command %s\n", cmd.c_str());
       return false;
     }
-  }
-  catch(trap_t& t) {
+  } catch (trap_t &t) {
     return false;
   }
 }
 
-processor_t *debugger_t::get_core(const std::string& i) {
+processor_t *debugger_t::get_core(const std::string &i) {
   char *ptr;
   unsigned long p = strtoul(i.c_str(), &ptr, 10);
   if (processor_t *core = sim.get_hart(p)) {
@@ -121,7 +122,7 @@ processor_t *debugger_t::get_core(const std::string& i) {
   throw trap_interactive();
 }
 
-reg_t debugger_t::get_pc(const std::vector<std::string>& args) {
+reg_t debugger_t::get_pc(const std::vector<std::string> &args) {
   if (args.size() != 1) {
     throw trap_interactive();
   }
@@ -130,7 +131,7 @@ reg_t debugger_t::get_pc(const std::vector<std::string>& args) {
   return p->get_state()->pc;
 }
 
-reg_t debugger_t::get_reg(const std::vector<std::string>& args) {
+reg_t debugger_t::get_reg(const std::vector<std::string> &args) {
   if (args.size() != 2) {
     throw trap_interactive();
   }
@@ -142,10 +143,11 @@ reg_t debugger_t::get_reg(const std::vector<std::string>& args) {
     char *ptr;
     r = strtoul(args[1].c_str(), &ptr, 10);
     if (*ptr) {
-      #define DECLARE_CSR(name, number) if (args[1] == #name) return p->get_csr(number);
-      #include "encoding.h"              // generates if's for all csrs
-      r = NXPR;                          // else case (csr name not found)
-      #undef DECLARE_CSR
+#define DECLARE_CSR(name, number) \
+  if (args[1] == #name) return p->get_csr(number);
+#include "encoding.h"  // generates if's for all csrs
+      r = NXPR;        // else case (csr name not found)
+#undef DECLARE_CSR
     }
   }
 
@@ -156,7 +158,7 @@ reg_t debugger_t::get_reg(const std::vector<std::string>& args) {
   return p->get_state()->XPR[r];
 }
 
-freg_t debugger_t::get_freg(const std::vector<std::string>& args) {
+freg_t debugger_t::get_freg(const std::vector<std::string> &args) {
   if (args.size() != 2) {
     throw trap_interactive();
   }
@@ -173,7 +175,7 @@ freg_t debugger_t::get_freg(const std::vector<std::string>& args) {
   return p->get_state()->FPR[r];
 }
 
-reg_t debugger_t::get_mem(const std::vector<std::string>& args) {
+reg_t debugger_t::get_mem(const std::vector<std::string> &args) {
   if (args.size() != 1) {
     throw trap_interactive();
   }
@@ -194,32 +196,43 @@ reg_t debugger_t::get_mem(const std::vector<std::string>& args) {
 }
 
 void debugger_t::do_help() {
-  std::cerr <<
-    "Interactive commands:\n"
-    "reg <core> [reg]                # Display [reg] (all if omitted) in <core>\n"
-    "fregh <core> <reg>              # Display half precision <reg> in <core>\n"
-    "fregs <core> <reg>              # Display single precision <reg> in <core>\n"
-    "fregd <core> <reg>              # Display double precision <reg> in <core>\n"
-    "vreg <core> [reg]               # Display vector [reg] (all if omitted) in <core>\n"
-    "pc <core>                       # Show current PC in <core>\n"
-    "mem <hex addr>                  # Show contents of physical memory\n"
-    "str <hex addr>                  # Show NUL-terminated C string\n"
-    "until reg <core> <reg> <val>    # Stop when <reg> in <core> hits <val>\n"
-    "until pc <core> <val>           # Stop when PC in <core> hits <val>\n"
-    "untiln pc <core> <val>          # Run noisy and stop when PC in <core> hits <val>\n"
-    "until mem <addr> <val>          # Stop when memory <addr> becomes <val>\n"
-    "while reg <core> <reg> <val>    # Run while <reg> in <core> is <val>\n"
-    "while pc <core> <val>           # Run while PC in <core> is <val>\n"
-    "while mem <addr> <val>          # Run while memory <addr> is <val>\n"
-    "run [count]                     # Resume noisy execution (until CTRL+C, or [count] insns)\n"
-    "r [count]                         Alias for run\n"
-    "rs [count]                      # Resume silent execution (until CTRL+C, or [count] insns)\n"
-    "quit                            # End the simulation\n"
-    "q                                 Alias for quit\n"
-    "help                            # This screen!\n"
-    "h                                 Alias for help\n"
-    "Note: Hitting enter is the same as: run 1\n"
-    << std::flush;
+  std::cerr
+      << "Interactive commands:\n"
+         "reg <core> [reg]                # Display [reg] (all if omitted) in "
+         "<core>\n"
+         "fregh <core> <reg>              # Display half precision <reg> in "
+         "<core>\n"
+         "fregs <core> <reg>              # Display single precision <reg> in "
+         "<core>\n"
+         "fregd <core> <reg>              # Display double precision <reg> in "
+         "<core>\n"
+         "vreg <core> [reg]               # Display vector [reg] (all if "
+         "omitted) in <core>\n"
+         "pc <core>                       # Show current PC in <core>\n"
+         "mem <hex addr>                  # Show contents of physical memory\n"
+         "str <hex addr>                  # Show NUL-terminated C string\n"
+         "until reg <core> <reg> <val>    # Stop when <reg> in <core> hits "
+         "<val>\n"
+         "until pc <core> <val>           # Stop when PC in <core> hits <val>\n"
+         "untiln pc <core> <val>          # Run noisy and stop when PC in "
+         "<core> hits <val>\n"
+         "until mem <addr> <val>          # Stop when memory <addr> becomes "
+         "<val>\n"
+         "while reg <core> <reg> <val>    # Run while <reg> in <core> is "
+         "<val>\n"
+         "while pc <core> <val>           # Run while PC in <core> is <val>\n"
+         "while mem <addr> <val>          # Run while memory <addr> is <val>\n"
+         "run [count]                     # Resume noisy execution (until "
+         "CTRL+C, or [count] insns)\n"
+         "r [count]                         Alias for run\n"
+         "rs [count]                      # Resume silent execution (until "
+         "CTRL+C, or [count] insns)\n"
+         "quit                            # End the simulation\n"
+         "q                                 Alias for quit\n"
+         "help                            # This screen!\n"
+         "h                                 Alias for help\n"
+         "Note: Hitting enter is the same as: run 1\n"
+      << std::flush;
 }
 
 void debugger_t::do_run_noisy() {
@@ -232,9 +245,7 @@ void debugger_t::do_run_silent() {
   sim.run_single_step(false, steps);
 }
 
-void debugger_t::do_quit() {
-  exit(0);
-}
+void debugger_t::do_quit() { exit(0); }
 
 void debugger_t::do_pc() {
   fprintf(stderr, "0x%016" PRIx64 "\n", get_pc(args));
@@ -261,14 +272,14 @@ void debugger_t::do_vreg() {
   processor_t *p = get_core(args[0]);
   const int vlen = (int)(p->VU.get_vlen()) >> 3;
   const int elen = (int)(p->VU.get_elen()) >> 3;
-  const int num_elem = vlen/elen;
+  const int num_elem = vlen / elen;
   fprintf(stderr, "VLEN=%d bits; ELEN=%d bits\n", vlen << 3, elen << 3);
 
   for (int r = rstart; r < rend; ++r) {
     fprintf(stderr, "%-4s: ", vr_name[r]);
-    for (int e = num_elem-1; e >= 0; --e) {
+    for (int e = num_elem - 1; e >= 0; --e) {
       uint64_t val;
-      switch(elen){
+      switch (elen) {
         case 8:
           val = p->VU.elt<uint64_t>(r, e);
           fprintf(stderr, "[%d]: 0x%016" PRIx64 "  ", e, val);
@@ -297,7 +308,8 @@ void debugger_t::do_reg() {
     processor_t *p = get_core(args[0]);
 
     for (int r = 0; r < NXPR; ++r) {
-      fprintf(stderr, "%-4s: 0x%016" PRIx64 "  ", xpr_name[r], p->get_state()->XPR[r]);
+      fprintf(stderr, "%-4s: 0x%016" PRIx64 "  ", xpr_name[r],
+              p->get_state()->XPR[r]);
       if ((r + 1) % 4 == 0) {
         fprintf(stderr, "\n");
       }
@@ -307,8 +319,7 @@ void debugger_t::do_reg() {
   }
 }
 
-union fpr
-{
+union fpr {
   freg_t r;
   float s;
   double d;
@@ -352,13 +363,9 @@ void debugger_t::do_str() {
   putchar('\n');
 }
 
-void debugger_t::do_until_silent() {
-  interactive_until(false);
-}
+void debugger_t::do_until_silent() { interactive_until(false); }
 
-void debugger_t::do_until_noisy() {
-  interactive_until(true);
-}
+void debugger_t::do_until_noisy() { interactive_until(true); }
 
 void debugger_t::interactive_until(bool noisy) {
   bool cmd_until = cmd == "until" || cmd == "untiln";
@@ -373,12 +380,12 @@ void debugger_t::interactive_until(bool noisy) {
   }
 
   std::vector<std::string> args2;
-  args2 = std::vector<std::string>(args.begin()+1,args.end()-1);
+  args2 = std::vector<std::string>(args.begin() + 1, args.end() - 1);
 
-  auto func = args[0] == "reg" ? &debugger_t::get_reg :
-              args[0] == "pc"  ? &debugger_t::get_pc :
-              args[0] == "mem" ? &debugger_t::get_mem :
-              NULL;
+  auto func = args[0] == "reg"   ? &debugger_t::get_reg
+              : args[0] == "pc"  ? &debugger_t::get_pc
+              : args[0] == "mem" ? &debugger_t::get_mem
+                                 : NULL;
 
   if (func == NULL) {
     return;
@@ -388,10 +395,9 @@ void debugger_t::interactive_until(bool noisy) {
     try {
       reg_t current = (this->*func)(args2);
 
-      if (cmd_until == (current == val))
-        break;
+      if (cmd_until == (current == val)) break;
+    } catch (trap_t &t) {
     }
-    catch (trap_t& t) {}
 
     sim.run_single_step(noisy, 1);
   }

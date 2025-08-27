@@ -1,4 +1,5 @@
 #include <gnuregex.h>
+
 #include <string>
 int main() {
   std::string str = "test0159";
@@ -9,4 +10,3 @@ int main() {
   }
   return regexec(&re, str.c_str(), 0, nullptr, 0) ? -1 : 0;
 }
-

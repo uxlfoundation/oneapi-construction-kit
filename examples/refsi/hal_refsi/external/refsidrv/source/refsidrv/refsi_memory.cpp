@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "refsidrv/refsi_memory.h"
-#include "refsidrv/refsi_memory_window.h"
-#include "refsidrv/refsi_device.h"
 
-RefSiMemoryController::RefSiMemoryController(RefSiDevice &soc)
-  : soc(soc) {
+#include "refsidrv/refsi_device.h"
+#include "refsidrv/refsi_memory_window.h"
+
+RefSiMemoryController::RefSiMemoryController(RefSiDevice &soc) : soc(soc) {
   for (unsigned i = 0; i < num_memory_windows; i++) {
     windows.push_back(new RefSiMemoryWindow(*this));
   }
@@ -37,8 +37,8 @@ RefSiMemoryController::~RefSiMemoryController() {
 }
 
 /// @brief Access the device's memory map.
-const std::vector<refsi_memory_map_entry> &
-RefSiMemoryController::getMemoryMap() const {
+const std::vector<refsi_memory_map_entry> &RefSiMemoryController::getMemoryMap()
+    const {
   return memory_map;
 }
 
@@ -60,13 +60,13 @@ RefSiMemoryWindow *RefSiMemoryController::getWindow(unsigned index) const {
   return (index < windows.size()) ? windows[index] : 0;
 }
 
-refsi_result
-RefSiMemoryController::handleWindowRegWrite(refsi_cmp_register_id reg_idx,
-                                            uint64_t value) {
+refsi_result RefSiMemoryController::handleWindowRegWrite(
+    refsi_cmp_register_id reg_idx, uint64_t value) {
   // Determine the window index and canonical register.
   uint32_t window_idx = 0;
   refsi_cmp_register_id canonical_reg = reg_idx;
-  if (!RefSiMemoryWindow::splitCmpRegister(reg_idx, canonical_reg, window_idx)) {
+  if (!RefSiMemoryWindow::splitCmpRegister(reg_idx, canonical_reg,
+                                           window_idx)) {
     return refsi_failure;
   }
 

@@ -381,7 +381,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
 
 #define MEM_OBJECT_INFO_CASE(NAME, TYPE, VALUE)                   \
   case NAME: {                                                    \
-    OCL_CHECK(param_value &&param_value_size < sizeof(TYPE),      \
+    OCL_CHECK(param_value && param_value_size < sizeof(TYPE),     \
               return CL_INVALID_VALUE);                           \
     OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(TYPE));      \
     OCL_SET_IF_NOT_NULL(static_cast<TYPE *>(param_value), VALUE); \

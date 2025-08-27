@@ -16,11 +16,11 @@
 
 #include "refsidrv/refsi_device_m.h"
 
+#include "refsidrv/kernel_dma.h"
 #include "refsidrv/refsi_accelerator.h"
 #include "refsidrv/refsi_command_processor.h"
 #include "refsidrv/refsi_memory.h"
 #include "refsidrv/refsi_perf_counters.h"
-#include "refsidrv/kernel_dma.h"
 
 RefSiMDevice::RefSiMDevice() : RefSiDevice(refsi_soc_family::m) {
   RefSiLock lock(mutex);
@@ -38,7 +38,7 @@ RefSiMDevice::RefSiMDevice() : RefSiDevice(refsi_soc_family::m) {
   accelerator = std::make_unique<RefSiAccelerator>(*this);
   cmp = std::make_unique<RefSiCommandProcessor>(*this);
   accelerator->setISA(REFSI_M1_ISA);
-  accelerator->set_pre_run_callback([&] (slim_sim_t &sim) { preRunSim(sim); });
+  accelerator->set_pre_run_callback([&](slim_sim_t &sim) { preRunSim(sim); });
 }
 
 RefSiMDevice::~RefSiMDevice() {
@@ -46,9 +46,7 @@ RefSiMDevice::~RefSiMDevice() {
   cmp->stop(locker);
 }
 
-refsi_result RefSiMDevice::initialize() {
-  return accelerator->createSim();
-}
+refsi_result RefSiMDevice::initialize() { return accelerator->createSim(); }
 
 refsi_result RefSiMDevice::executeCommandBuffer(refsi_addr_t cb_addr,
                                                 size_t size) {

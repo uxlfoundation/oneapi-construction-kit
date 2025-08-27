@@ -73,7 +73,7 @@ struct kernel : mux_kernel_s {
       cargo::string_view name,
       cargo::small_vector<VariantData, 4> &&variant_data,
       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::kernel<VariantData>, Kernel>::value,
+    static_assert(std::is_base_of_v<mux::hal::kernel<VariantData>, Kernel>,
                   "template type Kernel must be derived from mux::hal::kernel");
     auto kernel =
         allocator.create<Kernel>(device, name, executable->object_code,
@@ -87,7 +87,7 @@ struct kernel : mux_kernel_s {
   template <class Kernel>
   static void destroy(mux::hal::device *device, Kernel *kernel,
                       mux::allocator allocator) {
-    static_assert(std::is_base_of<mux::hal::kernel<VariantData>, Kernel>::value,
+    static_assert(std::is_base_of_v<mux::hal::kernel<VariantData>, Kernel>,
                   "template type Kernel must be derived from mux::hal::kernel");
     (void)device;
     allocator.destroy(kernel);

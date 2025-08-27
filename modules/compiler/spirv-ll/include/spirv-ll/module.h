@@ -204,7 +204,7 @@ class Module : public ModuleHeader {
   ///
   /// @return Returns true if the capability has been enabled, false otherwise.
   bool hasCapability(spv::Capability capability) const {
-    return 0 != capabilities.count(capability);
+    return capabilities.contains(capability);
   }
 
   /// @brief Check if any of the capabilities have been enabled.
@@ -233,7 +233,7 @@ class Module : public ModuleHeader {
   ///
   /// @return Returns true if the extension has been declared, false otherwise.
   bool isExtensionEnabled(llvm::StringRef extension) const {
-    return extensions.count(extension);
+    return extensions.contains(extension);
   }
 
   /// @brief Associates an SPV ID with an extended instruction set.

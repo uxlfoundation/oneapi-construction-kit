@@ -15,25 +15,24 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "elf_loader.h"
-#include "fesvr/byteorder.h"
+
 #include "common_devices.h"
+#include "fesvr/byteorder.h"
 
 #define SHT_SYMTAB 2
 #define SHT_STRTAB 3
 
 #define STB_GLOBAL 1
 
-#define ELF32_ST_BIND(i)    ((i)>>4)
-#define ELF32_ST_TYPE(i)    ((i)&0xf)
-#define ELF32_ST_INFO(b,t)  (((b)<<4)+((t)&0xf))
+#define ELF32_ST_BIND(i) ((i) >> 4)
+#define ELF32_ST_TYPE(i) ((i) & 0xf)
+#define ELF32_ST_INFO(b, t) (((b) << 4) + ((t) & 0xf))
 
-ELFProgram::~ELFProgram() {
-  clear();
-}
+ELFProgram::~ELFProgram() { clear(); }
 
 void ELFProgram::clear() {
   for (elf_segment segment : segments) {
-    delete [] segment.data;
+    delete[] segment.data;
   }
   segments.clear();
   symbols.clear();
@@ -85,7 +84,7 @@ bool ELFProgram::read(MemoryDevice &src, unit_id_t unit) {
       if (header.p_filesz > 0) {
         uint8_t *segment_data = new uint8_t[header.p_filesz];
         if (!src.load(header.p_offset, header.p_filesz, segment_data, unit)) {
-          delete [] segment_data;
+          delete[] segment_data;
           return false;
         }
         segment.data = segment_data;
@@ -107,8 +106,8 @@ bool ELFProgram::load(MemoryDevice &dst, unit_id_t unit) {
     uint64_t address = segment.address;
 
     // Write initialized data (i.e. read from the ELF) for this segment.
-    if (segment.file_size && !dst.store(address, segment.file_size,
-                                        segment.data, unit)) {
+    if (segment.file_size &&
+        !dst.store(address, segment.file_size, segment.data, unit)) {
       return false;
     }
     address += segment.file_size;
@@ -259,18 +258,18 @@ bool ELFProgram::read_symbols(MemoryDevice &src, unit_id_t unit) {
       continue;
     }
     switch (section.sh_type) {
-    default:
-      break;
-    case SHT_SYMTAB:
-      if (name == ".symtab") {
-        symtab = &section;
-      }
-      break;
-    case SHT_STRTAB:
-      if (name == ".strtab") {
-        strtab = &section;
-      }
-      break;
+      default:
+        break;
+      case SHT_SYMTAB:
+        if (name == ".symtab") {
+          symtab = &section;
+        }
+        break;
+      case SHT_STRTAB:
+        if (name == ".strtab") {
+          strtab = &section;
+        }
+        break;
     }
   }
 

@@ -15,8 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "trap_handlers.h"
-#include "slim_sim.h"
+
 #include "device/host_io_regs.h"
+#include "slim_sim.h"
 
 trap_handler_t::~trap_handler_t() {}
 
@@ -49,60 +50,64 @@ bool default_trap_handler::handle_ecall(trap_t &trap, reg_t pc,
   if (!hart) {
     return false;
   }
-  reg_t opc = hart->get_state()->XPR[17]; // a7 - opcode
-  reg_t val = hart->get_state()->XPR[10]; // a0 - argument
+  reg_t opc = hart->get_state()->XPR[17];  // a7 - opcode
+  reg_t val = hart->get_state()->XPR[10];  // a0 - argument
   switch (opc) {
-  default:
-    return false;
-  case HOST_IO_CMD_EXIT:
-    sim.set_exited(val);
-    return true;
-  case HOST_IO_CMD_PUTSTRING:
-    return sim.mmio_print(val);
-  case HOST_IO_CMD_BARRIER:
-    return sim.handle_barrier(val);
+    default:
+      return false;
+    case HOST_IO_CMD_EXIT:
+      sim.set_exited(val);
+      return true;
+    case HOST_IO_CMD_PUTSTRING:
+      return sim.mmio_print(val);
+    case HOST_IO_CMD_BARRIER:
+      return sim.handle_barrier(val);
   }
 }
 
 void default_trap_handler::print_trap(trap_t &trap, reg_t pc) {
   switch (trap.cause()) {
-  case CAUSE_FETCH_ACCESS:
-    fprintf(stderr,
-            "error: 'Instruction Access Fault' exception was raised"
-            " @ 0x%zx\n",
-            pc);
-    break;
-  case CAUSE_ILLEGAL_INSTRUCTION:
-    fprintf(stderr,
-            "error: 'Illegal Instruction' exception was raised @"
-            " 0x%zx\n",
-            pc);
-    break;
-  case CAUSE_LOAD_ACCESS:
-    fprintf(stderr,
-            "error: 'Load Access Fault' exception was raised @ 0x%zx"
-            " (badaddr = 0x%zx)\n",
-            pc, trap.get_tval());
-    break;
-  case CAUSE_STORE_ACCESS:
-    fprintf(stderr,
-            "error: 'Store/AMO Access Fault' exception was raised @"
-            " 0x%zx (badaddr = 0x%zx)\n",
-            pc, trap.get_tval());
-    break;
-  case CAUSE_MISALIGNED_LOAD:
-    fprintf(stderr, "error: 'Misaligned Load' exception was raised @ 0x%zx"
-            " (badaddr = 0x%zx)\n", pc, trap.get_tval());
-    break;
-  case CAUSE_MISALIGNED_STORE:
-    fprintf(stderr, "error: 'Misaligned Store' exception was raised @"
-            " 0x%zx (badaddr = 0x%zx)\n", pc, trap.get_tval());
-    break;
-  default:
-    fprintf(stderr,
-            "error: unknown exception was raised @ 0x%zx "
-            "(cause = %zx)\n",
-            pc, trap.cause());
-    break;
+    case CAUSE_FETCH_ACCESS:
+      fprintf(stderr,
+              "error: 'Instruction Access Fault' exception was raised"
+              " @ 0x%zx\n",
+              pc);
+      break;
+    case CAUSE_ILLEGAL_INSTRUCTION:
+      fprintf(stderr,
+              "error: 'Illegal Instruction' exception was raised @"
+              " 0x%zx\n",
+              pc);
+      break;
+    case CAUSE_LOAD_ACCESS:
+      fprintf(stderr,
+              "error: 'Load Access Fault' exception was raised @ 0x%zx"
+              " (badaddr = 0x%zx)\n",
+              pc, trap.get_tval());
+      break;
+    case CAUSE_STORE_ACCESS:
+      fprintf(stderr,
+              "error: 'Store/AMO Access Fault' exception was raised @"
+              " 0x%zx (badaddr = 0x%zx)\n",
+              pc, trap.get_tval());
+      break;
+    case CAUSE_MISALIGNED_LOAD:
+      fprintf(stderr,
+              "error: 'Misaligned Load' exception was raised @ 0x%zx"
+              " (badaddr = 0x%zx)\n",
+              pc, trap.get_tval());
+      break;
+    case CAUSE_MISALIGNED_STORE:
+      fprintf(stderr,
+              "error: 'Misaligned Store' exception was raised @"
+              " 0x%zx (badaddr = 0x%zx)\n",
+              pc, trap.get_tval());
+      break;
+    default:
+      fprintf(stderr,
+              "error: unknown exception was raised @ 0x%zx "
+              "(cause = %zx)\n",
+              pc, trap.cause());
+      break;
   }
 }

@@ -132,7 +132,7 @@ jobs:
       - name: Install clang-tidy and parallel
         run: |
           sudo apt-get update
-          sudo apt-get install --yes clang-tidy-19 parallel
+          sudo apt-get install --yes clang-tidy-20 parallel
 
       - name: build initial config files
         uses: ./.github/actions/do_build_ock
@@ -157,7 +157,7 @@ jobs:
               HEAD..origin/${{ github.base_ref }} | \
               grep -P '\.(c|cc|cxx|cpp|h|hh|hpp|hxx)$'` | \
             tee /dev/stderr | \
-            parallel --verbose -- clang-tidy-19 --quiet -p "$PWD/build/" "{}"
+            parallel --verbose -- clang-tidy-20 --quiet -p "$PWD/build/" "{}"
           # ^ When updating the clang-tidy version, the version used by the cmake
           # target should match updated c.f. the `tidy` target
 
@@ -172,11 +172,11 @@ jobs:
 
       - name: setup-ubuntu-clang-format
         run:
-          pip install clang-format==19.1.0
+          pip install clang-format==20.1.8
 
       - name: run clang-format
         run: |
-          # we've installed clang-format-19 in the docker via pip, which just installs it as clang-format,
+          # we've installed clang-format-20 in the docker via pip, which just installs it as clang-format,
           # so just use clang-format-diff and -b clang-format directly
           git fetch origin ${{ github.base_ref }}
           git diff --no-color origin/${{ github.base_ref }} | \
@@ -645,7 +645,7 @@ jobs:
     - name: Install clang-tidy and parallel
       run: |
         sudo apt-get update
-        sudo apt-get install --yes clang-tidy-19 parallel
+        sudo apt-get install --yes clang-tidy-20 parallel
 
     - name: setup-ubuntu
       uses: ./.github/actions/setup_build

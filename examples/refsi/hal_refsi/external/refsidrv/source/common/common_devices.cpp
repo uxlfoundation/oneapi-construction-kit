@@ -15,29 +15,31 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "common_devices.h"
+
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <cassert>
+#include <sstream>
+#include <stdexcept>
+
 #include "device/host_io_regs.h"
 #include "elf_loader.h"
 
-#include <stdexcept>
-#include <sstream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cassert>
-
 std::string format_unit(unit_id_t unit_id) {
   switch (get_unit_kind(unit_id)) {
-  case unit_kind::any:
-    return "any";
-  case unit_kind::external:
-    return "external";
-  case unit_kind::cmp:
-    return "cmp";
-  case unit_kind::acc_hart:
-    return "hart:" + std::to_string(get_unit_index(unit_id));
-  case unit_kind::acc_core:
-    return "core:" + std::to_string(get_unit_index(unit_id));
-  default:
-    break;
+    case unit_kind::any:
+      return "any";
+    case unit_kind::external:
+      return "external";
+    case unit_kind::cmp:
+      return "cmp";
+    case unit_kind::acc_hart:
+      return "hart:" + std::to_string(get_unit_index(unit_id));
+    case unit_kind::acc_core:
+      return "core:" + std::to_string(get_unit_index(unit_id));
+    default:
+      break;
   }
 
   std::stringstream ss;
@@ -46,7 +48,7 @@ std::string format_unit(unit_id_t unit_id) {
 }
 
 uint8_t *MemoryDeviceBase::addr_to_mem(reg_t dev_offset, size_t size,
-                                   unit_id_t unit_id) {
+                                       unit_id_t unit_id) {
   return nullptr;
 }
 
@@ -121,12 +123,12 @@ bool ROMDevice::store(reg_t dev_offset, size_t len, const uint8_t *bytes,
 
 HartLocalDevice::~HartLocalDevice() {
   for (uint8_t *contents : hart_contents) {
-    delete [] contents;
+    delete[] contents;
   }
   hart_contents.clear();
 }
 
-uint8_t * HartLocalDevice::mem_contents(unit_id_t unit_id) {
+uint8_t *HartLocalDevice::mem_contents(unit_id_t unit_id) {
   if (get_unit_kind(unit_id) != unit_kind::acc_hart) {
     return nullptr;
   }
@@ -134,7 +136,7 @@ uint8_t * HartLocalDevice::mem_contents(unit_id_t unit_id) {
   if (hart_idx >= hart_contents.size()) {
     hart_contents.resize(hart_idx + 1, nullptr);
   }
-  uint8_t* &contents(hart_contents[hart_idx]);
+  uint8_t *&contents(hart_contents[hart_idx]);
   if (!contents) {
     contents = new uint8_t[size];
     memset(contents, 0, size);
@@ -143,7 +145,7 @@ uint8_t * HartLocalDevice::mem_contents(unit_id_t unit_id) {
 }
 
 uint8_t *HartLocalDevice::addr_to_mem(reg_t addr, size_t size,
-                                          unit_id_t unit_id) {
+                                      unit_id_t unit_id) {
   uint8_t *contents = mem_contents(unit_id);
   if (!contents || ((addr + size) > mem_size())) {
     return nullptr;
@@ -153,9 +155,7 @@ uint8_t *HartLocalDevice::addr_to_mem(reg_t addr, size_t size,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FileDevice::FileDevice(const char *path) {
-  fd = open(path, O_RDONLY);
-}
+FileDevice::FileDevice(const char *path) { fd = open(path, O_RDONLY); }
 
 FileDevice::~FileDevice() {
   if (is_open()) {
@@ -174,7 +174,7 @@ size_t FileDevice::mem_size() const {
 }
 
 bool FileDevice::load(reg_t addr, size_t len, uint8_t *bytes,
-                         unit_id_t unit_id) {
+                      unit_id_t unit_id) {
   if (!is_open()) {
     return false;
   }
@@ -182,7 +182,7 @@ bool FileDevice::load(reg_t addr, size_t len, uint8_t *bytes,
 }
 
 bool FileDevice::store(reg_t addr, size_t len, const uint8_t *bytes,
-                          unit_id_t unit_id) {
+                       unit_id_t unit_id) {
   return false;
 }
 
@@ -198,11 +198,11 @@ uint8_t *BufferDevice::addr_to_mem(reg_t dev_offset, size_t size,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MemoryController::MemoryController(MemoryDevice*root_device) {
+MemoryController::MemoryController(MemoryDevice *root_device) {
   add_device(0, root_device);
 }
 
-bool MemoryController::add_device(reg_t addr, MemoryDevice* device) {
+bool MemoryController::add_device(reg_t addr, MemoryDevice *device) {
   // Make sure the base address is not already mapped to another device.
   reg_t dev_offset = 0;
   if (MemoryDevice *prev_device = find_device(addr, dev_offset)) {
@@ -230,7 +230,7 @@ MemoryDevice *MemoryController::remove_device(reg_t addr) {
   return device;
 }
 
-std::pair<reg_t, MemoryDevice*> MemoryController::find_device(reg_t addr) {
+std::pair<reg_t, MemoryDevice *> MemoryController::find_device(reg_t addr) {
   // Find the device with the base address closest to but
   // less than addr (price-is-right search)
   auto it = devices.upper_bound(addr);
@@ -252,8 +252,8 @@ MemoryDevice *MemoryController::find_device(reg_t addr, reg_t &dev_offset) {
   return pair.second;
 }
 
-uint8_t * MemoryController::addr_to_mem(reg_t addr, size_t size,
-                                        unit_id_t unit) {
+uint8_t *MemoryController::addr_to_mem(reg_t addr, size_t size,
+                                       unit_id_t unit) {
   reg_t dev_offset = 0;
   if (MemoryDevice *device = find_device(addr, dev_offset)) {
     return device->addr_to_mem(dev_offset, size, unit);
@@ -266,8 +266,8 @@ bool MemoryController::load(reg_t addr, size_t len, uint8_t *bytes,
   assert(bytes && "Data destination must not be null");
   reg_t dev_offset = 0;
   if (MemoryDevice *device = find_device(addr, dev_offset)) {
-    if (const uint8_t *mem_contents = device->addr_to_mem(dev_offset, len,
-                                                          unit)) {
+    if (const uint8_t *mem_contents =
+            device->addr_to_mem(dev_offset, len, unit)) {
       memcpy(bytes, mem_contents, len);
       return true;
     }

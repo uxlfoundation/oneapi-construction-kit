@@ -47,12 +47,14 @@ static constexpr bool is_expected_v = false;
 template <class T, class E>
 static constexpr bool is_expected_v<expected<T, E>> = true;
 
+// NOLINTBEGIN(modernize-type-traits)
 template <class T, class E, class U>
 using expected_enable_forward_value =
     std::enable_if_t<std::is_constructible_v<T, U &&> &&
                      !std::is_same_v<std::decay_t<U>, in_place_t> &&
                      !std::is_same_v<expected<T, E>, std::decay_t<U>> &&
                      !std::is_same_v<unexpected<E>, std::decay_t<U>>>;
+// NOLINTEND(modernize-type-traits)
 
 template <class T, class E, class U, class G, class UR, class GR>
 using expected_enable_from_other =
