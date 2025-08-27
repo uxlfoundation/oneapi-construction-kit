@@ -219,11 +219,7 @@ int md_get_hashtable_key(md_value ht, md_value key, md_value *val) {
   return md_err::MD_SUCCESS;
 }
 
-int md_pushf(md_stack stack, const char *fmt, ...) {
-  // Initialize C-style variable number arguments
-  va_list argp;
-  va_start(argp, fmt);
-
+static int md_vpushf(md_stack stack, const char *fmt, va_list argp) {
   // -- Bookkeeping -- //
   // * The array_map_stack allows us to keep track of the level of nesting as
   //   well as what data structure we are currently dealing with i.e. hashtable
@@ -242,9 +238,6 @@ int md_pushf(md_stack stack, const char *fmt, ...) {
   // release the arguments and empty the stack - leaving it in its original
   // state
   auto cleanup = [&]() -> void {
-    // cleanup arg list
-    va_end(argp);
-
     // cleanup the stack
     while (stack->top()) {
       md_pop(stack);
@@ -421,7 +414,7 @@ int md_pushf(md_stack stack, const char *fmt, ...) {
       case ' ':
         break;
       default:
-        return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
+        return cleanup(), md_err::MD_E_INVALID_FMT_STR;
         break;
     }
     ++fmt;
@@ -430,17 +423,23 @@ int md_pushf(md_stack stack, const char *fmt, ...) {
   // If the array_map_stack or v_idx_stack is non empty it suggests that there
   // is a unterminated array or hashtable.
   if (!(array_map_stack.empty() && v_idx_stack.empty())) {
-    return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
+    return cleanup(), md_err::MD_E_INVALID_FMT_STR;
   }
 
-  va_end(argp);
   return md_top(stack);
 }
 
-int md_loadf(md_stack stack, const char *fmt, ...) {
+int md_pushf(md_stack stack, const char *fmt, ...) {
   va_list argp;
   va_start(argp, fmt);
 
+  const int result = md_vpushf(stack, fmt, argp);
+
+  va_end(argp);
+  return result;
+}
+
+static int md_vloadf(md_stack stack, const char *fmt, va_list argp) {
   // -- Bookkeeping -- //
   // * The array_map_stack is used to identify the current level of nesting as
   //   well as storing values of hashtables or arrays.
@@ -461,9 +460,6 @@ int md_loadf(md_stack stack, const char *fmt, ...) {
   bool is_key = true;
 
   auto cleanup = [&]() -> void {
-    // cleanup arg list
-    va_end(argp);
-
     // cleanup any dangling pointers
     for (char *ptr : dangling_pointers) {
       stack->get_alloc_helper().get_allocator<char>().deallocate(ptr, 0);
@@ -622,10 +618,21 @@ int md_loadf(md_stack stack, const char *fmt, ...) {
   }
 
   if (!array_map_stack.empty()) {
-    return cleanup(), md_err::MD_E_INVALID_FMT_STR;  // NOLINT
+    return cleanup(), md_err::MD_E_INVALID_FMT_STR;
   }
-  va_end(argp);
+
   return md_top(stack);
+}
+
+int md_loadf(md_stack stack, const char *fmt, ...) {
+  va_list argp;
+  va_start(argp, fmt);
+
+  const int result = md_vloadf(stack, fmt, argp);
+
+  va_end(argp);
+
+  return result;
 }
 
 md_err md_finalize_block(md_stack stack) { return stack->freeze_stack(); }
