@@ -70,7 +70,7 @@
          %90 = OpExtInst %void %2 DebugGlobalVariable %900 %basicty %ext_source 0 0 %cu %901 %glob FlagFwdDecl
          %91 = OpExtInst %void %2 DebugImportedEntity %65 ImportedDeclaration %ext_source %90 96 0 %cu
 
-; CHECK: @glob = addrspace(1) global i32 undef, !dbg [[BAZEXPR:![0-9]+]]
+; CHECK: @glob = addrspace(1) global i32 poison, !dbg [[BAZEXPR:![0-9]+]]
 
 ; CHECK-DAG: [[BAZEXPR]] = !DIGlobalVariableExpression(var: [[BAZ:![0-9]+]], expr: !DIExpression())
 

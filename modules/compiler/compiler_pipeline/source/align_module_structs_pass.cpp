@@ -110,8 +110,8 @@ class StructTypeRemapper final : public ValueMapTypeRemapper {
 Constant *createInitializer(Constant *oldInit,
                             const StructReplacementMap &typeMap) {
   auto *initType = getNewType(oldInit->getType(), typeMap);
-  // Default initializer to undef
-  Constant *newInit = UndefValue::get(initType);
+  // Default initializer to poison
+  Constant *newInit = PoisonValue::get(initType);
 
   // If the global is a struct type with a constant initializer we need
   // to create a new initializer matching our updated struct type. We
@@ -125,11 +125,11 @@ Constant *createInitializer(Constant *oldInit,
     const DenseMap<unsigned int, unsigned int> &indexMap =
         typeMap.lookup(oldStructT)->memberIndexMap;
 
-    // Default all members to null, then go through can copy over the
+    // Default all members to poison, then go through can copy over the
     // relevant constants from the old initializer using our index mapping
     for (unsigned int i = 0; i < structT->getNumElements(); ++i) {
       auto *elemType = structT->getElementType(i);
-      newConsts.push_back(UndefValue::get(elemType));
+      newConsts.push_back(PoisonValue::get(elemType));
     }
 
     for (unsigned int i = 0; i < oldStructT->getNumElements(); ++i) {

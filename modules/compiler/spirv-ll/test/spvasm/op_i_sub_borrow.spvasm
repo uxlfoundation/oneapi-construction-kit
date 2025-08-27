@@ -63,7 +63,7 @@
 ; CHECK: = load i32, ptr {{[%@].*}}
 ; CHECK: = call { i32, i1 } @llvm.usub.with.overflow.i32(i32 {{[%@].*}}, i32 {{[%@].*}})
 ; CHECK: = extractvalue { i32, i1 } {{[%@].*}}, 0
-; CHECK: = insertvalue {{[%@].*}} undef, i32 {{[%@].*}}, {{[0-9]+}}
+; CHECK: = insertvalue {{[%@].*}} poison, i32 {{[%@].*}}, {{[0-9]+}}
 ; CHECK: = extractvalue { i32, i1 } {{[%@].*}}, 1
 ; CHECK: = sext i1 {{[%@].*}} to i32
 ; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, i32 {{[%@].*}}, {{[0-9]+}}

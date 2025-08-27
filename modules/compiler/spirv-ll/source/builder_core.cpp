@@ -58,7 +58,7 @@ llvm::Error Builder::create<OpUndef>(const OpUndef *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
-  module.addID(op->IdResult(), op, llvm::UndefValue::get(type));
+  module.addID(op->IdResult(), op, llvm::PoisonValue::get(type));
   return llvm::Error::success();
 }
 
@@ -1888,7 +1888,7 @@ llvm::Error Builder::create<OpFunction>(const OpFunction *op) {
                       *context.llvmContext,
                       {
                           llvm::ConstantAsMetadata::get(
-                              llvm::UndefValue::get(vecTypeHint)),
+                              llvm::PoisonValue::get(vecTypeHint)),
                           // The OpenCL SPIR-V spec does not handle the
                           // signed integer case, so this flag is always 0.
                           llvm::ConstantAsMetadata::get(IRBuilder.getInt32(0)),
@@ -2489,7 +2489,7 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
   }
 
   if (!initializer && op->StorageClass() != spv::StorageClassFunction) {
-    initializer = llvm::UndefValue::get(varTy);
+    initializer = llvm::PoisonValue::get(varTy);
   }
 
   llvm::Value *value = nullptr;
@@ -2511,7 +2511,7 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
           *module.llvmModule, varTy,
           false,                               // isConstant
           llvm::GlobalValue::ExternalLinkage,  // Linkage
-          llvm::UndefValue::get(varTy),        // Initializer
+          llvm::PoisonValue::get(varTy),       // Initializer
           name,                                // Name
           nullptr,                             // InsertBefore
           llvm::GlobalValue::NotThreadLocal,   // TLMode
@@ -3099,7 +3099,7 @@ llvm::Error Builder::create<OpVectorShuffle>(const OpVectorShuffle *op) {
   for (int16_t compIndex = 0; compIndex < op->wordCount() - 5; compIndex++) {
     const uint32_t component = op->Components()[compIndex];
     if (component == 0xFFFFFFFF) {
-      components.push_back(llvm::UndefValue::get(IRBuilder.getInt32Ty()));
+      components.push_back(llvm::PoisonValue::get(IRBuilder.getInt32Ty()));
     } else {
       components.push_back(IRBuilder.getInt32(component));
     }
@@ -3134,7 +3134,7 @@ llvm::Error Builder::create<OpCompositeConstruct>(
   int insertIndex = 0;
 
   if (type->getTypeID() == llvm::Type::FixedVectorTyID) {
-    llvm::Value *vec = llvm::UndefValue::get(type);
+    llvm::Value *vec = llvm::PoisonValue::get(type);
 
     for (auto c : constituents) {
       vec = IRBuilder.CreateInsertElement(vec, c, insertIndex);
@@ -3147,7 +3147,7 @@ llvm::Error Builder::create<OpCompositeConstruct>(
 
     module.addID(op->IdResult(), op, new_vec);
   } else {
-    llvm::Value *composite = llvm::UndefValue::get(type);
+    llvm::Value *composite = llvm::PoisonValue::get(type);
 
     for (auto c : constituents) {
       composite = IRBuilder.CreateInsertValue(composite, c, insertIndex);
@@ -3495,7 +3495,7 @@ llvm::Error Builder::create<OpImageQuerySizeLod>(
                         compiler::utils::tgtext::ImageTyDimensionalityIdx) ==
                     compiler::utils::tgtext::ImageDim3D;
 
-  llvm::Value *result = llvm::UndefValue::get(returnType);
+  llvm::Value *result = llvm::PoisonValue::get(returnType);
 
   if (isArray) {
     llvm::Type *sizeTType;
@@ -4203,7 +4203,7 @@ llvm::Error Builder::create<OpIAddCarry>(const OpIAddCarry *op) {
   llvm::Value *intrinsicResult = IRBuilder.CreateCall(intrinsic, {lhs, rhs});
 
   llvm::Value *result = IRBuilder.CreateInsertValue(
-      llvm::UndefValue::get(resultType),
+      llvm::PoisonValue::get(resultType),
       IRBuilder.CreateExtractValue(intrinsicResult, 0), 0);
 
   // the llvm intrinsic returns {intTy, i1} whereas the SPIR-V is supposed to
@@ -4260,7 +4260,7 @@ llvm::Error Builder::create<OpISubBorrow>(const OpISubBorrow *op) {
   llvm::Value *intrinsicResult = IRBuilder.CreateCall(intrinsic, {lhs, rhs});
 
   llvm::Value *result = IRBuilder.CreateInsertValue(
-      llvm::UndefValue::get(resultType),
+      llvm::PoisonValue::get(resultType),
       IRBuilder.CreateExtractValue(intrinsicResult, 0), 0);
 
   // the llvm intrinsic returns {intTy, i1} whereas the SPIR-V is supposed to
@@ -4298,9 +4298,9 @@ llvm::Error Builder::create<OpUMulExtended>(const OpUMulExtended *op) {
       llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *result = llvm::ConstantStruct::get(
-      type,
-      {llvm::UndefValue::get(operandType), llvm::UndefValue::get(operandType)});
+  llvm::Value *result =
+      llvm::ConstantStruct::get(type, {llvm::PoisonValue::get(operandType),
+                                       llvm::PoisonValue::get(operandType)});
 
   result = IRBuilder.CreateInsertValue(result, lowOrderBits, 0);
   result = IRBuilder.CreateInsertValue(result, highOrderBits, 1);
@@ -4333,9 +4333,9 @@ llvm::Error Builder::create<OpSMulExtended>(const OpSMulExtended *op) {
       llvm::dyn_cast<llvm::StructType>(module.getLLVMType(op->IdResultType()));
   SPIRV_LL_ASSERT_PTR(type);
 
-  llvm::Value *result = llvm::ConstantStruct::get(
-      type,
-      {llvm::UndefValue::get(operandType), llvm::UndefValue::get(operandType)});
+  llvm::Value *result =
+      llvm::ConstantStruct::get(type, {llvm::PoisonValue::get(operandType),
+                                       llvm::PoisonValue::get(operandType)});
 
   result = IRBuilder.CreateInsertValue(result, lowOrderBits, 0);
   result = IRBuilder.CreateInsertValue(result, highOrderBits, 1);
