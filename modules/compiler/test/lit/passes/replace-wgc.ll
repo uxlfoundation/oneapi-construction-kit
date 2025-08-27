@@ -22,10 +22,10 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK: @__mux_work_group_reduce_smin_i32.accumulator = internal addrspace(3) global i32 undef
-; CHECK: @__mux_work_group_scan_inclusive_umax_i32.accumulator = internal addrspace(3) global i32 undef
-; CHECK: @__mux_work_group_scan_exclusive_fadd_f32.accumulator = internal addrspace(3) global float undef
-; CHECK: @__mux_work_group_broadcast_i32.accumulator = internal addrspace(3) global i32 undef
+; CHECK: @__mux_work_group_reduce_smin_i32.accumulator = internal addrspace(3) global i32 poison
+; CHECK: @__mux_work_group_scan_inclusive_umax_i32.accumulator = internal addrspace(3) global i32 poison
+; CHECK: @__mux_work_group_scan_exclusive_fadd_f32.accumulator = internal addrspace(3) global float poison
+; CHECK: @__mux_work_group_broadcast_i32.accumulator = internal addrspace(3) global i32 poison
 
 declare spir_func i32 @__mux_work_group_reduce_smin_i32(i32 %id, i32 %x)
 ; CHECK: define spir_func i32 @__mux_work_group_reduce_smin_i32(i32 %id, i32 [[PARAM:%.*]])

@@ -273,7 +273,7 @@ void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
       SPIRV_LL_ASSERT_PTR(builtinRetTy);
 
       // Create an undefined vector to store the builtin initializer.
-      llvm::Value *initVec = llvm::UndefValue::get(builtinType);
+      llvm::Value *initVec = llvm::PoisonValue::get(builtinType);
 
       // Loop over the vector elements, the assumption of 3 dimensions is
       // baked into SPIR-V even if only a single dimension is actually used.

@@ -49,8 +49,8 @@ target datalayout = "e-p:64:64:64-m:e-i16:64-i32:64-i64:128-v128:64"
 %innerStructTyD = type { i8 }
 %structTyD = type { i16, %innerStructTyD }
 
-; CHECK: @glob.1 = internal addrspace(3) global [[STyC]] undef
-@glob = internal addrspace(3) global %structTyC undef
+; CHECK: @glob.1 = internal addrspace(3) global [[STyC]] poison
+@glob = internal addrspace(3) global %structTyC poison
 
 ; CHECK-LABEL: define spir_kernel void @add() {
 ; CHECK: %a = alloca %structTyA{{(, align 16)?}}

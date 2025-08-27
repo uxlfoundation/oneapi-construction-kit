@@ -64,7 +64,7 @@
 ; CHECK: = mul i32 {{[%@].*}}, {{[%@].*}}
 ; CHECK: = and i32 65535, {{[%@].*}}
 ; CHECK: = and i32 -65536, {{[%@].*}}
-; CHECK: = insertvalue {{[%@].*}} undef, i32 {{[%@].*}}, {{[0-9]+}}
+; CHECK: = insertvalue {{[%@].*}} poison, i32 {{[%@].*}}, {{[0-9]+}}
 ; CHECK: = insertvalue {{[%@].*}} {{[%@].*}}, i32 {{[%@].*}}, {{[0-9]+}}
 ; CHECK: store {{[%@].*}} {{[%@].*}}, ptr {{[%@].*}}
 ; CHECK: ret void

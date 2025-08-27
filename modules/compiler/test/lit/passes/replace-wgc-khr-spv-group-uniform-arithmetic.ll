@@ -21,12 +21,12 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-; CHECK-DAG: @[[MULI_ACCUM:.+]] = internal addrspace(3) global i32 undef
-; CHECK-DAG: @[[MULF_ACCUM:.+]] = internal addrspace(3) global float undef
-; CHECK-DAG: @[[MULH_ACCUM:.+]] = internal addrspace(3) global half undef
-; CHECK-DAG: @__mux_work_group_scan_inclusive_and_i32.accumulator = internal addrspace(3) global i32 undef
-; CHECK-DAG: @__mux_work_group_scan_exclusive_and_i32.accumulator = internal addrspace(3) global i32 undef
-; CHECK-DAG: @__mux_work_group_scan_inclusive_logical_and_i1.accumulator = internal addrspace(3) global i1 undef
+; CHECK-DAG: @[[MULI_ACCUM:.+]] = internal addrspace(3) global i32 poison
+; CHECK-DAG: @[[MULF_ACCUM:.+]] = internal addrspace(3) global float poison
+; CHECK-DAG: @[[MULH_ACCUM:.+]] = internal addrspace(3) global half poison
+; CHECK-DAG: @__mux_work_group_scan_inclusive_and_i32.accumulator = internal addrspace(3) global i32 poison
+; CHECK-DAG: @__mux_work_group_scan_exclusive_and_i32.accumulator = internal addrspace(3) global i32 poison
+; CHECK-DAG: @__mux_work_group_scan_inclusive_logical_and_i1.accumulator = internal addrspace(3) global i1 poison
 
 ; CHECK: define spir_func i32 @__mux_work_group_reduce_mul_i32(i32 %id, i32 [[PARAM:%.*]])
 declare spir_func i32 @__mux_work_group_reduce_mul_i32(i32 %id, i32 %x)

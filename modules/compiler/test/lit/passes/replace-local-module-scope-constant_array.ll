@@ -30,7 +30,7 @@ entry:
 ; CHECK: addrspacecast ptr %{{[0-9]+}} to ptr addrspace(3)
 ; CHECK: addrspacecast ptr addrspace(3) %{{[0-9]+}} to ptr
 ; CHECK: ptrtoint ptr %{{[0-9]+}} to i64
-; CHECK: insertvalue [2 x i64] undef, i64 %{{[0-9]+}}, 0
+; CHECK: insertvalue [2 x i64] poison, i64 %{{[0-9]+}}, 0
 ; CHECK: insertvalue [2 x i64] %{{[0-9]+}}, i64 poison, 1
   ret void
 }

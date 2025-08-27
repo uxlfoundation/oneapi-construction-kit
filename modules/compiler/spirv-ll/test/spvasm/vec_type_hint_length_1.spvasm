@@ -34,4 +34,4 @@
                OpFunctionEnd
 ; CHECK-LABEL: foo
 ; CHECK-SAME: !vec_type_hint ![[MDNAME:[0-9]+]]
-; CHECK: ![[MDNAME]] = !{<1 x i8> undef, i32 0}
+; CHECK: ![[MDNAME]] = !{<1 x i8> poison, i32 0}
