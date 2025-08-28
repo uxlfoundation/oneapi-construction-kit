@@ -16,18 +16,21 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "slim_sim.h"
-#include "debugger.h"
-#include "common_devices.h"
-#include "trap_handlers.h"
-#include "riscv/mmu.h"
-#include "fesvr/byteorder.h"
-#include "profiler.h"
-#include <fstream>
-#include <map>
+
+#include <signal.h>
+
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <cassert>
-#include <signal.h>
+#include <fstream>
+#include <map>
+
+#include "common_devices.h"
+#include "debugger.h"
+#include "fesvr/byteorder.h"
+#include "profiler.h"
+#include "riscv/mmu.h"
+#include "trap_handlers.h"
 
 slim_sim_config::slim_sim_config() {
   debug = false;
@@ -166,9 +169,8 @@ void slim_sim_t::run_single_step(bool noisy, size_t steps) {
 
 void slim_sim_t::handle_trap(processor_t *hart) {
   state_t *hart_state = hart->get_state();
-  mem_trap_t trap(hart_state->mcause->read(), false,
-                  hart_state->mtval->read(), hart_state->mtval2->read(),
-                  hart_state->mtinst->read());
+  mem_trap_t trap(hart_state->mcause->read(), false, hart_state->mtval->read(),
+                  hart_state->mtval2->read(), hart_state->mtinst->read());
   if (trap_handler->handle_trap(trap, hart_state->mepc->read(), *this)) {
     // Calculate the PC of the instruction following the one that caused the
     // trap.
@@ -177,8 +179,8 @@ void slim_sim_t::handle_trap(processor_t *hart) {
     try {
       insn_fetch_t fetch = hart->get_mmu()->load_insn(old_pc);
       new_pc += fetch.insn.length();
+    } catch (trap_instruction_access_fault) {
     }
-    catch (trap_instruction_access_fault) {}
 
     // Restore the previous state and resume execution.
     return_from_trap(hart_state, new_pc);
@@ -205,7 +207,7 @@ void slim_sim_t::return_from_trap(state_t *hart_state, reg_t new_pc) {
   // TODO: restore mstatus for completeness
 }
 
-processor_t* slim_sim_t::get_hart(size_t index) const {
+processor_t *slim_sim_t::get_hart(size_t index) const {
   return (index < get_hart_number()) ? harts[index] : nullptr;
 }
 
@@ -217,9 +219,7 @@ void slim_sim_t::set_max_active_harts(size_t new_max_harts) {
   max_harts = new_max_harts;
 }
 
-void slim_sim_t::set_debug(bool value) {
-  debug = value;
-}
+void slim_sim_t::set_debug(bool value) { debug = value; }
 
 void slim_sim_t::set_procs_debug(bool value) {
   for (size_t i = 0; i < get_hart_number(); i++) {
@@ -230,14 +230,14 @@ void slim_sim_t::set_procs_debug(bool value) {
 void slim_sim_t::configure_log(bool enable_log, bool enable_commitlog) {
   log = enable_log;
 
-  if (!enable_commitlog)
-    return;
+  if (!enable_commitlog) return;
 
 #ifndef RISCV_ENABLE_COMMITLOG
-  fputs("Commit logging support has not been properly enabled; "
-        "please re-build the riscv-isa-sim project using "
-        "\"configure --enable-commitlog\".\n",
-        stderr);
+  fputs(
+      "Commit logging support has not been properly enabled; "
+      "please re-build the riscv-isa-sim project using "
+      "\"configure --enable-commitlog\".\n",
+      stderr);
   abort();
 #else
   for (processor_t *proc : procs) {
@@ -246,11 +246,9 @@ void slim_sim_t::configure_log(bool enable_log, bool enable_commitlog) {
 #endif
 }
 
-static bool paddr_ok(reg_t addr) {
-  return (addr >> MAX_PADDR_BITS) == 0;
-}
+static bool paddr_ok(reg_t addr) { return (addr >> MAX_PADDR_BITS) == 0; }
 
-bool slim_sim_t::mmio_load(reg_t addr, size_t len, uint8_t* bytes) {
+bool slim_sim_t::mmio_load(reg_t addr, size_t len, uint8_t *bytes) {
   if (addr + len < addr || !paddr_ok(addr + len - 1)) {
     return false;
   }
@@ -258,7 +256,7 @@ bool slim_sim_t::mmio_load(reg_t addr, size_t len, uint8_t* bytes) {
   return mem_if.load(addr, len, bytes, unit);
 }
 
-bool slim_sim_t::mmio_store(reg_t addr, size_t len, const uint8_t* bytes) {
+bool slim_sim_t::mmio_store(reg_t addr, size_t len, const uint8_t *bytes) {
   if (addr + len < addr || !paddr_ok(addr + len - 1)) {
     return false;
   }
@@ -266,7 +264,7 @@ bool slim_sim_t::mmio_store(reg_t addr, size_t len, const uint8_t* bytes) {
   return mem_if.store(addr, len, bytes, unit);
 }
 
-char* slim_sim_t::addr_to_mem(reg_t addr) {
+char *slim_sim_t::addr_to_mem(reg_t addr) {
   if (!paddr_ok(addr)) {
     return NULL;
   }
@@ -274,8 +272,7 @@ char* slim_sim_t::addr_to_mem(reg_t addr) {
   return (char *)mem_if.addr_to_mem(addr, sizeof(uint8_t), unit);
 }
 
-void slim_sim_t::proc_reset(unsigned id) {
-}
+void slim_sim_t::proc_reset(unsigned id) {}
 
 void slim_sim_t::set_exited(reg_t exit_code) {
   if (exit_code != 0) {

@@ -39,7 +39,7 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 
 # Install python packages
 RUN apt-get install --yes python3-colorama python3-virtualenv pipx
-RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
+RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==20.1.8
 
 # Install libhwloc-dev for dpc++ dependency
 RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64

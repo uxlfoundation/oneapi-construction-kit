@@ -19,8 +19,8 @@
 #include <assert.h>
 
 #include "refsidrv/refsi_device.h"
-#include "refsidrv/refsi_device_m.h"
 #include "refsidrv/refsi_device_g.h"
+#include "refsidrv/refsi_device_m.h"
 
 static refsi_device_t global_m1_device = nullptr;
 static refsi_device_t global_g1_device = nullptr;
@@ -49,28 +49,28 @@ refsi_device_t refsiOpenDevice(refsi_device_family family) {
   const char *isa = nullptr;
   int vlen = 0;
   switch (family) {
-  default:
-    break;
-  case REFSI_DEFAULT:
-  case REFSI_M:
-    if (!global_m1_device) {
-      global_m1_device = new RefSiMDevice();
-      if (global_m1_device->initialize() != refsi_success) {
-        delete global_m1_device;
-        global_m1_device = nullptr;
+    default:
+      break;
+    case REFSI_DEFAULT:
+    case REFSI_M:
+      if (!global_m1_device) {
+        global_m1_device = new RefSiMDevice();
+        if (global_m1_device->initialize() != refsi_success) {
+          delete global_m1_device;
+          global_m1_device = nullptr;
+        }
       }
-    }
-    return global_m1_device;
-  case REFSI_G:
-    if (!global_g1_device) {
-      RefSiGDevice::getDefaultConfig(isa, vlen);
-      global_g1_device = new RefSiGDevice(isa, vlen);
-      if (global_g1_device->initialize() != refsi_success) {
-        delete global_g1_device;
-        global_g1_device = nullptr;
+      return global_m1_device;
+    case REFSI_G:
+      if (!global_g1_device) {
+        RefSiGDevice::getDefaultConfig(isa, vlen);
+        global_g1_device = new RefSiGDevice(isa, vlen);
+        if (global_g1_device->initialize() != refsi_success) {
+          delete global_g1_device;
+          global_g1_device = nullptr;
+        }
       }
-    }
-    return global_g1_device;
+      return global_g1_device;
   }
   return nullptr;
 }

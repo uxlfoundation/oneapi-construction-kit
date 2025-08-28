@@ -60,7 +60,7 @@ The two long running branches are:
 ### C++ Style
 
 All the C++ code in the oneAPI Construction Kit should be formatted using
-[`clang-format`][clang-format] version 16, and using the `.clang-format` file
+[`clang-format`][clang-format] version 20, and using the `.clang-format` file
 provided by the project (option: `-style=file`).
 
 Header include guards should follow the convention of

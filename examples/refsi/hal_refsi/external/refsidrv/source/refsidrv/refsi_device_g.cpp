@@ -16,13 +16,12 @@
 
 #include "refsidrv/refsi_device_g.h"
 
+#include "device/memory_map.h"
+#include "refsidrv/debugger.h"
 #include "refsidrv/refsi_accelerator.h"
 #include "refsidrv/refsi_memory.h"
 #include "refsidrv/refsi_memory_window.h"
 #include "refsidrv/refsi_perf_counters.h"
-
-#include "device/memory_map.h"
-#include "refsidrv/debugger.h"
 
 // Default memory area for storing kernel ELF binaries. When the RefSi device
 // does not have dedicated (TCIM) memory for storing kernel exeutables, a memory
@@ -35,11 +34,11 @@ constexpr const uint64_t REFSI_ELF_SIZE = (1 << 27) - REFSI_ELF_BASE;
 // Memory area for per-hart storage.
 constexpr const uint64_t G_HART_LOCAL_BASE = 0x20800000;
 constexpr const uint64_t G_HART_LOCAL_END = 0x21000000;
-constexpr const uint64_t G_HART_LOCAL_SIZE = G_HART_LOCAL_END
-  - G_HART_LOCAL_BASE;
+constexpr const uint64_t G_HART_LOCAL_SIZE =
+    G_HART_LOCAL_END - G_HART_LOCAL_BASE;
 
 RefSiGDevice::RefSiGDevice(const char *isa, unsigned vlen)
-  : RefSiDevice(refsi_soc_family::g) {
+    : RefSiDevice(refsi_soc_family::g) {
   RefSiLock lock(mutex);
   mem_ctl = std::make_unique<RefSiMemoryController>(*this);
   size_t loader_size = REFSI_LOADER_END_ADDRESS - REFSI_LOADER_ADDRESS;
@@ -54,7 +53,7 @@ RefSiGDevice::RefSiGDevice(const char *isa, unsigned vlen)
   accelerator = std::make_unique<RefSiAccelerator>(*this);
   accelerator->setISA(isa);
   accelerator->setVectorLen(vlen);
-  accelerator->setNumHarts(2); // Default NUM_HARTS_FOR_CA_MODE
+  accelerator->setNumHarts(2);  // Default NUM_HARTS_FOR_CA_MODE
 }
 
 RefSiGDevice::~RefSiGDevice() {
@@ -124,8 +123,8 @@ refsi_result RefSiGDevice::setupHartLocalWindow(unsigned index) {
   // Allocate device memory for the window.
   refsi_addr_t harts_mem_base = G_HART_LOCAL_BASE;
   refsi_addr_t harts_mem_size = G_HART_LOCAL_SIZE;
-  harts_mem_mapped_addr = allocDeviceMemory(harts_mem_size * max_harts,
-                                            4096, DRAM);
+  harts_mem_mapped_addr =
+      allocDeviceMemory(harts_mem_size * max_harts, 4096, DRAM);
   if (harts_mem_mapped_addr == 0) {
     return refsi_failure;
   }
@@ -147,9 +146,8 @@ refsi_result RefSiGDevice::setupHartLocalWindow(unsigned index) {
 refsi_result RefSiGDevice::executeKernel(refsi_addr_t entry_fn_addr,
                                          uint32_t num_harts) {
   // Run the kernel in the simulator.
-  accelerator->set_pre_run_callback([&](slim_sim_t &sim) {
-    pre_run_kernel(sim, entry_fn_addr);
-  });
+  accelerator->set_pre_run_callback(
+      [&](slim_sim_t &sim) { pre_run_kernel(sim, entry_fn_addr); });
   return accelerator->runKernelGeneric(num_harts);
 }
 

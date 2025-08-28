@@ -1120,7 +1120,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
 #define KERNEL_INFO_CASE(TYPE, SIZE_RET, POINTER, VALUE)                  \
   case TYPE: {                                                            \
     OCL_SET_IF_NOT_NULL(param_value_size_ret, SIZE_RET);                  \
-    OCL_CHECK(param_value &&param_value_size < SIZE_RET,                  \
+    OCL_CHECK(param_value && param_value_size < SIZE_RET,                 \
               return CL_INVALID_VALUE);                                   \
     OCL_SET_IF_NOT_NULL((reinterpret_cast<POINTER>(param_value)), VALUE); \
   } break

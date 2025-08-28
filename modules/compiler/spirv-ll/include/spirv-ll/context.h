@@ -105,7 +105,7 @@ struct SpecializationInfo {
   /// @param id The SPIR-V OpCode ID to be specialized.
   ///
   /// @return Returns true if `id` has a specialization, false otherwise.
-  bool isSpecialized(spv::Id id) const { return entries.count(id) != 0; }
+  bool isSpecialized(spv::Id id) const { return entries.contains(id); }
 
   /// @brief Get the specialization constant value for the given ID.
   ///

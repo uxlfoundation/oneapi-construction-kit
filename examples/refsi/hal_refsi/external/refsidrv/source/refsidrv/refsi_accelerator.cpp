@@ -16,10 +16,10 @@
 
 #include "refsidrv/refsi_accelerator.h"
 
+#include "device/host_io_regs.h"
 #include "kernel_dma.h"
 #include "refsidrv/refsi_device.h"
 #include "refsidrv/refsi_memory.h"
-#include "device/host_io_regs.h"
 #include "riscv/mmu.h"
 #include "trap.h"
 
@@ -190,7 +190,7 @@ void RefSiAccelerator::initializeHart(processor_t *hart) {
   if (hart->extension_enabled('V')) {
     mstatus |= MSTATUS_VS;  // Enable RVV.
   }
-  hart->get_state()->mstatus->write( mstatus);
+  hart->get_state()->mstatus->write(mstatus);
 
   // Enable user/supervisor use of perf counters.
   if (hart->extension_enabled('S')) {
@@ -254,7 +254,6 @@ bool RefSiTrapHandler::handle_return(trap_t &trap, reg_t pc, slim_sim_t &sim) {
   // 'ra' register prior to starting the kernel. This causes an instruction
   // access fault trap, which we can distinguish from other traps with the
   // specific return address.
-  sim.set_exited(
-      0);  // Let the simulator know the hart has exited gracefully.
+  sim.set_exited(0);  // Let the simulator know the hart has exited gracefully.
   return true;
 }

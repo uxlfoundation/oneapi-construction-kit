@@ -427,7 +427,8 @@ class string_view {
   /// @return Returns true if the string view starts with the prefix, false
   /// otherwise.
   bool starts_with(string_view view) const {
-    return size() >= view.size() && compare(0, view.size(), view) == 0;
+    return size() >= view.size() &&
+           traits_type::compare(begin(), view.begin(), view.size()) == 0;
   }
 
   /// @brief Check if the string begins with the given prefix.

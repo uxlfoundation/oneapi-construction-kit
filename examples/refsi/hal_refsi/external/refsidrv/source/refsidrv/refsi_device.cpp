@@ -22,8 +22,8 @@
 #include "refsidrv/refsi_command_processor.h"
 #include "refsidrv/refsi_memory.h"
 
-RefSiDevice::RefSiDevice(refsi_soc_family family) : family(family),
-  allocator(dram_base, dram_size) {
+RefSiDevice::RefSiDevice(refsi_soc_family family)
+    : family(family), allocator(dram_base, dram_size) {
   if (const char *val = getenv("REFSI_DEBUG")) {
     if (strcmp(val, "0") != 0) {
       debug = true;
@@ -92,14 +92,14 @@ refsi_result RefSiDevice::invalidateDeviceMemory(refsi_addr_t phys_addr,
 refsi_result RefSiDevice::readDeviceMemory(uint8_t *dest, refsi_addr_t addr,
                                            size_t size, uint32_t unit_id) {
   RefSiLock lock(mutex);
-  return mem_ctl->load(addr, size, dest, (unit_id_t)unit_id) ?
-        refsi_success : refsi_failure;
+  return mem_ctl->load(addr, size, dest, (unit_id_t)unit_id) ? refsi_success
+                                                             : refsi_failure;
 }
 
 refsi_result RefSiDevice::writeDeviceMemory(refsi_addr_t addr,
                                             const uint8_t *source, size_t size,
                                             uint32_t unit_id) {
   RefSiLock lock(mutex);
-  return mem_ctl->store(addr, size, source, (unit_id_t)unit_id) ?
-        refsi_success : refsi_failure;
+  return mem_ctl->store(addr, size, source, (unit_id_t)unit_id) ? refsi_success
+                                                                : refsi_failure;
 }
