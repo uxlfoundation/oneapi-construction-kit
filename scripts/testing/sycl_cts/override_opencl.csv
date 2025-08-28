@@ -1,2 +1,2 @@
 SYCL_CTS,test_bit_cast,MayFail
-SYCL_CTS,test_group_functions/* group and sub-group joint scan functions*,XFail
+SYCL_CTS,test_group_functions "* group and sub-group joint scan functions*",XFail
