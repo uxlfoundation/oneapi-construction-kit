@@ -350,7 +350,7 @@ class BaseModule : public Module {
   /// @brief Add a macro definition to be added to the preprocessor options to
   /// be used by clang.
   ///
-  /// @param[in] macro Macro definition to be added as an undef.
+  /// @param[in] macro Macro name to be undefined.
   /// @param[in,out] macro_defs List of macro defs to be added to.
   void addMacroUndef(const std::string &macro, MacroDefVec &macro_defs) const {
     macro_defs.emplace_back(MacroDefType::Undef, macro);

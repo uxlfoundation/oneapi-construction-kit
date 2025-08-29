@@ -22,7 +22,7 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-@testKernel.lushort = internal addrspace(3) global i16 undef, align 2
+@testKernel.lushort = internal addrspace(3) global i16 poison, align 2
 
 declare i64 @__mux_get_global_id(i32)
 

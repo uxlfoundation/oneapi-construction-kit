@@ -31,8 +31,8 @@ target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
 
 @my_constant = private unnamed_addr addrspace(2) constant i32 42, align 4, !dbg !0
-@helper_kernel.data = internal addrspace(3) global [4 x i32] undef, align 4, !dbg !38
-@local_array.cache = internal addrspace(3) global [4 x i32] undef, align 4, !dbg !50
+@helper_kernel.data = internal addrspace(3) global [4 x i32] poison, align 4, !dbg !38
+@local_array.cache = internal addrspace(3) global [4 x i32] poison, align 4, !dbg !50
 
 ; Function Attrs: nocallback nofree nosync nounwind readnone speculatable willreturn
 declare void @llvm.dbg.declare(metadata, metadata, metadata) #0

@@ -21,7 +21,7 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; This global has no !dbg but it recorded in the debug metadata's globals
 ; section. Ensure we don't crash.
-@a = internal addrspace(3) global i32 undef, align 4
+@a = internal addrspace(3) global i32 poison, align 4
 
 define spir_kernel void @func() #0 {
   %ld = load i32, i32 addrspace(3)* @a, align 4
