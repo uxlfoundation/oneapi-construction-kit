@@ -22,10 +22,10 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 ; CHECK: %localVarTypes = type { %triplet, [8 x i8], %triplet, %triplet, [16 x i8], [5 x %triplet], [8 x i8], i64, i20, [4 x i8], i64 }
 %triplet = type { i64, i64, i64 }
 
-@a = internal addrspace(3) global %triplet undef, align 16
-@b = internal addrspace(3) global %triplet undef, align 16
-@c = internal addrspace(3) global %triplet undef, align 8
-@d = internal addrspace(3) global [5 x %triplet] undef, align 32
+@a = internal addrspace(3) global %triplet poison, align 16
+@b = internal addrspace(3) global %triplet poison, align 16
+@c = internal addrspace(3) global %triplet poison, align 8
+@d = internal addrspace(3) global [5 x %triplet] poison, align 32
 @e = internal addrspace(3) global i64 0, align 16
 @f = internal addrspace(3) global i20 0, align 1
 @g = internal addrspace(3) global i64 100

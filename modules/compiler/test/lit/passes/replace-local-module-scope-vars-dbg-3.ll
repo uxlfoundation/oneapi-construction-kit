@@ -19,8 +19,8 @@
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-@a = internal addrspace(3) global i32 undef, align 4, !dbg !8
-@b = internal addrspace(3) global i32 undef, align 4, !dbg !9
+@a = internal addrspace(3) global i32 poison, align 4, !dbg !8
+@b = internal addrspace(3) global i32 poison, align 4, !dbg !9
 
 define spir_kernel void @func() #0 {
   %ld.a = load i32, ptr addrspace(3) @a, align 4

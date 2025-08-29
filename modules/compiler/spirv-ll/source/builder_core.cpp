@@ -58,7 +58,7 @@ llvm::Error Builder::create<OpUndef>(const OpUndef *op) {
   llvm::Type *type = module.getLLVMType(op->IdResultType());
   SPIRV_LL_ASSERT_PTR(type);
 
-  module.addID(op->IdResult(), op, llvm::PoisonValue::get(type));
+  module.addID(op->IdResult(), op, llvm::UndefValue::get(type));
   return llvm::Error::success();
 }
 

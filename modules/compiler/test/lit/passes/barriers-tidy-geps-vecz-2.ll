@@ -26,7 +26,7 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 ; makes sure the vector splat is duplicated after the barrier
 ; CHECK-DAG: insertelement <[[N:[0-9]+]] x i32>
-; CHECK-DAG: shufflevector <[[N]] x i32> %{{.+}}, <[[N]] x i32> {{poison|undef}}, <[[N]] x i32> zeroinitializer
+; CHECK-DAG: shufflevector <[[N]] x i32> %{{.+}}, <[[N]] x i32> poison, <[[N]] x i32> zeroinitializer
 
 ; makes sure the global id call got duplicated after the barrier
 ; CHECK-DAG: call {{.*}}i{{32|64}} @__mux_get_global_id(i{{32|64}}{{.*}} 0)

@@ -23,9 +23,9 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 %class.anon = type { i64, %"class.helper"}
 %"class.helper" = type { i64, i64 }
 
-@gen_local_struct = internal addrspace(3) global %class.anon undef, align 8
+@gen_local_struct = internal addrspace(3) global %class.anon poison, align 8
 @llvm.compiler.used = appending global [3 x ptr] [ptr @memcpy, ptr @memset, ptr @memmove], section "llvm.metadata"
-@a = internal addrspace(3) global i16 undef, align 2
+@a = internal addrspace(3) global i16 poison, align 2
 
 declare void @llvm.memcpy.p0.p3.i64(ptr noalias writeonly, ptr addrspace(3) noalias readonly, i64, i1 immarg)
 

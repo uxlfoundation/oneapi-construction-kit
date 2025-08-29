@@ -21,8 +21,8 @@ target datalayout = "e-p:64:64:64-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
 ; CHECK: %localVarTypes = type { i16 }
 
-@a = internal addrspace(3) global i16 undef, align 2
-@b = internal addrspace(3) global [4 x float] undef, align 4
+@a = internal addrspace(3) global i16 poison, align 2
+@b = internal addrspace(3) global [4 x float] poison, align 4
 @c = internal addrspace(3) global i32 addrspace(3)* undef
 @d = internal addrspace(3) global i32 undef
 

@@ -21,7 +21,7 @@ target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:
 
 ; CHECK: %minimal_barrier_2_live_mem_info = type { i{{[^,]+}}, i{{[^,]+}}, i{{[^,]+}}{{(, \[[0-9]+ x i8\])?}} }
 
-@minimal_barrier_2.cache = internal unnamed_addr addrspace(3) global [4 x i32] undef, align 4
+@minimal_barrier_2.cache = internal unnamed_addr addrspace(3) global [4 x i32] poison, align 4
 
 define void @minimal_barrier_2(i32 addrspace(1)* %output) #0 {
 entry:

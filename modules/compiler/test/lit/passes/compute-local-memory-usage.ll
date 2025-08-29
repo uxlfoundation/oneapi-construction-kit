@@ -16,8 +16,8 @@
 
 ; RUN: muxc --passes compute-local-memory-usage,verify -S %s | FileCheck %s
 
-@a = internal addrspace(3) global i16 undef, align 2
-@b = internal addrspace(3) global [4 x float] undef, align 4
+@a = internal addrspace(3) global i16 poison, align 2
+@b = internal addrspace(3) global [4 x float] poison, align 4
 
 declare spir_func void @ext_fn()
 
