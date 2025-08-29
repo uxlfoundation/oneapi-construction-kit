@@ -33,7 +33,7 @@ jobs:
       - name: Setup ubuntu
         uses:  ./.github/actions/setup_build
         with:
-          llvm_version: 19
+          llvm_version: 20
           llvm_build_type: Release
 
       - name: Setup python

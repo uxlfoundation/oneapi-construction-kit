@@ -50,13 +50,13 @@ on:
       llvm_version:
         required: false
         type: string
-        description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
-        default: 19
+        description: 'llvm major version (e.g 20,21,main) - to be used for llvm specific fails'
+        default: 20
       llvm_branch:
         required: false
         type: string
-        description: 'The actual llvm branch to check out e.g. release/19.x'
-        default: 'release/19.x'
+        description: 'The actual llvm branch to check out e.g. release/20.x'
+        default: 'release/20.x'
       download_ock_artefact:
         required: false
         type: string

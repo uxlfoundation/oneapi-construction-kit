@@ -16,11 +16,11 @@ inputs:
     default: RelAssert
   llvm_version:
     type: string
-    description: llvm version - used for naming purposes e.g. 19,20,main"
+    description: llvm version - used for naming purposes e.g. 20,21,main"
     default: ""
   llvm_branch:
     type: string
-    description: "The actual llvm branch to check out e.g. release/19.x"
+    description: "The actual llvm branch to check out e.g. release/20.x"
   use_github_cache:
     type: boolean
     description: "Whether to use caching - will rebuild if not existing"

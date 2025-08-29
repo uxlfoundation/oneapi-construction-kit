@@ -8,5 +8,5 @@ All targets
 
 .. rubric:: Supported - tested regularly
 
-- 19.1.7+
-- 20.1.2+
+- 20.1.8+
+- 21.1.0+

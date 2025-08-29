@@ -9,7 +9,7 @@ on:
       llvm_version:
         required: true
         type: string
-        description: 'llvm (major) version - 19,20 or main'
+        description: 'llvm (major) version - 20, 21 or main'
       use_github_cache:
         required: false
         type: boolean

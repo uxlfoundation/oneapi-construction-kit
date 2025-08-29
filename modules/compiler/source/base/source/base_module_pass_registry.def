@@ -175,9 +175,6 @@ FUNCTION_PASS("manual-type-legalization", compiler::utils::ManualTypeLegalizatio
 FUNCTION_PASS("software-div", compiler::SoftwareDivisionPass())
 FUNCTION_PASS("replace-addrspace-fns", compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass())
 FUNCTION_PASS("remove-lifetime", compiler::utils::RemoveLifetimeIntrinsicsPass())
-#if LLVM_VERSION_LESS(20, 0)
-FUNCTION_PASS("remove-address-spaces", compiler::utils::RemoveAddressSpacesPass())
-#endif
 FUNCTION_PASS("remove-exceptions", compiler::utils::RemoveExceptionsPass())
 FUNCTION_PASS("replace-mem-intrins", compiler::utils::ReplaceMemIntrinsicsPass())
 FUNCTION_PASS("print<generic-metadata>", compiler::utils::GenericMetadataPrinterPass(llvm::dbgs()))

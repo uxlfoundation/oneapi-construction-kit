@@ -11,11 +11,10 @@ RUN dpkg --add-architecture riscv64
 # The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
 RUN sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
 
-# Add llvm repos
-RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
-RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
-RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
 RUN apt-get update
+
+# Add llvm key
+RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
 
 # Install minimum requirements
 RUN apt-get install --yes cmake libtinfo-dev

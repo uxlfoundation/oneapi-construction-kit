@@ -5,8 +5,8 @@ description: Action to build the oneapi-construction-kit as an artefact
 
 inputs:
   llvm_version:
-    description: 'llvm version we want to use (18-19)'
-    default: '19'
+    description: 'llvm version we want to use (20-21)'
+    default: '20'
   llvm_source:
       required: true
       description: 'source to get llvm from - one of install, cache or workflow id'
