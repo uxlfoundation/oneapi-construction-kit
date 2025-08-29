@@ -559,13 +559,13 @@ SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_byte
 SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_std_byte
 SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_int8_t
 SYCL_CTS,test_vector_swizzle_assignment vector_SWIZZLE_ASSIGNMENT_int32_t
-SYCL_CTS,test_vector_swizzles vector_swizzles_bool
-SYCL_CTS,test_vector_swizzles vector_swizzles_char
-SYCL_CTS,test_vector_swizzles vector_swizzles_int
-SYCL_CTS,test_vector_swizzles vector_swizzles_float
-SYCL_CTS,test_vector_swizzles vector_swizzles_double
-SYCL_CTS,test_vector_swizzles vector_swizzles_half --allow-running-no-tests
-SYCL_CTS,test_vector_swizzles vector_swizzles_byte
-SYCL_CTS,test_vector_swizzles vector_swizzles_std_byte
-SYCL_CTS,test_vector_swizzles vector_swizzles_int8_t
-SYCL_CTS,test_vector_swizzles vector_swizzles_int32_t
+SYCL_CTS,test_vector_swizzles "vector_swizzles_bool*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_char*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_int*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_float*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_double*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_half*" --allow-running-no-tests
+SYCL_CTS,test_vector_swizzles "vector_swizzles_byte*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_std_byte*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_int8_t*"
+SYCL_CTS,test_vector_swizzles "vector_swizzles_int32_t*"
