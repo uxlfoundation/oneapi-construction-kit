@@ -1,4 +1,10 @@
-modules/compiler/vecz
+modules/compiler/vecz/include
+modules/compiler/vecz/source
+modules/compiler/vecz/test/lit/llvm
+modules/compiler/vecz/tools/source
+doc/modules/vecz/vecz.md
+doc/modules/compiler/overview.rst
+doc/modules/compiler/utils.rst
 modules/compiler/compiler_pipeline/include/compiler/utils/address_spaces.h
 modules/compiler/compiler_pipeline/include/compiler/utils/cl_builtin_info.h
 modules/compiler/compiler_pipeline/include/compiler/utils/encode_kernel_metadata_pass.h
@@ -8,6 +14,7 @@ modules/compiler/compiler_pipeline/include/compiler/utils/verify_reqd_sub_group_
 modules/compiler/compiler_pipeline/include/compiler/utils/attributes.h
 modules/compiler/compiler_pipeline/include/compiler/utils/define_mux_builtins_pass.h
 modules/compiler/compiler_pipeline/include/compiler/utils/group_collective_helpers.h
+modules/compiler/compiler_pipeline/include/compiler/utils/optimal_builtin_replacement_pass.h
 modules/compiler/compiler_pipeline/include/compiler/utils/pass_machinery.h
 modules/compiler/compiler_pipeline/include/compiler/utils/sub_group_analysis.h
 modules/compiler/compiler_pipeline/include/compiler/utils/work_item_loops_pass.h
@@ -24,6 +31,7 @@ modules/compiler/compiler_pipeline/include/compiler/utils/unique_opaque_structs_
 modules/compiler/compiler_pipeline/source/attributes.cpp
 modules/compiler/compiler_pipeline/source/define_mux_builtins_pass.cpp
 modules/compiler/compiler_pipeline/source/mangling.cpp
+modules/compiler/compiler_pipeline/source/optimal_builtin_replacement_pass.cpp
 modules/compiler/compiler_pipeline/source/pass_machinery.cpp
 modules/compiler/compiler_pipeline/source/sub_group_analysis.cpp
 modules/compiler/compiler_pipeline/source/work_item_loops_pass.cpp

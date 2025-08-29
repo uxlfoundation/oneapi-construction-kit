@@ -11,6 +11,7 @@ add_llvm_component_library(LLVMNativeCPUPipeline
   ${CMAKE_CURRENT_SOURCE_DIR}/source/metadata.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/mux_builtin_info.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_functions.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/optimal_builtin_replacement_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/pass_machinery.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/prepare_barriers_pass.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/replace_local_module_scope_variables_pass.cpp

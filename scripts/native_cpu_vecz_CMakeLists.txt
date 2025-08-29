@@ -127,8 +127,8 @@ target_compile_definitions(LLVMNativeCPUVecz PRIVATE
   ${VECZ_COMPILE_DEFINITIONS})
 
 # Currently disabled by default, these allow us to run lit tests using veczc
-set(BUILD_VECZ_TEST_TOOLS OFF CACHE BOOL "Build vecz test and tools" FORCE)
-if (BUILD_VECZ_TEST_TOOLS)
+set(NATIVE_CPU_BUILD_VECZ_TEST_TOOLS OFF CACHE BOOL "Build vecz test and tools")
+if (NATIVE_CPU_BUILD_VECZ_TEST_TOOLS)
   add_subdirectory(tools)
   add_subdirectory(test)
 endif()
