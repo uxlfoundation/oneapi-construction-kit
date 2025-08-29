@@ -11,7 +11,7 @@ inputs:
     type: string
     required: true
   llvm_branch:
-    description: 'The actual llvm branch to check out e.g. release/19.x'
+    description: 'The actual llvm branch to check out e.g. release/20.x'
     type: string
     required: true
 

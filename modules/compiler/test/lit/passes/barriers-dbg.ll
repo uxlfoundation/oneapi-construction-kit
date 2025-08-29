@@ -14,8 +14,7 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
-; RUN: muxc --passes "work-item-loops<debug>,verify" -S %s | FileCheck %t
+; RUN: muxc --passes "work-item-loops<debug>,verify" -S %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024"
@@ -134,28 +133,22 @@ if.end:                                           ; preds = %if.then, %entry
 ;
 ; The pass non-determinism also affects the placement of padding elements which
 ; further complicates the issue since this too impacts the offsets. See CA-119.
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
-; CHECK-GE20: #dbg_value(ptr poison
-; CHECK-EQ19: #dbg_value(ptr undef
+; CHECK: #dbg_value(ptr poison
 ; CHECK-SAME: !DIExpression(DW_OP_deref, DW_OP_plus_uconst, {{0|[1-9][0-9]*}}
 ;
 ; Debug info for first kernel scope

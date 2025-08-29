@@ -10,7 +10,7 @@ inputs:
     description: 'quick | full'
     default: "quick"
   llvm_version:
-    description: 'llvm major version (e.g 19,20, main) - to be used for llvm specific fails'
+    description: 'llvm major version (e.g 20,21,main) - to be used for llvm specific fails'
     required: true
   split_index:
     description: "optional split index so this run can be done with different splits, current only 0 or 1"

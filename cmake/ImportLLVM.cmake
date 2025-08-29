@@ -57,8 +57,8 @@ include(DetectLLVMMSVCCRT)
   :cmake:variable:`LLVM_PACKAGE_VERSION` from the imported LLVM install is
   a supported version.
 #]=======================================================================]
-set(CA_LLVM_MINIMUM_VERSION 19.0.0)
-set(CA_LLVM_MAXIMUM_VERSION 20)
+set(CA_LLVM_MINIMUM_VERSION 20.0.0)
+set(CA_LLVM_MAXIMUM_VERSION 21)
 string(REPLACE ";" "', '" CA_LLVM_VERSIONS_PRETTY "${CA_LLVM_VERSIONS}")
 if("${LLVM_PACKAGE_VERSION}" VERSION_LESS "${CA_LLVM_MINIMUM_VERSION}")
   message(FATAL_ERROR

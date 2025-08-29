@@ -4,13 +4,13 @@
 
 Feature additions:
 
-* Support for LLVM 20 has been added.
+* Support for LLVM 20 and 21 has been added.
 
 Upgrade guidance:
 
 * Support for degenerate subgroups has been removed. No in-tree target or
   template was using this, but custom targets may need to be updated.
-* Support for LLVM versions before 19 has been removed.
+* Support for LLVM versions before 20 has been removed.
 * Vulkan API support has been removed and will no longer be supported for any
   versions. Users may fork from the 4.0.0 version if they wish to use it.
 * The CMake option CA_ENABLE_API has been removed; OpenCL will always be enabled

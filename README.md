@@ -1,8 +1,8 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.4-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/uxlfoundation/oneapi-construction-kit/badge)](https://scorecard.dev/viewer/?uri=github.com/uxlfoundation/oneapi-construction-kit)
 
-![planned testing LLVM 19](https://github.com/uxlfoundation/oneapi-construction-kit/actions/workflows/planned_testing_caller_19.yml/badge.svg)
 ![planned testing LLVM 20](https://github.com/uxlfoundation/oneapi-construction-kit/actions/workflows/planned_testing_caller_20.yml/badge.svg)
+![planned testing LLVM 21](https://github.com/uxlfoundation/oneapi-construction-kit/actions/workflows/planned_testing_caller_21.yml/badge.svg)
 ![planned experimental testing LLVM main](https://github.com/uxlfoundation/oneapi-construction-kit/actions/workflows/planned_testing_caller_main.yml/badge.svg)
 
 [![UXL Foundation Logo](https://github.com/uxlfoundation/artwork/blob/main/foundation/uxl-foundation-logo-horizontal-color.png)][UXL Foundation]

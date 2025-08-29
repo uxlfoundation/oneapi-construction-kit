@@ -53,7 +53,7 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   uint64_t workarounds = 0;
   /// @brief Map from DebugInfo instructions to the llvm::DIBuilder that builds
   /// them.
-  std::unordered_map<spv::Id, std::unique_ptr<multi_llvm::DIBuilder>>
+  std::unordered_map<spv::Id, std::unique_ptr<llvm::DIBuilder>>
       debug_builder_map;
 
   /// @brief Cache of translated DebugInfo instructions.
@@ -74,13 +74,13 @@ class DebugInfoBuilder : public ExtInstSetHandler {
   /// We may only have one DICompileUnit per DIBuilder, so must support
   /// multiple builders. This function finds the DIBuilder for the instruction
   /// based on its chain of scopes, if applicable.
-  multi_llvm::DIBuilder &getDIBuilder(const OpExtInst *op) const;
+  llvm::DIBuilder &getDIBuilder(const OpExtInst *op) const;
 
   /// @brief Returns the first registered DIBuilder, for when it doesn't matter
   /// which is used.
   ///
   /// @see getDIBuilder
-  multi_llvm::DIBuilder &getDefaultDIBuilder() const;
+  llvm::DIBuilder &getDefaultDIBuilder() const;
 
   /// @brief Returns true if the given ID is DebugInfoNone.
   bool isDebugInfoNone(spv::Id id) const;

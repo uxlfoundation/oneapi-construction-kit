@@ -24,6 +24,7 @@
 #include <llvm/IR/Module.h>
 #include <mux/mux.h>
 
+#include <mutex>
 #include <optional>
 
 namespace compiler {

@@ -301,7 +301,7 @@ bool DebugInfoBuilder::isDebugInfoSet(uint32_t set_id) const {
          set == ExtendedInstrSet::OpenCLDebugInfo100;
 }
 
-multi_llvm::DIBuilder &DebugInfoBuilder::getDefaultDIBuilder() const {
+llvm::DIBuilder &DebugInfoBuilder::getDefaultDIBuilder() const {
   assert(debug_builder_map.size() != 0 && "No DIBuilders");
   return *debug_builder_map.begin()->second;
 }
@@ -527,12 +527,8 @@ llvm::Expected<llvm::MDNode *> DebugInfoBuilder::translate(
   }
 
   if (flags & OpenCLDebugInfo100FlagObjectPointer) {
-#if LLVM_VERSION_GREATER_EQUAL(20, 0)
     const bool implicit = flags & OpenCLDebugInfo100FlagArtificial;
     type = dib.createObjectPointerType(type, implicit);
-#else
-    type = dib.createObjectPointerType(type);
-#endif
   } else if (flags & OpenCLDebugInfo100FlagArtificial) {
     type = dib.createArtificialType(type);
   }
@@ -2341,7 +2337,7 @@ llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
     CREATE_CASE(OpenCLDebugInfo100DebugImportedEntity, DebugImportedEntity)
     case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugCompilationUnit:
       debug_builder_map[opc.IdResult()] =
-          std::make_unique<multi_llvm::DIBuilder>(*module.llvmModule);
+          std::make_unique<llvm::DIBuilder>(*module.llvmModule);
       break;
     case OpenCLDebugInfo100Instructions::OpenCLDebugInfo100DebugFunction: {
       // Translate and register the DISubprogram for the function.
@@ -2381,10 +2377,9 @@ llvm::Error DebugInfoBuilder::create(const OpExtInst &opc) {
   return llvm::Error::success();
 }
 
-multi_llvm::DIBuilder &DebugInfoBuilder::getDIBuilder(
-    const OpExtInst *op) const {
+llvm::DIBuilder &DebugInfoBuilder::getDIBuilder(const OpExtInst *op) const {
   assert(debug_builder_map.size() != 0 && "No DIBuilders");
-  multi_llvm::DIBuilder &default_dib = getDefaultDIBuilder();
+  llvm::DIBuilder &default_dib = getDefaultDIBuilder();
 
   assert(isDebugInfoSet(op->Set()) && "Unexpected extended instruction set");
 

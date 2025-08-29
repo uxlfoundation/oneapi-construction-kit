@@ -27,7 +27,6 @@
 #include <llvm/IR/IntrinsicsX86.h>
 #include <llvm/IR/Module.h>
 #include <llvm/TargetParser/Triple.h>
-#include <multi_llvm/intrinsic.h>
 
 using namespace llvm;
 
@@ -43,11 +42,11 @@ void configX86FP(Function &wrapper, Function &function) {
   // x86 STMXCSR instruction stores the contents of the MXCSR register in the
   // destination operand. MXCSR contains flags for control and status
   // information regarding SSE instructions.
-  Function *const st_mxcsr = multi_llvm::GetOrInsertIntrinsicDeclaration(
+  Function *const st_mxcsr = Intrinsic::getOrInsertDeclaration(
       wrapper.getParent(), Intrinsic::x86_sse_stmxcsr);
 
   // Loads the source operand into the MXCSR register
-  Function *const ld_mxcsr = multi_llvm::GetOrInsertIntrinsicDeclaration(
+  Function *const ld_mxcsr = Intrinsic::getOrInsertDeclaration(
       wrapper.getParent(), Intrinsic::x86_sse_ldmxcsr);
 
   // Allocas to store the old and new state
@@ -132,10 +131,10 @@ void configArmFP(Function &wrapper, Function &function) {
   // create an IR builder with a single basic block in our wrapper
   IRBuilder<> ir(BasicBlock::Create(wrapper.getContext(), "", &wrapper));
 
-  Function *const get_fpscr = multi_llvm::GetOrInsertIntrinsicDeclaration(
+  Function *const get_fpscr = Intrinsic::getOrInsertDeclaration(
       wrapper.getParent(), Intrinsic::arm_get_fpscr);
 
-  Function *const set_fpscr = multi_llvm::GetOrInsertIntrinsicDeclaration(
+  Function *const set_fpscr = Intrinsic::getOrInsertDeclaration(
       wrapper.getParent(), Intrinsic::arm_set_fpscr);
 
   // call fpscr to store the original state

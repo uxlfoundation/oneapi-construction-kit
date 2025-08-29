@@ -4,8 +4,8 @@ on:
     paths:
       - '.github/workflows/planned_testing_caller_21.yml'
   schedule:
-    # Run Tue, Fri at 7pm
-    - cron: '0 19 * * 2,5'
+    # Run Mon, Thu at 7pm
+    - cron: '0 19 * * 1,4'
   workflow_dispatch:
     inputs:
       dpcpp_repo_pr_no:

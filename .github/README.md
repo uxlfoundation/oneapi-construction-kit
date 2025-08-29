@@ -20,9 +20,6 @@ create_llvm_artefacts.yml
 `Run planned testing`: planned_testing_caller.yml
 - description: runs planned_testing-style tests, called from an llvm version caller
 
-`run planned tests for llvm 19`: planned_testing_caller_19.yml
-- description: runs planned_tests for llvm 19
-
 `run planned tests for llvm 20`: planned_testing_caller_20.yml
 - description: runs planned_tests for llvm 20
 
@@ -60,8 +57,6 @@ create_llvm_artefacts.yml
 
 `CodeQL`: codeql.yml
 
-`run planned tests for llvm 19`: planned_testing_caller_19.yml
-
 `run planned tests for llvm 20`: planned_testing_caller_20.yml
 
 `run planned tests for llvm 21`: planned_testing_caller_21.yml
@@ -73,8 +68,6 @@ create_llvm_artefacts.yml
 `Scorecard supply-chain security`: scorecard.yml
 
 ### `workflow_dispatch:` workflows (manually runnable and available in forks)
-
-`run planned tests for llvm 19`: planned_testing_caller_19.yml
 
 `run planned tests for llvm 20`: planned_testing_caller_20.yml
 
@@ -114,7 +107,7 @@ The `publish docker images` workflow is configured to rebuild the containers whe
 
 ## LLVM artefact management
 
-Planned_testing workflows each use a particular llvm artefact according to llvm version, OS and architecture (e.g. llvm 19/20/21, Ubuntu_24, x86_64). The specific version to use and branch to reference are contained in the .yml workflow definition. llvm artefacts can be installed, built or accessed as pre-built artefacts from Github cache. They are handled as follows:
+Planned_testing workflows each use a particular llvm artefact according to llvm version, OS and architecture (e.g. llvm 20/21, Ubuntu_24, x86_64). The specific version to use and branch to reference are contained in the .yml workflow definition. llvm artefacts can be installed, built or accessed as pre-built artefacts from Github cache. They are handled as follows:
 - PR testing: llvm artefact is installed as needed.
 - Planned testing: a flag is set depending on whether the llvm version is stable. If the `use_llvm_github_cache` flag is set, cache is used with llvm artefact being built if required. If the flag is not set, the llvm artefact is always built.
 
@@ -153,11 +146,10 @@ Planned_testing workflows are configured to run via `workflow_dispatch:` (manual
 ### Further tailoring of planned_testing workflows
 The following planned_testing workflows call `Run planned testing` (planned_testing_caller.yml) as a sub-workflow:
 ```
-      run planned tests for llvm 19: planned_testing_caller_19.yml
       run planned tests for llvm 20: planned_testing_caller_20.yml
       run planned tests for llvm 21: planned_testing_caller_21.yml
 ```
-These workflows can be tailored to run specific llvm versions (e.g. 19), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the scripted `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. With the exception of DPC++ PRs (see above) tailored values can only be set directly in workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface (i.e. `workflow_dispatch:`).
+These workflows can be tailored to run specific llvm versions (e.g. 20), target lists (e.g. host_x86_64_linux) and test options (e.g. test_sanitizers), etc., by setting the scripted `inputs:` values to `Run planned testing` accordingly. See the planned_testing workflow .yml files for examples of current default values and tailoring options. With the exception of DPC++ PRs (see above) tailored values can only be set directly in workflow config and cannot currently be updated interactively on a per-run basis when called from the web interface (i.e. `workflow_dispatch:`).
 
 ### Planned_testing workflows in forks
 Planned_testing workflows can also be run via `workflow_dispatch:` (manual event trigger) in forks. Examples can be found [in this fork](https://github.com/AERO-Project-EU/oneapi-construction-kit/actions?query=event%3Aworkflow_dispatch).
