@@ -95,10 +95,10 @@ runs:
       run: |
         set -x
         echo "deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/$UBUNTU_NAME/ llvm-toolchain-$UBUNTU_NAME-${{ inputs.llvm_version }} main" | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null
-        sudo apt update
+        sudo apt-get update
 
-        sudo apt install -y llvm-${{ inputs.llvm_version }}-dev liblld-${{ inputs.llvm_version }}-dev libclang-${{ inputs.llvm_version }}-dev
-        sudo apt install -y libpolly-${{ inputs.llvm_version }}-dev clang-${{ inputs.llvm_version }}
+        sudo apt-get install -y llvm-${{ inputs.llvm_version }}-dev liblld-${{ inputs.llvm_version }}-dev libclang-${{ inputs.llvm_version }}-dev
+        sudo apt-get install -y libpolly-${{ inputs.llvm_version }}-dev clang-${{ inputs.llvm_version }}
 
         ln -s /usr/lib/llvm-${{ inputs.llvm_version }} llvm_install
 
