@@ -45,7 +45,7 @@ jobs:
   # This cleans up any caches which may have been created when running external tests
   clean_caches:
     needs: [ L20_ ]
-    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch' ) && always()
+    if: ( github.repository == 'uxlfoundation/oneapi-construction-kit' && github.event_name != 'pull_request' || github.event_name == 'workflow_dispatch' ) && always()
     runs-on: ubuntu-latest
     permissions:
       actions: write # for gh cache delete

@@ -10,6 +10,9 @@ inputs:
     description: 'tests are long-running so split into 2 parts - indicate which to run: part1 OR part2'
     type: string
     required: true
+  ubuntu_version:
+    description: 'Version of ubuntu used'
+    default: 22.04
   llvm_branch:
     description: 'The actual llvm branch to check out e.g. release/20.x'
     type: string
@@ -43,9 +46,12 @@ runs:
 
     - name: Install clang
       shell: 'bash'
+      env:
+        UBUNTU_NAME: "${{ inputs.ubuntu_version == '24.04' && 'noble' || 'jammy' }}"
       run: |
-        sudo apt update
-        sudo apt install -y clang-19
+        echo "deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/$UBUNTU_NAME/ llvm-toolchain-$UBUNTU_NAME-20 main" | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null
+        sudo apt-get update
+        sudo apt-get install -y clang-20
 
     - name: Checkout llvm/llvm-project
       uses: actions/checkout@v4
@@ -75,8 +81,8 @@ runs:
             -DLLVM_ENABLE_ZSTD=FALSE \
             -DLLVM_ENABLE_PROJECTS="clang;lld" \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
-            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19
+            -DCMAKE_C_COMPILER=/usr/bin/clang-20 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20
         echo Install LLVM
         cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
 
@@ -96,8 +102,8 @@ runs:
             -DCA_LLVM_INSTALL_DIR=$GITHUB_WORKSPACE/external/llvm_install \
             -DCMAKE_BUILD_TYPE=Debug \
             -DCA_USE_SANITIZER=Thread \
-            -DCMAKE_C_COMPILER=/usr/bin/clang-19 \
-            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-19 \
+            -DCMAKE_C_COMPILER=/usr/bin/clang-20 \
+            -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 \
             -DCA_ENABLE_DEBUG_SUPPORT=ON \
             -DCA_BUILTINS_TOOLS_DIR=$GITHUB_WORKSPACE/external/llvm_install/bin \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
