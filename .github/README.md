@@ -123,18 +123,7 @@ Further information on `runs-on:` can also be found in the [github docs](https:/
 A number of individual PR test jobs in the `Run ock internal tests` (PR testing) workflow include a testing phase which involves calling the `run_cities.py` script to execute a portion of the tests. This phase also requires the pre-built `opencl_cts_host_x86_64_linux` opencl_cts artifact which must be available in repo cache prior to running these tests. If this artifact is not provided in the cache the PR tests workflow will fail.
 
 The opencl_cts artifact concerned can be built and cached by calling the `Create a cache OpenCL-CTS artifact` workflow from the web interface (i.e. via a `workflow_dispatch:` manual event trigger) in advance of running the PR tests. This workflow can be called in forks.
-There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values for these at time of writing are:
-```
-      header_ref:
-        description: 'Git checkout ref for OpenCL Headers repo'
-        default: 'v2025.06.13'
-      icd_loader_ref:
-        description: 'Git checkout ref for OpenCL ICD Loader repo'
-        default: 'v2024.10.24'
-      opencl_cts_ref:
-        description: 'Git checkout ref for OpenCL-CTS repo'
-        default: 'v2025-04-21-00'
-```
+There are a number of inputs to this workflow which relate to Git checkout references in OpenCL repos. The default values for these can be found in [the workflow](workflows/create_opencl_cts_artefact.yml).
 These default values can also be set interactively on a per-run basis when called from the web interface. 
 
 At the point at which an update to the opencl_cts cache artifact is required (e.g. when new Git checkout references are available and the workflow inputs default values shown above have been updated accordingly) the existing artifact should be manually deleted prior to re-running the artefact creation workflow. The update workflow will fail if an existing cached artifact is found. Consideration should be given to avoid impacting any in-progress PRs referencing the previous opencl_cts cache artefact version.

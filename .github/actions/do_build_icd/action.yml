@@ -42,7 +42,7 @@ runs:
         set -x
         cmake headers -Bheaders/build_${{steps.calc_vars.outputs.arch}} \
          -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
-         -DCMAKE_INSTALL_PREFIX=$PWD/headers_install_${{steps.calc_vars.outputs.arch}} \
+         -DCMAKE_INSTALL_PREFIX=$PWD/opencl_headers_install_${{steps.calc_vars.outputs.arch}} \
          -GNinja
 
     - name: ninja install headers
@@ -53,8 +53,8 @@ runs:
     - name: upload header artifact
       uses: actions/upload-artifact@v4
       with:
-        name: header_${{inputs.target}}
-        path: headers_install_${{steps.calc_vars.outputs.arch}}
+        name: opencl_headers_${{inputs.target}}
+        path: opencl_headers_install_${{steps.calc_vars.outputs.arch}}
         retention-days: 7
 
     - name: clone icd 
@@ -72,7 +72,7 @@ runs:
           -DCMAKE_TOOLCHAIN_FILE=${{ steps.calc_vars.outputs.toolchain }} \
           -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
           -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install_icd_${{steps.calc_vars.outputs.arch}} \
-          -DOpenCLHeaders_DIR=$GITHUB_WORKSPACE/headers_install_${{steps.calc_vars.outputs.arch}}/share/cmake/OpenCLHeaders \
+          -DOpenCLHeaders_DIR=$GITHUB_WORKSPACE/opencl_headers_install_${{steps.calc_vars.outputs.arch}}/share/cmake/OpenCLHeaders \
           -GNinja
 
     - name: icd build
