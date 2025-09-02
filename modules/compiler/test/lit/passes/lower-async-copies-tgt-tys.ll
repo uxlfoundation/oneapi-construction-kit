@@ -28,7 +28,6 @@
 
 ; We also run early-cse as lower-to-mux-builtins produces redundant code that
 ; complicates the checks
-; REQUIRES: llvm-17+
 ; RUN: muxc --passes lower-to-mux-builtins,early-cse,verify %s \
 ; RUN:  | FileCheck %s -DEVENT_TY='target("spirv.Event")' -DNULLEVENT=zeroinitializer
 ; RUN: muxc --passes replace-target-ext-tys,lower-to-mux-builtins,early-cse,verify %s \

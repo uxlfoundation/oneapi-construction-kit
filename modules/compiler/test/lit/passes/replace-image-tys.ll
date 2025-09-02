@@ -14,7 +14,6 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; REQUIRES: llvm-17+
 ; Test the pass in various configurations: replacing all target types, only
 ; replacing samplers and only replacing images.
 ; RUN: muxc --passes replace-target-ext-tys,verify %s \
