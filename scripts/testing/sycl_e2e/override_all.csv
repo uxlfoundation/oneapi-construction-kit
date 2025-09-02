@@ -81,7 +81,6 @@ SYCL,DeviceLib/imf/simd_emulate_test.cpp,XFail
 SYCL,KernelAndProgram/build-log.cpp,XFail
 SYCL,KernelAndProgram/cache-build-result.cpp,XFail
 SYCL,KernelAndProgram/undefined-symbol.cpp,XFail
-SYCL,KernelCompiler/sycl_imf.cpp,XFail
 SYCL,MemorySanitizer/check_buffer.cpp,XFail
 SYCL,MemorySanitizer/check_buffer_memset_memcpy.cpp,XFail
 SYCL,MemorySanitizer/check_call.cpp,XFail
@@ -102,12 +101,9 @@ SYCL,MemorySanitizer/track-origins/check_shared_usm.cpp,XFail
 SYCL,NonUniformGroups/ballot_group.cpp,XFail
 SYCL,NonUniformGroups/opportunistic_group.cpp,XFail
 SYCL,NonUniformGroups/tangle_group.cpp,XFail
-SYCL,OptionalKernelFeatures/is_compatible/is_compatible_amdgcn.cpp,XFail
-SYCL,OptionalKernelFeatures/is_compatible/is_compatible_nvptx64.cpp,XFail
 SYCL,ProfilingTag/profiling_queue.cpp,XFail
 SYCL,syclcompat/atomic/atomic_arith.cpp,XFail
 SYCL,syclcompat/atomic/atomics_verification_usmnone.cpp,XFail
-SYCL,syclcompat/launch/launch_policy.cpp,XFail
 SYCL,syclcompat/launch/launch_policy_lmem.cpp,XFail
 SYCL,syclcompat/math/math_ops.cpp,XFail
 SYCL,syclcompat/memory/usm_allocations.cpp,XFail

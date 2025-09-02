@@ -58,6 +58,7 @@ runs:
       shell: bash
       run: |
         mkdir build_e2e
+        rm $GITHUB_WORKSPACE/install_dpcpp/bin/opencl-aot
         CC=$GITHUB_WORKSPACE/install_dpcpp/bin/clang CXX=$GITHUB_WORKSPACE/install_dpcpp/bin/clang++ \
         cmake -G Ninja -Bbuild_e2e llvm/sycl/test-e2e \
            -DSYCL_TEST_E2E_TARGETS="${{ inputs.sycl_device == 'native_cpu' && 'native_cpu:cpu' || 'opencl:cpu' }}"
