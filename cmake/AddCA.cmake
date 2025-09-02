@@ -1001,16 +1001,18 @@ endmacro()
       DEPENDS target)
 #]=======================================================================]
 function(add_ca_configure_file input output)
-  cmake_parse_arguments(args "" "" "DEFINED;DEPENDS" ${ARGN})
+  cmake_parse_arguments(PARSE_ARGV 2 args "" "" "DEFINED;DEPENDS")
   get_filename_component(input_dir ${input} DIRECTORY)
   set(ConfigureFileScript
     ${ComputeAorta_SOURCE_DIR}/cmake/ConfigureFileScript.cmake)
   foreach(define ${args_DEFINED})
-    list(APPEND defines -D${define})
+    string(REPLACE ";" "$<SEMICOLON>" define "${define}")
+    list(APPEND defines "-D${define}")
   endforeach()
   file(RELATIVE_PATH relOut ${CMAKE_BINARY_DIR} ${output})
   add_custom_command(OUTPUT ${output}
     COMMAND ${CMAKE_COMMAND} -DINPUT=${input} -DOUTPUT=${output} ${defines}
+    VERBATIM
     -P ${ConfigureFileScript}
     DEPENDS ${input} ${ConfigureFileScript} ${args_DEPENDS}
     WORKING_DIRECTORY ${input_dir}
@@ -1362,7 +1364,7 @@ function(add_ca_configure_lit_site_cfg name site_in site_out)
     LLVM_VERSION_PATCH=${LLVM_VERSION_PATCH}
     LLVM_ENABLE_ASSERTIONS=${LLVM_ENABLE_ASSERTIONS}
     LLVM_FORCE_ENABLE_STATS=${LLVM_FORCE_ENABLE_STATS}
-    LLVM_TARGETS_TO_BUILD=${TARGETS_TO_BUILD}
+    "LLVM_TARGETS_TO_BUILD=${LLVM_TARGETS_TO_BUILD}"
     CA_ENABLE_DEBUG_SUPPORT=${CA_ENABLE_DEBUG_SUPPORT}
     CA_BUILD_32_BITS=${CA_BUILD_32_BITS}
     CA_ENABLE_LLVM_OPTIONS_IN_RELEASE=${CA_ENABLE_LLVM_OPTIONS_IN_RELEASE}

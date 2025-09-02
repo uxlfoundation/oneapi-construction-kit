@@ -54,7 +54,7 @@ if '@LLVM_VERSION_MAJOR@':
     for ver in range(8, @LLVM_VERSION_MAJOR@ + 1):
         config.available_features.add('llvm-{0}+'.format(ver))
 
-config.targets = frozenset('@LLVM_TARGETS_TO_BUILD@'.split(','))
+config.targets = frozenset('@LLVM_TARGETS_TO_BUILD@'.split(';'))
 
 config.llvm_enable_stats = (
     if_enabled('@LLVM_ENABLE_ASSERTIONS@') or
