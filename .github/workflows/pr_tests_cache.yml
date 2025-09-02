@@ -38,7 +38,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: setup ubuntu
         uses: ./.github/actions/setup_build
@@ -68,7 +68,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: setup-ubuntu
         uses:  ./.github/actions/setup_build
@@ -119,7 +119,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}    
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
         # installs tools, ninja, installs llvm and sets up sccache
       - name: setup-ubuntu
@@ -145,7 +145,7 @@ jobs:
           arch: amd64
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-windows
@@ -173,7 +173,7 @@ jobs:
           arch: amd64
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # installs tools, ninja, installs llvm and sets up ccache
       - name: setup-windows
@@ -201,7 +201,7 @@ jobs:
       actions: write # for gh cache delete
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: .github
       - name: Cache clean

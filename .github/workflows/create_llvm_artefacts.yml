@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:
@@ -102,7 +102,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - name: Checkout repo ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build llvm artefact
         uses: ./.github/actions/do_build_llvm
         with:

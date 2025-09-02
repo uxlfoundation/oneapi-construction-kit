@@ -151,7 +151,7 @@ jobs:
     if: inputs.ock && contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # Todo: move to a common place e.g. setup_build
       - name: Setup Windows llvm base
         uses: llvm/actions/setup-windows@main
@@ -185,7 +185,7 @@ jobs:
     if: inputs.ock && contains(inputs.target_list, 'linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: ./.github/actions/setup_gh
         with:
           os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
@@ -216,7 +216,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: |
             platform
@@ -244,7 +244,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: setup-ubuntu
         uses: ./.github/actions/setup_build
         with:
@@ -268,7 +268,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: setup-ubuntu
         uses: ./.github/actions/setup_build
         with:
@@ -291,7 +291,7 @@ jobs:
     runs-on: ${{ matrix.target == 'host_x86_64_linux' && 'ubuntu-22.04' || 'ubuntu-22.04-arm' }}
     steps:
       - name: clone ock platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: |
             platform
@@ -324,7 +324,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
@@ -355,7 +355,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
@@ -385,7 +385,7 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
     steps:
       - name: clone ock
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # scripts: for run_cities.py
           # source: for CTS filter.csv files
@@ -414,7 +414,7 @@ jobs:
     if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && ( contains(inputs.target_list, 'host_x86_64_linux') || contains(inputs.target_list, 'host_riscv64_linux') )
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -439,7 +439,7 @@ jobs:
     if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -470,7 +470,7 @@ jobs:
     if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -499,7 +499,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -520,7 +520,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -544,7 +544,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -565,7 +565,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -589,7 +589,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -610,7 +610,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -634,7 +634,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -655,7 +655,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -679,7 +679,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -700,7 +700,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -724,7 +724,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: set up gh
         uses: ./.github/actions/setup_gh
         with:
@@ -745,7 +745,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # download sycl cts build subset artefacts, combine, upload
       - name: combine SYCL-CTS build artifacts
         uses: ./.github/actions/combine_sycl_cts_artifacts
@@ -765,7 +765,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -784,7 +784,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -803,7 +803,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -822,7 +822,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -845,7 +845,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -865,7 +865,7 @@ jobs:
     if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: run sycl cts
         uses: ./.github/actions/run_sycl_cts
         with:
@@ -884,7 +884,7 @@ jobs:
     if: inputs.test_sycl_e2e && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build e2e
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
@@ -902,7 +902,7 @@ jobs:
     if: inputs.test_sycl_e2e && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build e2e
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
@@ -920,7 +920,7 @@ jobs:
     if: inputs.test_sycl_e2e && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build e2e
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
@@ -938,7 +938,7 @@ jobs:
     if: inputs.test_sycl_e2e && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: build e2e
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
