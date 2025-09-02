@@ -16,7 +16,8 @@ rather in the style of oneAPI Construction Kit. It also applies clang-format-20 
 A brief explanation and limitations of the importing of the files are under l
 lvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_passes.rst.
 
-It also updates the NATIVECPU_USE_OCK to be on in sycl-linux-build.yml.
+It also updates the NATIVECPU_USE_OCK to be on in sycl-linux-build.yml. There is also a
+check-sycl-vecz target added for the vecz lit tests.
 
 
 

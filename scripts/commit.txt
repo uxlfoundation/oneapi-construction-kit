@@ -1,0 +1,33 @@
+Bring native cpu pipeline files into dpc++ directly.
+
+This brings the native cpu compiler pipeline files directly under the ownership
+of intel/llvm. This removes the direct dependence on the oneAPI Construction
+Kit, although the history of those files still exists under intel/llvm and the
+originals still exist at
+https://github.com/uxlfoundation/oneapi-construction-kit.
+
+This was done as follows:
+
+In the oneAPI Construction Kit repo:
+```
+    git-filter-repo --paths-from-file $script_dir/native_cpu_paths.txt \
+        --path-rename modules/compiler/compiler_pipeline:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline \
+        --path-rename modules/compiler/vecz:llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz \
+        --path-rename modules/compiler/multi_llvm/include/multi_llvm:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline/include/multi_llvm
+``` 
+
+Under intel/llvm:
+```
+    git checkout sycl
+    git checkout -b $llvm_branch
+    git fetch $ock_fork $ock_branch
+    git merge -m "[NATIVE_CPU][SYCL] Merge from oneAPI Construction Kit into native_cpu" --allow-unrelated-histories ock_fork/$ock_branch
+```
+    
+    Additionally, updated various CMakeLists.txt to use llvm macros. across
+    `compiler_pipeline` and `vecz` and pushed to a branch, as well as setting
+    `NATIVECPU_USE_OCK` to be on in sycl-linux-build.yml.
+
+
+Also `llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt` was updated to remove the fetch content and remove the ugly install workaround.
+Missing is the lit tests for the pipeline test as these refer to the use of a non-ported tool, `muxc`.

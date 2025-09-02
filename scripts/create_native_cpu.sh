@@ -36,6 +36,7 @@ if [ "$ock_branch" != "" ]; then
         git clean -d -f
         git branch -D $llvm_branch || true
         git remote add ock_fork git@github.com:${ock_user}/oneapi-construction-kit.git || true
+        git remote add llvm_fork git@github.com:${ock_user}/llvm.git || true
         git checkout -b $llvm_branch
         git fetch ock_fork $ock_branch
         git merge -m "[NATIVE_CPU][SYCL] Merge from oneAPI Construction Kit into native_cpu" --allow-unrelated-histories ock_fork/$ock_branch
@@ -56,10 +57,10 @@ if [ "$ock_branch" != "" ]; then
         cp $script_dir/native_cpu_vecz_test_lit_lit.cfg.py llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/lit.cfg.py
         cp $script_dir/native_cpu_vecz_test_lit_lit.site.cfg.py.in llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/lit.site.cfg.py.in
         cp $script_dir/native_cpu_vecz_test_lit_llvm_RISCV_lit.local.cfg llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/RISCV/lit.local.cfg
-        git apply --index $script_dir/native_cpu_vecz_lit.patch
-        git add llvm/lib/SYCLNativeCPUUtils .github/workflows/sycl-linux-build.yml
         git rm $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/partial_linearization22-llvm18.ll
         git rm $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/ScalableVectors/lit.local.cfg
+        sed -i 's/{{undef|poison}}/poison/g' llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll
+        git add llvm/lib/SYCLNativeCPUUtils .github/workflows/sycl-linux-build.yml
         git commit -F $script_dir/native_cpu_commit_message.txt
     fi
     fi
