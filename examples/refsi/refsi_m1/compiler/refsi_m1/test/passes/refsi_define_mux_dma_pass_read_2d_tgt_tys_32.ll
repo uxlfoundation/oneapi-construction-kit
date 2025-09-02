@@ -14,7 +14,6 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; REQUIRES: llvm-17+
 ; RUN: muxc --device "%riscv_device" %s --passes replace-target-ext-tys,define-mux-dma,verify -S | FileCheck %s
 
 ; Note - RefSi M1 is a 64-bit architecture. This test tests that the compiler

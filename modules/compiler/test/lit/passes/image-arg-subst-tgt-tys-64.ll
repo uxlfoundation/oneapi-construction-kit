@@ -14,7 +14,6 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; REQUIRES: llvm-17+
 ; RUN: muxc --passes replace-target-ext-tys,image-arg-subst,verify %s | FileCheck %s
 
 target triple = "spir64-unknown-unknown"
