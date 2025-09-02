@@ -6,7 +6,6 @@ SYCL,Basic/out_of_order_queue_status_ext_oneapi_empty.cpp,XFail
 SYCL,Basic/out_of_order_queue_status_khr_empty.cpp,XFail
 SYCL,Basic/profile_host_task.cpp,XFail
 SYCL,Basic/submit_time.cpp,XFail
-SYCL,Config/kernel_from_file.cpp,XFail
 SYCL,DeviceLib/assert.cpp,XFail
 SYCL,DeviceLib/math_test_marray_vec.cpp,XFail
 SYCL,FreeFunctionKernels/template_specialization.cpp,XFail
@@ -52,7 +51,6 @@ SYCL,Graph/Explicit/usm_memset.cpp,XFail
 SYCL,Graph/Explicit/work_group_memory.cpp,XFail
 SYCL,Graph/Explicit/work_group_memory_free_function.cpp,XFail
 SYCL,Graph/Explicit/work_group_static_memory.cpp,XFail
-SYCL,Graph/NativeCommand/opencl_buffer.cpp,XFail
 SYCL,Graph/RecordReplay/add_nodes_after_finalize.cpp,XFail
 SYCL,Graph/RecordReplay/barrier_multi_graph.cpp,XFail
 SYCL,Graph/RecordReplay/barrier_multi_queue.cpp,XFail
@@ -114,7 +112,7 @@ SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelCompiler/sycl_cache.cpp,XFail
 SYCL,KernelCompiler/sycl.cpp,XFail
 SYCL,KernelCompiler/sycl_device_globals.cpp,XFail
-SYCL,NewOffloadDriver/multisource.cpp,XFail
+SYCL,KernelCompiler/sycl_imf.cpp,XFail
 SYCL,NonUniformGroups/ballot_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group_algorithms.cpp,XFail
 SYCL,NonUniformGroups/fixed_size_group.cpp,XFail
@@ -129,13 +127,13 @@ SYCL,Reduction/reduction_internal_range_3dim.cpp,MayFail
 SYCL,Regression/group.cpp,XFail
 SYCL,Regression/group_load_fortified.cpp,XFail
 SYCL,Scheduler/DataMovement.cpp,XFail
-SYCL,SeparateCompile/test.cpp,XFail
 SYCL,SubGroup/sub_group_as.cpp,XFail
 SYCL,SubGroup/sub_group_as_vec.cpp,XFail
 SYCL,SYCLBIN/dg_executable.cpp,XFail
 SYCL,SYCLBIN/dg_input.cpp,XFail
 SYCL,SYCLBIN/dg_object.cpp,XFail
 SYCL,syclcompat/atomic/atomic_comp_exchange.cpp,XFail
+SYCL,syclcompat/launch/launch_policy.cpp,XFail
 SYCL,syclcompat/memory/memory_management_test2.cpp,XFail
 SYCL,syclcompat/memory/memory_management_test3.cpp,XFail
 SYCL,syclcompat/util/util_match_all_over_group.cpp,XFail

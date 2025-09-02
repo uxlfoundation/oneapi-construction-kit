@@ -293,6 +293,7 @@ class TestResults(object):
         self.num_passes = 0
         self.num_fails = 0
         self.num_xpasses = 0
+        self.num_xskips = 0
         self.num_xfails = 0
         self.num_mayfails = 0
         self.num_skipped = 0
@@ -330,6 +331,9 @@ class TestResults(object):
             if run.status == "PASS":
                 self.num_xpasses += 1
                 run.status = "XPASS"
+            elif run.status == "SKIP":
+                self.num_xskips += 1
+                run.status = "XSKIP"
             elif run.status == "FAIL":
                 self.num_xfails += 1
                 run.status = "XFAIL"
@@ -361,6 +365,7 @@ class TestResults(object):
         self.fail_list = []
         self.timeout_list = []
         self.xpass_list = []
+        self.xskip_list = []
         self.mayfail_list = []
         self.xfail_list = []
         self.unknown_pass_list = []
@@ -389,6 +394,8 @@ class TestResults(object):
                         self.timeout_list.append(run)
                     elif run.status == "XPASS":
                         self.xpass_list.append(run)
+                    elif run.status == "XSKIP":
+                        self.xskip_list.append(run)
                     elif run.status == "MAYFAIL":
                         self.mayfail_list.append(run)
                     elif run.status == "XFAIL":

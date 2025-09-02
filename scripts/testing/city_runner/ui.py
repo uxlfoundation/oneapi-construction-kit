@@ -106,6 +106,7 @@ class TestUI(object):
         pass_rate = self.calc_progress(results.num_passes, results.num_tests, 1)
         xfail_rate = self.calc_progress(results.num_xfails, results.num_tests, 1)
         xpass_rate = self.calc_progress(results.num_xpasses, results.num_tests, 1)
+        xskip_rate = self.calc_progress(results.num_xskips, results.num_tests, 1)
         mayfail_rate = self.calc_progress(results.num_mayfails, results.num_tests, 1)
         fail_rate = self.calc_progress(results.num_fails, results.num_tests, 1)
         timeout_rate = self.calc_progress(results.num_timeouts, results.num_tests, 1)
@@ -151,6 +152,10 @@ class TestUI(object):
             self.out.write(self.fmt.red("Unexpected passing XFail tests:\n"))
             self.report_test_list(results.xpass_list)
 
+        if results.xskip_list:
+            self.out.write(self.fmt.red("Unexpected skipped XFail tests:\n"))
+            self.report_test_list(results.xskip_list)
+
         if results.fail_list:
             self.out.write(self.fmt.red("Failed tests:\n"))
             self.report_test_list(results.fail_list)
@@ -187,6 +192,9 @@ class TestUI(object):
         if results.num_xpasses > 0:
             self.out.write(self.fmt.red("Passing unexpectedly:"))
             self.out.write("%5d (%5.1f %%)\n" % (results.num_xpasses, xpass_rate))
+        if results.num_xskips > 0:
+            self.out.write(self.fmt.red("Skipped unexpectedly:"))
+            self.out.write("%5d (%5.1f %%)\n" % (results.num_xskips, xskip_rate))
         if results.num_xfails > 0:
             self.out.write("Failed expectedly:   %5d (%5.1f %%)\n" % (results.num_xfails, xfail_rate))
         if results.num_mayfails > 0:
