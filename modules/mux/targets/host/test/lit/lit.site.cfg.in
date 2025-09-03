@@ -38,7 +38,6 @@ config.ca_host_target_cpu = '@CA_HOST_TARGET_CPU@' or None
 
 config.ca_host_cl_device_name = '@host_CA_HOST_CL_DEVICE_NAME@'
 
-config.ca_host_capabilities = '@host_CAPABILITIES@'
 config.ca_enable = set(filter(None, (
     # Host on Windows isn't double-conformant, so doubles are disabled by default
     if_enabled('@CA_HOST_ENABLE_FP64@', 'fp64'),
