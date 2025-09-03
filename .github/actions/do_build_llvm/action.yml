@@ -31,7 +31,7 @@ runs:
   steps:
       - name: Setup Windows
         if: startsWith(runner.os, 'Windows')
-        uses: llvm/actions/setup-windows@main
+        uses: llvm/actions/setup-windows@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
         with:
           arch: amd64
       - name: Cache llvm
