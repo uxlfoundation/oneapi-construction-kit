@@ -4,15 +4,15 @@ Compiler passes
 Introduction
 ------------
 
-Files under this directory are ported from the [oneAPI Construction
-Kit](https://github.com/uxlfoundation/oneapi-construction-kit). They are used by
-NativeCPU to help create a pipeline for turning a base kernel into something
-which can be executed across multiple work items, including auto-vectorization.
+Files under this directory are ported from the `oneAPI Construction Kit`_. They
+are used by Native CPU to help create a pipeline for turning a base kernel into
+something which can be executed across multiple work items, including
+auto-vectorization.
 
 These files are largely from the sub-directories
 **modules/compiler/compiler_pipeline**, **modules/compiler/vecz** and
 **modules/compiler/multi_llvm**. Only files that are used have been copied and
-the **Cmake** files have been updated to fit in with LLVM components.
+the **CMake** files have been updated to fit in with LLVM components.
 
 These sub-directories are used as follows:
 
@@ -50,15 +50,16 @@ copied across.
   these directories after the port.
 * **vecz** has a test tool **veczc** and associated **lit** tests. This tool if
   required should be moved under **llvm/tools** or **llvm/test**. This is also
-  requires `NATIVE_CPU_BUILD_VECZ_TEST_TOOLS` cmake option to build. This can be
+  requires `NATIVE_CPU_BUILD_VECZ_TEST_TOOLS` **CMake** option to build. This can be
   run using the target `check-sycl-vecz`.
 * **compiler_pipeline** has lit tests for the passes which have not been ported
   across. This is because they use a tool **muxc**, but these passes should be
-  able to be tested using opt. These lit tests can be found
-  [here](https://github.com/uxlfoundation/oneapi-construction-kit/tree/main/modules/compiler/test/lit/passes).
+  able to be tested using **opt**. These lit tests can be found in the
+  `pipeline pass tests`_.
 * There are many files that are unlikely to have any code coverage but because
   there are referred to in other files which we do need, they exist here. These
   should be pruned over time as a better understanding is made of what is
   required.
 
 .. _oneAPI Construction Kit: https://github.com/uxlfoundation/oneapi-construction-kit
+.. _pipeline pass tests: https://github.com/uxlfoundation/oneapi-construction-kit/tree/main/modules/compiler/test/lit/passes

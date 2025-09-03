@@ -11,7 +11,7 @@ config.test_exec_root = r"@CURRENT_BINARY_DIR@"
 # Paths to helper utilities
 config.tools = [ ToolSubst('veczc') ]
 
-config.root.targets = frozenset('@LLVM_TARGETS_TO_BUILD@'.split(';'))
+config.targets = frozenset('@LLVM_TARGETS_TO_BUILD@'.split(';'))
 
 config.llvm_tools_dir = lit_config.substitute(path(r"@LLVM_TOOLS_DIR@"))
 

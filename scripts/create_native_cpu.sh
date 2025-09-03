@@ -41,7 +41,7 @@ if [ "$ock_branch" != "" ]; then
         git fetch ock_fork $ock_branch
         git merge -m "[NATIVE_CPU][SYCL] Merge from oneAPI Construction Kit into native_cpu" --allow-unrelated-histories ock_fork/$ock_branch
         cp $script_dir/native_cpu_CMakeLists.txt $llvm_repo/llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt
-        sed -i "s/DNATIVECPU_USE_OCK=Off/DNATIVECPU_USE_OCK=ON/" $llvm_repo/.github/workflows/sycl-linux-build.yml
+        sed -i -e 's/DLLVM_INSTALL_UTILS=ON \\/DLLVM_INSTALL_UTILS=ON/' -e "/DNATIVECPU_USE_OCK=Off/d" $llvm_repo/.github/workflows/sycl-linux-build.yml
         sed -i -e "s/config.name = 'Vecz'/config.name = \"Vecz\"/" -e "s/config.suffixes = \['.hlsl', '.ll'\]/config.suffixes = \[\".hlsl\", \".ll\"\]/" $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/lit.cfg.py
         for f in $( find $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes -name '*.h' -o -name '*.cpp' -o -name '*.inc'); do
            clang-format $f > /tmp/format.txt; cp /tmp/format.txt $f
@@ -57,8 +57,6 @@ if [ "$ock_branch" != "" ]; then
         cp $script_dir/native_cpu_vecz_test_lit_lit.cfg.py llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/lit.cfg.py
         cp $script_dir/native_cpu_vecz_test_lit_lit.site.cfg.py.in llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/lit.site.cfg.py.in
         cp $script_dir/native_cpu_vecz_test_lit_llvm_RISCV_lit.local.cfg llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/RISCV/lit.local.cfg
-        git rm $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/partial_linearization22-llvm18.ll
-        git rm $llvm_repo/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/ScalableVectors/lit.local.cfg
         sed -i 's/{{undef|poison}}/poison/g' llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll
         git add llvm/lib/SYCLNativeCPUUtils .github/workflows/sycl-linux-build.yml
         git commit -F $script_dir/native_cpu_commit_message.txt
