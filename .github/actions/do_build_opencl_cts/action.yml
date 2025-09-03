@@ -11,12 +11,16 @@ inputs:
     type: boolean
     description: 'flag indicating that a cache update for the built artifact is required'
     default: false
-  # These should default to '' to get tip, but for now need to be fixed due to unified svm header work.
+  spirv_headers_ref:
+    required: false
+    type: string
+    description: 'Git checkout ref for SPIRV-Headers repo'
+    default: ''
   opencl_cts_ref:
     required: false
     type: string
     description: 'Git checkout ref for OpenCL-CTS repo'
-    default: 'v2025-04-21-00'
+    default: ''
 
 runs:
   using: "composite"
@@ -36,11 +40,18 @@ runs:
         name: icd_${{inputs.target}}
         path: install_icd
 
-    - name: download header artifact
+    - name: download opencl headers artifact
       uses: actions/download-artifact@v4
       with:
-        name: header_${{inputs.target}}
-        path: install_headers
+        name: opencl_headers_${{inputs.target}}
+        path: install_opencl_headers
+
+    - name: checkout spirv-headers
+      uses: actions/checkout@v4
+      with:
+        repository: KhronosGroup/SPIRV-Headers
+        path: SPIRV-Headers
+        ref: ${{inputs.spirv_headers_ref}}
 
     - name: checkout test suite
       uses: actions/checkout@v4
@@ -72,8 +83,9 @@ runs:
         cmake -G Ninja $CMAKE_TOOLCHAIN $GITHUB_WORKSPACE/OpenCL-CTS \
           -DCMAKE_BUILD_TYPE=Release \
           -DOPENCL_LIBRARIES=OpenCL \
-          -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include \
-          -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib
+          -DCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_opencl_headers/include \
+          -DCL_LIB_DIR=$GITHUB_WORKSPACE/install_icd/lib \
+          -DSPIRV_INCLUDE_DIR=$GITHUB_WORKSPACE/SPIRV-Headers
         ninja -v
         # remove some files to reduce the size and complexity of the upload
         # (internal upload does not support filtering out)
