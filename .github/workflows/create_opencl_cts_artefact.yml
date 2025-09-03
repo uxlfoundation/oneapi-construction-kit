@@ -5,21 +5,26 @@ name: Create a cache OpenCL-CTS artefact
 on:
   workflow_dispatch:
     inputs:
-      header_ref:
+      opencl_headers_ref:
         required: false
         type: string
         description: 'Git checkout ref for OpenCL Headers repo'
-        default: 'v2025.06.13'
-      icd_loader_ref:
+        default: 'v2025.07.22'
+      spirv_headers_ref:
+        required: false
+        type: string
+        description: 'Git checkout ref for OpenCL Headers repo'
+        default: 'vulkan-sdk-1.4.321.0'
+      opencl_icd_loader_ref:
         required: false
         type: string
         description: 'Git checkout ref for OpenCL ICD Loader repo'
-        default: 'v2024.10.24'
+        default: 'v2025.07.22'
       opencl_cts_ref:
         required: false
         type: string
         description: 'Git checkout ref for OpenCL-CTS repo'
-        default: 'v2025-04-21-00'
+        default: '913e6e43880d3df3cbcc167dd46a0913f4bc7a22'
      
 permissions:
   packages: read
@@ -44,8 +49,8 @@ jobs:
         uses: ./.github/actions/do_build_icd
         with:
           target: 'host_x86_64_linux'
-          header_ref: ${{ inputs.header_ref }}
-          icd_loader_ref: ${{ inputs.icd_loader_ref }}
+          header_ref: ${{ inputs.opencl_headers_ref }}
+          icd_loader_ref: ${{ inputs.opencl_icd_loader_ref }}
 
   build_opencl_cts_artefact:
     name: Create OpenCL-CTS artefact
@@ -70,4 +75,5 @@ jobs:
         with:
           target: 'host_x86_64_linux'
           cache_update: true
+          spirv_headers_ref: ${{ inputs.spirv_headers_ref }}
           opencl_cts_ref: ${{ inputs.opencl_cts_ref }}

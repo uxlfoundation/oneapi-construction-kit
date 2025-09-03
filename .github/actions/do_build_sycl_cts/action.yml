@@ -38,8 +38,8 @@ runs:
       if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
-        name: header_${{inputs.target}}
-        path: install_headers
+        name: opencl_headers_${{inputs.target}}
+        path: install_opencl_headers
 
     - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
       if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
@@ -91,7 +91,7 @@ runs:
       shell: bash
       run: |
         if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
-          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_headers/include -DDPCPP_FLAGS=--offload-new-driver"
+          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_opencl_headers/include -DDPCPP_FLAGS=--offload-new-driver"
         else # native_cpu
           DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS=--offload-new-driver;-fsycl-targets=native_cpu"
         fi
