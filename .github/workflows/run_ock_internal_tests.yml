@@ -190,7 +190,7 @@ jobs:
     if: contains(inputs.target_list, 'host_x86_64_windows')
     steps:
       - name: Setup Windows llvm base
-        uses: llvm/actions/setup-windows@main
+        uses: llvm/actions/setup-windows@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
         with:
           arch: amd64
 
@@ -405,7 +405,7 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v5
     - name: Install Ninja
-      uses: llvm/actions/install-ninja@main
+      uses: llvm/actions/install-ninja@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
     - run: echo WORKSPACE is $GITHUB_WORKSPACE && echo PWD is `pwd` && ls -al
     - name: Run Clik
       run: |
@@ -612,7 +612,7 @@ jobs:
     if: ${{ !inputs.is_pull_request && contains(inputs.target_list, 'host_x86_64_windows') }}
     steps:
     - name: Setup Windows llvm base
-      uses: llvm/actions/setup-windows@main
+      uses: llvm/actions/setup-windows@a1ea791b03c8e61f53a0e66f2f73db283aa0f01e # main branch
       with:
         arch: amd64
 
