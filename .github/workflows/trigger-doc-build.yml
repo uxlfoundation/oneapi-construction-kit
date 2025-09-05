@@ -1,0 +1,21 @@
+name: Trigger documentation build
+
+on:
+  push:
+    branches: ["rfcs"]
+  workflow_dispatch:
+
+jobs:
+  trigger-doc-build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Trigger documentation build
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: '${{ github.event.repository.owner.name }}',
+              repo: '${{ github.event.repository.name }}',
+              workflow_id: 'publish_docs.yml',
+              ref: 'main',
+            })
