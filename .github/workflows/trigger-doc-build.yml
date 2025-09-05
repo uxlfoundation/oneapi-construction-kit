@@ -8,6 +8,8 @@ on:
 jobs:
   trigger-doc-build:
     runs-on: ubuntu-22.04
+    permissions:
+      actions: write
     steps:
       - name: Trigger documentation build
         uses: actions/github-script@v6
