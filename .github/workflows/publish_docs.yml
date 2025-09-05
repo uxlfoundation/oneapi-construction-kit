@@ -31,52 +31,51 @@ jobs:
     if: github.repository == 'uxlfoundation/oneapi-construction-kit' || github.event_name == 'workflow_dispatch'  
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout OCK
         uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
-      - name: Install apt package
+      - name: Install prerequisites
         run: |
           sudo apt-get update
           sudo apt-get install -y doxygen virtualenv
 
-      - name: Install prerequisites
-        run: python -m pip install -r doc/requirements.txt
-
-      - name: Build Documentation
+      - name: Build OCK documentation
         working-directory: ${{github.workspace}}
         run: |
            cmake -DCMAKE_BUILD_TYPE=Debug -DCA_RUNTIME_COMPILER_ENABLED=OFF -DCA_CL_ENABLE_OFFLINE_KERNEL_TESTS=OFF -DOCL_EXTENSION_cl_khr_il_program=OFF -Bbuild_doc
            cmake --build build_doc --target doc_html
-           mkdir docs
-           mv build_doc/doc/html docs/ock
 
-      - name: Checkout
+      - name: Checkout RFCs
         uses: actions/checkout@v5
         with:
           ref: rfcs
           path: rfcs
 
-      - name: Move rfcs to build_doc
+      - name: Prepare combined docs tree
         shell: bash
         run: |
-          mv rfcs/* docs
-          cp -r $GITHUB_WORKSPACE/.github/workflows/combined_docs/* docs
-
-          # TODO : Remove from original rfc docs
-          sed -i 's/permalink: index/permalink: rfc-0000/' docs/rfc-0000.md
-          sed -i 's/split.size == 2 %/split.size == 2 and page.rfc %/' docs/rfc-0000.md
+          cp -r $GITHUB_WORKSPACE/.github/workflows/combined_docs docs
+          mv rfcs docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Copy OCK documentation
+        shell: bash
+        run: |
+           mkdir _site
+           mv build_doc/doc/html _site/doc
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./docs
           destination: ./_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
 
