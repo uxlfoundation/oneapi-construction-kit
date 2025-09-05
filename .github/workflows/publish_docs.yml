@@ -41,7 +41,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y doxygen virtualenv
+          sudo apt-get install -y doxygen graphviz virtualenv
 
       - name: Build OCK documentation
         working-directory: ${{github.workspace}}

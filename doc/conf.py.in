@@ -83,14 +83,14 @@ pygments_style = 'arduino'
 extlinks = {
     'opencl-1.2':
     ('https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/%s.html',
-     ''),
+     '%s'),
     'cmake-command':
-    ('https://cmake.org/cmake/help/latest/command/%s.html', ''),
+    ('https://cmake.org/cmake/help/latest/command/%s.html', '%s'),
     'cmake-variable':
-    ('https://cmake.org/cmake/help/latest/variable/%s.html', ''),
+    ('https://cmake.org/cmake/help/latest/variable/%s.html', '%s'),
     'spirv':
     ('https://www.khronos.org/registry/SPIR-V/specs/unified1/SPIRV.html#%s',
-     ''),
+     '%s'),
 }
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
@@ -148,11 +148,7 @@ html_favicon = '_static/ComputeAorta.ico'
 html_static_path = ['_static']
 
 # Additional style sheets for generated HTML.
-html_context = {
-    'css_files': [
-        '_static/css/theme-override.css',
-    ],
-}
+html_css_files = ['_static/css/theme-override.css']
 
 # Don't link to the page source in the generated HTML.
 html_show_sourcelink = False
