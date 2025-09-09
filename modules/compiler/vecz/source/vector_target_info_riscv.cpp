@@ -141,9 +141,10 @@ bool TargetInfoRISCV::canPacketize(const llvm::Value *Val,
     if (!Ty->isIntOrIntVectorTy()) {
       return false;
     }
-    auto ScalarBitWidth =
+    const auto ScalarBitWidth =
         llvm::cast<IntegerType>(Ty->getScalarType())->getBitWidth();
-    return ScalarBitWidth > 64;
+    return ScalarBitWidth != 1 && ScalarBitWidth != 8 && ScalarBitWidth != 16 &&
+           ScalarBitWidth != 32 && ScalarBitWidth != 64;
   };
 
   if (IsIllegalIntBitwidth(I->getType())) {
