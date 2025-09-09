@@ -50,7 +50,7 @@ source_suffix = ['.md', '.rst']
 master_doc = 'index'
 
 # General information about the project.
-project = u'ComputeAorta'
+project = u'oneAPI Construction Kit'
 copyright = u'(C) Codeplay Software Limited'
 latex_copyright = copyright.replace("(C) ", "\\textcopyright~")
 author = u'Codeplay Software Ltd.'
@@ -133,7 +133,6 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'style_nav_header_background': '#343131',
 }
-html_logo = '_static/ComputeAorta A.png'
 html_favicon = '_static/ComputeAorta.ico'
 
 # Theme options are theme-specific and customize the look and feel of a theme
