@@ -6,6 +6,7 @@ on:
   # https://github.com/ossf/scorecard/blob/main/docs/checks.md#branch-protection
   branch_protection_rule:
   schedule:
+    # Run Wed at 2:15pm
     - cron: '15 14 * * 3'
   push:
     branches: [ "main" ]

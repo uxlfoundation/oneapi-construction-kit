@@ -2,6 +2,7 @@ name: CodeQL
 
 on:
   schedule:
+    # Run Wed at 9:19am
     - cron: '19 9 * * 3'
 
 permissions: {}
