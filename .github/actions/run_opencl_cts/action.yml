@@ -15,6 +15,9 @@ inputs:
   split_index:
     description: "optional split index so this run can be done with different splits, current only 0 or 1"
     default: ''
+  cityrunner_args:
+    description: "optional extra arguments to pass to cityrunner"
+    default: ''
 
 runs:
   using: "composite"
@@ -77,4 +80,4 @@ runs:
           -s $CTS_CSV_FILE_PATH \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
           -o override_combined.csv \
-          -e CA_HOST_TARGET_FEATURES=+v
+          ${{ inputs.cityrunner_args }}
