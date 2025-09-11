@@ -14,6 +14,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+# If the riscv target is disabled, then the compiler should be too.
+if(NOT TARGET riscv)
+  return()
+endif()
+
 # Check if riscv is enabled in the llvm install.
 # If so we can build this library
 find_library(LLVMRISCVCODEGEN LLVMRISCVCodeGen PATHS
