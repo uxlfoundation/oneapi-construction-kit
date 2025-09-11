@@ -1,4 +1,3 @@
-SYCL_CTS,test_handler "handler.parallel_for*",MayFail
 SYCL_CTS,test_kernel "Behavior of kernel attribute*",MayFail
 SYCL_CTS,test_kernel "Test kernel info",XFail
 SYCL_CTS,test_math_builtin_api "math_builtin_common_base_*",XFail
