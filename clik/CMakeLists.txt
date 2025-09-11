@@ -37,14 +37,7 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Find python3 on the host system, this is a required dependency used for
-# automated testing.
-if(${CMAKE_VERSION} GREATER_EQUAL 3.12.0)
-  find_package(Python3 REQUIRED)
-else()
-  set(Python_ADDITIONAL_VERSIONS 3)
-  find_package(PythonInterp)
-endif()
+find_package(Python3 REQUIRED)
 
 add_subdirectory(external)
 include(SelectHAL)

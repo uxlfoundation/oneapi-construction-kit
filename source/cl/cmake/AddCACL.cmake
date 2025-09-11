@@ -226,7 +226,7 @@ function(add_ca_cl_check name)
       set(injectPrepareBins
         ${PROJECT_SOURCE_DIR}/scripts/testing/inject-prepare-bins.py)
       add_custom_target(${check_name}-prepare
-        COMMAND ${PYTHON_EXECUTABLE}
+        COMMAND ${Python3_EXECUTABLE}
           ${injectPrepareBins} --clean ${dumpDirectory}
         DEPENDS ${check_name}-dump
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}

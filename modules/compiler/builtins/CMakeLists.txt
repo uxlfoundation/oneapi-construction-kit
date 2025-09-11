@@ -330,7 +330,7 @@ macro(build_builtins triple bits fp64 fp16)
 
   add_custom_command(
     OUTPUT "${STRIPPED_LL}"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
       "${LL_STRIPPER}"
       "${INITIAL_LL}"
       "${STRIPPED_LL}"

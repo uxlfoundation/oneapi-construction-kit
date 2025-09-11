@@ -35,7 +35,7 @@ endif()
 # without changing the users Python configuration.
 if(NOT IS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/env)
   execute_process(
-    COMMAND ${VIRTUALENV} env -p ${PYTHON_EXECUTABLE}
+    COMMAND ${VIRTUALENV} env -p ${Python3_EXECUTABLE}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} OUTPUT_QUIET)
 endif()
 

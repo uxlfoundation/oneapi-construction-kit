@@ -47,7 +47,7 @@ add_ca_configure_lit_site_cfg(
 
 if(TARGET ${SUITE}-lit)
   # Copy utilities into the binary directory
-  add_custom_command(TARGET ${SUITE}-lit
+  add_custom_command(TARGET ${SUITE}-lit POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
 endif()

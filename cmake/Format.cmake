@@ -43,7 +43,7 @@ endif()
 set(GIT_CLANG_FORMAT_INCLUDED TRUE)
 
 find_package(GitClangFormat)
-if(NOT PythonInterp_FOUND OR NOT TARGET ClangTools::clang-format OR
+if(NOT Python3_FOUND OR NOT TARGET ClangTools::clang-format OR
     NOT GitClangFormat_FOUND)
   message(WARNING "Dependencies for format target not met, disabled.")
   return()
@@ -51,7 +51,7 @@ endif()
 
 # Add format target to clang-format modified source files.
 add_custom_target(format
-  COMMAND ${PYTHON_EXECUTABLE} ${GitClangFormat_EXECUTABLE}
+  COMMAND ${Python3_EXECUTABLE} ${GitClangFormat_EXECUTABLE}
     --binary ${ClangTools_clang-format_EXECUTABLE} --style=file --force
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   COMMENT "clang-format modified source files.")

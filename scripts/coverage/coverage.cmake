@@ -14,13 +14,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-# Find python interpretor 2.7+
-find_package(PythonInterp 2.7 REQUIRED)
-
-# Raise an error if the python interpreter has not been found.
-if(NOT PythonInterp_FOUND)
-  message(FATAL_ERROR "Python interpreter not found!")
-endif()
+# Find python interpretor 3+
+find_package(Python3 REQUIRED)
 
 # The XML input file path to pass to the coverage scrpit.
 set(COVERAGE_XML_INPUT ${PROJECT_BINARY_DIR}/coverage_input.xml)
@@ -153,9 +148,9 @@ endfunction()
 function(add_coverage_custom_target)
   if(${ENABLE_COVERAGE})
     add_custom_target(coverage
-      COMMAND ${PYTHON_EXECUTABLE} ${COVERAGE_SCRIPT_PATH} "--xml-input"
+      COMMAND ${Python3_EXECUTABLE} ${COVERAGE_SCRIPT_PATH} "--xml-input"
       ${COVERAGE_XML_INPUT}
-      DEPENDS ${PYTHON_EXECUTABLE} ${COVERAGE_SCRIPT_PATH}
+      DEPENDS ${Python3_EXECUTABLE} ${COVERAGE_SCRIPT_PATH}
       COMMENT "Code coverage checking started.")
   endif()
 endfunction()

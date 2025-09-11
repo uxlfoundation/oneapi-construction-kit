@@ -148,7 +148,7 @@ static ::cargo::array_view<const uint8_t> ${name}(
       set(nulled_resource ${CMAKE_CURRENT_BINARY_DIR}/resources/${name})
       add_custom_command(OUTPUT ${nulled_resource}
         COMMAND ${CMAKE_COMMAND} -E copy ${resource} ${nulled_resource}
-        COMMAND ${PYTHON_EXECUTABLE} ${append_null_byte} ${nulled_resource}
+        COMMAND ${Python3_EXECUTABLE} ${append_null_byte} ${nulled_resource}
         DEPENDS ${resource} ${append_null_byte}
         COMMENT "Prepare RCDATA ${nulled_resource}")
       list(APPEND resources ${nulled_resource})
