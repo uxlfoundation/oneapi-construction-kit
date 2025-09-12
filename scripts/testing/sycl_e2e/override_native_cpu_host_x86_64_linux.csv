@@ -1,6 +1,4 @@
 SYCL,Basic/built-ins/marray_math.cpp,XFail
 SYCL,Complex/sycl_complex_math_test.cpp,XFail
 SYCL,Complex/sycl_complex_operator_test.cpp,XFail
-SYCL,SpecConstants/2020/non_native/cpu.cpp,XFail
-SYCL,SpecConstants/2020/non_native/SpecConstBuffer.cpp,XFail
 SYCL,syclcompat/math/math_complex.cpp,XFail
