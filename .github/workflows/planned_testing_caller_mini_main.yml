@@ -25,7 +25,6 @@ jobs:
       save_cache:  ${{ github.event_name == 'schedule' }}
       target_list: '[ "host_x86_64_linux", "refsi_riscv64_linux" ]'
       ock: true
-      native_cpu: false
       test_tornado: false
       test_remote_hal: false
       test_sycl_cts: false

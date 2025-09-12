@@ -1,3 +1,0 @@
-SYCL,AtomicRef/max.cpp,MayFail
-SYCL,AtomicRef/sub_generic.cpp,MayFail
-SYCL,Config/env_vars.cpp,XFail

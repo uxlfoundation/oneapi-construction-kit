@@ -67,9 +67,6 @@ on:
                       "host_i686_linux",
                       "refsi_riscv64_linux",
                       "host_x86_64_windows" ]'
-      native_cpu:
-        type: boolean
-        default: true
       build_llvm:
         type: boolean
         default: true
@@ -110,7 +107,6 @@ jobs:
       test_sycl_e2e: ${{ inputs.test_sycl_e2e }}
       test_opencl_cts: ${{ inputs.test_opencl_cts }}
       test_sanitizers: ${{ inputs.test_sanitizers }}
-      native_cpu: ${{ inputs.native_cpu }}
       llvm_branch: ${{ inputs.llvm_branch }}
       save_cache: ${{ inputs.save_cache }}
       dpcpp_repo_pr_no: ${{ inputs.dpcpp_repo_pr_no }}
