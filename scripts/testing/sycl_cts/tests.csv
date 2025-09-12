@@ -87,9 +87,7 @@ SYCL_CTS,test_exceptions "Check that sycl::async_handler is expected type"
 SYCL_CTS,"test_exceptions ""Check that\, when there is no exception expected\, the async handler is not invoked"""
 SYCL_CTS,test_exceptions "Priorities of async handlers"
 SYCL_CTS,test_exceptions "Constructors for sycl::exception with sycl::errc error codes"
-SYCL_CTS,test_exceptions "Constructors for sycl::exception with OpenCL error code" --allow-running-no-tests
 SYCL_CTS,test_exceptions "sycl::exception is derived from std::exception"
-SYCL_CTS,test_exceptions "Check sycl::exception sycl::errc_for enum" --allow-running-no-tests
 SYCL_CTS,test_exceptions "exceptions_error_code"
 SYCL_CTS,test_exceptions "exceptions_make_error_code"
 SYCL_CTS,test_exceptions "exceptions_sycl_category"
@@ -237,11 +235,9 @@ SYCL_CTS,test_kernel_bundle "Check that is_default_constructible_v\<sycl::kernel
 SYCL_CTS,test_kernel_bundle "Check that kernel_bundle::get_backend\(\) return type is sycl::backendkernels"
 SYCL_CTS,test_kernel_bundle "Check that kernel_bundle::get_devices\(\) return type is std::vector\<sycl::device\> and vector contains selected devicekernels"
 SYCL_CTS,test_kernel_bundle "Check kernel_bundle::*"
-SYCL_CTS,test_kernel_bundle "LegacyForwardIterator requirement" --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle "kernel_bundle common reference semantics"
 SYCL_CTS,test_kernel_bundle "Check specialization constants functionality with empty kernel_bundle"
 SYCL_CTS,test_kernel_bundle "Check specialization constants functionality with Kernel bundle *"
-SYCL_CTS,test_kernel_bundle "\`kernel_handler::get_specialization_constant\(\)\` call" --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle kernel_id_api
 SYCL_CTS,test_kernel_bundle "kernel_id common reference semantics"
 SYCL_CTS,test_kernel_bundle "kernel_id special reference semantics"
@@ -258,8 +254,6 @@ SYCL_CTS,test_kernel_bundle sycl_compile_simple_kernel_check_bundle_and_devs
 SYCL_CTS,test_kernel_bundle sycl_compile_simple_kernel_check_bundle_only
 SYCL_CTS,test_kernel_bundle sycl_compile_special_kernels_check_bundle_and_devs
 SYCL_CTS,test_kernel_bundle sycl_compile_special_kernels_check_bundle_only
-SYCL_CTS,test_kernel_bundle "kernel ids for the selected device" --allow-running-no-tests
-SYCL_CTS,test_kernel_bundle "kernel ids from every root device other than the selected device" --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle "Check is_compatible*"
 SYCL_CTS,test_kernel_bundle sycl_join_check_kernel_execution
 SYCL_CTS,test_kernel_bundle sycl_join_kernel_bundle_with_empty_one
@@ -274,10 +268,8 @@ SYCL_CTS,test_kernel_bundle sycl_link_zero_device
 SYCL_CTS,test_kernel_bundle sycl_link_zero_device_and_zero_bundle
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_call_set_spec_const_after_use_kb_no_second_queue
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_call_set_spec_const_before_use_kb_no_second_queue
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_first_queue_ctx_not_equal_to_kernel_bundle_ctx --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_with_incompat_dev_no_second_queue --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_invoke_kernel_without_bundle_no_second_queue
-SYCL_CTS,test_kernel_bundle use_kernel_bundle_second_queue_ctx_not_equal_to_kernel_bundle_ctx --allow-running-no-tests
 SYCL_CTS,test_kernel_bundle use_kernel_bundle_verify_that_kernel_was_invoked
 SYCL_CTS,test_language
 SYCL_CTS,test_local_accessor
