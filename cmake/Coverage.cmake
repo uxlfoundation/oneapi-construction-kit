@@ -290,12 +290,12 @@ function(add_coverage_custom_target)
       COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}/include/core/coreSelect.h
       ${CMAKE_CURRENT_SOURCE_DIR}/modules/core/include/core/coreSelect.h
-      COMMAND ${PYTHON_EXECUTABLE} ${COVERAGE_SCRIPT_PATH} "--xml-input"
+      COMMAND ${Python3_EXECUTABLE} ${COVERAGE_SCRIPT_PATH} "--xml-input"
       ${COVERAGE_XML_INPUT} "-o" "${PROJECT_BINARY_DIR}/lcov" "-p" "90"
       COMMAND ${CMAKE_COMMAND} -E remove
       ${CMAKE_CURRENT_SOURCE_DIR}/modules/core/include/core/coreSelect.h
       ${CMAKE_CURRENT_SOURCE_DIR}/modules/core/include/core/coreConfig.h
-      DEPENDS ${PYTHON_EXECUTABLE} ${COVERAGE_SCRIPT_PATH}
+      DEPENDS ${Python3_EXECUTABLE} ${COVERAGE_SCRIPT_PATH}
       COMMENT "Coverage checking started.")
   endif()
 endfunction()

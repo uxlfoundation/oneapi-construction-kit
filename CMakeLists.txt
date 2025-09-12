@@ -189,7 +189,7 @@ include(ReleaseAssert)
 
 # Find python on the host system, this is a required dependency used for
 # testing and generation of source code.
-find_package(PythonInterp 3.6 REQUIRED)
+find_package(Python3 3.6 REQUIRED)
 # Find clang tools on the host system.
 # If clang-format is found this will enable targets, including the format
 # target, which generate source code which may be committed to the repo.

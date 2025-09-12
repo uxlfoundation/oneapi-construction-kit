@@ -582,7 +582,7 @@ if(CMAKE_CROSSCOMPILING)
   # The subset of UnitCL tests which validate half precision math, this is not
   # added to the global check target.
   add_ca_check(UnitCL-half
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE}
       ${PROJECT_SOURCE_DIR}/scripts/testing/run_cities.py -p gtest
       --qemu "${CTSEmulator}"
       --binary-path $<TARGET_FILE:UnitCL>
@@ -597,7 +597,7 @@ if(CMAKE_CROSSCOMPILING)
   # The subset of UnitCL tests which validate offline-only, this is not added
   # to the global check target.
   add_ca_check(UnitCL-offline
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE}
       ${PROJECT_SOURCE_DIR}/scripts/testing/run_cities.py -p gtest
       --qemu "${CTSEmulator}"
       --binary-path $<TARGET_FILE:UnitCL>

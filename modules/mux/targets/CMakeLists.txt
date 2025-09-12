@@ -248,7 +248,7 @@ function(add_mux_target target)
 
   # Generate header file and format it.
   add_custom_target(${target}-api-generate
-    COMMAND ${PYTHON_EXECUTABLE} ${Generator}
+    COMMAND ${Python3_EXECUTABLE} ${Generator}
     -f ${target} -F -p mux -i mux/mux.h ${Schema} > ${Header}
     COMMAND ${ClangFormatExe} -i -style=file ${Header}
     DEPENDS ${ClangFormatExe} ${Generator} ${Schema}
