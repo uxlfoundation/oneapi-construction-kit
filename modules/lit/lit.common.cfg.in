@@ -98,7 +98,7 @@ elif config.system_processor in ('x86', 'i686'):
     config.available_features.add('x86')
 elif config.system_processor in ('aarch64', 'arm64'):
     config.available_features.add('aarch64')
-elif config.system_processor in ('arm', 'armv7'):
+elif config.system_processor.startswith('arm'):
     config.available_features.add('arm32')
 
 config.ca_host_os = '@CMAKE_SYSTEM_NAME@'

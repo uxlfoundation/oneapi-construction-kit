@@ -31,7 +31,7 @@ lit_config.load_config(config, common_lit_cfg_path)
 
 if '@CMAKE_SYSTEM_PROCESSOR@'.casefold() in ['aarch64', 'arm64']:
     config.available_features.add('aarch64')
-elif '@CMAKE_SYSTEM_PROCESSOR@'.casefold() == 'arm':
+elif '@CMAKE_SYSTEM_PROCESSOR@'.casefold().startswith('arm'):
     config.available_features.add('arm')
 
 # Some lit tests may fail when cross-compiled, so add the native feature if not
