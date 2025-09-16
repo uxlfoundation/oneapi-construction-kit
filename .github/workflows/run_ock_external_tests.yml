@@ -454,37 +454,6 @@ jobs:
           save_cache: ${{ inputs.save_cache }}
           dpcpp_repo_pr_no: ${{ inputs.dpcpp_repo_pr_no }}
 
-  build_dpcpp_riscv64:
-    needs: [workflow_vars, build_dpcpp_native_x86_64]  # cross builds need pre-built native artefact
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        target: ${{ fromJson(inputs.target_list) }}
-        exclude: ${{ fromJson(needs.workflow_vars.outputs.matrix_only_linux_riscv64) }}
-
-    runs-on: ubuntu-24.04
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: (inputs.test_sycl_cts || inputs.test_sycl_e2e) && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: ${{ contains( matrix.target, 'windows') && 'windows' || 'ubuntu' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build dpc++ artefact
-        uses: ./.github/actions/do_build_dpcpp
-        with:
-          target: ${{ matrix.target }}
-          download_dpcpp_artefact: ${{ inputs.download_dpcpp_artefact }}
-          save_cache: ${{ inputs.save_cache }}
-          dpcpp_repo_pr_no: ${{ inputs.dpcpp_repo_pr_no }}
-
   build_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]
     strategy:
@@ -665,96 +634,6 @@ jobs:
           path: tests_dir
           sycl_device: native_cpu
 
-  build_sycl_cts_riscv64_opencl:
-    needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        subset: [ 'A', 'B', 'C' ]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build sycl cts artefact
-        uses: ./.github/actions/do_build_sycl_cts
-        with:
-          target: host_riscv64_linux
-          subset: ${{ matrix.subset }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: opencl
-
-  build_sycl_cts_riscv64_opencl_combine:
-    needs: [build_sycl_cts_riscv64_opencl]
-    runs-on: 'ubuntu-24.04'
-
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      # download sycl cts build subset artefacts, combine, upload
-      - name: combine SYCL-CTS build artifacts
-        uses: ./.github/actions/combine_sycl_cts_artifacts
-        with:
-          target: host_riscv64_linux
-          path: tests_dir
-          sycl_device: opencl
-
-  build_sycl_cts_riscv64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        subset: [ 'A', 'B', 'C' ]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build sycl cts artefact
-        uses: ./.github/actions/do_build_sycl_cts
-        with:
-          target: host_riscv64_linux
-          subset: ${{ matrix.subset }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: native_cpu
-
-  build_sycl_cts_riscv64_native_cpu_combine:
-    needs: [build_sycl_cts_riscv64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      # download sycl cts build subset artefacts, combine, upload
-      - name: combine SYCL-CTS build artifacts
-        uses: ./.github/actions/combine_sycl_cts_artifacts
-        with:
-          target: host_riscv64_linux
-          path: tests_dir
-          sycl_device: native_cpu
-
   run_sycl_cts_x86_64_opencl:
     needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl_combine]
     runs-on: 'ubuntu-24.04'
@@ -828,49 +707,6 @@ jobs:
         uses: ./.github/actions/run_sycl_cts
         with:
           target: host_aarch64_linux
-          sycl_device: native_cpu
-          llvm_version: ${{ inputs.llvm_version }}
-
-  run_sycl_cts_riscv64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_opencl_combine]
-    runs-on: 'ubuntu-24.04'
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        split_index: [ 0, 1 ]
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: run sycl cts
-        uses: ./.github/actions/run_sycl_cts
-        with:
-          target: host_riscv64_linux
-          sycl_device: opencl
-          llvm_version: ${{ inputs.llvm_version }}
-          split_index: ${{ matrix.split_index }}
-
-  run_sycl_cts_riscv64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64, build_dpcpp_riscv64, build_sycl_cts_riscv64_native_cpu_combine]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_riscv64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: run sycl cts
-        uses: ./.github/actions/run_sycl_cts
-        with:
-          target: host_riscv64_linux
           sycl_device: native_cpu
           llvm_version: ${{ inputs.llvm_version }}
 
