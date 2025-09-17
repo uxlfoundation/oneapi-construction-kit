@@ -1473,9 +1473,15 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   const std::string dbg_filename;
 #endif  // CA_ENABLE_DEBUG_SUPPORT
 
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+  instance.createVirtualFileSystem();
+  instance.createDiagnostics(
+      new FrontendDiagnosticPrinter(*this, instance.getDiagnosticOpts()));
+#else
   instance.createDiagnostics(
       *llvm::vfs::getRealFileSystem(),
       new FrontendDiagnosticPrinter(*this, instance.getDiagnosticOpts()));
+#endif
 
   // Write a copy of the kernel source out to disk and update the debug info
   // to point to the location as the kernel source file.
