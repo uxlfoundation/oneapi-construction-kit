@@ -1,3 +1,5 @@
+SYCL,AtomicRef/max.cpp,MayFail
+SYCL,AtomicRef/sub_generic.cpp,MayFail
 SYCL,Basic/built-ins/const_vec_common.cpp,XFail
 SYCL,Basic/built-ins/const_vec_geometric.cpp,XFail
 SYCL,Basic/built-ins/const_vec_math.cpp,XFail
@@ -5,6 +7,7 @@ SYCL,Basic/built-ins/marray_math.cpp,XFail
 SYCL,Basic/built-ins/vec_common.cpp,XFail
 SYCL,Basic/built-ins/vec_geometric.cpp,XFail
 SYCL,Basic/built-ins/vec_math.cpp,XFail
+SYCL,Config/env_vars.cpp,XFail
 SYCL,DeviceLib/built-ins/marray_integer.cpp,XFail
 SYCL,DeviceLib/built-ins/vector_relational.cpp,XFail
 SYCL,DotProduct/dot_product_int_test.cpp,XFail

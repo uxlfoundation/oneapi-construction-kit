@@ -8,11 +8,6 @@ on:
         type: boolean
         description: 'Enable ock artefact building'
         default: true
-      native_cpu:
-        required: false
-        type: boolean
-        description: 'Enable native cpu testing'        
-        default: false
       test_tornado:
         required: false
         type: boolean
@@ -454,7 +449,7 @@ jobs:
           save_cache: ${{ inputs.save_cache }}
           dpcpp_repo_pr_no: ${{ inputs.dpcpp_repo_pr_no }}
 
-  build_sycl_cts_x86_64_opencl:
+  build_sycl_cts_x86_64:
     needs: [workflow_vars, build_icd, build_dpcpp_native_x86_64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -481,10 +476,9 @@ jobs:
           target: host_x86_64_linux
           subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: opencl
 
-  build_sycl_cts_x86_64_opencl_combine:
-    needs: [build_sycl_cts_x86_64_opencl]
+  build_sycl_cts_x86_64_combine:
+    needs: [build_sycl_cts_x86_64]
     runs-on: 'ubuntu-24.04'
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_x86_64_linux')
@@ -497,54 +491,8 @@ jobs:
         with:
           target: host_x86_64_linux
           path: tests_dir
-          sycl_device: opencl
 
-  build_sycl_cts_x86_64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        subset: [ 'A', 'B', 'C' ]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build sycl cts artefact
-        uses: ./.github/actions/do_build_sycl_cts
-        with:
-          target: host_x86_64_linux
-          subset: ${{ matrix.subset }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: native_cpu
-
-  build_sycl_cts_x86_64_native_cpu_combine:
-    needs: [build_sycl_cts_x86_64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      # download sycl cts build subset artefacts, combine, upload
-      - name: combine SYCL-CTS build artifacts
-        uses: ./.github/actions/combine_sycl_cts_artifacts
-        with:
-          target: host_x86_64_linux
-          path: tests_dir
-          sycl_device: native_cpu
-
-  build_sycl_cts_aarch64_opencl:
+  build_sycl_cts_aarch64:
     needs: [workflow_vars, build_icd, build_dpcpp_native_aarch64]
     strategy:
       fail-fast: false  # let all matrix jobs complete
@@ -571,10 +519,9 @@ jobs:
           target: host_aarch64_linux
           subset: ${{ matrix.subset }}
           download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: opencl
 
-  build_sycl_cts_aarch64_opencl_combine:
-    needs: [build_sycl_cts_aarch64_opencl]
+  build_sycl_cts_aarch64_combine:
+    needs: [build_sycl_cts_aarch64]
     runs-on: 'ubuntu-24.04'
 
     if: inputs.test_sycl_cts && inputs.ock && contains(inputs.target_list, 'host_aarch64_linux')
@@ -587,55 +534,9 @@ jobs:
         with:
           target: host_aarch64_linux
           path: tests_dir
-          sycl_device: opencl
 
-  build_sycl_cts_aarch64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_aarch64]
-    strategy:
-      fail-fast: false  # let all matrix jobs complete
-      matrix:
-        subset: [ 'A', 'B', 'C' ]
-    runs-on: 'ubuntu-22.04-arm'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: set up gh
-        uses: ./.github/actions/setup_gh
-        with:
-          os: 'ubuntu'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: build sycl cts artefact
-        uses: ./.github/actions/do_build_sycl_cts
-        with:
-          target: host_aarch64_linux
-          subset: ${{ matrix.subset }}
-          download_sycl_cts_artefact: ${{ inputs.download_sycl_cts_artefact }}
-          sycl_device: native_cpu
-
-  build_sycl_cts_aarch64_native_cpu_combine:
-    needs: [build_sycl_cts_aarch64_native_cpu]
-    runs-on: 'ubuntu-24.04'
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      # download sycl cts build subset artefacts, combine, upload
-      - name: combine SYCL-CTS build artifacts
-        uses: ./.github/actions/combine_sycl_cts_artifacts
-        with:
-          target: host_aarch64_linux
-          path: tests_dir
-          sycl_device: native_cpu
-
-  run_sycl_cts_x86_64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_opencl_combine]
+  run_sycl_cts_x86_64:
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_combine]
     runs-on: 'ubuntu-24.04'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
@@ -650,30 +551,10 @@ jobs:
         uses: ./.github/actions/run_sycl_cts
         with:
           target: host_x86_64_linux
-          sycl_device: opencl
           llvm_version: ${{ inputs.llvm_version }}
 
-  run_sycl_cts_x86_64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64, build_sycl_cts_x86_64_native_cpu_combine]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: run sycl cts
-        uses: ./.github/actions/run_sycl_cts
-        with:
-          target: host_x86_64_linux
-          sycl_device: native_cpu
-          llvm_version: ${{ inputs.llvm_version }}          
-
-  run_sycl_cts_aarch64_opencl:
-    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_opencl_combine]
+  run_sycl_cts_aarch64:
+    needs: [workflow_vars, create_ock_artefacts_ubuntu, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_combine]
     runs-on: 'ubuntu-24.04-arm'
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
@@ -688,47 +569,9 @@ jobs:
         uses: ./.github/actions/run_sycl_cts
         with:
           target: host_aarch64_linux
-          sycl_device: opencl
           llvm_version: ${{ inputs.llvm_version }}
 
-  run_sycl_cts_aarch64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_aarch64, build_sycl_cts_aarch64_native_cpu_combine]
-    runs-on: 'ubuntu-24.04-arm'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_cts && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: run sycl cts
-        uses: ./.github/actions/run_sycl_cts
-        with:
-          target: host_aarch64_linux
-          sycl_device: native_cpu
-          llvm_version: ${{ inputs.llvm_version }}
-
-  run_sycl_e2e_x86_64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_x86_64]
-    runs-on: 'ubuntu-24.04'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-x86-64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_e2e && inputs.native_cpu && contains(inputs.target_list, 'host_x86_64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: build e2e
-        uses: ./.github/actions/do_build_run_sycl_e2e
-        with:
-          target: host_x86_64_linux
-          sycl_device: native_cpu
-
-  run_sycl_e2e_x86_64_opencl:
+  run_sycl_e2e_x86_64:
     needs: [workflow_vars, build_dpcpp_native_x86_64, build_icd, create_ock_artefacts_ubuntu]
     runs-on: 'ubuntu-24.04'
     container:
@@ -744,27 +587,8 @@ jobs:
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
           target: host_x86_64_linux
-          sycl_device: opencl
 
-  run_sycl_e2e_aarch64_native_cpu:
-    needs: [workflow_vars, build_dpcpp_native_aarch64]
-    runs-on: 'ubuntu-24.04-arm'
-    container:
-      image: 'ghcr.io/uxlfoundation/ock_ubuntu_22.04-aarch64:latest'
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
-
-    if: inputs.test_sycl_e2e && inputs.native_cpu && contains(inputs.target_list, 'host_aarch64_linux')
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-      - name: build e2e
-        uses: ./.github/actions/do_build_run_sycl_e2e
-        with:
-          target: host_aarch64_linux
-          sycl_device: native_cpu
-
-  run_sycl_e2e_aarch64_opencl:
+  run_sycl_e2e_aarch64:
     needs: [workflow_vars, build_dpcpp_native_aarch64]
     runs-on: 'ubuntu-24.04-arm'
     container:
@@ -780,4 +604,3 @@ jobs:
         uses: ./.github/actions/do_build_run_sycl_e2e
         with:
           target: host_aarch64_linux
-          sycl_device: opencl

@@ -7,9 +7,6 @@ inputs:
   subset:
     description: 'defined test subset. e.g. "A" (references test subset file: cat_sub_A.lst)'
     default: ''
-  sycl_device:
-    description: '"opencl" or "native_cpu"'
-    default: 'opencl'
   download_sycl_cts_artefact:
     description: 'download sycl_cts artefact rather than building, of form <target>=id;<target2=id2>.'
     default: ''    
@@ -24,14 +21,14 @@ runs:
         target: ${{ inputs.target }}  
 
     - name: download icd artifact
-      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: icd_${{inputs.target}}
         path: install_icd
 
     - name: download headers artifact
-      if: inputs.sycl_device == 'opencl' && contains(inputs.download_sycl_cts_artefact, inputs.target) != true
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true
       uses: actions/download-artifact@v4
       with:
         name: opencl_headers_${{inputs.target}}
@@ -86,11 +83,7 @@ runs:
       id: env_vars
       shell: bash
       run: |
-        if [[ "${{inputs.sycl_device}}" = "opencl" ]] ; then
-          DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_opencl_headers/include -DDPCPP_FLAGS=--offload-new-driver"
-        else # native_cpu
-          DEV_OPTS="-DSYCL_CTS_ENABLE_OPENCL_INTEROP_TESTS=OFF -DDPCPP_FLAGS=--offload-new-driver;-fsycl-targets=native_cpu"
-        fi
+        DEV_OPTS="-DOpenCL_LIBRARY=$GITHUB_WORKSPACE/install_icd/lib/libOpenCL.so -DOpenCL_INCLUDE_DIR=$GITHUB_WORKSPACE/install_opencl_headers/include -DDPCPP_FLAGS=--offload-new-driver"
         JOPT="4"
         ARCHOPT="x86_64"
         if [[ "${{inputs.target}}" =~ .*aarch64.* ]] ; then
@@ -151,14 +144,14 @@ runs:
         # TODO : make this work on windows
         mkdir -p SYCL-CTS/bin
         git config --global --add safe.directory $PWD        
-        gh run download $download_id -n sycl_cts_${{ inputs.sycl_device }}_${{ inputs.target }}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
-        # Downloaded tar file for extraction is: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}.tar
-        tar xf sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}.tar -C SYCL-CTS/bin
+        gh run download $download_id -n sycl_cts_${{ inputs.target }}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
+        # Downloaded tar file for extraction is: sycl_cts_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}.tar
+        tar xf sycl_cts_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}.tar -C SYCL-CTS/bin
         ls SYCL-CTS/bin
 
     - name: upload subset SYCL-CTS artefact
       uses: ./.github/actions/upload_artifact
       with:
-        name: sycl_cts_${{inputs.sycl_device}}_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
+        name: sycl_cts_${{inputs.target}}${{steps.env_vars.outputs.ARTIFACT_SUFFIX}}
         path: SYCL-CTS/bin
         needs_tar: 'true'
