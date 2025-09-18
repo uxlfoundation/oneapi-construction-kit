@@ -15,11 +15,19 @@ on:
       llvm_previous:
         required: true
         type: string
-        description: 'previous llvm version to for those jobs tied to previous.'
+        description: 'previous llvm version to use for those jobs tied to previous.'
+      llvm_previous_branch:
+        required: true
+        type: string
+        description: 'previous llvm branch to use for those jobs tied to previous.'
       llvm_current:
         required: true
         type: string
-        description: 'previous llvm version to for those jobs tied to current.'
+        description: 'current llvm version to use for those jobs tied to current.'
+      llvm_current_branch:
+        required: true
+        type: string
+        description: 'current llvm branch to use for those jobs tied to current.'
       github_token:
         type: string
         description: 'gh token for downloading artifacts - only needed if we want llvm from a previous workflow'
@@ -523,7 +531,7 @@ jobs:
       with:
         repository: llvm/llvm-project
         path: llvm-project
-        ref: release/${{ inputs.llvm_current }}.x  # NOTE: using llvm_current instead of hard-wired ref here
+        ref: ${{ inputs.llvm_current_branch }}
         fetch-depth: 1
     - name: build and run
       run: |
