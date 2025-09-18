@@ -135,5 +135,7 @@ jobs:
       # although generally simpler to use caches (inputs.use_llvm_github_cache)
       llvm_source: ${{ github.run_id }}
       llvm_current: ${{ inputs.llvm_version }}
+      llvm_current_branch: ${{ inputs.llvm_branch }}
       llvm_previous: ${{ inputs.llvm_version }}
+      llvm_previous_branch: ${{ inputs.llvm_branch }}
       target_list: ${{ inputs.target_list }}

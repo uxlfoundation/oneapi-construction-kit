@@ -31,4 +31,6 @@ jobs:
       is_pull_request: true
       llvm_source: install
       llvm_previous: 20
+      llvm_previous_branch: release/20.x
       llvm_current: 21
+      llvm_current_branch: release/21.x
