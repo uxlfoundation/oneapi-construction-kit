@@ -34,7 +34,11 @@ BaseContext::BaseContext() {
     const char *argv[] = {"ComputeAortaCL"};
     const std::lock_guard<std::mutex> lock(
         compiler::utils::getLLVMGlobalMutex());
-    llvm::cl::ParseCommandLineOptions(1, argv, "", nullptr, "CA_LLVM_OPTIONS");
+    llvm::cl::ParseCommandLineOptions(1, argv, "", /*Errs=*/nullptr,
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+                                      /*VFS=*/nullptr,
+#endif
+                                      "CA_LLVM_OPTIONS");
 
     llvm_time_passes = llvm::TimePassesIsEnabled;
 
