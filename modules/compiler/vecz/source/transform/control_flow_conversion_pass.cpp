@@ -115,6 +115,10 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
     Instruction *persistedCombinedDivergentExitMask = nullptr;
   };
 
+  /// @brief Create loop masks for the specified loop and its subloops.
+  /// @param[in] L Loop which should have its LoopMasksInfo created.
+  void createLoopMasks(Loop *L);
+
   /// @brief Convert the function's CFG to data-flow.
   /// @return true if the function's CFG was converted, false otherwise.
   bool convertToDataFlow();
@@ -537,6 +541,13 @@ bool ControlFlowConversionState::replaceReachableUses(Reachability &RC,
   return true;
 }
 
+void ControlFlowConversionState::Impl::createLoopMasks(Loop *L) {
+  LoopMasks[L];
+  for (auto *SL : L->getSubLoops()) {
+    createLoopMasks(SL);
+  }
+}
+
 bool ControlFlowConversionState::Impl::convertToDataFlow() {
   DT = &AM.getResult<DominatorTreeAnalysis>(F);
   PDT = &AM.getResult<PostDominatorTreeAnalysis>(F);
@@ -545,7 +556,7 @@ bool ControlFlowConversionState::Impl::convertToDataFlow() {
 
   // Make sure every loop has an entry in the masks table before we start.
   for (auto *L : *LI) {
-    LoopMasks[L];
+    createLoopMasks(L);
   }
 
   if (!VU.choices().linearizeBOSCC()) {
