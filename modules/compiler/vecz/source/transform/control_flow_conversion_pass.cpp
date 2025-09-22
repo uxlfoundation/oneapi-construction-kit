@@ -115,6 +115,15 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
     Instruction *persistedCombinedDivergentExitMask = nullptr;
   };
 
+  struct LoopMasksInfoMap : DenseMap<Loop *, LoopMasksInfo> {
+    using DenseMap::DenseMap;
+
+    using DenseMap::at;
+    LoopMasksInfo &at(Loop *val) {
+      return const_cast<LoopMasksInfo &>(DenseMap::at(val));
+    }
+  };
+
   /// @brief Create loop masks for the specified loop and its subloops.
   /// @param[in] L Loop which should have its LoopMasksInfo created.
   void createLoopMasks(Loop *L);
@@ -358,7 +367,7 @@ class ControlFlowConversionState::Impl : public ControlFlowConversionState {
 
   BasicBlock *functionExitBlock = nullptr;
   DenseSet<const Instruction *> blends;
-  DenseMap<Loop *, LoopMasksInfo> LoopMasks;
+  LoopMasksInfoMap LoopMasks;
 };
 
 STATISTIC(VeczCFGFail,
@@ -554,11 +563,6 @@ bool ControlFlowConversionState::Impl::convertToDataFlow() {
   LI = &AM.getResult<LoopAnalysis>(F);
   UVR = &AM.getResult<UniformValueAnalysis>(F);
 
-  // Make sure every loop has an entry in the masks table before we start.
-  for (auto *L : *LI) {
-    createLoopMasks(L);
-  }
-
   if (!VU.choices().linearizeBOSCC()) {
     ROSCCGadget ROSCC(*this);
     ROSCC.run(F);
@@ -576,6 +580,13 @@ bool ControlFlowConversionState::Impl::convertToDataFlow() {
                            "Could not duplicate uniform regions for");
       return false;
     }
+  }
+
+  // Make sure every loop has an entry in the masks table.
+  // Do this after duplicateUniformRegions() since it may create additional
+  // loops.
+  for (auto *L : *LI) {
+    createLoopMasks(L);
   }
 
   // Reserve space for the masks table and default-construct all entries, to
@@ -959,7 +970,7 @@ bool ControlFlowConversionState::Impl::createExitMasks(BasicBlock &BB,
 }
 
 bool ControlFlowConversionState::Impl::createLoopExitMasks(LoopTag &LTag) {
-  auto &LMask = LoopMasks[LTag.loop];
+  auto &LMask = LoopMasks.at(LTag.loop);
   // If the Loop already has a CombinedExitMasks we have already processed it.
   if (LMask.combinedDivergentExitMask) {
     return true;
@@ -1037,7 +1048,7 @@ bool ControlFlowConversionState::Impl::createLoopExitMasks(LoopTag &LTag) {
       if (exitingLTag->loop != LTag.loop) {
         if (Loop *nestedLoop = nextInnerLoopLeft(exitingBlock, exitBlock)) {
           maskUpdateOperand =
-              LoopMasks[nestedLoop]
+              LoopMasks.at(nestedLoop)
                   .updatedPersistedDivergentExitMasks[exitingBlock];
         }
       }
@@ -1094,7 +1105,7 @@ bool ControlFlowConversionState::Impl::createCombinedLoopExitMask(
   SmallVector<Loop::Edge, 1> exitEdges;
   auto *const Loop = LTag.loop;
   Loop->getExitEdges(exitEdges);
-  auto &LMask = LoopMasks[Loop];
+  auto &LMask = LoopMasks.at(Loop);
   for (const Loop::Edge &EE : exitEdges) {
     BasicBlock *exitingBlock = const_cast<BasicBlock *>(EE.first);
     BasicBlock *exitBlock = const_cast<BasicBlock *>(EE.second);
@@ -1835,7 +1846,7 @@ bool ControlFlowConversionState::Impl::computeDivergentLoopPureExit(
   BasicBlockTag &pureExitTag = DR->getOrCreateTag(pureExit);
 
   // Set the tags.
-  auto &LMask = LoopMasks[LTag.loop];
+  auto &LMask = LoopMasks.at(LTag.loop);
   MaskInfos[pureExit].entryMask = LMask.persistedCombinedDivergentExitMask;
   pureExitTag.outermostExitedLoop = &LTag;
 
@@ -2173,7 +2184,7 @@ bool ControlFlowConversionState::Impl::generateDivergentLoopResults(
 
 bool ControlFlowConversionState::Impl::generateDivergentLoopResultUpdates(
     Value *LLV, LoopTag &LTag) {
-  auto &LMask = LoopMasks[LTag.loop];
+  auto &LMask = LoopMasks.at(LTag.loop);
   Value *mask = LMask.combinedDivergentExitMask;
   VECZ_ERROR_IF(!mask, "Divergent loop does not have an exit mask");
   PHINode *PHI = LTag.loopResultPrevs[LLV];
@@ -2284,7 +2295,7 @@ bool ControlFlowConversionState::Impl::blendDivergentLoopExitMasks(
     }
   }
 
-  auto &LMask = LoopMasks[LTag.loop];
+  auto &LMask = LoopMasks.at(LTag.loop);
   for (const Loop::Edge &EE : exitEdges) {
     BasicBlock *exitingBlock = const_cast<BasicBlock *>(EE.first);
     BasicBlock *exitBlock = const_cast<BasicBlock *>(EE.second);
@@ -3054,7 +3065,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
       }
     }
 
-    auto &LMask = LoopMasks[LTag->loop];
+    auto &LMask = LoopMasks.at(LTag->loop);
     for (auto &UPREM : LMask.updatedPersistedDivergentExitMasks) {
       if (UPREM.first != header) {
         blendMap[UPREM.second][header] =
@@ -3121,7 +3132,7 @@ bool ControlFlowConversionState::Impl::blendInstructions() {
         auto *const srcLoop = srcTag.loop;
         if (srcLoop && srcLoop->isLoopDivergent()) {
           if (dst != srcLoop->header) {
-            auto &srcMasks = LoopMasks[srcLoop->loop];
+            auto &srcMasks = LoopMasks.at(srcLoop->loop);
             const auto &headerTag = DR->getTag(srcLoop->header);
 
             // If 'opDef' is an update loop exit mask, set an entry point in
