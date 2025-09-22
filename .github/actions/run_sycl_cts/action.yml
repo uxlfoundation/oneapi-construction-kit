@@ -54,10 +54,6 @@ runs:
         export ONEAPI_DEVICE_SELECTOR=opencl:0
         export OCL_ICD_FILENAMES=$GITHUB_WORKSPACE/install_ock/lib/libCL.so
         export CTS_CSV_FILE=$GITHUB_WORKSPACE/scripts/testing/sycl_cts/tests.csv
-        PREPEND_PATH=()
-        if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          PREPEND_PATH=(--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu')
-        fi
 
         # Build override file, all is done first, then the target specific. The last file can overwrite previous overrides.
         python3 scripts/testing/create_override_csv.py -d scripts/testing/sycl_cts \
@@ -74,7 +70,6 @@ runs:
         python3 $GITHUB_WORKSPACE/scripts/testing/run_cities.py \
           --color=always \
           --timeout $SYCL_CTS_TIMEOUT \
-          "${PREPEND_PATH[@]}" \
           -p sycl_cts \
           -b SYCL-CTS/bin \
           -L SYCL-CTS/lib \

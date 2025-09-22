@@ -57,4 +57,4 @@ jobs:
         uses: ./.github/actions/clean_cache
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          cache_prefixes: "ccache-ccache-dpcpp-build-host_x86_64_linux ccache-ccache-dpcpp-build-host_aarch64_linux ccache-ccache-dpcpp-build-host_riscv64_linux"
+          cache_prefixes: "ccache-ccache-dpcpp-build-host_x86_64_linux ccache-ccache-dpcpp-build-host_aarch64_linux"
