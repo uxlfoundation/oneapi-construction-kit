@@ -1,4 +1,0 @@
-SYCL,Basic/built-ins/marray_math.cpp,XFail
-SYCL,Complex/sycl_complex_math_test.cpp,XFail
-SYCL,Complex/sycl_complex_operator_test.cpp,XFail
-SYCL,syclcompat/math/math_complex.cpp,XFail

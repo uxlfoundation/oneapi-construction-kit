@@ -89,12 +89,9 @@ runs:
         fi
         cd llvm
         set -x
-        # Note: Although CMake FetchContent will currently only handle branches and tags by default in
-        #       OCK_GIT_TAG, other refs are accessible by specifying the fetch configuration.
         python3 buildbot/configure.py -o build/${{steps.calc_vars.outputs.arch}}-linux \
-                -DOCK_GIT_TAG="${{ github.sha }};GIT_CONFIG;remote.origin.fetch=+${{ github.sha }}:refs/ock-commit" \
-                --host-target="X86;AArch64;RISCV" --native_cpu \
-                --llvm-external-projects=lld --cmake-opt=-DNATIVECPU_USE_OCK=ON \
+                --host-target="X86;AArch64;RISCV" \
+                --llvm-external-projects=lld \
                 $CROSS_OPTS \
                 --cmake-opt=-DLLVM_ENABLE_ZLIB=OFF --cmake-opt=-DLLVM_ENABLE_ZSTD=OFF \
                 --cmake-opt=-DLLVM_CCACHE_BUILD=ON
@@ -119,8 +116,7 @@ runs:
       shell: bash
       run:
        cmake --build llvm/build/${{steps.calc_vars.outputs.arch}}-linux -- FileCheck clang-tblgen
-        libclc-remangler llvm-as llvm-min-tblgen llvm-tblgen not
-        opt prepare_builtins -j8
+        llvm-as llvm-min-tblgen llvm-tblgen not opt -j8
 
     - name: cleanup ccache
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
@@ -134,8 +130,8 @@ runs:
       shell: bash
       run:
         cd llvm/build//${{steps.calc_vars.outputs.arch}}-linux/bin;
-        cp FileCheck clang-tblgen libclc-remangler llvm-as llvm-min-tblgen
-        llvm-tblgen not opt prepare_builtins ../install/bin
+        cp FileCheck clang-tblgen llvm-as llvm-min-tblgen
+        llvm-tblgen not opt ../install/bin
 
     - name: install config files to pick up libraries for cross compilation.
       if: contains(inputs.download_dpcpp_artefact, inputs.target) != true
