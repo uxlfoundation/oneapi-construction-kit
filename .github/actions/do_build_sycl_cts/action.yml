@@ -34,9 +34,8 @@ runs:
         name: opencl_headers_${{inputs.target}}
         path: install_opencl_headers
 
-    - name: download native x86_64 dpc++ artifact (for x86_64 & riscv64 qemu)
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true &&
-          ( contains(inputs.target, 'host_x86_64') || contains(inputs.target, 'host_riscv') )
+    - name: download native x86_64 dpc++ artifact
+      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_x86_64')
       uses: ./.github/actions/download_artifact
       with:
         name: dpcpp_host_x86_64_linux
@@ -50,15 +49,6 @@ runs:
       with:
         name: dpcpp_host_aarch64_linux
         path: dpcpp/aarch64-linux/install
-        needs_tar: 'true'
-        run_id: ${{ github.run_id }}
-
-    - name: download cross riscv64 dpc++ artifact
-      if: contains(inputs.download_sycl_cts_artefact, inputs.target) != true && contains(inputs.target, 'host_riscv')
-      uses: ./.github/actions/download_artifact
-      with:
-        name: dpcpp_host_riscv64_linux
-        path: dpcpp/riscv64-linux/install
         needs_tar: 'true'
         run_id: ${{ github.run_id }}
 
