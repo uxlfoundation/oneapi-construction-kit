@@ -1,6 +1,6 @@
 # oneAPI Construction Kit Changes
 
-## TBD
+## Version 5.0.0
 
 Feature additions:
 
