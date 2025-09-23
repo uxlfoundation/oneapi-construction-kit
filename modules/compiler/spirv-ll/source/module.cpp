@@ -507,9 +507,6 @@ llvm::Expected<unsigned> spirv_ll::Module::translateStorageClassToAddrSpace(
       // local
       return 3;
     case spv::StorageClassGeneric:
-      if (isExtensionEnabled("SPV_codeplay_usm_generic_storage_class")) {
-        return 0;
-      }
       return 4;
   }
 }

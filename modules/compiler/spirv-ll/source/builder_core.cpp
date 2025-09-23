@@ -2601,36 +2601,7 @@ llvm::Error Builder::create<OpVariable>(const OpVariable *op) {
           value = alloca;
         } break;
         case spv::StorageClassGeneric: {
-          if (module.isExtensionEnabled(
-                  "SPV_codeplay_usm_generic_storage_class")) {
-            // If we haven't encountered an OpFunction instruction yet then this
-            // is a global variable, otherwise we can just generate an alloca.
-            if (module.llvmModule->getFunctionList().empty()) {
-              auto globalValue = new llvm::GlobalVariable(
-                  *module.llvmModule, varTy,
-                  false,                               // isConstant
-                  llvm::GlobalValue::ExternalLinkage,  // Linkage
-                  initializer,                         // Initializer
-                  name,                                // Name
-                  nullptr,                             // InsertBefore
-                  llvm::GlobalValue::NotThreadLocal,   // TLMode
-                  0,                                   // AddressSpace
-                  false  // isExternallyInitialized
-              );
-              value = globalValue;
-            } else {
-              auto *alloca = IRBuilder.CreateAlloca(varTy);
-              alloca->setName(name);
-              if (initializer) {
-                IRBuilder.CreateStore(initializer, alloca);
-              }
-              value = alloca;
-            }
-          } else {
-            // This requires the GenericPointer capability, which we do not
-            // currently support.
-            SPIRV_LL_ABORT("StorageClass Generic not supported");
-          }
+          SPIRV_LL_ABORT("StorageClass Generic not supported for variables");
         } break;
         case spv::StorageClassImage: {
           // For holding image memory.

@@ -60,7 +60,6 @@ and a number of SPIR-V extensions:
 * ``SPV_KHR_float_controls``
 * ``SPV_KHR_storage_buffer_storage_class``
 * ``SPV_KHR_vulkan_memory_model``
-* ``SPV_codeplay_usm_generic_storage_class``
 
 ``compileSPIRV`` uses ``spirv-ll`` to convert the SPIR-V module into an
 ``llvm::Module``, then runs a number of fixup passes and a generic optimization
