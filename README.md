@@ -28,7 +28,7 @@ and external components.
    oneAPI Construction Kit was previously referred to as ComputeAorta and referred to as acronym `CA`. As a result, references to ComputeAorta or CA may be present in some oneAPI Construction Kit's documentation and code.
 
 ## Get started with the oneAPI Construction Kit
-This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 22.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md). There is a [blog post](https://codeplay.com/portal/blogs/2023/06/05/introducing-the-oneapi-construction-kit) demonstrating how to build the kit for a simulated RISC-V target. You can also find the documentation on [Codeplay's developer website](https://developer.codeplay.com/products/oneapi/construction-kit/home/).
+This section provides the minimum system requirements for building the oneAPI Construction Kit on Ubuntu 22.04. For Windows platform dependencies and build instructions please refer to the [developer guide](doc/developer-guide.md). There is a [blog post](https://web.archive.org/web/20250516110421/https://codeplay.com/portal/blogs/2023/06/05/introducing-the-oneapi-construction-kit) demonstrating how to build the kit for a simulated RISC-V target.
 
 ### Platform Dependencies
 * [GCC](https://gcc.gnu.org/)
@@ -400,7 +400,7 @@ If you would like to open a new question, we ask that you follow these steps:
 Once your question has been opened, we will take a look and try to help you as
 soon as possible.
 
-[Documentation]: https://developer.codeplay.com/products/oneapi/construction-kit/guides
+[Documentation]: https://uxlfoundation.github.io/oneapi-construction-kit/doc
 [GitHub Discussions Q&A]: https://github.com/uxlfoundation/oneapi-construction-kit/discussions/categories/q-a
 [GitHub Issues]: https://github.com/uxlfoundation/oneapi-construction-kit/issues
 

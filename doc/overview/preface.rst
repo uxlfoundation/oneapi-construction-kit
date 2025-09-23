@@ -17,11 +17,6 @@ requirements it places on that hardware or software.
 
 Related documents that you may have access to include:
 
-* ComputeCpp Overview
-* `ComputeCpp User Guides`_
 * ComputeMux Specifications
 * HAL Specification
 * oneAPI Construction Kit Reference Documentation
-
-.. _ComputeCpp User Guides:
-  https://developer.codeplay.com/products/computecpp/ce/guides/#computecpp
