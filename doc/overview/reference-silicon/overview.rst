@@ -16,8 +16,7 @@ where the "Host CPU" offloads the key computations to an accelerator.
 
 The platform is meant as an example for how Acoran maps to hardware with similar
 components and features. It is used to demonstrate how such hardware
-features can be integrated within Acoran components such as ComputeCpp,
-oneAPI Construction Kit and libraries such as SYCL-BLAS and SYCL-DNN.
+features can be integrated with toolchains such as provided by oneAPI.
 
 In this section we will describe the first version RefSi Accelerator
 architecture (RefSi M1), its components and how these components interact. A

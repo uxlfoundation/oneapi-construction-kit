@@ -262,14 +262,11 @@ oneAPI Construction Kit is designed to slot into a `SYCL`_ technology stack, as 
 `SYCL Backend`_, or oneAPI Construction Kit can be used to write an implementation of 
 SYCL directly to a system or device.
 
-oneAPI Construction Kit has thoroughly tested integration with `ComputeCpp`_, Codeplay's
+oneAPI Construction Kit has thoroughly tested integration with `DPC++`_, Intel's
 implementation of the `SYCL 1.2.1`_ and `SYCL 2020`_ specifications. This
 allows `SYCL`_ applications to be run through oneAPI Construction Kit, encouraging the
 development of OpenCL extensions and optimizations in oneAPI Construction Kit that are of
 benefit to software using `SYCL`_.
-
-To learn more about ComputeCpp see the :doc:`ComputeCpp Overview
-</computecpp>`.
 
 .. _SYCL:
   https://www.khronos.org/sycl
@@ -279,5 +276,3 @@ To learn more about ComputeCpp see the :doc:`ComputeCpp Overview
   https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html
 .. _SYCL Backend:
   https://www.khronos.org/registry/SYCL/specs/sycl-2020/html/sycl-2020.html#_the_sycl_backend_model
-.. _ComputeCpp:
-  https://developer.codeplay.com/products/computecpp/ce/home

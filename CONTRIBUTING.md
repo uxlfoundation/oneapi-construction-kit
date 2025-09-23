@@ -33,9 +33,7 @@ where appropriate.
 This project and everyone participating in it are governed by the [oneAPI
 Construction Kit Code of Conduct](blob/main/CODE_OF_CONDUCT.md). By
 participating, you are expected to uphold this code and use your best judgement
-where it's unclear if your behaviour would violate the code. Please report
-unacceptable behaviour to
-[oneapi.construction.kit@codeplay.com](mailto:oneapi.construction.kit@codeplay.com).
+where it's unclear if your behaviour would violate the code.
 
 # I want to contribute
 
@@ -86,7 +84,7 @@ with potential bugs as quickly and as smoothly as possible.
 If you have discovered a security vulnerability, sensitive information leak, or
 a similar security-related issue, please do **not** report this directly to the
 issue tracker. Instead, please send your report by email to
-[oneapi.construction.kit@codeplay.com](mailto:oneapi.construction.kit@codeplay.com),
+[security@uxlfoundation.org](mailto:security@uxlfoundation.org),
 making sure to write `DISCLOSURE:` at the beginning of the subject line so that
 we can prioritize accordingly.
 
@@ -125,7 +123,7 @@ in preparation for your suggestion.
   the
   [main branch](https://github.com/uxlfoundation/oneapi-construction-kit/blob/main).
 * Read the
-  [Documentation](https://developer.codeplay.com/products/oneapi/construction-kit/guides)
+  [Documentation](https://uxlfoundation.github.io/oneapi-construction-kit/doc)
   carefully and make sure your suggested functionality is not already covered
   by the project or by an individual configuration of the project.
 * Check to see if the enhancement has already been suggested in
@@ -230,10 +228,4 @@ maintainers to review your changes.
 
 Once again, thank you for expressing interest in contributing to the project.
 If you'd like to contribute in any way but are unclear on the guidelines listed
-above, please don't hesitate to get in touch by [asking a
-question](#i-have-a-question).
-
-Finally, if you would like to get in touch with us directly to discuss the
-oneAPI Construction Kit, please contact
-[oneapi.construction.kit@codeplay.com](mailto:oneapi.construction.kit@codeplay.com)
-and include all relevant details.
+above, please read [Support](README.md#support).

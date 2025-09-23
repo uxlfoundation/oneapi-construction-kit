@@ -6,7 +6,7 @@ simulator, the RISC-V target supports a mechanism that allows kernels to perform
 data transfers between different kinds of simulated memory. This feature is
 called RefSi In-Kernel DMA and it serves as an example of how
 accelerator-controlled DMA can be integrated in the oneAPI Construction Kit and
-ComputeCpp for existing hardware. DMA transfers can be configured, started and
+oneAPI toolchain for existing hardware. DMA transfers can be configured, started and
 waited for through an interface consisting of memory-mapped registers. The current
 implementation simulates memory transfers at a high level, not taking into
 account memory bandwidth nor being tied to the RISC-V pipeline.
