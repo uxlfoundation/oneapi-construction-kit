@@ -38,7 +38,7 @@ runs:
           # Run client
           cd $GITHUB_WORKSPACE/build_client
           exitcode=0
-          OCL_ICD_FILENAMES=$PWD/lib/libCL.so.4.0 ./bin/UnitCL || exitcode=$?
+          OCL_ICD_FILENAMES=$PWD/lib/libCL.so ./bin/UnitCL || exitcode=$?
           kill %1
           exit $exitcode
         else

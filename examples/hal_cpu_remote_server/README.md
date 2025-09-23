@@ -139,7 +139,7 @@ As a simple test try running a simple UnitCL test (using the in-tree version):
 
 ```
   cd build_client
-  HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWDlib/libCL.so.4.0 \
+  HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWDlib/libCL.so \
     ./bin/UnitCL --gtest_filter=Execution/Execution.Task_01_02_Add/OpenCLC
 ```
 This should show as `PASSED`.
@@ -160,7 +160,7 @@ export LD_LIBRARY_PATH=<path_to_dpcpp_compiler_base>/lib:$PWD/lib:$LD_LIBRARY_PA
 export OCL_ICD_FILENAMES=$PWD/lib/libCL.so
 export ONEAPI_DEVICE_SELECTOR=*:fpga
 <path_to_dpcpp_compiler_base>/bin/clang++ -fsycl <path_to_ock>/examples/applications/simple-vector-add.cpp -o simple-vector-add
-HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWD/lib/libCL.so.4.0 ./simple-vector-add
+HAL_REMOTE_PORT=<port_num> OCL_ICD_FILENAMES=$PWD/lib/libCL.so ./simple-vector-add
 ```
 
 This should show "The results are correct!".
