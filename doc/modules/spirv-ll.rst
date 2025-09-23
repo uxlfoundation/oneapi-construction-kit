@@ -25,7 +25,6 @@ SPIR-V extensions
 .. toctree::
    :maxdepth: 1
 
-   spirv-ll/extension/spv_codeplay_usm_generic_storage_class
    spirv-ll/extension/spv_codeplay_group_async_copies
 
 External SPIR-V extensions

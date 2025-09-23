@@ -2100,9 +2100,6 @@ set(SPVASM_FILES
 
   # Tests that check behaviour on invalid SPIR-V
   invalid-spir-v/invalid_storage_class.spvasm
-
-  # Tests that check non-standard Codeplay extensions
-  codeplay/opencl_usm_generic_address_space.spvasm
   )
 
 if(SpirvAsVersion VERSION_GREATER_EQUAL "2020.0")
@@ -2163,7 +2160,6 @@ set(UNVERIFIABLE_SPVASM_FILES
   intel_arbitrary_precision_integers.spvasm
   invalid-spir-v/invalid_storage_class.spvasm
   invalid-spir-v/unsupported_storage_class.spvasm
-  codeplay/opencl_usm_generic_address_space.spvasm
   codeplay/opencl_group_async_copy_2d2d.spvasm
   codeplay/opencl_group_async_copy_3d3d.spvasm
   opencl_debug_info_100_arrays.spvasm

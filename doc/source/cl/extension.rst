@@ -276,25 +276,6 @@ and the ComputeMux device has the same pointer size as host.
 .. _clSetKernelExecInfo:
   https://www.khronos.org/registry/OpenCL/specs/3.0-unified/html/OpenCL_API.html#clSetKernelExecInfo
 
-SPIR-V USM Generic Storage Class - ``SPV_codeplay_usm_generic_storage_class``
------------------------------------------------------------------------------
-
-To support USM functionality in SYCL, ComputeCpp has found it necessary to
-generate SPIR-V without address space information in it. To enable this the
-:doc:`/modules/spirv-ll/extension/spv_codeplay_usm_generic_storage_class`
-extension was created. With this extension enabled a SPIR-V module can pass the
-``Generic`` storage class for all of its pointer type declarations to indicate
-that no address space information is included in the declaration. Our SPIR-V
-translator interprets all such pointer type declarations as having address
-space 0. This address space was chosen primarily because this is the address
-space ComputeCpp uses internally for this, and secondarily because it means
-that function scope variables can remain as ``alloca``\ s, which is helpful for
-later optimizations.
-
-Note that this overrides the normal semantics of storage class ``Generic``. We
-wrote the extension this way rather than adding a new storage class so we could
-keep using existing SPIR-V tools without needing to fork them to add support.
-
 Command-Buffers (Provisional) - ``cl_khr_command_buffer``
 ---------------------------------------------------------
 
