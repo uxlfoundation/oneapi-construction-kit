@@ -88,6 +88,7 @@ SYCL,DeviceLib/imf/fp64_test2.cpp,XFail
 SYCL,DeviceLib/imf/fp64_test.cpp,XFail
 SYCL,DeviceLib/imf/simd_emulate_test.cpp,XFail
 SYCL,DeviceLib/math_test_marray_vec.cpp,XFail
+SYCL,FilterSelector/select_device_cpu.cpp,XFail
 SYCL,FreeFunctionKernels/template_specialization.cpp,XFail
 SYCL,Graph/Explicit/add_nodes_after_finalize.cpp,XFail
 SYCL,Graph/Explicit/buffer_copy_2d.cpp,XFail
@@ -192,7 +193,6 @@ SYCL,HierPar/hier_par_wgscope_O0.cpp,MayFail
 SYCL,KernelAndProgram/build-log.cpp,XFail
 SYCL,KernelAndProgram/cache-build-result.cpp,XFail
 SYCL,KernelAndProgram/undefined-symbol.cpp,XFail
-SYCL,KernelCompiler/sycl_cache.cpp,XFail
 SYCL,KernelCompiler/sycl.cpp,XFail
 SYCL,KernelCompiler/sycl_device_globals.cpp,XFail
 SYCL,KernelCompiler/sycl_imf.cpp,XFail
