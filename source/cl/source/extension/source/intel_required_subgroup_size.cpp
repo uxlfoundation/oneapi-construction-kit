@@ -36,7 +36,7 @@ cl_int extension::intel_required_subgroup_size::GetDeviceInfo(
   if (usage_category::DISABLED == usage) {
     return CL_INVALID_VALUE;
   }
-#if !defined(CL_VERSION_3_0)
+#ifndef CL_VERSION_3_0
   return CL_INVALID_VALUE;
 #endif
 
@@ -66,7 +66,7 @@ cl_int extension::intel_required_subgroup_size::GetKernelWorkGroupInfo(
   if (usage_category::DISABLED == usage) {
     return CL_INVALID_VALUE;
   }
-#if !defined(CL_VERSION_3_0)
+#ifndef CL_VERSION_3_0
   return CL_INVALID_VALUE;
 #endif
 
@@ -86,7 +86,7 @@ cl_int extension::intel_required_subgroup_size::GetKernelWorkGroupInfo(
                                            param_value_size_ret);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 cl_int extension::intel_required_subgroup_size::GetKernelSubGroupInfo(
     cl_kernel kernel, cl_device_id device, cl_kernel_sub_group_info param_name,
     size_t input_value_size, const void *input_value, size_t param_value_size,

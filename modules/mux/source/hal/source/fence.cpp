@@ -33,7 +33,7 @@ void fence::signal(mux_result_t result) {
 }
 
 void fence::reset() {
-  const std::lock_guard<std::mutex> lock(mutex);
+  const std::scoped_lock lock(mutex);
   completed = false;
   result = mux_fence_not_ready;
 }

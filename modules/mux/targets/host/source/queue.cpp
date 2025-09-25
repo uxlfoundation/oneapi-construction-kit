@@ -63,7 +63,7 @@ void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
   }
 
   // Acquire a lock on the queue's mutex.
-  const std::lock_guard<std::mutex> lock(queue->mutex);
+  const std::scoped_lock lock(queue->mutex);
 
   for (auto signal_semaphore : command_buffer->signal_semaphores) {
     static_cast<host::semaphore_s *>(signal_semaphore)->signal(terminate);
@@ -541,7 +541,7 @@ mux_result_t hostDispatch(
   auto hostQueue = static_cast<host::queue_s *>(queue);
   auto hostFence = static_cast<host::fence_s *>(fence);
 
-  const std::lock_guard<std::mutex> guard(hostQueue->mutex);
+  const std::scoped_lock guard(hostQueue->mutex);
 
   // store the semaphores we have to signal into the group
   if (!hostGroup->signal_semaphores.insert(

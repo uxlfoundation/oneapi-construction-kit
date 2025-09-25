@@ -22,7 +22,7 @@
 
 #include <cstring>
 
-#if !defined(OCL_EXTENSION_cl_khr_opencl_c_1_2)
+#ifndef OCL_EXTENSION_cl_khr_opencl_c_1_2
 #error Default OpenCL C extensions must not be turned off.
 #endif
 
@@ -87,7 +87,7 @@ cl_int extension::khr_opencl_c_1_2::GetDeviceInfo(
       OCL_SET_IF_NOT_NULL(param_value_size_ret, extension_names.size() + 1);
       break;
     }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_DEVICE_EXTENSIONS_WITH_VERSION: {
       return extension::GetDeviceInfo(device, param_name, param_value_size,
                                       param_value, param_value_size_ret);

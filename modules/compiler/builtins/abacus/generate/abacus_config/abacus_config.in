@@ -22,8 +22,8 @@
 #ifndef __ABACUS_ABACUS_CONFIG__
 #define __ABACUS_ABACUS_CONFIG__
 
-#if defined(__OPENCL_VERSION__)
-#if !defined(__has_attribute)
+#ifdef __OPENCL_VERSION__
+#ifndef __has_attribute
 #define __has_attribute(x) 0  // Compatibility with non-clang compilers
 #endif
 
@@ -56,7 +56,7 @@
 #error Abacus only support C++ and OpenCL compilation!
 #endif
 
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
 #define ABACUS_CONSTANT __constant const
 
 #define ABACUS_INFINITY INFINITY
@@ -185,7 +185,7 @@ inline float __abacus_nan() {
 #endif
 
 // Abacus's reflection API
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
 extern ABACUS_API bool __abacus_isftz(void);
 extern ABACUS_API bool __abacus_usefast(void);
 extern ABACUS_API bool __abacus_isembeddedprofile(void);
@@ -200,7 +200,7 @@ inline bool __abacus_usefast(void) { return false; }
 inline bool __abacus_isembeddedprofile(void) { return false; }
 #endif
 
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
 typedef char abacus_char;
 typedef short abacus_short;
 typedef int abacus_int;

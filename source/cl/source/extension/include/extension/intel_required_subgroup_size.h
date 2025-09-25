@@ -87,7 +87,7 @@ class intel_required_subgroup_size final : public extension {
       cl_kernel_work_group_info param_name, size_t param_value_size,
       void *param_value, size_t *param_value_size_ret) const override;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Query for extension provided kernel subgroup info.
   ///
   /// @see `::extension::extension::GetKernelSubGroupInfo` for more detailed

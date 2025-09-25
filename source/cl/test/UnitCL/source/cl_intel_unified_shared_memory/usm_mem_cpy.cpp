@@ -151,7 +151,7 @@ struct USMMemCpyTest : public cl_intel_unified_shared_memory_Test {
 template <typename T>
 struct test_patterns {};
 
-#if !defined(__clang_analyzer__)
+#ifndef __clang_analyzer__
 SCALAR_PATTERN(cl_char)
 SCALAR_PATTERN(cl_uchar)
 SCALAR_PATTERN(cl_short)
@@ -206,7 +206,7 @@ SCALAR_PATTERN(cl_int)
 #endif
 }  // namespace
 
-#if !defined(__clang_analyzer__)
+#ifndef __clang_analyzer__
 using OpenCLTypes = ::testing::Types<
     cl_char, cl_char2, cl_char3, cl_char4, cl_char8, cl_char16, cl_uchar,
     cl_uchar2, cl_uchar3, cl_uchar4, cl_uchar8, cl_uchar16, cl_short, cl_short2,

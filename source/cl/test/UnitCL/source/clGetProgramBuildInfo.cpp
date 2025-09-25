@@ -387,7 +387,7 @@ TEST_F(clGetProgramBuildInfoGoodTest, ProgramBinaryTypeExecutable) {
   const cl_program_binary_type expect = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
   ASSERT_EQ(expect, binaryType);
 }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 class clGetProgramBuildInfoTestScalarQueryOpenCL30
     : public clGetProgramBuildInfoGoodTest,
       public testing::WithParamInterface<std::tuple<size_t, int>> {

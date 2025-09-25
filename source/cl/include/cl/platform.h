@@ -82,7 +82,7 @@ struct _cl_platform_id final : cl::base<_cl_platform_id> {
   cargo::expected<std::unique_ptr<compiler::Library>, std::string>
       compiler_library;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
  public:
   /// @brief Resolution of the timestamp returned by clGetHostTimer and
   /// clGetDeviceAndHostTimer.

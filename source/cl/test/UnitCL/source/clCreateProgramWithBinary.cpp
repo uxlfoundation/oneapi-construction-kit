@@ -391,7 +391,7 @@ TEST_F(clCreateProgramWithBinaryTest, CreateProgramThenTryBuild) {
 // Redmine #5134: test binary of library, which should fail when build program
 // called on it
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(clCreateProgramWithBinaryTest, IL) {
   // Skip for non OpenCL-3.0 implementations.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {

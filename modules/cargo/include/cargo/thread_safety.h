@@ -21,7 +21,7 @@
 #ifndef CARGO_THREAD_SAFETY_H_INCLUDED
 #define CARGO_THREAD_SAFETY_H_INCLUDED
 
-#if defined(__clang__)
+#ifdef __clang__
 #define CARGO_TS_ATTRIBUTE(x) __attribute__((x))
 #else
 #define CARGO_TS_ATTRIBUTE(x)

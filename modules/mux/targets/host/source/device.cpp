@@ -60,7 +60,7 @@
 #endif
 
 static uint32_t os_cpu_frequency() {
-#if defined(__APPLE__)
+#ifdef __APPLE__
 
   int mib[] = {CTL_HW, HW_CPU_FREQ};
   uint32_t frequency;

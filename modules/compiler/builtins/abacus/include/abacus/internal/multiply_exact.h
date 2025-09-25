@@ -100,7 +100,7 @@ inline T multiply_exact(const T x, const T y, T *out_remainder) {
   const T t2 = t1 + (x_hi * y_lo);
   const T t3 = t2 + (x_lo * y_hi);
 
-  *out_remainder = t3 + x_lo * y_lo;
+  *out_remainder = t3 + (x_lo * y_lo);
   return r1;
 }
 }  // namespace internal

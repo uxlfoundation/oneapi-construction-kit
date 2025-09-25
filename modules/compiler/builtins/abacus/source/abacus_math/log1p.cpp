@@ -300,7 +300,7 @@ struct helper<T, abacus_float> {
     T result = abacus::internal::horner_polynomial(significand,
                                                    __codeplay_log1p_coeff, 10);
 
-    result = significand + significand * significand * result;
+    result = significand + (significand * significand * result);
 
     result =
         result + (abacus::detail::cast::convert<T>(exponent) * ABACUS_LN2_F);

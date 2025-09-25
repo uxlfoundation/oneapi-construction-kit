@@ -239,7 +239,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::WaitForEvents(cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     // if the event belonged to a queue
     if (nullptr != event_list[i]->queue) {
-      const std::lock_guard<std::mutex> lock(
+      const std::scoped_lock lock(
           event_list[i]->queue->context->getCommandQueueMutex());
       const cl_int result = event_list[i]->queue->flush();
 
@@ -396,7 +396,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
     case CL_PROFILING_COMMAND_SUBMIT:
     case CL_PROFILING_COMMAND_START:
     case CL_PROFILING_COMMAND_END:
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_PROFILING_COMMAND_COMPLETE:
 #endif
       break;  // The above are all legal parameter names.
@@ -445,7 +445,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetEventProfilingInfo(
       OCL_SET_IF_NOT_NULL(reinterpret_cast<cl_ulong *>(param_value),
                           duration.start - event->queue->profiling_start);
     } break;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_PROFILING_COMMAND_COMPLETE:
       // Returns a value equivalent to passing CL_PROFILING_COMMAND_END
       // if the device associated with event does not support On-Device Enqueue.

@@ -577,7 +577,7 @@ TEST_F(clGetProgramInfoBuiltinTest, Source) {
   ASSERT_EQ('\0', source[0]);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 class clGetProgramInfoTestParam : public clGetProgramInfoTest,
                                   public ::testing::WithParamInterface<
                                       std::tuple<size_t, cl_program_info>> {};

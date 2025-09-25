@@ -17,8 +17,8 @@
 
 #include "compiler/context.h"
 
-#if defined(CA_RUNTIME_COMPILER_ENABLED)
-#if defined(CA_COMPILER_ENABLE_DYNAMIC_LOADER)
+#ifdef CA_RUNTIME_COMPILER_ENABLED
+#ifdef CA_COMPILER_ENABLE_DYNAMIC_LOADER
 #if defined(_WIN32)
 #include <windows.h>
 #define DEFAULT_LIBRARY_NAME "compiler.dll"
@@ -72,9 +72,9 @@ struct Library final {
 };
 
 cargo::expected<std::unique_ptr<Library>, std::string> loadLibrary() {
-#if defined(CA_RUNTIME_COMPILER_ENABLED)
+#ifdef CA_RUNTIME_COMPILER_ENABLED
   std::unique_ptr<Library> handle{new Library};
-#if defined(CA_COMPILER_ENABLE_DYNAMIC_LOADER)
+#ifdef CA_COMPILER_ENABLE_DYNAMIC_LOADER
   const char *library_name = std::getenv("CA_COMPILER_PATH");
   library_name = library_name ? library_name : DEFAULT_LIBRARY_NAME;
   if (strlen(library_name) == 0) {

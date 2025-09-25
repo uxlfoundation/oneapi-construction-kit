@@ -334,7 +334,7 @@ struct _cl_program final : public cl::base<_cl_program> {
 
   /// @brief SPIR-V program state.
   struct SPIRV {
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     /// @brief Set a constant to be specialized during translation.
     ///
     /// @param[in] spec_id ID of the constant to be specialized.
@@ -357,7 +357,7 @@ struct _cl_program final : public cl::base<_cl_program> {
 
     /// @brief IL program input (probably SPIR-V) binary.
     cargo::dynamic_array<uint32_t> code;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     /// @brief Map of specialization constants which can be specialized.
     compiler::spirv::SpecializableConstantsMap specializable;
 
@@ -599,7 +599,7 @@ struct _cl_program final : public cl::base<_cl_program> {
   std::unordered_map<cl_device_id, cl::program_work_item_order> work_item_order;
 #endif
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Program object contains non-trivial constructor(s).
   const cl_bool scope_global_ctors_present = CL_FALSE;
   /// @brief Program object contains non-trivial destructor(s).

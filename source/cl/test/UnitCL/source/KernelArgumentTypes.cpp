@@ -61,7 +61,7 @@ class KernelArgumentTypesTest : public ucl::CommandQueueTest {
   TestType out = {};
 };
 
-#if !defined(__clang_analyzer__)
+#ifndef __clang_analyzer__
 typedef ::testing::Types<
     ucl::Char, ucl::Char2, ucl::Char3, ucl::Char4, ucl::Char8, ucl::Char16,
     ucl::UChar, ucl::UChar2, ucl::UChar3, ucl::UChar4, ucl::UChar8,

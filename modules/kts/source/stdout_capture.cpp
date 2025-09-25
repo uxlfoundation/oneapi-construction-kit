@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #include <io.h>
 #define DUP _dup
 #define DUP2 _dup2

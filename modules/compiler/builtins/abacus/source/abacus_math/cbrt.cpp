@@ -158,7 +158,7 @@ struct helper<T, abacus_float> {
 
     // one iteration of Halley's method
     const T ansCbd = ans * ans * ans;
-    ans = ans - (ansCbd - xReduced) * ans / (ansCbd * 2.0f + xReduced);
+    ans = ans - ((ansCbd - xReduced) * ans / (ansCbd * 2.0f + xReduced));
 
     // For denormal values the Halley's calculation can end up as NaN if ansCbd
     // gets flushed to zero. Fallback to zero for denormals since this result

@@ -61,7 +61,7 @@ cargo::expected<mux_kernel_t, mux_result_t>
 cl::mux_kernel_cache::getOrCreateKernel(cl_device_id device,
                                         const std::string &name) {
   {
-    const std::lock_guard<std::mutex> guard{kernel_map_mutex};
+    const std::scoped_lock guard{kernel_map_mutex};
     auto kernel_it = kernel_map.find(name);
     if (kernel_it != kernel_map.end()) {
       return kernel_it->second.get();
@@ -84,7 +84,7 @@ cl::mux_kernel_cache::getOrCreateKernel(cl_device_id device,
   }
 
   {
-    const std::lock_guard<std::mutex> guard{kernel_map_mutex};
+    const std::scoped_lock guard{kernel_map_mutex};
     kernel_map.emplace(
         name, mux::unique_ptr<mux_kernel_t>(
                   kernel, {device->mux_device, device->mux_allocator}));
@@ -428,7 +428,7 @@ cl_program_binary_type cl::device_program::getCLProgramBinaryType() const {
   }
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 cl_int _cl_program::SPIRV::setSpecConstant(cl_uint spec_id, size_t spec_size,
                                            const void *spec_value) {
   if (specializable.count(spec_id) == 0) {
@@ -455,7 +455,7 @@ cl_int _cl_program::SPIRV::setSpecConstant(cl_uint spec_id, size_t spec_size,
 
 cargo::optional<const compiler::spirv::SpecializationInfo &>
 _cl_program::SPIRV::getSpecInfo() {
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   if (specInfo.entries.size() == 0) {
     return cargo::nullopt;
   }
@@ -542,7 +542,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
   }
   std::copy_n(static_cast<const uint32_t *>(il), length,
               program->spirv.code.begin());
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   auto specializable = context->getCompilerContext()->getSpecializableConstants(
       {program->spirv.code.data(), program->spirv.code.size()});
   if (!specializable) {
@@ -584,7 +584,7 @@ cargo::expected<std::unique_ptr<_cl_program>, cl_int> _cl_program::create(
       continue;
     }
     {
-      const std::lock_guard<std::mutex> guard(context->mutex);
+      const std::scoped_lock guard(context->mutex);
 
       _cl_device_id *device = device_list[i];
       cl::device_program &device_program = program->programs[device];
@@ -798,7 +798,7 @@ cl_int _cl_program::link(cargo::array_view<const cl_device_id> devices,
   for (auto device : devices) {
     // This guard needs a variable name, otherwise it is destroyed just after
     // being created.
-    const std::lock_guard<std::mutex> guard(context->mutex);
+    const std::scoped_lock guard(context->mutex);
     cargo::small_vector<compiler::Module *, 8> input_modules;
     for (auto input_program : input_programs) {
       // Note: cl::LinkProgram already checks that the input program is a
@@ -820,7 +820,7 @@ cl_int _cl_program::link(cargo::array_view<const cl_device_id> devices,
 }
 
 bool _cl_program::finalize(cargo::array_view<const cl_device_id> devices) {
-  const std::lock_guard<std::mutex> lock(context->mutex);
+  const std::scoped_lock lock(context->mutex);
   for (auto device : devices) {
     if (hasOption(device, "-create-library")) {
       continue;  // don't finalize a library, it's only used for linking.
@@ -1358,7 +1358,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
   } break
 
   switch (param_name) {
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     PROGRAM_INFO_CASE(CL_PROGRAM_SCOPE_GLOBAL_CTORS_PRESENT,
                       program->scope_global_ctors_present);
     PROGRAM_INFO_CASE(CL_PROGRAM_SCOPE_GLOBAL_DTORS_PRESENT,
@@ -1496,7 +1496,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramInfo(
       }
       break;
     }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_PROGRAM_IL: {
       if (program->type != cl::program_type::SPIRV) {
         OCL_SET_IF_NOT_NULL(param_value_size_ret, 0);
@@ -1602,7 +1602,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetProgramBuildInfo(
             program->programs[device_id].getCLProgramBinaryType();
       }
       break;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE: {
       OCL_SET_IF_NOT_NULL(param_value_size_ret, sizeof(size_t));
       if (param_value) {

@@ -11,7 +11,7 @@ abacus_@generate_up_type@ ABACUS_EXPORT_API __abacus_upsample(abacus_@generate_t
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_upsample.
 /// @param[in] hi A abacus_@generate_type@.
 /// @param[in] lo A abacus_u@generate_type@.
@@ -37,7 +37,7 @@ abacus_u@generate_up_type@ ABACUS_EXPORT_API __abacus_upsample(abacus_u@generate
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_upsample.
 /// @param[in] hi A abacus_u@generate_type@.
 /// @param[in] lo A abacus_u@generate_type@.

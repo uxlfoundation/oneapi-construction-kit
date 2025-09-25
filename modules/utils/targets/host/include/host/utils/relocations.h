@@ -25,7 +25,7 @@
 namespace host {
 namespace utils {
 
-#if defined(__riscv)
+#ifdef __riscv
 #define HOST_UTILS_HAVE_RELOCATIONS 0
 inline std::vector<std::pair<std::string, uint64_t>> getRelocations() {
   return {};

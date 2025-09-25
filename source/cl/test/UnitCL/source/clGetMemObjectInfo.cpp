@@ -233,7 +233,7 @@ TEST_F(clGetMemObjectInfoTest, MemOffset) {
 /*! Redmine #5115: Test CL_MEM_DX9_MEDIA_SURFACE_INFO_KHR once supported */
 /*! Redmine #5115: Test CL_MEM_D3D11_RESOURCE_KHR once supported */
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 struct clGetMemObjectInfoPropertiesTest : ucl::ContextTest {
   void TearDown() override {
     if (!UCL::isDeviceVersionAtLeast({3, 0})) {

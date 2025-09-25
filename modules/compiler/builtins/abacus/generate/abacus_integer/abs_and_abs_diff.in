@@ -12,7 +12,7 @@ abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs(abacus_@generate_type@ x)
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_abs.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_u@generate_type@.
@@ -38,7 +38,7 @@ abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs(abacus_u@generate_type@ x
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_abs.
 /// @param[in] x A abacus_u@generate_type@.
 /// @return      A abacus_u@generate_type@.
@@ -65,7 +65,7 @@ abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs_diff(abacus_@generate_typ
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_abs_diff.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -93,7 +93,7 @@ abacus_u@generate_type@ ABACUS_EXPORT_API __abacus_abs_diff(abacus_u@generate_ty
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_abs_diff.
 /// @param[in] x A abacus_u@generate_type@.
 /// @param[in] y A abacus_u@generate_type@.

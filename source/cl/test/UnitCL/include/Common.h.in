@@ -626,12 +626,12 @@ struct Program {
 
 namespace UCL {
 size_t getPixelSize(const cl_image_format &format);
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 float parse_hexfloat(const char *str);
 #endif  // _MSC_VER
 }  // namespace UCL
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define HFLOAT(H) UCL::parse_hexfloat(#H)
 #else
 #define HFLOAT(H) H

@@ -22,7 +22,7 @@ inline void ABACUS_API vstore@vector_size@(abacus_@generate_type@@vector_size@ d
 }
 #endif
 
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
 
 /// @brief Store a vector to unaligned memory.
 /// @param[in] data   The vector to store.

@@ -43,7 +43,7 @@ _cl_mem::_cl_mem(const cl_context context, const cl_mem_flags flags,
       mapCount(0),
       map_base_pointer(nullptr),
       device_owner(nullptr)
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       ,
       uses_svm_pointer(CL_FALSE)
 #endif
@@ -191,7 +191,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
 
   {
     // lock the cl_mem while we get a first mapping
-    const std::lock_guard<std::mutex> lock(mem_to_map->mutex);
+    const std::scoped_lock lock(mem_to_map->mutex);
 
     // if we have no current mapping map the whole memory chunk in the parent
     if (0 == mem_to_map->mapCount) {
@@ -230,8 +230,7 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
     }
   }
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer =
       command_queue->getCommandBuffer(event_wait_list, return_event);
@@ -285,19 +284,19 @@ cl_int _cl_mem::pushMapMemory(cl_command_queue command_queue,
   if (write) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::scoped_lock lock(mapping->mem->mutex);
       mapping->flushMemoryFromDevice();
     };
   } else if (read) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::scoped_lock lock(mapping->mem->mutex);
       mapping->flushMemoryFromDevice();
     };
   } else if (invalidate) {
     callback = [](mux_queue_t, mux_command_buffer_t, void *const user_data) {
       auto mapping = static_cast<mapping_state_t *>(user_data);
-      const std::lock_guard<std::mutex> lock(mapping->mem->mutex);
+      const std::scoped_lock lock(mapping->mem->mutex);
     };
   }
   OCL_ASSERT(callback, "failed to set user callback for mapping");
@@ -427,7 +426,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetMemObjectInfo(
         OCL_SET_IF_NOT_NULL(static_cast<size_t *>(param_value), size_t(0));
       }
     } break;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_MEM_PROPERTIES: {
       const size_t size = sizeof(cl_mem_properties) * memobj->properties.size();
       OCL_CHECK(param_value && param_value_size < size,
@@ -507,8 +506,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
     it->second.is_active = false;
   }
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
@@ -544,7 +542,7 @@ cl::EnqueueUnmapMemObject(cl_command_queue command_queue, cl_mem memobj,
         mux_memory_t mux_memory = mem->mux_memories[unmap_info->device_index];
 
         {
-          const std::lock_guard<std::mutex> lock(mem->mutex);
+          const std::scoped_lock lock(mem->mutex);
 
           auto it = mem->write_mappings.find(unmap_info->ptr);
           // if this is a write mapping we need to flush the memory region to

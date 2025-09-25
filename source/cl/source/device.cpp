@@ -197,7 +197,7 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
                        CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT),
       type(),
       vendor_id(mux_device->info->khronos_vendor_id)
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       ,
       svm_capabilities(0),
       atomic_memory_capabilities(CL_DEVICE_ATOMIC_ORDER_RELAXED |
@@ -243,7 +243,7 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
   if (compiler_info) {
     compiler_available = linker_available = CL_TRUE;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     il_version = "SPIR-V_1.0";
 #endif
 
@@ -323,7 +323,7 @@ _cl_device_id::_cl_device_id(cl_platform_id platform,
       builtin_kernel_names.append(trimmed.cbegin(), trimmed.cend());
     }
   }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   for (const cl_version_khr version :
        {CL_MAKE_VERSION_KHR(1, 2, 0), CL_MAKE_VERSION_KHR(1, 1, 0),
         CL_MAKE_VERSION_KHR(1, 0, 0), CL_MAKE_VERSION_KHR(3, 0, 0)}) {
@@ -344,7 +344,7 @@ _cl_device_id::~_cl_device_id() {
 
 /// @brief  OpenCL has reserved bit fields for half, but doesn't define them so
 /// we have to.
-#if !defined(CL_DEVICE_HALF_FP_CONFIG)
+#ifndef CL_DEVICE_HALF_FP_CONFIG
 enum { CL_DEVICE_HALF_FP_CONFIG = 0x1033 };
 #endif  // !defined(CL_DEVICE_HALF_FP_CONFIG)
 
@@ -655,7 +655,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetDeviceInfo(
       DEVICE_INFO_CASE(CL_DEVICE_TYPE, device->type);
       DEVICE_INFO_CASE(CL_DEVICE_VENDOR_ID, device->vendor_id);
       DEVICE_INFO_CASE_SPECIAL_STRING(CL_DRIVER_VERSION, driver_version);
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       DEVICE_INFO_CASE(CL_DEVICE_SVM_CAPABILITIES, device->svm_capabilities);
       DEVICE_INFO_CASE(CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES,
                        device->atomic_memory_capabilities);

@@ -62,8 +62,7 @@ compiler::Result RiscvModule::createBinary(
     // Numerous things below touch LLVM's global state, in particular
     // retriggering command-line option parsing at various points. Ensure we
     // avoid data races by locking the LLVM global mutex.
-    const std::lock_guard<std::mutex> globalLock(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock globalLock(compiler::utils::getLLVMGlobalMutex());
 
     // Write to an Elf object
     auto *TM = getTargetMachine();

@@ -98,7 +98,7 @@ TEST_F(clCreateProgramWithSourceTest, IndividualStringIsNull) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, errorcode);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(clCreateProgramWithSourceTest, IL) {
   // Skip for non OpenCL-3.0 implementations.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {

@@ -16,7 +16,7 @@
 
 // Some functions are handled differently between MSVC and other compilers. We
 // use this for the printf tests
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #include <io.h>
 #define DUP _dup
 #define DUP2 _dup2

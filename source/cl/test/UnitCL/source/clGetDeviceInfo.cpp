@@ -1220,7 +1220,7 @@ TEST_F(clGetDeviceInfoTest, QUEUE_PROPERTIES) {
   }
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(clGetDeviceInfoTest, QUEUE_ON_HOST_PROPERTIES) {
   // CL_DEVICE_QUEUE_ON_HOST_PROPERTIES has the same numeric value as
   // CL_DEVICE_QUEUE_PROPERTIES and is semantically identical.
@@ -1398,7 +1398,7 @@ TEST_F(clGetDeviceInfoTest, VerifyDeviceOpenCLCVersion) {
          "\"OpenCL<space>C<space><major_version.minor_version>\"";
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 class clGetDeviceInfoTestScalarQueryOpenCL30
     : public clGetDeviceInfoTest,
       public ::testing::WithParamInterface<std::tuple<size_t, int>> {

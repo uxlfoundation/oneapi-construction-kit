@@ -665,7 +665,7 @@ struct convert_sat_choice<T, U, C, E, NotFromInt, IsToInt, D> {
   }
 };
 
-#if defined(__CA_BUILTINS_HALF_SUPPORT)
+#ifdef __CA_BUILTINS_HALF_SUPPORT
 // When converting half to cl_int and cl_long we can't represent the max
 // and min values of these integer types in half precision(largest value
 // +/- 65504), therefore we omit checks to saturate to these thresholds.

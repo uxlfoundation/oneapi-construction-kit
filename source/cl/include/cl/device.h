@@ -272,7 +272,7 @@ struct _cl_device_id final : public cl::base<_cl_device_id> {
   cl_uint vendor_id;
   /// @brief Semi-colon seperated list of builtin kernels.
   std::string builtin_kernel_names;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Bit field of the device's SVM capabilities.
   const cl_device_svm_capabilities svm_capabilities;
   /// @brief Bit field of the devices's atomic memory capabilities.

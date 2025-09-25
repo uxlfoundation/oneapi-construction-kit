@@ -22,7 +22,7 @@ inline abacus_@generate_type@@vector_size@ ABACUS_API vload@vector_size@(size_t 
 }
 #endif
 
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
 
 /// @brief Load an unaligned vector from memory.
 /// @param[in] offset The offset to use.

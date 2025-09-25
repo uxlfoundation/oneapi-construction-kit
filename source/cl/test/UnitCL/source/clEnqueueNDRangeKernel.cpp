@@ -2154,7 +2154,7 @@ TEST_P(clEnqueueNDRangeKernelZeroDimension, ZeroDimension) {
 INSTANTIATE_TEST_CASE_P(ZeroDimensions, clEnqueueNDRangeKernelZeroDimension,
                         testing::Values(0, 1, 2));
 
-#if defined(CL_VERSION_2_0)
+#ifdef CL_VERSION_2_0
 class LinearIDTest
     : public ucl::CommandQueueTest,
       public testing::WithParamInterface<

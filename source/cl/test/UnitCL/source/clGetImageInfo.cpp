@@ -1231,7 +1231,7 @@ INSTANTIATE_TEST_CASE_P(
                       cl_image_format{CL_ARGB, CL_SNORM_INT8},
                       cl_image_format{CL_BGRA, CL_SNORM_INT8}));
 
-#if !defined(__clang_analyzer__)
+#ifndef __clang_analyzer__
 // Only include the full set of parameters if not running clang analyzer (or
 // clang-tidy), they'll all result in basically the same code but it takes a
 // long time to analyze all of them.

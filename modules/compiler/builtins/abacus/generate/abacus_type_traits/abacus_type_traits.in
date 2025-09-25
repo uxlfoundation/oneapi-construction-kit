@@ -26,7 +26,7 @@
 #include <abacus/abacus_config.h>
 #endif
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 // we use a 'fake' abacus_void* type for unencodeable types.
 typedef void abacus_void;
 typedef void abacus_void2;

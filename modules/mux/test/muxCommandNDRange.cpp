@@ -104,7 +104,7 @@ TEST_P(muxCommandNDRangeTest, InvalidWaitList) {
                   muxCommandNDRange(command_buffer, kernel, nd_range_options, 1,
                                     nullptr, nullptr));
 
-  mux_sync_point_t wait;
+  mux_sync_point_t wait = nullptr;
   ASSERT_ERROR_EQ(mux_error_invalid_value,
                   muxCommandNDRange(command_buffer, kernel, nd_range_options, 0,
                                     &wait, nullptr));

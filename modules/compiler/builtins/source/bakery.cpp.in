@@ -24,7 +24,7 @@ cargo::array_view<const uint8_t> get_api_src_file() {
   return rc::builtins::builtins_h;
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 cargo::array_view<const uint8_t> get_api_30_src_file() {
   return rc::builtins::builtins_3_0_h;
 }

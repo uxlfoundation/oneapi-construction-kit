@@ -426,7 +426,8 @@ TEST_P(HalfGeometricBuiltins, Geometric_03_Half_Distance) {
     cl_float max_ulp = 0.5f;  // error in sqrt
 
     // Cumulative error for multiplications and additions
-    max_ulp += (1.5f * cl_float(vec_width) + 0.5f * cl_float(vec_width - 1));
+    max_ulp +=
+        ((1.5f * cl_float(vec_width)) + (0.5f * cl_float(vec_width - 1)));
     return max_ulp;
   };
 
@@ -510,7 +511,8 @@ TEST_P(HalfGeometricBuiltins, Geometric_04_Half_Normalize) {
     cl_float max_ulp = 1.5f;  // error in rsqrt + error in multiply
 
     // Cumulative error for multiplications and additions
-    max_ulp += (0.5f * cl_float(vec_width) + 0.5f * cl_float(vec_width - 1));
+    max_ulp +=
+        ((0.5f * cl_float(vec_width)) + (0.5f * cl_float(vec_width - 1)));
     return max_ulp;
   };
 

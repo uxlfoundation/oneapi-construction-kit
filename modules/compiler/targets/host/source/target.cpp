@@ -246,10 +246,10 @@ compiler::Result HostTarget::initWithBuiltins(
       Features.AddFeature("m", true);  // Integer multiplication and division
       Features.AddFeature("f", true);  // Floating point support
       Features.AddFeature("a", true);  // Atomics
-#if defined(CA_HOST_ENABLE_FP64)
+#ifdef CA_HOST_ENABLE_FP64
       Features.AddFeature("d", true);  // Double support
 #endif
-#if defined(CA_HOST_ENABLE_FP16)
+#ifdef CA_HOST_ENABLE_FP16
       Features.AddFeature("zfh", true);  // Half support
 #endif
       break;

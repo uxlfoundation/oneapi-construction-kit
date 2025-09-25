@@ -14,7 +14,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isequal(abacus_@generat
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isequal.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -43,7 +43,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isnotequal(abacus_@gene
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isnotequal.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -72,7 +72,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isgreater(abacus_@gener
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isgreater.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -101,7 +101,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isgreaterequal(abacus_@
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isgreaterequal.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -130,7 +130,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isless(abacus_@generate
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isless.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -159,7 +159,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_islessequal(abacus_@gen
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_islessequal.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -188,7 +188,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_islessgreater(abacus_@g
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_islessgreater.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -216,7 +216,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isfinite(abacus_@genera
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isfinite.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.
@@ -243,7 +243,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isinf(abacus_@generate_
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isinf.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.
@@ -270,7 +270,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isnan(abacus_@generate_
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isnan.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.
@@ -297,7 +297,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isnormal(abacus_@genera
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isnormal.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.
@@ -325,7 +325,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isordered(abacus_@gener
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isordered.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -354,7 +354,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_isunordered(abacus_@gen
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_isunordered.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -382,7 +382,7 @@ abacus_@generate_signed_type@ ABACUS_EXPORT_API __abacus_signbit(abacus_@generat
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_signbit.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.
@@ -411,7 +411,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_@generate_type@ 
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_select.
 /// @param[in] a A abacus_@generate_type@.
 /// @param[in] b A abacus_@generate_type@.
@@ -442,7 +442,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_select(abacus_@generate_type@ 
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_select.
 /// @param[in] a A abacus_@generate_type@.
 /// @param[in] b A abacus_@generate_type@.
@@ -472,7 +472,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_bitselect(abacus_@generate_typ
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_bitselect.
 /// @param[in] a A abacus_@generate_type@.
 /// @param[in] b A abacus_@generate_type@.
