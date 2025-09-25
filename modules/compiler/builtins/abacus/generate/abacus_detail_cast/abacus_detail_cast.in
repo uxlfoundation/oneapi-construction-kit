@@ -30,12 +30,12 @@
 #include <abacus/abacus_type_traits.h>
 #endif
 
-#if defined(__cplusplus)
-#if !defined(__OPENCL_VERSION__)
+#ifdef __cplusplus
+#ifndef __OPENCL_VERSION__
 #include <string.h>
 #endif
 
-#if !defined(__has_builtin)
+#ifndef __has_builtin
 #define __has_builtin(x) 0  // Compatibility with non-clang compilers
 #endif
 
@@ -82,7 +82,7 @@ template<typename T, typename U, bool SIZE_OK = sizeof(T) == sizeof(U)>
 template<typename T, typename U> struct as_helper<T, U, true> {
   static T _(const U& u) {
     T t{};
-#if defined(__OPENCL_VERSION__)
+#ifdef __OPENCL_VERSION__
     __builtin_memcpy(&t, &u, sizeof(U));
 #elif defined(__cplusplus)
     memcpy(&t, &u, sizeof(U));

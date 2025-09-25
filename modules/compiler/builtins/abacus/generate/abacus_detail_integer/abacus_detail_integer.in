@@ -22,7 +22,7 @@
 #ifndef __ABACUS_DETAIL_INTEGER__
 #define __ABACUS_DETAIL_INTEGER__
 
-#if !defined(__cplusplus)
+#ifndef __cplusplus
 #error This header should only be included from C++!
 #endif
 

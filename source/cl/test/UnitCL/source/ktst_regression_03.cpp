@@ -170,7 +170,7 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
 #define PACKED /* deliberately blank */
 #endif
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
   __pragma(pack(push, 1))
 #endif
 
@@ -210,7 +210,7 @@ TEST_P(Execution, Regression_58_Nested_Structs) {
     struct s_wrapper wrap;
   };
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
   __pragma(pack(pop))
 #endif
 
@@ -620,7 +620,7 @@ struct StrideMisaligned {
 };
 
 static_assert(sizeof(StrideMisaligned) ==
-              4 * sizeof(cl_ulong) + sizeof(cl_uint));
+              (4 * sizeof(cl_ulong)) + sizeof(cl_uint));
 
 #pragma pack(4)
 struct StrideAligned {
@@ -983,7 +983,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization7) {
                     goto i;
 
                   h:
-                    i = n + id / 3;
+                    i = n + (id / 3);
                   i:
                     return i;
                   }));
@@ -1068,7 +1068,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                           }
                         } else {
                           if (ret + id >= 11) {
-                            ret /= n * n + ret;
+                            ret /= (n * n) + ret;
                             goto o;
                           }
                         }
@@ -1081,7 +1081,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization10) {
                       }
                     j:
                       if (n < 20) {
-                        ret += n * 2 + 20;
+                        ret += (n * 2) + 20;
                         goto p;
                       } else {
                         goto q;
@@ -1128,7 +1128,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                           }
                         } else {
                           if (ret + id >= 7) {
-                            ret /= n * n + ret;
+                            ret /= (n * n) + ret;
                             if (ret <= 10) {
                               goto k;
                             } else {
@@ -1144,7 +1144,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization11) {
                         ret++;
                       }
                     j:
-                      ret += n * 2 + 20;
+                      ret += (n * 2) + 20;
                       goto l;
                     k:
                       ret *= n;
@@ -1191,7 +1191,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization12) {
                           goto j;
                         } else {
                           if (ret + id >= 7) {
-                            ret /= n * n + ret;
+                            ret /= (n * n) + ret;
                             if (ret < n) {
                               ret -= n;
                               goto m;
@@ -1270,10 +1270,10 @@ TEST_P(Execution, Regression_75_Partial_Linearization13) {
                       const size_t leftovers = 1 + (read_local & 1);
                       switch (leftovers) {
                         case 2:
-                          ret = 2 * n + 1;
+                          ret = (2 * n) + 1;
                           [[fallthrough]];
                         case 1:
-                          ret += 3 * n - 1;
+                          ret += (3 * n) - 1;
                           break;
                         default:
                           abort();
@@ -1350,7 +1350,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization15) {
                           }
                         } else {
                           if (ret + id >= n) {
-                            ret /= n * n + ret;
+                            ret /= (n * n) + ret;
                             goto m;
                           }
                         }
@@ -1396,7 +1396,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization16) {
                       goto h;
                     } else {
                       while (1) {
-                        if (id + i % 2 == 0) {
+                        if (id + (i % 2) == 0) {
                           if (n > 2) {
                             goto f;
                           }
@@ -1437,7 +1437,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization17) {
                       } else if (n > 5) {
                         goto f;
                       }
-                      if (id + i++ % 2 == 0) {
+                      if (id + (i++ % 2) == 0) {
                         break;
                       }
                     }
@@ -1487,7 +1487,7 @@ TEST_P(Execution, Regression_75_Partial_Linearization18) {
                     int i = 0;
                     while (1) {
                       if (n > 5) {
-                        if (id + i % 2 == 0) {
+                        if (id + (i % 2) == 0) {
                           goto e;
                         } else {
                           goto f;

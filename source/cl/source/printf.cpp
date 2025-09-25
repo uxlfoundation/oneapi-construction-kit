@@ -17,7 +17,7 @@
 #include <cl/device.h>
 #include <cl/printf.h>
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #include <fcntl.h>
 #include <io.h>
 #include <windows.h>

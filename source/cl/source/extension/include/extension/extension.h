@@ -57,7 +57,7 @@ class extension {
   /// @param[in] usage Usage category of the extension, controls where the
   /// extension name is reported to the user.
   extension(const char *name, usage_category usage
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
             ,
             cl_version_khr version
 #endif
@@ -364,7 +364,7 @@ class extension {
                                   size_t param_value_size, void *param_value,
                                   size_t *param_value_size_ret) const;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Query for kernel subgroup info.
   ///
   /// @see clGetKernelSubGroupInfo.
@@ -472,7 +472,7 @@ class extension {
   virtual void *GetExtensionFunctionAddressForPlatform(
       cl_platform_id platform, const char *func_name) const;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief  Constructs a cl_name_version_khr object for this extension.
   ///
   /// @return cl_name_version_khr object for this extension
@@ -487,7 +487,7 @@ class extension {
 
   const std::string name;
   const usage_category usage;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Major.Minor.Point version for this extension.
   ///
   /// Prior to OpenCL-3.0 versioning did not exist for extensions. As of 3.0
@@ -681,7 +681,7 @@ cl_int GetKernelArgInfo(cl_kernel kernel, cl_uint arg_indx,
                         cl_kernel_arg_info param_name, size_t param_value_size,
                         void *param_value, size_t *param_value_size_ret);
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 /// @brief Aggregate all kernel sub group information.
 ///
 /// @param kernel Kernel to query.

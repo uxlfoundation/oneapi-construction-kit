@@ -36,7 +36,7 @@ extension::khr_il_program::khr_il_program()
 cl_int extension::khr_il_program::GetDeviceInfo(
     cl_device_id device, cl_device_info param_name, size_t param_value_size,
     void *param_value, size_t *param_value_size_ret) const {
-#if !defined(CL_VERSION_3_0)
+#ifndef CL_VERSION_3_0
   // This device property is unreachable in OpenCL 3.0 mode because the
   // CL_DEVICE_IL_VERSION enum has the same value, and is always processed
   // first.  So we never reach this case for 3.0, so it is not included.

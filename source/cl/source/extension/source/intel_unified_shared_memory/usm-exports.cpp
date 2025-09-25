@@ -200,7 +200,7 @@ void *clHostMemAllocINTEL(cl_context context,
   }
 
   // Lock context for pushing to list of usm allocations
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -233,7 +233,7 @@ void *clDeviceMemAllocINTEL(cl_context context, cl_device_id device,
   }
 
   // Lock context for pushing to list of usm allocations
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -285,7 +285,7 @@ void *clSharedMemAllocINTEL(cl_context context, cl_device_id device,
   }
 
   // Lock context for pushing to list of usm allocations
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
   if (context->usm_allocations.push_back(
           std::move(new_usm_allocation.value()))) {
     OCL_SET_IF_NOT_NULL(errcode_ret, CL_OUT_OF_HOST_MEMORY);
@@ -303,7 +303,7 @@ cl_int clMemFreeINTEL(cl_context context, void *ptr) {
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -330,7 +330,7 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
   OCL_CHECK(ptr == NULL, return CL_SUCCESS);
 
   // Lock context to ensure usm allocation iterators are valid
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
 
   auto isUsmPtr =
       [ptr](const std::unique_ptr<extension::usm::allocation_info> &usm_alloc) {
@@ -355,8 +355,7 @@ cl_int clMemBlockingFreeINTEL(cl_context context, void *ptr) {
     if (event->command_status == CL_QUEUED) {
       // Don't repeatedly flush queues we've already seen
       if (flushed_queues.count(queue) == 0) {
-        const std::lock_guard<std::mutex> lock(
-            queue->context->getCommandQueueMutex());
+        const std::scoped_lock lock(queue->context->getCommandQueueMutex());
 
         const cl_int result = queue->flush();
 
@@ -394,7 +393,7 @@ cl_int clGetMemAllocInfoINTEL(cl_context context, const void *ptr,
   const tracer::TraceGuard<tracer::OpenCL> trace(__func__);
 
   OCL_CHECK(!context, return CL_INVALID_CONTEXT);
-  const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+  const std::scoped_lock context_guard(context->usm_mutex);
 
   const extension::usm::allocation_info *const usm_alloc =
       extension::usm::findAllocation(context, ptr);
@@ -504,8 +503,7 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
   }
   cl_event return_event = *new_event;
 
-  const std::lock_guard<std::mutex> context_guard(
-      command_queue->context->usm_mutex);
+  const std::scoped_lock context_guard(command_queue->context->usm_mutex);
 
   // Find USM allocation from pointer
   extension::usm::allocation_info *usm_alloc =
@@ -551,8 +549,7 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
       return CL_INVALID_COMMAND_QUEUE;
     }
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
@@ -686,8 +683,7 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     return new_event.error();
   }
   cl_event return_event = *new_event;
-  const std::lock_guard<std::mutex> context_guard(
-      command_queue->context->usm_mutex);
+  const std::scoped_lock context_guard(command_queue->context->usm_mutex);
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
@@ -699,8 +695,7 @@ cl_int clEnqueueMemcpyINTEL(cl_command_queue command_queue, cl_bool blocking,
     extension::usm::allocation_info *usm_src_alloc =
         extension::usm::findAllocation(command_queue->context, src_ptr);
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
@@ -852,8 +847,7 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
-    const std::lock_guard<std::mutex> context_guard(
-        command_queue->context->usm_mutex);
+    const std::scoped_lock context_guard(command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
@@ -865,8 +859,7 @@ cl_int clEnqueueMigrateMemINTEL(cl_command_queue command_queue, const void *ptr,
     const intptr_t bytes_till_end = usm_alloc->size - ptr_offset;
     OCL_CHECK(intptr_t(size) > bytes_till_end, return CL_INVALID_VALUE);
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
@@ -909,15 +902,13 @@ cl_int clEnqueueMemAdviseINTEL(cl_command_queue command_queue, const void *ptr,
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
   {
-    const std::lock_guard<std::mutex> context_guard(
-        command_queue->context->usm_mutex);
+    const std::scoped_lock context_guard(command_queue->context->usm_mutex);
     const cl_context context = command_queue->context;
     extension::usm::allocation_info *const usm_alloc =
         extension::usm::findAllocation(context, ptr);
     OCL_CHECK(nullptr == usm_alloc, return CL_INVALID_VALUE);
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);

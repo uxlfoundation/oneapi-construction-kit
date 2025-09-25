@@ -13,7 +13,7 @@ abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_dot(abacus_@generate_ty
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_dot.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -41,7 +41,7 @@ abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_distance(abacus_@genera
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_distance.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -66,7 +66,7 @@ abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_length(abacus_@generate
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_length.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_scalar_type@.
@@ -115,7 +115,7 @@ abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_fast_distance(abacus_@g
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_fast_distance.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -140,7 +140,7 @@ abacus_@generate_scalar_type@ ABACUS_EXPORT_API __abacus_fast_length(abacus_@gen
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_fast_length.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_scalar_type@.
@@ -164,7 +164,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_fast_normalize(abacus_@generat
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_fast_normalize.
 /// @param[in] x A abacus_@generate_type@.
 /// @return      A abacus_@generate_type@.

@@ -164,7 +164,7 @@ INSTANTIATE_TEST_SUITE_P(USMTests, USMSetKernelArgMemPointerTest,
 
 // Test for valid API usage of clSetKernelExecInfo() with extension defined
 // parameters
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 using USMSetKernelExecInfoTest = USMKernelUsageTest<cl_kernel_exec_info>;
 TEST_P(USMSetKernelExecInfoTest, ValidUsage) {
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
@@ -719,7 +719,7 @@ TEST_F(USMVectorAddKernelTest, RepeatedEnqueue) {
   verifyOutputBuffer(half_elements, patternB, patternB);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 // Tests interaction with `clCloneKernel()`
 TEST_F(USMVectorAddKernelTest, ClonedKernel) {
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {

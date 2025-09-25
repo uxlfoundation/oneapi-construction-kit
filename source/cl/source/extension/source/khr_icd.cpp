@@ -25,7 +25,7 @@
 #include <cl/image.h>
 #include <cl/kernel.h>
 #include <cl/macros.h>
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 #include <cl/opencl-3.0.h>
 #endif
 #include <cl/platform.h>

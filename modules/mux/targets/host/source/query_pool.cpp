@@ -39,7 +39,7 @@ cargo::expected<host::query_pool_s *, mux_result_t> host::query_pool_s::create(
   if (query_type == mux_query_type_duration) {
     query_data_offset =
         sizeof(query_pool_s) + sizeof(mux_query_duration_result_s) -
-        sizeof(query_pool_s) % sizeof(mux_query_duration_result_s);
+        (sizeof(query_pool_s) % sizeof(mux_query_duration_result_s));
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
   } else if (query_type == mux_query_type_counter) {
     query_data_offset = sizeof(query_pool_s) + sizeof(host_papi_event_info_s) -

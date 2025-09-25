@@ -92,7 +92,7 @@ TEST_F(clGetPlatformInfoTest, VerifyPlatformVersion) {
          "\"OpenCL<space><major_version.minor_version>\"";
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 struct clGetPlatformInfoTestOpenCL30
     : ucl::PlatformTest,
       testing::WithParamInterface<std::tuple<size_t, int>> {

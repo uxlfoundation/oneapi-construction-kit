@@ -656,7 +656,7 @@ cl_int intel_unified_shared_memory::SetKernelExecInfo(
       }
 
       const cl_context context = kernel->program->context;
-      const std::lock_guard<std::mutex> context_guard(context->usm_mutex);
+      const std::scoped_lock context_guard(context->usm_mutex);
       for (size_t i = 0; i < num_pointers; i++) {
         indirect_allocs[i] = usm::findAllocation(context, usm_pointers[i]);
       }

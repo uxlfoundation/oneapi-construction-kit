@@ -60,8 +60,7 @@ HostKernel::~HostKernel() {
     // registration listener, which accesses/modifies GDB global variables.
     // These global variables are also modified/accessed when jitting kernels,
     // where we also lock with the same LLVM global mutex (see below).
-    const std::lock_guard<std::mutex> globalLock(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock globalLock(compiler::utils::getLLVMGlobalMutex());
     auto &es = target.orc_engine->getExecutionSession();
     for (const auto &name : kernel_jit_dylibs) {
       if (auto *jit = es.getJITDylibByName(name)) {
@@ -271,7 +270,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         {
           // Using the CrashRecoveryContext and statistics touches LLVM's global
           // state.
-          const std::lock_guard<std::mutex> globalLock(
+          const std::scoped_lock globalLock(
               compiler::utils::getLLVMGlobalMutex());
           llvm::CrashRecoveryContext CRC;
           llvm::CrashRecoveryContext::Enable();
@@ -378,7 +377,7 @@ HostKernel::lookupOrCreateOptimizedKernel(std::array<size_t, 3> local_size) {
         uint64_t hook;
         {
           // Compiling the kernel may touch the global LLVM state
-          const std::lock_guard<std::mutex> globalLock(
+          const std::scoped_lock globalLock(
               compiler::utils::getLLVMGlobalMutex());
 
           // We cannot safely look up any symbol inside a CrashRecoveryContext

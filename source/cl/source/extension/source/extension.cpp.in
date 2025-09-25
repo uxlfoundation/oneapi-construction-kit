@@ -537,14 +537,14 @@ cl_int getObjectExtensionInfoAggregatedArray(
 }  // namespace
 
 extension::extension::extension(const char *Name, usage_category Usage
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
                                 ,
                                 cl_version_khr Version
 #endif
                                 )
     : name(Name),
       usage(Usage)
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       ,
       version(Version)
 #endif
@@ -578,7 +578,7 @@ cl_int extension::extension::GetPlatformInfo(
 
         return CL_SUCCESS;
       }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       case CL_PLATFORM_EXTENSIONS_WITH_VERSION: {
         size_t PlatformExtensionsSize{};
         GetPlatformInfo(Platform, CL_PLATFORM_EXTENSIONS, 0, nullptr,
@@ -647,7 +647,7 @@ cl_int extension::extension::GetDeviceInfo(cl_device_id Device,
 
         return CL_SUCCESS;
       }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       case CL_DEVICE_EXTENSIONS_WITH_VERSION: {
         size_t DeviceExtensionsSize{};
         GetDeviceInfo(Device, CL_DEVICE_EXTENSIONS, 0, nullptr,
@@ -747,7 +747,7 @@ cl_int extension::extension::GetKernelArgInfo(cl_kernel, cl_uint,
   return CL_INVALID_VALUE;
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 cl_int extension::extension::GetKernelSubGroupInfo(cl_kernel, cl_device_id,
                                                    cl_kernel_sub_group_info,
                                                    size_t, const void *, size_t,
@@ -804,7 +804,7 @@ cl_int extension::GetPlatformInfo(cl_platform_id Platform,
           ExtensionNameSeparator, QueryFn);
       break;
     }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_PLATFORM_EXTENSIONS_WITH_VERSION: {
       Retcode = getObjectExtensionInfoAggregatedArray(
           getExtensions().size(), getExtensions().data(), Platform, ParamName,
@@ -847,7 +847,7 @@ cl_int extension::GetDeviceInfo(cl_device_id Device, cl_device_info ParamName,
           ExtensionNameSeparator, QueryFn);
       break;
     }
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     case CL_DEVICE_EXTENSIONS_WITH_VERSION: {
       Retcode = getObjectExtensionInfoAggregatedArray(
           getExtensions().size(), getExtensions().data(), Device, ParamName,
@@ -1058,7 +1058,7 @@ cl_int extension::GetKernelArgInfo(cl_kernel Kernel, cl_uint ArgIndx,
       QueryFn);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 cl_int extension::GetKernelSubGroupInfo(
     cl_kernel Kernel, cl_device_id Device, cl_kernel_sub_group_info ParamName,
     size_t InputValueSize, const void *InputValue, size_t ParamValueSize,

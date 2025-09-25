@@ -42,7 +42,7 @@ uint64_t timestampNanoSeconds() {
 #if defined(CA_PLATFORM_LINUX) || defined(CA_PLATFORM_ANDROID)
   timespec ts;
   if (::clock_gettime(CLOCK_REALTIME, &ts) == 0) {
-    tickCount = static_cast<uint64_t>(ts.tv_sec) * 1000000000 +
+    tickCount = (static_cast<uint64_t>(ts.tv_sec) * 1000000000) +
                 static_cast<uint64_t>(ts.tv_nsec);
   }
 #elif defined(CA_PLATFORM_MAC)

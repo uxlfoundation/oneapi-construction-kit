@@ -110,7 +110,7 @@ TEST_F(clCreateProgramWithBuiltInKernelsTest, NonExistentKernelName) {
   ASSERT_EQ_ERRCODE(CL_INVALID_VALUE, status);
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(clCreateProgramWithBuiltInKernelsTest, IL) {
   // Skip for non OpenCL-3.0 implementations.
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {

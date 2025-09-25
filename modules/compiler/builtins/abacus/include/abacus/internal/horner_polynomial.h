@@ -31,7 +31,7 @@ inline T horner_polynomial(const T x, const TCoef *p_coef, size_t N) {
       // For half, we need the precision of FMA
       coef_sum = __abacus_fma(coef_sum, x, T(p_coef[n - 1]));
     } else {
-      coef_sum = T(p_coef[n - 1]) + x * coef_sum;
+      coef_sum = T(p_coef[n - 1]) + (x * coef_sum);
     }
   }
 

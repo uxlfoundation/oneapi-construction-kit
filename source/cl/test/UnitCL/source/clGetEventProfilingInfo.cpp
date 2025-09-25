@@ -224,7 +224,7 @@ TEST_F(clGetEventProfilingInfoTest, Race) {
   ASSERT_SUCCESS(clReleaseEvent(delay));
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 class clGetEventProfilingInfoTestScalarQueryOpenCL30
     : public clGetEventProfilingInfoTest,
       public testing::WithParamInterface<std::tuple<size_t, int>> {

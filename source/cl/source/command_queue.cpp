@@ -58,7 +58,7 @@ _cl_command_queue::~_cl_command_queue() {
   muxWaitAll(mux_queue);
 
   {
-    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::scoped_lock lock(context->getCommandQueueMutex());
     cleanupCompletedCommandBuffers();
   }
   // Release any completed signal semaphores
@@ -139,7 +139,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
     // any invalid bits we might get.
     cl_command_queue_properties command_queue_properties = 0;
     const cl_command_queue_properties valid_properties_mask =
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
         CL_QUEUE_ON_DEVICE | CL_QUEUE_ON_DEVICE_DEFAULT |
 #endif
         CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE;
@@ -156,7 +156,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
             // TODO(CA-1123): Support out of order command queues.
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
           } else if (value & CL_QUEUE_ON_DEVICE ||
                      value & CL_QUEUE_ON_DEVICE_DEFAULT) {
             return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
@@ -165,7 +165,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
             command_queue_properties |= value;
           }
           break;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
         case CL_QUEUE_SIZE:
           return cargo::make_unexpected(CL_INVALID_QUEUE_PROPERTIES);
 #endif
@@ -181,7 +181,7 @@ _cl_command_queue::create(cl_context context, cl_device_id device,
       current += 2;
     } while (current[0] != 0);
     command_queue->properties = command_queue_properties;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     if (command_queue->properties_list.assign(properties, current + 1)) {
       return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
     }
@@ -251,7 +251,7 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
   for (cl_uint i = 0; i < num_events; i++) {
     events[i]->wait();
   }
-  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::scoped_lock lock(context->getCommandQueueMutex());
 
   return CL_SUCCESS == cleanupCompletedCommandBuffers()
              ? CL_SUCCESS
@@ -259,7 +259,7 @@ cl_int _cl_command_queue::waitForEvents(const cl_uint num_events,
 }
 
 cl_int _cl_command_queue::getEventStatus(cl_event event) {
-  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::scoped_lock lock(context->getCommandQueueMutex());
   const cl_int error = cleanupCompletedCommandBuffers();
   OCL_UNUSED(error);
   assert(CL_SUCCESS == error);
@@ -765,7 +765,7 @@ _cl_command_queue::getCommandBufferPending(
 }
 
 cl_int _cl_command_queue::dispatchPending(cl_event user_event) {
-  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::scoped_lock lock(context->getCommandQueueMutex());
 
   // Remove the user event from all pending dispatches wait event lists.
   for (auto &pending : pending_dispatches) {
@@ -823,7 +823,7 @@ cl_int _cl_command_queue::removeFromPending(
 
 cl_int _cl_command_queue::dropDispatchesPending(
     cl_event user_event, cl_int event_command_exec_status) {
-  const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+  const std::scoped_lock lock(context->getCommandQueueMutex());
 
   cargo::small_vector<mux_command_buffer_t, 16> command_buffers;
 
@@ -1045,8 +1045,7 @@ void _cl_command_queue::finish_state_t::clear(
   if (locked) {
     command_queue->finish_state.erase(command_buffer);
   } else {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
     command_queue->finish_state.erase(command_buffer);
   }
 }
@@ -1090,8 +1089,7 @@ cl::ReleaseCommandQueue(cl_command_queue command_queue) {
       command_queue->refCountInternal()) {
     command_queue->finish();
   } else {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     // releasing a command queue causes an implicit flush
     if (auto error = command_queue->flush()) {
@@ -1125,7 +1123,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetCommandQueueInfo(
     COMMAND_QUEUE_INFO_CASE(
         CL_QUEUE_PROPERTIES, sizeof(cl_command_queue_properties),
         cl_command_queue_properties *, command_queue->properties);
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     COMMAND_QUEUE_INFO_CASE(CL_QUEUE_DEVICE_DEFAULT, sizeof(cl_command_queue),
                             cl_command_queue *, nullptr);
     case CL_QUEUE_SIZE:
@@ -1181,8 +1179,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueBarrierWithWaitList(
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   // barriers are implicit in in-order queues, could mostly be a no-op
   // (especially if we don't have a return event!) but we may have cross-queue
@@ -1221,8 +1218,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueMarkerWithWaitList(
   cl::release_guard<cl_event> event_release_guard(return_event,
                                                   cl::ref_count_type::EXTERNAL);
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
@@ -1259,8 +1255,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
                       "does not support out of order execution"));
 #endif
 
-  const std::lock_guard<std::mutex> lock(
-      queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer =
       queue->getCommandBuffer({event_list, num_events}, nullptr);
@@ -1274,14 +1269,13 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWaitForEvents(
 CL_API_ENTRY cl_int CL_API_CALL cl::Flush(cl_command_queue command_queue) {
   const tracer::TraceGuard<tracer::OpenCL> guard("clFlush");
   OCL_CHECK(!command_queue, return CL_INVALID_COMMAND_QUEUE);
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
   return command_queue->flush();
 }
 
 cl_int _cl_command_queue::finish() {
   {
-    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::scoped_lock lock(context->getCommandQueueMutex());
     flush();
   }
 
@@ -1290,7 +1284,7 @@ cl_int _cl_command_queue::finish() {
   }
 
   {
-    const std::lock_guard<std::mutex> lock(context->getCommandQueueMutex());
+    const std::scoped_lock lock(context->getCommandQueueMutex());
     if (CL_SUCCESS != cleanupCompletedCommandBuffers()) {
       return CL_OUT_OF_RESOURCES;
     }
@@ -1318,8 +1312,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::Finish(cl_command_queue command_queue) {
 
   cl_int result;
   {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
     result = command_queue->flush();
   }
 
@@ -1352,8 +1345,7 @@ cl::EnqueueMarker(cl_command_queue command_queue, cl_event *event) {
     }
     *event = *new_event;
 
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer({}, *event);
     if (!mux_command_buffer) {

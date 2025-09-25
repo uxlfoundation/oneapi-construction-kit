@@ -267,7 +267,7 @@ void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
   uint8_t *data;
   const size_t num_groups = group_offsets.size();
   for (size_t i = 0; i < num_groups; ++i) {
-    data = pack + i * max_length;
+    data = pack + (i * max_length);
 
     // retrieve the size in bytes written to the printf buffer for
     // the work item

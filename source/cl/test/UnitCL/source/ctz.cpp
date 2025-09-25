@@ -163,7 +163,7 @@ TYPED_TEST_P(CtzTest, SingleIntger) {
 }
 
 REGISTER_TYPED_TEST_SUITE_P(CtzTest, SingleIntger);
-#if !defined(__clang_analyzer__)
+#ifndef __clang_analyzer__
 using IntegerTypes = testing::Types<
     ucl::Char, ucl::Char2, ucl::Char3, ucl::Char4, ucl::Char8, ucl::Char16,
     ucl::UChar, ucl::UChar2, ucl::UChar3, ucl::UChar4, ucl::UChar8,

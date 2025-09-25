@@ -119,7 +119,7 @@ BaseAOTTarget::BaseAOTTarget(const compiler::Info *compiler_info,
 
 void BaseAOTTarget::withLLVMContextDo(void (*f)(llvm::LLVMContext &, void *),
                                       void *p) {
-  const std::lock_guard guard(llvm_context_mutex);
+  const std::scoped_lock guard(llvm_context_mutex);
   f(llvm_context, p);
 }
 

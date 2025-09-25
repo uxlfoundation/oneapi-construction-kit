@@ -104,7 +104,7 @@
 #include <sstream>
 #include <unordered_set>
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define PATH_SEPARATOR "\\"
 #else
 #define PATH_SEPARATOR "/"
@@ -1498,8 +1498,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
   {
     // BeginSourceFile accesses LLVM global variables:
     // LLVMTimePassesEnabled and LLVMTimePassesPerRun.
-    const std::lock_guard<std::mutex> globalLock(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock globalLock(compiler::utils::getLLVMGlobalMutex());
     if (!action.BeginSourceFile(instance, kernelFile)) {
       return nullptr;
     }
@@ -1519,8 +1518,7 @@ std::unique_ptr<llvm::Module> BaseModule::compileOpenCLCToIR(
     // matter, on AArch64 it caused crashes due to double free's within a
     // std::string's destructor.  So, we lock globally before asking Clang
     // to process this source file.
-    const std::lock_guard<std::mutex> guard(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock guard(compiler::utils::getLLVMGlobalMutex());
     if (action.Execute()) {
       return nullptr;
     }
@@ -1679,8 +1677,7 @@ Result BaseModule::finalize(
     // Numerous things below touch LLVM's global state, in particular
     // retriggering command-line option parsing at various points. Ensure we
     // avoid data races by locking the LLVM global mutex.
-    const std::lock_guard<std::mutex> globalLock(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock globalLock(compiler::utils::getLLVMGlobalMutex());
 
     if (!llvm_module) {
       CPL_ABORT(
@@ -1875,7 +1872,7 @@ Kernel *BaseModule::getKernel(const std::string &name) {
   }
 
   // Lookup or create kernel.
-  const std::lock_guard<std::mutex> guard(kernel_mutex);
+  const std::scoped_lock guard(kernel_mutex);
 
   if (kernel_map.count(name)) {
     return kernel_map[name].get();

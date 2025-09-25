@@ -224,7 +224,7 @@ TEST_F(clEnqueueReadBufferTest, NullWaitList) {
 }
 
 TEST_F(clEnqueueReadBufferTest, WaitListWithBadNumber) {
-  cl_event list;
+  cl_event list = nullptr;
   ASSERT_EQ_ERRCODE(CL_INVALID_EVENT_WAIT_LIST,
                     clEnqueueReadBuffer(command_queue, inMem, CL_TRUE, 0,
                                         INT_SIZE, inBuffer, 0, &list, nullptr));

@@ -192,7 +192,7 @@ struct _cl_mem : public cl::base<_cl_mem> {
     bool is_active = true;
   };
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Array of the buffers associated properties and their respective
   /// values.
   cargo::dynamic_array<cl_mem_properties> properties;
@@ -203,7 +203,7 @@ struct _cl_mem : public cl::base<_cl_mem> {
   std::unordered_map<void *, mapping> write_mappings;
   /// @brief Device which owns the most up to date version of the data.
   cl_device_id device_owner;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief CL_FALSE if no devices in the context associated with memobj
   /// support Shared Virtual Memory.
   cl_bool uses_svm_pointer;

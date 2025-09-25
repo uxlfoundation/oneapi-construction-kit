@@ -206,7 +206,7 @@ struct _cl_command_queue final : public cl::base<_cl_command_queue> {
   /// @brief Properties enabled when the command queue was created.
   cl_command_queue_properties properties;
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
   /// @brief Array of properties values passed into
   /// `clCreateCommandQueueWithProperties`.
   cargo::small_vector<cl_queue_properties, 3> properties_list;

@@ -564,6 +564,6 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetContextDestructorCallback(
   if (!pfn_notify) {
     return CL_INVALID_VALUE;
   }
-  const std::lock_guard<std::mutex> lock(context->mutex);
+  const std::scoped_lock lock(context->mutex);
   return context->pushDestructorCallback(pfn_notify, user_data);
 }

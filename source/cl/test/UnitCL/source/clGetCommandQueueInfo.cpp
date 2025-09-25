@@ -24,7 +24,7 @@ class clGetCommandQueueInfoTest : public ucl::ContextTest {
                                    sizeof(deviceSupportedProperties),
                                    &deviceSupportedProperties, nullptr));
     cl_int errcode;
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     std::array<cl_command_queue_properties, 3> properties = {
         CL_QUEUE_PROPERTIES, deviceSupportedProperties, 0};
     queue = clCreateCommandQueueWithProperties(context, device,
@@ -128,7 +128,7 @@ TEST_F(clGetCommandQueueInfoTest, ReturnBufferSizeTooSmall) {
       clGetCommandQueueInfo(queue, CL_QUEUE_CONTEXT, 1, &param_value, nullptr));
 }
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(clGetCommandQueueInfoTest, QueuePropertiesArray) {
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
     GTEST_SKIP();

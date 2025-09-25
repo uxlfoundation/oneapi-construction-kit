@@ -94,7 +94,7 @@
 ///
 /// Useful macro for reducing boilerplate when conditionally defining
 /// extension versions.
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 #define CA_CL_EXT_VERSION(MAJOR, MINOR, PATCH) \
   , CL_MAKE_VERSION_KHR(MAJOR, MINOR, PATCH)
 #else

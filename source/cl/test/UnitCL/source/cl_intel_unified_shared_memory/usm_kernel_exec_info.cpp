@@ -225,7 +225,7 @@ struct USMIndirectAccessTest : public USMKernelTest {
 #define PACKED /* deliberately blank */
 #endif
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(push, 1)
 #endif
 
@@ -237,7 +237,7 @@ struct USMIndirectAccessTest : public USMKernelTest {
     cl_ulong input_ptr;
   };
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
 };
@@ -346,7 +346,7 @@ struct USMMultiIndirectAccessTest : public USMKernelTest {
   // The pointer size between host and device may not match, so define two
   // separate structs with a unsigned integer member in place of the
   // `__global int*` in kernel code.
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(push, 1)
 #endif
 
@@ -360,7 +360,7 @@ struct USMMultiIndirectAccessTest : public USMKernelTest {
     cl_ulong inputB_ptr;
   };
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
 #undef PACKED
@@ -382,7 +382,7 @@ void kernel foo(__global ptr_wrapper* input, __global uchar* output) {
 )";
 }  // namespace
 
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
 TEST_F(USMIndirectAccessTest, IndirectDevicePointer) {
   if (!UCL::isDeviceVersionAtLeast({3, 0})) {
     GTEST_SKIP();

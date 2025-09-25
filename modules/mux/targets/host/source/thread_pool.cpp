@@ -37,7 +37,7 @@ void threadFuncBody(host::thread_pool_s *const me,
   // hold this mutex before signalling the work item is complete.
   bool reached_zero{false};
   {
-    const std::lock_guard<std::mutex> guard(me->wait_mutex);
+    const std::scoped_lock guard(me->wait_mutex);
 
     // Signal that we've completed this bit of work.  Count gets decremented
     // after signal gets set because if a program is waiting on a single
@@ -113,7 +113,7 @@ thread_pool_s::~thread_pool_s() {
   const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   {
-    const std::lock_guard<std::mutex> guard(mutex);
+    const std::scoped_lock guard(mutex);
     // kill the thread pool
     stayAlive = false;
   }

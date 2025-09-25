@@ -14,7 +14,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_clamp(abacus_@gen
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_clamp.
 /// @param[in] x A abacus_@generate_type@@vector_size@.
 /// @param[in] y A abacus_@generate_type@.
@@ -41,7 +41,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_max(abacus_@gener
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_max.
 /// @param[in] x A abacus_@generate_type@@vector_size@.
 /// @param[in] y A abacus_@generate_type@.
@@ -67,7 +67,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_min(abacus_@gener
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_min.
 /// @param[in] x A abacus_@generate_type@@vector_size@.
 /// @param[in] y A abacus_@generate_type@.
@@ -97,7 +97,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_mix(abacus_@gener
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_mix.
 /// @param[in] x A abacus_@generate_type@@vector_size@.
 /// @param[in] y A abacus_@generate_type@@vector_size@.
@@ -129,7 +129,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_smoothstep(abacus
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_smoothstep.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -156,7 +156,7 @@ abacus_@generate_type@@vector_size@ ABACUS_EXPORT_API __abacus_step(abacus_@gene
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_step.
 /// @param[in] e A abacus_@generate_type@.
 /// @param[in] x A abacus_@generate_type@@vector_size@.

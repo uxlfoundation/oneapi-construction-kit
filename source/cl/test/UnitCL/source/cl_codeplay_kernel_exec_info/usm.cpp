@@ -202,7 +202,7 @@ class KernelExecInfoCodeplayUSMPtrs : public USMKernelExecInfoCodeplayTest {
 #define PACKED /* deliberately blank */
 #endif
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(push, 1)
 #endif
 
@@ -214,7 +214,7 @@ class KernelExecInfoCodeplayUSMPtrs : public USMKernelExecInfoCodeplayTest {
     cl_ulong input_ptr;
   };
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
 };

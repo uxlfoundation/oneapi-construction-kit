@@ -14,7 +14,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mad24(abacus_@generate_type@ x
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_mad24.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.
@@ -41,7 +41,7 @@ abacus_@generate_type@ ABACUS_EXPORT_API __abacus_mul24(abacus_@generate_type@ x
 #if defined(__cplusplus) && !defined(__OPENCL_VERSION__)
 namespace abacus {
 #endif
-#if defined(ABACUS_ENABLE_OPENCL_1_2_BUILTINS)
+#ifdef ABACUS_ENABLE_OPENCL_1_2_BUILTINS
 /// @brief Wrapper for __abacus_mul24.
 /// @param[in] x A abacus_@generate_type@.
 /// @param[in] y A abacus_@generate_type@.

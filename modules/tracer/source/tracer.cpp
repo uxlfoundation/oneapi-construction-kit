@@ -23,7 +23,7 @@
 #include <ctime>
 #include <string>
 
-#if defined(__linux__)
+#ifdef __linux__
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -41,7 +41,7 @@
 
 namespace {
 
-#if defined(__linux__)
+#ifdef __linux__
 const int pid = static_cast<int>(syscall(SYS_getpid));
 thread_local const int tid = static_cast<int>(syscall(SYS_gettid));
 #elif defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
@@ -53,7 +53,7 @@ thread_local const int tid = static_cast<int>(GetCurrentThreadId());
 #error Platform not supported!
 #endif
 
-#if defined(__linux__)
+#ifdef __linux__
 struct TracerVirtualMemFileImpl {
   explicit TracerVirtualMemFileImpl()
       : export_file(std::getenv("CA_TRACE_FILE")) {

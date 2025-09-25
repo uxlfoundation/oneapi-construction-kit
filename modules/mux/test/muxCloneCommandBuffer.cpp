@@ -615,7 +615,7 @@ TEST_P(muxCloneCommandBufferTest, CloneUserCallbackInLoop) {
                           void *const user_data) {
     auto *command_buffers_executed =
         static_cast<command_buffers_executed_t *>(user_data);
-    const std::lock_guard<std::mutex> guard(command_buffers_executed->mutex);
+    const std::scoped_lock guard(command_buffers_executed->mutex);
     command_buffers_executed->command_buffers_executed.push_back(
         command_buffer);
   };

@@ -22,7 +22,7 @@
 #ifndef __ABACUS_DETAIL_RELATIONAL__
 #define __ABACUS_DETAIL_RELATIONAL__
 
-#if !defined(__cplusplus)
+#ifndef __cplusplus
 #error This header should only be included from C++!
 #endif
 #ifndef __ABACUS_ABACUS_CONFIG__

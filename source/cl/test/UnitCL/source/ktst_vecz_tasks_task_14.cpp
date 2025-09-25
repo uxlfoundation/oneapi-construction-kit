@@ -29,7 +29,7 @@ TEST_P(Execution, Task_14_01_balance) {
   kts::Reference1D<cl_float4> refIn = [](size_t x) -> cl_float4 {
     cl_float4 input;
     for (size_t i = 0; i < 4; ++i) {
-      input.s[i] = kts::Ref_Float(x) * 4 - i;
+      input.s[i] = (kts::Ref_Float(x) * 4) - i;
     }
     return input;
   };
@@ -54,7 +54,7 @@ TEST_P(Execution, Task_14_02_negate) {
   kts::Reference1D<cl_float4> refIn = [](size_t x) -> cl_float4 {
     cl_float4 input;
     for (size_t i = 0; i < 4; ++i) {
-      input.s[i] = kts::Ref_Float(x) * 4 - i;
+      input.s[i] = (kts::Ref_Float(x) * 4) - i;
     }
     return input;
   };

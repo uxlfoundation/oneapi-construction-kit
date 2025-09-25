@@ -116,7 +116,7 @@ TEST_P(Execution, Regression_106_Varying_LCSSA_Phi) {
       // We explicitly cast 40499 to a cl_uint here to avoid UB. When the
       // cl_ushort multiplication overflows, the result is implicitly promoted
       // to cl_int, which then overflows causing UB.
-      hash = hash * (cl_uint)40499 + (cl_ushort)refIn(i);
+      hash = (hash * (cl_uint)40499) + (cl_ushort)refIn(i);
     }
 
     if (hash & 1) {

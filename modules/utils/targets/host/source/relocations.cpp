@@ -58,7 +58,7 @@ extern void(_alloca)();
 #endif  // _MSC_VER || !UTILS_SYSTEM_X86
 #endif  // _MSC_VER || __MINGW32__ || __MINGW64__
 
-#if defined(UTILS_SYSTEM_32_BIT)
+#ifdef UTILS_SYSTEM_32_BIT
 // On 32-bit (both x86 and Arm) long division is done in software.
 extern void __divdi3();
 extern void __udivdi3();
@@ -90,7 +90,7 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
   unsigned char *d = reinterpret_cast<unsigned char *>(dest);
   const unsigned char *s = reinterpret_cast<const unsigned char *>(src);
 
-#if !defined(_MSC_VER)
+#ifndef _MSC_VER
   // On 'nix, check that the source is readable and the destination is writeable
   const int null_fd = open("/dev/null", O_WRONLY);
   const int zero_fd = open("/dev/zero", O_RDONLY);
@@ -127,7 +127,7 @@ void *dbg_memset(void *dest, int ch, size_t count) {
   const unsigned char c = static_cast<unsigned char>(ch);
   unsigned char *d = reinterpret_cast<unsigned char *>(dest);
 
-#if !defined(_MSC_VER)
+#ifndef _MSC_VER
   // On 'nix, check that the destination is writeable
   const int zero_fd = open("/dev/zero", O_RDONLY);
 
@@ -181,7 +181,7 @@ std::vector<std::pair<std::string, uint64_t>> getRelocations() {
 #endif  // _MSC_VER || !UTILS_SYSTEM_X86
 #endif  // _MSC_VER || __MINGW32__ || __MINGW64__
 
-#if defined(UTILS_SYSTEM_32_BIT)
+#ifdef UTILS_SYSTEM_32_BIT
       {"__divdi3", reinterpret_cast<uint64_t>(&__divdi3)},
       {"__udivdi3", reinterpret_cast<uint64_t>(&__udivdi3)},
       {"__moddi3", reinterpret_cast<uint64_t>(&__moddi3)},

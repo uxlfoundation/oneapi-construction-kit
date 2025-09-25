@@ -156,8 +156,7 @@ HostModule::hostCompileObject(HostTarget &target,
   {
     // Using the CrashRecoveryContext and statistics touches LLVM's global
     // state.
-    const std::lock_guard<std::mutex> globalLock(
-        compiler::utils::getLLVMGlobalMutex());
+    const std::scoped_lock globalLock(compiler::utils::getLLVMGlobalMutex());
 
     llvm::CrashRecoveryContext CRC;
     llvm::CrashRecoveryContext::Enable();

@@ -25,7 +25,7 @@ struct clCreateBufferParamTest : ucl::ContextTest,
                                  testing::WithParamInterface<bool> {
   void SetUp() override {
     UCL_RETURN_ON_FATAL_FAILURE(ContextTest::SetUp());
-#if !defined(CL_VERSION_3_0)
+#ifndef CL_VERSION_3_0
     if (GetParam()) {
       GTEST_SKIP();
     }
@@ -36,7 +36,7 @@ struct clCreateBufferParamTest : ucl::ContextTest,
                       void *host_ptr, cl_int *errcode_ret) {
     cl_mem buffer = nullptr;
     if (GetParam()) {
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       buffer = clCreateBufferWithProperties(context, nullptr, flags, size,
                                             host_ptr, errcode_ret);
 #else
@@ -368,18 +368,18 @@ TEST_F(clCreateBufferHostPtr, FourAligned) {
   // Get buffers A, B, and C that are 16-aligned, then add 4.
   // sz contains a return value, so it needs to be reset.
   size_t sz = buf_sz;
-  const uintptr_t ptr_A = reinterpret_cast<uintptr_t>(
-      std::align(16, elements * sizeof(uintptr_t), buf_A, sz));
+  char *const ptr_A = static_cast<char *>(
+      std::align(16, elements * sizeof(cl_float), buf_A, sz));
   sz = buf_sz;
-  const uintptr_t ptr_B = reinterpret_cast<uintptr_t>(
-      std::align(16, elements * sizeof(uintptr_t), buf_B, sz));
+  char *const ptr_B = static_cast<char *>(
+      std::align(16, elements * sizeof(cl_float), buf_B, sz));
   sz = buf_sz;
-  const uintptr_t ptr_C = reinterpret_cast<uintptr_t>(
+  char *const ptr_C = static_cast<char *>(
       std::align(16, elements * sizeof(cl_float), buf_C, sz));
 
-  ASSERT_NE(0, ptr_A) << "Failed to get 16-aligned buffer";
-  ASSERT_NE(0, ptr_B) << "Failed to get 16-aligned buffer";
-  ASSERT_NE(0, ptr_C) << "Failed to get 16-aligned buffer";
+  ASSERT_NE(nullptr, ptr_A) << "Failed to get 16-aligned buffer";
+  ASSERT_NE(nullptr, ptr_B) << "Failed to get 16-aligned buffer";
+  ASSERT_NE(nullptr, ptr_C) << "Failed to get 16-aligned buffer";
 
   cl_float *const A = reinterpret_cast<cl_float *>(ptr_A + 4);
   cl_float *const B = reinterpret_cast<cl_float *>(ptr_B + 4);

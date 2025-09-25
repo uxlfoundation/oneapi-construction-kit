@@ -1346,7 +1346,7 @@ cl_uint UCL::getDeviceAddressBits(cl_device_id device) {
   return address_bits;
 }
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 /// @brief Parse hexadecimal floats. This is only needed for Visual Studio,
 ///        as it does not support hexadecimal floating point notation.
 ///        Currently this only supports floats of the form 0x0p0f, 0x1pEf, and
@@ -1573,13 +1573,13 @@ std::string UCL::deviceQueryToString(cl_device_info query) {
     DEVICE_QUERY_CASE(CL_DEVICE_MAX_NUM_SUB_GROUPS);
     DEVICE_QUERY_CASE(CL_DEVICE_SUB_GROUP_INDEPENDENT_FORWARD_PROGRESS);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     DEVICE_QUERY_CASE(CL_DEVICE_NUMERIC_VERSION);
     DEVICE_QUERY_CASE(CL_DEVICE_EXTENSIONS_WITH_VERSION);
     DEVICE_QUERY_CASE(CL_DEVICE_ILS_WITH_VERSION);
     DEVICE_QUERY_CASE(CL_DEVICE_BUILT_IN_KERNELS_WITH_VERSION);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     DEVICE_QUERY_CASE(CL_DEVICE_ATOMIC_MEMORY_CAPABILITIES);
     DEVICE_QUERY_CASE(CL_DEVICE_ATOMIC_FENCE_CAPABILITIES);
     DEVICE_QUERY_CASE(CL_DEVICE_NON_UNIFORM_WORK_GROUP_SUPPORT);
@@ -1645,7 +1645,7 @@ std::string UCL::platformQueryToString(cl_platform_info query) {
 #ifdef CL_VERSION_2_1
     PLATFORM_QUERY_CASE(CL_PLATFORM_HOST_TIMER_RESOLUTION);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
     PLATFORM_QUERY_CASE(CL_PLATFORM_NUMERIC_VERSION);
     PLATFORM_QUERY_CASE(CL_PLATFORM_EXTENSIONS_WITH_VERSION);
 #endif
@@ -1703,7 +1703,7 @@ std::string UCL::memObjectQueryToString(cl_mem_info query) {
 #ifdef CL_VERSION_2_0
       MEM_OBJECT_QUERY_CASE(CL_MEM_USES_SVM_POINTER);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       MEM_OBJECT_QUERY_CASE(CL_MEM_PROPERTIES);
 #endif
   }
@@ -1730,7 +1730,7 @@ std::string UCL::commandQueueQueryToString(cl_command_queue_info query) {
 #ifdef CL_VERSION_2_1
       COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_DEVICE_DEFAULT);
 #endif
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       COMMAND_QUEUE_QUERY_CASE(CL_QUEUE_PROPERTIES_ARRAY);
 #endif
   }

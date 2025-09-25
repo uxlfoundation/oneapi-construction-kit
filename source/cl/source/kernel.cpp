@@ -240,8 +240,7 @@ cl_int PushExecuteKernel(
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &local_work_size,
     const cl_uint num_events_in_wait_list,
     const cl_event *const event_wait_list, cl_event return_event) {
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
   if (!mux_command_buffer) {
@@ -1128,9 +1127,9 @@ CL_API_ENTRY cl_int CL_API_CALL cl::GetKernelInfo(
   switch (param_name) {
     case CL_KERNEL_FUNCTION_NAME:
       OCL_SET_IF_NOT_NULL(param_value_size_ret,
-                          sizeof(char) * kernel->name.size() + 1);
+                          (sizeof(char) * kernel->name.size()) + 1);
       OCL_CHECK(param_value &&
-                    param_value_size < sizeof(char) * kernel->name.size() + 1,
+                    param_value_size < (sizeof(char) * kernel->name.size()) + 1,
                 return CL_INVALID_VALUE);
       if (param_value) {
         std::strncpy(reinterpret_cast<char *>(param_value),
@@ -1596,8 +1595,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueNDRangeKernel(
   // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
   // sync as createBlockingEventForKernel adds to USM lists assuming that they
   // reflect already queued events.
-  const std::lock_guard<std::mutex> context_guard(
-      command_queue->context->usm_mutex);
+  const std::scoped_lock context_guard(command_queue->context->usm_mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_NDRANGE_KERNEL, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);
@@ -1677,8 +1675,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueTask(cl_command_queue command_queue,
   // ensure any blocking operations such clMemBlockingFreeINTEL are entirely in
   // sync as createBlockingEventForKernel adds to USM lists assuming that they
   // reflect already queued events.
-  const std::lock_guard<std::mutex> context_guard(
-      command_queue->context->usm_mutex);
+  const std::scoped_lock context_guard(command_queue->context->usm_mutex);
   error = extension::usm::createBlockingEventForKernel(
       command_queue, kernel, CL_COMMAND_TASK, return_event);
   OCL_CHECK(error != CL_SUCCESS, return error);

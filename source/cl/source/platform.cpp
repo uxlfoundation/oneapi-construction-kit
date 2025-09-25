@@ -128,7 +128,7 @@ cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
     // Platform creation was a success.
     platform = new_platform.release();
 
-#if !defined(CA_PLATFORM_WINDOWS)
+#ifndef CA_PLATFORM_WINDOWS
     // Add an atexit handler to destroy the cl_platform_id. This is not done on
     // Windows because DLL's which we rely on are not guarenteed to be loaded
     // when atexit handlers are invoked, the advice given by Microsoft is not
@@ -238,7 +238,7 @@ cl::GetPlatformInfo(cl_platform_id platform, cl_platform_info param_name,
 #endif  // CA_BUILD_TYPE
       PLATFORM_INFO_CASE(CL_PLATFORM_NAME, CA_CL_PLATFORM_NAME);
       PLATFORM_INFO_CASE(CL_PLATFORM_VENDOR, CA_CL_PLATFORM_VENDOR);
-#if defined(CL_VERSION_3_0)
+#ifdef CL_VERSION_3_0
       PLATFORM_INFO_CASE_NOT_STRING(CL_PLATFORM_HOST_TIMER_RESOLUTION,
                                     platform->host_timer_resolution);
     case CL_PLATFORM_NUMERIC_VERSION: {

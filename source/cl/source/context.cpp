@@ -131,7 +131,7 @@ compiler::Context *_cl_context::getCompilerContext() {
 }
 
 compiler::Target *_cl_context::getCompilerTarget(const cl_device_id device) {
-  const std::lock_guard<std::mutex> guard{compiler_targets_mutex};
+  const std::scoped_lock guard{compiler_targets_mutex};
 
   auto it = compiler_targets.find(device);
   if (it != compiler_targets.end()) {

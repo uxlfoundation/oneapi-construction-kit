@@ -52,7 +52,7 @@ class TestWithEventWaitList {
   }                                                                        \
                                                                            \
   TEST_F(TEST_NAME, EventWaitListNonNullSize0) {                           \
-    cl_event event;                                                        \
+    cl_event event = nullptr;                                              \
     EventWaitListAPICall(CL_INVALID_EVENT_WAIT_LIST, 0, &event, nullptr);  \
   }                                                                        \
                                                                            \

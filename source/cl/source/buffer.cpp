@@ -148,7 +148,7 @@ cl_int _cl_mem_buffer::synchronize(cl_command_queue command_queue) {
       const auto dest_mux_memory = mux_memories[dest_device_index];
 
       // Take a lock on this buffers mutex.
-      const std::lock_guard<std::mutex> lock_guard(mutex);
+      const std::scoped_lock lock_guard(mutex);
 
       // Perform the synchronization.
       if (auto mux_error = mux::synchronizeMemory(
@@ -404,8 +404,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueWriteBufferRect(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, event_release_guard.get());
@@ -549,8 +548,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBufferRect(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, return_event);
@@ -651,8 +649,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueCopyBufferRect(
     *event = return_event;
   }
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
@@ -864,8 +861,7 @@ cl::EnqueueWriteBuffer(cl_command_queue command_queue, cl_mem buffer,
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, event_release_guard.get());
@@ -951,8 +947,7 @@ CL_API_ENTRY cl_int CL_API_CALL cl::EnqueueReadBuffer(
                                                   cl::ref_count_type::EXTERNAL);
 
   {
-    const std::lock_guard<std::mutex> lock(
-        command_queue->context->getCommandQueueMutex());
+    const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
     auto mux_command_buffer = command_queue->getCommandBuffer(
         {event_wait_list, num_events_in_wait_list}, event_release_guard.get());
@@ -1029,8 +1024,7 @@ cl::EnqueueCopyBuffer(cl_command_queue command_queue, cl_mem src_buffer,
     *event = return_event;
   }
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
@@ -1095,8 +1089,7 @@ cl::EnqueueFillBuffer(cl_command_queue command_queue, cl_mem buffer,
     *event = return_event;
   }
 
-  const std::lock_guard<std::mutex> lock(
-      command_queue->context->getCommandQueueMutex());
+  const std::scoped_lock lock(command_queue->context->getCommandQueueMutex());
 
   auto mux_command_buffer = command_queue->getCommandBuffer(
       {event_wait_list, num_events_in_wait_list}, return_event);
