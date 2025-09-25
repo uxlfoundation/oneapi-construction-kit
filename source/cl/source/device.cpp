@@ -34,14 +34,13 @@
 #include <cstring>
 #include <type_traits>
 
-namespace {
 // Clamp a value into a range specified by [lo..hi]
 template <typename T, typename U>
-T clamp(const T x, const U lo, const U hi) {
+static T clamp(const T x, const U lo, const U hi) {
   return std::min(static_cast<T>(hi), std::max(x, static_cast<T>(lo)));
 }
 
-cl_device_fp_config setOpenCLFromMux(uint32_t capabilities) {
+static cl_device_fp_config setOpenCLFromMux(uint32_t capabilities) {
   cl_device_fp_config config = 0;
   if (cl::validate::IsInBitSet(capabilities,
                                mux_floating_point_capabilities_denorm)) {
@@ -75,8 +74,6 @@ cl_device_fp_config setOpenCLFromMux(uint32_t capabilities) {
   }
   return config;
 }
-
-}  // namespace
 
 _cl_device_id::_cl_device_id(cl_platform_id platform,
                              mux_allocator_info_t mux_allocator,

@@ -598,8 +598,7 @@ Function *VectorizationContext::getOrCreateMaskedAtomicFunction(
   return getOrCreateInternalBuiltin(maskedFnName, maskedFnTy);
 }
 
-namespace {
-std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
+static std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
     StringRef fnName, Type *const ty) {
   compiler::utils::Lexer L(fnName);
   if (!L.Consume(VectorizationContext::InternalBuiltinPrefix)) {
@@ -650,7 +649,6 @@ std::optional<std::tuple<bool, RecurKind, bool>> isSubgroupScan(
   }
   return std::nullopt;
 }
-}  // namespace
 
 bool VectorizationContext::defineInternalBuiltin(Function *F) {
   assert(F->isDeclaration() && "builtin is already defined");

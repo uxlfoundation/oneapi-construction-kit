@@ -19,9 +19,8 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_relational.h>
 
-namespace {
 template <typename T>
-inline T logb_helper_scalar(const T x) {
+static inline T logb_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
   if (!__abacus_isfinite(x)) {
@@ -36,7 +35,7 @@ inline T logb_helper_scalar(const T x) {
 }
 
 template <typename T>
-inline T logb_helper_vector(const T x) {
+static inline T logb_helper_vector(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -44,7 +43,6 @@ inline T logb_helper_vector(const T x) {
   result = __abacus_select(result, -ABACUS_INFINITY, x == T(-0.0));
   return __abacus_select(result, __abacus_fabs(x), ~__abacus_isfinite(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_logb(abacus_half x) {

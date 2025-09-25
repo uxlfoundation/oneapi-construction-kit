@@ -20,8 +20,7 @@
 #include "kts/precision.h"
 #include "ucl/checks.h"
 
-namespace {
-std::string getPlatformVendor(cl_platform_id platform) {
+static std::string getPlatformVendor(cl_platform_id platform) {
   size_t size;
   if (auto error =
           clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, 0, nullptr, &size)) {
@@ -39,7 +38,7 @@ std::string getPlatformVendor(cl_platform_id platform) {
   return cargo::as<std::string>(cargo::trim(platformVendor));
 }
 
-std::string getDeviceName(cl_device_id device) {
+static std::string getDeviceName(cl_device_id device) {
   size_t size;
   if (auto error = clGetDeviceInfo(device, CL_DEVICE_NAME, 0, nullptr, &size)) {
     (void)std::fprintf(stderr, "ERROR: Getting OpencL device name: %d\n",
@@ -55,7 +54,6 @@ std::string getDeviceName(cl_device_id device) {
   }
   return cargo::as<std::string>(cargo::trim(deviceName));
 }
-}  // namespace
 
 ucl::Environment::Environment(
     const std::string &platformVendor, const std::string &deviceName,

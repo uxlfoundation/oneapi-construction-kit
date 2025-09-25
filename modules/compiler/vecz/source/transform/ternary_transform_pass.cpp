@@ -31,13 +31,13 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
 /// @brief Determine whether the select can and should be transformed. This is
 /// the case when there is at most one GEP to it and followed by Load/Store
 /// memory op and there are no other users to GEP.
 /// Additionally, we reject various cases where the tranform would not result
 /// in better code.
-bool shouldTransform(SelectInst *Select, const StrideAnalysisResult &SAR) {
+static bool shouldTransform(SelectInst *Select,
+                            const StrideAnalysisResult &SAR) {
   // The transform only applies to pointer selects.
   if (!Select->getType()->isPointerTy()) {
     return false;
@@ -127,7 +127,7 @@ bool shouldTransform(SelectInst *Select, const StrideAnalysisResult &SAR) {
 
 /// @brief Try to transform the select, remove GEP & memory op and
 /// replace with transformed GEP and masked memory op.
-void Transform(SelectInst *Select, VectorizationContext &Ctx) {
+static void Transform(SelectInst *Select, VectorizationContext &Ctx) {
   SmallVector<Instruction *, 8> ToDelete;
 
   auto transformSelect = [&](GetElementPtrInst *GEP, Instruction *Memop,
@@ -206,7 +206,6 @@ void Transform(SelectInst *Select, VectorizationContext &Ctx) {
 
   IRCleanup::deleteInstructionNow(Select);
 }
-}  // namespace
 
 PreservedAnalyses TernaryTransformPass::run(llvm::Function &F,
                                             llvm::FunctionAnalysisManager &AM) {

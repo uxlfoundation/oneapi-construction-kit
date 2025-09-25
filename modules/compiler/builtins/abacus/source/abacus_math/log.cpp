@@ -130,11 +130,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T ABACUS_API log(const T x) {
+static T ABACUS_API log(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_log(abacus_half x) { return log<>(x); }

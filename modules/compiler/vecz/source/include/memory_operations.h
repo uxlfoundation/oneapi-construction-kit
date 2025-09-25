@@ -590,25 +590,23 @@ struct MemOp {
   MemOpDesc Desc;
 };
 
-namespace {
-inline llvm::ConstantInt *getSizeInt(llvm::IRBuilder<> &B, int64_t val) {
+static inline llvm::ConstantInt *getSizeInt(llvm::IRBuilder<> &B, int64_t val) {
   if (B.GetInsertBlock()->getModule()->getDataLayout().getPointerSize() == 4) {
     return B.getInt32(val);
   }
   return B.getInt64(val);
 }
 
-inline llvm::IntegerType *getSizeTy(llvm::Module &M) {
+static inline llvm::IntegerType *getSizeTy(llvm::Module &M) {
   if (M.getDataLayout().getPointerSize() == 4) {
     return llvm::Type::getInt32Ty(M.getContext());
   }
   return llvm::Type::getInt64Ty(M.getContext());
 }
 
-inline llvm::IntegerType *getSizeTy(llvm::IRBuilder<> &B) {
+static inline llvm::IntegerType *getSizeTy(llvm::IRBuilder<> &B) {
   return getSizeTy(*(B.GetInsertBlock()->getModule()));
 }
-}  // namespace
 }  // namespace vecz
 
 #endif  // VECZ_MEMORY_OPERATIONS_H_INCLUDED

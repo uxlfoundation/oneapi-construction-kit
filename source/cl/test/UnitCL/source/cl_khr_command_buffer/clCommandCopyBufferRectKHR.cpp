@@ -15,13 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #include "cl_khr_command_buffer.h"
 
-namespace {
 // For easily handling raw blocks of bytes.
 using byte_vector = std::vector<cl_uchar>;
 // For easily handling `src_origin` and `dst_origin`.
 using Position = std::array<std::size_t, 3>;
 // For easily handling  `region`.
 using Region = std::array<std::size_t, 3>;
+
+namespace {
 
 // Holds the values over which the tests is parameterized.
 struct test_parameters {
@@ -37,12 +38,14 @@ struct test_parameters {
   size_t dst_slice_pitch;
 };
 
+}  // namespace
+
 // Does the host side equivalent of a clCopyBufferRect operation.
-void copyBufferRect(const byte_vector &src_buffer, byte_vector &dst_buffer,
-                    const Position &src_origin, const Position &dst_origin,
-                    const Region &region, size_t src_row_pitch,
-                    size_t src_slice_pitch, size_t dst_row_pitch,
-                    size_t dst_slice_pitch) {
+static void copyBufferRect(const byte_vector &src_buffer,
+                           byte_vector &dst_buffer, const Position &src_origin,
+                           const Position &dst_origin, const Region &region,
+                           size_t src_row_pitch, size_t src_slice_pitch,
+                           size_t dst_row_pitch, size_t dst_slice_pitch) {
   const size_t src_offset = (src_origin[2] * src_slice_pitch) +
                             (src_origin[1] * src_row_pitch) + src_origin[0];
 
@@ -65,8 +68,6 @@ void copyBufferRect(const byte_vector &src_buffer, byte_vector &dst_buffer,
     }
   }
 }
-
-}  // namespace
 
 class CommandCopyBufferRectParamTest
     : public cl_khr_command_buffer_Test,
@@ -974,7 +975,7 @@ TEST_F(CommandCopyBufferRectErrorTest, InvalidSyncPoints) {
           dst_origin.data(), region.data(), row_pitch, slice_pitch, row_pitch,
           slice_pitch, 1, nullptr, nullptr, nullptr));
 
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
       clCommandCopyBufferRectKHR(

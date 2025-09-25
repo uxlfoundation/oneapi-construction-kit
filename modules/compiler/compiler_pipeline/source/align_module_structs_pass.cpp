@@ -33,7 +33,6 @@
 
 using namespace llvm;
 
-namespace {
 using ReplacementStructSP =
     compiler::utils::AlignModuleStructsPass::ReplacementStructSP;
 using StructReplacementMap =
@@ -50,7 +49,7 @@ using StructReplacementMap =
 /// @param[in] map Mapping of old struct types to new struct types
 ///
 /// @return Alternative type if one could be found, null otherwise
-Type *getNewType(Type *type, const StructReplacementMap &map) {
+static Type *getNewType(Type *type, const StructReplacementMap &map) {
   // Use recursion to build up new types for arrays and pointers.
   if (type->isPointerTy()) {
     // We can't remap pointer types, and it doesn't really make sense, assuming
@@ -75,6 +74,8 @@ Type *getNewType(Type *type, const StructReplacementMap &map) {
   // the initial check and reach here.
   return nullptr;
 }
+
+namespace {
 
 /// @brief Implementation of ValueMapTypeRemapper
 ///
@@ -102,13 +103,15 @@ class StructTypeRemapper final : public ValueMapTypeRemapper {
   const StructReplacementMap &map;
 };
 
+}  // namespace
+
 /// @brief Creates replacement initializer for global variable
 ///
 /// @param[in] oldInit Current initializer for old struct type
 /// @param[in] typeMap Mapping of old to new struct types
 /// @return New constant initializer for updated type
-Constant *createInitializer(Constant *oldInit,
-                            const StructReplacementMap &typeMap) {
+static Constant *createInitializer(Constant *oldInit,
+                                   const StructReplacementMap &typeMap) {
   auto *initType = getNewType(oldInit->getType(), typeMap);
   // Default initializer to poison
   Constant *newInit = PoisonValue::get(initType);
@@ -159,9 +162,9 @@ Constant *createInitializer(Constant *oldInit,
 /// @param[in] global GlobalVariable to replace
 /// @param[in] typeMap Mapping of old to new struct types
 /// @param[in,out] valMap Mapping of values we want to replace in the clone
-void replaceGlobalVariable(GlobalVariable *global,
-                           const StructReplacementMap &typeMap,
-                           ValueToValueMapTy &valMap) {
+static void replaceGlobalVariable(GlobalVariable *global,
+                                  const StructReplacementMap &typeMap,
+                                  ValueToValueMapTy &valMap) {
   // Global variable initializer
   Constant *initalizer = createInitializer(global->getInitializer(), typeMap);
 
@@ -199,8 +202,8 @@ void replaceGlobalVariable(GlobalVariable *global,
 ///
 /// @param[in] gepInst GetElementPtr instruction to update
 /// @param[in] typeMap Mapping of old to new struct types
-void fixupGepIndices(GetElementPtrInst *gepInst,
-                     const StructReplacementMap &typeMap) {
+static void fixupGepIndices(GetElementPtrInst *gepInst,
+                            const StructReplacementMap &typeMap) {
   // We push new indices to these vectors to walk the indirections looking for
   // structs we need to update the indices for
   SmallVector<Value *, 4> newIndices{gepInst->getOperand(1)};
@@ -248,9 +251,9 @@ void fixupGepIndices(GetElementPtrInst *gepInst,
 /// @param[in] typeMap Mapping of old to new struct types
 /// @param[in,out] valMap Mapping of values we want to replace in the clone
 /// @return cloned function which has been generated
-Function *cloneFunctionUpdatingTypes(Function &func,
-                                     const StructReplacementMap &typeMap,
-                                     ValueToValueMapTy &valMap) {
+static Function *cloneFunctionUpdatingTypes(Function &func,
+                                            const StructReplacementMap &typeMap,
+                                            ValueToValueMapTy &valMap) {
   const auto *funcTy = func.getFunctionType();
 
   // Check function return type
@@ -349,16 +352,16 @@ Function *cloneFunctionUpdatingTypes(Function &func,
 
 // Returns the newType of the Value, returning the new type of the
 // GlobalVariable if it is one.
-Type *getNewType(Value *v, const StructReplacementMap &typeMap) {
+static Type *getNewType(Value *v, const StructReplacementMap &typeMap) {
   if (auto *glob = dyn_cast<GlobalVariable>(v)) {
     return getNewType(glob->getValueType(), typeMap);
   }
   return getNewType(v->getType(), typeMap);
 }
 
-bool replaceConstantsForRemapping(Constant *C,
-                                  const StructReplacementMap &typeMap,
-                                  const ValueToValueMapTy &valMap) {
+static bool replaceConstantsForRemapping(Constant *C,
+                                         const StructReplacementMap &typeMap,
+                                         const ValueToValueMapTy &valMap) {
   if (valMap.find(C) != valMap.end()) {
     return false;
   }
@@ -385,7 +388,8 @@ bool replaceConstantsForRemapping(Constant *C,
 ///
 /// @param[in] typeMap Mapping of old to new struct types
 /// @param[in] module Module to replace Values in
-void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
+static void replaceModuleTypes(const StructReplacementMap &typeMap,
+                               Module &module) {
   // Mapping of old Values to new ones
   ValueToValueMapTy valMap;
 
@@ -526,7 +530,6 @@ void replaceModuleTypes(const StructReplacementMap &typeMap, Module &module) {
     g->eraseFromParent();
   }
 }
-}  // namespace
 
 PreservedAnalyses compiler::utils::AlignModuleStructsPass::run(
     Module &module, ModuleAnalysisManager &) {

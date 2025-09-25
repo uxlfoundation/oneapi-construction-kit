@@ -403,7 +403,7 @@ TEST_F(ParallelCopyCommandBuffer, InvalidSyncPoints) {
                         command_buffer, nullptr, nullptr, kernel, 1, nullptr,
                         &global_size, nullptr, 1, nullptr, nullptr, nullptr));
 
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
       clCommandNDRangeKernelKHR(command_buffer, nullptr, nullptr, kernel, 1,

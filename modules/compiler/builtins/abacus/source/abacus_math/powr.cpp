@@ -20,9 +20,8 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/pow_unsafe.h>
 
-namespace {
 template <typename T>
-inline T powr(const T x, const T y) {
+static inline T powr(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const SignedType xIsInf = __abacus_isinf(x);
@@ -65,7 +64,6 @@ inline T powr(const T x, const T y) {
 
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_powr(abacus_half x, abacus_half y) {

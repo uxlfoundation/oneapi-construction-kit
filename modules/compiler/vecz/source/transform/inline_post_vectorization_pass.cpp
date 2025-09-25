@@ -32,7 +32,6 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
 /// @brief Process a call site, inlining it or marking it as needing inlining
 /// if required.
 ///
@@ -41,8 +40,8 @@ namespace {
 /// @param[in] BI Builtin database.
 ///
 /// @return New return value for the call instruction.
-Value *processCallSite(CallInst *CI, bool &NeedLLVMInline,
-                       compiler::utils::BuiltinInfo &BI) {
+static Value *processCallSite(CallInst *CI, bool &NeedLLVMInline,
+                              compiler::utils::BuiltinInfo &BI) {
   NeedLLVMInline = false;
 
   Function *Callee = CI->getCalledFunction();
@@ -75,8 +74,6 @@ Value *processCallSite(CallInst *CI, bool &NeedLLVMInline,
 
   return CI;
 }
-
-}  // namespace
 
 PreservedAnalyses InlinePostVectorizationPass::run(
     Function &F, FunctionAnalysisManager &AM) {

@@ -25,7 +25,6 @@
 
 using namespace llvm;
 
-namespace {
 const std::map<std::string, AtomicRMWInst::BinOp> atomicMap = {
     // Atomic add funcs...
     {"_Z8atom_addPU3AS1Vii", AtomicRMWInst::Add},
@@ -333,7 +332,7 @@ const std::map<std::string, AtomicRMWInst::BinOp> atomicMap = {
 /// @param[in,out] call Call instruction for transformation.
 ///
 /// @return bool Whether or not the pass changed anything.
-bool RunOnInstruction(CallInst &call) {
+static bool RunOnInstruction(CallInst &call) {
   if (Function *callee = call.getCalledFunction()) {
     const StringRef name = callee->getName();
     // Let's check mangled name. If spir's name mangling is changed, we also
@@ -392,7 +391,7 @@ bool RunOnInstruction(CallInst &call) {
 /// @param[in,out] block Basic block for checking.
 ///
 /// @return Return whether or not the pass changed anything.
-bool RunOnBasicBlock(BasicBlock &block) {
+static bool RunOnBasicBlock(BasicBlock &block) {
   bool result = false;
   BasicBlock::iterator iter = block.begin();
   while (iter != block.end()) {
@@ -410,7 +409,7 @@ bool RunOnBasicBlock(BasicBlock &block) {
 /// @param[in,out] function Function for checking.
 ///
 /// @return Whether or not the pass changed anything.
-bool RunOnFunction(Function &function) {
+static bool RunOnFunction(Function &function) {
   bool result = false;
 
   for (auto &basicBlock : function) {
@@ -419,8 +418,6 @@ bool RunOnFunction(Function &function) {
 
   return result;
 }
-
-}  // namespace
 
 PreservedAnalyses compiler::utils::ReplaceAtomicFuncsPass::run(
     Module &M, ModuleAnalysisManager &) {

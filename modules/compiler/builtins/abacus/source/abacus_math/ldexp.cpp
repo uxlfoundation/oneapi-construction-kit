@@ -23,10 +23,8 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/convert_helper.h>
 
-namespace {
-
 template <typename T, typename S>
-inline T ldexp(const T x, const S n) {
+static inline T ldexp(const T x, const S n) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef FPShape<T> Shape;
@@ -86,8 +84,6 @@ inline T ldexp(const T x, const S n) {
   // ldexp(ldexp(ldexp(x, n_1), n_1), n_2).
   return x * factor_1 * factor_1 * factor_2;
 }
-
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_ldexp(abacus_half x, abacus_int n) {

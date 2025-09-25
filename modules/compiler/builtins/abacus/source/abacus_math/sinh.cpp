@@ -20,6 +20,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
+
 /*
   firstly, use the identity sinh(-x) = -sinh(x) to do away with negatives
 
@@ -141,11 +142,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T sinh(const T x) {
+static T sinh(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sinh(abacus_half x) {

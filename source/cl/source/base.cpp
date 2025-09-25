@@ -18,8 +18,7 @@
 #include <cl/buffer.h>
 #include <cl/image.h>
 
-namespace {
-void destroyMemObject(cl_mem object) {
+static void destroyMemObject(cl_mem object) {
   switch (object->type) {
     case CL_MEM_OBJECT_BUFFER: {
       delete static_cast<_cl_mem_buffer *>(object);
@@ -38,7 +37,6 @@ void destroyMemObject(cl_mem object) {
       OCL_ABORT("Unknown cl_mem type");
   }
 }
-}  // namespace
 
 namespace cl {
 template <>

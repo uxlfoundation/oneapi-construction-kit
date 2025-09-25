@@ -21,12 +21,11 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T, typename U>
-T fmax(const T x, const U y);
+static T fmax(const T x, const U y);
 
 template <typename T>
-T fmax(const T x, const T y) {
+static T fmax(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType TSignedType;
 
   const TSignedType xNan = __abacus_isnan(x);
@@ -56,10 +55,9 @@ T fmax(const T x, const T y) {
 }
 
 template <typename T, typename U>
-T fmax(const T x, const U y) {
+static T fmax(const T x, const U y) {
   return fmax<>(x, (T)y);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fmax(abacus_half x, abacus_half y) {

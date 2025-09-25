@@ -25,11 +25,10 @@
 #include <memory>
 #include <new>
 
-namespace {
 /// @brief Populate preferred local size fields of mux_kernel_s.
 ///
 /// @param[in,out] hostKernel to set size fields on.
-inline void setPreferredSizes(host::kernel_s &hostKernel) {
+static inline void setPreferredSizes(host::kernel_s &hostKernel) {
   // These preferred local sizes are fairly arbitrary, at the moment the key
   // point is that they are greater than 1 to ensure that the vectorizer,
   // barrier code, and local work items scheduling are used.  We work best with
@@ -41,7 +40,6 @@ inline void setPreferredSizes(host::kernel_s &hostKernel) {
   hostKernel.preferred_local_size_z =
       std::min(4u, hostKernel.device->info->max_work_group_size_z);
 }
-}  // namespace
 
 namespace host {
 kernel_variant_s::kernel_variant_s(std::string name, entry_hook_t hook,

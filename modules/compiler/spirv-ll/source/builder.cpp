@@ -193,8 +193,6 @@ void spirv_ll::Builder::addDebugInfoToModule() {
   }
 }
 
-namespace {
-
 static llvm::DenseMap<uint32_t, llvm::StringRef> BuiltinFnNames = {
     {spv::BuiltInNumWorkgroups, "_Z14get_num_groupsj"},
     {spv::BuiltInWorkDim, "_Z12get_work_dimv"},
@@ -215,7 +213,7 @@ static llvm::DenseMap<uint32_t, llvm::StringRef> BuiltinFnNames = {
     {spv::BuiltInEnqueuedWorkgroupSize, "_Z23get_enqueued_local_sizej"},
 };
 
-llvm::StringRef getBuiltinName(uint32_t builtin) {
+static llvm::StringRef getBuiltinName(uint32_t builtin) {
   // Return the mangled names here as there will be no OpCode's to pass to
   // createMangledBuiltinCall for use in name mangling.
   auto It = BuiltinFnNames.find(builtin);
@@ -224,7 +222,6 @@ llvm::StringRef getBuiltinName(uint32_t builtin) {
   }
   return It->getSecond();
 }
-}  // namespace
 
 void spirv_ll::Builder::generateBuiltinInitBlock(spv::BuiltIn builtin,
                                                  llvm::Type *builtinType,

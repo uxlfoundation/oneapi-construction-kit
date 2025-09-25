@@ -275,7 +275,7 @@ cl_command_buffer_state_khr _cl_command_buffer_khr::getState() const {
 }
 
 cl_int _cl_command_buffer_khr::finalize() {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   if (is_finalized) {
     return CL_INVALID_OPERATION;
@@ -335,7 +335,7 @@ _cl_command_buffer_khr::convertWaitList(
 cl_int _cl_command_buffer_khr::commandBarrierWithWaitList(
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   auto command_wait_list = convertWaitList(cl_wait_list);
   if (!command_wait_list) {
@@ -375,7 +375,7 @@ cl_int _cl_command_buffer_khr::commandCopyBuffer(
     cl_mem src_buffer, cl_mem dst_buffer, size_t src_offset, size_t dst_offset,
     size_t size, cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add references to the buffers.
   if (auto error = retain(src_buffer)) {
@@ -427,7 +427,7 @@ cl_int _cl_command_buffer_khr::commandCopyImage(
     const size_t *dst_origin, const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add references to the images.
   if (auto error = retain(src_image)) {
@@ -488,7 +488,7 @@ cl_int _cl_command_buffer_khr::commandCopyBufferRect(
     size_t src_slice_pitch, size_t dst_row_pitch, size_t dst_slice_pitch,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add a references to the buffers.
   if (auto error = retain(src_buffer)) {
@@ -554,7 +554,7 @@ cl_int _cl_command_buffer_khr::commandFillBuffer(
     cl_mem buffer, const void *pattern, size_t pattern_size, size_t offset,
     size_t size, cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add a reference to the buffer.
   if (auto error = retain(buffer)) {
@@ -606,7 +606,7 @@ cl_int _cl_command_buffer_khr::commandFillImage(
     const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add a reference to the image.
   if (auto error = retain(image)) {
@@ -655,7 +655,7 @@ cl_int _cl_command_buffer_khr::commandCopyBufferToImage(
     const size_t *dst_origin, const size_t *region,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add references to the memory objects.
   if (auto error = retain(src_buffer)) {
@@ -712,7 +712,7 @@ cl_int _cl_command_buffer_khr::commandCopyImageToBuffer(
     const size_t *region, size_t dst_offset,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Add references to the memory objects.
   if (auto error = retain(src_image)) {
@@ -770,7 +770,7 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
     const size_t *global_work_size, const size_t *local_work_size,
     cargo::array_view<const cl_sync_point_khr> &cl_wait_list,
     cl_sync_point_khr *cl_sync_point, cl_mutable_command_khr *mutable_handle) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
 
   // Check the required work group size (if it exists).
   if (auto error = kernel->checkReqdWorkGroupSize(work_dim, local_work_size)) {
@@ -947,8 +947,7 @@ cl_int _cl_command_buffer_khr::commandNDRangeKernel(
   return CL_SUCCESS;
 }
 
-namespace {
-cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
+static cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
     const cl_mutable_dispatch_arg_khr &arg, cl_kernel kernel,
     cl_device_id device) {
   const auto arg_index = arg.arg_index;
@@ -1073,11 +1072,10 @@ cargo::expected<mux_descriptor_info_s, cl_int> createArgumentDescriptor(
   }
   return descriptor;
 }
-}  // anonymous namespace
 
 [[nodiscard]] cl_int _cl_command_buffer_khr::updateCommandBuffer(
     const cl_mutable_base_config_khr &mutable_config) {
-  const std::lock_guard<std::mutex> guard(mutex);
+  const std::scoped_lock guard(mutex);
   const cl_device_id device = command_queue->device;
 
   const cargo::array_view<const cl_mutable_dispatch_config_khr>

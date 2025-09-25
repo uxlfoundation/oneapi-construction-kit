@@ -110,7 +110,7 @@ PreservedAnalyses RefSiWGLoopPass::run(Module &M, ModuleAnalysisManager &AM) {
                     "is_any_zero");
 
     // a loop pre-header
-    IRBuilder<> loopPreheaderIR(
+    const IRBuilder<> loopPreheaderIR(
         BasicBlock::Create(context, "loop-pre-header", newFunction));
     // an early exit block
     IRBuilder<> earlyExitIR(

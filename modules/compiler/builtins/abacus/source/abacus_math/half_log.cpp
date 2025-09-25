@@ -17,12 +17,10 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 
-namespace {
 template <typename T>
-T _(T x) {
+static T _(T x) {
   return (T)ABACUS_LN2_F * __abacus_half_log2(x);
 }
-}  // namespace
 
 #define DEF(TYPE) \
   TYPE ABACUS_API __abacus_half_log(TYPE x) { return _(x); }

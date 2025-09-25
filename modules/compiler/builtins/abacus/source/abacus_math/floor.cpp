@@ -21,6 +21,7 @@
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {
+
 template <typename T, unsigned N = TypeTraits<T>::num_elements>
 struct helper;
 
@@ -79,11 +80,12 @@ struct helper<T, 1u> {
   }
 };
 
+}  // namespace
+
 template <typename T>
-T floor(const T x) {
+static T floor(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_floor(abacus_half x) { return floor<>(x); }

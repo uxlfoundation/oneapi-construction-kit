@@ -47,14 +47,12 @@ static constexpr bool is_expected_v = false;
 template <class T, class E>
 static constexpr bool is_expected_v<expected<T, E>> = true;
 
-// NOLINTBEGIN(modernize-type-traits)
 template <class T, class E, class U>
 using expected_enable_forward_value =
     std::enable_if_t<std::is_constructible_v<T, U &&> &&
                      !std::is_same_v<std::decay_t<U>, in_place_t> &&
                      !std::is_same_v<expected<T, E>, std::decay_t<U>> &&
                      !std::is_same_v<unexpected<E>, std::decay_t<U>>>;
-// NOLINTEND(modernize-type-traits)
 
 template <class T, class E, class U, class G, class UR, class GR>
 using expected_enable_from_other =
@@ -92,11 +90,9 @@ struct expected_storage_base {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
-  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -142,11 +138,9 @@ struct expected_storage_base<T, E, true, true> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
-  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -185,11 +179,9 @@ struct expected_storage_base<T, E, true, false> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
-  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 
@@ -233,11 +225,9 @@ struct expected_storage_base<T, E, false, true> {
   constexpr expected_storage_base() : m_val(T{}), m_has_val(true) {}
   constexpr expected_storage_base(no_init_t) : m_no_init(), m_has_val(false) {}
 
-  // NOLINTBEGIN(modernize-type-traits)
   template <
       class... Args,
       std::enable_if_t<std::is_constructible_v<T, Args &&...>> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr expected_storage_base(in_place_t, Args &&...args)
       : m_val(std::forward<Args>(args)...), m_has_val(true) {}
 

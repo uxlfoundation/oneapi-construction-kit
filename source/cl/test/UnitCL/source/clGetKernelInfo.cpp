@@ -16,21 +16,19 @@
 
 #include "Common.h"
 
-namespace {
-std::string attribute(const std::string &inner) {
+static std::string attribute(const std::string &inner) {
   return "__attribute__((" + inner + "))";
 }
 
-std::string reqd_work_group_size(const std::array<size_t, 3> sizes) {
+static std::string reqd_work_group_size(const std::array<size_t, 3> sizes) {
   return "reqd_work_group_size(" + std::to_string(sizes[0]) + "," +
          std::to_string(sizes[1]) + "," + std::to_string(sizes[2]) + ")";
 }
 
-std::string work_group_size_hint(const std::array<size_t, 3> sizes) {
+static std::string work_group_size_hint(const std::array<size_t, 3> sizes) {
   return "reqd_work_group_size(" + std::to_string(sizes[0]) + "," +
          std::to_string(sizes[1]) + "," + std::to_string(sizes[2]) + ")";
 }
-}  // namespace
 
 class clGetKernelInfoTest : public ucl::ContextTest {
  protected:

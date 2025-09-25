@@ -18,13 +18,11 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-inline T remainder_helper(const T x, const T m) {
+static inline T remainder_helper(const T x, const T m) {
   typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type unused;
   return __abacus_remquo(x, m, &unused);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_remainder(abacus_half x, abacus_half m) {

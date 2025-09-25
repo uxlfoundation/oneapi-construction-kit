@@ -213,9 +213,8 @@ abacus_half asin_half(const abacus_half x) {
 
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-namespace {
 template <typename T>
-T asin(const T x) {
+static T asin(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
@@ -244,7 +243,6 @@ T asin(const T x) {
   return __abacus_select(result, __abacus_copysign(ABACUS_NAN, x),
                          __abacus_isinf(x) | __abacus_isnan(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
@@ -266,9 +264,8 @@ abacus_float8 ABACUS_API __abacus_asin(abacus_float8 x) { return asin<>(x); }
 abacus_float16 ABACUS_API __abacus_asin(abacus_float16 x) { return asin<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-namespace {
 template <typename T>
-T asinD(const T x) {
+static T asinD(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T result =
@@ -280,7 +277,6 @@ T asinD(const T x) {
 
   return result;
 }
-}  // namespace
 
 abacus_double ABACUS_API __abacus_asin(abacus_double x) { return asinD<>(x); }
 abacus_double2 ABACUS_API __abacus_asin(abacus_double2 x) { return asinD<>(x); }

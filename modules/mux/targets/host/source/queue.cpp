@@ -38,14 +38,12 @@
 #include <new>
 #include <vector>
 
-namespace {
-
 /// Increasing the slice count helps when thread slicing happens, or if a
 /// kernel exists early, which allows other threads to pickup the extra work.
 constexpr size_t slice_multiplier = 1;
 
-void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
-                       void *const v_fence, size_t terminate) {
+static void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
+                              void *const v_fence, size_t terminate) {
   auto queue = static_cast<host::queue_s *>(v_queue);
   auto command_buffer = static_cast<host::command_buffer_s *>(v_command_buffer);
 
@@ -73,7 +71,7 @@ void threadPoolCleanup(void *const v_queue, void *const v_command_buffer,
   command_buffer->signal_semaphores.clear();
 }
 
-void commandReadBuffer(host::command_info_s *info) {
+static void commandReadBuffer(host::command_info_s *info) {
   const host::command_info_read_buffer_s *const read = &(info->read_command);
 
   auto buffer = static_cast<host::buffer_s *>(read->buffer);
@@ -82,7 +80,7 @@ void commandReadBuffer(host::command_info_s *info) {
               static_cast<uint8_t *>(buffer->data) + read->offset, read->size);
 }
 
-void commandWriteBuffer(host::command_info_s *info) {
+static void commandWriteBuffer(host::command_info_s *info) {
   const host::command_info_write_buffer_s *const write = &(info->write_command);
 
   auto buffer = static_cast<host::buffer_s *>(write->buffer);
@@ -91,7 +89,7 @@ void commandWriteBuffer(host::command_info_s *info) {
               write->host_pointer, write->size);
 }
 
-void commandFillBuffer(host::command_info_s *info) {
+static void commandFillBuffer(host::command_info_s *info) {
   host::command_info_fill_buffer_s *const fill = &(info->fill_command);
 
   auto buffer = static_cast<host::buffer_s *>(fill->buffer);
@@ -112,7 +110,7 @@ void commandFillBuffer(host::command_info_s *info) {
   std::memcpy(current, start, static_cast<size_t>(end - current));
 }
 
-void commandCopyBuffer(host::command_info_s *info) {
+static void commandCopyBuffer(host::command_info_s *info) {
   const host::command_info_copy_buffer_s *const copy = &(info->copy_command);
 
   auto dst_buffer = static_cast<host::buffer_s *>(copy->dst_buffer);
@@ -123,7 +121,7 @@ void commandCopyBuffer(host::command_info_s *info) {
               copy->size);
 }
 
-void commandReadImage(host::command_info_s *info) {
+static void commandReadImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   const host::command_info_read_image_s &read = info->read_image_command;
 
@@ -141,7 +139,7 @@ void commandReadImage(host::command_info_s *info) {
 #endif
 }
 
-void commandWriteImage(host::command_info_s *info) {
+static void commandWriteImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   const host::command_info_write_image_s &write = info->write_image_command;
 
@@ -159,7 +157,7 @@ void commandWriteImage(host::command_info_s *info) {
 #endif
 }
 
-void commandFillImage(host::command_info_s *info) {
+static void commandFillImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   const host::command_info_fill_image_s &fill = info->fill_image_command;
 
@@ -173,7 +171,7 @@ void commandFillImage(host::command_info_s *info) {
 #endif
 }
 
-void commandCopyImage(host::command_info_s *info) {
+static void commandCopyImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   host::command_info_copy_image_s *const copy = &(info->copy_image_command);
 
@@ -192,7 +190,7 @@ void commandCopyImage(host::command_info_s *info) {
 #endif
 }
 
-void commandCopyImageToBuffer(host::command_info_s *info) {
+static void commandCopyImageToBuffer(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   const host::command_info_copy_image_to_buffer_s &copy =
       info->copy_image_to_buffer_command;
@@ -211,7 +209,7 @@ void commandCopyImageToBuffer(host::command_info_s *info) {
 #endif
 }
 
-void commandCopyBufferToImage(host::command_info_s *info) {
+static void commandCopyBufferToImage(host::command_info_s *info) {
 #ifdef HOST_IMAGE_SUPPORT
   host::command_info_copy_buffer_to_image_s *copy =
       &(info->copy_buffer_to_image_command);
@@ -230,7 +228,7 @@ void commandCopyBufferToImage(host::command_info_s *info) {
 #endif
 }
 
-void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
+static void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
   host::command_info_ndrange_s *const ndrange = &(info->ndrange_command);
 
   auto host_kernel = static_cast<host::kernel_s *>(ndrange->kernel);
@@ -307,8 +305,9 @@ void commandNDRange(host::queue_s *queue, host::command_info_s *info) {
   assert(0 == queued);
 }
 
-void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
-                         host::command_buffer_s *command_buffer) {
+static void commandUserCallback(host::queue_s *queue,
+                                host::command_info_s *info,
+                                host::command_buffer_s *command_buffer) {
   const host::command_info_user_callback_s *const user_callback =
       &(info->user_callback_command);
 
@@ -316,7 +315,7 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
                                  user_callback->user_data);
 }
 
-[[nodiscard]] mux_query_duration_result_t commandBeginQuery(
+[[nodiscard]] static mux_query_duration_result_t commandBeginQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   const host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
@@ -327,7 +326,7 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
   return duration_query;
 }
 
-[[nodiscard]] mux_query_duration_result_t commandEndQuery(
+[[nodiscard]] static mux_query_duration_result_t commandEndQuery(
     host::command_info_s *info, mux_query_duration_result_t duration_query) {
   const host::command_info_end_query_s *const end_query =
       &(info->end_query_command);
@@ -342,30 +341,30 @@ void commandUserCallback(host::queue_s *queue, host::command_info_s *info,
 }
 
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
-void commandBeginQuery(host::command_info_s *info) {
+static void commandBeginQuery(host::command_info_s *info) {
   host::command_info_begin_query_s *const begin_query =
       &(info->begin_query_command);
   auto query_pool = static_cast<host::query_pool_s *>(begin_query->pool);
   query_pool->startEvents();
 }
 
-void commandEndQuery(host::command_info_s *info) {
+static void commandEndQuery(host::command_info_s *info) {
   host::command_info_end_query_s *const end_query = &(info->end_query_command);
   auto query_pool = static_cast<host::query_pool_s *>(end_query->pool);
   query_pool->endEvents();
 }
 #endif
 
-void commandResetQueryPool(host::command_info_s *info) {
+static void commandResetQueryPool(host::command_info_s *info) {
   const host::command_info_reset_query_pool_s *const reset_query_pool =
       &(info->reset_query_pool_command);
   auto query_pool = static_cast<host::query_pool_s *>(reset_query_pool->pool);
   query_pool->reset(reset_query_pool->index, reset_query_pool->count);
 }
 
-void threadPoolProcessCommands(void *const v_queue,
-                               void *const v_command_buffer,
-                               void *const v_fence, size_t) {
+static void threadPoolProcessCommands(void *const v_queue,
+                                      void *const v_command_buffer,
+                                      void *const v_fence, size_t) {
   auto queue = static_cast<host::queue_s *>(v_queue);
   auto command_buffer = static_cast<host::command_buffer_s *>(v_command_buffer);
 
@@ -452,7 +451,6 @@ void threadPoolProcessCommands(void *const v_queue,
 
   threadPoolCleanup(v_queue, v_command_buffer, v_fence, false);
 }
-}  // namespace
 
 namespace host {
 queue_s::queue_s(mux_allocator_info_t allocator, mux_device_t device)

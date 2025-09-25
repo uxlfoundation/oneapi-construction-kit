@@ -469,7 +469,6 @@ class expected
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
   explicit constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
-  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move constructor.
   ///
   /// @tparam U Type of expected value.
@@ -477,7 +476,6 @@ class expected
   template <class U = T,
             std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::expected_enable_forward_value<T, E, U> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr expected(U &&v) : expected(in_place, std::forward<U>(v)) {}
 
   /// @brief Default copy assignment operator.
@@ -490,7 +488,6 @@ class expected
   /// @param rhs Object to move.
   expected &operator=(expected &&rhs) = default;
 
-  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move assignment operator.
   ///
   /// @tparam U Type of expected value.
@@ -504,7 +501,6 @@ class expected
            !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
            std::is_constructible_v<T, U> && std::is_assignable_v<G &, U> &&
            std::is_nothrow_move_constructible_v<E>)> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   expected &operator=(U &&v) {
     if (has_value()) {
       val() = std::forward<U>(v);
@@ -516,7 +512,6 @@ class expected
     return *this;
   }
 
-  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Expected value move assignment operator.
   ///
   /// @tparam U Type of expected value.
@@ -530,7 +525,6 @@ class expected
            !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
            std::is_constructible_v<T, U> && std::is_assignable_v<G &, U> &&
            std::is_nothrow_move_constructible_v<E>)> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   expected &operator=(U &&v) {
     if (has_value()) {
       val() = std::forward<U>(v);
@@ -1256,12 +1250,10 @@ auto map_error_impl(Exp &&exp, F &&f) {
   return result(unexpect, monostate{});
 }
 
-// NOLINTBEGIN(modernize-type-traits)
 template <class Exp, class F,
           class Ret = decltype(cargo::invoke(std::declval<F>(),
                                              std::declval<Exp>().error())),
           std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
-// NOLINTEND(modernize-type-traits)
 constexpr auto or_else_impl(Exp &&exp, F &&f) {
   static_assert(detail::is_expected_v<Ret>, "F must return an expected");
   return exp.has_value() ? std::forward<Exp>(exp)

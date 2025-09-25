@@ -93,9 +93,7 @@ struct InterleavedGroupCombinePass::InterleavedGroupInfo {
   bool canDeinterleaveMask(const Instruction &Mask) const;
 };
 
-namespace {
-
-bool canSwap(Instruction *IA, Instruction *IB) {
+static bool canSwap(Instruction *IA, Instruction *IB) {
   // we need to check for usage-relations here, because a load instruction
   // might depend on a mask calculation and its uses that might end up
   // swapped
@@ -136,7 +134,7 @@ bool canSwap(Instruction *IA, Instruction *IB) {
   return true;
 }
 
-bool canMoveUp(const SmallVectorImpl<Value *> &Group, Instruction *IB) {
+static bool canMoveUp(const SmallVectorImpl<Value *> &Group, Instruction *IB) {
   auto Ig = Group.rbegin();
   auto Ie = Group.rend();
   Instruction *IA = IB;
@@ -161,7 +159,8 @@ bool canMoveUp(const SmallVectorImpl<Value *> &Group, Instruction *IB) {
   return false;
 }
 
-bool canMoveDown(const SmallVectorImpl<Value *> &Group, Instruction *IA) {
+static bool canMoveDown(const SmallVectorImpl<Value *> &Group,
+                        Instruction *IA) {
   auto Ig = Group.rbegin();
   auto Ie = Group.rend();
   Instruction *IB = IA;
@@ -185,8 +184,6 @@ bool canMoveDown(const SmallVectorImpl<Value *> &Group, Instruction *IA) {
   assert(false);
   return false;
 }
-
-}  // namespace
 
 bool InterleavedGroupCombinePass::InterleavedGroupInfo::canDeinterleaveMask(
     const Instruction &Mask) const {

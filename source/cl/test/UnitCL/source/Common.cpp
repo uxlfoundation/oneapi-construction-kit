@@ -45,10 +45,9 @@
     return false;                \
   }
 
-namespace {
-bool print_platform_info(cl_platform_id platform,
-                         const cl_platform_info param_name,
-                         const char *param_name_str) {
+static bool print_platform_info(cl_platform_id platform,
+                                const cl_platform_info param_name,
+                                const char *param_name_str) {
   std::size_t param_value_size_ret = 0;
   cl_int errcode = clGetPlatformInfo(platform, param_name, 0, nullptr,
                                      &param_value_size_ret);
@@ -68,9 +67,9 @@ bool print_platform_info(cl_platform_id platform,
     return false;                                                       \
   }
 
-bool print_device_info_cl_device_type(cl_device_id device,
-                                      const cl_device_info param_name,
-                                      const char *param_name_str) {
+static bool print_device_info_cl_device_type(cl_device_id device,
+                                             const cl_device_info param_name,
+                                             const char *param_name_str) {
   cl_device_type param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -104,9 +103,9 @@ bool print_device_info_cl_device_type(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_uint(cl_device_id device,
-                               const cl_device_info param_name,
-                               const char *param_name_str) {
+static bool print_device_info_cl_uint(cl_device_id device,
+                                      const cl_device_info param_name,
+                                      const char *param_name_str) {
   cl_uint param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -116,9 +115,9 @@ bool print_device_info_cl_uint(cl_device_id device,
   return true;
 }
 
-bool print_device_info_size_t_array(cl_device_id device,
-                                    const cl_device_info param_name,
-                                    const char *param_name_str) {
+static bool print_device_info_size_t_array(cl_device_id device,
+                                           const cl_device_info param_name,
+                                           const char *param_name_str) {
   size_t param_value_size_ret = 0;
   cl_int errcode =
       clGetDeviceInfo(device, param_name, 0, nullptr, &param_value_size_ret);
@@ -143,9 +142,9 @@ bool print_device_info_size_t_array(cl_device_id device,
   return true;
 }
 
-bool print_device_info_size_t(cl_device_id device,
-                              const cl_device_info param_name,
-                              const char *param_name_str) {
+static bool print_device_info_size_t(cl_device_id device,
+                                     const cl_device_info param_name,
+                                     const char *param_name_str) {
   size_t param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -155,9 +154,9 @@ bool print_device_info_size_t(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_ulong(cl_device_id device,
-                                const cl_device_info param_name,
-                                const char *param_name_str) {
+static bool print_device_info_cl_ulong(cl_device_id device,
+                                       const cl_device_info param_name,
+                                       const char *param_name_str) {
   cl_ulong param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -167,9 +166,9 @@ bool print_device_info_cl_ulong(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_bool(cl_device_id device,
-                               const cl_device_info param_name,
-                               const char *param_name_str) {
+static bool print_device_info_cl_bool(cl_device_id device,
+                                      const cl_device_info param_name,
+                                      const char *param_name_str) {
   cl_bool param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -179,9 +178,9 @@ bool print_device_info_cl_bool(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_device_fp_config(cl_device_id device,
-                                           const cl_device_info param_name,
-                                           const char *param_name_str) {
+static bool print_device_info_cl_device_fp_config(
+    cl_device_id device, const cl_device_info param_name,
+    const char *param_name_str) {
   cl_device_fp_config param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -218,9 +217,9 @@ bool print_device_info_cl_device_fp_config(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_device_mem_cache_type(cl_device_id device,
-                                                const cl_device_info param_name,
-                                                const char *param_name_str) {
+static bool print_device_info_cl_device_mem_cache_type(
+    cl_device_id device, const cl_device_info param_name,
+    const char *param_name_str) {
   cl_device_mem_cache_type param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -251,9 +250,9 @@ bool print_device_info_cl_device_mem_cache_type(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_device_local_mem_type(cl_device_id device,
-                                                const cl_device_info param_name,
-                                                const char *param_name_str) {
+static bool print_device_info_cl_device_local_mem_type(
+    cl_device_id device, const cl_device_info param_name,
+    const char *param_name_str) {
   cl_device_local_mem_type param_value = 0;
   const cl_int errcode = clGetDeviceInfo(
       device, param_name, sizeof(param_value), &param_value, nullptr);
@@ -284,7 +283,7 @@ bool print_device_info_cl_device_local_mem_type(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_device_exec_capabilities(
+static bool print_device_info_cl_device_exec_capabilities(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_device_exec_capabilities param_value = 0;
@@ -317,7 +316,7 @@ bool print_device_info_cl_device_exec_capabilities(
   return true;
 }
 
-bool print_device_info_cl_command_queue_properties(
+static bool print_device_info_cl_command_queue_properties(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_command_queue_properties param_value = 0;
@@ -350,9 +349,9 @@ bool print_device_info_cl_command_queue_properties(
   return true;
 }
 
-bool print_device_info_char_array(cl_device_id device,
-                                  const cl_device_info param_name,
-                                  const char *param_name_str) {
+static bool print_device_info_char_array(cl_device_id device,
+                                         const cl_device_info param_name,
+                                         const char *param_name_str) {
   size_t param_value_size_ret = 0;
   cl_int errcode =
       clGetDeviceInfo(device, param_name, 0, nullptr, &param_value_size_ret);
@@ -367,7 +366,7 @@ bool print_device_info_char_array(cl_device_id device,
   return true;
 }
 
-bool print_device_info_cl_device_partition_property_array(
+static bool print_device_info_cl_device_partition_property_array(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   size_t param_value_size_ret = 0;
@@ -417,7 +416,7 @@ bool print_device_info_cl_device_partition_property_array(
   return true;
 }
 
-bool print_device_info_cl_device_affinity_domain(
+static bool print_device_info_cl_device_affinity_domain(
     cl_device_id device, const cl_device_info param_name,
     const char *param_name_str) {
   cl_device_affinity_domain param_value = 0;
@@ -453,7 +452,6 @@ bool print_device_info_cl_device_affinity_domain(
   PRINTF("\n");
   return true;
 }
-}  // namespace
 
 bool UCL::print_opencl_platform_and_device_info(
     const cl_device_type device_type) {

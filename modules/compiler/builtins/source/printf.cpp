@@ -36,8 +36,6 @@
 #define ASSERT(CONDITION, MESSAGE)
 #endif
 
-namespace {
-
 /// @brief Utility function to find the next specifier in a given string,
 /// starting at a given position in the string, but skip %% specifiers. The
 /// format string is assumed to be valid.
@@ -47,7 +45,7 @@ namespace {
 /// (defaults to 0).
 /// @return The index at which the specifier was found, or the index of the
 /// last character if no specifier was found.
-size_t FindNextSpecifier(const std::string &str, size_t pos = 0) {
+static size_t FindNextSpecifier(const std::string &str, size_t pos = 0) {
   for (;;) {
     pos = str.find_first_of('%', (pos == 0) ? pos : pos + 1);
     if (std::string::npos == pos) {
@@ -74,8 +72,9 @@ size_t FindNextSpecifier(const std::string &str, size_t pos = 0) {
 ///
 /// @return Index of the first character not part of the specifier in the
 /// string.
-size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
-                      bool &minus, bool &plus, bool &space, bool &alternate) {
+static size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
+                             bool &minus, bool &plus, bool &space,
+                             bool &alternate) {
   size_t i = pos + 1;  // for the %
   minus = false;
   plus = false;
@@ -150,7 +149,7 @@ size_t ParseSpecifier(std::string str, size_t pos, size_t &w, size_t &p,
 /// and containing only one `printf` specifier.
 /// @param[in] d The floating point valule to print.
 template <typename T>
-void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
+static void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
   // manually format NaNs and Infinity as the system
   // printf doesn't format them properly on windows
   if (std::isnan(d) || std::isinf(d)) {
@@ -259,7 +258,6 @@ void PrintFloatingPoint(std::FILE *fp, std::string partial, T d) {
     (void)std::fprintf(fp, partial.c_str(), d);
   }
 }
-}  // namespace
 
 void builtins::printf::print(std::FILE *fp, uint8_t *pack, size_t max_length,
                              const std::vector<descriptor> &printf_calls,

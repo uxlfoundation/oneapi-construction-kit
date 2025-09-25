@@ -63,13 +63,11 @@ using enable_if_ret_void = std::enable_if_t<returns_void<T &&, U...>::value>;
 template <class T, class... U>
 using disable_if_ret_void = std::enable_if_t<!returns_void<T &&, U...>::value>;
 
-// NOLINTBEGIN(modernize-type-traits)
 template <class T, class U>
 using enable_forward_value =
     std::enable_if_t<std::is_constructible_v<T, U &&> &&
                      !std::is_same_v<std::decay_t<U>, in_place_t> &&
                      !std::is_same_v<optional<T>, std::decay_t<U>>>;
-// NOLINTEND(modernize-type-traits)
 
 template <class T, class U, class Other>
 using enable_from_other =
@@ -83,13 +81,11 @@ using enable_from_other =
                      !std::is_convertible_v<const optional<U> &, T> &&
                      !std::is_convertible_v<const optional<U> &&, T>>;
 
-// NOLINTBEGIN(modernize-type-traits)
 template <class T, class U>
 using enable_assign_forward = std::enable_if_t<
     !std::is_same_v<optional<T>, std::decay_t<U>> &&
     !(std::is_scalar_v<T> && std::is_same_v<T, std::decay_t<U>>) &&
     std::is_constructible_v<T, U> && std::is_assignable_v<T &, U>>;
-// NOLINTEND(modernize-type-traits)
 
 template <class T, class U, class Other>
 using enable_assign_from_other =

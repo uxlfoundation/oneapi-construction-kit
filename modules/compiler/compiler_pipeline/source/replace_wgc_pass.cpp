@@ -38,14 +38,12 @@
 
 using namespace llvm;
 
-namespace {
-
 /// @brief Helper function that inserts a local barrier call via a builder.
 ///
 /// @param[in] Builder ir builder used to create the barrier call. This function
 /// will create the call at the current insert point of the builder.
-CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
-                                 compiler::utils::BuiltinInfo &BI) {
+static CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
+                                        compiler::utils::BuiltinInfo &BI) {
   auto *const M = Builder.GetInsertBlock()->getModule();
   auto *const Barrier = BI.getOrDeclareMuxBuiltin(
       compiler::utils::eMuxBuiltinWorkGroupBarrier, *M);
@@ -64,9 +62,10 @@ CallInst *createLocalBarrierCall(IRBuilder<> &Builder,
 }
 
 /// @brief Helper function to create subgroup reduction calls.
-Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
-                               const compiler::utils::GroupCollective &WGC,
-                               compiler::utils::BuiltinInfo &BI) {
+static Value *createSubgroupReduction(
+    IRBuilder<> &Builder, llvm::Value *Src,
+    const compiler::utils::GroupCollective &WGC,
+    compiler::utils::BuiltinInfo &BI) {
   using namespace compiler::utils;
   BuiltinID ReductionID;
   switch (WGC.Recurrence) {
@@ -133,9 +132,10 @@ Value *createSubgroupReduction(IRBuilder<> &Builder, llvm::Value *Src,
   return Builder.CreateCall(Builtin, {Src}, "wgc");
 }
 
-Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
-                          RecurKind Kind, bool IsInclusive, bool IsLogical,
-                          compiler::utils::BuiltinInfo &BI) {
+static Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
+                                 RecurKind Kind, bool IsInclusive,
+                                 bool IsLogical,
+                                 compiler::utils::BuiltinInfo &BI) {
   using namespace compiler::utils;
   BuiltinID ScanBuiltinID;
   switch (Kind) {
@@ -222,9 +222,9 @@ Value *createSubgroupScan(IRBuilder<> &Builder, llvm::Value *Src,
 }
 
 /// @brief Helper function to create get subgroup size calls.
-Value *createGetSubgroupSize(IRBuilder<> &Builder,
-                             compiler::utils::BuiltinInfo &BI,
-                             const Twine &Name = Twine()) {
+static Value *createGetSubgroupSize(IRBuilder<> &Builder,
+                                    compiler::utils::BuiltinInfo &BI,
+                                    const Twine &Name = Twine()) {
   auto &M = *Builder.GetInsertBlock()->getModule();
   auto *const Builtin =
       BI.getOrDeclareMuxBuiltin(compiler::utils::eMuxBuiltinGetSubGroupSize, M);
@@ -234,9 +234,10 @@ Value *createGetSubgroupSize(IRBuilder<> &Builder,
 }
 
 /// @brief Helper function to create subgroup broadcast calls.
-Value *createSubgroupBroadcast(IRBuilder<> &Builder, Value *Src, Value *ID,
-                               compiler::utils::BuiltinInfo &BI,
-                               const Twine &Name = Twine()) {
+static Value *createSubgroupBroadcast(IRBuilder<> &Builder, Value *Src,
+                                      Value *ID,
+                                      compiler::utils::BuiltinInfo &BI,
+                                      const Twine &Name = Twine()) {
   auto *const Ty = Src->getType();
   auto *const M = Builder.GetInsertBlock()->getModule();
 
@@ -255,8 +256,8 @@ Value *createSubgroupBroadcast(IRBuilder<> &Builder, Value *Src, Value *ID,
 /// @param[in] Kind The operation kind.
 ///
 /// @return The result of the operation.
-Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
-                   llvm::Value *Operand, RecurKind Kind) {
+static Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
+                          llvm::Value *Operand, RecurKind Kind) {
   return compiler::utils::createBinOpForRecurKind(Builder, CurrentVal, Operand,
                                                   Kind);
 }
@@ -288,9 +289,9 @@ Value *createBinOp(llvm::IRBuilder<> &Builder, llvm::Value *CurrentVal,
 ///  function also handles work_group_all and work_group_any since they are
 ///  essentially work_group_reduce_and work_group_reduce_or on the int type
 ///  only.
-void emitWorkGroupReductionBody(Function &F,
-                                const compiler::utils::GroupCollective &WGC,
-                                compiler::utils::BuiltinInfo &BI) {
+static void emitWorkGroupReductionBody(
+    Function &F, const compiler::utils::GroupCollective &WGC,
+    compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the reduction on.
   auto *const Operand = F.getArg(1);
   auto *const ReductionType{Operand->getType()};
@@ -365,9 +366,9 @@ void emitWorkGroupReductionBody(Function &F,
 ///   barrier(CLK_LOCAL_MEM_FENCE);
 ///   return result;
 /// }
-void emitWorkGroupBroadcastBody(Function &F,
-                                const compiler::utils::GroupCollective &,
-                                compiler::utils::BuiltinInfo &BI) {
+static void emitWorkGroupBroadcastBody(Function &F,
+                                       const compiler::utils::GroupCollective &,
+                                       compiler::utils::BuiltinInfo &BI) {
   // First arg is always the value to broadcast.
   auto *const ValueToBroadcast = F.getArg(1);
 
@@ -465,9 +466,9 @@ void emitWorkGroupBroadcastBody(Function &F,
 /// result with +/INFINITY. There is a similar situation for FAdd, where the
 /// identity element is defined to be `0.0` but the true neutral value is
 /// `-0.0`.
-void emitWorkGroupScanBody(Function &F,
-                           const compiler::utils::GroupCollective &WGC,
-                           compiler::utils::BuiltinInfo &BI) {
+static void emitWorkGroupScanBody(Function &F,
+                                  const compiler::utils::GroupCollective &WGC,
+                                  compiler::utils::BuiltinInfo &BI) {
   // Create a global variable to do the scan on.
   auto *const Operand = F.getArg(1);
   auto *const ReductionType{Operand->getType()};
@@ -574,9 +575,9 @@ void emitWorkGroupScanBody(Function &F,
 /// @brief Defines the work-group collective functions.
 ///
 /// @param[in] WGC Work-group collective function to be defined.
-void emitWorkGroupCollectiveBody(Function &F,
-                                 const compiler::utils::GroupCollective &WGC,
-                                 compiler::utils::BuiltinInfo &BI) {
+static void emitWorkGroupCollectiveBody(
+    Function &F, const compiler::utils::GroupCollective &WGC,
+    compiler::utils::BuiltinInfo &BI) {
   switch (WGC.Op) {
     case compiler::utils::GroupCollective::OpKind::All:
     case compiler::utils::GroupCollective::OpKind::Any:
@@ -594,7 +595,6 @@ void emitWorkGroupCollectiveBody(Function &F,
       llvm_unreachable("unhandled work-group collective");
   }
 }
-}  // namespace
 
 PreservedAnalyses compiler::utils::ReplaceWGCPass::run(
     Module &M, ModuleAnalysisManager &AM) {

@@ -56,12 +56,14 @@ struct scaleFactor<T, abacus_float> {
   static constexpr abacus_float adjust = 1.9721523E-31;  // 2^-102
 };
 
+}  // namespace
+
 // Scale denormal input 'x' up so that we can perform operations on 'x' without
 // the hardware flushing to zero. Done by setting the least significant exponent
 // bit to make 'x' a normal number before doing arithmetic to adjust for a
 // precision dependent scaling factor.
 template <typename T>
-T upscaleDenormal(const T x) {
+static T upscaleDenormal(const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
   const UnsignedType lowExpBit = 0x1 << FPShape<T>::Mantissa();
@@ -74,7 +76,7 @@ T upscaleDenormal(const T x) {
 }
 
 template <typename T>
-T remquo_helper_scalar(const T x, const T m, abacus_int *out_quo) {
+static T remquo_helper_scalar(const T x, const T m, abacus_int *out_quo) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Should only be called with scalar types");
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -165,6 +167,8 @@ abacus_double remquo_helper_scalar(const abacus_double x, const abacus_double m,
   return __abacus_select(result, -result, (abacus_long)(x < 0.0));
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
+namespace {
 
 template <typename T, typename IntVecType,
           typename E = typename TypeTraits<T>::ElementType>
@@ -269,8 +273,10 @@ struct helper<T, IntVecType, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T remquo_helper_vector(
+static T remquo_helper_vector(
     const T x, const T m,
     typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type *o) {
   static_assert(TypeTraits<T>::num_elements != 1,
@@ -279,7 +285,6 @@ T remquo_helper_vector(
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   return helper<T, IntVecType>::remquo_impl(x, m, o);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_remquo(abacus_half x, abacus_half m,

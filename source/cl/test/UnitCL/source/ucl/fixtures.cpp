@@ -19,8 +19,8 @@
 #include "cargo/string_algorithm.h"
 #include "ucl/file.h"
 
-namespace {
-std::string getPlatformInfo(cl_platform_id platform, cl_platform_info info) {
+static std::string getPlatformInfo(cl_platform_id platform,
+                                   cl_platform_info info) {
   size_t size;
   if (auto error = clGetPlatformInfo(platform, info, 0, nullptr, &size)) {
     UCL_ABORT("clGetPlatformInfo failed: %d", error);
@@ -32,7 +32,6 @@ std::string getPlatformInfo(cl_platform_id platform, cl_platform_info info) {
   }
   return value;
 }
-}  // namespace
 
 std::string ucl::PlatformTest::getPlatformProfile() const {
   return getPlatformInfo(platform, CL_PLATFORM_PROFILE);
@@ -96,9 +95,8 @@ cl_ulong ucl::PlatformTest::getPlatformHostTimerResolution() const {
 }
 #endif
 
-namespace {
 template <class T>
-T getDeviceInfo(cl_device_id device, cl_device_info info) {
+static T getDeviceInfo(cl_device_id device, cl_device_info info) {
   T value;
   if (auto error = clGetDeviceInfo(device, info, sizeof(value),
                                    static_cast<void *>(&value), nullptr)) {
@@ -137,7 +135,6 @@ std::vector<cl_name_version> getDeviceInfo<std::vector<cl_name_version>>(
   return versions;
 }
 #endif
-}  // namespace
 
 cl_device_type ucl::DeviceTest::getDeviceType() const {
   return getDeviceInfo<cl_device_type>(device, CL_DEVICE_TYPE);

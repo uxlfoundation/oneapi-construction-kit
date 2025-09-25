@@ -19,8 +19,7 @@
 
 #include <iterator>
 
-namespace {
-bool push(md_stack stack, FixedOrScalableQuantity<uint32_t> q) {
+static bool push(md_stack stack, FixedOrScalableQuantity<uint32_t> q) {
   int err = md_push_uint(stack, q.getKnownMinValue());
   if (MD_CHECK_ERR(err)) {
     return false;
@@ -34,8 +33,8 @@ bool push(md_stack stack, FixedOrScalableQuantity<uint32_t> q) {
   return true;
 }
 
-FixedOrScalableQuantity<uint32_t> read_quantity(uint8_t *&data,
-                                                MD_ENDIAN endianness) {
+static FixedOrScalableQuantity<uint32_t> read_quantity(uint8_t *&data,
+                                                       MD_ENDIAN endianness) {
   const uint32_t quantity = md::utils::read_value<uint64_t>(data, endianness);
   data += sizeof(uint64_t);
 
@@ -45,7 +44,6 @@ FixedOrScalableQuantity<uint32_t> read_quantity(uint8_t *&data,
 
   return FixedOrScalableQuantity<uint32_t>(quantity, is_scalable);
 }
-}  // namespace
 
 namespace handler {
 

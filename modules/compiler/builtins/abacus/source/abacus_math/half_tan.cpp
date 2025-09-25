@@ -20,9 +20,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/internal/half_range_reduction.h>
 
-namespace {
 template <typename T>
-T half_tan(const T x) {
+static T half_tan(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   SignedType octet;
@@ -53,7 +52,6 @@ T half_tan(const T x) {
 
   return __abacus_select(ABACUS_NAN, ans, __abacus_isfinite(x));
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_half_tan(abacus_float x) {
   return half_tan<>(x);

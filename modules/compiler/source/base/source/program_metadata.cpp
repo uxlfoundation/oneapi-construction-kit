@@ -34,8 +34,8 @@
 #include <sstream>
 
 namespace compiler {
-namespace {
-bool isImageType(llvm::StringRef type_name, const char *const compare) {
+
+static bool isImageType(llvm::StringRef type_name, const char *const compare) {
   if (type_name == compare) {
     return true;
   }
@@ -53,7 +53,7 @@ bool isImageType(llvm::StringRef type_name, const char *const compare) {
   return false;
 }
 
-compiler::ArgumentType createIntegerOrSamplerType(
+static compiler::ArgumentType createIntegerOrSamplerType(
     uint32_t num_elements, uint32_t element_width,
     const llvm::MDString *metadata) {
   if (metadata) {
@@ -158,8 +158,8 @@ compiler::ArgumentType createIntegerOrSamplerType(
   return {};
 }
 
-ArgumentType createFloatingPointType(uint32_t num_elements,
-                                     uint32_t element_width) {
+static ArgumentType createFloatingPointType(uint32_t num_elements,
+                                            uint32_t element_width) {
   if (element_width == 16) {
     switch (num_elements) {
       case 1:
@@ -218,8 +218,8 @@ ArgumentType createFloatingPointType(uint32_t num_elements,
   return {};
 }
 
-ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
-                                   const llvm::MDString *metadata) {
+static ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
+                                          const llvm::MDString *metadata) {
   llvm::Type *Ty = arg->getType();
 
   // Handle pointer types.
@@ -347,7 +347,8 @@ ArgumentType llvmArgToArgumentType(const llvm::Argument *arg,
   return {};
 }
 
-void populateRequiredWGSAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
+static void populateRequiredWGSAttribute(KernelInfo &kernel_info,
+                                         llvm::MDNode *node) {
   llvm::ValueAsMetadata *vmdOp1 =
       llvm::cast<llvm::ValueAsMetadata>(node->getOperand(1));
   llvm::ValueAsMetadata *vmdOp2 =
@@ -375,7 +376,8 @@ void populateRequiredWGSAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
   kernel_info.attributes.assign(stream.str());
 }
 
-void populateWGSHintAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
+static void populateWGSHintAttribute(KernelInfo &kernel_info,
+                                     llvm::MDNode *node) {
   llvm::ValueAsMetadata *vmdOp1 =
       llvm::cast<llvm::ValueAsMetadata>(node->getOperand(1));
   llvm::ValueAsMetadata *vmdOp2 =
@@ -401,8 +403,8 @@ void populateWGSHintAttribute(KernelInfo &kernel_info, llvm::MDNode *node) {
   kernel_info.attributes.assign(stream.str());
 }
 
-void populateVectorTypeHintAttribute(KernelInfo &kernel_info,
-                                     llvm::MDNode *node) {
+static void populateVectorTypeHintAttribute(KernelInfo &kernel_info,
+                                            llvm::MDNode *node) {
   std::stringstream stream;
   if (!kernel_info.attributes.empty()) {
     stream << kernel_info.attributes << " ";
@@ -455,7 +457,7 @@ void populateVectorTypeHintAttribute(KernelInfo &kernel_info,
   kernel_info.attributes.assign(stream.str());
 }
 
-void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
+static void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
   for (uint32_t i = 1; i < node->getNumOperands(); ++i) {
     llvm::MDNode *const subNode = llvm::cast<llvm::MDNode>(node->getOperand(i));
     llvm::MDString *const operandName =
@@ -482,7 +484,7 @@ void populateAttributes(KernelInfo &kernel_info, llvm::MDNode *node) {
 /// @retval `Result::OUT_OF_MEMORY` if an allocation failed.
 /// @retval `Result::FINALIZE_PROGRAM_FAILURE` when there was a problem with the
 /// LLVM IR.
-cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
+static cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
     llvm::Function *function, llvm::MDNode *node, bool storeArgumentMetadata) {
   KernelInfo kernel_info;
   kernel_info.name = function->getName().str();
@@ -633,7 +635,6 @@ cargo::expected<KernelInfo, Result> populateKernelInfoFromFunction(
 
   return std::move(kernel_info);
 }
-}  // namespace
 
 Result moduleToProgramInfo(ProgramInfo &program_info, llvm::Module *const M,
                            bool store_argument_metadata) {

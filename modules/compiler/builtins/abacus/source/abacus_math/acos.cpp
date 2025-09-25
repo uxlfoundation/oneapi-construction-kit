@@ -141,9 +141,8 @@ abacus_float ABACUS_API __abacus_acos(abacus_float x) {
   return (x > 0.0f) ? result : ABACUS_PI_F - result;
 }
 
-namespace {
 template <typename T>
-T acos(const T x) {
+static T acos(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
@@ -171,7 +170,6 @@ T acos(const T x) {
 
   return __abacus_select(result, ABACUS_NAN, __abacus_isnan(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 
@@ -247,9 +245,8 @@ abacus_float8 ABACUS_API __abacus_acos(abacus_float8 x) { return acos<>(x); }
 abacus_float16 ABACUS_API __abacus_acos(abacus_float16 x) { return acos<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-namespace {
 template <typename T>
-T acosD(const T x) {
+static T acosD(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -265,7 +262,6 @@ T acosD(const T x) {
 
   return result;
 }
-}  // namespace
 
 abacus_double ABACUS_API __abacus_acos(abacus_double x) { return acosD<>(x); }
 abacus_double2 ABACUS_API __abacus_acos(abacus_double2 x) { return acosD<>(x); }

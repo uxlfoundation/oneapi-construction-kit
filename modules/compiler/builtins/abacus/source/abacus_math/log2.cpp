@@ -21,6 +21,7 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/horner_polynomial.h>
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -84,8 +85,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T log2(const T x) {
+static T log2(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type IntType;
@@ -123,7 +126,6 @@ T log2(const T x) {
   const SignedType cond4 = (x < static_cast<T>(0.0f)) | __abacus_isnan(x);
   return __abacus_select(result, FPShape<T>::NaN(), cond4);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_log2(abacus_half x) { return log2<>(x); }

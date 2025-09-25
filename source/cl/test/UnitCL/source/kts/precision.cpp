@@ -16,7 +16,6 @@
 
 #include "kts/precision.h"
 
-namespace {
 /// @brief Performs RTE rounding on the mantissa bits not available in half
 ///        RTE rounding is Round To nearest, ties to Even.
 ///
@@ -24,7 +23,7 @@ namespace {
 ///
 /// @return rounded mantissa, or max unsigned type in the case of overflow
 template <class T, class U = typename kts::ucl::TypeInfo<T>::AsUnsigned>
-U RTEMantissa(U x) {
+static U RTEMantissa(U x) {
   static_assert(std::is_floating_point_v<T>,
                 "Function only applicable to cl_float and cl_double");
   using unsigned_t = typename kts::ucl::TypeInfo<T>::AsUnsigned;
@@ -81,7 +80,7 @@ U RTEMantissa(U x) {
 ///
 /// @return rounded mantissa, or max unsigned type in the case of overflow
 template <class T, class U = typename kts::ucl::TypeInfo<T>::AsUnsigned>
-U RTZeroMantissa(U x, bool to_zero) {
+static U RTZeroMantissa(U x, bool to_zero) {
   static_assert(std::is_floating_point_v<T>,
                 "Function only applicable to cl_float and cl_double");
   using unsigned_t = typename kts::ucl::TypeInfo<T>::AsUnsigned;
@@ -108,7 +107,6 @@ U RTZeroMantissa(U x, bool to_zero) {
   }
   return out;
 }
-}  // end namespace
 
 namespace kts {
 namespace ucl {

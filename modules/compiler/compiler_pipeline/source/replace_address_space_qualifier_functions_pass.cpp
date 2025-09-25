@@ -22,9 +22,8 @@
 
 using namespace llvm;
 
-namespace {
-
-Value *replaceAddressSpaceQualifierFunction(CallBase &call, StringRef name) {
+static Value *replaceAddressSpaceQualifierFunction(CallBase &call,
+                                                   StringRef name) {
   if (name != "__to_global" && name != "__to_local" && name != "__to_private") {
     return nullptr;
   }
@@ -34,8 +33,6 @@ Value *replaceAddressSpaceQualifierFunction(CallBase &call, StringRef name) {
 
   return B.CreatePointerBitCastOrAddrSpaceCast(ptr, call.getType(), name);
 }
-
-}  // namespace
 
 PreservedAnalyses
 compiler::utils::ReplaceAddressSpaceQualifierFunctionsPass::run(

@@ -29,18 +29,17 @@
 using namespace vecz;
 using namespace llvm;
 
-namespace {
-bool analyzeType(Type *Ty) {
+static bool analyzeType(Type *Ty) {
   return !Ty->isVoidTy() && !Ty->isVectorTy() &&
          !FixedVectorType::isValidElementType(Ty);
 }
 
-bool analyzeMemOp(MemOp &Op) {
+static bool analyzeMemOp(MemOp &Op) {
   assert(Op.getPointerType()->isPointerTy() && "MemOp inconsistency");
   return analyzeType(Op.getDataType());
 }
 
-bool analyzeCall(const VectorizationContext &Ctx, CallInst *CI) {
+static bool analyzeCall(const VectorizationContext &Ctx, CallInst *CI) {
   Function *Callee = CI->getCalledFunction();
   VECZ_FAIL_IF(!Callee);
 
@@ -90,7 +89,7 @@ bool analyzeCall(const VectorizationContext &Ctx, CallInst *CI) {
   return analyzeType(CI->getType());
 }
 
-bool analyzeAlloca(const VectorizationContext &Ctx, AllocaInst *alloca) {
+static bool analyzeAlloca(const VectorizationContext &Ctx, AllocaInst *alloca) {
   // Possibly, we could packetize by creating a wider array, but for now let's
   // just let instantiation deal with it.
   if (alloca->isArrayAllocation()) {
@@ -106,7 +105,6 @@ bool analyzeAlloca(const VectorizationContext &Ctx, AllocaInst *alloca) {
   const uint64_t align = alloca->getAlign().value();
   return (align != 0 && (memSize % align) != 0);
 }
-}  // namespace
 
 namespace vecz {
 bool needsInstantiation(const VectorizationContext &Ctx, Instruction &I) {

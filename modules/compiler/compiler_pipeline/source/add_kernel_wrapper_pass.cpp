@@ -27,14 +27,10 @@
 
 using namespace llvm;
 
-namespace {
-
-bool isArgLocalBuffer(Type *const Ty) {
+static bool isArgLocalBuffer(Type *const Ty) {
   return Ty->isPointerTy() &&
          Ty->getPointerAddressSpace() == compiler::utils::AddressSpace::Local;
 }
-
-}  // namespace
 
 void compiler::utils::AddKernelWrapperPass::createNewFunctionArgTypes(
     Module &M, const Function &F,

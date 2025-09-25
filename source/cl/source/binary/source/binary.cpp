@@ -40,9 +40,7 @@
 namespace cl {
 namespace binary {
 
-namespace {
-
-auto md_init_unique(md_hooks *hooks, void *userdata) {
+static auto md_init_unique(md_hooks *hooks, void *userdata) {
   auto deleter = [](md_ctx ctx) {
     if (ctx) {
       md_release_ctx(ctx);
@@ -52,7 +50,7 @@ auto md_init_unique(md_hooks *hooks, void *userdata) {
   return std::unique_ptr<md_ctx_, decltype(deleter)>(ctx, std::move(deleter));
 }
 
-bool serializeExecutable(OpenCLWriteUserdata *cl_userdata, md_ctx ctx) {
+static bool serializeExecutable(OpenCLWriteUserdata *cl_userdata, md_ctx ctx) {
   md_stack stack = md_create_block(ctx, OCL_MD_EXECUTABLE_BLOCK);
   if (!stack) {
     return false;
@@ -84,7 +82,7 @@ bool serializeExecutable(OpenCLWriteUserdata *cl_userdata, md_ctx ctx) {
   return true;
 }
 
-bool serializeIsExecutable(md_ctx ctx, bool is_executable) {
+static bool serializeIsExecutable(md_ctx ctx, bool is_executable) {
   md_stack stack = md_create_block(ctx, OCL_MD_IS_EXECUTABLE_BLOCK);
   if (!stack) {
     return false;
@@ -101,7 +99,7 @@ bool serializeIsExecutable(md_ctx ctx, bool is_executable) {
   return true;
 }
 
-bool serializePrintfInfo(
+static bool serializePrintfInfo(
     md_ctx ctx, const std::vector<builtins::printf::descriptor> &printf_calls) {
   md_stack stack = md_create_block(ctx, OCL_MD_PRINTF_INFO_BLOCK);
   if (!stack) {
@@ -182,8 +180,9 @@ bool serializePrintfInfo(
   return true;
 }
 
-bool serializeProgramInfo(md_ctx ctx, const compiler::ProgramInfo &program_info,
-                          bool has_kernel_arg_info) {
+static bool serializeProgramInfo(md_ctx ctx,
+                                 const compiler::ProgramInfo &program_info,
+                                 bool has_kernel_arg_info) {
   md_stack stack = md_create_block(ctx, OCL_MD_PROGRAM_INFO_BLOCK);
   if (!stack) {
     return false;
@@ -394,8 +393,8 @@ bool serializeProgramInfo(md_ctx ctx, const compiler::ProgramInfo &program_info,
   return true;
 }
 
-bool deserializeExecutable(md_ctx ctx,
-                           cargo::dynamic_array<uint8_t> &executable) {
+static bool deserializeExecutable(md_ctx ctx,
+                                  cargo::dynamic_array<uint8_t> &executable) {
   md_stack executable_stack = md_get_block(ctx, OCL_MD_EXECUTABLE_BLOCK);
   if (!executable_stack) {
     return false;
@@ -414,7 +413,7 @@ bool deserializeExecutable(md_ctx ctx,
   return true;
 }
 
-cargo::expected<bool, int> deserializeIsExecutable(md_ctx ctx) {
+static cargo::expected<bool, int> deserializeIsExecutable(md_ctx ctx) {
   md_stack stack = md_get_block(ctx, OCL_MD_IS_EXECUTABLE_BLOCK);
   if (!stack) {
     return cargo::make_unexpected(md_err::MD_E_STACK_CORRUPT);
@@ -427,7 +426,7 @@ cargo::expected<bool, int> deserializeIsExecutable(md_ctx ctx) {
   return is_executable_as_int == 1;
 }
 
-bool deserializeOpenCLPrintfCalls(
+static bool deserializeOpenCLPrintfCalls(
     md_ctx ctx, std::vector<builtins::printf::descriptor> &printf_calls) {
   md_stack stack = md_get_block(ctx, OCL_MD_PRINTF_INFO_BLOCK);
   if (!stack) {
@@ -518,8 +517,8 @@ bool deserializeOpenCLPrintfCalls(
   return true;
 }
 
-bool deserializeOpenCLProgramInfo(md_ctx ctx,
-                                  compiler::ProgramInfo &program_info) {
+static bool deserializeOpenCLProgramInfo(md_ctx ctx,
+                                         compiler::ProgramInfo &program_info) {
   md_stack stack = md_get_block(ctx, OCL_MD_PROGRAM_INFO_BLOCK);
   if (!stack) {
     return false;
@@ -776,7 +775,6 @@ bool deserializeOpenCLProgramInfo(md_ctx ctx,
   }
   return true;
 }
-}  // namespace
 
 cargo::string_view detectMuxDeviceProfile(cl_bool compiler_available,
                                           mux_device_info_t device) {

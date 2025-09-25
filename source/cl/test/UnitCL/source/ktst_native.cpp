@@ -56,9 +56,11 @@ template <typename T, cl_ulong threshold>
 using AbsoluteErrStreamerTy =
     kts::GenericStreamer<T, AbsoluteErrValidator<T, threshold>>;
 
+}  // namespace
+
 template <typename T, cl_ulong threshold, typename F>
-std::shared_ptr<AbsoluteErrStreamerTy<T, threshold>> makeAbsoluteErrStreamer(
-    F &&f) {
+static std::shared_ptr<AbsoluteErrStreamerTy<T, threshold>>
+makeAbsoluteErrStreamer(F &&f) {
   auto s = std::make_shared<AbsoluteErrStreamerTy<T, threshold>>(
       kts::Reference1D<T>(std::forward<F>(f)));
 
@@ -91,5 +93,3 @@ TEST_F(BaseExecution, Native_01_Log2_Accuracy) {
 
 // TODO: extend native precision testing to all of the native builtins, see
 // CA-3336 for a full list and details.
-
-}  // namespace

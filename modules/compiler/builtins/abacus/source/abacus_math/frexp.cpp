@@ -20,6 +20,7 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/frexp_unsafe.h>
 #include <abacus/internal/is_denorm.h>
+
 namespace {
 
 /*
@@ -100,8 +101,10 @@ struct MagicNumbers<abacus_half> {
 
 #endif
 
+}  // namespace
+
 template <typename T>
-T frexp_denorm_multiplier(const T x) {
+static T frexp_denorm_multiplier(const T x) {
   using ElemType = typename TypeTraits<T>::ElementType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using Shape = FPShape<T>;
@@ -120,9 +123,9 @@ T frexp_denorm_multiplier(const T x) {
 }
 
 template <typename T>
-T frexp(const T x,
-        typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
-            *out_exponent) {
+static T frexp(const T x,
+               typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
+                   *out_exponent) {
   typedef typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
       IntVecType;
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -149,7 +152,6 @@ T frexp(const T x,
       exponent - offset, 0, abacus::detail::cast::convert<IntVecType>(cond));
   return __abacus_select(result, x, cond);
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_frexp(abacus_float x, abacus_int *o) {
   return frexp<>(x, o);

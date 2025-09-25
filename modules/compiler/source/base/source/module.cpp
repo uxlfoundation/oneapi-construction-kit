@@ -110,13 +110,11 @@
 #define PATH_SEPARATOR "/"
 #endif
 
-namespace {
-
 // LLVM's pipeline hooks are broken until version 12. There's no way to
 // access early pipeline hooks in O0 mode. Thus, we build our pipelines
 // manually in older versions. For the newer versions, a few parameters got
 // changed around; not a big deal, just a few ugly ifdefs
-inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
+static inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
     llvm::PassBuilder &PB, llvm::OptimizationLevel OL,
     std::optional<llvm::ModulePassManager> EP) {
   assert(OL != llvm::OptimizationLevel::O0);
@@ -134,7 +132,7 @@ inline llvm::ModulePassManager buildPerModuleDefaultPipeline(
   return PB.buildPerModuleDefaultPipeline(OL);
 }
 
-inline llvm::ModulePassManager buildO0DefaultPipeline(
+static inline llvm::ModulePassManager buildO0DefaultPipeline(
     llvm::PassBuilder &PB, std::optional<llvm::ModulePassManager> EP) {
   if (EP.has_value()) {
     PB.registerPipelineStartEPCallback(
@@ -145,7 +143,7 @@ inline llvm::ModulePassManager buildO0DefaultPipeline(
   return PB.buildO0DefaultPipeline(llvm::OptimizationLevel::O0);
 }
 
-inline llvm::ModulePassManager buildPipeline(
+static inline llvm::ModulePassManager buildPipeline(
     llvm::PassBuilder &PB, clang::CodeGenOptions Opts,
     std::optional<llvm::ModulePassManager> EP) {
   return Opts.OptimizationLevel == 0
@@ -164,7 +162,7 @@ inline llvm::ModulePassManager buildPipeline(
 // greater than 12 we use the new(ish) optimization pipelines. These two paths
 // map to the `EmitAssembly` and `EmitAssemblyWithNewPassManager` functions in
 // `clang/lib/CodeGen/BackendUtil.cpp` respectively.
-void runFrontendPipeline(
+static void runFrontendPipeline(
     compiler::BaseModule &base_module, llvm::Module &module,
     const clang::CodeGenOptions &CGO,
     std::optional<llvm::ModulePassManager> EP = std::nullopt,
@@ -184,6 +182,8 @@ void runFrontendPipeline(
   }
   MPM.run(module, PassMach->getMAM());
 }
+
+namespace {
 
 class DeserializeMemoryBuffer final : public llvm::MemoryBuffer {
  public:
@@ -210,7 +210,9 @@ class BakedMemoryBuffer : public llvm::MemoryBuffer {
   virtual ~BakedMemoryBuffer() {}
 };
 
-bool isDeviceProfileFull(cargo::string_view profile_string) {
+}  // namespace
+
+static bool isDeviceProfileFull(cargo::string_view profile_string) {
   return profile_string.compare("FULL_PROFILE");
 }
 
@@ -301,7 +303,7 @@ static bool loadKernelAPIHeader(clang::CompilerInstance &compiler,
   return true;
 }
 
-bool hasRecursiveKernels(llvm::Module *module) {
+static bool hasRecursiveKernels(llvm::Module *module) {
   auto callgraph = llvm::CallGraph(*module);
   std::unordered_map<const llvm::Function *,
                      std::unordered_set<const llvm::Function *>>
@@ -327,11 +329,10 @@ bool hasRecursiveKernels(llvm::Module *module) {
 
 // LLVM 12 replaced the dedicated OpenCLOptions class with an
 // llvm::StringMap<bool>
-inline void supportOpenCLOpt(clang::CompilerInstance &instance,
-                             const std::string opt) {
+static inline void supportOpenCLOpt(clang::CompilerInstance &instance,
+                                    const std::string opt) {
   instance.getTarget().getSupportedOpenCLOpts().insert({opt, true});
 }
-}  // namespace
 
 namespace compiler {
 BaseModule::BaseModule(compiler::BaseTarget &target,

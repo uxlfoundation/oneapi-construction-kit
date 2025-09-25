@@ -23,6 +23,7 @@
 #include <abacus/internal/payne_hanek.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -71,8 +72,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T tan(const T x) {
+static T tan(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using IntType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
@@ -107,7 +110,7 @@ static ABACUS_CONSTANT abacus_half _tan2H[5] = {
     -1.275634765625e-2f16, 5.283355712890625e-3f16};
 
 template <typename T>
-T tan_half(const T x) {
+static T tan_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
 
@@ -265,8 +268,6 @@ T tan_half(const T x) {
   return ans;
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_tan(abacus_half x) { return tan_half(x); }

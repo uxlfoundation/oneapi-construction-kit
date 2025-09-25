@@ -20,6 +20,7 @@
 #include <abacus/internal/sincos_approx.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct sincos_helper {
   static T _(const T x, T *out_cos) {
@@ -92,11 +93,12 @@ struct sincos_helper<T, abacus_half> {
 };
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T sincos(const T x, T *out_cos) {
+static inline T sincos(const T x, T *out_cos) {
   return sincos_helper<T>::_(x, out_cos);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sincos(abacus_half x, abacus_half *o) {

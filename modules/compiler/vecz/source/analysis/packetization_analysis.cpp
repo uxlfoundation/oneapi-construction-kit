@@ -35,13 +35,11 @@
 using namespace vecz;
 using namespace llvm;
 
-namespace {
-bool isDivergenceReduction(const Function &F) {
+static bool isDivergenceReduction(const Function &F) {
   compiler::utils::Lexer L(F.getName());
   return (L.Consume(VectorizationContext::InternalBuiltinPrefix) &&
           L.Consume("divergence_"));
 }
-}  // namespace
 
 llvm::AnalysisKey PacketizationAnalysis::Key;
 

@@ -22,6 +22,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct denorm_helper;
 
@@ -76,11 +77,12 @@ struct denorm_helper<T, abacus_double> {
 };
 #endif
 
+}  // namespace
+
 template <typename T>
-inline typename TypeTraits<T>::SignedType isDenorm(const T &x) {
+static inline typename TypeTraits<T>::SignedType isDenorm(const T &x) {
   return denorm_helper<T>::_(x);
 }
-}  // namespace
 
 namespace abacus {
 namespace internal {

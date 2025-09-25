@@ -19,6 +19,7 @@
 #include <abacus/abacus_math.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct fabs_helper;
 
@@ -56,11 +57,12 @@ struct fabs_helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T fabs_(const T x) {
+static inline T fabs_(const T x) {
   return fabs_helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fabs(abacus_half x) { return fabs_(x); }

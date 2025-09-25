@@ -26,6 +26,7 @@
 #endif
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -85,8 +86,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T cospi(const T x) {
+static T cospi(const T x) {
   const T xAbs = __abacus_fabs(x);
 
   // Find the fractional component of x and subtract 0.5 to turn cos into sin:
@@ -101,7 +104,6 @@ T cospi(const T x) {
 
   return __abacus_select(-result, result, abacus::internal::is_odd(xAbs));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_cospi(abacus_half x) { return cospi<>(x); }

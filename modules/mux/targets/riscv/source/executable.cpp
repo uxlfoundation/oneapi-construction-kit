@@ -29,9 +29,11 @@ struct ElfUserdata {
   mux::allocator *allocator;
 };
 
+}  // namespace
+
 constexpr const char MD_NOTES_SECTION[] = "notes";
 
-md_hooks getElfMetadataReadHooks() {
+static md_hooks getElfMetadataReadHooks() {
   md_hooks md_hooks{};
 
   md_hooks.map = [](const void *userdata, size_t *n) -> const void * {
@@ -59,7 +61,7 @@ md_hooks getElfMetadataReadHooks() {
   return md_hooks;
 }
 
-mux_result_t readBinaryMetadata(
+static mux_result_t readBinaryMetadata(
     cargo::array_view<uint8_t> elf_view,
     cargo::small_vector<handler::VectorizeInfoMetadata, 4> &kernel_info_vec,
     mux::allocator *allocator) {
@@ -92,7 +94,6 @@ mux_result_t readBinaryMetadata(
   }
   return mux_success;
 }
-}  // namespace
 
 namespace riscv {
 // Executable from binary

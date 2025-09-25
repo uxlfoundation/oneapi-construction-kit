@@ -21,12 +21,10 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-T native_sqrt(const T x) {
+static T native_sqrt(const T x) {
   return x * __abacus_native_rsqrt(x);
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_native_sqrt(abacus_float x) {
   return native_sqrt<>(x);

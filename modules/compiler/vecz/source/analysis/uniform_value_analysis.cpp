@@ -38,11 +38,9 @@
 using namespace vecz;
 using namespace llvm;
 
-namespace {
-
 // Find leaves by recursing through an instruction's uses
-bool findStrayLeaves(UniformValueResult &UVR, Instruction &I,
-                     DenseSet<Instruction *> &Visited) {
+static bool findStrayLeaves(UniformValueResult &UVR, Instruction &I,
+                            DenseSet<Instruction *> &Visited) {
   for (const Use &U : I.uses()) {
     auto *User = U.getUser();
     if (isa<StoreInst>(User) || isa<AtomicRMWInst>(User) ||
@@ -73,13 +71,13 @@ bool findStrayLeaves(UniformValueResult &UVR, Instruction &I,
   return false;
 }
 
-bool isDivergenceReduction(const Function &F) {
+static bool isDivergenceReduction(const Function &F) {
   compiler::utils::Lexer L(F.getName());
   return (L.Consume(VectorizationContext::InternalBuiltinPrefix) &&
           L.Consume("divergence_"));
 }
 
-bool isTrueUniformInternal(const Value *V, unsigned Depth) {
+static bool isTrueUniformInternal(const Value *V, unsigned Depth) {
   if (!V) {
     return false;
   }
@@ -110,8 +108,6 @@ bool isTrueUniformInternal(const Value *V, unsigned Depth) {
 
   return false;
 }
-
-}  // namespace
 
 UniformValueResult::UniformValueResult(Function &F, VectorizationUnit &vu)
     : F(F), VU(vu), Ctx(VU.context()), dimension(VU.dimension()) {}

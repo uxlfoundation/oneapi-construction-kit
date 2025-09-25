@@ -29,10 +29,9 @@
 
 #include "mux/mux.h"
 
-namespace {
 // Returns the number of bytes which need allocated to hold all the packed args,
 // and stores the offset into the allocation for each argument
-size_t calcPackedArgsAllocSize(
+static size_t calcPackedArgsAllocSize(
     const mux::dynamic_array<mux_descriptor_info_t> &descriptors,
     mux::dynamic_array<size_t> &offsets) {
   size_t offset = 0;
@@ -66,7 +65,7 @@ size_t calcPackedArgsAllocSize(
 
 // Iterates through the argument descriptors and for each argument sets the
 // location in the packed args location to the correct value.
-void populatePackedArgs(
+static void populatePackedArgs(
     mux::dynamic_array<uint8_t> &packed_args,
     const mux::dynamic_array<mux_descriptor_info_t> &descriptors) {
   uint8_t *const packed_args_alloc = packed_args.data();
@@ -167,7 +166,6 @@ void populatePackedArgs(
     }
   }
 }
-}  // namespace
 
 namespace host {
 command_buffer_s::command_buffer_s(mux_device_t device,
@@ -641,7 +639,7 @@ mux_result_t hostCommandReadImage(mux_command_buffer_t command_buffer,
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_read_image_s{
           image, offset, extent, row_size, slice_size, pointer})) {
@@ -687,7 +685,7 @@ mux_result_t hostCommandWriteImage(mux_command_buffer_t command_buffer,
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_write_image_s{
           image, offset, extent, row_size, slice_size, pointer})) {
@@ -733,7 +731,7 @@ mux_result_t hostCommandFillImage(mux_command_buffer_t command_buffer,
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   host::command_info_fill_image_s fill_image;
   fill_image.image = image;
@@ -784,7 +782,7 @@ mux_result_t hostCommandCopyImage(mux_command_buffer_t command_buffer,
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_copy_image_s{
           src_image, dst_image, src_offset, dst_offset, extent})) {
@@ -828,7 +826,7 @@ mux_result_t hostCommandCopyImageToBuffer(
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_copy_image_to_buffer_s{
           src_image, dst_buffer, src_offset, dst_offset, extent})) {
@@ -872,7 +870,7 @@ mux_result_t hostCommandCopyBufferToImage(
 #ifdef HOST_IMAGE_SUPPORT
   auto host = static_cast<host::command_buffer_s *>(command_buffer);
 
-  const std::lock_guard<std::mutex> lock(host->mutex);
+  const std::scoped_lock lock(host->mutex);
 
   if (host->commands.emplace_back(host::command_info_copy_buffer_to_image_s{
           src_buffer, dst_image, src_offset, dst_offset, extent})) {

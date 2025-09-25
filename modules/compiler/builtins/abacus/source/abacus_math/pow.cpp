@@ -21,9 +21,8 @@
 #include <abacus/internal/is_odd.h>
 #include <abacus/internal/pow_unsafe.h>
 
-namespace {
 template <typename T>
-inline T pow(const T x, const T y) {
+static inline T pow(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -92,7 +91,6 @@ inline T pow(const T x, const T y) {
 
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_pow(abacus_half x, abacus_half y) {

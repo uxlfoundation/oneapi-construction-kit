@@ -19,9 +19,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-inline T modf_helper_scalar(T x, T *out_whole_number) {
+static inline T modf_helper_scalar(T x, T *out_whole_number) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
 
@@ -31,7 +30,7 @@ inline T modf_helper_scalar(T x, T *out_whole_number) {
 }
 
 template <typename T>
-inline T modf_helper_vector(T x, T *out_whole_number) {
+static inline T modf_helper_vector(T x, T *out_whole_number) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -40,7 +39,6 @@ inline T modf_helper_vector(T x, T *out_whole_number) {
   return __abacus_select(x - whole_number, __abacus_copysign(T(0.0), x),
                          __abacus_isinf(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_modf(abacus_half x, abacus_half *o) {

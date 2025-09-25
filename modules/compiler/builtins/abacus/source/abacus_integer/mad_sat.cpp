@@ -18,9 +18,8 @@
 #include <abacus/abacus_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-T mad_sat(const T x, const T y, const T z) {
+static T mad_sat(const T x, const T y, const T z) {
   typedef typename TypeTraits<T>::LargerType LargerType;
   typedef typename TypeTraits<T>::ElementType ElementType;
   typedef typename TypeTraits<LargerType>::ElementType LargerElementType;
@@ -35,6 +34,8 @@ T mad_sat(const T x, const T y, const T z) {
                      abacus::detail::cast::convert<LargerElementType>(
                          TypeTraits<ElementType>::max())));
 }
+
+namespace {
 
 struct ulonger {
   abacus_uint4 payload;
@@ -174,6 +175,8 @@ struct ulonger {
            abacus::detail::cast::convert<abacus_ulong>(payload[3]);
   }
 };
+
+}  // namespace
 
 template <>
 abacus_long mad_sat(const abacus_long x, const abacus_long y,
@@ -346,7 +349,6 @@ abacus_ulong16 mad_sat(const abacus_ulong16 x, const abacus_ulong16 y,
   }
   return r;
 }
-}  // namespace
 
 #define DEF(TYPE)                                            \
   TYPE ABACUS_API __abacus_mad_sat(TYPE x, TYPE y, TYPE z) { \

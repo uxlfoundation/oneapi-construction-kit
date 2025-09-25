@@ -22,7 +22,6 @@
 #include <llvm/IR/PassManager.h>
 #include <multi_llvm/multi_llvm.h>
 
-namespace {
 /// @brief       Try to extract an integer constant from a value and return it.
 /// This works for both scalar constants and splatted vector constants.
 /// @type        Static function.
@@ -46,7 +45,6 @@ static bool ExtractIntegerConstant(llvm::Value *val, uint64_t &outVal) {
   outVal = 0;
   return false;
 }
-}  // namespace
 
 llvm::PreservedAnalyses compiler::BitShiftFixupPass::run(
     llvm::Function &F, llvm::FunctionAnalysisManager &) {

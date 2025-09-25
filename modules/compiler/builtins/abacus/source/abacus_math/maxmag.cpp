@@ -20,9 +20,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-T maxmag_helper_scalar(const T x, const T y) {
+static T maxmag_helper_scalar(const T x, const T y) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "This function should only be called on scalar types");
   const T x_abs = __abacus_fabs(x);
@@ -37,7 +36,7 @@ T maxmag_helper_scalar(const T x, const T y) {
 }
 
 template <typename T>
-T maxmag_helper_vector(const T x, const T y) {
+static T maxmag_helper_vector(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements != 1,
                 "This function should only be called on vector types");
@@ -50,7 +49,6 @@ T maxmag_helper_vector(const T x, const T y) {
   return __abacus_select(__abacus_fmax(x, y), absResult,
                          (abs_x_gt_y_condition | abs_y_gt_x_condition));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_maxmag(abacus_half x, abacus_half y) {

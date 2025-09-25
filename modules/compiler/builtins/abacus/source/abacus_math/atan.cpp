@@ -53,9 +53,8 @@ abacus_float ABACUS_API __abacus_atan(abacus_float x) {
   return result;
 }
 
-namespace {
 template <typename T>
-T ABACUS_API atan(T x) {
+static T ABACUS_API atan(T x) {
   const typename TypeTraits<T>::SignedType recip_x = (T)1.0f < __abacus_fabs(x);
 
   x = __abacus_select(x, (T)1.0f / x, recip_x);
@@ -66,7 +65,6 @@ T ABACUS_API atan(T x) {
   return __abacus_select(result, __abacus_copysign(ABACUS_PI_2_F, x) - result,
                          recip_x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 namespace {
@@ -129,12 +127,10 @@ abacus_float8 ABACUS_API __abacus_atan(abacus_float8 x) { return atan<>(x); }
 abacus_float16 ABACUS_API __abacus_atan(abacus_float16 x) { return atan<>(x); }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-namespace {
 template <typename T>
-T atanD(const T x) {
+static T atanD(const T x) {
   return abacus::internal::atan_unsafe(x);
 }
-}  // namespace
 
 abacus_double ABACUS_API __abacus_atan(abacus_double x) { return atanD<>(x); }
 abacus_double2 ABACUS_API __abacus_atan(abacus_double2 x) { return atanD<>(x); }

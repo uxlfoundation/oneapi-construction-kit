@@ -24,8 +24,8 @@
 
 #include "Common.h"
 
-namespace {
-void generateRandomData(void *data, size_t count, std::mt19937 &generator) {
+static void generateRandomData(void *data, size_t count,
+                               std::mt19937 &generator) {
   size_t i;
   // We can cause the failure without the mt19937 generator calls in this
   // function, using hardcoded values instead. However this requires more
@@ -45,8 +45,8 @@ void generateRandomData(void *data, size_t count, std::mt19937 &generator) {
   }
 }
 
-int test_copy(cl_context context, cl_command_queue queue, cl_kernel kernel,
-              size_t local_size) {
+static int test_copy(cl_context context, cl_command_queue queue,
+                     cl_kernel kernel, size_t local_size) {
   int ret_code = 0;
   cl_mem buffers[2];
   std::mt19937 generator(42 /* seed */);
@@ -108,7 +108,6 @@ int test_copy(cl_context context, cl_command_queue queue, cl_kernel kernel,
   clReleaseMemObject(buffers[1]);
   return ret_code;
 }
-}  // end anonymous namespace
 
 struct Arm64KillerTest : public ucl::CommandQueueTest {
   void SetUp() override {

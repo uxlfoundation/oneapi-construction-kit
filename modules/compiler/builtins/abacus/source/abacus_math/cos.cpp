@@ -19,9 +19,8 @@
 #include <abacus/internal/payne_hanek.h>
 #include <abacus/internal/sincos_approx.h>
 
-namespace {
 template <typename T>
-T cos(const T x) {
+static T cos(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type octet = 0;
@@ -44,7 +43,7 @@ T cos(const T x) {
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <typename T>
-T cos_half(const T x) {
+static T cos_half(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   SignedType octet = 0;
@@ -65,7 +64,6 @@ T cos_half(const T x) {
   return __abacus_select(-result, result, cond2);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_cos(abacus_half x) { return cos_half<>(x); }

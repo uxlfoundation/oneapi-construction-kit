@@ -30,8 +30,6 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
-
 /// @brief Determine whether all users of the instructions are dead. An user is
 /// dead if it has no use, if it is present in the 'to delete' list or if it is
 /// a phi node whose only use keeps it alive is the 'backedge'.
@@ -42,10 +40,10 @@ namespace {
 /// @param[in,out] Visited Instructions visited for deletion.
 ///
 /// @return true if all users of the instructions are dead, false otherwise.
-bool AreUsersDead(Instruction *I,
-                  const SmallPtrSetImpl<Instruction *> &DeadList,
-                  SmallPtrSetImpl<Instruction *> &WorkList,
-                  SmallPtrSetImpl<Instruction *> &Visited) {
+static bool AreUsersDead(Instruction *I,
+                         const SmallPtrSetImpl<Instruction *> &DeadList,
+                         SmallPtrSetImpl<Instruction *> &WorkList,
+                         SmallPtrSetImpl<Instruction *> &Visited) {
   for (User *U : I->users()) {
     // Ignore non-instructions.
     Instruction *UserI = dyn_cast<Instruction>(U);
@@ -74,8 +72,6 @@ bool AreUsersDead(Instruction *I,
   }
   return true;
 }
-
-}  // namespace
 
 void IRCleanup::deleteInstructionLater(llvm::Instruction *I) {
   if (InstructionsToDelete.insert(I).second) {

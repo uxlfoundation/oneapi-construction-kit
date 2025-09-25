@@ -102,14 +102,13 @@ STATISTIC(VeczMaskedScatterGatherMemOps,
 STATISTIC(VeczVectorWidth, "Vector width of the vectorized kernel [ID#V12]");
 STATISTIC(Ratio, "Normalized ratio of theoretical speedup[ID#V13]");
 
-namespace {
 /// @brief Calculate vectorization related statistics from the kernels
 ///
 /// @param[in] VU The Vectorization Unit we are working on
 /// @param[in] Scalar The scalar function that we have vectorized
 /// @param[in] Vectorized The vectorized version of the scalar function
-void collectStatistics(VectorizationUnit &VU, Function *Scalar,
-                       Function *Vectorized) {
+static void collectStatistics(VectorizationUnit &VU, Function *Scalar,
+                              Function *Vectorized) {
   // Do not gather statistics if we failed to vectorize, if we're doing
   // scalable vectorization, or if statistics aren't enabled in the first
   // place.
@@ -238,7 +237,6 @@ void collectStatistics(VectorizationUnit &VU, Function *Scalar,
                         ScalarVectorInsts * MaxScalarVectorWidth)) /
           VeczInstructions;
 }
-}  // namespace
 
 VectorizationUnit *vecz::createVectorizationUnit(VectorizationContext &Ctx,
                                                  Function *Kernel,

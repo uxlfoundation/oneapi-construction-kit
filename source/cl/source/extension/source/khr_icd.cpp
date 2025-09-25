@@ -85,6 +85,7 @@ cl_int extension::khr_icd::GetPlatformInfo(cl_platform_id platform,
 }
 
 namespace {
+
 // For functions we implement, we obtain the type from the function prototype
 // in other cases we use void function pointers. We do not want to include all
 // the Khronos headers, as they include system headers like Direct3D headers
@@ -306,15 +307,16 @@ const struct icd_dispatch_table_t {
 #endif
 } icd_dispatch_table{};
 
+}  // namespace
+
 #undef ICD_FUNCTION
 #undef OCL_ICD_NOT_IMPLEMENTED
 
-cl_int CL_API_CALL IcdGetPlatformIDsKHR(cl_uint num_entries,
-                                        cl_platform_id *platforms,
-                                        cl_uint *num_platforms) {
+static cl_int CL_API_CALL IcdGetPlatformIDsKHR(cl_uint num_entries,
+                                               cl_platform_id *platforms,
+                                               cl_uint *num_platforms) {
   return cl::GetPlatformIDs(num_entries, platforms, num_platforms);
 }
-}  // namespace
 
 CL_API_ENTRY cl_int CL_API_CALL clIcdGetPlatformIDsKHR(
     cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) {

@@ -30,8 +30,8 @@
 #include <memory>
 #include <mutex>
 #include <unordered_set>
-namespace {
-cl_int convertModuleStateToCL(compiler::ModuleState state) {
+
+static cl_int convertModuleStateToCL(compiler::ModuleState state) {
   switch (state) {
     case compiler::ModuleState::NONE:
       return CL_PROGRAM_BINARY_TYPE_NONE;
@@ -47,7 +47,6 @@ cl_int convertModuleStateToCL(compiler::ModuleState state) {
 
   return CL_PROGRAM_BINARY_TYPE_NONE;
 }
-}  // namespace
 
 cl::mux_kernel_cache::mux_kernel_cache()
     : use_builtin_kernels(true),

@@ -1268,14 +1268,17 @@ struct ScheduleGenerator {
   }
 };
 
+}  // namespace
+
 // Emits code to set up the storage allocated to a live-vars structure.
 //
 // Allocates enough space for sizeZ * sizeY * sizeX work-items. Note that Z/Y/X
 // here corresponds to the current outermost to innermost vectorized
 // dimensions, rather than in their absolutist sense.
-void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
-                         IRBuilder<> &B, Value *const sizeZ, Value *const sizeY,
-                         Value *const sizeX, StringRef name, bool isDebug) {
+static void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
+                                IRBuilder<> &B, Value *const sizeZ,
+                                Value *const sizeY, Value *const sizeX,
+                                StringRef name, bool isDebug) {
   barrier.setSize0(sizeX);
   Value *const live_var_size = B.CreateMul(sizeX, B.CreateMul(sizeY, sizeZ));
   barrier.setTotalSize(live_var_size);
@@ -1310,8 +1313,6 @@ void setUpLiveVarsAlloca(compiler::utils::BarrierWithLiveVars &barrier,
                                         "live_vars_peel_dbg"));
   }
 }
-
-}  // namespace
 
 Function *compiler::utils::WorkItemLoopsPass::makeWrapperFunction(
     BarrierWithLiveVars &barrierMain, BarrierWithLiveVars *barrierTail,

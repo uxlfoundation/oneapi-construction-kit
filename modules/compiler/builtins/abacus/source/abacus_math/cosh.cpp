@@ -20,6 +20,7 @@
 #include <abacus/internal/exp_unsafe.h>
 
 namespace {
+
 /*
   firstly, use the identity cosh(-x) = cosh(x) to do away with negatives
 
@@ -127,11 +128,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T cosh(const T x) {
+static T cosh(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_cosh(abacus_half x) { return cosh<>(x); }

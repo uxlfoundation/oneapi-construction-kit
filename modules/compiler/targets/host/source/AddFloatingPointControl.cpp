@@ -30,12 +30,10 @@
 
 using namespace llvm;
 
-namespace {
-
 // Currently all this function does is set the FTZ bit of the MXCSR register,
 // but could be extended in the future to set other configurations like rounding
 // mode or DAZ.
-void configX86FP(Function &wrapper, Function &function) {
+static void configX86FP(Function &wrapper, Function &function) {
   // create an IR builder with a single basic block in our wrapper
   IRBuilder<> ir(BasicBlock::Create(wrapper.getContext(), "", &wrapper));
 
@@ -88,7 +86,7 @@ void configX86FP(Function &wrapper, Function &function) {
 // Currently all this function does is set the FTZ bit of the FRCP register
 // but could be extended in the future to set other configurations like rounding
 // mode.
-void configAarch64FP(Function &wrapper, Function &function) {
+static void configAarch64FP(Function &wrapper, Function &function) {
   // create an IR builder with a single basic block in our wrapper
   IRBuilder<> ir(BasicBlock::Create(wrapper.getContext(), "", &wrapper));
 
@@ -127,7 +125,7 @@ void configAarch64FP(Function &wrapper, Function &function) {
 
 // On arm we run single precision floats on neon, so setting the FPCSR here just
 // affects doubles
-void configArmFP(Function &wrapper, Function &function) {
+static void configArmFP(Function &wrapper, Function &function) {
   // create an IR builder with a single basic block in our wrapper
   IRBuilder<> ir(BasicBlock::Create(wrapper.getContext(), "", &wrapper));
 
@@ -176,7 +174,7 @@ void configArmFP(Function &wrapper, Function &function) {
   ir.CreateRetVoid();
 }
 
-Function *runOnFunction(Function &F, bool SetFTZ) {
+static Function *runOnFunction(Function &F, bool SetFTZ) {
   const Module &M = *F.getParent();
   // Setting floating point configuration is very architecture specific,
   // so find out which architecture specific helper we want to invoke.
@@ -215,8 +213,6 @@ Function *runOnFunction(Function &F, bool SetFTZ) {
 
   return newFunction;
 }
-
-}  // namespace
 
 PreservedAnalyses host::AddFloatingPointControlPass::run(
     Module &M, ModuleAnalysisManager &) {

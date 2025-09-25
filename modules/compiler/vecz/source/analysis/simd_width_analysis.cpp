@@ -48,8 +48,7 @@ using namespace vecz;
 
 llvm::AnalysisKey SimdWidthAnalysis::Key;
 
-namespace {
-bool definedOrUsedInLoop(Value *V, Loop *L) {
+static bool definedOrUsedInLoop(Value *V, Loop *L) {
   if (!L) {
     // We're not in a loop, so consider everything.
     return true;
@@ -73,7 +72,6 @@ bool definedOrUsedInLoop(Value *V, Loop *L) {
   }
   return false;
 }
-}  // namespace
 
 // Avoid Spill implementation. It focus on avoiding register spill by optimizing
 // register pressure.

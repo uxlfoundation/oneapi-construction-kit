@@ -24,8 +24,7 @@ using namespace kts::ucl;
 
 TEST_P(Execution, Barrier_01_Barrier_In_Function) { RunGeneric1D(kts::N, 2); }
 
-namespace {
-cl_int refOut(size_t x) {
+static cl_int refOut(size_t x) {
   const cl_int idx = kts::Ref_Identity(x);
   const cl_int pos = idx & 1;
 
@@ -35,7 +34,6 @@ cl_int refOut(size_t x) {
     return idx + 1;
   }
 }
-}  // namespace
 
 TEST_P(Execution, Barrier_02_Barrier_No_Duplicates) {
   AddInputBuffer(kts::N, kts::Reference1D<cl_int>(kts::Ref_Identity));

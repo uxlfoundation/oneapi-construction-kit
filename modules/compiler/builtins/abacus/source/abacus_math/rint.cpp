@@ -21,7 +21,6 @@
 #include <abacus/internal/is_integer_quick.h>
 #include <abacus/internal/trunc_unsafe.h>
 
-namespace {
 template <typename T>
 static T rint_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
@@ -76,7 +75,6 @@ static T rint_helper_vector(const T x) {
 
   return __abacus_select(r, zero, abacus::internal::is_denorm(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_rint(abacus_half x) {

@@ -19,12 +19,10 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/internal/horner_polynomial.h>
 
-namespace {
 template <typename T>
-T atanh(const T x) {
+static T atanh(const T x) {
   return (T)0.5f * (__abacus_log1p(x) - __abacus_log1p(-x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // See atanh sollya script for derivation

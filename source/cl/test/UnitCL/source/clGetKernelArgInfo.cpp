@@ -18,11 +18,11 @@
 
 #include "Common.h"
 
-namespace {
-void sourceToBinaryKernel(cl_device_id device, cl_context context,
-                          cl_program program, const char *const kernelName,
-                          cl_program &binary_program,
-                          cl_kernel &binary_kernel) {
+static void sourceToBinaryKernel(cl_device_id device, cl_context context,
+                                 cl_program program,
+                                 const char *const kernelName,
+                                 cl_program &binary_program,
+                                 cl_kernel &binary_kernel) {
   size_t size;
   ASSERT_SUCCESS(clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES,
                                   sizeof(size_t), &size, nullptr));
@@ -44,8 +44,6 @@ void sourceToBinaryKernel(cl_device_id device, cl_context context,
   EXPECT_TRUE(binary_kernel);
   ASSERT_SUCCESS(status);
 }
-
-}  // namespace
 
 class clGetKernelArgInfoTest : public ucl::ContextTest {
  protected:

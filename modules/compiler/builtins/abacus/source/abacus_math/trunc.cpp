@@ -20,9 +20,8 @@
 #include <abacus/internal/is_denorm.h>
 #include <abacus/internal/is_integer_quick.h>
 
-namespace {
 template <typename T>
-inline T trunc_helper_scalar(const T x) {
+static inline T trunc_helper_scalar(const T x) {
   typedef typename TypeTraits<T>::SignedType IntTy;
   static_assert(TypeTraits<T>::num_elements == 1,
                 "This function should only be called on scalar types");
@@ -41,7 +40,7 @@ inline T trunc_helper_scalar(const T x) {
 }
 
 template <typename T>
-inline T trunc_helper(const T x) {
+static inline T trunc_helper(const T x) {
   typedef typename TypeTraits<T>::SignedType IntTy;
   static_assert(TypeTraits<T>::num_elements != 1,
                 "This function should only be called on vector types");
@@ -55,7 +54,6 @@ inline T trunc_helper(const T x) {
 
   return __abacus_select(r, (T)0, abacus::internal::is_denorm(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_trunc(abacus_half x) {

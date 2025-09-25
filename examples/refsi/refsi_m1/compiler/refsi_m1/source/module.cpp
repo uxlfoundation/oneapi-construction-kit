@@ -36,7 +36,7 @@ RefSiM1Module::createPassMachinery(llvm::LLVMContext &C) {
   auto *Builtins = getTarget().getBuiltins();
   const auto &BaseContext = getTarget().getContext();
 
-  compiler::utils::DeviceInfo Info = compiler::initDeviceInfoFromMux(
+  const compiler::utils::DeviceInfo Info = compiler::initDeviceInfoFromMux(
       getTarget().getCompilerInfo()->device_info);
 
   auto Callback = [Builtins](const llvm::Module &) {

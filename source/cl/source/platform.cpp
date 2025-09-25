@@ -34,19 +34,17 @@
 #include <algorithm>
 #include <cstring>
 
-namespace {
-void *default_alloc(void *user_data, size_t size, size_t alignment) {
+static void *default_alloc(void *user_data, size_t size, size_t alignment) {
   (void)user_data;
   void *pointer = cargo::alloc(size, alignment);
   OCL_ASSERT(pointer, "default_alloc() allocation failure!");
   return pointer;
 }
 
-void default_free(void *user_data, void *pointer) {
+static void default_free(void *user_data, void *pointer) {
   (void)user_data;
   cargo::free(pointer);
 }
-}  // namespace
 
 cargo::expected<cl_platform_id, cl_int> _cl_platform_id::getInstance() {
   // The only instance of cl_platform_id.

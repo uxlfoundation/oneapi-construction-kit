@@ -100,7 +100,7 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   PM.addPass(compiler::utils::TransferKernelMetadataPass());
 
   if (env_debug_prefix) {
-    std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
+    const std::string dump_ir_env_name = *env_debug_prefix + "_DUMP_IR";
     if (std::getenv(dump_ir_env_name.c_str())) {
       PM.addPass(compiler::utils::SimpleCallbackPass(
           [](llvm::Module &m) { m.print(llvm::dbgs(), /*AAW*/ nullptr); }));
@@ -163,7 +163,7 @@ llvm::ModulePassManager RefSiG1PassMachinery::getLateTargetPasses() {
   if (env_debug_prefix) {
     // With all passes scheduled, add a callback pass to view the
     // assembly/object file, if requested.
-    std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
+    const std::string dump_asm_env_name = *env_debug_prefix + "_DUMP_ASM";
     if (std::getenv(dump_asm_env_name.c_str())) {
       PM.addPass(compiler::utils::SimpleCallbackPass([this](llvm::Module &m) {
         // Clone the module so we leave it in the same state after we

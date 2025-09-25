@@ -114,7 +114,8 @@ static void startDmaTransfer1D(IRBuilder<> &B, Value *DstAddr, Value *SrcAddr,
   writeDmaReg(B, REFSI_REG_DMAXFERSIZE0, Size);  // Bytes
 
   // Configure and start a 1D DMA transfer.
-  uint64_t Config = REFSI_DMA_1D | REFSI_DMA_STRIDE_NONE | REFSI_DMA_START;
+  const uint64_t Config =
+      REFSI_DMA_1D | REFSI_DMA_STRIDE_NONE | REFSI_DMA_START;
   writeDmaReg(B, REFSI_REG_DMACTRL, ConstantInt::get(DmaRegTy, Config));
 }
 
@@ -145,10 +146,12 @@ static void startDmaTransfer2D(IRBuilder<> &B, Value *DstAddr, Value *SrcAddr,
       writeDmaReg(B, REFSI_REG_DMAXFERSRCSTRIDE0, SrcStride);  // Bytes
       writeDmaReg(B, REFSI_REG_DMAXFERDSTSTRIDE0, DstStride);  // Bytes
       break;
+    default:
+      break;
   }
 
   // Configure and start a write or read 2D DMA transfer.
-  uint64_t config = REFSI_DMA_2D | StrideMode | REFSI_DMA_START;
+  const uint64_t config = REFSI_DMA_2D | StrideMode | REFSI_DMA_START;
   writeDmaReg(B, REFSI_REG_DMACTRL, B.getInt64(config));
 }
 
@@ -174,7 +177,8 @@ static void startDmaTransfer3D(IRBuilder<> &B, Value *DstAddr, Value *SrcAddr,
   writeDmaReg(B, REFSI_REG_DMAXFERDSTSTRIDE0 + 1, PlaneStrideDst);
 
   // Configure and start a 3D DMA transfer.
-  uint64_t Config = REFSI_DMA_3D | REFSI_DMA_STRIDE_BOTH | REFSI_DMA_START;
+  const uint64_t Config =
+      REFSI_DMA_3D | REFSI_DMA_STRIDE_BOTH | REFSI_DMA_START;
   writeDmaReg(B, REFSI_REG_DMACTRL, B.getInt64(Config));
 }
 
@@ -222,7 +226,8 @@ static void defineRefSiDma1D(Function &F,
   (void)ArgEvent;
 }
 
-void defineRefSiDma2D(Function &F, compiler::utils::BIMuxInfoConcept &BI) {
+static void defineRefSiDma2D(Function &F,
+                             compiler::utils::BIMuxInfoConcept &BI) {
   Argument *const ArgDstDmaPointer = F.getArg(0);
   Argument *const ArgSrcDmaPointer = F.getArg(1);
   Argument *const ArgWidth = F.getArg(2);
@@ -263,7 +268,8 @@ void defineRefSiDma2D(Function &F, compiler::utils::BIMuxInfoConcept &BI) {
   (void)ArgEvent;
 }
 
-void defineRefSiDma3D(Function &F, compiler::utils::BIMuxInfoConcept &BI) {
+static void defineRefSiDma3D(Function &F,
+                             compiler::utils::BIMuxInfoConcept &BI) {
   Argument *const ArgDstDmaPointer = F.getArg(0);
   Argument *const ArgSrcDmaPointer = F.getArg(1);
   Argument *const ArgWidth = F.getArg(2);
@@ -306,7 +312,7 @@ void defineRefSiDma3D(Function &F, compiler::utils::BIMuxInfoConcept &BI) {
   (void)ArgEvent;
 }
 
-void defineRefSiDmaWait(Function &F) {
+static void defineRefSiDmaWait(Function &F) {
   Argument *const NumEvents = F.getArg(0);
   Argument *const EventList = F.getArg(1);
 

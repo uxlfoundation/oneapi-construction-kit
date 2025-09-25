@@ -26,21 +26,19 @@
 #include <abacus/internal/multiply_exact.h>
 #endif  // __CA_BUILTINS_HALF_SUPPORT
 
-namespace {
 static ABACUS_CONSTANT abacus_float __codeplay_tgamma_coeff[10] = {
     .1965703979f,     -0.6688542054e-2f, 0.1922248333e-1f, -0.3067566618e-2f,
     0.1451712821e-2f, -0.3487319248e-3f, 0.9257006174e-4f, -0.1640325623e-4f,
     0.1979587071e-5f, -1.031653236e-7f};
 
 template <class T>
-T tgamma_splat(const T x) {
+static T tgamma_splat(const T x) {
   T result;
   for (unsigned i = 0; i < TypeTraits<T>::num_elements; i++) {
     result[i] = __abacus_tgamma(x[i]);
   }
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 namespace {
@@ -560,8 +558,7 @@ abacus_double16 ABACUS_API __abacus_tgamma(abacus_double16 x) {
   return tgamma_splat(x);
 }
 
-namespace {
-abacus_double tgamma_positive_only(abacus_double x) {
+static abacus_double tgamma_positive_only(abacus_double x) {
   // Return tgamma(x) for x > 0 only
   const abacus_double orig = x;
 
@@ -758,7 +755,6 @@ abacus_double tgamma_positive_only(abacus_double x) {
 
   return ans;
 }
-}  // namespace
 
 abacus_double ABACUS_API __abacus_tgamma(abacus_double x) {
   if (x != x) {

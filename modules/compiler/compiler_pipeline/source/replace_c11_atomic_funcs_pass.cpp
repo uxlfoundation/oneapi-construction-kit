@@ -39,7 +39,6 @@ STATISTIC(NumReplacedCalls, "Number of C11 Atomic calls replaced");
 
 using namespace llvm;
 
-namespace {
 /// @brief Helper function for debug output.
 ///
 /// Prints to dbgs() the before and after instructions and increments the
@@ -48,7 +47,7 @@ namespace {
 ///
 /// @param[in] Old Instruction being replaced.
 /// @param[in] New Instruction replacing with.
-void debugOutput(CallInst *Old, Instruction *New) {
+static void debugOutput(CallInst *Old, Instruction *New) {
   // This is required to stop release builds from complaining about unused
   // variables.
   (void)Old;
@@ -57,12 +56,13 @@ void debugOutput(CallInst *Old, Instruction *New) {
              dbgs() << "\n with: "; New->print(dbgs(), true); dbgs() << "\n");
   ++NumReplacedCalls;
 }
+
 /// @brief Replaces an atomic_init instruction.
 ///
 /// Replaces an atomic_init instruction with a store instruction.
 ///
 /// @param[in] Store atomic_init instruction to replace
-void replaceInit(CallInst *C11Init) {
+static void replaceInit(CallInst *C11Init) {
   auto *Obj = C11Init->getOperand(0);
   auto *Value = C11Init->getOperand(1);
 
@@ -80,7 +80,7 @@ void replaceInit(CallInst *C11Init) {
 /// instruction.
 ///
 /// @param[in] Store atomic_store instruction to replace
-void replaceStore(CallInst *C11Store) {
+static void replaceStore(CallInst *C11Store) {
   auto *Object = C11Store->getOperand(0);
   auto *Desired = C11Store->getOperand(1);
 
@@ -103,7 +103,7 @@ void replaceStore(CallInst *C11Store) {
 /// instruction.
 ///
 /// @param[in] Store atomic_store instruction to replace
-void replaceLoad(CallInst *C11Load) {
+static void replaceLoad(CallInst *C11Load) {
   auto *Object = C11Load->getOperand(0);
 
   IRBuilder<> Builder{C11Load};
@@ -125,7 +125,7 @@ void replaceLoad(CallInst *C11Load) {
 /// Replaces an atomic_exchange_explicit call with an atomic instruction
 ///
 /// @param[in] C11Exchange atomic_exchange_explicit call to replace.
-void replaceExchange(CallInst *C11Exchange) {
+static void replaceExchange(CallInst *C11Exchange) {
   auto *Object = C11Exchange->getOperand(0);
   auto *Desired = C11Exchange->getOperand(1);
 
@@ -147,7 +147,8 @@ void replaceExchange(CallInst *C11Exchange) {
 ///
 /// @param[in] C11CompareExchange
 /// atomic_compare_exchange_(strong|weak)_explicit call to replace.
-void implementCompareExchange(Function *C11CompareExchangeFunc, bool IsWeak) {
+static void implementCompareExchange(Function *C11CompareExchangeFunc,
+                                     bool IsWeak) {
   auto *Object = C11CompareExchangeFunc->getArg(0);
   auto *Expected = C11CompareExchangeFunc->getArg(1);
   auto *Desired = C11CompareExchangeFunc->getArg(2);
@@ -206,7 +207,8 @@ void implementCompareExchange(Function *C11CompareExchangeFunc, bool IsWeak) {
 ///
 /// @param[in] C11CompareExchangeStrongFunc atomic_compare_exchange_strong
 /// declaration to be implemented.
-void implementCompareExchangeStrong(Function *C11CompareExchangeStrongFunc) {
+static void implementCompareExchangeStrong(
+    Function *C11CompareExchangeStrongFunc) {
   LLVM_DEBUG(dbgs() << "Implementing the "
                        "atomic_compare_exchange_strong_explicit builtin\n");
   implementCompareExchange(C11CompareExchangeStrongFunc, /* IsWeak */ false);
@@ -220,7 +222,7 @@ void implementCompareExchangeStrong(Function *C11CompareExchangeStrongFunc) {
 ///
 /// @param[in] C11CompareExchangeweakFunc atomic_compare_exchange_weak
 /// declaration to be implemented.
-void implementCompareExchangeWeak(Function *C11CompareExchangeWeakFunc) {
+static void implementCompareExchangeWeak(Function *C11CompareExchangeWeakFunc) {
   LLVM_DEBUG(dbgs() << "Implementing the "
                        "atomic_compare_exchange_weak_explicit builtin\n");
   implementCompareExchange(C11CompareExchangeWeakFunc, /* IsWeak */ true);
@@ -232,8 +234,9 @@ void implementCompareExchangeWeak(Function *C11CompareExchangeWeakFunc) {
 /// instruction where key is in {add, sub, or, xor, and, min max}.
 ///
 /// @param[in] C11AtomicFetch atomic_fetch_key call to replace.
-void replaceFetchKey(CallInst *C11FetchKey, AtomicRMWInst::BinOp KeyOpCode,
-                     StringRef MangledParams) {
+static void replaceFetchKey(CallInst *C11FetchKey,
+                            AtomicRMWInst::BinOp KeyOpCode,
+                            StringRef MangledParams) {
   auto *Object = C11FetchKey->getOperand(0);
   auto *Operand = C11FetchKey->getOperand(1);
 
@@ -276,7 +279,7 @@ void replaceFetchKey(CallInst *C11FetchKey, AtomicRMWInst::BinOp KeyOpCode,
 /// instruction.
 ///
 /// @param[in] C11FlagTestAndSet atomic_fetch_key call to replace.
-void replaceFlagTestAndSet(CallInst *C11FlagTestAndSet) {
+static void replaceFlagTestAndSet(CallInst *C11FlagTestAndSet) {
   auto *Object = C11FlagTestAndSet->getOperand(0);
 
   IRBuilder<> Builder{C11FlagTestAndSet};
@@ -302,7 +305,7 @@ void replaceFlagTestAndSet(CallInst *C11FlagTestAndSet) {
 /// instruction.
 ///
 /// @param[in] C11FlagClear atomic_fetch_key call to replace.
-void replaceFlagClear(CallInst *C11FlagClear) {
+static void replaceFlagClear(CallInst *C11FlagClear) {
   auto *Object = C11FlagClear->getOperand(0);
 
   IRBuilder<> Builder{C11FlagClear};
@@ -323,7 +326,7 @@ void replaceFlagClear(CallInst *C11FlagClear) {
 /// @param[in,out] call Call instruction for transformation.
 ///
 /// @return bool Whether or not the pass changed anything.
-bool runOnInstruction(CallInst *Call) {
+static bool runOnInstruction(CallInst *Call) {
   if (auto *Callee = Call->getCalledFunction()) {
     auto Name{Callee->getName()};
     if (!Name.starts_with("_Z")) return false;
@@ -387,7 +390,7 @@ bool runOnInstruction(CallInst *Call) {
 /// @param[in,out] block Basic block for checking.
 ///
 /// @return Return whether or not the pass changed anything.
-bool runOnBasicBlock(BasicBlock &Block) {
+static bool runOnBasicBlock(BasicBlock &Block) {
   auto Result{false};
   // Here we use a 'while' loop instead of a 'for' loop to avoid
   // invalidating the iterator when removing instructions.
@@ -406,15 +409,13 @@ bool runOnBasicBlock(BasicBlock &Block) {
 /// @param[in,out] function Function for checking.
 ///
 /// @return Whether or not the pass changed anything.
-bool runOnFunction(llvm::Function &Function) {
+static bool runOnFunction(llvm::Function &Function) {
   auto Result{false};
   for (auto &BasicBlock : Function) {
     Result |= runOnBasicBlock(BasicBlock);
   }
   return Result;
 }
-
-}  // namespace
 
 /// @brief The entry point to the pass.
 ///

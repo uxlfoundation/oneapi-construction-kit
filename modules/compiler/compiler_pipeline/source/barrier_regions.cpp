@@ -47,13 +47,13 @@ using namespace llvm;
 #define NDEBUG_BARRIER
 #define DEBUG_TYPE "barrier-regions"
 
-namespace {
 using AlignIntTy = uint64_t;
 
 /// @brief it returns true if and only if the instruction is a work group
 /// collective call, and returns false otherwise.
-std::optional<compiler::utils::GroupCollective> getWorkGroupCollectiveCall(
-    Instruction *inst, compiler::utils::BuiltinInfo &bi) {
+static std::optional<compiler::utils::GroupCollective>
+getWorkGroupCollectiveCall(Instruction *inst,
+                           compiler::utils::BuiltinInfo &bi) {
   auto *const ci = dyn_cast_or_null<CallInst>(inst);
   if (!ci) {
     return std::nullopt;
@@ -86,7 +86,8 @@ std::optional<compiler::utils::GroupCollective> getWorkGroupCollectiveCall(
 /// @param[in] cc Calling convention for function.
 ///
 /// @return Return function created.
-Function *MakeStubFunction(StringRef name, Module &module, CallingConv::ID cc) {
+static Function *MakeStubFunction(StringRef name, Module &module,
+                                  CallingConv::ID cc) {
   // If we've already created a stub return the existing function
   if (Function *existing = module.getFunction(name)) {
     return existing;
@@ -151,7 +152,7 @@ Function *MakeStubFunction(StringRef name, Module &module, CallingConv::ID cc) {
 /// @param[in] v Value for checking.
 ///
 /// @return True = valid for definition, False = not valid.
-inline bool CheckValidDef(Value *v) {
+static inline bool CheckValidDef(Value *v) {
   return !(isa<BranchInst>(v) || isa<ReturnInst>(v));
 }
 
@@ -160,11 +161,12 @@ inline bool CheckValidDef(Value *v) {
 /// @param[in] v - value for checking.
 ///
 /// @return True = valid for use, False = not valid.
-inline bool CheckValidUse(Value *v) {
+static inline bool CheckValidUse(Value *v) {
   return !(isa<Constant>(v) || isa<BasicBlock>(v) || isa<MetadataAsValue>(v));
 }
 
-bool IsRematerializableBuiltinCall(Value *v, compiler::utils::BuiltinInfo &bi) {
+static bool IsRematerializableBuiltinCall(Value *v,
+                                          compiler::utils::BuiltinInfo &bi) {
   if (auto *call = dyn_cast<CallInst>(v)) {
     if (auto *F = call->getCalledFunction()) {
       if (const auto B = bi.analyzeBuiltin(*F)) {
@@ -184,8 +186,8 @@ bool IsRematerializableBuiltinCall(Value *v, compiler::utils::BuiltinInfo &bi) {
 
 // It traces through instructions with a single Instruction operand, looking
 // for work item functions or function arguments.
-bool IsTrivialValue(Value *v, unsigned depth,
-                    compiler::utils::BuiltinInfo &bi) {
+static bool IsTrivialValue(Value *v, unsigned depth,
+                           compiler::utils::BuiltinInfo &bi) {
   while (depth--) {
     auto *const I = dyn_cast<Instruction>(v);
     if (!I || IsRematerializableBuiltinCall(v, bi)) {
@@ -238,7 +240,7 @@ bool IsTrivialValue(Value *v, unsigned depth,
 
 // GEPs typically have a low cost, allow up to 1 non-trivial operand
 // (including the pointer operand as well as the indices).
-bool IsTrivialGEP(Value *v, SmallVectorImpl<Value *> &operands) {
+static bool IsTrivialGEP(Value *v, SmallVectorImpl<Value *> &operands) {
   auto *const GEP = dyn_cast<GetElementPtrInst>(v);
   if (!GEP) {
     return false;
@@ -265,7 +267,7 @@ bool IsTrivialGEP(Value *v, SmallVectorImpl<Value *> &operands) {
 ///
 /// @param[in] BB Basic block to process.
 /// @param[in] vmap Map for value for cloning.
-void UpdateAndTrimPHINodeEdges(BasicBlock *BB, ValueToValueMapTy &vmap) {
+static void UpdateAndTrimPHINodeEdges(BasicBlock *BB, ValueToValueMapTy &vmap) {
   for (auto &phi : BB->phis()) {
     for (unsigned i = 0; i < phi.getNumIncomingValues(); i++) {
       const BasicBlock *incoming_bb = phi.getIncomingBlock(i);
@@ -287,15 +289,13 @@ void UpdateAndTrimPHINodeEdges(BasicBlock *BB, ValueToValueMapTy &vmap) {
 
 /// @brief Returns true if the type is a struct type containing any scalable
 /// vectors in its list of elements
-bool isStructWithScalables(Type *ty) {
+static bool isStructWithScalables(Type *ty) {
   if (auto *const struct_ty = dyn_cast<StructType>(ty)) {
     return any_of(struct_ty->elements(),
                   [](Type *ty) { return isa<ScalableVectorType>(ty); });
   }
   return false;
 }
-
-}  // namespace
 
 Value *compiler::utils::Barrier::LiveValuesHelper::getExtractValueGEP(
     const Value *live) {

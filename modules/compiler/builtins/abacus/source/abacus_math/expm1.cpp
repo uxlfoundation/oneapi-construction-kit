@@ -20,6 +20,7 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -133,11 +134,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T expm1(const T x) {
+static T expm1(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_expm1(abacus_half x) { return expm1<>(x); }

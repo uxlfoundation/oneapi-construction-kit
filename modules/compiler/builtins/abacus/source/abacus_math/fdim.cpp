@@ -20,9 +20,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-inline T fdim_helper_scalar(const T x, const T y) {
+static inline T fdim_helper_scalar(const T x, const T y) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
 
@@ -36,7 +35,7 @@ inline T fdim_helper_scalar(const T x, const T y) {
 }
 
 template <typename T>
-inline T fdim_helper_vector(const T x, const T y) {
+static inline T fdim_helper_vector(const T x, const T y) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -45,7 +44,6 @@ inline T fdim_helper_vector(const T x, const T y) {
   return __abacus_select(result, FPShape<T>::NaN(),
                          __abacus_isnan(x) | __abacus_isnan(y));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fdim(abacus_half x, abacus_half y) {

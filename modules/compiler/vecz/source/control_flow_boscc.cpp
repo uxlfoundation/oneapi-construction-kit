@@ -44,10 +44,9 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
 using RPOT = ReversePostOrderTraversal<Function *>;
 
-bool isUsedOutsideDefinitionBlock(Value *V) {
+static bool isUsedOutsideDefinitionBlock(Value *V) {
   if (Instruction *I = dyn_cast<Instruction>(V)) {
     return std::any_of(I->user_begin(), I->user_end(), [&I](User *U) {
       return cast<Instruction>(U)->getParent() != I->getParent();
@@ -59,7 +58,7 @@ bool isUsedOutsideDefinitionBlock(Value *V) {
 /// @brief Check whether a block is "trivial" according to a heuristic
 /// @param[in] BB the Basic Block to check
 /// @return true if the block is trivial
-bool isTrivialBlock(const BasicBlock &BB) {
+static bool isTrivialBlock(const BasicBlock &BB) {
   if (BB.size() > 3) {
     return false;
   }
@@ -72,8 +71,6 @@ bool isTrivialBlock(const BasicBlock &BB) {
   }
   return true;
 }
-
-}  // namespace
 
 /// @brief Check whether a uniform region is viable and worth keeping.
 /// @param[in] region the region to check
