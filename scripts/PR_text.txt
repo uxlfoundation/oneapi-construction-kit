@@ -1,0 +1,48 @@
+Bring Native CPU pipeline files into dpc++ directly.
+
+This brings the Native CPU compiler pipeline files directly under the ownership
+of intel/llvm. This removes the direct dependence on the oneAPI Construction
+Kit, although the history of those files still exists under intel/llvm and the
+originals still exist at
+https://github.com/uxlfoundation/oneapi-construction-kit.
+
+This was done as follows:
+
+In the oneAPI Construction Kit repo:
+
+```
+    git-filter-repo --paths-from-file $script_dir/native_cpu_paths.txt \
+    --path-rename modules/compiler/compiler_pipeline:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline \
+    --path-rename modules/compiler/vecz:llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz \
+    --path-rename modules/compiler/multi_llvm/include/multi_llvm:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline/include/multi_llvm \
+    --path-rename doc/modules/vecz/vecz.md:llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/vecz.md \
+    --path-rename doc/modules/compiler/overview.rst:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline/docs/overview.rst \
+    --path-rename doc/modules/compiler/utils.rst:llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_pipeline/docs/utils.rst
+```
+See https://github.com/uxlfoundation/oneapi-construction-kit/pull/969 for more info.
+
+Under intel/llvm:
+
+```
+    git checkout sycl
+    git checkout -b $llvm_branch
+    git fetch $ock_fork $ock_branch
+    # Update CMake to be more llvm like
+    # clang-format-20 on added files
+    # Add some new documentation to reflect the state of play.
+    git merge -m "[NATIVE_CPU][SYCL] Merge from oneAPI Construction Kit into native_cpu" --allow-unrelated-histories ock_fork/$ock_branch
+```
+
+
+`llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt` was updated to remove the fetch
+content and the ugly install workaround. Missing is the lit tests for the
+pipeline tests as these refer to the use of a non-ported tool, `muxc`.
+CMakeLists.txt across was updated to use LLVM macros across `compiler_pipeline`
+and `vecz` ported code, as well as changing `NATIVECPU_USE_OCK` to be the
+default. It also applies clang-format-20 to all the .h and .cpp files brought
+in. Other than that the .cpp and .h files are unchanged. The lit tests cfg files
+were updated to fit with LLVM, and a small change was made to avoid use of
+`undef`.
+
+A brief explanation and limitations of the importing of the files are under
+`llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_passes.rst`.
