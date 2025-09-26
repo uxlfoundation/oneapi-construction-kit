@@ -17,12 +17,10 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 
-namespace {
 template <typename T>
-T _(T x, T y) {
+static T _(T x, T y) {
   return x / y;
 }
-}  // namespace
 
 #define DEF(TYPE) \
   TYPE ABACUS_API __abacus_half_divide(TYPE x, TYPE y) { return _(x, y); }

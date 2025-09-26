@@ -21,6 +21,7 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct erf_helper;
 
@@ -171,11 +172,12 @@ struct erf_helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T erf(const T x) {
+static inline T erf(const T x) {
   return erf_helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_erf(abacus_half x) { return erf<>(x); }

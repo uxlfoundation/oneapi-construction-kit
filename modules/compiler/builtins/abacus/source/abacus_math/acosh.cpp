@@ -21,9 +21,8 @@
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/sqrt.h>
 
-namespace {
 template <typename T>
-T acosh(const T x) {
+static T acosh(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T y = x - 1.0f;
@@ -43,7 +42,6 @@ T acosh(const T x) {
   const SignedType cond3 = x < 1.0f;
   return __abacus_select(result, (T)ABACUS_NAN, cond3);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // See acosh sollya script for derivation

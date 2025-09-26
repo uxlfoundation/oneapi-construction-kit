@@ -22,6 +22,7 @@
 #include <abacus/internal/horner_polynomial.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -59,8 +60,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T ABACUS_API atan2(const T x, const T y) {
+static T ABACUS_API atan2(const T x, const T y) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -104,7 +107,7 @@ static ABACUS_CONSTANT abacus_half _atan2H[5] = {
     1.532745361328125e-2f16};
 
 template <typename T>
-T atan2_half(const T y, const T x) {
+static T atan2_half(const T y, const T x) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef FPShape<abacus_half> Shape;
@@ -235,7 +238,6 @@ abacus_half atan2_half(const abacus_half y, const abacus_half x) {
          (pi_multiplication_factor * pi_lo);
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_atan2(abacus_half x, abacus_half y) {

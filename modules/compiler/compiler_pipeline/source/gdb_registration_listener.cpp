@@ -68,8 +68,6 @@ extern struct jit_descriptor __jit_debug_descriptor;
 extern "C" void __jit_debug_register_code();
 }
 
-namespace {
-
 // FIXME: lli aims to provide both, RuntimeDyld and JITLink, as the dynamic
 // loaders for it's JIT implementations. And they both offer debugging via the
 // GDB JIT interface, which builds on the two well-known symbol names below.
@@ -79,10 +77,13 @@ namespace {
 // executors. For the moment it seems reasonable to have the definition there
 // and let ExecutionEngine depend on it, until we find a better solution.
 //
-LLVM_ATTRIBUTE_USED void requiredSymbolDefinitionsFromOrcTargetProcess() {
+LLVM_ATTRIBUTE_USED static void
+requiredSymbolDefinitionsFromOrcTargetProcess() {
   errs() << (void *)&__jit_debug_register_code
          << (void *)&__jit_debug_descriptor;
 }
+
+namespace {
 
 struct RegisteredObjectInfo {
   RegisteredObjectInfo() = default;
@@ -132,8 +133,10 @@ class GDBJITRegistrationListener : public JITEventListener {
   void deregisterObjectInternal(RegisteredObjectBufferMap::iterator I);
 };
 
+}  // namespace
+
 /// Do the registration.
-void NotifyDebugger(jit_code_entry *JITCodeEntry) {
+static void NotifyDebugger(jit_code_entry *JITCodeEntry) {
   __jit_debug_descriptor.action_flag = JIT_REGISTER_FN;
 
   // Insert this entry at the head of the list.
@@ -225,8 +228,6 @@ void GDBJITRegistrationListener::deregisterObjectInternal(
   delete JITCodeEntry;
   JITCodeEntry = nullptr;
 }
-
-}  // end namespace
 
 namespace compiler {
 namespace utils {

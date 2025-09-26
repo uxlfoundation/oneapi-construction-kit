@@ -21,9 +21,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-inline T nextafter_helper_scalar(const T x, const T y) {
+static inline T nextafter_helper_scalar(const T x, const T y) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements == 1,
@@ -71,7 +70,7 @@ inline T nextafter_helper_scalar(const T x, const T y) {
 }
 
 template <typename T>
-inline T nextafter_helper_vector(const T x, const T y) {
+static inline T nextafter_helper_vector(const T x, const T y) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<T>::SignedType SignedType;
   static_assert(TypeTraits<T>::num_elements != 1,
@@ -111,7 +110,6 @@ inline T nextafter_helper_vector(const T x, const T y) {
                            __abacus_isnan(y) | __abacus_isnan(x));
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_nextafter(abacus_half x, abacus_half y) {

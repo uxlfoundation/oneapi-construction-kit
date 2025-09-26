@@ -26,14 +26,13 @@
 
 using namespace kts::ucl;
 
-namespace {
 /// @brief Remquo implementation for 7-bit quotient
 ///
 /// `std::remquo` is only guaranteed to return the quotient to 3-bits of
 /// precision, but OpenCL 1.2 specifies 7-bits of precision. This reference
 /// implementation is based on the CTS reference function.
 template <typename T>
-T Remquo7BitRef(T x, T y, cl_int &quo_out) {
+static T Remquo7BitRef(T x, T y, cl_int &quo_out) {
   if (std::isnan(x) || std::isnan(y) || std::isinf(x) || y == T(0.0)) {
     quo_out = 0;
     return NAN;
@@ -105,7 +104,6 @@ T Remquo7BitRef(T x, T y, cl_int &quo_out) {
 
   return xr;
 }
-}  // namespace
 
 #if defined(__arm__) || defined(_WIN32) || defined(__APPLE__)
 // TODO This test has double precision reference results and we only pass when

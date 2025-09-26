@@ -21,7 +21,6 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/is_integer_quick.h>
 
-namespace {
 template <typename T>
 static T round_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
@@ -55,7 +54,6 @@ static T round_helper_vector(const T x) {
   const T result = __abacus_select(ceiled, floored, to_floor);
   return __abacus_select(result, x, abacus::internal::is_integer_quick(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_round(abacus_half x) {

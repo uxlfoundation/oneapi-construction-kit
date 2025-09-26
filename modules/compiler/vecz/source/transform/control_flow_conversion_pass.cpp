@@ -383,9 +383,7 @@ STATISTIC(VeczCFGFail,
 // default.
 #undef ALL_OF_DIVERGENT_LOOP_LATCH
 
-namespace {
-
-BasicBlock::iterator getInsertionPt(BasicBlock &BB) {
+static BasicBlock::iterator getInsertionPt(BasicBlock &BB) {
   // We have to insert instructions after any Allocas
   auto it = BB.getFirstInsertionPt();
   while (isa<AllocaInst>(*it)) {
@@ -394,20 +392,20 @@ BasicBlock::iterator getInsertionPt(BasicBlock &BB) {
   return it;
 }
 
-Instruction *copyMask(Value *mask, Twine name) {
+static Instruction *copyMask(Value *mask, Twine name) {
   VECZ_ERROR_IF(!mask, "Trying to copy mask with invalid arguments");
   return BinaryOperator::CreateAnd(mask, getDefaultValue(mask->getType(), 1),
                                    name);
 }
 
-Instruction *copyEntryMask(Value *mask, BasicBlock &BB) {
+static Instruction *copyEntryMask(Value *mask, BasicBlock &BB) {
   VECZ_ERROR_IF(!mask, "Trying to copy entry mask with invalid arguments");
   auto *EM = copyMask(mask, BB.getName() + ".entry_mask");
   EM->insertBefore(getInsertionPt(BB));
   return EM;
 }
 
-Instruction *copyExitMask(Value *mask, StringRef base, BasicBlock &BB) {
+static Instruction *copyExitMask(Value *mask, StringRef base, BasicBlock &BB) {
   VECZ_ERROR_IF(!mask, "Trying to copy exit mask with invalid arguments");
   auto *EM = copyMask(mask, base + ".exit_mask");
   EM->insertBefore(BB.getTerminator()->getIterator());
@@ -432,7 +430,6 @@ static bool isBranchCondTrulyUniform(Value *cond, UniformValueResult &UVR) {
 
   return UVR.isTrueUniform(cmp);
 }
-}  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2371,12 +2368,11 @@ bool ControlFlowConversionState::Impl::replaceUsesOutsideDivergentLoop(
   return true;
 }
 
-namespace {
 using DenseDeferralMap =
     SmallDenseMap<BasicBlock *, SmallPtrSet<BasicBlock *, 2>, 32>;
 
-void addDeferral(BasicBlock *newSrc, BasicBlock *deferred,
-                 DenseDeferralMap &deferrals) {
+static void addDeferral(BasicBlock *newSrc, BasicBlock *deferred,
+                        DenseDeferralMap &deferrals) {
   auto newSrcIt = deferrals.find(newSrc);
   if (newSrcIt != deferrals.end()) {
     // If the deferral edge already exists, there is no need to add it again.
@@ -2404,7 +2400,7 @@ void addDeferral(BasicBlock *newSrc, BasicBlock *deferred,
                     << deferred->getName() << ")\n");
 }
 
-void removeDeferrals(BasicBlock *src, DenseDeferralMap &deferrals) {
+static void removeDeferrals(BasicBlock *src, DenseDeferralMap &deferrals) {
   auto deferredIt = deferrals.find(src);
   if (deferredIt != deferrals.end()) {
 #ifndef NDEBUG
@@ -2416,7 +2412,6 @@ void removeDeferrals(BasicBlock *src, DenseDeferralMap &deferrals) {
     deferrals.erase(deferredIt);
   }
 }
-}  // namespace
 
 bool ControlFlowConversionState::Impl::computeNewTargets(Linearization &lin) {
   // The entry block cannot be targeted.

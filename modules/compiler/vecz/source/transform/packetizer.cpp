@@ -84,10 +84,9 @@ STATISTIC(VeczPacketizeFailStride,
     }                      \
   } while (false)
 
-namespace {
 // Returns a type equivalent to the input type plus padding.
 // This converts a <3 x Ty> into a <4 x Ty>, leaving other types unchanged.
-Type *getPaddedType(Type *Ty) {
+static Type *getPaddedType(Type *Ty) {
   if (auto *VecTy = dyn_cast<FixedVectorType>(Ty)) {
     if (VecTy->getNumElements() == 3) {
       return VectorType::get(VecTy->getElementType(),
@@ -96,7 +95,6 @@ Type *getPaddedType(Type *Ty) {
   }
   return Ty;
 }
-}  // namespace
 
 using ValuePacket = SmallVector<Value *, 16>;
 

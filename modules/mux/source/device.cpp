@@ -23,17 +23,16 @@
 #include "mux/utils/id.h"
 #include "tracer/tracer.h"
 
-namespace {
-mux_target_id_t makeTargetDeviceId(uint64_t targetIndex, uint64_t deviceIndex) {
+static mux_target_id_t makeTargetDeviceId(uint64_t targetIndex,
+                                          uint64_t deviceIndex) {
   // mux_target_id_* is targetIndex + 1, deviceIndex shifts up 8 bits
   return (targetIndex + 1) | (deviceIndex << 8);
 }
 
-uint64_t getTargetIndex(mux_id_t id) {
+static uint64_t getTargetIndex(mux_id_t id) {
   // deviceIndex is masked out, targetIndex is mux_target_id* - 1
   return (mux_target_id_device_mask & id) - 1;
 }
-}  // namespace
 
 mux_result_t muxGetDeviceInfos(uint32_t device_types,
                                uint64_t device_infos_length,

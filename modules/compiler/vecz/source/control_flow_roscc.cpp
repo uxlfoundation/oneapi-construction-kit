@@ -46,9 +46,8 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
 /// @brief checks if the given block contains only a return instruction
-bool isReturnBlock(const llvm::BasicBlock &BB) {
+static bool isReturnBlock(const llvm::BasicBlock &BB) {
   if (BB.size() != 1) {
     return false;
   }
@@ -64,7 +63,6 @@ bool isReturnBlock(const llvm::BasicBlock &BB) {
 
   return isa<ReturnInst>(T);
 }
-}  // namespace
 
 bool ControlFlowConversionState::ROSCCGadget::run(Function &F) {
   bool changed = false;

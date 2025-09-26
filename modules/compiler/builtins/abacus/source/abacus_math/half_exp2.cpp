@@ -26,9 +26,8 @@
 static ABACUS_CONSTANT abacus_float __codeplay_half_exp2_coeff[4] = {
     .99993f, .69586f, .22604f, 0.78022e-1f};
 
-namespace {
 template <typename T>
-T half_exp2(T x) {
+static T half_exp2(T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   const SignedType xGreater = __abacus_isgreaterequal(x, 128.0f);
@@ -54,7 +53,6 @@ T half_exp2(T x) {
   result = __abacus_select(result, (T)0.0f, xLess);
   return __abacus_select(result, (T)ABACUS_INFINITY, xGreater);
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_half_exp2(abacus_float x) {
   return half_exp2<>(x);

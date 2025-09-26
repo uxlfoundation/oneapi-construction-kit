@@ -220,8 +220,8 @@ Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
                                                                OverloadInfo);
   }
 
-  unsigned ParamIdx = 1;
-  unsigned WGFieldIdx = ExecStateStruct::thread_id;
+  const unsigned ParamIdx = 1;
+  const unsigned WGFieldIdx = ExecStateStruct::thread_id;
 
   assert(F);
 
@@ -239,7 +239,8 @@ Function *RefSiG1BIMuxInfo::defineMuxBuiltin(compiler::utils::BuiltinID ID,
 
   Value *rank = F->getArg(0);
 
-  SmallVector<Value *, 3> gep_indices{ir.getInt32(0), ir.getInt32(WGFieldIdx)};
+  const SmallVector<Value *, 3> gep_indices{ir.getInt32(0),
+                                            ir.getInt32(WGFieldIdx)};
   auto *const gep = ir.CreateGEP(structTy, SchedParam.ArgVal, gep_indices);
 
   Value *thread_id = ir.CreateLoad(uint_type, gep);

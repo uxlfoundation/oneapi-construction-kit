@@ -41,12 +41,10 @@
 
 using namespace llvm;
 
-namespace {
-
 /// @brief Increments the given pointer.
 /// @param[in,out] fmt A pointer to the char* to increment.
 /// @return True if @p fmt now points to the null-terminator character '\0'.
-bool IncrementPtr(const char **fmt) {
+static bool IncrementPtr(const char **fmt) {
   if (*(++(*fmt)) == '\0') {
     return true;
   }
@@ -82,9 +80,9 @@ bool IncrementPtr(const char **fmt) {
 /// specifiers.
 /// @return The Error::success if successful, else an Error if we detected an
 /// illegal OpenCL printf format string.
-Error scalarizeAndCheckFormatString(const std::string &str,
-                                    std::string &new_str,
-                                    size_t &num_specifiers) {
+static Error scalarizeAndCheckFormatString(const std::string &str,
+                                           std::string &new_str,
+                                           size_t &num_specifiers) {
   // Set some sensible defaults in case we return error
   new_str = "";
   constexpr const char *RanOffEnd = "unexpected end of format string";
@@ -325,7 +323,7 @@ Error scalarizeAndCheckFormatString(const std::string &str,
   return Error::success();
 }
 
-std::optional<std::string> getPointerToStringAsString(Value *op) {
+static std::optional<std::string> getPointerToStringAsString(Value *op) {
   // Check whether the value is being passed directly as the GlobalVariable.
   // This is possible with opaque pointers so will eventually become the
   // default assumption.
@@ -401,8 +399,8 @@ std::optional<std::string> getPointerToStringAsString(Value *op) {
 /// @param[in] f The function to call.
 /// @param[in] args The arguments to use at the call-site.
 /// @return A call instruction that calls @p f with @p args.
-CallInst *CreateCall(IRBuilder<> &ir, Function *const f,
-                     ArrayRef<Value *> args) {
+static CallInst *CreateCall(IRBuilder<> &ir, Function *const f,
+                            ArrayRef<Value *> args) {
   auto ci = ir.CreateCall(f, args);
   ci->setCallingConv(f->getCallingConv());
   return ci;
@@ -413,7 +411,7 @@ CallInst *CreateCall(IRBuilder<> &ir, Function *const f,
 ///        builds, since debug passes add printf calls to all functions.
 /// @param[in,out] F The function that will be traced
 /// @param[in,out] set_of_callers The set of calling functions
-void findAndRecurseFunctionUsers(
+static void findAndRecurseFunctionUsers(
     Function *F, SmallPtrSetImpl<const Function *> &set_of_callers) {
   // See if the function has already been flagged
   if (set_of_callers.contains(F)) {
@@ -432,7 +430,11 @@ void findAndRecurseFunctionUsers(
   }
 }
 
-Type *getBufferEltTy(LLVMContext &c) { return IntegerType::getInt8Ty(c); }
+static Type *getBufferEltTy(LLVMContext &c) {
+  return IntegerType::getInt8Ty(c);
+}
+
+namespace {
 
 class DiagnosticInfoScrubbedPrintf : public DiagnosticInfoWithLocationBase {
   Twine Msg;
@@ -460,6 +462,7 @@ class DiagnosticInfoScrubbedPrintf : public DiagnosticInfoWithLocationBase {
 
 int DiagnosticInfoScrubbedPrintf::DK_ScrubbedPrintf =
     getNextAvailablePluginDiagnosticKind();
+
 }  // namespace
 
 // 6.15.14.3:

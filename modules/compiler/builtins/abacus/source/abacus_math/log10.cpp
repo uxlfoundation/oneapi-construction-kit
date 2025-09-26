@@ -19,6 +19,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -68,11 +69,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T ABACUS_API log10(const T x) {
+static T ABACUS_API log10(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 // abacus_half is only available when __CA_BUILTINS_HALF_SUPPORT is set.
 #ifdef __CA_BUILTINS_HALF_SUPPORT

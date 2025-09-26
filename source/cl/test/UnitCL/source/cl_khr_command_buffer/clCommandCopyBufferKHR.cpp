@@ -205,7 +205,7 @@ TEST_F(CommandBufferCopyBufferTest, InvalidSyncPoints) {
                     clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
                                            dst_buffer, 0, 0, data_size_in_bytes,
                                            1, nullptr, nullptr, nullptr));
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
                     clCommandCopyBufferKHR(command_buffer, nullptr, src_buffer,
                                            dst_buffer, 0, 0, data_size_in_bytes,

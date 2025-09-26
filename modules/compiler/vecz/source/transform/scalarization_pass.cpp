@@ -46,10 +46,9 @@ STATISTIC(VeczScalarizeFail,
 
 ScalarizationPass::ScalarizationPass() {}
 
-namespace {
-bool needsScalarization(const Type &T) { return T.isVectorTy(); }
+static bool needsScalarization(const Type &T) { return T.isVectorTy(); }
 
-bool needsScalarization(const Instruction &I) {
+static bool needsScalarization(const Instruction &I) {
   if (needsScalarization(*I.getType())) {
     return true;
   }
@@ -61,7 +60,7 @@ bool needsScalarization(const Instruction &I) {
   return false;
 }
 
-bool isValidScalableShuffle(const ShuffleVectorInst &shuffle) {
+static bool isValidScalableShuffle(const ShuffleVectorInst &shuffle) {
   // 3-element vectors are trouble, so scalarize them.
   if (!isPowerOf2_32(cast<VectorType>(shuffle.getType())
                          ->getElementCount()
@@ -76,7 +75,7 @@ bool isValidScalableShuffle(const ShuffleVectorInst &shuffle) {
   return true;
 }
 
-bool shouldScalarize(Instruction *I, bool scalable) {
+static bool shouldScalarize(Instruction *I, bool scalable) {
   // Don't scalarize loads or stores..
   if (isa<LoadInst>(I) || isa<StoreInst>(I)) {
     return false;
@@ -115,6 +114,8 @@ bool shouldScalarize(Instruction *I, bool scalable) {
   // Scalarize anything else
   return true;
 }
+
+namespace {
 
 /// @brief Operand Tracer struct
 /// The purpose of this helper struct is to trace through the operands of any

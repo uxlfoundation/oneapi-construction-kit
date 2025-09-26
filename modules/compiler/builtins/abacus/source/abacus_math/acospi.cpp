@@ -20,9 +20,8 @@
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/sqrt.h>
 
-namespace {
 template <typename T>
-T acospi(const T x) {
+static T acospi(const T x) {
   return __abacus_acos(x) * T(ABACUS_1_PI);
 }
 
@@ -37,7 +36,7 @@ static ABACUS_CONSTANT abacus_half __codeplay_acospi_coeff_halfH2[3] = {
     -0.318359375f16, -5.1300048828125e-2f16, -3.4820556640625e-2f16};
 
 template <typename T>
-T acospi_half(const T x) {
+static T acospi_half(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T xAbs = __abacus_fabs(x);
@@ -90,7 +89,6 @@ abacus_half acospi_half(const abacus_half x) {
   return ans;
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_acospi(abacus_half x) {

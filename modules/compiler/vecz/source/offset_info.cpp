@@ -36,12 +36,11 @@
 using namespace vecz;
 using namespace llvm;
 
-namespace {
-inline uint64_t SizeOrZero(TypeSize &&T) {
+static inline uint64_t SizeOrZero(TypeSize &&T) {
   return T.isScalable() ? 0 : T.getFixedValue();
 }
 
-uint8_t highbit(const uint32_t x) {
+static uint8_t highbit(const uint32_t x) {
   assert(isPowerOf2_32(x) && "Value must be a power of two");
   // This is a De Bruijn hash table, it returns the index of the highest
   // bit, which works when x is a power of 2. For details, see
@@ -56,7 +55,7 @@ uint8_t highbit(const uint32_t x) {
 
 // Returns a value extended or truncated to match the size type of the target.
 // This will return the original value if it is already the correct size.
-Value *matchSizeType(IRBuilder<> &B, Value *V, bool sext) {
+static Value *matchSizeType(IRBuilder<> &B, Value *V, bool sext) {
   auto *const sizeTy = getSizeTy(B);
 
   if (sext) {
@@ -66,19 +65,19 @@ Value *matchSizeType(IRBuilder<> &B, Value *V, bool sext) {
   }
 }
 
-uint64_t getTypeMask(Type *Ty) {
+static uint64_t getTypeMask(Type *Ty) {
   const auto bits = Ty->getIntegerBitWidth();
   return bits < 64 ? ((uint64_t(1) << bits) - 1) : ~uint64_t(0);
 }
 
 // The index size potentially depends on the address space of the pointer,
 // but let's just use the pointer size for now.
-uint64_t getSizeTypeMask(const DataLayout &DL) {
+static uint64_t getSizeTypeMask(const DataLayout &DL) {
   const auto bits = DL.getPointerSizeInBits();
   return bits < 64 ? ((uint64_t(1) << bits) - 1) : ~uint64_t(0);
 }
 
-OffsetKind combineKinds(OffsetKind LHS, OffsetKind RHS) {
+static OffsetKind combineKinds(OffsetKind LHS, OffsetKind RHS) {
   assert(LHS != eOffsetLinear && RHS != eOffsetLinear &&
          "OffsetInfo analysis functions should handle all linear cases");
 
@@ -93,7 +92,6 @@ OffsetKind combineKinds(OffsetKind LHS, OffsetKind RHS) {
   // Uniform values are all that's left.
   return eOffsetUniformVariable;
 }
-}  // namespace
 
 OffsetInfo::OffsetInfo(StrideAnalysisResult &SAR, Value *V)
     : Kind(eOffsetMayDiverge),

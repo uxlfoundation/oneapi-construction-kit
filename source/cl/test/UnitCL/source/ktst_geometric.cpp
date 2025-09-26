@@ -23,6 +23,7 @@
 using namespace kts::ucl;
 
 namespace {
+
 struct AbsoluteErrValidator final {
   AbsoluteErrValidator(cl_device_id device)
       : device(device), previous(0.0f), previous_set(false) {}
@@ -197,6 +198,8 @@ struct GeometricParamExecution : public HalfParamExecution {
   unsigned GeometricFillBuffers(std::array<input_details_t, N> &inputs);
 };
 
+}  // namespace
+
 template <size_t N>
 unsigned GeometricParamExecution::GeometricFillBuffers(
     std::array<input_details_t, N> &inputs) {
@@ -272,7 +275,6 @@ unsigned GeometricParamExecution::GeometricFillBuffers(
   }
   return length;
 }
-}  // namespace
 
 using HalfGeometricBuiltins = GeometricParamExecution;
 TEST_P(HalfGeometricBuiltins, Geometric_01_Half_Dot) {

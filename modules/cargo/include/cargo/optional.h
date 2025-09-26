@@ -172,14 +172,12 @@ class optional : private detail::optional_move_assign_base<wrap_reference_t<T>>,
     this->construct(il, std::forward<Args>(args)...);
   }
 
-  // NOLINTBEGIN(modernize-type-traits)
   /// @brief Construction from a value.
   ///
   /// Constructs the stored value with `u`.
   template <class U = T,
             std::enable_if_t<std::is_convertible_v<U &&, T>> * = nullptr,
             detail::enable_forward_value<T, U> * = nullptr>
-  // NOLINTEND(modernize-type-traits)
   constexpr optional(U &&u) : base(in_place, std::forward<U>(u)) {}
 
   /// @brief Construction from a value.
@@ -1239,11 +1237,9 @@ optional(T) -> optional<T>;
 /// @}
 
 namespace detail {
-// NOLINTBEGIN(modernize-type-traits)
 template <class Opt, class F,
           class Ret = decltype(invoke(std::declval<F>(), *std::declval<Opt>())),
           std::enable_if_t<!std::is_void_v<Ret>> * = nullptr>
-// NOLINTEND(modernize-type-traits)
 constexpr auto optional_map_impl(Opt &&opt, F &&f) -> optional<Ret> {
   return opt.has_value() ? invoke(std::forward<F>(f), *std::forward<Opt>(opt))
                          : optional<Ret>(nullopt);

@@ -27,21 +27,22 @@
 // This is needed for 'TEST_F'.
 using namespace kts::ucl;
 
-namespace {
 const size_t local_wg_size = 16;
 
 // Vector addition: C[x] = A[x] + B[x];
-kts::Reference1D<cl_int> vaddInA = [](size_t x) {
+static kts::Reference1D<cl_int> vaddInA = [](size_t x) {
   return (kts::Ref_Identity(x) * 3) + 27;
 };
 
-kts::Reference1D<cl_int> vaddInB = [](size_t x) {
+static kts::Reference1D<cl_int> vaddInB = [](size_t x) {
   return (kts::Ref_Identity(x) * 7) + 41;
 };
 
-kts::Reference1D<cl_int> vaddOutC = [](size_t x) {
+static kts::Reference1D<cl_int> vaddOutC = [](size_t x) {
   return vaddInA(x) + vaddInB(x);
 };
+
+namespace {
 
 // Max: C[x] = max(A[x], B[x])
 // Choose values of A and B such that if `cl_half` on host is actually an
@@ -68,6 +69,8 @@ struct HalfTypeParam final {
   static cl_half OutC(size_t);
 };
 
+}  // namespace
+
 cl_half HalfTypeParam::InA(size_t x) {
   const cl_ushort id =
       static_cast<cl_ushort>((kts::Ref_Identity(x) * 3 + 27) % 256);
@@ -85,6 +88,8 @@ cl_half HalfTypeParam::InB(size_t x) {
 cl_half HalfTypeParam::OutC(size_t x) {
   return std::max(HalfTypeParam::InA(x), HalfTypeParam::InB(x));
 }
+
+namespace {
 
 // Validates results from an output buffer contain half3 types. Since the
 // `cl_half3` typedef aliases `cl_half4`, it's useful to define this without
@@ -110,13 +115,13 @@ struct Half3Validator {
 };
 using Half3StreamerTy = kts::GenericStreamer<cl_half3, Half3Validator>;
 
+}  // namespace
+
 template <typename F>
-std::shared_ptr<Half3StreamerTy> makeHalf3Streamer(F &&f) {
+static std::shared_ptr<Half3StreamerTy> makeHalf3Streamer(F &&f) {
   auto ref = kts::BuildVec3Reference1D<cl_half3>(std::forward<F>(f));
   return std::make_shared<Half3StreamerTy>(ref);
 }
-
-}  // namespace
 
 TEST_P(Execution, Dma_01_Direct) {
   AddInputBuffer(kts::N, vaddInA);

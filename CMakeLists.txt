@@ -197,7 +197,7 @@ find_package(Python3 3.6 REQUIRED)
 # which perform static analysis and style checking on source files.
 # When updating the version here, also update that used in the merge request
 # config
-find_package(ClangTools 20 COMPONENTS clang-format clang-tidy)
+find_package(ClangTools 21 COMPONENTS clang-format clang-tidy)
 if(TARGET ClangTools::clang-tidy)
   ca_option(CA_CLANG_TIDY_FLAGS STRING
     "Semi-color separated list of clang-tidy flags" "")

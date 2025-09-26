@@ -29,8 +29,7 @@
 
 using namespace llvm;
 
-namespace {
-double getConstantFPAsDouble(ConstantFP *const constant) {
+static double getConstantFPAsDouble(ConstantFP *const constant) {
   // are we looking at a 32 bit floating point number?
   const bool isFP32 = constant->getType()->isFloatTy();
 
@@ -41,8 +40,9 @@ double getConstantFPAsDouble(ConstantFP *const constant) {
   return isFP32 ? apf.convertToFloat() : apf.convertToDouble();
 }
 
-bool powToX(Module &module, const std::map<std::string, std::string> &map,
-            double (*modifier)(double)) {
+static bool powToX(Module &module,
+                   const std::map<std::string, std::string> &map,
+                   double (*modifier)(double)) {
   auto getIfPossible = [&](ConstantFP *const constant) -> ConstantInt * {
     // are we looking at a 32 bit floating point number?
     const bool isFP32 = constant->getType()->isFloatTy();
@@ -193,7 +193,7 @@ bool powToX(Module &module, const std::map<std::string, std::string> &map,
   return modified;
 }
 
-bool powToPown(Module &module) {
+static bool powToPown(Module &module) {
   const std::map<std::string, std::string> map = {
       {"_Z3powff", "_Z4pownfi"},
       {"_Z3powDv2_fS_", "_Z4pownDv2_fDv2_i"},
@@ -224,7 +224,7 @@ bool powToPown(Module &module) {
   return powToX(module, map, [](double x) -> double { return x; });
 }
 
-bool powToRootn(Module &module) {
+static bool powToRootn(Module &module) {
   const std::map<std::string, std::string> map = {
       {"_Z3powff", "_Z5rootnfi"},
       {"_Z3powDv2_fS_", "_Z5rootnDv2_fDv2_i"},
@@ -255,9 +255,9 @@ bool powToRootn(Module &module) {
   return powToX(module, map, [](double x) -> double { return 1.0 / x; });
 }
 
-bool foldOneArgBuiltin(Module &module,
-                       const std::vector<std::string> &funcNames,
-                       double (*ref_math_func)(double)) {
+static bool foldOneArgBuiltin(Module &module,
+                              const std::vector<std::string> &funcNames,
+                              double (*ref_math_func)(double)) {
   SmallVector<CallInst *, 8> calls;
 
   for (const auto &funcName : funcNames) {
@@ -335,7 +335,7 @@ bool foldOneArgBuiltin(Module &module,
   return modified;
 }
 
-bool foldCos(Module &module) {
+static bool foldCos(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -387,7 +387,7 @@ bool foldCos(Module &module) {
   return modified;
 }
 
-bool foldExp(Module &module) {
+static bool foldExp(Module &module) {
   const std::vector<std::string> map = {
       "_Z3expf",
       "_Z3expDv2_f",
@@ -418,7 +418,7 @@ bool foldExp(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::exp);
 }
 
-bool foldExp2(Module &module) {
+static bool foldExp2(Module &module) {
   const std::vector<std::string> map = {
       "_Z4exp2f",
       "_Z4exp2Dv2_f",
@@ -449,7 +449,7 @@ bool foldExp2(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::exp2);
 }
 
-bool foldExp10(Module &module) {
+static bool foldExp10(Module &module) {
   const std::vector<std::string> map = {
       "_Z5exp10f",
       "_Z5exp10Dv2_f",
@@ -480,7 +480,7 @@ bool foldExp10(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::exp10);
 }
 
-bool foldExpm1(Module &module) {
+static bool foldExpm1(Module &module) {
   const std::vector<std::string> map = {
       "_Z5expm1f",     "_Z5expm1Dv2_f",  "_Z5expm1Dv3_f", "_Z5expm1Dv4_f",
       "_Z5expm1Dv8_f", "_Z5expm1Dv16_f", "_Z5expm1d",     "_Z5expm1Dv2_d",
@@ -490,7 +490,7 @@ bool foldExpm1(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::expm1);
 }
 
-bool foldLog(Module &module) {
+static bool foldLog(Module &module) {
   const std::vector<std::string> map = {
       "_Z3logf",
       "_Z3logDv2_f",
@@ -521,7 +521,7 @@ bool foldLog(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::log);
 }
 
-bool foldLog2(Module &module) {
+static bool foldLog2(Module &module) {
   const std::vector<std::string> map = {
       "_Z4log2f",
       "_Z4log2Dv2_f",
@@ -552,7 +552,7 @@ bool foldLog2(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::log2);
 }
 
-bool foldLog10(Module &module) {
+static bool foldLog10(Module &module) {
   const std::vector<std::string> map = {
       "_Z5log10f",
       "_Z5log10Dv2_f",
@@ -583,7 +583,7 @@ bool foldLog10(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::log10);
 }
 
-bool foldLog1p(Module &module) {
+static bool foldLog1p(Module &module) {
   const std::vector<std::string> map = {
       "_Z5log1pf",     "_Z5log1pDv2_f",  "_Z5log1pDv3_f", "_Z5log1pDv4_f",
       "_Z5log1pDv8_f", "_Z5log1pDv16_f", "_Z5log1pd",     "_Z5log1pDv2_d",
@@ -593,7 +593,7 @@ bool foldLog1p(Module &module) {
   return foldOneArgBuiltin(module, map, abacus::log1p);
 }
 
-bool foldSin(Module &module) {
+static bool foldSin(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -645,7 +645,7 @@ bool foldSin(Module &module) {
   return modified;
 }
 
-bool foldTan(Module &module) {
+static bool foldTan(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -697,7 +697,7 @@ bool foldTan(Module &module) {
   return modified;
 }
 
-bool foldArcFuncs(Module &module) {
+static bool foldArcFuncs(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -805,7 +805,7 @@ bool foldArcFuncs(Module &module) {
   return modified;
 }
 
-bool foldHyperbolicFuncs(Module &module) {
+static bool foldHyperbolicFuncs(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -913,7 +913,7 @@ bool foldHyperbolicFuncs(Module &module) {
   return modified;
 }
 
-bool foldRootFuncs(Module &module) {
+static bool foldRootFuncs(Module &module) {
   bool modified = false;
 
   modified |= foldOneArgBuiltin(module,
@@ -969,7 +969,6 @@ bool foldRootFuncs(Module &module) {
 
   return modified;
 }
-}  // namespace
 
 PreservedAnalyses compiler::BuiltinSimplificationPass::run(
     Module &module, ModuleAnalysisManager &) {

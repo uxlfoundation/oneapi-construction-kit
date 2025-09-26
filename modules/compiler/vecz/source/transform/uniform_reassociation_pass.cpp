@@ -69,11 +69,10 @@
 
 using namespace llvm;
 
-namespace {
-
 /// @brief it goes through all the PHI nodes in BB and duplicates the incoming
 /// values from "original" to new the new incoming block "extra"
-void updatePHIs(BasicBlock &BB, BasicBlock *original, BasicBlock *extra) {
+static void updatePHIs(BasicBlock &BB, BasicBlock *original,
+                       BasicBlock *extra) {
   for (auto &I : BB) {
     auto *const PHI = dyn_cast<PHINode>(&I);
     if (!PHI) {
@@ -82,8 +81,6 @@ void updatePHIs(BasicBlock &BB, BasicBlock *original, BasicBlock *extra) {
     PHI->addIncoming(PHI->getIncomingValueForBlock(original), extra);
   }
 }
-
-}  // namespace
 
 namespace vecz {
 class Reassociator {

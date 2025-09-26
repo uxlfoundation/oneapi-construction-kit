@@ -83,10 +83,8 @@ extern void __truncdfhf2();
 #endif
 }
 
-namespace {
-
 #ifndef NDEBUG
-void *dbg_memcpy(void *dest, const void *src, size_t count) {
+static void *dbg_memcpy(void *dest, const void *src, size_t count) {
   unsigned char *d = reinterpret_cast<unsigned char *>(dest);
   const unsigned char *s = reinterpret_cast<const unsigned char *>(src);
 
@@ -123,7 +121,7 @@ void *dbg_memcpy(void *dest, const void *src, size_t count) {
   return dest;
 }
 
-void *dbg_memset(void *dest, int ch, size_t count) {
+static void *dbg_memset(void *dest, int ch, size_t count) {
   const unsigned char c = static_cast<unsigned char>(ch);
   unsigned char *d = reinterpret_cast<unsigned char *>(dest);
 
@@ -149,7 +147,6 @@ void *dbg_memset(void *dest, int ch, size_t count) {
   return dest;
 }
 #endif  // NDEBUG
-}  // namespace
 
 namespace host {
 namespace utils {

@@ -31,10 +31,9 @@
 using namespace vecz;
 using namespace llvm;
 
-namespace {
 /// @brief Applies @a EVL to @a Mask, clearing those bits in a position greater
 /// than @a EVL.
-Value *applyEVLToMask(IRBuilder<> &B, Value *EVL, Value *Mask) {
+static Value *applyEVLToMask(IRBuilder<> &B, Value *EVL, Value *Mask) {
   if (EVL) {
     auto *const IndexVector = B.CreateStepVector(VectorType::get(
         EVL->getType(), multi_llvm::getVectorElementCount(Mask->getType())));
@@ -46,26 +45,25 @@ Value *applyEVLToMask(IRBuilder<> &B, Value *EVL, Value *Mask) {
   return Mask;
 }
 
-bool isLegalMaskedLoad(const TargetTransformInfo &TTI, Type *Ty,
-                       unsigned Alignment, unsigned AddrSpace) {
+static bool isLegalMaskedLoad(const TargetTransformInfo &TTI, Type *Ty,
+                              unsigned Alignment, unsigned AddrSpace) {
   return multi_llvm::isLegalMaskedLoad(TTI, Ty, Align(Alignment), AddrSpace);
 }
 
-bool isLegalMaskedStore(const TargetTransformInfo &TTI, Type *Ty,
-                        unsigned Alignment, unsigned AddrSpace) {
+static bool isLegalMaskedStore(const TargetTransformInfo &TTI, Type *Ty,
+                               unsigned Alignment, unsigned AddrSpace) {
   return multi_llvm::isLegalMaskedStore(TTI, Ty, Align(Alignment), AddrSpace);
 }
 
-bool isLegalMaskedGather(const TargetTransformInfo &TTI, Type *Ty,
-                         unsigned Alignment, unsigned) {
+static bool isLegalMaskedGather(const TargetTransformInfo &TTI, Type *Ty,
+                                unsigned Alignment, unsigned) {
   return TTI.isLegalMaskedGather(Ty, Align(Alignment));
 }
 
-bool isLegalMaskedScatter(const TargetTransformInfo &TTI, Type *Ty,
-                          unsigned Alignment, unsigned) {
+static bool isLegalMaskedScatter(const TargetTransformInfo &TTI, Type *Ty,
+                                 unsigned Alignment, unsigned) {
   return TTI.isLegalMaskedScatter(Ty, Align(Alignment));
 }
-}  // namespace
 
 // NOTE the TargetMachine is allowed to be null here; it isn't used in the
 // implementation at present, but if it gets used in future it needs to be

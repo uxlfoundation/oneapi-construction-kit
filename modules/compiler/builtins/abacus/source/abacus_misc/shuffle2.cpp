@@ -20,6 +20,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
+
 template <typename T>
 struct SizeLaundry {
   static const unsigned num_elements;
@@ -28,8 +29,10 @@ struct SizeLaundry {
 template <typename T>
 const unsigned SizeLaundry<T>::num_elements = TypeTraits<T>::num_elements;
 
+}  // namespace
+
 template <typename R, typename T, typename M>
-R shuffle2(const T x, const T y, const M m) {
+static R shuffle2(const T x, const T y, const M m) {
   typedef typename TypeTraits<M>::ElementType MElementType;
   const MElementType num_elements =
       abacus::detail::cast::convert<MElementType>(SizeLaundry<T>::num_elements);
@@ -46,7 +49,6 @@ R shuffle2(const T x, const T y, const M m) {
 
   return r;
 }
-}  // namespace
 
 #define DEF_WITH_BOTH_SIZES(TYPE, IN_SIZE, OUT_SIZE) \
   TYPE##OUT_SIZE ABACUS_API __abacus_shuffle2(       \

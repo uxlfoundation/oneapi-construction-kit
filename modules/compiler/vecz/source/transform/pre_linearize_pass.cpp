@@ -63,8 +63,7 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
-bool isTrivialBlock(const llvm::BasicBlock &BB) {
+static bool isTrivialBlock(const llvm::BasicBlock &BB) {
   for (const auto &I : BB) {
     if (I.mayReadOrWriteMemory() || I.mayHaveSideEffects() ||
         llvm::isa<llvm::PHINode>(&I)) {
@@ -80,8 +79,8 @@ bool isTrivialBlock(const llvm::BasicBlock &BB) {
 // This assumes sequential execution (no Instruction Level Parallelism)
 // and takes no account of Data Hazards &c so is not guaranteed to be
 // entirely accurate.
-InstructionCost calculateBlockCost(const BasicBlock &BB,
-                                   const TargetTransformInfo &TTI) {
+static InstructionCost calculateBlockCost(const BasicBlock &BB,
+                                          const TargetTransformInfo &TTI) {
   InstructionCost cost;
   for (const auto &I : BB) {
     if (I.isTerminator()) {
@@ -107,9 +106,9 @@ InstructionCost calculateBlockCost(const BasicBlock &BB,
 
 // It creates a temporary function in order to build a target-dependent
 // vector AND reduction inside it, in order to calculate the cost of it.
-InstructionCost calculateBoolReductionCost(LLVMContext &context, Module *module,
-                                           const TargetTransformInfo &TTI,
-                                           llvm::ElementCount width) {
+static InstructionCost calculateBoolReductionCost(
+    LLVMContext &context, Module *module, const TargetTransformInfo &TTI,
+    llvm::ElementCount width) {
   Type *cond_ty = VectorType::get(Type::getInt1Ty(context), width);
 
   FunctionType *new_fty =
@@ -130,7 +129,8 @@ InstructionCost calculateBoolReductionCost(LLVMContext &context, Module *module,
   return cost;
 }
 
-bool hoistInstructions(BasicBlock &BB, BranchInst &Branch, bool exceptions) {
+static bool hoistInstructions(BasicBlock &BB, BranchInst &Branch,
+                              bool exceptions) {
   const auto &DL = BB.getModule()->getDataLayout();
   const bool TrueBranch = (Branch.getSuccessor(0) == &BB);
   DenseMap<Value *, Value *> safeDivisors;
@@ -213,7 +213,6 @@ bool hoistInstructions(BasicBlock &BB, BranchInst &Branch, bool exceptions) {
   }
   return modified;
 }
-}  // namespace
 
 PreservedAnalyses PreLinearizePass::run(Function &F,
                                         FunctionAnalysisManager &AM) {

@@ -18,8 +18,6 @@
 
 #include <algorithm>
 
-namespace {
-
 /// Number of threads in pool is total_cores - ca_free_hw_threads.
 /// It's hard to pick a number that suits everything, it will depend
 /// on a number of factors. If calling code has little overhead consider
@@ -27,8 +25,8 @@ namespace {
 constexpr size_t ca_free_hw_threads = 0;
 
 /// The code to do one iteration of the threadFunc loop.
-void threadFuncBody(host::thread_pool_s *const me,
-                    host::thread_pool_work_item_s item) {
+static void threadFuncBody(host::thread_pool_s *const me,
+                           host::thread_pool_work_item_s item) {
   const tracer::TraceGuard<tracer::Impl> traceGuard(__func__);
 
   item.function(item.user_data, item.user_data2, item.user_data3, item.index);
@@ -62,7 +60,7 @@ void threadFuncBody(host::thread_pool_s *const me,
 }
 
 /// The function for each cargo::thread to call.
-void threadFunc(host::thread_pool_s *const me) {
+static void threadFunc(host::thread_pool_s *const me) {
 #ifdef CA_HOST_ENABLE_PAPI_COUNTERS
   me->registerPid();
 #endif
@@ -71,7 +69,6 @@ void threadFunc(host::thread_pool_s *const me) {
     threadFuncBody(me, item);
   }
 }
-}  // namespace
 
 namespace host {
 thread_pool_s::thread_pool_s() : stayAlive(true) {

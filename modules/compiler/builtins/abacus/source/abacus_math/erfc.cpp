@@ -22,6 +22,7 @@
 #include <abacus/internal/multiply_exact_unsafe.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct erfc_helper;
 
@@ -396,11 +397,12 @@ struct erfc_helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T erfc(const T x) {
+static inline T erfc(const T x) {
   return erfc_helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_erfc(abacus_half x) { return erfc<>(x); }

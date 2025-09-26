@@ -37,10 +37,8 @@ using namespace vecz;
 
 llvm::AnalysisKey LivenessAnalysis::Key;
 
-namespace {
-
 // Returns true if V defines a variable and is likely to require a register
-bool definesVariable(const Value &V) {
+static bool definesVariable(const Value &V) {
   // Constants are likely to be immediate values
   if (isa<Constant>(V)) {
     return false;
@@ -61,15 +59,13 @@ bool definesVariable(const Value &V) {
 //
 // Note that since the implementation completely processes every instruction
 // sequentially, only the last element needs to be checked.
-inline bool pushOnce(BlockLivenessInfo::LiveSet &s, Value *V) {
+static inline bool pushOnce(BlockLivenessInfo::LiveSet &s, Value *V) {
   if (!s.empty() && s.back() == V) {
     return false;
   }
   s.push_back(V);
   return true;
 }
-
-}  // namespace
 
 class LivenessResult::Impl {
  public:

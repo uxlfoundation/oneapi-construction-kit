@@ -31,6 +31,7 @@
 #include <unordered_set>
 
 namespace {
+
 // Class encapsulating details of user data passed as an argument to a USM
 // copy or fill command. This data needs to be bound to a Mux buffer on the
 // device which is then freed when the command has completed.
@@ -140,13 +141,15 @@ struct UserDataWrapper final {
   void *host_read_ptr;
 };
 
+}  // namespace
+
 // Helper function which given a USM allocation records the cl_event
 // associated with copy command, and sets an output parameter for the Mux
 // buffer tied to the USM allocation.
-mux_result_t ExamineUSMAlloc(extension::usm::allocation_info *usm_alloc,
-                             const cl_device_id queue_device,
-                             const cl_event return_event,
-                             mux_buffer_t &mux_buffer) {
+static mux_result_t ExamineUSMAlloc(extension::usm::allocation_info *usm_alloc,
+                                    const cl_device_id queue_device,
+                                    const cl_event return_event,
+                                    mux_buffer_t &mux_buffer) {
   // Host USM allocations aren't tied to a single device, use the
   // mux_buffer_t associated with the device tied to the command queue
   cl_device_id device = usm_alloc->getDevice();
@@ -164,13 +167,12 @@ mux_result_t ExamineUSMAlloc(extension::usm::allocation_info *usm_alloc,
 
 // Calculates the byte offset between a pointer and start of USM memory
 // allocation
-inline uint64_t getUSMOffset(const void *ptr,
-                             const extension::usm::allocation_info *usm_alloc) {
+static inline uint64_t getUSMOffset(
+    const void *ptr, const extension::usm::allocation_info *usm_alloc) {
   auto offset = reinterpret_cast<uintptr_t>(ptr) -
                 reinterpret_cast<uintptr_t>(usm_alloc->base_ptr);
   return static_cast<uint64_t>(offset);
 }
-}  // namespace
 
 CL_API_ENTRY
 void *clHostMemAllocINTEL(cl_context context,
@@ -487,12 +489,11 @@ cl_int clSetKernelArgMemPointerINTEL(cl_kernel kernel, cl_uint arg_index,
   return CL_SUCCESS;
 }
 
-namespace {
 // Used to implement clEnqueueMemsetINTEL and clEnqueueMemFillINTEL
-cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
-                   const void *pattern, size_t pattern_size, size_t size,
-                   cl_uint num_events_in_wait_list,
-                   const cl_event *event_wait_list, cl_event *event) {
+static cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
+                          const void *pattern, size_t pattern_size, size_t size,
+                          cl_uint num_events_in_wait_list,
+                          const cl_event *event_wait_list, cl_event *event) {
   const cl_int error = cl::validate::EventWaitList(
       num_events_in_wait_list, event_wait_list, command_queue->context, event);
   OCL_CHECK(error != CL_SUCCESS, return error);
@@ -611,7 +612,6 @@ cl_int MemFillImpl(cl_command_queue command_queue, void *dst_ptr,
 
   return CL_SUCCESS;
 }
-}  // namespace
 
 CL_API_ENTRY
 cl_int clEnqueueMemFillINTEL(cl_command_queue command_queue, void *dst_ptr,

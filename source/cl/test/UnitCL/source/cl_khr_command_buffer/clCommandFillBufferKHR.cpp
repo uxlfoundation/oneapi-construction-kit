@@ -16,12 +16,15 @@
 #include "cl_khr_command_buffer.h"
 
 namespace {
+
 struct test_parameters {
   size_t pattern_size;
   size_t offset;
   size_t size;
   size_t buffer_size;
 };
+
+}  // namespace
 
 // Does the host side equivalent of a clFill operation.
 static void fillBuffer(std::vector<cl_uchar> &input, const cl_uchar *pattern,
@@ -33,7 +36,6 @@ static void fillBuffer(std::vector<cl_uchar> &input, const cl_uchar *pattern,
     std::memmove(&*current_position, pattern, pattern_size);
   }
 }
-}  // namespace
 
 struct CommandFillBufferKHRTest : cl_khr_command_buffer_Test {
   void SetUp() override {
@@ -553,7 +555,7 @@ TEST_F(CommandFillBufferKHRTest, InvalidSyncPoints) {
                                            &pattern, pattern_size, 0, size, 1,
                                            nullptr, nullptr, nullptr));
 
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
                     clCommandFillBufferKHR(command_buffer, nullptr, buffer,
                                            &pattern, pattern_size, 0, size, 0,

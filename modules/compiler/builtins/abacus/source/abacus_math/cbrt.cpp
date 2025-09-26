@@ -22,10 +22,9 @@
 #include <abacus/internal/horner_polynomial.h>
 #include <abacus/internal/is_denorm.h>
 
-namespace {
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 template <typename T, typename U>
-T shuffle_helper(const abacus_double4 t, const U u) {
+static T shuffle_helper(const abacus_double4 t, const U u) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   return __abacus_shuffle(t, abacus::detail::cast::convert<UnsignedType>(u));
 }
@@ -36,6 +35,8 @@ abacus_double shuffle_helper<abacus_double, abacus_uint>(const abacus_double4 t,
   return t[u];
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
+namespace {
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
@@ -246,11 +247,12 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T cbrt(const T x) {
+static T cbrt(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_cbrt(abacus_half x) { return cbrt<>(x); }

@@ -29,6 +29,7 @@
 // r = hi * sqrt((lo / hi)^2 + 1)
 
 namespace {
+
 // For non-half call the original function:
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct hypot_helper {
@@ -205,11 +206,12 @@ struct hypot_helper<T, abacus_half> {
 };
 #endif  //__CA_BUILTINS_HALF_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T hypot(const T x, const T y) {
+static T hypot(const T x, const T y) {
   return hypot_helper<T>::_(x, y);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_hypot(abacus_half x, abacus_half y) {

@@ -18,9 +18,8 @@
 #include <abacus/abacus_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-T mul_hi(const T x, const T y) {
+static T mul_hi(const T x, const T y) {
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   enum { SHIFT = (sizeof(typename TypeTraits<T>::ElementType) * 4) };
 
@@ -44,7 +43,6 @@ T mul_hi(const T x, const T y) {
            abacus::detail::cast::as<T>(loShifted)) >>
           (T)SHIFT);
 }
-}  // namespace
 
 #define DEF(TYPE) \
   TYPE ABACUS_API __abacus_mul_hi(TYPE x, TYPE y) { return mul_hi<TYPE>(x, y); }

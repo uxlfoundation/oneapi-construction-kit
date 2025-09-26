@@ -24,8 +24,6 @@
 
 using namespace llvm;
 
-namespace {
-
 /// @brief Store a value to the schedule struct
 /// @param Builder IRBuilder to use
 /// @param MuxWorkGroupStructTy Scheduling structure type
@@ -34,9 +32,9 @@ namespace {
 /// @param Index Index into the sub array of the element. If this is not an
 /// array element, this value will be ignored.
 /// @param Val Value to be stored
-void storeToSchedStruct(IRBuilder<> &Builder, StructType *MuxWorkGroupStructTy,
-                        Value *Sched, uint32_t Element, uint32_t Index,
-                        Value *Val) {
+static void storeToSchedStruct(IRBuilder<> &Builder,
+                               StructType *MuxWorkGroupStructTy, Value *Sched,
+                               uint32_t Element, uint32_t Index, Value *Val) {
   assert(Sched->getType()->isPointerTy());
 
   Value *IndicesArray[3] = {Builder.getInt32(0), Builder.getInt32(Element),
@@ -65,9 +63,10 @@ void storeToSchedStruct(IRBuilder<> &Builder, StructType *MuxWorkGroupStructTy,
 /// @param Index Index into the sub array of the element. If this is not an
 /// array element, this value will be ignored.
 /// @return The value loaded from the struct
-Value *loadFromSchedStruct(IRBuilder<> &Builder,
-                           StructType *MuxWorkGroupStructTy, Value *Sched,
-                           uint32_t Element, uint32_t Index) {
+static Value *loadFromSchedStruct(IRBuilder<> &Builder,
+                                  StructType *MuxWorkGroupStructTy,
+                                  Value *Sched, uint32_t Element,
+                                  uint32_t Index) {
   assert(Sched->getType()->isPointerTy());
   Value *IndicesArray[3] = {Builder.getInt32(0), Builder.getInt32(Element),
                             Builder.getInt32(Index)};
@@ -96,17 +95,17 @@ Value *loadFromSchedStruct(IRBuilder<> &Builder,
 /// @param SchedIn Input scheduling struct
 /// @param SchedOut Output scheduling struct
 /// @param Element Element index within scheduling struct
-void CopyElementToNewSchedStruct(IRBuilder<> &Builder,
-                                 StructType *MuxWorkGroupStructTy,
-                                 Value *SchedIn, Value *SchedOut,
-                                 uint32_t Element) {
+static void CopyElementToNewSchedStruct(IRBuilder<> &Builder,
+                                        StructType *MuxWorkGroupStructTy,
+                                        Value *SchedIn, Value *SchedOut,
+                                        uint32_t Element) {
   Value *IndicesArray[2] = {Builder.getInt32(0), Builder.getInt32(Element)};
   Type *ElTy =
       GetElementPtrInst::getIndexedType(MuxWorkGroupStructTy, IndicesArray);
   ArrayType *ArrayTy = dyn_cast_or_null<ArrayType>(ElTy);
 
   // If it's an array get the number of elements
-  uint32_t Count = ArrayTy ? ArrayTy->getNumElements() : 1;
+  const uint32_t Count = ArrayTy ? ArrayTy->getNumElements() : 1;
   for (uint32_t i = 0; i < Count; i++) {
     Value *SchedValue =
         loadFromSchedStruct(Builder, MuxWorkGroupStructTy, SchedIn, Element, i);
@@ -115,16 +114,12 @@ void CopyElementToNewSchedStruct(IRBuilder<> &Builder,
   }
 }
 
-}  // namespace
-
-namespace refsi_m1 {
-
 /// @brief The index of the scheduling struct in the list of arguments.
 const unsigned int SchedStructArgIndex = 3;
 const unsigned int InstanceArgIndex = 0;
 const unsigned int SliceArgIndex = 1;
 
-llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
+static llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
   // Make types for the wrapper pass based on original parameters and
   // additional instance/slice params.
   // We add two int64Ty for the Instance Id and Slice Id prior to the kernel
@@ -215,13 +210,15 @@ llvm::Function *addKernelWrapper(llvm::Module &M, llvm::Function &F) {
   return NewFunction;
 }
 
+namespace refsi_m1 {
+
 llvm::PreservedAnalyses RefSiM1WrapperPass::run(llvm::Module &M,
                                                 llvm::ModuleAnalysisManager &) {
   (void)M;
   bool modified = false;
   SmallPtrSet<Function *, 4> NewKernels;
   for (auto &F : M.functions()) {
-    if (compiler::utils::isKernel(F) && !NewKernels.count(&F)) {
+    if (compiler::utils::isKernel(F) && !NewKernels.contains(&F)) {
       auto *NewFunction = addKernelWrapper(M, F);
       modified = true;
       NewKernels.insert(NewFunction);
@@ -229,4 +226,5 @@ llvm::PreservedAnalyses RefSiM1WrapperPass::run(llvm::Module &M,
   }
   return modified ? PreservedAnalyses::none() : PreservedAnalyses::all();
 }
+
 }  // namespace refsi_m1

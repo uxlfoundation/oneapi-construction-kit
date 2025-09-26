@@ -21,9 +21,8 @@
 #include <abacus/internal/frexp_unsafe.h>
 #include <abacus/internal/horner_polynomial.h>
 
-namespace {
 template <typename T>
-T native_log(const T x) {
+static T native_log(const T x) {
   // r = log(x), x = f * 2^n
   // r = log(f * 2^n)
   // r = log(f) + log(2^n)
@@ -42,7 +41,6 @@ T native_log(const T x) {
   const T oneOverlog2e = 0.693147180559945309417232121458;
   return (f * logf) + (abacus::detail::cast::convert<T>(n) * oneOverlog2e);
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_native_log(abacus_float x) {
   return native_log<>(x);

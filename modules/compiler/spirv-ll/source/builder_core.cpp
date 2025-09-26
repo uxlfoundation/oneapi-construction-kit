@@ -2134,8 +2134,7 @@ llvm::Error Builder::create<OpFunctionParameter>(
   return llvm::Error::success();
 }
 
-namespace {
-std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
+static std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
   std::string name;
   if (ty->isIntegerTy()) {
     // Pointer to void is represented as i8* so check for that here.
@@ -2160,8 +2159,9 @@ std::string getScalarTypeName(llvm::Type *ty, const OpCode *op) {
   return name;
 }
 
-std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
-                                  spv::Id argTyID, bool isBaseTyName) {
+static std::string retrieveArgTyMetadata(spirv_ll::Module &module,
+                                         llvm::Type *argTy, spv::Id argTyID,
+                                         bool isBaseTyName) {
   const std::optional<std::string> argBaseTy;
   if (argTy->isPointerTy()) {
     // If we haven't found a known pointer, keep trying.
@@ -2229,7 +2229,6 @@ std::string retrieveArgTyMetadata(spirv_ll::Module &module, llvm::Type *argTy,
   auto argOp = module.get<OpCode>(argTy);
   return getScalarTypeName(argTy, argOp);
 }
-}  // namespace
 
 template <>
 llvm::Error Builder::create<OpFunctionEnd>(const OpFunctionEnd *) {

@@ -43,21 +43,21 @@ image_s::image_s(mux_memory_requirements_s memory_requirements,
 }  // namespace host
 
 #ifdef HOST_IMAGE_SUPPORT
-namespace {
-inline cl_image_format getImageFormat(mux_image_format_e format) {
+static inline cl_image_format getImageFormat(mux_image_format_e format) {
   return {static_cast<cl_channel_order>(format & 0xffff),
           static_cast<cl_channel_type>((format & 0xffff0000) >> 16)};
 }
 
-inline mux_image_format_e setImageFormat(const cl_image_format &format) {
+static inline mux_image_format_e setImageFormat(const cl_image_format &format) {
   return static_cast<mux_image_format_e>(
       format.image_channel_order | (format.image_channel_data_type << 16));
 }
 
-inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
-                                  uint32_t height, uint32_t depth,
-                                  uint32_t array_layers, uint64_t row_size,
-                                  uint64_t slice_size) {
+static inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
+                                         uint32_t height, uint32_t depth,
+                                         uint32_t array_layers,
+                                         uint64_t row_size,
+                                         uint64_t slice_size) {
   cl_mem_object_type imageType;
   switch (type) {
     case mux_image_type_1d:
@@ -79,7 +79,6 @@ inline cl_image_desc getImageDesc(mux_image_type_e type, uint32_t width,
   return {imageType, width,      height, depth, array_layers,
           rowPitch,  slicePitch, 0,      0,     {/*nullptr*/}};
 }
-}  // namespace
 #endif
 
 mux_result_t hostCreateImage(mux_device_t device, mux_image_type_e type,

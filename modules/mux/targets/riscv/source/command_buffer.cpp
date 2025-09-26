@@ -717,9 +717,8 @@ mux_result_t riscvCommandCopyBufferToImage(
   return mux_error_feature_unsupported;
 }
 
-namespace {
 // Returns the number of bytes needed for the POD allocation
-uint32_t calcPodDataSize(
+static uint32_t calcPodDataSize(
     const mux::dynamic_array<mux_descriptor_info_t> &descriptors) {
   // All of the POD data is stored in a vector. This is so the HAL
   // does not need to take a copy and manage the memory. The specialized
@@ -737,10 +736,11 @@ uint32_t calcPodDataSize(
 // Iterates through the argument descriptors and uses them to initalize the HAL
 // argument structs. For POD arguments, the POD allocation is also setup to
 // point to the correct locations.
-void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
-                const hal::hal_device_info_t *hal_device_info,
-                const mux::dynamic_array<mux_descriptor_info_t> &descriptors,
-                mux::dynamic_array<hal::hal_arg_t> &kernel_args) {
+static void setHALArgs(
+    mux::dynamic_array<uint8_t> &pod_data,
+    const hal::hal_device_info_t *hal_device_info,
+    const mux::dynamic_array<mux_descriptor_info_t> &descriptors,
+    mux::dynamic_array<hal::hal_arg_t> &kernel_args) {
   uint32_t write_point = 0;
   for (uint64_t i = 0; i < descriptors.size(); i++) {
     const auto &descriptor = descriptors[i];
@@ -792,7 +792,6 @@ void setHALArgs(mux::dynamic_array<uint8_t> &pod_data,
     }
   }
 }
-}  // anonymous namespace
 
 mux_result_t riscvCommandNDRange(mux_command_buffer_t command_buffer,
                                  mux_kernel_t kernel,
@@ -1071,12 +1070,12 @@ mux_result_t riscvFinalizeCommandBuffer(mux_command_buffer_t command_buffer) {
   return mux_success;
 }
 
-namespace {
 // Create a deep copy of a ndrange command and add it as a command to the cloned
 // command-buffer.
-mux_result_t cloneNDRangeCommand(mux_allocator_info_t allocator_info,
-                                 const riscv::command_ndrange_s &original,
-                                 riscv::command_buffer_s *cloned_command_buffer)
+static mux_result_t cloneNDRangeCommand(
+    mux_allocator_info_t allocator_info,
+    const riscv::command_ndrange_s &original,
+    riscv::command_buffer_s *cloned_command_buffer)
     CARGO_TS_REQUIRES(cloned_command_buffer->mutex) {
   const mux::allocator allocator(allocator_info);
   mux::dynamic_array<mux_descriptor_info_t> descriptors{allocator};
@@ -1129,7 +1128,6 @@ mux_result_t cloneNDRangeCommand(mux_allocator_info_t allocator_info,
   }
   return mux_success;
 }
-}  // anonymous namespace
 
 mux_result_t riscvCloneCommandBuffer(mux_device_t device,
                                      mux_allocator_info_t allocator_info,

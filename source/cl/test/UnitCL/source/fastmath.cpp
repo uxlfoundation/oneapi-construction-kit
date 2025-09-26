@@ -19,15 +19,16 @@
 #include "Common.h"
 #include "EventWaitList.h"
 
-namespace {
-void ReplaceAll(std::string &str, const std::string &from,
-                const std::string &to) {
+static void ReplaceAll(std::string &str, const std::string &from,
+                       const std::string &to) {
   size_t start_pos = 0;
   while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
     str.replace(start_pos, from.length(), to);
     start_pos += to.length();
   }
 }
+
+namespace {
 
 template <typename T>
 struct ReleaseHelper {
@@ -40,6 +41,8 @@ struct ReleaseHelper {
  private:
   T t;
 };
+
+}  // namespace
 
 template <>
 ReleaseHelper<cl_kernel>::~ReleaseHelper() {
@@ -55,7 +58,6 @@ template <>
 ReleaseHelper<cl_program>::~ReleaseHelper() {
   clReleaseProgram(t);
 }
-}  // namespace
 
 struct FastMathTest : ucl::CommandQueueTest,
                       testing::WithParamInterface<const char *> {

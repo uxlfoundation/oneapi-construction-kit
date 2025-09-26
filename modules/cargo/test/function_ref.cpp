@@ -20,10 +20,11 @@
 #include <cargo/function_ref.h>
 #include <gtest/gtest.h>
 
-namespace {
-void f() {}
+static void f() {}
 
-int getValue() { return 1337; }
+static int getValue() { return 1337; }
+
+namespace {
 
 struct b {
   bool baz_called = false;
@@ -35,8 +36,9 @@ struct b {
 struct Base {};
 struct Derived : Base {};
 
-Derived *getDerived() { return nullptr; }
 }  // namespace
+
+static Derived *getDerived() { return nullptr; }
 
 TEST(function_ref, constructors) {
   const cargo::function_ref<void(void)> fr1 = [] {};

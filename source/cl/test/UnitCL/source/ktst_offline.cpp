@@ -52,11 +52,9 @@ TEST_P(Execution, Offline_02_Add) {
   RunGeneric1D(kts::N);
 }
 
-namespace {
-float Ref_float_A(size_t x) { return 2.0f * x; }
-float Ref_float_B(size_t x) { return 4.0f * x; }
-float Ref_float_Add(size_t x) { return 6.0f * x; }
-}  // namespace
+static float Ref_float_A(size_t x) { return 2.0f * x; }
+static float Ref_float_B(size_t x) { return 4.0f * x; }
+static float Ref_float_Add(size_t x) { return 6.0f * x; }
 
 TEST_P(Execution, Offline_02_AddF) {
   AddInputBuffer(kts::N, Ref_float_A);

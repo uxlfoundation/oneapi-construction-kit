@@ -158,9 +158,8 @@ abacus_float ABACUS_API __abacus_asinh(abacus_float x) {
   return __abacus_copysign(ans, x);
 }
 
-namespace {
 template <typename T>
-T asinh(const T x) {
+static T asinh(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   typedef typename TypeTraits<T>::UnsignedType UnsignedType;
   typedef typename TypeTraits<UnsignedType>::ElementType UnsignedElementType;
@@ -190,7 +189,6 @@ T asinh(const T x) {
 
   return __abacus_select(result, x, __abacus_isinf(x) | __abacus_isnan(x));
 }
-}  // namespace
 
 abacus_float2 ABACUS_API __abacus_asinh(abacus_float2 x) { return asinh<>(x); }
 abacus_float3 ABACUS_API __abacus_asinh(abacus_float3 x) { return asinh<>(x); }
@@ -201,7 +199,6 @@ abacus_float16 ABACUS_API __abacus_asinh(abacus_float16 x) {
 }
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
-namespace {
 /*
   first off use the identity asinh(-x) = -asinh(x) to remove negative numbers
 
@@ -221,7 +218,7 @@ namespace {
   d) asinh(x) = log(x) + log(2)
 */
 template <typename T>
-T asinhD(const T x) {
+static T asinhD(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   const T xAbs = __abacus_fabs(x);
   const abacus_double ln2 =
@@ -254,7 +251,6 @@ T asinhD(const T x) {
 
   return __abacus_copysign(result, x);
 }
-}  // namespace
 
 abacus_double ABACUS_API __abacus_asinh(abacus_double x) { return asinhD<>(x); }
 abacus_double2 ABACUS_API __abacus_asinh(abacus_double2 x) {

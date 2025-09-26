@@ -22,6 +22,7 @@
 #include <abacus/internal/is_odd.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -111,8 +112,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T tanpi(const T x) {
+static T tanpi(const T x) {
   using SignedType = typename TypeTraits<T>::SignedType;
 
   const T xAbs = __abacus_fabs(x);
@@ -151,7 +154,6 @@ T tanpi(const T x) {
   const SignedType cond5 = x < T(0.0);
   return __abacus_select(ans, -ans, cond5);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_tanpi(abacus_half x) { return tanpi<>(x); }

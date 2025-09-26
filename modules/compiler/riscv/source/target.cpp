@@ -24,15 +24,15 @@
 #include <riscv/module.h>
 #include <riscv/target.h>
 
-namespace {
-void addFeature(std::string &features, const char *feature, bool &hasFeature) {
+static void addFeature(std::string &features, const char *feature,
+                       bool &hasFeature) {
   features += hasFeature ? "," : "";
   features += feature;
   hasFeature = true;
 }
 
-void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
-                            std::string &features) {
+static void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
+                                   std::string &features) {
   bool hasFeature = false;
   if (info->extensions & riscv::rv_extension_M) {
     addFeature(features, "+m", hasFeature);
@@ -79,8 +79,6 @@ void setTargetFeatureString(const riscv::hal_device_info_riscv_t *info,
     addFeature(features, "+zbs", hasFeature);
   }
 }
-
-}  // namespace
 
 namespace riscv {
 

@@ -87,8 +87,7 @@ std::string ThreeArgRelational::source_fmt_string(
          "(in1[gid], in2[gid], in3[gid]);\n" + "}\n";
 }
 
-namespace {
-unsigned GetVecWidth(const std::string &type) {
+static unsigned GetVecWidth(const std::string &type) {
   const char last = type.back();
   switch (last) {
     case '2':
@@ -107,7 +106,7 @@ unsigned GetVecWidth(const std::string &type) {
 }
 
 template <class T>
-void GetTestTypes(cargo::small_vector<std::string, 6> &types) {
+static void GetTestTypes(cargo::small_vector<std::string, 6> &types) {
   const std::string scalar_str(TypeInfo<T>::as_str);
   cargo::small_vector<const char *, 6> vec_widths;
   ASSERT_EQ(cargo::success, vec_widths.assign({"", "2", "3", "4", "8", "16"}));
@@ -119,7 +118,7 @@ void GetTestTypes(cargo::small_vector<std::string, 6> &types) {
 // Based on CTS test conformance_test_select `check_float()` verification
 // function in test_conformance/select/util_select.c
 template <class T>
-bool VerifyResult(const T reference, const T kernel) {
+static bool VerifyResult(const T reference, const T kernel) {
   if (std::isnan(reference) && std::isnan(kernel)) {
     return true;
   }
@@ -135,7 +134,6 @@ bool VerifyResult(const cl_half reference, const cl_half kernel) {
 
   return reference == kernel;
 }
-}  // namespace
 
 cl_ulong RelationalTest::GetBufferLimit() {
   return HalfInputSizes::getInputSize(getEnvironment()->math_mode) * 2ul;

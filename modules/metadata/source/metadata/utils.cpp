@@ -148,8 +148,6 @@ const char *get_block_info_name(const uint8_t *binary_data,
   return reinterpret_cast<const char *>(binary_data + bi.name_idx);
 }
 
-namespace {
-
 /// @brief serializes integral types into raw bytes and writes them into an
 /// output buffer.
 ///
@@ -157,13 +155,13 @@ namespace {
 /// @param val The value to be serialized.
 /// @param output The output byte-array to which the bytes are written.
 template <class T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-void serialize_int(T val, std::vector<uint8_t> &output, uint8_t endianness) {
+static void serialize_int(T val, std::vector<uint8_t> &output,
+                          uint8_t endianness) {
   T out_val = read_value<T>(reinterpret_cast<uint8_t *>(&val), endianness);
   auto width = sizeof(T);
   auto *start = reinterpret_cast<uint8_t *>(&out_val);
   output.insert(output.end(), start, &start[width]);
 }
-}  // namespace
 
 void serialize_md_header(const CAMD_Header &header,
                          std::vector<uint8_t> &output) {

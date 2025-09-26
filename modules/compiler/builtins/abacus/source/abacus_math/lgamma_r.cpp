@@ -22,11 +22,10 @@
 #include <abacus/internal/is_odd.h>
 #include <abacus/internal/lgamma_positive.h>
 
-namespace {
 template <typename T>
-T lgamma_r(const T x,
-           typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
-               *out_sign) {
+static T lgamma_r(
+    const T x, typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type
+                   *out_sign) {
   using IntType =
       typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type;
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -82,7 +81,6 @@ T lgamma_r(const T x,
 
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_lgamma_r(abacus_half x, abacus_int *out_sign) {
@@ -175,9 +173,8 @@ abacus_double ABACUS_API __abacus_lgamma_r(abacus_double x,
 }
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
-namespace {
 template <typename T>
-T lgamma_r_splat(
+static T lgamma_r_splat(
     const T x,
     typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type *o) {
   T result;
@@ -188,7 +185,6 @@ T lgamma_r_splat(
   }
   return result;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_DOUBLE_SUPPORT
 abacus_double2 ABACUS_API __abacus_lgamma_r(abacus_double2 x, abacus_int2 *o) {

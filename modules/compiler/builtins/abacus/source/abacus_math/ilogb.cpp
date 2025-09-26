@@ -39,8 +39,10 @@ struct ilogb_info {
   static constexpr IntType zero() { return IntType(ABACUS_FP_ILOGB0); }
 };
 
+}  // namespace
+
 template <typename T>
-typename ilogb_info<T>::IntType ilogb_helper_scalar(const T x) {
+static typename ilogb_info<T>::IntType ilogb_helper_scalar(const T x) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "This function should only be called on scalar types");
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -79,7 +81,7 @@ typename ilogb_info<T>::IntType ilogb_helper_scalar(const T x) {
 }
 
 template <typename T>
-typename ilogb_info<T>::IntType ilogb_helper(const T x) {
+static typename ilogb_info<T>::IntType ilogb_helper(const T x) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "This function should only be called on vector types");
   using SignedType = typename TypeTraits<T>::SignedType;
@@ -115,8 +117,6 @@ typename ilogb_info<T>::IntType ilogb_helper(const T x) {
   // Return the result, or NAN if the input is inf.
   return __abacus_select(result, ilogb_info<T>::nan(), ~isInfAsI32);
 }
-
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_int ABACUS_API __abacus_ilogb(abacus_half x) {

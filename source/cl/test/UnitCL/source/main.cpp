@@ -31,12 +31,10 @@ extern void ColoredPrintf(GTestColor color, const char *fmt, ...);
 #ifdef _WIN32
 #include <windows.h>
 
-namespace {
-
 const char *const KERNELS_EXE_RELATIVE_PATH = "..\\share\\kernels";
 const char *const INCLUDE_EXE_RELATIVE_PATH = "..\\share\\test_include";
 
-std::string get_path_relative_to_exe(const std::string &relative_path) {
+static std::string get_path_relative_to_exe(const std::string &relative_path) {
   // no way to query the buffer length beforehand
   std::vector<char> lnpath(MAX_PATH + 2);
   // guaranteed to return backslash-separated path
@@ -67,20 +65,16 @@ std::string get_path_relative_to_exe(const std::string &relative_path) {
   return path + relative_path;
 }
 
-}  // namespace
-
 #elif defined(__linux__) || defined(__APPLE__) || defined(__QNX__)
 #include <unistd.h>
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
 
-namespace {
-
 const char *const KERNELS_EXE_RELATIVE_PATH = "../share/kernels";
 const char *const INCLUDE_EXE_RELATIVE_PATH = "../share/test_include";
 
-std::string get_path_relative_to_exe(const std::string &relative_path) {
+static std::string get_path_relative_to_exe(const std::string &relative_path) {
 #ifdef __APPLE__
   std::vector<char> lnpath(PATH_MAX + 1);
   std::uint32_t size = lnpath.size();
@@ -115,32 +109,28 @@ std::string get_path_relative_to_exe(const std::string &relative_path) {
   return path + relative_path;
 }
 
-}  // namespace
-
 #else
-
-namespace {
 
 const char *const KERNELS_EXE_RELATIVE_PATH = "source/cl/test/UnitCL/kernels";
 const char *const INCLUDE_EXE_RELATIVE_PATH =
     "source/cl/test/UnitCL/test_include";
 #warning \
     "Unsupported platform - no code for determining current executable path, always using '.'"
-std::string get_path_relative_to_exe(const std::string &relative_path) {
+static std::string get_path_relative_to_exe(const std::string &relative_path) {
   return relative_path;
 }
-}  // namespace
+
 #endif
 
+static bool is_opt(const char *const argv, const char *const opt) {
+  return 0 == strncmp(opt, argv, strlen(opt));
+}
+
+static bool starts_with(const char *const argv, const char *const opt) {
+  return 0 == strncmp(opt, argv, strlen(opt));
+}
+
 namespace {
-
-bool is_opt(const char *const argv, const char *const opt) {
-  return 0 == strncmp(opt, argv, strlen(opt));
-}
-
-bool starts_with(const char *const argv, const char *const opt) {
-  return 0 == strncmp(opt, argv, strlen(opt));
-}
 
 struct ArgumentParser {
   ArgumentParser(int argc, char *argv[])

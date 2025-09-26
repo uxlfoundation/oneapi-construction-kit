@@ -309,7 +309,7 @@ TEST_F(CommandBufferFillImageTest, InvalidSyncPoints) {
       clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,
                             region, 1, nullptr, nullptr, nullptr));
 
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(
       CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
       clCommandFillImageKHR(command_buffer, nullptr, image, &fill_color, origin,

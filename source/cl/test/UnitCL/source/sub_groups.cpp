@@ -30,8 +30,8 @@
 
 using namespace kts::ucl;
 
-namespace {
-void GenerateOrderIndependentFloatData(std::vector<cl_float> &input_data) {
+static void GenerateOrderIndependentFloatData(
+    std::vector<cl_float> &input_data) {
   // Testing work group collective reductions and scans for general floating
   // point input data is very difficult, because the ordering of the summation
   // is not strictly defined, so:
@@ -51,8 +51,6 @@ void GenerateOrderIndependentFloatData(std::vector<cl_float> &input_data) {
     input_data[i] = float(input_ints[i]) / 256.0f;
   }
 }
-
-}  // namespace
 
 // Denotes a local work-group size used to execute sub-group tests below.
 struct LocalSizes {

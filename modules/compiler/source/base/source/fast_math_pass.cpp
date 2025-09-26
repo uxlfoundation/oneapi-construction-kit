@@ -25,7 +25,6 @@
 
 using namespace llvm;
 
-namespace {
 const StringMap<const char *> slowToFast = {
     // geometric builtins
     {"_Z6lengthf", "_Z11fast_lengthf"},
@@ -128,7 +127,7 @@ const StringMap<const char *> slowToFast = {
     {"_Z3tanDv16_f", "_Z10native_tanDv16_f"},
 };
 
-bool markFPOperatorsFast(Module &M) {
+static bool markFPOperatorsFast(Module &M) {
   bool modified = false;
 
   for (auto &function : M.functions()) {
@@ -144,7 +143,7 @@ bool markFPOperatorsFast(Module &M) {
   return modified;
 }
 
-bool replaceFastMathCalls(Module &M) {
+static bool replaceFastMathCalls(Module &M) {
   // A list of call instructions and the name with which we'll be replacing them
   SmallVector<std::pair<CallInst *, const char *>, 8> replacements;
 
@@ -201,7 +200,6 @@ bool replaceFastMathCalls(Module &M) {
   }
   return replacements.size();
 }
-}  // namespace
 
 namespace compiler {
 PreservedAnalyses FastMathPass::run(Module &M, ModuleAnalysisManager &) {

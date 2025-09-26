@@ -29,7 +29,6 @@
 #include <cstdint>
 #include <vector>
 
-namespace {
 /// @brief Write a number type as raw bytes to the output with the correct
 /// endianness.
 ///
@@ -41,8 +40,8 @@ template <class NumberTy,
           std::enable_if_t<std::is_integral_v<NumberTy> ||
                                std::is_floating_point_v<NumberTy>,
                            bool> = true>
-void serialize_number(NumberTy num, std::vector<uint8_t> &output,
-                      MD_ENDIAN endianness) {
+static void serialize_number(NumberTy num, std::vector<uint8_t> &output,
+                             MD_ENDIAN endianness) {
   const auto width = sizeof(NumberTy);
   auto *data_ptr = reinterpret_cast<uint8_t *>(&num);
   cargo::array_view<uint8_t> data(data_ptr, width);
@@ -57,8 +56,6 @@ void serialize_number(NumberTy num, std::vector<uint8_t> &output,
     output.insert(output.end(), data.begin(), data.end());
   }
 }
-
-}  // namespace
 
 namespace md {
 /// @addtogroup md

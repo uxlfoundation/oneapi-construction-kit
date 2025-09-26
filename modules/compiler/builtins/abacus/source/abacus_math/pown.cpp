@@ -30,7 +30,6 @@
 #include <abacus/internal/multiply_extended_precision.h>
 #include <abacus/internal/trunc_unsafe.h>
 
-namespace {
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // 2^x for range 0.0 -> 1.0, see pow.sollya for derivation
 static ABACUS_CONSTANT abacus_half __codeplay_pown_unsafe_coeffH[6] = {
@@ -59,6 +58,8 @@ static ABACUS_CONSTANT abacus_double __codeplay_pow_unsafe_coeffD[18] = {
     3.1323713565579919861469734507e-15, 1.3570535861859933139810634493e-16,
     5.5680060148351051509171469418e-18, 2.1306677337585862223671406870e-19};
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
+namespace {
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
@@ -390,13 +391,14 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T pown(
+static inline T pown(
     const T x,
     const typename MakeType<abacus_int, TypeTraits<T>::num_elements>::type &n) {
   return helper<T>::_(x, n);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_pown(abacus_half x, abacus_int n) {

@@ -43,29 +43,29 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
-Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
-                               const vecz::TargetInfo &TI, IRBuilder<> &B,
-                               bool URem);
+static Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
+                                      const vecz::TargetInfo &TI,
+                                      IRBuilder<> &B, bool URem);
 
 // Helper to broadcast a fixed vector thus:
 // <A,B> -> vscale x 1 -> <A,B,A,B,A,B,...>
-Value *createScalableBroadcastOfFixedVector(const vecz::TargetInfo &TI,
-                                            IRBuilder<> &B, Value *subvec,
-                                            ElementCount factor) {
+static Value *createScalableBroadcastOfFixedVector(const vecz::TargetInfo &TI,
+                                                   IRBuilder<> &B,
+                                                   Value *subvec,
+                                                   ElementCount factor) {
   assert(factor.isScalable());
   return scalableBroadcastHelper(subvec, factor, TI, B, /*URem*/ true);
 }
 
 // Helper to broadcast a scalable vector thus:
 // <A,B,C, ...> -> x 2 <A,A,B,B,C,C, ...>
-Value *createFixedBroadcastOfScalableVector(const vecz::TargetInfo &TI,
-                                            IRBuilder<> &B, Value *subvec,
-                                            ElementCount factor) {
+static Value *createFixedBroadcastOfScalableVector(const vecz::TargetInfo &TI,
+                                                   IRBuilder<> &B,
+                                                   Value *subvec,
+                                                   ElementCount factor) {
   assert(!factor.isScalable());
   return scalableBroadcastHelper(subvec, factor, TI, B, /*URem*/ false);
 }
-}  // namespace
 
 namespace vecz {
 IRBuilder<> buildAfter(Value *V, Function &F, bool IsPhi) {
@@ -607,7 +607,6 @@ PacketRange Packetizer::Result::narrow(unsigned width) const {
   return packet;
 }
 
-namespace {
 // This method creates the following sequence to broadcast a fixed-length
 // vector to a scalable one or broadcasting a scalable-vector by a fixed
 // amount, barring any optimizations we can perform for broadcasting a splat
@@ -617,9 +616,9 @@ namespace {
 // modulo the fixed amount.
 // Note that other sequences are possible, such as a series of blend
 // operations. This could perhaps be a target choice.
-Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
-                               const vecz::TargetInfo &TI, IRBuilder<> &B,
-                               bool URem) {
+static Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
+                                      const vecz::TargetInfo &TI,
+                                      IRBuilder<> &B, bool URem) {
   auto *ty = subvec->getType();
   const auto subVecEltCount = multi_llvm::getVectorElementCount(ty);
   assert(subVecEltCount.isScalable() ^ factor.isScalable() &&
@@ -663,7 +662,6 @@ Value *scalableBroadcastHelper(Value *subvec, ElementCount factor,
 
   return gather;
 }
-}  // namespace
 
 const Packetizer::Result &Packetizer::Result::broadcast(unsigned width) const {
   const auto factor = packetizer.width().divideCoefficientBy(width);

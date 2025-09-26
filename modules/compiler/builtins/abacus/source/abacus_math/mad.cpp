@@ -17,12 +17,10 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 
-namespace {
 template <typename T>
-inline T mad_helper(T x, T y, T z) {
+static inline T mad_helper(T x, T y, T z) {
   return (x * y) + z;
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_mad(abacus_half x, abacus_half y,

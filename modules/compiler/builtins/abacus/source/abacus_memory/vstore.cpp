@@ -18,16 +18,14 @@
 #include <abacus/abacus_memory.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T, typename U>
-void vstore(const T data, const size_t offset, U p) {
+static void vstore(const T data, const size_t offset, U p) {
   const U pPlusOffset = p + (offset * TypeTraits<T>::num_elements);
 
   for (unsigned int i = 0; i < TypeTraits<T>::num_elements; i++) {
     pPlusOffset[i] = data[i];
   }
 }
-}  // namespace
 
 #define DEF_WITH_TYPE_AND_SIZE_AND_ADDRESS_SPACE(TYPE, SIZE, ADDRESS_SPACE) \
   void ABACUS_API __abacus_vstore##SIZE(TYPE##SIZE data, size_t offset,     \

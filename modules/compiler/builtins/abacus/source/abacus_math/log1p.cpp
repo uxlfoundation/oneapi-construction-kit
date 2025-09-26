@@ -409,14 +409,13 @@ struct helper<T, abacus_double> {
   }
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
+
 }  // namespace
 
-namespace {
 template <typename T>
-T log1p(const T x) {
+static T log1p(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 

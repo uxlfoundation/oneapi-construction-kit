@@ -219,7 +219,6 @@ cl_int _cl_kernel::retainMems(cl_command_queue command_queue,
   return CL_SUCCESS;
 }
 
-namespace {
 /// @brief Push kernel execution to the queue.
 ///
 /// @param command_queue OpenCL command queue to enqueue on.
@@ -233,7 +232,7 @@ namespace {
 /// @param return_event Kernel execution event.
 ///
 /// @return Returns appropriate OpenCL error code.
-cl_int PushExecuteKernel(
+static cl_int PushExecuteKernel(
     cl_command_queue command_queue, cl_kernel kernel, cl_uint work_dim,
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &global_work_offset,
     const std::array<size_t, cl::max::WORK_ITEM_DIM> &global_work_size,
@@ -387,7 +386,6 @@ cl_int PushExecuteKernel(
         cl::releaseInternal(kernel);
       });
 }
-}  // namespace
 
 MuxKernelWrapper::SpecializedKernel::~SpecializedKernel() {
   // The kernel must be destroyed before the executable.

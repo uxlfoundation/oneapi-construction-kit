@@ -181,7 +181,6 @@ _cl_context::getSPIRVDeviceInfo(mux_device_info_t device_info) {
 }
 #endif
 
-namespace {
 /// @brief Utility functions to parse a cl_context_properties array.
 ///
 /// A cl_context_properties array is an array that contains a
@@ -198,8 +197,9 @@ namespace {
 ///
 /// @return CL_SUCCESS if the parsing was successful, otherwise an appropriate
 /// cl error code.
-cl_int parseProperties(const cl_context_properties *properties,
-                       uint32_t &propertiesLength, cl_platform_id &platform) {
+static cl_int parseProperties(const cl_context_properties *properties,
+                              uint32_t &propertiesLength,
+                              cl_platform_id &platform) {
   if (nullptr == properties) {
     propertiesLength = 0;
     platform = nullptr;
@@ -245,7 +245,6 @@ cl_int parseProperties(const cl_context_properties *properties,
   propertiesLength = length;
   return CL_SUCCESS;
 }
-}  // namespace
 
 CL_API_ENTRY cl_context CL_API_CALL cl::CreateContext(
     const cl_context_properties *properties, cl_uint num_devices,

@@ -19,15 +19,13 @@
 #include <abacus/abacus_math.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-inline T nan_helper() {
+static inline T nan_helper() {
   // Return NaN with all exponent bits and least significant bit set
   const typename TypeTraits<T>::UnsignedType nanVal =
       FPShape<T>::ExponentMask() | 0x1;
   return abacus::detail::cast::as<T>(nanVal);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_nan(abacus_ushort) {

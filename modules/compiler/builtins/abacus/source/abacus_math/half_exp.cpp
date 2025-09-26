@@ -17,12 +17,10 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_math.h>
 
-namespace {
 template <typename T>
-T half_exp(T x) {
+static T half_exp(T x) {
   return __abacus_half_exp2(x * ABACUS_LOG2E_F);
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_half_exp(abacus_float x) {
   return half_exp<>(x);

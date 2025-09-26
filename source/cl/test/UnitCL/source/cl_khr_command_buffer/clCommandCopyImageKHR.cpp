@@ -296,7 +296,7 @@ TEST_F(CommandBufferCopyImageTest, InvalidSyncPoints) {
                                           dst_image, origin, origin, region, 1,
                                           nullptr, nullptr, nullptr));
 
-  cl_sync_point_khr sync_point;
+  const cl_sync_point_khr sync_point = 0;
   ASSERT_EQ_ERRCODE(CL_INVALID_SYNC_POINT_WAIT_LIST_KHR,
                     clCommandCopyImageKHR(command_buffer, nullptr, src_image,
                                           dst_image, origin, origin, region, 0,

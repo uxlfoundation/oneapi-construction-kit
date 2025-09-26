@@ -21,13 +21,16 @@
 #include <metadata/metadata.h>
 
 namespace {
+
 /// @brief Struct used to pass arguments to metadata API.
 struct ElfUserdata {
   loader::ElfFile *elf;
   mux::allocator *allocator;
 };
 
-md_hooks getHostMdReadHooks() {
+}  // namespace
+
+static md_hooks getHostMdReadHooks() {
   md_hooks md_hooks{};
 
   md_hooks.map = [](const void *userdata, size_t *n) -> const void * {
@@ -53,8 +56,6 @@ md_hooks getHostMdReadHooks() {
   };
   return md_hooks;
 }
-
-}  // namespace
 
 namespace host {
 

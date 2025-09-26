@@ -30,6 +30,7 @@ using namespace vecz;
 using namespace llvm;
 
 namespace {
+
 class Heuristics {
   enum class BrClauseKind { None = 0, True, False };
 
@@ -96,6 +97,8 @@ class Heuristics {
   /// @brief Vectorization dimension to use.
   unsigned SimdDimIdx;
 };
+
+}  // namespace
 
 Heuristics::BrClauseKind Heuristics::shouldVectorizeVisitCmpOperands(
     const Value *RHS, CmpInst::Predicate Pred) const {
@@ -381,7 +384,6 @@ bool Heuristics::shouldVectorize() {
 
   return true;
 }
-}  // namespace
 
 namespace vecz {
 bool shouldVectorize(llvm::Function &F, VectorizationContext &Ctx,

@@ -34,9 +34,7 @@
 
 using namespace llvm;
 
-namespace {
-
-void removeCallSite(CallBase &CB, LazyCallGraph &CG) {
+static void removeCallSite(CallBase &CB, LazyCallGraph &CG) {
   Function *Caller = CB.getCaller();
   Function *Callee = CB.getCaller();
   auto CallerNode = CG.get(*Caller);
@@ -45,8 +43,6 @@ void removeCallSite(CallBase &CB, LazyCallGraph &CG) {
     CallerRef->removeOutgoingEdge(CallerNode, CalleeNode);
   }
 }
-
-}  // namespace
 
 namespace compiler {
 namespace utils {

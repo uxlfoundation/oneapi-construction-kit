@@ -417,15 +417,16 @@ enum CLBuiltinID : compiler::utils::BuiltinID {
 };
 }  // namespace
 
-namespace {
 using namespace llvm;
 using namespace compiler::utils;
 
 // Returns whether the given integer is a valid vector width in OpenCL.
 // Matches 2, 3, 4, 8, 16.
-bool isValidVecWidth(unsigned w) {
+static bool isValidVecWidth(unsigned w) {
   return (w == 3 || (w >= 2 && w <= 16 && llvm::isPowerOf2_32(w)));
 }
+
+namespace {
 
 /// @brief Copy global variables to a module on demand.
 class GlobalValueMaterializer final : public llvm::ValueMaterializer {
@@ -466,6 +467,7 @@ class GlobalValueMaterializer final : public llvm::ValueMaterializer {
   /// @brief Materialized variables.
   std::vector<GlobalVariable *> Variables;
 };
+
 }  // namespace
 
 namespace compiler {

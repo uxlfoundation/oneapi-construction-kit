@@ -19,9 +19,8 @@
 #include <abacus/abacus_relational.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T>
-T biggestBelowOne();
+static T biggestBelowOne();
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 template <>
@@ -43,7 +42,7 @@ abacus_double biggestBelowOne<abacus_double>() {
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
 template <typename T>
-inline T fract_helper_scalar(T x, T *out) {
+static inline T fract_helper_scalar(T x, T *out) {
   static_assert(TypeTraits<T>::num_elements == 1,
                 "Function should only be used for scalar types");
 
@@ -61,7 +60,7 @@ inline T fract_helper_scalar(T x, T *out) {
 }
 
 template <typename T>
-inline T fract_helper_vector(T x, T *out) {
+static inline T fract_helper_vector(T x, T *out) {
   static_assert(TypeTraits<T>::num_elements != 1,
                 "Function should only be used for vector types");
 
@@ -78,7 +77,6 @@ inline T fract_helper_vector(T x, T *out) {
   return __abacus_select(fract_part, __abacus_copysign(T(0), x),
                          __abacus_isinf(x));
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fract(abacus_half x,

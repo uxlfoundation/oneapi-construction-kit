@@ -20,18 +20,16 @@
 // This is needed for 'TEST_F'.
 using namespace kts::ucl;
 
-namespace {
 // Given a callable function that returns a float, we generate and return a new
 // wrapper function which flushes to zero values returned by the reference if
 // they are denormal in half precision.
 template <class T>
-std::function<cl_float(size_t)> createFTZValidator(T &reference_func) {
+static std::function<cl_float(size_t)> createFTZValidator(T &reference_func) {
   return [&reference_func](size_t id) -> cl_float {
     const cl_float r = reference_func(id);
     return IsDenormalAsHalf(r) ? 0.0f : r;
   };
 }
-}  // namespace
 
 unsigned kts::ucl::HalfInputSizes::getInputSize(
     const ::ucl::MathMode math_mode) {

@@ -21,6 +21,7 @@
 #include <abacus/abacus_type_traits.h>
 
 namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct copysign_helper;
 
@@ -62,11 +63,12 @@ struct copysign_helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-inline T copysign_(const T x, const T y) {
+static inline T copysign_(const T x, const T y) {
   return copysign_helper<T>::_(x, y);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_copysign(abacus_half x, abacus_half y) {

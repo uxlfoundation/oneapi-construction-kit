@@ -21,9 +21,8 @@
 #include <abacus/abacus_integer.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T, typename UInt = typename TypeTraits<T>::UnsignedType>
-inline T construct_helper_scalar(UInt mantissa, UInt unBiasedExp) {
+static inline T construct_helper_scalar(UInt mantissa, UInt unBiasedExp) {
   typedef FPShape<T> Shape;
 
   if (0 == mantissa) {
@@ -48,7 +47,7 @@ inline T construct_helper_scalar(UInt mantissa, UInt unBiasedExp) {
 }
 
 template <typename T, typename UInt = typename TypeTraits<T>::UnsignedType>
-inline T construct_helper_vector(UInt mantissa, UInt unBiasedExp) {
+static inline T construct_helper_vector(UInt mantissa, UInt unBiasedExp) {
   typedef typename TypeTraits<T>::SignedType SInt;
   typedef FPShape<T> Shape;
 
@@ -72,7 +71,6 @@ inline T construct_helper_vector(UInt mantissa, UInt unBiasedExp) {
 
   return abacus::detail::cast::as<T>(ansuint);
 }
-}  // namespace
 
 namespace abacus {
 namespace internal {

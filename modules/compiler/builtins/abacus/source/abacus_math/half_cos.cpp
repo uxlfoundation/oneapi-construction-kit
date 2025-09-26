@@ -21,9 +21,8 @@
 #include <abacus/internal/half_range_reduction.h>
 #include <abacus/internal/half_sincos_approx.h>
 
-namespace {
 template <typename T>
-T half_cos(const T x) {
+static T half_cos(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   SignedType octet;
@@ -51,7 +50,6 @@ T half_cos(const T x) {
 
   return __abacus_select(ABACUS_NAN, ans, __abacus_isfinite(x));
 }
-}  // namespace
 
 abacus_float ABACUS_API __abacus_half_cos(abacus_float x) {
   return half_cos<>(x);

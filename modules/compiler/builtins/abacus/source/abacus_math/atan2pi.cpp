@@ -22,9 +22,8 @@
 #include <abacus/internal/add_exact.h>
 #include <abacus/internal/horner_polynomial.h>
 
-namespace {
 template <typename T>
-T atan2pi(const T y, const T x) {
+static T atan2pi(const T y, const T x) {
   return __abacus_atan2(y, x) * T(ABACUS_1_PI);
 }
 
@@ -52,7 +51,7 @@ static ABACUS_CONSTANT abacus_half _atan2piH_ftz[3] = {
 };
 
 template <typename T>
-T atan2pi_horner_polynomial(const T x2) {
+static T atan2pi_horner_polynomial(const T x2) {
   // In this particular builtin, we lose the most precision in the first
   // multiply-add in the horner polynomial. Replacing the first addition with
   // `add_exact`, then computing the rest of the horner polynomial by hand gives
@@ -68,7 +67,7 @@ T atan2pi_horner_polynomial(const T x2) {
 }
 
 template <typename T>
-T atan2pi_half(const T y, const T x) {
+static T atan2pi_half(const T y, const T x) {
   using UnsignedType = typename TypeTraits<T>::UnsignedType;
   using SignedType = typename TypeTraits<T>::SignedType;
   using Shape = FPShape<abacus_half>;
@@ -306,7 +305,6 @@ abacus_half atan2pi_half(const abacus_half y, const abacus_half x) {
   return ans + pi_multiplication_factor;
 }
 #endif  // __CA_BUILTINS_HALF_SUPPORT
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_atan2pi(abacus_half y, abacus_half x) {

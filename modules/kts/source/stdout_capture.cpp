@@ -30,7 +30,6 @@
 
 #include "kts/stdout_capture.h"
 
-namespace {
 /// @brief Create a temporary file.
 ///
 /// For MinGW use custom code, otherwise just use std::tmpfile.
@@ -42,7 +41,7 @@ namespace {
 ///
 /// @return A handle to a temporary file that will be automatically removed or
 /// nullptr if a file cannot be created.
-std::FILE *create_tmpfile() {
+static std::FILE *create_tmpfile() {
 #if defined(__MINGW32__) || defined(__MINGW64__)
   // We want to store our temporary file in %TEMP%.
   const char *dir = std::getenv("TEMP");
@@ -94,7 +93,6 @@ std::FILE *create_tmpfile() {
   return std::tmpfile();
 #endif
 }
-}  // namespace
 
 namespace kts {
 

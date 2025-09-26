@@ -1373,8 +1373,8 @@ CL_API_ENTRY cl_int CL_API_CALL cl::SetCommandQueueProperty(
     cl_command_buffer_khr command_buffer, cl_uint num_events_in_wait_list,
     const cl_event *event_wait_list, cl_event *return_event) {
   // Lock both queue and command-buffer
-  const std::lock_guard<std::mutex> lock_queue(context->getCommandQueueMutex());
-  const std::lock_guard<std::mutex> lock_command_buffer(command_buffer->mutex);
+  const std::scoped_lock lock(context->getCommandQueueMutex(),
+                              command_buffer->mutex);
 
   // Create the signal event if caller asks for it.
   cl_event event = nullptr;

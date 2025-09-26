@@ -200,7 +200,6 @@ bool TargetInfoRISCV::isOperationLegal(llvm::Intrinsic::ID ID,
   llvm_unreachable("Don't know how to check whether this intrinsic is legal.");
 }
 
-namespace {
 static unsigned getRISCVBits(const TargetMachine *TM) {
   const auto &Triple = TM->getTargetTriple();
   return Triple.isArch32Bit() ? 32 : 64;
@@ -221,9 +220,9 @@ static unsigned getRISCVBits(const TargetMachine *TM) {
 /// llvm.vscale> * N` will be returned.
 /// @param[in] TM Target machine.
 /// @param[in] N name of the instruction to generate. "xlen" by default.
-llvm::Value *getIntrinsicVL(llvm::IRBuilderBase &B, llvm::Value *VL,
-                            llvm::Type *wideTy, llvm::TargetMachine *TM,
-                            const Twine &N = "xlen") {
+static llvm::Value *getIntrinsicVL(llvm::IRBuilderBase &B, llvm::Value *VL,
+                                   llvm::Type *wideTy, llvm::TargetMachine *TM,
+                                   const Twine &N = "xlen") {
   const unsigned XLenTyWidth = getRISCVBits(TM);
   Type *XLen = B.getIntNTy(XLenTyWidth);
 
@@ -243,7 +242,7 @@ llvm::Value *getIntrinsicVL(llvm::IRBuilderBase &B, llvm::Value *VL,
 ///
 /// @param[in] vs2Ty Type of the source vector.
 /// @param[in] isMasked Whether the intrinsic should be masked.
-std::pair<llvm::Intrinsic::RISCVIntrinsics, unsigned> getGatherIntrinsic(
+static std::pair<llvm::Intrinsic::RISCVIntrinsics, unsigned> getGatherIntrinsic(
     llvm::Type *vs2Ty, bool isMasked = false) {
   assert(!vs2Ty->isPtrOrPtrVectorTy() &&
          "Cannot get gather intrinsic for a vector of pointers");
@@ -268,7 +267,7 @@ std::pair<llvm::Intrinsic::RISCVIntrinsics, unsigned> getGatherIntrinsic(
 /// @brief Returns the `v?slide1up.v?` intrinsic variation to use.
 ///
 /// @param[in] vs2Ty Type of the source vector.
-llvm::Intrinsic::RISCVIntrinsics getSlideUpIntrinsic(llvm::Type *vs2Ty) {
+static llvm::Intrinsic::RISCVIntrinsics getSlideUpIntrinsic(llvm::Type *vs2Ty) {
   assert(!vs2Ty->isPtrOrPtrVectorTy() &&
          "Cannot get gather intrinsic for a vector of pointers");
 
@@ -281,8 +280,6 @@ llvm::Intrinsic::RISCVIntrinsics getSlideUpIntrinsic(llvm::Type *vs2Ty) {
   }
   return Opc;
 }
-
-}  // namespace
 
 llvm::Value *TargetInfoRISCV::createScalableExtractElement(
     llvm::IRBuilder<> &B, vecz::VectorizationContext &Ctx,

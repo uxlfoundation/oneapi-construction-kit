@@ -281,9 +281,11 @@ struct RTZHelper {
   }
 };
 
+}  // namespace
+
 // Conversion from a larger floating point type to a smaller one
 template <typename T, typename U, typename H>
-inline T DownFloatConvertHelper(const U payload) {
+static inline T DownFloatConvertHelper(const U payload) {
   using FPT = abacus::internal::FloatingPoint<T>;
   using FPU = abacus::internal::FloatingPoint<U>;
   using UnsignedType = typename TypeTraits<U>::UnsignedType;
@@ -424,6 +426,8 @@ inline T DownFloatConvertHelper(const U payload) {
   // construct the floating point and return it
   return out.Get();
 }
+
+namespace {
 
 // conversion helpers:
 // for the default rounding mode there's nothing to do
@@ -710,58 +714,59 @@ struct convert_sat_choice<T, U, C, abacus_half, NotFromInt, IsToInt,
 };
 #endif
 
+}  // namespace
+
 // convert_*
 template <typename T, typename U>
-T convert(const U &u) {
+static T convert(const U &u) {
   return DefaultConvertHelper<T, U>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rte(const U &u) {
+static T convert_rte(const U &u) {
   return ConvertHelper<T, U, RTEHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtn(const U &u) {
+static T convert_rtn(const U &u) {
   return ConvertHelper<T, U, RTNHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtz(const U &u) {
+static T convert_rtz(const U &u) {
   return ConvertHelper<T, U, RTZHelper>::_(u);
 }
 
 template <typename T, typename U>
-T convert_rtp(const U &u) {
+static T convert_rtp(const U &u) {
   return ConvertHelper<T, U, RTPHelper>::_(u);
 }
 
 // convert_sat*
 template <typename T, typename U>
-T convert_sat(const U &u) {
+static T convert_sat(const U &u) {
   return convert_sat_choice<T, U, DefaultConvertHelper<T, U>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rte(const U &u) {
+static T convert_sat_rte(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTEHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtn(const U &u) {
+static T convert_sat_rtn(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTNHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtz(const U &u) {
+static T convert_sat_rtz(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTZHelper>>::_(u);
 }
 
 template <typename T, typename U>
-T convert_sat_rtp(const U &u) {
+static T convert_sat_rtp(const U &u) {
   return convert_sat_choice<T, U, ConvertHelper<T, U, RTPHelper>>::_(u);
 }
-}  // namespace
 
 #define DEF_WITH_BOTH_TYPES(IN_TYPE, OUT_TYPE)                        \
   abacus_##OUT_TYPE ABACUS_API __abacus_convert_##OUT_TYPE(           \

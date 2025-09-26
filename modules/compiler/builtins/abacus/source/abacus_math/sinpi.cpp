@@ -27,7 +27,6 @@
 
 namespace {
 
-namespace {
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct helper;
 
@@ -87,8 +86,10 @@ struct helper<T, abacus_double> {
 };
 #endif  // __CA_BUILTINS_DOUBLE_SUPPORT
 
+}  // namespace
+
 template <typename T>
-T sinpi(const T x) {
+static T sinpi(const T x) {
   typedef typename TypeTraits<T>::SignedType SignedType;
 
   T xAbs = __abacus_fabs(x);
@@ -105,8 +106,6 @@ T sinpi(const T x) {
 
   return __abacus_select(result, -result, abacus::internal::is_odd(xAbs));
 }
-}  // namespace
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_sinpi(abacus_half x) { return sinpi<>(x); }

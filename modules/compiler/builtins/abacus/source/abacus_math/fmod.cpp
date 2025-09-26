@@ -21,7 +21,6 @@
 #include <abacus/abacus_type_traits.h>
 #include <abacus/internal/fmod_unsafe.h>
 
-namespace {
 // Float: our fmod algorithm;
 // 1. deconstructs both our input floats x & m
 // 2. Figures out the difference in the exponents
@@ -33,7 +32,7 @@ namespace {
 //    * And then one cleanup for (x exponent - m exponent) % 40
 // 4. Reconstructs the result from the new mantissa + m's exponent
 template <typename T>
-T fmod_helper(const T x, const T m) {
+static T fmod_helper(const T x, const T m) {
   typedef typename TypeTraits<T>::SignedType SignedType;
   const T result = abacus::internal::fmod_unsafe(x, m);
 
@@ -41,7 +40,6 @@ T fmod_helper(const T x, const T m) {
       (__abacus_isfinite(x) == 0) | __abacus_isnan(m) | (m == (T)0);
   return __abacus_select(__abacus_copysign(result, x), FPShape<T>::NaN(), cond);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_fmod(abacus_half x, abacus_half m) {

@@ -20,7 +20,7 @@
 #include <host/target.h>
 
 namespace host {
-namespace {
+
 /// @brief Create a static instance of a host compiler info for the template
 /// argument combination.
 ///
@@ -32,7 +32,7 @@ namespace {
 ///
 /// @return pointer to static device info for the arch and os combination.
 template <host::arch arch, host::os os>
-compiler::Info *getCrossCompilerInfo(const char *device_name) {
+static compiler::Info *getCrossCompilerInfo(const char *device_name) {
   // A new static device info and compiler info will be created each time the
   // template is instantiated.
   static host::device_info_s device_info{arch, os, false /* native */,
@@ -40,7 +40,6 @@ compiler::Info *getCrossCompilerInfo(const char *device_name) {
   static HostInfo compiler_info{arch, os, &device_info};
   return &compiler_info;
 }
-}  // namespace
 
 uint8_t HostInfo::arches = 0;
 

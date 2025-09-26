@@ -37,15 +37,14 @@ using namespace llvm;
 
 #define DEBUG_TYPE "replace-module-scope-vars"
 
-namespace {
 using AlignIntTy = uint64_t;
 
 // Creates and returns a new GEP instruction, inserted before input parameter
 // 'inst'. This GEP points to the element at 'index' of the struct living at
 // the final argument of each function.
-GetElementPtrInst *generateStructGEP(Instruction &inst,
-                                     StructType *funcsStructTy,
-                                     unsigned index) {
+static GetElementPtrInst *generateStructGEP(Instruction &inst,
+                                            StructType *funcsStructTy,
+                                            unsigned index) {
   // find the function the instruction is in
   auto func = inst.getFunction();
 
@@ -67,7 +66,7 @@ GetElementPtrInst *generateStructGEP(Instruction &inst,
 
 // Given the type of a __local variable about to be added to the
 // struct function calculates and returns the alignment of the type.
-AlignIntTy calculateTypeAlign(Type *type, const DataLayout &layout) {
+static AlignIntTy calculateTypeAlign(Type *type, const DataLayout &layout) {
   // Get underlying type if variable is an array
   while (type->isArrayTy()) {
     type = type->getArrayElementType();
@@ -97,7 +96,7 @@ AlignIntTy calculateTypeAlign(Type *type, const DataLayout &layout) {
 // Variables in the local address space not passed as arguments can only be
 // declared in the outermost scope of a kernel function. Here we find the kernel
 // function the local address space global resides in.
-Function *determineKernel(GlobalVariable &global) {
+static Function *determineKernel(GlobalVariable &global) {
   auto global_user = *(global.user_begin());
   if (auto instruction = dyn_cast<Instruction>(global_user)) {
     return instruction->getFunction();
@@ -112,6 +111,8 @@ Function *determineKernel(GlobalVariable &global) {
   return nullptr;
 }
 
+namespace {
+
 // Information associated to with a local address space module scope variable
 // that is needed to update it's debug info metadata
 struct GlobalVarDebugInfoWrapper final {
@@ -123,9 +124,11 @@ struct GlobalVarDebugInfoWrapper final {
   Function *function;
 };
 
+}  // namespace
+
 // Check if a user is an instruction and if so add it to the Visited, Worklist
 // and FuncsToClone. If it's not an instruction repeat for all its users
-void checkUsersForInstructions(
+static void checkUsersForInstructions(
     User *user, llvm::SmallPtrSet<llvm::Function *, 4> &Visited,
     llvm::SmallVector<llvm::Function *, 4> &FuncsToClone,
     llvm::SmallPriorityWorklist<llvm::Function *, 4> &Worklist) {
@@ -157,9 +160,9 @@ void checkUsersForInstructions(
 /// This recurses through all the users of the local variables to look for any
 /// functions which use them as well as assuming that the top level kernels must
 /// have them.
-bool addParamToAllRequiredFunctions(llvm::Module &module,
-                                    llvm::Type *const newParamType,
-                                    const llvm::AttributeSet &newParamAttrs) {
+static bool addParamToAllRequiredFunctions(
+    llvm::Module &module, llvm::Type *const newParamType,
+    const llvm::AttributeSet &newParamAttrs) {
   llvm::SmallPtrSet<llvm::Function *, 4> Visited;
   llvm::SmallVector<llvm::Function *, 4> FuncsToClone;
   llvm::SmallPriorityWorklist<llvm::Function *, 4> Worklist;
@@ -222,8 +225,6 @@ bool addParamToAllRequiredFunctions(llvm::Module &module,
       },
       nullptr /*updateMetaDataCallback*/);
 }
-
-}  // namespace
 
 PreservedAnalyses compiler::utils::ReplaceLocalModuleScopeVariablesPass::run(
     Module &M, ModuleAnalysisManager &) {

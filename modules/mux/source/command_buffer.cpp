@@ -18,9 +18,8 @@
 #include "mux/utils/id.h"
 #include "tracer/tracer.h"
 
-namespace {
-bool waitlistIsInvalid(uint32_t num_sync_points_in_wait_list,
-                       const mux_sync_point_t *sync_point_wait_list) {
+static bool waitlistIsInvalid(uint32_t num_sync_points_in_wait_list,
+                              const mux_sync_point_t *sync_point_wait_list) {
   if (!num_sync_points_in_wait_list ^ !sync_point_wait_list) {
     return true;
   }
@@ -32,7 +31,6 @@ bool waitlistIsInvalid(uint32_t num_sync_points_in_wait_list,
   }
   return false;
 }
-}  // anonymous namespace
 
 mux_result_t muxCreateCommandBuffer(mux_device_t device,
                                     mux_callback_info_t callback_info,

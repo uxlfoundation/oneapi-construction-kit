@@ -23,10 +23,10 @@
 #include <windows.h>
 #endif
 
-namespace {
 // Callback function for reading printf buffer data from device, unpacking
 // it, and printing it from host to stdout
-void PerformPrintf(mux_queue_t, mux_command_buffer_t, void *const user_data) {
+static void PerformPrintf(mux_queue_t, mux_command_buffer_t,
+                          void *const user_data) {
   auto printf_info = static_cast<printf_info_t *>(user_data);
   uint8_t *pack{};
 
@@ -86,15 +86,15 @@ void PerformPrintf(mux_queue_t, mux_command_buffer_t, void *const user_data) {
 // won't be called again, i.e. the clEnqueueNDRangeKernel command was made
 // rather than clCommandNDRangeKernelKHR, which could be enqueued multiple
 // times.
-void PrintfAndFree(mux_queue_t queue, mux_command_buffer_t command_buffer,
-                   void *const user_data) {
+static void PrintfAndFree(mux_queue_t queue,
+                          mux_command_buffer_t command_buffer,
+                          void *const user_data) {
   PerformPrintf(queue, command_buffer, user_data);
 
   // Destroy resources as part of callback
   auto printf_info = static_cast<printf_info_t *>(user_data);
   delete printf_info;
 }
-}  // namespace
 
 printf_info_t::~printf_info_t() {
   if (buffer) {

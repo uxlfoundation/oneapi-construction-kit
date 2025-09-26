@@ -68,17 +68,16 @@ cargo::optional<uint64_t> loader::Relocation::StubMap::getTarget(
                              : cargo::nullopt;
 }
 
-namespace {
 // Gets the [first, first+size) bits of value as a size-bit integer.
 template <typename Integer>
-inline Integer getBitRange(const Integer &value, int first, int size) {
+static inline Integer getBitRange(const Integer &value, int first, int size) {
   return (value >> first) & ((1 << size) - 1);
 }
 
 // Sets the [first, first+size) bits of value to subvalue's [0, size) bits.
 template <typename Integer>
-inline Integer setBitRange(Integer value, Integer subvalue, int first,
-                           int size) {
+static inline Integer setBitRange(Integer value, Integer subvalue, int first,
+                                  int size) {
   Integer mask = ((1 << size) - 1) << first;
   return (value & ~mask) | ((subvalue << first) & mask);
 }
@@ -92,7 +91,7 @@ inline Integer setBitRange(Integer value, Integer subvalue, int first,
 // RISC-V ELF psABI document, but relevant for other architectures:
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#calculation-symbols
 template <typename T>
-cargo::optional<std::tuple<uint8_t *, T, T>> decomposeRelocation(
+static cargo::optional<std::tuple<uint8_t *, T, T>> decomposeRelocation(
     const loader::Relocation &r, loader::ElfMap &map) {
   static_assert(std::is_same_v<T, uint32_t> || std::is_same_v<T, uint64_t>,
                 "Invalid relocation size");
@@ -131,7 +130,7 @@ cargo::optional<std::tuple<uint8_t *, T, T>> decomposeRelocation(
                          symbol_target_address);
 }
 
-bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
+static bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
   auto relocation_data = decomposeRelocation<uint32_t>(r, map);
   if (!relocation_data) {
     return false;
@@ -202,7 +201,7 @@ bool resolveX86_32(const loader::Relocation &r, loader::ElfMap &map) {
   return true;
 }
 
-bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
+static bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
   auto relocation_data = decomposeRelocation<uint64_t>(r, map);
   if (!relocation_data) {
     return false;
@@ -291,8 +290,8 @@ bool resolveX86_64(const loader::Relocation &r, loader::ElfMap &map) {
 }
 
 // assumes little-endian Arm, because big-endian is extremely rare
-bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
-                loader::Relocation::StubMap &stubs) {
+static bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
+                       loader::Relocation::StubMap &stubs) {
   auto relocation_data = decomposeRelocation<uint32_t>(r, map);
   if (!relocation_data) {
     return false;
@@ -385,8 +384,8 @@ bool resolveArm(const loader::Relocation &r, loader::ElfMap &map,
 }
 
 // assumes little-endian AArch64, because big-endian is extremely rare
-bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
-                    loader::Relocation::StubMap &stubs) {
+static bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
+                           loader::Relocation::StubMap &stubs) {
 #ifndef NDEBUG
   auto symbol_name =
       map.getSymbolName(r.symbol_index).value_or("<unknown symbol>");
@@ -659,7 +658,7 @@ bool resolveAArch64(const loader::Relocation &r, loader::ElfMap &map,
 }
 
 // Sets the immediate field of an I-type instruction [31:20]
-void writeITypeImm(uint32_t imm, uint8_t *insn_addr) {
+static void writeITypeImm(uint32_t imm, uint8_t *insn_addr) {
   uint32_t insn;
   cargo::read_little_endian(&insn, insn_addr);
   insn = setBitRange(insn, imm, 20, 12);
@@ -667,7 +666,7 @@ void writeITypeImm(uint32_t imm, uint8_t *insn_addr) {
 }
 
 // Sets the immediate field of an S-type instruction [31:25, 11:7]
-void writeSTypeImm(uint32_t imm, uint8_t *insn_addr) {
+static void writeSTypeImm(uint32_t imm, uint8_t *insn_addr) {
   uint32_t insn;
   cargo::read_little_endian(&insn, insn_addr);
   insn = setBitRange(insn, imm >> 5, 25, 7);
@@ -676,26 +675,26 @@ void writeSTypeImm(uint32_t imm, uint8_t *insn_addr) {
 }
 
 // Sets the immediate field of an U-type instruction [31:12]
-void writeUTypeImm(uint32_t imm, uint8_t *insn_addr) {
+static void writeUTypeImm(uint32_t imm, uint8_t *insn_addr) {
   uint32_t insn;
   cargo::read_little_endian(&insn, insn_addr);
   insn = setBitRange(insn, imm, 12, 20);
   cargo::write_little_endian(insn, insn_addr);
 }
 
-uint32_t getLo12(uint64_t addr) {
+static uint32_t getLo12(uint64_t addr) {
   return static_cast<uint32_t>(getBitRange(addr, 0, 12));
 }
 
 // Sign extends a number in the bottom 'b' bits of a 64-bit number back up to
 // a 64-bit number.
-int64_t signExtendN(uint64_t val, unsigned b) {
+static int64_t signExtendN(uint64_t val, unsigned b) {
   CARGO_ASSERT(b > 0, "bit-width cannot be zero");
   CARGO_ASSERT(b <= 64, "bit-width out of range");
   return static_cast<int64_t>(val << (64 - b)) >> (64 - b);
 }
 
-cargo::optional<uint32_t> getHi20(int64_t addr) {
+static cargo::optional<uint32_t> getHi20(int64_t addr) {
   // See documentation for why we add 0x800 here:
   // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#absolute-addresses
   // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#pc-relative-symbol-addresses
@@ -712,8 +711,8 @@ cargo::optional<uint32_t> getHi20(int64_t addr) {
 }
 
 // assumes little-endian RISCV
-bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
-                  const std::vector<loader::Relocation> &relocations) {
+static bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
+                         const std::vector<loader::Relocation> &relocations) {
   // The ALIGN relocation is special and is related to keeping alignment with
   // nops after linking. Currently skip this as we believe this is not required.
   // Additionally it has no symbol which decomposeRelocation does not handle, so
@@ -990,8 +989,6 @@ bool resolveRISCV(const loader::Relocation &r, loader::ElfMap &map,
 
   return true;
 }
-
-}  // namespace
 
 template <loader::Relocation::EntryType ET32,
           loader::Relocation::EntryType ET64>

@@ -40,15 +40,14 @@ static cl::opt<bool> HandleDeclOnlyCalls(
     "vecz-handle-declaration-only-calls",
     cl::desc("Go ahead and handle calls to declaration-only functions"));
 
-namespace {
-
 /// @brief Determine whether the instruction can be vectorized or not.
 ///
 /// @param[in] I Instruction to check for vectorizability.
 /// @param[in] Ctx VectorizationContext for BuiltinInfo.
 ///
 /// @return true if I can be vectorized, false otherwise.
-bool canVectorize(const Instruction &I, const VectorizationContext &Ctx) {
+static bool canVectorize(const Instruction &I,
+                         const VectorizationContext &Ctx) {
   // Certain instructions just cannot appear.
   switch (I.getOpcode()) {
     default:
@@ -99,7 +98,7 @@ bool canVectorize(const Instruction &I, const VectorizationContext &Ctx) {
 /// @param[in] Ctx VectorizationContext for BuiltinInfo.
 ///
 /// @return true if F can be vectorized, false otherwise.
-bool canVectorize(const Function &F, const VectorizationContext &Ctx) {
+static bool canVectorize(const Function &F, const VectorizationContext &Ctx) {
   // Do not vectorize functions with the OptNone attribute. Also do not
   // vectorize functions with the NoInline attribute, since conceptually, the
   // vectorized kernel calls the original kernel in a loop, and then that gets
@@ -119,8 +118,6 @@ bool canVectorize(const Function &F, const VectorizationContext &Ctx) {
   }
   return true;
 }
-
-}  // namespace
 
 VectorizableFunctionAnalysis::Result VectorizableFunctionAnalysis::run(
     llvm::Function &F, llvm::FunctionAnalysisManager &AM) {

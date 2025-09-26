@@ -21,6 +21,7 @@
 #include <abacus/internal/is_integer_quick.h>
 
 namespace {
+
 template <typename T, unsigned N = TypeTraits<T>::num_elements>
 struct helper;
 
@@ -83,11 +84,12 @@ struct helper<T, 1u> {
   }
 };
 
+}  // namespace
+
 template <typename T>
-T ceil(const T x) {
+static T ceil(const T x) {
   return helper<T>::_(x);
 }
-}  // namespace
 
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 abacus_half ABACUS_API __abacus_ceil(abacus_half x) { return ceil<>(x); }

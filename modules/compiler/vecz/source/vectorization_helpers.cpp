@@ -35,9 +35,7 @@
 using namespace llvm;
 using namespace vecz;
 
-namespace {
-
-Function *declareFunction(const VectorizationUnit &VU) {
+static Function *declareFunction(const VectorizationUnit &VU) {
   Module &Module = VU.context().module();
   const Function *const ScalarFn = VU.scalarFunction();
   const ElementCount SimdWidth = VU.width();
@@ -66,8 +64,8 @@ Function *declareFunction(const VectorizationUnit &VU) {
 /// searches for the node that contains the scalar kernel, and copies all its
 /// metadata, which the exception of the Function itself, which is replaced by
 /// the vectorized kernel.
-void cloneOpenCLNamedMetadataHelper(const VectorizationUnit &VU,
-                                    const std::string &NodeName) {
+static void cloneOpenCLNamedMetadataHelper(const VectorizationUnit &VU,
+                                           const std::string &NodeName) {
   const Module &M = VU.context().module();
 
   // Try to get the OpenCL metadata
@@ -120,7 +118,7 @@ void cloneOpenCLNamedMetadataHelper(const VectorizationUnit &VU,
 /// into the vectorized function.
 ///
 /// @param[in,out] ValueMap Map to update with the arguments.
-SmallVector<Instruction *, 2> createArgumentPlaceholders(
+static SmallVector<Instruction *, 2> createArgumentPlaceholders(
     const VectorizationUnit &VU, Function *VecFunc,
     ValueToValueMapTy &ValueMap) {
   SmallVector<Instruction *, 2> Placeholders;
@@ -144,8 +142,6 @@ SmallVector<Instruction *, 2> createArgumentPlaceholders(
   }
   return Placeholders;
 }
-
-}  // namespace
 
 namespace vecz {
 std::string getVectorizedFunctionName(StringRef ScalarName, ElementCount VF,

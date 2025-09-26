@@ -31,7 +31,6 @@
 
 using namespace kts::ucl;
 
-namespace {
 // The different config parameters we want to test the Cartesian product of
 const std::array<unsigned, 6> vector_widths{{1, 2, 3, 4, 8, 16}};
 const std::array<bool, 2> sat{{true, false}};
@@ -39,7 +38,7 @@ const std::array<RoundingMode, 5> roundings{
     {RoundingMode::NONE, RoundingMode::RTE, RoundingMode::RTP,
      RoundingMode::RTZ, RoundingMode::RTN}};
 
-cl_float roundFloat(const cl_float in, const RoundingMode rounding) {
+static cl_float roundFloat(const cl_float in, const RoundingMode rounding) {
   switch (rounding) {
     case RoundingMode::RTE:
       return std::rint(in);
@@ -53,6 +52,8 @@ cl_float roundFloat(const cl_float in, const RoundingMode rounding) {
       return in;
   }
 }
+
+namespace {
 
 // Reference functions for explicit conversions
 template <typename StrongFrom, typename StrongTo>
@@ -358,31 +359,35 @@ struct HalfToGentypeConversions : public ExecutionWithParam<unsigned> {
   }
 };
 
+}  // namespace
+
 // Fills input buffer with integer data to test
 template <typename T>
-void PopulateData(std::vector<T> &buffer) {
+static void PopulateData(std::vector<T> &buffer) {
   auto env = ucl::Environment::instance;
   env->GetInputGenerator().GenerateIntData(buffer);
 }
 
 // std::uniform_distribution isn't defined for char types, just test them all
-void PopulateData(std::vector<cl_char> &buffer) {
+static void PopulateData(std::vector<cl_char> &buffer) {
   std::iota(buffer.begin(), buffer.end(), std::numeric_limits<cl_char>::min());
 }
 
-void PopulateData(std::vector<cl_uchar> &buffer) {
+static void PopulateData(std::vector<cl_uchar> &buffer) {
   std::iota(buffer.begin(), buffer.end(), std::numeric_limits<cl_uchar>::min());
 }
 
-void PopulateData(std::vector<cl_float> &buffer) {
+static void PopulateData(std::vector<cl_float> &buffer) {
   auto env = ucl::Environment::instance;
   env->GetInputGenerator().GenerateFloatData(buffer);
 }
 
-void PopulateData(std::vector<cl_double> &buffer) {
+static void PopulateData(std::vector<cl_double> &buffer) {
   auto env = ucl::Environment::instance;
   env->GetInputGenerator().GenerateFloatData(buffer);
 }
+
+namespace {
 
 // Fixture for testing CL types being converted to cl_half
 struct GentypeToHalfConversions : public ExecutionWithParam<unsigned> {
@@ -722,6 +727,7 @@ class ExplicitConvertTest : public ExecutionWithParam<ConvertConfigTriple> {
     RunGeneric1D(work_items);
   }
 };
+
 }  // namespace
 
 using HalfToBoolConversions = HalfToGentypeConversions;

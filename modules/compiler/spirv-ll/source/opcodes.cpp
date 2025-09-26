@@ -22,13 +22,11 @@
 
 #include <unordered_map>
 
-namespace {
-spv::Op getOpCode(const uint32_t *data, bool endianSwap) {
+static spv::Op getOpCode(const uint32_t *data, bool endianSwap) {
   return static_cast<spv::Op>(endianSwap
                                   ? cargo::byte_swap(*data) & spv::OpCodeMask
                                   : *data & spv::OpCodeMask);
 }
-}  // namespace
 
 namespace spirv_ll {
 OpCode::OpCode(const iterator &iter)

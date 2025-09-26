@@ -391,7 +391,6 @@ into our polynomial estimates, so instead of having a polynomial for sin(x) we
 have a polynomial for sin(pi/4*x) instead.
 */
 
-namespace {
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // High precision 4/pi, 48 base 2 digits represented as hex  96 + 127 = 223
 ABACUS_CONSTANT static abacus_ushort payloadH[4] = {0x0000, 0xA2F9, 0x836E,
@@ -413,20 +412,25 @@ ABACUS_CONSTANT static abacus_ulong payloadD[20] = {
     0x4F463F669E5FEA2D, 0x7527BAC7EBE5F17B, 0x3D0739F78A5292EA,
     0x6BFB5FB11F8D5D08, 0x56033046FC7B6BAB};
 
+namespace {
+
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct payne_hanek_helper;
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct payne_hanek_helper_half;
 
+}  // namespace
+
 template <typename T>
-inline typename TypeTraits<T>::UnsignedType extractMantissa(const T &x) {
+static inline typename TypeTraits<T>::UnsignedType extractMantissa(const T &x) {
   return I_GET_MANT(
       abacus::detail::cast::as<typename TypeTraits<T>::UnsignedType>(x));
 }
 
 template <typename T>
-inline T tan_naive_reduction(T x, typename TypeTraits<T>::SignedType *octet) {
+static inline T tan_naive_reduction(T x,
+                                    typename TypeTraits<T>::SignedType *octet) {
   //'Naive' range reduction:
   // Reduce x in the interval [-pi/4,pi/4] by doing modulo of Pi/2 from the
   // original value.
@@ -482,6 +486,8 @@ inline T tan_naive_reduction(T x, typename TypeTraits<T>::SignedType *octet) {
 
   return __abacus_fabs(cw);
 }
+
+namespace {
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct ph_middle_filter_extract;
@@ -584,8 +590,10 @@ struct ph_middle_filter_extract<T, abacus_ulong> {
   }
 };
 
+}  // namespace
+
 template <typename T>
-inline void ph_middle_filter(const T e, T &hi, T &mi, T &lo) {
+static inline void ph_middle_filter(const T e, T &hi, T &mi, T &lo) {
   typedef typename TypeTraits<T>::ElementType ElementType;
 
   const ElementType size = sizeof(ElementType) * 8;
@@ -615,7 +623,7 @@ inline void ph_middle_filter(const T e, T &hi, T &mi, T &lo) {
 #ifdef __CA_BUILTINS_HALF_SUPPORT
 // Should overload the half variations where we need less bits
 template <typename T>
-inline void ph_middle_filter_half(const T e, T &hi, T &mi, T &lo) {
+static inline void ph_middle_filter_half(const T e, T &hi, T &mi, T &lo) {
   using ElementType = typename TypeTraits<T>::ElementType;
   using SignedType = typename TypeTraits<T>::SignedType;
 
@@ -652,8 +660,8 @@ inline void ph_middle_filter_half(const T e, T &hi, T &mi, T &lo) {
 // We still need plenty of digits of pi though as the overflow from the lower
 // bits have an effect. (this is where we use mul_hi)
 template <typename T>
-inline void ph_reduce(const T &hi, const T &mi, const T &lo, const T &i, T &ohi,
-                      T &olo) {
+static inline void ph_reduce(const T &hi, const T &mi, const T &lo, const T &i,
+                             T &ohi, T &olo) {
   // We want to multiply our hi/mi/lo float by i, discarding the top and bottom
   // as they are inaccurate
   typedef typename TypeTraits<T>::SignedType SignedType;
@@ -672,7 +680,7 @@ inline void ph_reduce(const T &hi, const T &mi, const T &lo, const T &i, T &ohi,
 // This function extracts from a 64bit number the 32 bits starting at bit
 // 'firstBit'.
 template <typename T>
-inline T ph_extract_slice(const T &hi, const T &lo, const T &firstBit) {
+static inline T ph_extract_slice(const T &hi, const T &lo, const T &firstBit) {
   // for floating point representation fistBit is always < 32
   const T shift = (T)32u - firstBit;
   const T invShiftMask = ~((T)0xffffffffu << firstBit);
@@ -682,6 +690,8 @@ inline T ph_extract_slice(const T &hi, const T &lo, const T &firstBit) {
 
   return rHi | rLo;
 }
+
+namespace {
 
 template <typename T, typename E = typename TypeTraits<T>::ElementType>
 struct ph_extract_fract;
@@ -1353,6 +1363,7 @@ struct payne_hanek_helper_half<T, abacus_half> {
   }
 };
 #endif  // __CA_BUILTINS_HALF_SUPPORT
+
 }  // namespace
 
 namespace abacus {

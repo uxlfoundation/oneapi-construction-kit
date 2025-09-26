@@ -20,9 +20,8 @@
 #include <abacus/abacus_config.h>
 #include <abacus/abacus_type_traits.h>
 
-namespace {
 template <typename T, typename UInt = typename TypeTraits<T>::UnsignedType>
-inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
+static inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
   using Shape = FPShape<T>;
 
   const UInt ix = abacus::detail::cast::as<UInt>(x);
@@ -36,7 +35,6 @@ inline UInt deconstruct_helper(T x, UInt *unBiasedExp) {
   const UInt shift = ix << 1;
   return __abacus_select(mantissa, shift, zeroExp);
 }
-}  // namespace
 
 namespace abacus {
 namespace internal {
