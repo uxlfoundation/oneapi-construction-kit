@@ -1,0 +1,147 @@
+From 1940844fb8e77df8343203b29a5308823d11650d Mon Sep 17 00:00:00 2001
+From: Colin Davidson <colin.davidson@codeplay.com>
+Date: Fri, 29 Aug 2025 13:59:14 +0100
+Subject: [PATCH] Update lit tests
+
+---
+ .../llvm/VectorPredication/packetize_mask_varying.ll |  8 ++------
+ .../test/lit/llvm/inlined_function_debug_info.ll     |  3 +--
+ .../vecz/test/lit/llvm/insert_element_debug_info.ll  |  3 +--
+ .../vecz/test/lit/llvm/irreducible_loop.ll           | 12 ++----------
+ .../vecz/test/lit/llvm/packetization_debug_info.ll   |  3 +--
+ .../vecz/test/lit/llvm/phi_node_debug_info.ll        |  3 +--
+ .../vecz/test/lit/llvm/scalarization_debug_info.ll   |  3 +--
+ 7 files changed, 9 insertions(+), 26 deletions(-)
+
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/VectorPredication/packetize_mask_varying.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/VectorPredication/packetize_mask_varying.ll
+index 5c1df71ed947..0ce65b9f4ca0 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/VectorPredication/packetize_mask_varying.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/VectorPredication/packetize_mask_varying.ll
+@@ -14,8 +14,7 @@
+ ;
+ ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k mask_varying -vecz-scalable -vecz-simd-width=4 -vecz-choices=VectorPredication -S < %s | FileCheck %t
++; RUN: veczc -k mask_varying -vecz-scalable -vecz-simd-width=4 -vecz-choices=VectorPredication -S < %s | FileCheck %s
+ 
+ target triple = "spir64-unknown-unknown"
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+@@ -40,10 +39,7 @@ if.end:
+ ; CHECK: define spir_kernel void @__vecz_nxv4_vp_mask_varying
+ ; CHECK: [[CMP:%.*]] = icmp slt <vscale x 4 x i64> %{{.*}},
+ ; CHECK: [[RED:%.*]] = call i1 @llvm.vp.reduce.or.nxv4i1(i1 false, <vscale x 4 x i1> [[CMP]], {{.*}}, i32 {{.*}})
+-; CHECK-LT20: [[REINS:%.*]] = insertelement <4 x i1> poison, i1 [[RED]], {{(i32|i64)}} 0
+-; CHECK-LT20: [[RESPLAT:%.*]] = shufflevector <4 x i1> [[REINS]], <4 x i1> poison, <4 x i32> zeroinitializer
+-; CHECK-LT20: [[VAL:%.*]] = call <4 x i32> @__vecz_b_masked_load16_Dv4_ju3ptrDv4_b(ptr %aptr, <4 x i1> [[RESPLAT]])
+-; CHECK-GE20: [[VAL:%.*]] = load <4 x i32>, ptr %aptr
++; CHECK: [[VAL:%.*]] = load <4 x i32>, ptr %aptr
+ }
+ 
+ declare i64 @__mux_get_global_id(i32)
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/inlined_function_debug_info.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/inlined_function_debug_info.ll
+index c14a5a421f95..ce041960424b 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/inlined_function_debug_info.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/inlined_function_debug_info.ll
+@@ -16,8 +16,7 @@
+ 
+ ; Check VECZ debug info for inlined DILocation metadata nodes
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k functions_one -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | FileCheck %t
++; RUN: veczc -k functions_one -vecz-passes=builtin-inlining -vecz-simd-width=4 -S < %s | FileCheck %s
+ 
+ ; ModuleID = '/tmp/inlined_function.ll'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/insert_element_debug_info.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/insert_element_debug_info.ll
+index 5f82e99e6d58..a0a72bfe7271 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/insert_element_debug_info.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/insert_element_debug_info.ll
+@@ -18,8 +18,7 @@
+ ; intrinsics across all lanes even when scalarization masks disable some
+ ; of the lanes. This occurs when we scalarize insertelement instructions.
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k unaligned_load -vecz-passes="function(instcombine,adce),scalarize,packetizer,instcombine" -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | FileCheck %t
++; RUN: veczc -k unaligned_load -vecz-passes="function(instcombine,adce),scalarize,packetizer,instcombine" -vecz-simd-width=4 -vecz-choices=FullScalarization -S < %s | FileCheck %s
+ 
+ ; ModuleID = 'kernel.opencl'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/irreducible_loop.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/irreducible_loop.ll
+index e81e139e52da..770a31740a8b 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/irreducible_loop.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/irreducible_loop.ll
+@@ -14,8 +14,7 @@
+ ;
+ ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k irreducible_loop -S < %s | FileCheck %t
++; RUN: veczc -k irreducible_loop -S < %s | FileCheck %s
+ 
+ ; ModuleID = 'Unknown buffer'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+@@ -49,17 +48,10 @@ declare i64 @__mux_get_global_id(i32)
+ 
+ ; CHECK: define spir_kernel void @__vecz_v4_irreducible_loop
+ ; CHECK: entry:
+-; CHECK-LT20:   br label %irr.guard.outer
+-
+-; CHECK-LT20: irr.guard.outer:                                  ; preds = %irr.guard.pure_exit, %entry
+ ; CHECK:   br label %irr.guard
+ 
+-; CHECK-LT20: do.end:                                           ; preds = %irr.guard.pure_exit
+-; CHECK-LT20:   ret void
+-
+ ; CHECK: irr.guard:
+ ; CHECK:   br i1 %{{.+}}, label %irr.guard.pure_exit, label %irr.guard
+ 
+ ; CHECK: irr.guard.pure_exit:                              ; preds = %irr.guard
+-; CHECK-LT20:   br i1 %{{.+}}, label %do.end, label %irr.guard.outer
+-; CHECK-GE20:   ret void
++; CHECK:   ret void
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll
+index eaaba4463f9e..456414d1c22f 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/packetization_debug_info.ll
+@@ -17,8 +17,7 @@
+ ; Check that debug info is preserved in the vectorized kernel.
+ ; Specifically that the packetization pass creates vector types
+ ; in the DI for the variables.
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k add -S < %s | FileCheck %t
++; RUN: veczc -k add -S < %s | FileCheck %s
+ 
+ ; ModuleID = 'kernel.opencl'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/phi_node_debug_info.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/phi_node_debug_info.ll
+index 8e6c5a095423..aabbd65bf105 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/phi_node_debug_info.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/phi_node_debug_info.ll
+@@ -17,8 +17,7 @@
+ ; Check that debug info intrinsics are correctly placed after
+ ; phi nodes.
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -vecz-simd-width=4 -S < %s | FileCheck %t
++; RUN: veczc -vecz-simd-width=4 -S < %s | FileCheck %s
+ 
+ ; ModuleID = 'kernel.opencl'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+diff --git a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/scalarization_debug_info.ll b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/scalarization_debug_info.ll
+index 85189b3651eb..2e7c1a2202c7 100644
+--- a/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/scalarization_debug_info.ll
++++ b/llvm/lib/SYCLNativeCPUUtils/compiler_passes/vecz/test/lit/llvm/scalarization_debug_info.ll
+@@ -18,8 +18,7 @@
+ ; Specifically that the scalarization pass doesn't destroy DI
+ ; intrinsics attached to the vector instructions it scalarizes.
+ 
+-; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+-; RUN: veczc -k mul2 -vecz-passes="scalarize,function(mem2reg)" -vecz-choices=FullScalarization -S < %s | FileCheck %t
++; RUN: veczc -k mul2 -vecz-passes="scalarize,function(mem2reg)" -vecz-choices=FullScalarization -S < %s | FileCheck %s
+ 
+ ; ModuleID = 'kernel.opencl'
+ target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+-- 
+2.51.0
+

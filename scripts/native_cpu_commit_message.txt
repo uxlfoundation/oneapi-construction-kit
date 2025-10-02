@@ -1,0 +1,23 @@
+[NATIVE_CPU][SYCL] Switch to using native_cpu compiler pipeline inline
+
+This brings the Native CPU compiler pipeline files directly under the ownership
+of intel/llvm. This removes the direct dependence on the oneAPI Construction
+Kit, although the history of those files still exists under intel/llvm and the
+originals still exist at
+https://github.com/uxlfoundation/oneapi-construction-kit.
+
+This is the post merge update to the the oneAPI Construction Kit move of the compiler
+pipeline files for Native CPU and replaces the original FetchContent method.
+
+`llvm/lib/SYCLNativeCPUUtils/CMakeLists.txt` was updated to remove the fetch
+content and the ugly install workaround. Missing is the lit tests for the
+pipeline tests as these refer to the use of a non-ported tool, `muxc`.
+CMakeLists.txt across was updated to use LLVM macros across `compiler_pipeline`
+and `vecz` ported code, as well as changing `NATIVECPU_USE_OCK` to be the
+default. It also applies clang-format-20 to all the .h and .cpp files brought
+in. Other than that the .cpp and .h files are unchanged. The lit tests cfg files
+were updated to fit with LLVM, and a small change was made to avoid use of
+`undef`.
+
+A brief explanation and limitations of the importing of the files are under
+`llvm/lib/SYCLNativeCPUUtils/compiler_passes/compiler_passes.rst`.
