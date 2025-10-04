@@ -14,7 +14,8 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-; RUN: veczc -w 4 -S < %s | FileCheck %s
+; RUN: %pp-llvm-ver -o %t < %s --llvm-ver %LLVMVER
+; RUN: veczc -w 4 -S < %s | FileCheck %t
 
 target triple = "spir64-unknown-unknown"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
@@ -109,10 +110,10 @@ entry:
   store i32 %call1, i32 addrspace(1)* %arrayidx, align 4
   ret void
 ; CHECK-LABEL: @__vecz_v4_reduce_add_i32_uniform(
-; LLVM is clever enough to optimize this reduction, but not when it's an
-; intrinsic. LLVM 10 does the shift-left in a vector, LLVMs 11 and 12 do it in
-; scalar.
-; CHECK: [[CALL:%.*]] = call i32 @llvm.vector.reduce.add.v4i32(<4 x i32> {{%.*}})
+; LLVM 22 is clever enough to optimize this reduction and converts the
+; reduce.add of a splat into a multiplication.
+; CHECK-LT22: [[CALL:%.*]] = call i32 @llvm.vector.reduce.add.v4i32(<4 x i32> {{%.*}})
+; CHECK-GE22: [[CALL:%.*]] = shl i32 {{%.*}}, 2
 ; CHECK: %call1 = tail call spir_func i32 @__mux_sub_group_reduce_add_i32(i32 [[CALL]])
 ; CHECK: [[INS:%.*]] = insertelement <4 x i32> poison, i32 %call1, {{(i32|i64)}} 0
 ; CHECK: [[SPLAT:%.*]] = shufflevector <4 x i32> [[INS]], <4 x i32> poison, <4 x i32> zeroinitializer
