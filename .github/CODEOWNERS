@@ -1,4 +1,4 @@
-@uxlfoundation/ock-reviewers
+* @uxlfoundation/ock-reviewers
 
 # limit the workflow to a subset of the overall reviewers for security reasons.
 .github @uxlfoundation/ock-workflow-reviewers
