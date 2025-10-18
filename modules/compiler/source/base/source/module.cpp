@@ -1278,7 +1278,11 @@ clang::FrontendInputFile BaseModule::prepareOpenCLInputFile(
   populateOpenCLOpts(instance, opencl_opts);
 
   instance.createFileManager();
+#if LLVM_VERSION_GREATER_EQUAL(22, 0)
+  instance.createSourceManager();
+#else
   instance.createSourceManager(instance.getFileManager());
+#endif
 
   auto addIncludeFile = [&](const std::string &name, const void *data,
                             const size_t size) {
