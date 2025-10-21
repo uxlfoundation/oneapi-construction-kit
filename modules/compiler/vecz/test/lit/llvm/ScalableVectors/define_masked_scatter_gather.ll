@@ -79,11 +79,11 @@ declare i64 @__mux_get_global_id(i32)
 ; Test if the masked scatter store is defined correctly
 ; CHECK: define void @__vecz_b_masked_scatter_store4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x i32>{{( %0)?}}, <vscale x 4 x ptr addrspace(1)>{{( %1)?}}, <vscale x 4 x i1>{{( %2)?}})
 ; CHECK: entry:
-; CHECK: call void @llvm.masked.scatter.nxv4i32.nxv4p1(<vscale x 4 x i32> %0, <vscale x 4 x ptr addrspace(1)> %1, i32{{( immarg)?}} 4, <vscale x 4 x i1> %2)
+; CHECK: call void @llvm.masked.scatter.nxv4i32.nxv4p1(<vscale x 4 x i32> %0, <vscale x 4 x ptr addrspace(1)> {{(align 4 )?}}%1, {{(i32 4, )?}}<vscale x 4 x i1> %2)
 ; CHECK: ret void
 
 ; Test if the masked gather load is defined correctly
 ; CHECK: define <vscale x 4 x i32> @__vecz_b_masked_gather_load4_u5nxv4ju14nxv4u3ptrU3AS1u5nxv4b(<vscale x 4 x ptr addrspace(1)>{{( %0)?}}, <vscale x 4 x i1>{{( %1)?}})
 ; CHECK: entry:
-; CHECK: %2 = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p1(<vscale x 4 x ptr addrspace(1)> %0, i32{{( immarg)?}} 4, <vscale x 4 x i1> %1, <vscale x 4 x i32> poison)
+; CHECK: %2 = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p1(<vscale x 4 x ptr addrspace(1)> {{(align 4 )?}}%0, {{(i32 4, )?}}<vscale x 4 x i1> %1, <vscale x 4 x i32> poison)
 ; CHECK: ret <vscale x 4 x i32> %2
