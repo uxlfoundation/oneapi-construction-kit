@@ -57,7 +57,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_inclusive_add_u5nxv4j(<vscal
 ; CHECK:   store <vscale x 4 x i32> %[[VEC]], {{(<vscale x 4 x i32>\*)|(ptr)}} %[[SHUFFLE_ALLOC]]
 ;------- there will be a bitcast here if pointers are typed
 ; CHECK:   %[[INDEX:.+]] = getelementptr inbounds i32, [[PTRTY:(i32\*)|ptr]] %{{.+}}, <vscale x 4 x i32> %[[MASK]]
-; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> %[[INDEX]], i32 4, <vscale x 4 x i1> {{shufflevector \(<vscale x 4 x i1> insertelement \(<vscale x 4 x i1> poison, i1 true, (i32|i64) 0\), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer\)|splat \(i1 true\)}}, <vscale x 4 x i32> poison)
+; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> {{(align 4 )?}}%[[INDEX]], {{(i32 4, )?}}<vscale x 4 x i1> {{shufflevector \(<vscale x 4 x i1> insertelement \(<vscale x 4 x i1> poison, i1 true, (i32|i64) 0\), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer\)|splat \(i1 true\)}}, <vscale x 4 x i32> poison)
 
 ; CHECK:   %[[ACCUM:.+]] = add <vscale x 4 x i32> %[[VEC]], %{{.+}}
 ; CHECK:   %[[BIT:.+]] = and <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
@@ -92,7 +92,7 @@ declare <vscale x 4 x i32> @__vecz_b_sub_group_scan_exclusive_add_u5nxv4j(<vscal
 ; CHECK:   store <vscale x 4 x i32> %[[VEC]], {{(<vscale x 4 x i32>\*)|(ptr)}} %[[SHUFFLE_ALLOC]]
 ;------- there will be a bitcast here if pointers are typed
 ; CHECK:   %[[INDEX:.+]] = getelementptr inbounds i32, [[PTRTY:(i32\*)|ptr]] %{{.+}}, <vscale x 4 x i32> %[[MASK]]
-; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> %[[INDEX]], i32 4, <vscale x 4 x i1> {{shufflevector \(<vscale x 4 x i1> insertelement \(<vscale x 4 x i1> poison, i1 true, (i32|i64) 0\), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer\)|splat \(i1 true\)}}, <vscale x 4 x i32> poison)
+; CHECK:   %[[SHUFFLE:.+]] = call <vscale x 4 x i32> @llvm.masked.gather.nxv4i32.nxv4p0{{(i32)?}}(<vscale x 4 x [[PTRTY]]> {{(align 4 )?}}%[[INDEX]], {{(i32 4, )?}}<vscale x 4 x i1> {{shufflevector \(<vscale x 4 x i1> insertelement \(<vscale x 4 x i1> poison, i1 true, (i32|i64) 0\), <vscale x 4 x i1> poison, <vscale x 4 x i32> zeroinitializer\)|splat \(i1 true\)}}, <vscale x 4 x i32> poison)
 
 ; CHECK:   %[[ACCUM:.+]] = add <vscale x 4 x i32> %[[VEC]], %{{.+}}
 ; CHECK:   %[[BIT:.+]] = and <vscale x 4 x i32> %[[MASKPHI]], %[[N_SPLAT]]

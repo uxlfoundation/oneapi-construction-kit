@@ -86,5 +86,5 @@ attributes #6 = { nounwind }
 ; Test if the masked store is defined correctly
 ; CHECK: define void @__vecz_b_masked_store4_Dv4_ju3ptrU3AS1Dv4_b(<4 x i32>{{( %0)?}}, ptr addrspace(1){{( %1)?}}, <4 x i1>{{( %2)?}})
 ; CHECK: entry:
-; CHECK: call void @llvm.masked.store.v4i32.p1(<4 x i32> %0, ptr addrspace(1) %1, i32 4, <4 x i1> %2)
+; CHECK: call void @llvm.masked.store.v4i32.p1(<4 x i32> %0, ptr addrspace(1) {{(align 4 )?}}%1, {{(i32 4, )?}}<4 x i1> %2)
 ; CHECK: ret void

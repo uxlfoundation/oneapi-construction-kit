@@ -140,7 +140,7 @@ entry:
 ; CHECK-NEXT:    [[IDX1:%.*]] = and <vscale x 128 x i32> [[IDX0]], splat (i32 31)
 ; CHECK-NEXT:    [[TMP0:%.*]] = {{s|z}}ext{{( nneg)?}} <vscale x 128 x i32> [[IDX1]] to <vscale x 128 x i64>
 ; CHECK-NEXT:    [[VEC_ALLOC:%.*]] = getelementptr inbounds float, ptr [[FIXLEN_ALLOC]], <vscale x 128 x i64> [[TMP0]]
-; CHECK-NEXT:    [[TMP1:%.*]] = call <vscale x 128 x float> @llvm.masked.gather.nxv128f32.nxv128p0(<vscale x 128 x ptr> [[VEC_ALLOC]], i32 4, <vscale x 128 x i1> splat (i1 true), <vscale x 128 x float> poison)
+; CHECK-NEXT:    [[TMP1:%.*]] = call <vscale x 128 x float> @llvm.masked.gather.nxv128f32.nxv128p0(<vscale x 128 x ptr> {{(align 4 )?}}[[VEC_ALLOC]], {{(i32 4, )?}}<vscale x 128 x i1> splat (i1 true), <vscale x 128 x float> poison)
 ; CHECK-NEXT:    [[CALL:%.*]] = tail call i64 @__mux_get_global_id(i32 0)
 ; CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr <32 x float>, ptr addrspace(1) [[IN:%.*]], i64 [[CALL]]
 ; CHECK-NEXT:    [[TMP3:%.*]] = load <vscale x 128 x float>, ptr addrspace(1) [[ARRAYIDX]], align 64

@@ -57,7 +57,7 @@ declare <4 x i32> @__vecz_b_sub_group_scan_inclusive_add_vp_Dv4_jj(<4 x i32>, i3
 ; CHECK:   %[[VLINS:.+]] = insertelement <4 x i32> poison, i32 %1, {{i32|i64}} 0
 ; CHECK:   %[[VLSPLAT:.+]] = shufflevector <4 x i32> %[[VLINS]], <4 x i32> poison, <4 x i32> zeroinitializer
 ; CHECK:   %[[VLMASK:.+]] = icmp ult <4 x i32> <i32 0, i32 1, i32 2, i32 3>, %[[VLSPLAT]]
-; CHECK:   %[[SHUFFLE:.+]] = call <4 x i32> @llvm.masked.gather.v4i32.v4p0{{(i32)?}}(<4 x [[PTRTY]]> %[[INDEX]], i32 4, <4 x i1> %[[VLMASK]], <4 x i32> poison)
+; CHECK:   %[[SHUFFLE:.+]] = call <4 x i32> @llvm.masked.gather.v4i32.v4p0{{(i32)?}}(<4 x [[PTRTY]]> {{(align 4 )?}}%[[INDEX]], {{(i32 4, )?}}<4 x i1> %[[VLMASK]], <4 x i32> poison)
 
 ; CHECK:   %[[ACCUM:.+]] = add <4 x i32> %[[VEC]], %{{.+}}
 ; CHECK:   %[[BIT:.+]] = and <4 x i32> %[[MASKPHI]], %[[N_SPLAT]]
@@ -92,7 +92,7 @@ declare <4 x i32> @__vecz_b_sub_group_scan_exclusive_add_vp_Dv4_jj(<4 x i32>, i3
 ; CHECK:   %[[VLINS:.+]] = insertelement <4 x i32> poison, i32 %1, {{i32|i64}} 0
 ; CHECK:   %[[VLSPLAT:.+]] = shufflevector <4 x i32> %[[VLINS]], <4 x i32> poison, <4 x i32> zeroinitializer
 ; CHECK:   %[[VLMASK:.+]] = icmp ult <4 x i32> <i32 0, i32 1, i32 2, i32 3>, %[[VLSPLAT]]
-; CHECK:   %[[SHUFFLE:.+]] = call <4 x i32> @llvm.masked.gather.v4i32.v4p0{{(i32)?}}(<4 x [[PTRTY]]> %[[INDEX]], i32 4, <4 x i1> %[[VLMASK]], <4 x i32> poison)
+; CHECK:   %[[SHUFFLE:.+]] = call <4 x i32> @llvm.masked.gather.v4i32.v4p0{{(i32)?}}(<4 x [[PTRTY]]> {{(align 4 )?}}%[[INDEX]], {{(i32 4, )?}}<4 x i1> %[[VLMASK]], <4 x i32> poison)
 
 ; CHECK:   %[[ACCUM:.+]] = add <4 x i32> %[[VEC]], %{{.+}}
 ; CHECK:   %[[BIT:.+]] = and <4 x i32> %[[MASKPHI]], %[[N_SPLAT]]

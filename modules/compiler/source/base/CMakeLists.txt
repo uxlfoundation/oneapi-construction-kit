@@ -94,12 +94,15 @@ endif()
 # global/static state.
 set(CLANG_LIBS "clangCodeGen" "clangFrontend" "clangDriver"
                "clangParse" "clangSerialization" "clangSema"
-               "clangAnalysis" "clangAST" "clangEdit" "clangASTMatchers"
-               "clangLex" "clangBasic" "clangSupport" "clangAPINotes"
-               "clangBasic")
+               "clangAnalysis" "clangAnalysisLifetimeSafety" "clangAST"
+               "clangEdit" "clangASTMatchers" "clangLex" "clangBasic"
+               "clangSupport" "clangAPINotes" "clangBasic")
 set(LLVM_LIBS "LLVMCodeGen" "LLVMCoroutines" "LLVMCoverage"
               "LLVMFrontendDriver" "LLVMFrontendHLSL" "LLVMLTO" "LLVMOption"
               "LLVMWindowsDriver")
+if(LLVM_VERSION_MAJOR VERSION_LESS 22)
+  list(REMOVE_ITEM CLANG_LIBS "clangAnalysisLifetimeSafety")
+endif()
 
 # In-tree, we should have each of these library targets available.
 # Otherwise, we have to provide the full path to them.

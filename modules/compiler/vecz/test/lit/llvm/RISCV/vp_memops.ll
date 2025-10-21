@@ -56,7 +56,7 @@ ret:
 ; CHECK-STORE-16-NEXT:    [[SPLAT:%.*]] = shufflevector <vscale x 16 x i32> [[SPLATINSERT]], <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer
 ; CHECK-STORE-16-NEXT:    [[TMP6:%.*]] = icmp ult <vscale x 16 x i32> [[TMP5]], [[SPLAT]]
 ; CHECK-STORE-16-NEXT:    [[TMP7:%.*]] = select <vscale x 16 x i1> [[TMP2]], <vscale x 16 x i1> [[TMP6]], <vscale x 16 x i1> zeroinitializer
-; CHECK-STORE-16-NEXT:    call void @llvm.masked.store.nxv16i32.p1(<vscale x 16 x i32> [[TMP0]], ptr addrspace(1) [[TMP1]], i32 4, <vscale x 16 x i1> [[TMP7]])
+; CHECK-STORE-16-NEXT:    call void @llvm.masked.store.nxv16i32.p1(<vscale x 16 x i32> [[TMP0]], ptr addrspace(1) {{(align 4 )?}}[[TMP1]], {{(i32 4, )?}}<vscale x 16 x i1> [[TMP7]])
 ; CHECK-STORE-16-NEXT:    ret void
 
 define spir_kernel void @load_element(i32 addrspace(1)* %a, i32 addrspace(1)* %b) {
@@ -93,7 +93,7 @@ ret:
 ; CHECK-LOAD-16-NEXT: [[TMPSPLAT:%.*]] = shufflevector <vscale x 16 x i32> [[TMPSPLATINSERT]], <vscale x 16 x i32> poison, <vscale x 16 x i32> zeroinitializer
 ; CHECK-LOAD-16-NEXT: [[TMP5:%.*]] = icmp ult <vscale x 16 x i32> [[TMP4]], [[TMPSPLAT]]
 ; CHECK-LOAD-16-NEXT: [[TMP6:%.*]] = select <vscale x 16 x i1> [[TMP1]], <vscale x 16 x i1> [[TMP5]], <vscale x 16 x i1> zeroinitializer
-; CHECK-LOAD-16-NEXT: [[TMP7:%.*]] = call <vscale x 16 x i32> @llvm.masked.load.nxv16i32.p1(ptr addrspace(1) [[TMP0]], i32 4, <vscale x 16 x i1> [[TMP6]], <vscale x 16 x i32> poison)
+; CHECK-LOAD-16-NEXT: [[TMP7:%.*]] = call <vscale x 16 x i32> @llvm.masked.load.nxv16i32.p1(ptr addrspace(1) {{(align 4 )?}}[[TMP0]], {{(i32 4, )?}}<vscale x 16 x i1> [[TMP6]], <vscale x 16 x i32> poison)
 ; CHECK-LOAD-16-NEXT: ret <vscale x 16 x i32> [[TMP7]]
 
 declare i64 @__mux_get_global_id(i32)

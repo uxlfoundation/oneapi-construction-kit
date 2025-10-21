@@ -26,8 +26,8 @@ entry:
   %ptrdata = getelementptr inbounds <2 x ptr>, ptr addrspace(1) %data, i64 %call
   %ptrdatavec = load <2 x ptr addrspace(1)>, ptr addrspace(1) %ptrdata
   %ptrdatavec.gep = getelementptr inbounds i32, <2 x ptr addrspace(1)> %ptrdatavec, i64 1
-  %vec1 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %ptrdatavec, i32 16, <2 x i1> zeroinitializer, <2 x ptr addrspace(1)> zeroinitializer)
-  %vec2 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %ptrdatavec.gep, i32 16, <2 x i1> zeroinitializer, <2 x ptr addrspace(1)> zeroinitializer)
+  %vec1 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %ptrdatavec, i32 16, <2 x i1> zeroinitializer, <2 x i32> zeroinitializer)
+  %vec2 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %ptrdatavec.gep, i32 16, <2 x i1> zeroinitializer, <2 x i32> zeroinitializer)
   %vec.add = add <2 x i32> %vec1, %vec2
   %ptrout = getelementptr inbounds <2 x i32>, ptr addrspace(1) %out, i64 %call
   store <2 x i32> %vec.add, ptr addrspace(1) %ptrout
@@ -36,7 +36,7 @@ entry:
 
 declare i64 @__mux_get_global_id(i32 noundef)
 
-declare <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)>, i32, <2 x i1>, <2 x ptr addrspace(1)>)
+declare <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)>, i32, <2 x i1>, <2 x i32>)
 
 ; The full scalarization has not completely removed the vectors, the gather
 ; operation should have been replaced by non-vector loads, but check that at
@@ -56,10 +56,10 @@ declare <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)>, i32, <2
 ; CHECK:   %ptrdatavec.gep4 = getelementptr i32, ptr addrspace(1) %ptrdatavec2, i64 1
 ; CHECK:   %4 = insertelement <2 x ptr addrspace(1)> poison, ptr addrspace(1) %ptrdatavec.gep3, i32 0
 ; CHECK:   %5 = insertelement <2 x ptr addrspace(1)> %4, ptr addrspace(1) %ptrdatavec.gep4, i32 1
-; CHECK:   %vec1 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %3, i32 16, <2 x i1> zeroinitializer, <2 x ptr addrspace(1)> zeroinitializer)
+; CHECK:   %vec1 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> {{(align 16 )?}}%3, {{(i32 16, )?}}<2 x i1> zeroinitializer, <2 x i32> zeroinitializer)
 ; CHECK:   %6 = extractelement <2 x i32> %vec1, i32 0
 ; CHECK:   %7 = extractelement <2 x i32> %vec1, i32 1
-; CHECK:   %vec2 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> %5, i32 16, <2 x i1> zeroinitializer, <2 x ptr addrspace(1)> zeroinitializer)
+; CHECK:   %vec2 = call <2 x i32> @llvm.masked.gather.v2i32.v2p1(<2 x ptr addrspace(1)> {{(align 16 )?}}%5, {{(i32 16, )?}}<2 x i1> zeroinitializer, <2 x i32> zeroinitializer)
 ; CHECK:   %8 = extractelement <2 x i32> %vec2, i32 0
 ; CHECK:   %9 = extractelement <2 x i32> %vec2, i32 1
 ; CHECK:   %vec.add5 = add i32 %6, %8

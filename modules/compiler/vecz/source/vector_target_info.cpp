@@ -501,22 +501,9 @@ Value *TargetInfo::createMaskedGatherLoad(IRBuilder<> &B, Type *Ty, Value *Ptr,
       const SmallVector<llvm::Type *, 2> Tys = {Ty, VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_gather, Tys, Args);
     } else if (Legality.isMaskLegal()) {
-      Function *MaskedGather = Intrinsic::getOrInsertDeclaration(
-          F->getParent(), Intrinsic::masked_gather, {Ty, VecPtrTy});
-
-      if (MaskedGather) {
-        Mask = applyEVLToMask(B, EVL, Mask);
-        VECZ_FAIL_IF(!Mask);
-        // Create the call to the function
-        Value *Args[] = {Ptr, B.getInt32(Alignment), Mask,
-                         PoisonValue::get(Ty)};
-        CallInst *CI = B.CreateCall(MaskedGather, Args);
-        if (CI) {
-          CI->setCallingConv(MaskedGather->getCallingConv());
-          CI->setAttributes(MaskedGather->getAttributes());
-          return CI;
-        }
-      }
+      Mask = applyEVLToMask(B, EVL, Mask);
+      VECZ_FAIL_IF(!Mask);
+      return B.CreateMaskedGather(Ty, Ptr, Align(Alignment), Mask);
     } else {
       emitVeczRemarkMissed(F,
                            "Could not create a masked gather as the target "
@@ -603,21 +590,9 @@ Value *TargetInfo::createMaskedScatterStore(IRBuilder<> &B, Value *Data,
       const SmallVector<llvm::Type *, 2> Tys = {Data->getType(), VecPtrTy};
       return B.CreateIntrinsic(llvm::Intrinsic::vp_scatter, Tys, Args);
     } else if (Legality.isMaskLegal()) {
-      Function *MaskedScatter = Intrinsic::getOrInsertDeclaration(
-          F->getParent(), Intrinsic::masked_scatter, {DataTy, VecPtrTy});
-
-      if (MaskedScatter) {
-        Mask = applyEVLToMask(B, EVL, Mask);
-        VECZ_FAIL_IF(!Mask);
-        // Create the call to the function
-        Value *Args[] = {Data, Ptr, B.getInt32(Alignment), Mask};
-        CallInst *CI = B.CreateCall(MaskedScatter, Args);
-        if (CI) {
-          CI->setCallingConv(MaskedScatter->getCallingConv());
-          CI->setAttributes(MaskedScatter->getAttributes());
-          return CI;
-        }
-      }
+      Mask = applyEVLToMask(B, EVL, Mask);
+      VECZ_FAIL_IF(!Mask);
+      return B.CreateMaskedScatter(Data, Ptr, Align(Alignment), Mask);
     } else {
       emitVeczRemarkMissed(F,
                            "Could not create a masked scatter as the target "
