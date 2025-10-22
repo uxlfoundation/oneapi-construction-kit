@@ -85,6 +85,7 @@ runs:
             -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20
         echo Install LLVM
         cmake --build $GITHUB_WORKSPACE/external/build --target install -- -j2
+        rm -rf $GITHUB_WORKSPACE/external/build
 
     - name: Build OCK
       shell: 'bash'
