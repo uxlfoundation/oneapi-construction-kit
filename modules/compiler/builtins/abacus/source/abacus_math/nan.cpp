@@ -21,9 +21,10 @@
 
 template <typename T>
 static inline T nan_helper() {
-  // Return NaN with all exponent bits and least significant bit set
-  const typename TypeTraits<T>::UnsignedType nanVal =
-      FPShape<T>::ExponentMask() | 0x1;
+  using UnsignedType = typename TypeTraits<T>::UnsignedType;
+  // Return NaN with all exponent bits and most significant mantissa bit set
+  const UnsignedType nanVal = UnsignedType(FPShape<T>::ExponentMask()) |
+                              (UnsignedType(1) << (FPShape<T>::Mantissa() - 1));
   return abacus::detail::cast::as<T>(nanVal);
 }
 
