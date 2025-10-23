@@ -373,7 +373,7 @@ jobs:
     strategy:
       fail-fast: false  # let all matrix jobs complete
       matrix:
-        split_index: [ 0, 1 ]
+        split_index: [ 0, 1, 2, 3 ]
     container:
       image: 'ghcr.io/uxlfoundation/ock_ubuntu_24.04-x86-64:latest'
       volumes:

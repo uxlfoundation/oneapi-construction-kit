@@ -63,7 +63,7 @@ runs:
         exitcode=0
         set -x
         if [ "${{ inputs.split_index }}" != "" ]; then
-          split -n l/2 $CTS_CSV_FILE --additional-suffix=.csv -d 0;
+          split -n r/4 $CTS_CSV_FILE --additional-suffix=.csv -d 0;
           CTS_CSV_FILE=00${{ inputs.split_index }}.csv
           echo Using $CTS_CSV_FILE
         fi

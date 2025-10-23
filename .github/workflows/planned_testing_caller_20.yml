@@ -41,6 +41,13 @@ jobs:
       # We can set ock, test_sycl_cts etc here optionally if this is used as a
       # pull request. Any parameters below this is intended for local testing
       # and should not be merged nor reviewed (other than checking it should not be merged).
+      test_tornado: false
+      test_sanitizers: false
+      test_remote_hal: false
+      test_sycl_cts: false
+      test_sycl_e2e: false
+      run_internal: false
+      target_list: '[ "host_riscv64_linux" ]'
 
   # This cleans up any caches which may have been created when running external tests
   clean_caches:

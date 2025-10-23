@@ -63,7 +63,7 @@ runs:
              -o override_combined.csv -vv
         CTS_CSV_FILE_PATH=$GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE
         if [ "${{ inputs.split_index }}" != "" ]; then
-          split -n l/2 $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE --additional-suffix=.csv -d 0
+          split -n r/4 $GITHUB_WORKSPACE/test_conformance/$CTS_CSV_FILE --additional-suffix=.csv -d 0
           CTS_CSV_FILE_PATH=00${{ inputs.split_index }}.csv
         fi
         echo Using $CTS_CSV_FILE_PATH
