@@ -90,7 +90,7 @@ jobs:
           tar -czf ock_install.tar.gz install
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: riscv-build
           path: ock_install.tar.gz
@@ -106,7 +106,7 @@ jobs:
           fi
 
       - name: Create OCK pre-release
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
