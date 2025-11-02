@@ -121,7 +121,11 @@ static llvm::cl::list<unsigned> SGSizes(
 static llvm::TargetMachine *initLLVMTarget(llvm::StringRef triple_string,
                                            llvm::StringRef cpu_model,
                                            llvm::StringRef target_features) {
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
   const llvm::Triple triple(triple_string);
+#else
+  const auto &triple = triple_string;
+#endif
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmPrinters();
@@ -131,23 +135,21 @@ static llvm::TargetMachine *initLLVMTarget(llvm::StringRef triple_string,
   llvm::TargetOptions opts;
   opts.DisableIntegratedAS = false;
   std::string e;
-  const llvm::Target *target =
-      llvm::TargetRegistry::lookupTarget(triple.getTriple(), e);
+  const llvm::Target *target = llvm::TargetRegistry::lookupTarget(triple, e);
   if (!target) {
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
     (void)::fprintf(stderr, "can't get target %s:%s\n",
                     triple.getTriple().c_str(), e.c_str());
+#else
+    (void)::fprintf(stderr, "can't get target %s:%s\n", triple.str().c_str(),
+                    e.c_str());
+#endif
     ::exit(1);
   }
   llvm::PassRegistry &registry = *llvm::PassRegistry::getPassRegistry();
   llvm::initializeAlwaysInlinerLegacyPassPass(registry);
-#if LLVM_VERSION_GREATER_EQUAL(21, 0)
   return target->createTargetMachine(triple, cpu_model, target_features, opts,
                                      llvm::Reloc::Model::Static);
-#else
-  return target->createTargetMachine(triple.getTriple(), cpu_model,
-                                     target_features, opts,
-                                     llvm::Reloc::Model::Static);
-#endif
 }
 
 static vecz::VeczPassOptions getDefaultPassOptions() {
