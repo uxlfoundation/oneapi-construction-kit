@@ -54,9 +54,13 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
                                                 llvm::StringRef Features) {
   // Init the llvm target machine.
   std::string Error;
-  const std::string &TripleStr = TT.str();
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  const auto &triple = TT;
+#else
+  const auto &triple = TT.str();
+#endif
   const llvm::Target *LLVMTarget =
-      llvm::TargetRegistry::lookupTarget(TripleStr, Error);
+      llvm::TargetRegistry::lookupTarget(triple, Error);
   if (nullptr == LLVMTarget) {
     return nullptr;
   }
@@ -85,15 +89,9 @@ static llvm::TargetMachine *createTargetMachine(llvm::Triple TT,
   // TODO: Investigate whether we can use a loader that does not have this
   // issue.
   const llvm::TargetOptions Options;
-#if LLVM_VERSION_GREATER_EQUAL(21, 0)
   return LLVMTarget->createTargetMachine(
-      TT, CPU, Features, Options, /*RM=*/std::nullopt, CM,
+      triple, CPU, Features, Options, /*RM=*/std::nullopt, CM,
       llvm::CodeGenOptLevel::Aggressive, /*JIT=*/true);
-#else
-  return LLVMTarget->createTargetMachine(
-      TripleStr, CPU, Features, Options, /*RM=*/std::nullopt, CM,
-      llvm::CodeGenOptLevel::Aggressive, /*JIT=*/true);
-#endif
 }
 
 HostTarget::HostTarget(const HostInfo *compiler_info,

@@ -188,28 +188,24 @@ static llvm::TargetMachine *createTargetMachine(
   // Init the llvm target machine.
   llvm::TargetOptions options;
   std::string error;
+#if LLVM_VERSION_GREATER_EQUAL(21, 0)
+  auto llvm_triple = llvm::Triple(target.llvm_triple);
+#else
+  const auto &llvm_triple = target.llvm_triple;
+#endif
   const llvm::Target *llvm_target =
-      llvm::TargetRegistry::lookupTarget(target.llvm_triple, error);
+      llvm::TargetRegistry::lookupTarget(llvm_triple, error);
   if (nullptr == llvm_target) {
     return nullptr;
   }
 
   options.MCOptions.ABIName = target.llvm_abi;
 
-#if LLVM_VERSION_GREATER_EQUAL(21, 0)
   return llvm_target->createTargetMachine(
-      llvm::Triple(target.llvm_triple), target.llvm_cpu, target.llvm_features,
-      options,
+      llvm_triple, target.llvm_cpu, target.llvm_features, options,
       target.riscv_hal_device_info->link_shared ? llvm::Reloc::Model::PIC_
                                                 : llvm::Reloc::Model::Static,
       llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
-#else
-  return llvm_target->createTargetMachine(
-      target.llvm_triple, target.llvm_cpu, target.llvm_features, options,
-      target.riscv_hal_device_info->link_shared ? llvm::Reloc::Model::PIC_
-                                                : llvm::Reloc::Model::Static,
-      llvm::CodeModel::Small, llvm::CodeGenOptLevel::Aggressive);
-#endif
 }
 
 llvm::TargetMachine *riscv::RiscvModule::getTargetMachine() {
