@@ -15,9 +15,6 @@ inputs:
   split_index:
     description: "optional split index so this run can be done with different splits, current only 0 or 1"
     default: ''
-  cityrunner_args:
-    description: "optional extra arguments to pass to cityrunner"
-    default: ''
 
 runs:
   using: "composite"
@@ -53,7 +50,7 @@ runs:
         echo "Running OpenCL CTS tests with CTS file $CTS_CSV_FILE with filter $CTS_FILTER"
         PREPEND_PATH=()
         if [[ "${{inputs.target}}" =~ .*riscv64.* ]] ; then
-          PREPEND_PATH=(--prepend-path '/usr/bin/qemu-riscv64 -L /usr/riscv64-linux-gnu')
+          PREPEND_PATH=(--prepend-path '/usr/bin/qemu-riscv64 -cpu rv64,zfh=true -L /usr/riscv64-linux-gnu')
         fi
         set -x
         # Build override file, all is done first, then the target specific.
@@ -79,5 +76,4 @@ runs:
           -e CL_PLATFORM_INDEX=0 \
           -s $CTS_CSV_FILE_PATH \
           -i $GITHUB_WORKSPACE/source/cl/scripts/$CTS_FILTER \
-          -o override_combined.csv \
-          ${{ inputs.cityrunner_args }}
+          -o override_combined.csv
