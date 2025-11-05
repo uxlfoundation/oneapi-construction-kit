@@ -397,7 +397,6 @@ jobs:
           target: host_riscv64_linux
           llvm_version: ${{ inputs.llvm_version }}
           split_index: ${{ matrix.split_index }}
-          cityrunner_args: "-e CA_HOST_TARGET_FEATURES=+v"
 
   build_dpcpp_native_x86_64:
     needs: [workflow_vars]
