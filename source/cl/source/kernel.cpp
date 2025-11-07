@@ -296,12 +296,15 @@ static cl_int PushExecuteKernel(
           global_work_offset, global_work_size, printf_buffer,
           descriptor_info_storage);
 
+  std::shared_ptr<compiler::Kernel> deferred_kernel = nullptr;
+  std::shared_ptr<cl::mux_kernel_cache> kernel_cache = nullptr;
   mux_kernel_t mux_specialized_kernel = nullptr;
   mux_executable_t mux_specialized_executable = nullptr;
   mux_kernel_t kernel_to_execute = nullptr;
-  if (kernel->device_kernel_map[device]->supportsDeferredCompilation()) {
-    auto result = kernel->device_kernel_map[device]->createSpecializedKernel(
-        mux_execution_options);
+
+  auto &device_kernel = *kernel->device_kernel_map[device];
+  if (device_kernel.supportsDeferredCompilation()) {
+    auto result = device_kernel.createSpecializedKernel(mux_execution_options);
     if (!result.has_value()) {
       if (printf_buffer) {
         muxDestroyBuffer(mux_device, printf_buffer, mux_allocator);
@@ -312,13 +315,18 @@ static cl_int PushExecuteKernel(
       return cl::getErrorFrom(result.error());
     }
 
+    deferred_kernel = device_kernel.getDeferredKernel();
+
     mux_specialized_kernel = result->mux_kernel.release();
     mux_specialized_executable = result->mux_executable.release();
     kernel_to_execute = mux_specialized_kernel;
   } else {
+    if (device_program.type == cl::device_program_type::COMPILER_MODULE) {
+      kernel_cache = device_program.compiler_module.kernels;
+    }
+
     // Execute the precompiled kernel.
-    kernel_to_execute =
-        kernel->device_kernel_map[device]->getPrecompiledKernel();
+    kernel_to_execute = device_kernel.getPrecompiledKernel();
   }
 
   mux_result_t mux_error =
@@ -371,8 +379,8 @@ static cl_int PushExecuteKernel(
 
   return command_queue->registerDispatchCallback(
       *mux_command_buffer, return_event,
-      [kernel, mems_to_release, mux_device, mux_specialized_kernel,
-       mux_specialized_executable, mux_allocator]() {
+      [kernel, mems_to_release, mux_device, deferred_kernel, kernel_cache,
+       mux_specialized_kernel, mux_specialized_executable, mux_allocator]() {
         for (auto mem : mems_to_release) {
           cl::releaseInternal(mem);
         }
@@ -403,8 +411,8 @@ MuxKernelWrapper::MuxKernelWrapper(cl_device_id device, mux_kernel_t mux_kernel)
       precompiled_kernel(mux_kernel),
       deferred_kernel(nullptr) {}
 
-MuxKernelWrapper::MuxKernelWrapper(cl_device_id device,
-                                   compiler::Kernel *deferred_kernel)
+MuxKernelWrapper::MuxKernelWrapper(
+    cl_device_id device, std::shared_ptr<compiler::Kernel> deferred_kernel)
     : preferred_local_size_x(deferred_kernel->preferred_local_size_x),
       preferred_local_size_y(deferred_kernel->preferred_local_size_y),
       preferred_local_size_z(deferred_kernel->preferred_local_size_z),

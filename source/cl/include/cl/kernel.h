@@ -88,11 +88,16 @@ class MuxKernelWrapper {
   ///
   /// @param device OpenCL device.
   /// @param deferred_kernel Deferred compiled kernel to wrap.
-  MuxKernelWrapper(cl_device_id device, compiler::Kernel *deferred_kernel);
+  MuxKernelWrapper(cl_device_id device,
+                   std::shared_ptr<compiler::Kernel> deferred_kernel);
 
   /// @brief Queries whether this kernel's compilation is being deferred using a
   /// runtime compiler.
   bool supportsDeferredCompilation() const;
+
+  std::shared_ptr<compiler::Kernel> getDeferredKernel() const {
+    return deferred_kernel;
+  }
 
   /// @brief If this kernel supports specialization, this function causes the
   /// compiler to pre-cache a specific local size configuration.
@@ -212,7 +217,7 @@ class MuxKernelWrapper {
   mux_device_t mux_device;
   mux_allocator_info_t mux_allocator_info;
   mux_kernel_t precompiled_kernel;
-  compiler::Kernel *deferred_kernel;
+  std::shared_ptr<compiler::Kernel> deferred_kernel;
 };
 
 /// @brief Definition of the OpenCL kernel object.

@@ -218,7 +218,8 @@ llvm::ModulePassManager HostModule::getLateTargetPasses(
   return static_cast<HostPassMachinery &>(pass_mach).getLateTargetPasses();
 }
 
-compiler::Kernel *HostModule::createKernel(const std::string &name) {
+std::shared_ptr<compiler::Kernel> HostModule::createKernel(
+    const std::string &name) {
   handler::GenericMetadata kernel_md(name, name, 0);
   std::unique_ptr<llvm::Module> kernel_module = target.withLLVMContextDo(
       [&](llvm::LLVMContext &C) -> std::unique_ptr<llvm::Module> {
@@ -266,7 +267,7 @@ compiler::Kernel *HostModule::createKernel(const std::string &name) {
   local_sizes[2] = std::min(4u, device_info->max_work_group_size_z);
 
   assert(kernel_md.local_memory_usage <= SIZE_MAX);
-  auto kernel = new HostKernel(
+  auto kernel = std::make_shared<HostKernel>(
       static_cast<HostTarget &>(target), getOptions(), kernel_module.release(),
       kernel_md.kernel_name, local_sizes,
       static_cast<size_t>(kernel_md.local_memory_usage));

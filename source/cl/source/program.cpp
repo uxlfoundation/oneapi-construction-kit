@@ -181,8 +181,9 @@ bool cl::device_program::finalize(cl_device_id device) {
         reportError("Failed to create Mux executable.");
         return false;
       }
-      compiler_module.kernels.emplace(mux::unique_ptr<mux_executable_t>{
-          mux_executable, {device->mux_device, device->mux_allocator}});
+      compiler_module.kernels =
+          std::make_shared<mux_kernel_cache>(mux::unique_ptr<mux_executable_t>{
+              mux_executable, {device->mux_device, device->mux_allocator}});
     }
   }
   return true;
@@ -223,7 +224,7 @@ cl::device_program::createKernel(cl_device_id device,
 
     case cl::device_program_type::COMPILER_MODULE: {
       if (device->compiler_info->supports_deferred_compilation()) {
-        compiler::Kernel *deferred_kernel =
+        const std::shared_ptr<compiler::Kernel> deferred_kernel =
             compiler_module.module->getKernel(kernel_name);
         if (!deferred_kernel) {
           return cargo::make_unexpected(CL_OUT_OF_HOST_MEMORY);
@@ -395,6 +396,7 @@ void cl::device_program::CompilerModule::clear() {
   module->clear();
   cached_binary = cargo::optional<cargo::dynamic_array<uint8_t>>();
   cached_mux_binary = cargo::optional<cargo::dynamic_array<uint8_t>>();
+  kernels = nullptr;
 }
 
 cargo::expected<cargo::array_view<const uint8_t>, compiler::Result>

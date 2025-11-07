@@ -76,7 +76,8 @@ class RiscvModule : public compiler::BaseModule {
       compiler::utils::PassMachinery &) override;
 
   /// @see Module::createKernel
-  compiler::Kernel *createKernel(const std::string &name) override;
+  std::shared_ptr<compiler::Kernel> createKernel(
+      const std::string &name) override;
 
   const riscv::RiscvTarget &getTarget() const;
 

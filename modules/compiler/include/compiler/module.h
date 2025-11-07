@@ -621,8 +621,7 @@ class Module {
   /// @param[in] name The name of the kernel.
   ///
   /// @return An object that represents a kernel contained within this module.
-  /// The lifetime of the `Kernel` object will be managed by `Module`.
-  virtual Kernel *getKernel(const std::string &name) = 0;
+  virtual std::shared_ptr<Kernel> getKernel(const std::string &name) = 0;
 
   /// @brief Compute the size of the serialized module.
   ///

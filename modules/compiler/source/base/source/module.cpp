@@ -1871,7 +1871,7 @@ Result BaseModule::finalize(
   });
 }
 
-Kernel *BaseModule::getKernel(const std::string &name) {
+std::shared_ptr<Kernel> BaseModule::getKernel(const std::string &name) {
   if (!finalized_llvm_module) {
     return nullptr;
   }
@@ -1880,12 +1880,12 @@ Kernel *BaseModule::getKernel(const std::string &name) {
   const std::scoped_lock guard(kernel_mutex);
 
   if (kernel_map.count(name)) {
-    return kernel_map[name].get();
+    return kernel_map[name];
   }
 
-  auto *kernel = createKernel(name);
+  auto kernel = createKernel(name);
   if (kernel) {
-    kernel_map[name] = std::unique_ptr<Kernel>(kernel);
+    kernel_map[name] = kernel;
   }
   return kernel;
 }
