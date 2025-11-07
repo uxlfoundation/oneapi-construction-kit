@@ -26,7 +26,7 @@
 struct GetKernelTest : OpenCLCModuleTest {};
 
 TEST_P(GetKernelTest, GetKernel) {
-  auto *kernel = module->getKernel("nop");
+  auto kernel = module->getKernel("nop");
   if (optional_device) {
     ASSERT_NE(nullptr, kernel);
   } else {
@@ -39,7 +39,7 @@ TEST_P(GetKernelTest, PreferredLocalSize) {
     GTEST_SKIP();
   }
 
-  auto *kernel = module->getKernel("nop");
+  auto kernel = module->getKernel("nop");
   ASSERT_NE(nullptr, kernel);
 
   EXPECT_GE(kernel->preferred_local_size_x, 1u);
@@ -56,7 +56,7 @@ TEST_P(GetKernelTest, PreferredLocalSize) {
 }
 
 TEST_P(GetKernelTest, InvalidName) {
-  auto *kernel = module->getKernel("some_bad_name");
+  auto kernel = module->getKernel("some_bad_name");
   ASSERT_EQ(nullptr, kernel);
 }
 

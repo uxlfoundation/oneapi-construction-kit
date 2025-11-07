@@ -188,8 +188,7 @@ class BaseModule : public Module {
   /// @param[in] name The name of the kernel.
   ///
   /// @return An object that represents a kernel contained within this module.
-  /// The lifetime of the `Kernel` object will be managed by `Module`.
-  Kernel *getKernel(const std::string &name) override;
+  std::shared_ptr<Kernel> getKernel(const std::string &name) override;
 
   /// @brief Compute the size of the serialized module.
   ///
@@ -288,7 +287,7 @@ class BaseModule : public Module {
   /// @param[in] name The name of the kernel.
   ///
   /// @return An object that represents a kernel contained within this module.
-  virtual Kernel *createKernel(const std::string &name) = 0;
+  virtual std::shared_ptr<Kernel> createKernel(const std::string &name) = 0;
 
   /// @brief Add a diagnostic message to the log.
   ///
@@ -527,7 +526,7 @@ class BaseModule : public Module {
   // are called on the same name. If there are compiler resource conflicts
   // between creating kernels and scheduled kernels those are locked directly.
   std::mutex kernel_mutex;
-  std::map<std::string, std::unique_ptr<Kernel>> kernel_map;
+  std::map<std::string, std::shared_ptr<Kernel>> kernel_map;
 };  // class Module
 
 /// @}

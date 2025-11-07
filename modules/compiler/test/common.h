@@ -280,7 +280,7 @@ struct CompilerKernelTest : OpenCLCModuleTest {
   /// @brief Device object.
   mux_device_t device = nullptr;
   /// @brief Kernel object to test.
-  compiler::Kernel *kernel = nullptr;
+  std::shared_ptr<compiler::Kernel> kernel = nullptr;
 
   /// @brief Virtual method to setup any resources required by this fixture.
   void SetUp() override {
@@ -291,6 +291,12 @@ struct CompilerKernelTest : OpenCLCModuleTest {
     device = *optional_device;
     kernel = module->getKernel("nop");
     ASSERT_NE(nullptr, kernel);
+  }
+
+  /// @brief Virtual method to clean up any resources this fixture allocated.
+  void TearDown() override {
+    kernel.reset();
+    OpenCLCModuleTest::TearDown();
   }
 };
 

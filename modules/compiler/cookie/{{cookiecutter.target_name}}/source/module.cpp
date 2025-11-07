@@ -200,7 +200,7 @@ compiler::Result {{cookiecutter.target_name.capitalize()}}Module::createBinary(c
 }
 
 // No deferred support so just return nullptr
-compiler::Kernel *{{cookiecutter.target_name.capitalize()}}Module::createKernel(const std::string &) { return nullptr; }
+std::shared_ptr<compiler::Kernel> {{cookiecutter.target_name.capitalize()}}Module::createKernel(const std::string &) { return nullptr; }
 
 const {{cookiecutter.target_name.capitalize()}}Target &{{cookiecutter.target_name.capitalize()}}Module::getTarget() const {
   return *static_cast<{{cookiecutter.target_name.capitalize()}}Target *>(&target);

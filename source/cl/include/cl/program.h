@@ -155,7 +155,7 @@ struct device_program {
     /// @brief An object that manages Mux kernels created from the Mux
     /// executable created when the module is finalized and deferred compilation
     /// is not supported.
-    cargo::optional<mux_kernel_cache> kernels;
+    std::shared_ptr<mux_kernel_cache> kernels;
 
     /// @brief Cached copy of an OpenCL binary. Populated lazily during
     /// binarySerialize.

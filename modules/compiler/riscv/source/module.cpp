@@ -166,7 +166,8 @@ compiler::Result RiscvModule::createBinary(
 }
 
 // No deferred support so just return nullptr
-compiler::Kernel *RiscvModule::createKernel(const std::string &) {
+std::shared_ptr<compiler::Kernel> RiscvModule::createKernel(
+    const std::string &) {
   return nullptr;
 }
 

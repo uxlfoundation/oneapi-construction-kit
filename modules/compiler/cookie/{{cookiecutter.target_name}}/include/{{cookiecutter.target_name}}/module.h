@@ -76,7 +76,7 @@ class {{cookiecutter.target_name.capitalize()}}Module final : public compiler::B
       override;
 
   /// @see Module::createKernel
-  compiler::Kernel *createKernel(const std::string &name) override;
+  std::shared_ptr<compiler::Kernel> createKernel(const std::string &name) override;
 
   const {{cookiecutter.target_name.capitalize()}}Target &getTarget() const;
 
