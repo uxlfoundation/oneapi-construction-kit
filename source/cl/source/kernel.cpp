@@ -602,7 +602,12 @@ _cl_kernel::_cl_kernel(cl_program program, std::string name,
   program->num_external_kernels++;  // Count implicit retain on creation.
 }
 
-_cl_kernel::~_cl_kernel() { cl::releaseInternal(program); }
+_cl_kernel::~_cl_kernel() {
+  // Clear the device kernels first because they reference the program.
+  device_kernel_map.clear();
+
+  cl::releaseInternal(program);
+}
 
 cargo::expected<cl_kernel, cl_int> _cl_kernel::create(
     cl_program program, std::string name, const compiler::KernelInfo *info) {
